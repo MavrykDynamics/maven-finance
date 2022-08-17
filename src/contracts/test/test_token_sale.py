@@ -147,17 +147,17 @@ class TokenSaleContract(TestCase):
         self.assertEqual(init_token_sale_storage['config']["whitelistMaxAmountOptionTwoTotal"]   , 100000000)
         self.assertEqual(init_token_sale_storage['config']["whitelistMaxAmountOptionThreeTotal"] , 100000000)
 
-        self.assertEqual(init_token_sale_storage['config']["optionOneMaxAmountCap"]              , 600000000000)
-        self.assertEqual(init_token_sale_storage['config']["optionTwoMaxAmountCap"]              , 630000000000)
-        self.assertEqual(init_token_sale_storage['config']["optionThreeMaxAmountCap"]            , 560000000000)
+        self.assertEqual(init_token_sale_storage['config']["optionOneConfigMaxAmountCap"]              , 600000000000)
+        self.assertEqual(init_token_sale_storage['config']["optionTwoConfigMaxAmountCap"]              , 630000000000)
+        self.assertEqual(init_token_sale_storage['config']["optionThreeConfigMaxAmountCap"]            , 560000000000)
 
         self.assertEqual(init_token_sale_storage['config']["vestingOptionOneInMonths"]           , 6)
         self.assertEqual(init_token_sale_storage['config']["vestingOptionTwoInMonths"]           , 8)
         self.assertEqual(init_token_sale_storage['config']["vestingOptionThreeInMonths"]         , 12)
 
-        self.assertEqual(init_token_sale_storage['config']["optionOneTezPerToken"]               , 100000)
-        self.assertEqual(init_token_sale_storage['config']["optionTwoTezPerToken"]               , 90000)
-        self.assertEqual(init_token_sale_storage['config']["optionThreeTezPerToken"]             , 80000)
+        self.assertEqual(init_token_sale_storage['config']["optionOneConfigTokenXtzPrice"]               , 100000)
+        self.assertEqual(init_token_sale_storage['config']["optionTwoConfigTokenXtzPrice"]               , 90000)
+        self.assertEqual(init_token_sale_storage['config']["optionThreeConfigTokenXtzPrice"]             , 80000)
 
         self.assertEqual(init_token_sale_storage['config']["minOptionOneAmountInTez"]            , 30000000)
         self.assertEqual(init_token_sale_storage['config']["minOptionTwoAmountInTez"]            , 30000000)
@@ -174,17 +174,17 @@ class TokenSaleContract(TestCase):
         newWhitelistMaxAmountOptionTwoTotal   = 200000000
         newWhitelistMaxAmountOptionThreeTotal = 200000000
 
-        newOptionOneMaxAmountCap              = 700000000000
-        newOptionTwoMaxAmountCap              = 700000000000
-        newOptionThreeMaxAmountCap            = 700000000000
+        newOptionOneConfigMaxAmountCap              = 700000000000
+        newOptionTwoConfigMaxAmountCap              = 700000000000
+        newOptionThreeConfigMaxAmountCap            = 700000000000
 
         newVestingOptionOneInMonths           = 3
         newVestingOptionTwoInMonths           = 4
         newVestingOptionThreeInMonths         = 5
 
-        newOptionOneTezPerToken               = 200000
-        newOptionTwoTezPerToken               = 150000
-        newOptionThreeTezPerToken             = 100000
+        newOptionOneConfigTokenXtzPrice               = 200000
+        newOptionTwoConfigTokenXtzPrice               = 150000
+        newOptionThreeConfigTokenXtzPrice             = 100000
 
         newMinOptionOneAmountInTez            = 50000000
         newMinOptionTwoAmountInTez            = 50000000
@@ -228,18 +228,18 @@ class TokenSaleContract(TestCase):
 
         # options max amount cap
         res = self.tokenSaleContract.updateConfig({
-            "updateConfigAction"   : "optionOneMaxAmountCap",
-            "updateConfigNewValue" : newOptionOneMaxAmountCap
+            "updateConfigAction"   : "optionOneConfigMaxAmountCap",
+            "updateConfigNewValue" : newOptionOneConfigMaxAmountCap
         }).interpret(storage = res.storage, sender = bob)
 
         res = self.tokenSaleContract.updateConfig({
-            "updateConfigAction"   : "optionTwoMaxAmountCap",
-            "updateConfigNewValue" : newOptionTwoMaxAmountCap
+            "updateConfigAction"   : "optionTwoConfigMaxAmountCap",
+            "updateConfigNewValue" : newOptionTwoConfigMaxAmountCap
         }).interpret(storage = res.storage, sender = bob)
 
         res = self.tokenSaleContract.updateConfig({
-            "updateConfigAction"   : "optionThreeMaxAmountCap",
-            "updateConfigNewValue" : newOptionThreeMaxAmountCap
+            "updateConfigAction"   : "optionThreeConfigMaxAmountCap",
+            "updateConfigNewValue" : newOptionThreeConfigMaxAmountCap
         }).interpret(storage = res.storage, sender = bob)
 
         # vesting option in months
@@ -260,18 +260,18 @@ class TokenSaleContract(TestCase):
 
         # options tez per token
         res = self.tokenSaleContract.updateConfig({
-            "updateConfigAction"   : "optionOneTezPerToken",
-            "updateConfigNewValue" : newOptionOneTezPerToken
+            "updateConfigAction"   : "optionOneConfigTokenXtzPrice",
+            "updateConfigNewValue" : newOptionOneConfigTokenXtzPrice
         }).interpret(storage = res.storage, sender = bob)
 
         res = self.tokenSaleContract.updateConfig({
-            "updateConfigAction"   : "optionTwoTezPerToken",
-            "updateConfigNewValue" : newOptionTwoTezPerToken
+            "updateConfigAction"   : "optionTwoConfigTokenXtzPrice",
+            "updateConfigNewValue" : newOptionTwoConfigTokenXtzPrice
         }).interpret(storage = res.storage, sender = bob)
 
         res = self.tokenSaleContract.updateConfig({
-            "updateConfigAction"   : "optionThreeTezPerToken",
-            "updateConfigNewValue" : newOptionThreeTezPerToken
+            "updateConfigAction"   : "optionThreeConfigTokenXtzPrice",
+            "updateConfigNewValue" : newOptionThreeConfigTokenXtzPrice
         }).interpret(storage = res.storage, sender = bob)
 
         # min option amount in tez
@@ -305,17 +305,17 @@ class TokenSaleContract(TestCase):
         self.assertEqual(res.storage['config']["whitelistMaxAmountOptionTwoTotal"]   , newWhitelistMaxAmountOptionTwoTotal)
         self.assertEqual(res.storage['config']["whitelistMaxAmountOptionThreeTotal"] , newWhitelistMaxAmountOptionThreeTotal)
 
-        self.assertEqual(res.storage['config']["optionOneMaxAmountCap"]              , newOptionOneMaxAmountCap)
-        self.assertEqual(res.storage['config']["optionTwoMaxAmountCap"]              , newOptionTwoMaxAmountCap)
-        self.assertEqual(res.storage['config']["optionThreeMaxAmountCap"]            , newOptionThreeMaxAmountCap)
+        self.assertEqual(res.storage['config']["optionOneConfigMaxAmountCap"]              , newOptionOneConfigMaxAmountCap)
+        self.assertEqual(res.storage['config']["optionTwoConfigMaxAmountCap"]              , newOptionTwoConfigMaxAmountCap)
+        self.assertEqual(res.storage['config']["optionThreeConfigMaxAmountCap"]            , newOptionThreeConfigMaxAmountCap)
 
         self.assertEqual(res.storage['config']["vestingOptionOneInMonths"]           , newVestingOptionOneInMonths)
         self.assertEqual(res.storage['config']["vestingOptionTwoInMonths"]           , newVestingOptionTwoInMonths)
         self.assertEqual(res.storage['config']["vestingOptionThreeInMonths"]         , newVestingOptionThreeInMonths)
 
-        self.assertEqual(res.storage['config']["optionOneTezPerToken"]               , newOptionOneTezPerToken)
-        self.assertEqual(res.storage['config']["optionTwoTezPerToken"]               , newOptionTwoTezPerToken)
-        self.assertEqual(res.storage['config']["optionThreeTezPerToken"]             , newOptionThreeTezPerToken)
+        self.assertEqual(res.storage['config']["optionOneConfigTokenXtzPrice"]               , newOptionOneConfigTokenXtzPrice)
+        self.assertEqual(res.storage['config']["optionTwoConfigTokenXtzPrice"]               , newOptionTwoConfigTokenXtzPrice)
+        self.assertEqual(res.storage['config']["optionThreeConfigTokenXtzPrice"]             , newOptionThreeConfigTokenXtzPrice)
 
         self.assertEqual(res.storage['config']["minOptionOneAmountInTez"]            , newMinOptionOneAmountInTez)
         self.assertEqual(res.storage['config']["minOptionTwoAmountInTez"]            , newMinOptionTwoAmountInTez)
@@ -339,17 +339,17 @@ class TokenSaleContract(TestCase):
         self.assertEqual(init_token_sale_storage['config']["whitelistMaxAmountOptionTwoTotal"]   , 100000000)
         self.assertEqual(init_token_sale_storage['config']["whitelistMaxAmountOptionThreeTotal"] , 100000000)
 
-        self.assertEqual(init_token_sale_storage['config']["optionOneMaxAmountCap"]              , 600000000000)
-        self.assertEqual(init_token_sale_storage['config']["optionTwoMaxAmountCap"]              , 630000000000)
-        self.assertEqual(init_token_sale_storage['config']["optionThreeMaxAmountCap"]            , 560000000000)
+        self.assertEqual(init_token_sale_storage['config']["optionOneConfigMaxAmountCap"]              , 600000000000)
+        self.assertEqual(init_token_sale_storage['config']["optionTwoConfigMaxAmountCap"]              , 630000000000)
+        self.assertEqual(init_token_sale_storage['config']["optionThreeConfigMaxAmountCap"]            , 560000000000)
 
         self.assertEqual(init_token_sale_storage['config']["vestingOptionOneInMonths"]           , 6)
         self.assertEqual(init_token_sale_storage['config']["vestingOptionTwoInMonths"]           , 8)
         self.assertEqual(init_token_sale_storage['config']["vestingOptionThreeInMonths"]         , 12)
 
-        self.assertEqual(init_token_sale_storage['config']["optionOneTezPerToken"]               , 100000)
-        self.assertEqual(init_token_sale_storage['config']["optionTwoTezPerToken"]               , 90000)
-        self.assertEqual(init_token_sale_storage['config']["optionThreeTezPerToken"]             , 80000)
+        self.assertEqual(init_token_sale_storage['config']["optionOneConfigTokenXtzPrice"]               , 100000)
+        self.assertEqual(init_token_sale_storage['config']["optionTwoConfigTokenXtzPrice"]               , 90000)
+        self.assertEqual(init_token_sale_storage['config']["optionThreeConfigTokenXtzPrice"]             , 80000)
 
         self.assertEqual(init_token_sale_storage['config']["minOptionOneAmountInTez"]            , 30000000)
         self.assertEqual(init_token_sale_storage['config']["minOptionTwoAmountInTez"]            , 30000000)
@@ -366,17 +366,17 @@ class TokenSaleContract(TestCase):
         newWhitelistMaxAmountOptionTwoTotal   = 200000000
         newWhitelistMaxAmountOptionThreeTotal = 200000000
 
-        newOptionOneMaxAmountCap              = 700000000000
-        newOptionTwoMaxAmountCap              = 700000000000
-        newOptionThreeMaxAmountCap            = 700000000000
+        newOptionOneConfigMaxAmountCap              = 700000000000
+        newOptionTwoConfigMaxAmountCap              = 700000000000
+        newOptionThreeConfigMaxAmountCap            = 700000000000
 
         newVestingOptionOneInMonths           = 3
         newVestingOptionTwoInMonths           = 4
         newVestingOptionThreeInMonths         = 5
 
-        newOptionOneTezPerToken               = 200000
-        newOptionTwoTezPerToken               = 150000
-        newOptionThreeTezPerToken             = 100000
+        newOptionOneConfigTokenXtzPrice               = 200000
+        newOptionTwoConfigTokenXtzPrice               = 150000
+        newOptionThreeConfigTokenXtzPrice             = 100000
 
         newMinOptionOneAmountInTez            = 50000000
         newMinOptionTwoAmountInTez            = 50000000
@@ -426,20 +426,20 @@ class TokenSaleContract(TestCase):
         # options max amount cap
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.updateConfig({
-              "updateConfigAction"   : "optionOneMaxAmountCap",
-              "updateConfigNewValue" : newOptionOneMaxAmountCap
+              "updateConfigAction"   : "optionOneConfigMaxAmountCap",
+              "updateConfigNewValue" : newOptionOneConfigMaxAmountCap
             }).interpret(storage = init_token_sale_storage, sender = eve)
 
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.updateConfig({
-              "updateConfigAction"   : "optionTwoMaxAmountCap",
-              "updateConfigNewValue" : newOptionTwoMaxAmountCap
+              "updateConfigAction"   : "optionTwoConfigMaxAmountCap",
+              "updateConfigNewValue" : newOptionTwoConfigMaxAmountCap
             }).interpret(storage = init_token_sale_storage, sender = eve)
 
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.updateConfig({
-              "updateConfigAction"   : "optionThreeMaxAmountCap",
-              "updateConfigNewValue" : newOptionThreeMaxAmountCap
+              "updateConfigAction"   : "optionThreeConfigMaxAmountCap",
+              "updateConfigNewValue" : newOptionThreeConfigMaxAmountCap
             }).interpret(storage = init_token_sale_storage, sender = eve)
 
         # vesting option in months
@@ -464,20 +464,20 @@ class TokenSaleContract(TestCase):
         # options tez per token
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.updateConfig({
-              "updateConfigAction"   : "optionOneTezPerToken",
-              "updateConfigNewValue" : newOptionOneTezPerToken
+              "updateConfigAction"   : "optionOneConfigTokenXtzPrice",
+              "updateConfigNewValue" : newOptionOneConfigTokenXtzPrice
             }).interpret(storage = init_token_sale_storage, sender = eve)
 
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.updateConfig({
-              "updateConfigAction"   : "optionTwoTezPerToken",
-              "updateConfigNewValue" : newOptionTwoTezPerToken
+              "updateConfigAction"   : "optionTwoConfigTokenXtzPrice",
+              "updateConfigNewValue" : newOptionTwoConfigTokenXtzPrice
             }).interpret(storage = init_token_sale_storage, sender = eve)
 
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.updateConfig({
-              "updateConfigAction"   : "optionThreeTezPerToken",
-              "updateConfigNewValue" : newOptionThreeTezPerToken
+              "updateConfigAction"   : "optionThreeConfigTokenXtzPrice",
+              "updateConfigNewValue" : newOptionThreeConfigTokenXtzPrice
             }).interpret(storage = init_token_sale_storage, sender = eve)
 
         # min option amount in tez
@@ -1576,18 +1576,18 @@ class TokenSaleContract(TestCase):
         amountToBuy                  = 40000000     # 40 tez
         testAmountToBuy              = 35000000     # 35 tez - still needs to be above min amount (30 tez) for first purchase of user
 
-        optionOneMaxAmountCap        = 600000000000 # 600,000 tez 
-        optionTwoMaxAmountCap        = 630000000000 # 630,000 tez
-        optionThreeMaxAmountCap      = 560000000000 # 560,000 tez
+        optionOneConfigMaxAmountCap        = 600000000000 # 600,000 tez 
+        optionTwoConfigMaxAmountCap        = 630000000000 # 630,000 tez
+        optionThreeConfigMaxAmountCap      = 560000000000 # 560,000 tez
 
         # Storage preparation
         res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
         res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
 
         # Set Bought Amount Total per option to (max cap - test amount) 
-        res.storage["optionOneBoughtTotal"] = optionOneMaxAmountCap - testAmountToBuy
-        res.storage["optionTwoBoughtTotal"] = optionTwoMaxAmountCap - testAmountToBuy
-        res.storage["optionThreeBoughtTotal"] = optionThreeMaxAmountCap - testAmountToBuy
+        res.storage["optionOneBoughtTotal"] = optionOneConfigMaxAmountCap - testAmountToBuy
+        res.storage["optionTwoBoughtTotal"] = optionTwoConfigMaxAmountCap - testAmountToBuy
+        res.storage["optionThreeBoughtTotal"] = optionThreeConfigMaxAmountCap - testAmountToBuy
 
         # Assertions
         self.assertEqual(res.storage['whitelistStartDateTime'], whitelistStartDateTime)
@@ -1714,9 +1714,9 @@ class TokenSaleContract(TestCase):
         tokenSaleClosed              = duringPublicSale + 2 * sec_day
         tokenSaleClosedLevel         = 100
 
-        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
-        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
-        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+        optionOneConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionOneConfigTokenXtzPrice"]
+        optionTwoConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionTwoConfigTokenXtzPrice"]
+        optionThreeConfigTokenXtzPrice       = init_token_sale_storage["config"]["optionThreeConfigTokenXtzPrice"]
 
         vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
         vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
@@ -1750,9 +1750,9 @@ class TokenSaleContract(TestCase):
         res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + 1000, level = tokenSaleClosedLevel + 100)
 
         monthsToClaim = 1
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -1793,9 +1793,9 @@ class TokenSaleContract(TestCase):
         tokenSaleClosed              = duringPublicSale + 2 * sec_day
         tokenSaleClosedLevel         = 100
 
-        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
-        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
-        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+        optionOneConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionOneConfigTokenXtzPrice"]
+        optionTwoConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionTwoConfigTokenXtzPrice"]
+        optionThreeConfigTokenXtzPrice       = init_token_sale_storage["config"]["optionThreeConfigTokenXtzPrice"]
 
         vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
         vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
@@ -1852,9 +1852,9 @@ class TokenSaleContract(TestCase):
         malloryRes = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = mallory, now = tokenSaleClosed + 1000, level = tokenSaleClosedLevel + 100)
 
         monthsToClaim = 1
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -1925,9 +1925,9 @@ class TokenSaleContract(TestCase):
         tokenSaleClosed              = duringPublicSale + 2 * sec_day
         tokenSaleClosedLevel         = 100
 
-        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
-        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
-        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+        optionOneConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionOneConfigTokenXtzPrice"]
+        optionTwoConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionTwoConfigTokenXtzPrice"]
+        optionThreeConfigTokenXtzPrice       = init_token_sale_storage["config"]["optionThreeConfigTokenXtzPrice"]
 
         vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
         vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
@@ -1966,9 +1966,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2009,9 +2009,9 @@ class TokenSaleContract(TestCase):
         tokenSaleClosed              = duringPublicSale + 2 * sec_day
         tokenSaleClosedLevel         = 100
 
-        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
-        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
-        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+        optionOneConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionOneConfigTokenXtzPrice"]
+        optionTwoConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionTwoConfigTokenXtzPrice"]
+        optionThreeConfigTokenXtzPrice       = init_token_sale_storage["config"]["optionThreeConfigTokenXtzPrice"]
 
         vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
         vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
@@ -2050,9 +2050,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2093,9 +2093,9 @@ class TokenSaleContract(TestCase):
         tokenSaleClosed              = duringPublicSale + 2 * sec_day
         tokenSaleClosedLevel         = 100
 
-        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
-        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
-        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+        optionOneConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionOneConfigTokenXtzPrice"]
+        optionTwoConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionTwoConfigTokenXtzPrice"]
+        optionThreeConfigTokenXtzPrice       = init_token_sale_storage["config"]["optionThreeConfigTokenXtzPrice"]
 
         vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
         vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
@@ -2134,9 +2134,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
@@ -2177,9 +2177,9 @@ class TokenSaleContract(TestCase):
         tokenSaleClosed              = duringPublicSale + 2 * sec_day
         tokenSaleClosedLevel         = 100
 
-        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
-        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
-        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+        optionOneConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionOneConfigTokenXtzPrice"]
+        optionTwoConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionTwoConfigTokenXtzPrice"]
+        optionThreeConfigTokenXtzPrice       = init_token_sale_storage["config"]["optionThreeConfigTokenXtzPrice"]
 
         vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
         vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
@@ -2218,9 +2218,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
@@ -2263,9 +2263,9 @@ class TokenSaleContract(TestCase):
         tokenSaleClosed              = duringPublicSale + 2 * sec_day
         tokenSaleClosedLevel         = 100
 
-        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
-        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
-        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+        optionOneConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionOneConfigTokenXtzPrice"]
+        optionTwoConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionTwoConfigTokenXtzPrice"]
+        optionThreeConfigTokenXtzPrice       = init_token_sale_storage["config"]["optionThreeConfigTokenXtzPrice"]
 
         vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
         vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
@@ -2304,9 +2304,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2344,9 +2344,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2384,9 +2384,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2424,9 +2424,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2464,9 +2464,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2504,9 +2504,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2545,9 +2545,9 @@ class TokenSaleContract(TestCase):
         maxOptionThreeMonths = 12
         zeroAmount           = 0
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2588,9 +2588,9 @@ class TokenSaleContract(TestCase):
         maxOptionThreeMonths = 12
         zeroAmount           = 0
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2628,9 +2628,9 @@ class TokenSaleContract(TestCase):
         maxOptionThreeMonths = 12
         zeroAmount           = 0
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
@@ -2667,9 +2667,9 @@ class TokenSaleContract(TestCase):
         maxOptionThreeMonths = 12
         zeroAmount           = 0
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
@@ -2706,9 +2706,9 @@ class TokenSaleContract(TestCase):
         maxOptionThreeMonths = 12
         zeroAmount           = 0
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
@@ -2745,9 +2745,9 @@ class TokenSaleContract(TestCase):
         maxOptionThreeMonths = 12
         zeroAmount           = 0
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
@@ -2786,9 +2786,9 @@ class TokenSaleContract(TestCase):
         tokenSaleClosed              = duringPublicSale + 2 * sec_day
         tokenSaleClosedLevel         = 100
 
-        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
-        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
-        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+        optionOneConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionOneConfigTokenXtzPrice"]
+        optionTwoConfigTokenXtzPrice         = init_token_sale_storage["config"]["optionTwoConfigTokenXtzPrice"]
+        optionThreeConfigTokenXtzPrice       = init_token_sale_storage["config"]["optionThreeConfigTokenXtzPrice"]
 
         vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
         vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
@@ -2827,9 +2827,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2870,9 +2870,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2918,9 +2918,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * (maxOptionOneMonths - monthsClaimed)
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
@@ -2965,9 +2965,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * (maxOptionOneMonths - monthsClaimed)
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * (maxOptionTwoMonths - monthsClaimed)
@@ -3011,9 +3011,9 @@ class TokenSaleContract(TestCase):
         maxOptionTwoMonths   = 8
         maxOptionThreeMonths = 12
 
-        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
-        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
-        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneConfigTokenXtzPrice) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoConfigTokenXtzPrice) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeConfigTokenXtzPrice) / vestingOptionThreeInMonths) / 10 ** 3)
 
         optionOneAmountToClaim   = optionOneAmountSingleMonth * (maxOptionOneMonths - monthsClaimed)
         optionTwoAmountToClaim   = optionTwoAmountSingleMonth * (maxOptionTwoMonths - monthsClaimed)

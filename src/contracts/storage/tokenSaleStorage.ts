@@ -2,39 +2,40 @@ import { MichelsonMap } from "@taquito/michelson-encoder";
 
 import { BigNumber } from "bignumber.js";
 
-import { zeroAddress } from '../test/helpers/Utils'
+import { MVK, zeroAddress } from '../test/helpers/Utils'
 const { bob } = require('../scripts/sandbox/accounts')
 
 import { tokenSaleStorageType } from "../test/types/tokenSaleStorageType";
 
 
 const config = {
-    buyOptions  : MichelsonMap.fromLiteral({
+    vestingPeriodDurationSec  : new BigNumber(2628000), // 2628000 seconds in a month
+    buyOptions                : MichelsonMap.fromLiteral({
         1: {
-            maxAmountPerWalletTotal     : 200000000,
-            whitelistMaxAmountTotal     : 100000000,
-            maxAmountCap                : 600000000000,
-            vestingInMonths             : 6,
-            tezPerToken                 : 100000,
-            minTezAmount                : 30000000,
+            maxAmountPerWalletTotal     : MVK(20000),
+            whitelistMaxAmountTotal     : MVK(10000),
+            maxAmountCap                : MVK(12000000),
+            vestingPeriods              : 6,
+            tokenXtzPrice               : 80000,
+            minMvkAmount                : 30000000,
             totalBought                 : 0,
         },
         2: {
-            maxAmountPerWalletTotal     : 200000000,
-            whitelistMaxAmountTotal     : 100000000,
-            maxAmountCap                : 630000000000,
-            vestingInMonths             : 8,
-            tezPerToken                 : 90000,
-            minTezAmount                : 30000000,
+            maxAmountPerWalletTotal     : MVK(20000),
+            whitelistMaxAmountTotal     : MVK(10000),
+            maxAmountCap                : MVK(10000000),
+            vestingPeriods              : 9,
+            tokenXtzPrice               : 70000,
+            minMvkAmount                : 30000000,
             totalBought                 : 0,
         },
         3: {
-            maxAmountPerWalletTotal     : 200000000,
-            whitelistMaxAmountTotal     : 100000000,
-            maxAmountCap                : 560000000000,
-            vestingInMonths             : 12,
-            tezPerToken                 : 80000,
-            minTezAmount                : 30000000,
+            maxAmountPerWalletTotal     : MVK(20000),
+            whitelistMaxAmountTotal     : MVK(10000),
+            maxAmountCap                : MVK(8000000),
+            vestingPeriods              : 12,
+            tokenXtzPrice               : 60000,
+            minMvkAmount                : 30000000,
             totalBought                 : 0,
         }
     })
@@ -52,6 +53,8 @@ const metadata = MichelsonMap.fromLiteral({
   ).toString('hex'),
 })
 
+const currentTimestamp  = Math.round(new Date().getTime() / 1000)
+
 export const tokenSaleStorage: tokenSaleStorageType = {
   
   admin                     : bob.pkh,
@@ -65,14 +68,14 @@ export const tokenSaleStorage: tokenSaleStorageType = {
   whitelistedAddresses      : MichelsonMap.fromLiteral({}),
   tokenSaleLedger           : MichelsonMap.fromLiteral({}),
 
-  whitelistStartTimestamp    : new Date(),
-  whitelistEndTimestamp      : new Date(),
+  whitelistStartTimestamp   : currentTimestamp.toString(),
+  whitelistEndTimestamp     : currentTimestamp.toString(),
 
   tokenSaleHasStarted       : false,
   tokenSaleHasEnded         : false,
   tokenSalePaused           : false,
 
-  tokenSaleEndTimestamp     : new Date(),
+  tokenSaleEndTimestamp     : currentTimestamp.toString(),
   tokenSaleEndBlockLevel    : new BigNumber(0)
 
 };
