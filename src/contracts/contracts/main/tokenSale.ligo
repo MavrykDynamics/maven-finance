@@ -31,6 +31,7 @@ type tokenSaleAction is
     
     // Housekeeping Entrypoints
     |   SetAdmin                    of address
+    |   SetGovernance               of address
     |   UpdateMetadata              of updateMetadataType
     |   UpdateConfig                of tokenSaleUpdateConfigParamsType
 
@@ -52,11 +53,12 @@ type return is list (operation) * tokenSaleStorageType
 
 
 const oneDayInSeconds : int = 86_400;
-const oneMonthInSeconds : int = 2_592_000;
+const onePeriodInSeconds : int = 2_592_000;
 
 const fpa10e24 : nat = 1_000_000_000_000_000_000_000_000n;       // 10^24
 const fpa10e18 : nat = 1_000_000_000_000_000_000n;               // 10^18
 const fpa10e15 : nat = 1_000_000_000_000_000n;                   // 10^15
+const fpaMvk   : nat = 1_000_000_000n;                           // 10^9
 
 // ------------------------------------------------------------------------------
 //
@@ -126,12 +128,6 @@ block {
 
 
 
-// function addToWhitelist (const newUserAddress : address; var whitelistedAddresses : whitelistedAddressesType) : whitelistedAddressesType is {
-//   whitelistedAddresses [newUserAddress] := True 
-// } with whitelistedAddresses
-
-
-
 function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
 function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
@@ -143,7 +139,7 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get transfer entrypoint in treasury contract
+// helper function to send transfer operation to treasury
 function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
     case (Tezos.get_entrypoint_opt(
         "%transfer",
@@ -266,6 +262,18 @@ block {
 
 
 
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : tokenSaleStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.governanceAddress := newGovernanceAddress;
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata entrypoint - update the metadata at a given key *)
 function updateMetadata(const updateMetadataParams : updateMetadataType; var s : tokenSaleStorageType) : return is
 block {
@@ -296,7 +304,7 @@ block {
     const updateConfigNewValue  : tokenSaleUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
     case updateConfigAction of [
-            MaxAmountPerWalletTotal (_buyOptionIndex)      -> case s.config.buyOptions[_buyOptionIndex] of [
+            ConfigMaxAmountPerWalletTotal   (_buyOptionIndex)    -> case s.config.buyOptions[_buyOptionIndex] of [
                         Some (_buyOption)   -> block{
                                 var buyOptionConfig : tokenSaleOptionType   := _buyOption;
                                 buyOptionConfig.maxAmountPerWalletTotal     := updateConfigNewValue;
@@ -304,7 +312,7 @@ block {
                             }
                     |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
                 ]
-        |   WhitelistMaxAmountTotal (_buyOptionIndex)      -> case s.config.buyOptions[_buyOptionIndex] of [
+        |   ConfigWhitelistMaxAmountTotal   (_buyOptionIndex)    -> case s.config.buyOptions[_buyOptionIndex] of [
                         Some (_buyOption)   -> block{
                                 var buyOptionConfig : tokenSaleOptionType   := _buyOption;
                                 buyOptionConfig.whitelistMaxAmountTotal     := updateConfigNewValue;
@@ -312,7 +320,7 @@ block {
                             }
                     |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
                 ]
-        |   MaxAmountCap            (_buyOptionIndex)      -> case s.config.buyOptions[_buyOptionIndex] of [
+        |   ConfigMaxAmountCap              (_buyOptionIndex)    -> case s.config.buyOptions[_buyOptionIndex] of [
                         Some (_buyOption)   -> block{
                                 var buyOptionConfig : tokenSaleOptionType   := _buyOption;
                                 buyOptionConfig.maxAmountCap                := updateConfigNewValue;
@@ -320,30 +328,31 @@ block {
                             }
                     |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
                 ]
-        |   VestingInMonths         (_buyOptionIndex)      -> case s.config.buyOptions[_buyOptionIndex] of [
+        |   ConfigVestingPeriods            (_buyOptionIndex)   -> case s.config.buyOptions[_buyOptionIndex] of [
                         Some (_buyOption)   -> block{
                                 var buyOptionConfig : tokenSaleOptionType   := _buyOption;
-                                buyOptionConfig.vestingInMonths             := updateConfigNewValue;
+                                buyOptionConfig.vestingPeriods              := updateConfigNewValue;
                                 s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
                             }
                     |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
                 ]
-        |   TezPerToken             (_buyOptionIndex)      -> case s.config.buyOptions[_buyOptionIndex] of [
+        |   ConfigTokenXtzPrice             (_buyOptionIndex)   -> case s.config.buyOptions[_buyOptionIndex] of [
                         Some (_buyOption)   -> block{
                                 var buyOptionConfig : tokenSaleOptionType   := _buyOption;
-                                buyOptionConfig.tezPerToken                 := (updateConfigNewValue * 1mutez);
+                                buyOptionConfig.tokenXtzPrice                 := (updateConfigNewValue * 1mutez);
                                 s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
                             }
                     |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
                 ]
-        |   MinTezAmount            (_buyOptionIndex)      -> case s.config.buyOptions[_buyOptionIndex] of [
+        |   ConfigMinMvkAmount              (_buyOptionIndex)   -> case s.config.buyOptions[_buyOptionIndex] of [
                         Some (_buyOption)   -> block{
                                 var buyOptionConfig : tokenSaleOptionType   := _buyOption;
-                                buyOptionConfig.minTezAmount                := (updateConfigNewValue * 1mutez);
+                                buyOptionConfig.minMvkAmount                := updateConfigNewValue;
                                 s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
                             }
                     |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
                 ]
+        |   ConfigVestingPeriodDurationSec  (_v)                ->  s.config.vestingPeriodDurationSec   := updateConfigNewValue
     ]
 } with (noOperations, s)
 
@@ -427,7 +436,7 @@ block {
     const emptyBuyOptionRecord : tokenSaleUserOptionType        = record [
         tokenBought         = 0n;
         tokenClaimed        = 0n;
-        claimCounter       = 0n;
+        claimCounter        = 0n;
         lastClaimTimestamp  = Tezos.get_now();
         lastClaimLevel      = 0n;
     ];
@@ -448,8 +457,11 @@ block {
     ];
 
     // check if tez sent is equal to amount specified
-    if Tezos.get_amount() =/= naturalToMutez(amountBought)
-    then failwith(error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ) 
+    const amountPaid      : nat = Tezos.get_amount() / 1mutez;
+    const tokenXtzPrice   : nat = buyOptionConfig.tokenXtzPrice / 1mutez;
+    const elligibleAmount : nat = (amountPaid / tokenXtzPrice) * fpaMvk;
+    if elligibleAmount =/= amountBought
+    then failwith(error_MVK_PAY_AMOUNT_NOT_MET) 
     else skip;
 
     // init operations
@@ -458,29 +470,17 @@ block {
     // check if whitelist sale has started
     if Tezos.get_now() < s.whitelistStartTimestamp
     then failwith(error_WHITELIST_SALE_HAS_NOT_STARTED) 
-    else skip;
-    
-    // check if whitelist sale has ended -> proceed to public sale
-    if Tezos.get_now() > s.whitelistEndTimestamp
-    then skip 
-    else if Tezos.get_now() > s.whitelistStartTimestamp then block {
-          
+    else if Tezos.get_now() < s.whitelistEndTimestamp then {
         // whitelist sale has started
         // check if user is whitelisted
         if checkInWhitelistAddresses(Tezos.get_sender(), s) then skip else failwith(error_USER_IS_NOT_WHITELISTED);
 
         // check if max amount per whitelist wallet has been exceeded for current option
         if userTokenSaleOptionRecord.tokenBought + amountBought > buyOptionConfig.whitelistMaxAmountTotal then failwith(error_MAX_AMOUNT_WHITELIST_WALLET_EXCEEDED) else skip;
-
-        // check if current option whitelist max amount cap has been exceeded
-        const newBoughtAmountTotal : nat = buyOptionConfig.totalBought + amountBought;
-        if newBoughtAmountTotal > buyOptionConfig.maxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else skip;
-    }
-    // public sale has started      
-    else skip;
+    } else skip;
 
     // check if minimum amount has been bought
-    if 1mutez * (userTokenSaleOptionRecord.tokenBought + amountBought) < buyOptionConfig.minTezAmount then failwith(error_MIN_TEZ_AMOUNT_NOT_REACHED) else skip;
+    if userTokenSaleOptionRecord.tokenBought + amountBought < buyOptionConfig.minMvkAmount then failwith(error_MIN_MVK_AMOUNT_NOT_REACHED) else skip;
 
     // check if max amount per wallet has been exceeded
     if userTokenSaleOptionRecord.tokenBought + amountBought > buyOptionConfig.maxAmountPerWalletTotal then failwith(error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED) else skip;
@@ -526,15 +526,9 @@ block {
     
     // check if token sale has ended
     if today < tokenSaleEndTimestamp then failwith(error_TOKEN_SALE_HAS_NOT_ENDED) else skip;
-    
-    // get user token sale record
-    var userTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[user] of [
-            Some(_record)   -> _record
-        |   None            -> failwith(error_USER_TOKEN_SALE_RECORD_NOT_FOUND)
-    ];
 
-    // calculate number of months that has passed since token sale has ended
-    const oneMonthBlocks : nat      = (60n * 60n * 24n * 30n) / Tezos.get_min_block_time(); // 86400
+    // calculate number of periods that has passed since token sale has ended
+    const onePeriodBlocks : nat      = s.config.vestingPeriodDurationSec / Tezos.get_min_block_time();
 
     // init MVK token type to be used in transfer params
     const mvkTokenType : tokenType  = Fa2(record [
@@ -542,89 +536,92 @@ block {
         tokenId               = 0n;
     ]);
 
-    // register claim
-    s.tokenSaleLedger[user] := case s.tokenSaleLedger[user] of [
-            Some (_userRecord)  -> block {
-                // init updated claim record
-                var userBuyOptions : map(nat, tokenSaleUserOptionType)  := _userRecord;
-
-                // claim loop
-                for buyOptionIndex -> userBuyOption in map userBuyOptions {
-
-                    // get buy option config
-                    const _buyOptionConfig : tokenSaleOptionType        = case Map.find_opt(buyOptionIndex, s.config.buyOptions) of [
-                            Some (_option)  -> _option
-                        |   None            -> failwith(error_BUY_OPTION_NOT_FOUND)
-                    ];
-
-                    // process claim - skip if fully claimed (months claimed = vesting in months)  
-                    if userBuyOption.claimCounter = _buyOptionConfig.vestingInMonths then skip else block {
-
-                        // calculate months passed since last claimed for option one
-                        var monthsToClaim : nat := 0n;
-                        if userBuyOption.lastClaimLevel = 0n then block {
-                            
-                            // first claim
-                            monthsToClaim := if abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks < 1n then 1n else (abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks) + 1n;
-                            monthsToClaim := if monthsToClaim > _buyOptionConfig.vestingInMonths then _buyOptionConfig.vestingInMonths else monthsToClaim;
-
-                        } else block {
-                            // has claimed before
-                            monthsToClaim := abs(todayBlocks - userBuyOption.lastClaimLevel) / oneMonthBlocks;
-
-                            // if total of months to claim + already claimed months is greater then vesting period (in months) then take the remaining months
-                            // e.g. vesting of 2 months, user claim once on day 0, then claim again for the second time in 6 months - we calculate months to claim as 2 - 1 = 1 month
-                            if monthsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingInMonths then monthsToClaim := abs(_buyOptionConfig.vestingInMonths - userBuyOption.claimCounter)
-                            else monthsToClaim := monthsToClaim;
-                        };
-
-                        // calculate amount to transfer based on amount bought
-                        const tezPerToken  : nat    = (_buyOptionConfig.tezPerToken / 1mutez);
-
-                        // account for case where there is no vesting months for option one (least restrictive option)
-                        var tokenAmountSingleMonth : nat    := if _buyOptionConfig.vestingInMonths = 0n then 
-                            ( (userBuyOption.tokenBought * fpa10e24) / tezPerToken)  / fpa10e15
-                        else 
-                            ( ( (userBuyOption.tokenBought * fpa10e24) / tezPerToken) / _buyOptionConfig.vestingInMonths) / fpa10e15;
-
-                        // check that user's max tokens claimable is not exceeded
-                        const maxTokenAmount : nat  = ( (userBuyOption.tokenBought * fpa10e24) / tezPerToken)  / fpa10e15;
-                        if userBuyOption.tokenClaimed + tokenAmountSingleMonth > maxTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED) else skip;
-
-                        // calculate final value token amount to be claimed
-                        const tokenAmount : nat = tokenAmountSingleMonth * monthsToClaim;
-
-                        // create transfer params and transfer operation
-                        const transferTokenParams : transferActionType = list[
-                            record [
-                                to_        = user;
-                                token      = mvkTokenType;
-                                amount     = tokenAmount; 
-                            ]
-                        ];
-
-                        const sendMvkTokensToBuyerOperation : operation = Tezos.transaction(
-                            transferTokenParams,
-                            0mutez,
-                            sendTransferOperationToTreasury(s.treasuryAddress)
-                        );
-
-                        operations := sendMvkTokensToBuyerOperation # operations;
-
-                        // update user token sale record
-                        userBuyOption.claimCounter             := userBuyOption.claimCounter + monthsToClaim;
-                        userBuyOption.tokenClaimed              := userBuyOption.tokenClaimed + tokenAmount;
-                        userBuyOption.lastClaimTimestamp        := Tezos.get_now();
-                        userBuyOption.lastClaimLevel            := Tezos.get_level();
-                        userBuyOptions[buyOptionIndex]          := userBuyOption;
-                    }
-                }
-            } with(userBuyOptions)
+    // get the user buy record
+    var userBuyOptions      := case s.tokenSaleLedger[user] of [
+            Some (_userRecord)  ->_userRecord
         |   None                -> failwith(error_USER_TOKEN_SALE_RECORD_NOT_FOUND)
     ];
 
-} with (operations, s)
+    // register claim
+    for buyOptionIndex -> userBuyOption in map userBuyOptions {
 
+        // get buy option config
+        const _buyOptionConfig : tokenSaleOptionType        = case Map.find_opt(buyOptionIndex, s.config.buyOptions) of [
+                Some (_option)  -> _option
+            |   None            -> failwith(error_BUY_OPTION_NOT_FOUND)
+        ];
+
+        // process claim - skip if fully claimed (periods claimed = vesting periods)  
+        if userBuyOption.claimCounter = _buyOptionConfig.vestingPeriods then skip else block {
+
+            // calculate periods passed since last claimed for option one
+            var periodsToClaim : nat := 0n;
+            if userBuyOption.lastClaimLevel = 0n then block {
+                
+                // first claim
+                periodsToClaim := if abs(todayBlocks - tokenSaleEndBlockLevel) / onePeriodBlocks < 1n then 1n else (abs(todayBlocks - tokenSaleEndBlockLevel) / onePeriodBlocks) + 1n;
+                periodsToClaim := if periodsToClaim > _buyOptionConfig.vestingPeriods then _buyOptionConfig.vestingPeriods else periodsToClaim;
+
+            } else block {
+                // has claimed before
+                periodsToClaim := abs(todayBlocks - userBuyOption.lastClaimLevel) / onePeriodBlocks;
+
+                // if total of periods to claim + already claimed periods is greater then vesting period (in periods) then take the remaining periods
+                // e.g. vesting of 2 periods, user claim once on day 0, then claim again for the second time in 6 periods - we calculate periods to claim as 2 - 1 = 1 period
+                if periodsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingPeriods then periodsToClaim := abs(_buyOptionConfig.vestingPeriods - userBuyOption.claimCounter)
+                else periodsToClaim := periodsToClaim;
+            };
+
+            // account for case where there is no vesting periods for option one (least restrictive option)
+            var tokenAmountSinglePeriod : nat    := if _buyOptionConfig.vestingPeriods = 0n then 
+                userBuyOption.tokenBought
+            else 
+                userBuyOption.tokenBought / _buyOptionConfig.vestingPeriods;
+
+            // check that user's max tokens claimable is not exceeded
+            const maxTokenAmount : nat  = userBuyOption.tokenBought;
+            if userBuyOption.tokenClaimed + tokenAmountSinglePeriod > maxTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED) else skip;
+
+            // calculate final value token amount to be claimed
+            var tokenAmount : nat       := tokenAmountSinglePeriod * periodsToClaim;
+
+            // claim the dust if it is the last period
+            const finalClaimCounter : nat       = userBuyOption.claimCounter + periodsToClaim;
+            const estimatedTokenClaimed : nat   = userBuyOption.tokenClaimed + tokenAmount;
+            if finalClaimCounter = _buyOptionConfig.vestingPeriods and estimatedTokenClaimed < userBuyOption.tokenBought 
+            then tokenAmount    := tokenAmount + abs(userBuyOption.tokenBought - estimatedTokenClaimed)
+            else skip;
+
+            // create transfer params and transfer operation
+            const transferTokenParams : transferActionType = list[
+                record [
+                    to_        = user;
+                    token      = mvkTokenType;
+                    amount     = tokenAmount; 
+                ]
+            ];
+
+            const sendMvkTokensToBuyerOperation : operation = Tezos.transaction(
+                transferTokenParams,
+                0mutez,
+                sendTransferOperationToTreasury(s.treasuryAddress)
+            );
+
+            operations := sendMvkTokensToBuyerOperation # operations;
+
+            // update user token sale record
+            userBuyOption.claimCounter              := finalClaimCounter;
+            userBuyOption.tokenClaimed              := userBuyOption.tokenClaimed + tokenAmount;
+            userBuyOption.lastClaimTimestamp        := Tezos.get_now();
+            userBuyOption.lastClaimLevel            := Tezos.get_level();
+            userBuyOptions[buyOptionIndex]          := userBuyOption;
+        }
+    };
+
+    // Save the buy option in the storage
+    s.tokenSaleLedger[user] := userBuyOptions;
+
+} with (operations, s)
 
 
 
@@ -634,6 +631,9 @@ block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
+
+    // check for close
+    if s.tokenSaleHasEnded then failwith(error_TOKEN_SALE_HAS_ENDED) else skip;
     
     s.tokenSaleHasStarted     := True;
     s.tokenSaleHasEnded       := False;
@@ -648,7 +648,10 @@ block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
-    
+
+    // check for start
+    if not s.tokenSaleHasStarted then failwith(error_TOKEN_SALE_HAS_NOT_STARTED) else skip;
+
     s.tokenSaleHasEnded       := True;
     s.tokenSaleEndTimestamp   := Tezos.get_now();
     s.tokenSaleEndBlockLevel  := Tezos.get_level();
@@ -663,9 +666,12 @@ block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
-    
+
+    // check for close
+    if s.tokenSaleHasEnded then failwith(error_TOKEN_SALE_HAS_ENDED) else skip;
+
     // if sale is paused, then unpause sale, and vice versa
-    if s.tokenSalePaused = True then s.tokenSalePaused := False else s.tokenSalePaused := True;
+    s.tokenSalePaused   := not s.tokenSalePaused;
     
 } with (noOperations, s)
 
@@ -692,6 +698,7 @@ function main (const action : tokenSaleAction; const s : tokenSaleStorageType) :
 
             // Housekeeping Entrypoints
         |   SetAdmin(parameters)                    -> setAdmin(parameters, s)
+        |   SetGovernance(parameters)               -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)              -> updateMetadata(parameters, s)  
         |   UpdateConfig(parameters)                -> updateConfig(parameters, s)
 

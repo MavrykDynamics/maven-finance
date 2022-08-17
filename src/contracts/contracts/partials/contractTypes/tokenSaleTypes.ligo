@@ -5,14 +5,14 @@ type tokenSaleOptionType is [@layout:comb] record [
     maxAmountPerWalletTotal     : nat;
     whitelistMaxAmountTotal     : nat;
     maxAmountCap                : nat;
-    vestingInMonths             : nat;
-    tezPerToken                 : tez;
-    minTezAmount                : tez;
+    vestingPeriods              : nat;
+    tokenXtzPrice               : tez;
+    minMvkAmount                : nat;
     totalBought                 : nat;
 ]
 type tokenSaleConfigType is [@layout:comb] record [
-    buyOptions  : map(nat, tokenSaleOptionType);
-    empty       : unit;
+    vestingPeriodDurationSec    : nat;
+    buyOptions                  : map(nat, tokenSaleOptionType);
 ]
 
 type whitelistedAddressesType is big_map(userAddressType, bool)
@@ -45,12 +45,13 @@ type buyTokensType is [@layout:comb] record [
 
 type tokenSaleUpdateConfigNewValueType is nat
 type tokenSaleUpdateConfigActionType is
-        MaxAmountPerWalletTotal       of nat
-    |   WhitelistMaxAmountTotal       of nat
-    |   MaxAmountCap                  of nat
-    |   VestingInMonths               of nat
-    |   TezPerToken                   of nat
-    |   MinTezAmount                  of nat
+        ConfigMaxAmountPerWalletTotal       of nat
+    |   ConfigWhitelistMaxAmountTotal       of nat
+    |   ConfigMaxAmountCap                  of nat
+    |   ConfigVestingPeriods                of nat
+    |   ConfigTokenXtzPrice                 of nat
+    |   ConfigMinMvkAmount                  of nat
+    |   ConfigVestingPeriodDurationSec      of unit
 
 type tokenSaleUpdateConfigParamsType is [@layout:comb] record [
     updateConfigNewValue  : tokenSaleUpdateConfigNewValueType; 

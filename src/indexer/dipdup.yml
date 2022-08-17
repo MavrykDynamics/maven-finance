@@ -33,53 +33,56 @@ contracts:
     address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
     typename: liquidity_baking
   mvk:
-    address: KT192v2xcsPVAoskhDguRGEz7hqsAVJ4MQtC
+    address: KT1K2CngdTLXdYag8ECeJmJPE1oFgbJkxrbW
     typename: mvk
   governance:
-    address: KT1WHrvLPYe9BwGrrrecTvP8sMMQNWLvHgeo
+    address: KT1V1zv1d68G3T6yQykqR55es9ssGd2fRx5F
     typename: governance
   doorman:
-    address: KT1J3DBsCtT3b2gQnh93sEp8RYZtm9qvKzzs
+    address: KT1Kkaa2XiftmhwU378Cby4DtP2MKn2NAfVK
     typename: doorman
   farm:
-    address: KT1JAgDRhRpUmisn6dU4pCUyfiQoUZc5wB74 #KT1CbLGSBeeHES4eXjjp6teh5pbrgkDi2qto
+    address: KT1GKTA4cuQTu2vknx5j5CrKpqHWrMkXjvSf #KT1CbLGSBeeHES4eXjjp6teh5pbrgkDi2qto
     typename: farm
   farm_factory:
-    address: KT18cWwjTscZey2VvN6dy1h3bSTotjpUKqZq
+    address: KT1MKsFwqBGqNj24yubKeTdHQuXsBwJ1V6xr
     typename: farm_factory
   delegation:
-    address: KT1TiD8PAqz6cF9fNkySyQmW93any7TrNhab
+    address: KT1SmyvR6hHSeStgfdgGccS8EZaUF6qXZiym
     typename: delegation
   vesting:
-    address: KT1PXkvDio6sjem4tZ1cXhKsji9A3naZd73r
+    address: KT1QwYBbwALCggrTccK6VQ6sC713JgDk5h7y
     typename: vesting
   emergency_governance:
-    address: KT1BeKpjRUSTkykiAGGGzfgiVFpRb5Dk3SGo
+    address: KT1CugfMnbk34vz3A1QvaiWRhwadMSWHKZgo
     typename: emergency_governance
   council:
-    address: KT1SR8Hutr5TFWDUuNncg6pjXrcMkjQJjfKm
+    address: KT1Ga4XaM5BEMMkYej9ufU7z21N2HLbem4Um
     typename: council
   break_glass:
-    address: KT1S4B8HWNj5QBrYLSSVQfECpwCaBU6rRVm9
+    address: KT1RJWUotA6Qbkb2ZH1L2y6gaR6hjsh836BR
     typename: break_glass
   governance_financial:
-    address: KT1J5614w7Ku4613TduVyvSv3B1X1jf6nWah
+    address: KT1BtLeCqtmSorKtstgj6i7fFAtW3DweCL8U
     typename: governance_financial
   governance_satellite:
-    address: KT19HcgaDZydTBSENfo1HxfEfAbiitZgRiSk
+    address: KT1LXmZbTqrjPAZ1UTgNJuFdo5PLFnQJxWzz
     typename: governance_satellite
   aggregator:
-    address: KT1R8uVX8bXeeUnzyepLoSAx55Hj2iNXkrsL
+    address: KT1S7YY5hM6vu8SuK5oyTnmhWweEn5N3zQCT
     typename: aggregator
   aggregator_factory:
-    address: KT1WXqKTZdtei7zLEAs243zgWev6tobJccHB
+    address: KT1CWipi4oUSFozmSAuxhZTEA1dNqDu7gZYM
     typename: aggregator_factory
   treasury:
-    address: KT1UHBYfSKHSYP5mCyiHbEipdSuGJgZyJf3c
+    address: KT1Bhm9PszKDNuPoA5B71q2bhV27dk9Q52H6
     typename: treasury
   treasury_factory:
-    address: KT1GHvyBLDjvUCBsfVxjFKea7zrifgjPWZHV
+    address: KT1XM4PejJY5CnVSML9S9SwjtJcu7jSZYc1j
     typename: treasury_factory
+  token_sale:
+    address: KT1JnwFdmJs43bT61XZXCCcGvDam7s4MCLjQ
+    typename: token_sale
 
 datasources:
   tzkt_testnet:
@@ -1401,3 +1404,61 @@ indexes:
         pattern:
           - destination: treasury_factory
             entrypoint: untrackTreasury
+  # Token sale contract indexes
+  token_sale:
+    kind: operation
+    datasource: tzkt_testnet
+    types:
+      - origination
+      - transaction
+    contracts:
+      - token_sale
+    handlers:
+      - callback: on_token_sale_origination
+        pattern:
+          - type: origination
+            originated_contract: token_sale
+      - callback: on_token_sale_set_admin
+        pattern:
+          - destination: token_sale
+            entrypoint: setAdmin
+      - callback: on_token_sale_set_governance
+        pattern:
+          - destination: token_sale
+            entrypoint: setGovernance
+      - callback: on_token_sale_update_config
+        pattern:
+          - destination: token_sale
+            entrypoint: updateConfig
+      - callback: on_token_sale_set_whitelist_timestamp
+        pattern:
+          - destination: token_sale
+            entrypoint: setWhitelistTimestamp
+      - callback: on_token_sale_add_to_whitelist
+        pattern:
+          - destination: token_sale
+            entrypoint: addToWhitelist
+      - callback: on_token_sale_remove_from_whitelist
+        pattern:
+          - destination: token_sale
+            entrypoint: removeFromWhitelist
+      - callback: on_token_sale_start_sale
+        pattern:
+          - destination: token_sale
+            entrypoint: startSale
+      - callback: on_token_sale_close_sale
+        pattern:
+          - destination: token_sale
+            entrypoint: closeSale
+      - callback: on_token_sale_pause_sale
+        pattern:
+          - destination: token_sale
+            entrypoint: pauseSale
+      - callback: on_token_sale_buy_tokens
+        pattern:
+          - destination: token_sale
+            entrypoint: buyTokens
+      - callback: on_token_sale_claim_tokens
+        pattern:
+          - destination: token_sale
+            entrypoint: claimTokens
