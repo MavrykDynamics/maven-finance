@@ -13,16 +13,19 @@ const config = {
     collateralRatio             : 2000,    // collateral ratio (%)
     liquidationRatio            : 1500,    // liquidation ratio (%)
 
-    liquidationFee              : 5,
-    adminLiquidationFee         : 5,
+    liquidationFeePercent       : 5,
+    adminLiquidationFeePercent  : 5,
 
-    minimumLoanFee              : 10,
+    minimumLoanFeePercent       : 100,
 
     minimumLoanFeeTreasuryShare : 100,
     interestTreasuryShare       : 100,
 
-    decimals                    : 3,       // decimals 
-    maxDecimalsForCalculation   : 32
+    decimals                    : 4,       // decimals 
+    maxDecimalsForCalculation   : 32,
+
+    maxVaultLiquidationPercent  : 500,
+    liquidationDelayInMins      : 120
 }
 
 const breakGlassConfig = {

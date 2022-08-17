@@ -63,6 +63,7 @@ import { TokenPoolLpToken } from "../helpers/tokenPoolLpTokenHelper"
 import { Vault } from "../helpers/vaultHelper"
 
 import { LendingController, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerHelper"
+import { TokenPoolReward } from "../helpers/tokenPoolRewardHelper"
 
 
 // ------------------------------------------------------------------------------
@@ -107,6 +108,7 @@ import { vaultStorage } from "../../storage/vaultStorage"
 
 
 import { lendingControllerStorage } from "../../storage/lendingControllerStorage"
+import { tokenPoolRewardStorage } from "../../storage/tokenPoolRewardStorage"
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -159,6 +161,7 @@ describe('Contracts Deployment for Tests', async () => {
   // var cfmmTezMockFa12Token : CfmmTezFa12Token
 
   var lendingController : LendingController
+  var tokenPoolReward : TokenPoolReward
   
   var tezos
   
@@ -505,9 +508,15 @@ describe('Contracts Deployment for Tests', async () => {
         utils.tezos,
         aggregatorStorage
       )
-  
       await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
       console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
+  
+      tokenPoolReward = await TokenPoolReward.originate(
+        utils.tezos,
+        tokenPoolRewardStorage
+      )
+      await saveContractAddress('tokenPoolRewardAddress', tokenPoolReward.contract.address)
+      console.log('Token Pool Reward Contract deployed at:', tokenPoolReward.contract.address)
   
   
 
@@ -900,6 +909,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.updateGeneralContracts('aggregatorFactory', aggregatorFactory.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('governanceSatellite', governanceSatellite.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('governanceFinancial', governanceFinancial.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('tokenPoolReward', tokenPoolReward.contract.address))
   
       // whitelist contracts
       .withContractCall(governance.contract.methods.updateWhitelistContracts('farmFactory', farmFactory.contract.address))

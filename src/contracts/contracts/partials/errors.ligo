@@ -1148,7 +1148,8 @@
 [@inline] const error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION                                                           = 809n;
 [@inline] const error_REBASE_DECIMALS_OUT_OF_BOUNDS                                                                     = 810n;
 
-[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL                                           = 810n;
+[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL                                           = 811n;
+[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE                                               = 812n;
 
 
 

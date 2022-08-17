@@ -1243,33 +1243,6 @@ block{
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
-// Reward Entrypoints End
-// ------------------------------------------------------------------------------
-
-
-// ------------------------------------------------------------------------------
-// Lambda Entrypoints Begin
-// ------------------------------------------------------------------------------
-
-(* setLambda entrypoint *)
-function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorStorageType) : return is
-block{
-    
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-    
-    // assign params to constants for better code readability
-    const lambdaName    = setLambdaParams.name;
-    const lambdaBytes   = setLambdaParams.func_bytes;
-    s.lambdaLedger[lambdaName] := lambdaBytes;
-
-} with (noOperations, s)
-
-// ------------------------------------------------------------------------------
-// Lambda Entrypoints End
-// ------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------
 //
 // Entrypoints End
 //

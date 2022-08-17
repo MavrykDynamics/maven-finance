@@ -14,6 +14,13 @@ type tokenIdType        is nat;
 // Storage Types
 // ------------------------------------------------------------------------------
 
+type tokenPoolRewardConfigType is [@layout:comb] record [
+    decimals                         : nat;
+];
+
+type tokenPoolRewardBreakGlassConfigType is [@layout:comb] record [
+    testEntrypointIsPaused           : nat;
+]
 
 
 
@@ -29,7 +36,7 @@ type tokenIdType        is nat;
 // ------------------------------------------------------------------------------
 
 
-type tokenPoolLambdaActionType is 
+type tokenPoolRewardLambdaActionType is 
         
         // Housekeeping Entrypoints
     |   LambdaSetAdmin                  of (address)
@@ -55,8 +62,8 @@ type tokenPoolLambdaActionType is
 type tokenPoolRewardStorageType is [@layout:comb] record [
     admin                       : address;
     metadata                    : metadataType;
-    config                      : tokenPoolConfigType;
-    breakGlassConfig            : tokenPoolBreakGlassConfigType;
+    config                      : tokenPoolRewardConfigType;
+    breakGlassConfig            : tokenPoolRewardBreakGlassConfigType;
 
     mvkTokenAddress             : address;
     governanceAddress           : address;
