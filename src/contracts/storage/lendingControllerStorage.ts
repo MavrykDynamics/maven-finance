@@ -13,8 +13,8 @@ const config = {
     collateralRatio             : 2000,    // collateral ratio (%)
     liquidationRatio            : 1500,    // liquidation ratio (%)
 
-    liquidationFeePercent       : 5,
-    adminLiquidationFeePercent  : 5,
+    liquidationFeePercent       : 600,
+    adminLiquidationFeePercent  : 600,
 
     minimumLoanFeePercent       : 100,
 
@@ -122,7 +122,6 @@ export const lendingControllerStorage : lendingControllerStorageType = {
 
     vaults                          : MichelsonMap.fromLiteral({}),
     vaultCounter                    : new BigNumber(1),
-    vaultLedger                     : MichelsonMap.fromLiteral({}),
     ownerLedger                     : MichelsonMap.fromLiteral({}),
 
     collateralTokenLedger           : MichelsonMap.fromLiteral({}),
@@ -130,7 +129,5 @@ export const lendingControllerStorage : lendingControllerStorageType = {
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
-
-    tempValue                       : new BigNumber(0)
 
 }

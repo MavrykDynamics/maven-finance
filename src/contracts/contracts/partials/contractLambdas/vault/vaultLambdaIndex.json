@@ -29,6 +29,6 @@
     },
     {
         "index": 7,
-        "name": "lambdaVaultEditDepositor"
+        "name": "lambdaVaultUpdateDepositor"
     }
 ]

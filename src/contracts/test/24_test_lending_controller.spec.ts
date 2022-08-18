@@ -156,7 +156,6 @@ describe("Lending Controller tests", async () => {
                 const tokenName                             = "mockFa12";
                 const tokenContractAddress                  = mockFa12TokenAddress.address;
                 const tokenType                             = "fa12";
-                const tokenId                               = 0;
                 const decimals                              = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
@@ -177,8 +176,6 @@ describe("Lending Controller tests", async () => {
                     const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
                         tokenName,
-                        tokenContractAddress,
-                        tokenId,
                         decimals,
 
                         lpTokenContractAddress,
@@ -200,10 +197,11 @@ describe("Lending Controller tests", async () => {
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+                    console.log(mockFa12LoanToken.tokenType);
                 
                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
-                    assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
-                    assert.equal(mockFa12LoanToken.tokenId                , tokenId);
+                    // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
     
                     assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
                     assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -229,7 +227,6 @@ describe("Lending Controller tests", async () => {
                     // other variables will be affected by repeated tests
                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
                     assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
-                    assert.equal(mockFa12LoanToken.tokenId                , tokenId);    
 
                 }
 
@@ -271,8 +268,6 @@ describe("Lending Controller tests", async () => {
                     const adminSetMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
                         tokenName,
-                        tokenContractAddress,
-                        tokenId,
                         decimals,
 
                         lpTokenContractAddress,
@@ -342,9 +337,7 @@ describe("Lending Controller tests", async () => {
                 await signerFactory(bob.sk);
 
                 const tokenName                             = "tez";
-                const tokenContractAddress                  = zeroAddress;
                 const tokenType                             = "tez";
-                const tokenId                               = 0;
                 const decimals                              = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
@@ -365,8 +358,6 @@ describe("Lending Controller tests", async () => {
                     const adminSeTezLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
                         tokenName,
-                        tokenContractAddress,
-                        tokenId,
                         decimals,
 
                         lpTokenContractAddress,
@@ -389,9 +380,8 @@ describe("Lending Controller tests", async () => {
                     const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
                     assert.equal(tezLoanToken.tokenName              , tokenName);
-                    assert.equal(tezLoanToken.tokenContractAddress   , tokenContractAddress);
-                    assert.equal(tezLoanToken.tokenId                , tokenId);
-    
+                    assert.equal(tezLoanToken.decimals               , decimals);
+
                     assert.equal(tezLoanToken.lpTokensTotal          , 0);
                     assert.equal(tezLoanToken.lpTokenContractAddress , lpTokenContractAddress);
                     assert.equal(tezLoanToken.lpTokenId              , 0);
@@ -416,9 +406,7 @@ describe("Lending Controller tests", async () => {
                 
                     // other variables will be affected by repeated tests
                     assert.equal(tezLoanToken.tokenName              , tokenName);
-                    assert.equal(tezLoanToken.tokenContractAddress   , tokenContractAddress);
-                    assert.equal(tezLoanToken.tokenId                , tokenId);    
-
+                    
                 }
 
             } catch(e){
@@ -453,8 +441,6 @@ describe("Lending Controller tests", async () => {
                 await chai.expect(lendingControllerInstance.methods.setLoanToken(
                         
                     tokenName,
-                    tokenContractAddress,
-                    tokenId,
                     decimals,
 
                     lpTokenContractAddress,
@@ -520,9 +506,8 @@ describe("Lending Controller tests", async () => {
                         
                         tokenName,
                         tokenContractAddress,
-                        tokenId,
-
                         decimals,
+
                         oracleType,
                         oracleAddress,
 
@@ -577,9 +562,8 @@ describe("Lending Controller tests", async () => {
                         
                         tokenName,
                         tokenContractAddress,
-                        tokenId,
-
                         decimals,
+
                         oracleType,
                         oracleAddress,
                         
@@ -635,9 +619,8 @@ describe("Lending Controller tests", async () => {
                         
                         tokenName,
                         tokenContractAddress,
-                        tokenId,
-
                         decimals,
+
                         oracleType,
                         oracleAddress,
                         
@@ -689,9 +672,8 @@ describe("Lending Controller tests", async () => {
                         
                     tokenName,
                     tokenContractAddress,
-                    tokenId,
-
                     decimals,
+
                     oracleType,
                     oracleAddress,
                     

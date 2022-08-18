@@ -402,9 +402,7 @@ block {
 
     // init variables for convenience
     const tokenName                             : string        = setLoanTokenParams.tokenName;
-    const tokenContractAddress                  : address       = setLoanTokenParams.tokenContractAddress;
     const tokenType                             : tokenType     = setLoanTokenParams.tokenType;
-    const tokenId                               : nat           = setLoanTokenParams.tokenId;
     const decimals                              : nat           = setLoanTokenParams.decimals;
 
     const lpTokenContractAddress                : address       = setLoanTokenParams.lpTokenContractAddress;
@@ -420,9 +418,7 @@ block {
     const newLoanTokenRecord : loanTokenRecordType = record [
                     
         tokenName                           = tokenName;
-        tokenContractAddress                = tokenContractAddress;
         tokenType                           = tokenType;
-        tokenId                             = tokenId;
         decimals                            = decimals;
 
         lpTokensTotal                       = 0n;
@@ -500,50 +496,47 @@ block {
 
 
 
-// helper function send tokens to token pool (%addLiquidity, %liquidateVault)
-function sendTokensToTokenPoolOperation(const from_ : address; const amount : nat; const token : tokenType) : operation is
+// helper function for transfers related to token pool (from/to)
+function tokenPoolTransfer(const from_ : address; const to_ : address; const amount : nat; const token : tokenType) : operation is
 block {
 
-    const sendTokensToTokenPoolOperation : operation = case token of [
+    const tokenPoolTransferOperation : operation = case token of [
         
         |   Tez(_tez) -> {
 
-                // send tez from sender to Lending Controller token pool
-                const sendTezToPoolOperation : operation = transferTez( (Tezos.get_contract_with_error(Tezos.get_self_address(), "Error. Unable to send tez.") : contract(unit)), amount * 1mutez );
+                const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(Tezos.get_self_address(), "Error. Unable to send tez.") : contract(unit)), amount * 1mutez );
             
-            } with sendTezToPoolOperation
+            } with transferTezOperation
 
         |   Fa12(_token) -> {
 
                 checkNoAmount(Unit);
 
-                // send token from sender to Lending Controller token pool
-                const sendTokenToPoolOperation : operation = transferFa12Token(
+                const transferFa12Operation : operation = transferFa12Token(
                     from_,                      // from_
-                    Tezos.get_self_address(),   // to_
+                    to_,                        // to_
                     amount,                     // token amount
                     _token                      // token contract address
                 );
 
-            } with sendTokenToPoolOperation
+            } with transferFa12Operation
 
         |   Fa2(_token) -> {
 
                 checkNoAmount(Unit);
 
-                // send token from sender to Lending Controller token pool
-                const sendTokenToPoolOperation : operation = transferFa2Token(
+                const transferFa2Operation : operation = transferFa2Token(
                     from_,                          // from_
-                    Tezos.get_self_address(),       // to_
+                    to_,                            // to_
                     amount,                         // token amount
                     _token.tokenId,                 // token id
                     _token.tokenContractAddress     // token contract address
                 );
 
-            } with sendTokenToPoolOperation
+            } with transferFa2Operation
     ];
 
-} with sendTokensToTokenPoolOperation
+} with tokenPoolTransferOperation
 
 
 
@@ -603,6 +596,8 @@ block {
     ];
 
 } with withdrawFromVaultOperation
+
+
 
 
 
@@ -1076,11 +1071,17 @@ block {
 block {
 
     var tokenName : string := "empty";
-    
-    for _key -> value in map s.collateralTokenLedger block {
-        if tokenContractAddress = value.tokenContractAddress then block {
-            tokenName := _key;
-        } else skip;
+    for _key -> collateralTokenRecord in map s.collateralTokenLedger block {
+        // case collateralTokenRecord.tokenType of [
+        //     |   Tez(_tez)    -> tokenName := "tez"
+        //     |   Fa12(_token) -> if tokenContractAddress = _token then tokenName := _key else skip
+        //     |   Fa2(_token)  -> if tokenContractAddress = _token.tokenContractAddress then tokenName := _key else skip
+        // ];
+        if collateralTokenRecord.tokenContractAddress = tokenContractAddress then tokenName := _key else skip;
+        // if tokenContractAddress = collateralTokenRecord.tokenContractAddress then block {
+        //     tokenName := _key;
+        // } else skip;
+
     };
 
     const collateralTokenRecord : option(collateralTokenRecordType) = Map.find_opt(tokenName, s.collateralTokenLedger)
