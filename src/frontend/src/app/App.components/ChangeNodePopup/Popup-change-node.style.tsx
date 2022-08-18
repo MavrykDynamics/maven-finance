@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+import { cyanColor, royalPurpleColor } from 'styles'
 
 export const PopupContainerWrapper = styled.div`
   display: flex;
@@ -53,7 +54,7 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
   margin-top: 12px;
   border-radius: 10px;
   cursor: pointer;
-  border: ${({ isSelected }) => (isSelected ? '1px solid #86d4c9' : ' 1px solid #503eaa;')};
+  border: ${({ isSelected }) => (isSelected ? `1px solid ${cyanColor}` : `1px solid ${royalPurpleColor};`)};
 
   &.add_node {
     justify-content: space-between;
@@ -65,6 +66,11 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       line-height: 18px;
       color: #8d86eb;
       cursor: pointer;
+      transition: 0.5s all;
+
+      &:hover {
+        color: ${cyanColor};
+      }
     }
 
     #inputStyled {

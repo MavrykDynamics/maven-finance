@@ -1,5 +1,5 @@
 import { TempleWallet } from '@temple-wallet/dapp'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Lottie from 'react-lottie'
 import { useDispatch, useSelector } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
@@ -36,6 +36,8 @@ const AppContainer = () => {
     })
   }, [dispatch])
 
+  const closeModalHandler = useCallback(() => dispatch(toggleRPCNodePopup(false)), [])
+
   const [isExpandedMenuMob, setExpandedMenuMob] = useState<boolean>(true)
 
   const animation = JSON.parse(JSON.stringify(animationData))
@@ -64,7 +66,7 @@ const AppContainer = () => {
           </LoaderStyled>
         ) : null}
         <Menu isExpandedMenu={isExpandedMenuMob} setisExpandedMenu={setExpandedMenuMob} />
-        <PopupChangeNode isModalOpened={showChangeNodePopup} closeModal={() => dispatch(toggleRPCNodePopup(false))} />
+        <PopupChangeNode isModalOpened={showChangeNodePopup} closeModal={closeModalHandler} />
         <AppRoutes />
       </AppStyled>
       <Toaster />

@@ -16,7 +16,7 @@ type InputViewProps = {
   name?: string
   value?: string | number
   onChange: any
-  onBlur: any
+  onBlur?: any
   onKeyDown: any
   onFocus: any
   inputStatus?: InputStatusType

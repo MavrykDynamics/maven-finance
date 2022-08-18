@@ -1,5 +1,5 @@
 import { getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { toggleRPCNodePopup } from '../ChangeNodePopup/ChangeNode.actions'
@@ -31,6 +31,8 @@ export const Menu = ({
     initialDispatches(accountPkh)
   }, [accountPkh])
 
+  const openChangeNodePopup = useCallback(() => dispatch(toggleRPCNodePopup(true)), [])
+
   return (
     <MenuView
       loading={loading}
@@ -38,7 +40,7 @@ export const Menu = ({
       ready={ready}
       isExpandedMenu={isExpandedMenu}
       setisExpandedMenu={setisExpandedMenu}
-      openChangeNodePopupHandler={() => dispatch(toggleRPCNodePopup(true))}
+      openChangeNodePopupHandler={openChangeNodePopup}
     />
   )
 }
