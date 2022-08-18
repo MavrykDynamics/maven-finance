@@ -11,11 +11,6 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-
-type vaultEditDepositorType is
-    |   AllowAny        of bool
-    |   AllowAccount    of bool * address
-
 type depositorsType is
   | Any       of unit 
   | Whitelist of set(address)
@@ -29,14 +24,16 @@ type vaultHandleType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
+type vaultUpdateDepositorType is
+    |   AllowAny        of bool
+    |   AllowAccount    of bool * address
 
-// type vaultWithdrawTezType is tez * contract(unit)
+
 type vaultDelegateTezToBakerType is option(key_hash)
 type satelliteAddressType is address
 
 type vaultWithdrawType is transferDestinationType
 
-// type vaultDepositType is transferTokenType
 type vaultDepositType  is [@layout:comb] record [
     amount          : nat;
     token           : tokenType;
@@ -76,7 +73,7 @@ type vaultLambdaActionType is
     |   LambdaVaultDelegateMvkToSat           of satelliteAddressType
     |   LambdaVaultWithdraw                   of vaultWithdrawType
     |   LambdaVaultDeposit                    of vaultDepositType 
-    |   LambdaVaultEditDepositor              of vaultEditDepositorType
+    |   LambdaVaultUpdateDepositor            of vaultUpdateDepositorType
 
 
 // ------------------------------------------------------------------------------

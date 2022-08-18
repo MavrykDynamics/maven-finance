@@ -349,12 +349,12 @@ block {
 
 
 
-(* vaultEditDepositor lambda *)
-function lambdaVaultEditDepositor(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* vaultUpdateDepositor lambda *)
+function lambdaVaultUpdateDepositor(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     case vaultLambdaAction of [
-        |   LambdaVaultEditDepositor(vaultEditDepositorParams) -> {
+        |   LambdaVaultUpdateDepositor(vaultUpdateDepositorParams) -> {
 
                 // set new depositor only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
@@ -363,14 +363,14 @@ block {
                     // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
                     // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
                     const emptyWhitelistSet : set(address) = set[];
-                    const depositors : depositorsType = case vaultEditDepositorParams of [
+                    const depositors : depositorsType = case vaultUpdateDepositorParams of [
                         | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
                         | AllowAccount(_account) -> block {
-                            const editDepositors : depositorsType = case s.depositors of [
+                            const updateDepositors : depositorsType = case s.depositors of [
                                 | Any -> failwith("Error. Set any off first")
                                 | Whitelist(_depositors) -> Whitelist(if _account.0 then Set.add(_account.1, _depositors) else Set.remove(_account.1, _depositors))  
                             ];
-                        } with editDepositors
+                        } with updateDepositors
                     ];
                     
                     // update depositors
