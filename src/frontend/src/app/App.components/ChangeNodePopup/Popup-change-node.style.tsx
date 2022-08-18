@@ -38,7 +38,8 @@ export const ChangeNodeNodesList = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 18px;
-  max-height: 315px;
+  max-height: 200px;
+  height: fit-content;
   overflow-y: scroll;
   padding-right: 10px;
 `
@@ -57,6 +58,7 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
   border: ${({ isSelected }) => (isSelected ? `1px solid ${cyanColor}` : `1px solid ${royalPurpleColor};`)};
 
   &.add_node {
+    margin-top: 25px;
     justify-content: space-between;
     cursor: default;
 
@@ -105,7 +107,7 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
     height: 35px;
     width: 35px;
     margin-right: 18px;
-    font-size: 0px;
+    font-size: 10px;
 
     img {
       height: 100%;

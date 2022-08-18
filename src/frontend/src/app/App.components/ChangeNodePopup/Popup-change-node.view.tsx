@@ -43,26 +43,26 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
           >
             {nodeLogoUrl && (
               <div className="img_wrapper">
-                <img src={`./images/${nodeLogoUrl}`} alt={''} />
+                <img src={`./images/${nodeLogoUrl}`} alt={'node logo'} />
               </div>
             )}{' '}
             <span className={isUser ? 'user-url' : ''}>{isUser ? `Link: ${url}` : title}</span>
           </ChangeNodeNodesListItem>
         ))}
-
-        <ChangeNodeNodesListItem className="add_node">
-          <div className="add-new-node-handler" onClick={() => addNodeHandler()}>
-            Add New Node
-          </div>
-          <Input
-            placeholder="https://..."
-            name="add_new_node_input"
-            value={inputData}
-            type="text"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputData(e.target.value)}
-          />
-        </ChangeNodeNodesListItem>
       </ChangeNodeNodesList>
+
+      <ChangeNodeNodesListItem className="add_node">
+        <div className="add-new-node-handler" onClick={() => addNodeHandler()}>
+          Add New Node
+        </div>
+        <Input
+          placeholder="https://..."
+          name="add_new_node_input"
+          value={inputData}
+          type="text"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputData(e.target.value)}
+        />
+      </ChangeNodeNodesListItem>
 
       <DescrText className="change_node" style={{ marginBottom: '10px' }}>
         Changing node can improve stability and speed when the network is saturated.
