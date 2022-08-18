@@ -67,27 +67,6 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
     display: flex;
     align-items: center;
   }
-
-  // in case we need a mobile logo
-  /* 
-.mobile-logo {
-  display: none;
-}
-
-@media screen and (max-width: 1460px) {
-.desctop-logo,
-  a .navLinkSubTitle,
-  a .navLinkTitle {
-    display: none !important;
-}
-
-.mobile-logo {
-  display: block;
-  width: 50px;
-  margin: 27px auto;
-  height: fit-content;
-} 
-*/
 `
 
 export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
