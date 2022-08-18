@@ -9,7 +9,7 @@ type InputProps = {
   name?: string
   value?: string | number
   onChange: any
-  onBlur: any
+  onBlur?: any
   onFocus?: any
   onKeyDown?: any
   inputStatus?: InputStatusType
