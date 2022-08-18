@@ -7554,6 +7554,11 @@ escodegen@^2.0.0:
   optionalDependencies:
     source-map "~0.6.1"
 
+eslint-config-memcrab@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.npmjs.org/eslint-config-memcrab/-/eslint-config-memcrab-1.0.8.tgz"
+  integrity sha512-4xc4gEuZGbAVerI0YEC2TB6bDiAYDwW8bcSMByjqzJrgV24voDFBkedfV7OGaK7tjcw4t2rW6pzuv8cq4kh+sw==
+
 eslint-config-react-app@^6.0.0:
   version "6.0.0"
   resolved "https://registry.npmjs.org/eslint-config-react-app/-/eslint-config-react-app-6.0.0.tgz"

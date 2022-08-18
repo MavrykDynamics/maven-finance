@@ -1,7 +1,6 @@
 import { MichelsonMap } from '@taquito/taquito'
 import { Feed, InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
 
-import { ContractAddressesState } from '../reducers/contractAddresses'
 import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'
 import { setItemInStorage } from './storage'
 import { BreakGlassActionRecord, BreakGlassActionSigner, BreakGlassStorage } from './TypesAndInterfaces/BreakGlass'
@@ -36,10 +35,6 @@ import { VestingStorage } from './TypesAndInterfaces/Vesting'
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
   switch (contract) {
-    case 'addresses':
-      res = convertToContractAddressesType(storage)
-      setItemInStorage('ContractAddresses', res)
-      break
     case 'doorman':
       res = convertToDoormanStorageType(storage)
       setItemInStorage('DoormanStorage', res)
@@ -111,29 +106,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
     feeds: storage?.aggregator.map((feed: Feed) => ({...feed, category: 'Cryptocurrency (USD pairs)', network: 'Tezos'})),
     feedsFactory: storage?.aggregator_factory,
     totalOracleNetworks: storage?.aggregator ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0) : 0,
-  }
-}
-
-function convertToContractAddressesType(storage: any): ContractAddressesState {
-  return {
-    farmAddress: { address: storage?.farm?.[0]?.address },
-    farmFactoryAddress: { address: storage?.farm_factory?.[0]?.address },
-    delegationAddress: { address: storage?.delegation?.[0]?.address },
-    doormanAddress: { address: storage?.doorman?.[0]?.address },
-    mvkTokenAddress: { address: storage?.mvk_token?.[0]?.address },
-    governanceAddress: { address: storage?.governance?.[0]?.address },
-    emergencyGovernanceAddress: { address: storage?.emergency_governance?.[0]?.address },
-    breakGlassAddress: { address: storage?.break_glass?.[0]?.address },
-    councilAddress: { address: storage?.council?.[0]?.address },
-    treasuryAddress: { address: storage?.delegation?.[0]?.address },
-    treasuryFactoryAddress: { address: storage?.treasury_factory?.[0]?.address },
-    vestingAddress: { address: storage?.vesting?.[0]?.address },
-    governanceSatelliteAddress: { address: storage?.governance_satellite?.[0]?.address },
-    usdmTokenAddress: { address: storage?.usdm_token?.[0]?.address },
-    usdmTokenControllerAddress: { address: storage?.usdm_token_controller?.[0]?.address },
-    vaultAddress: { address: storage?.vault?.[0]?.address },
-    aggregatorFactoryAddress: { address: storage?.aggregator_factory?.[0]?.address },
-    aggregatorAddress: { address: storage?.aggregator?.[0]?.address },
   }
 }
 
