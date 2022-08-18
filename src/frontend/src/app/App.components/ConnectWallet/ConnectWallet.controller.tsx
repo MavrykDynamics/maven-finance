@@ -4,18 +4,17 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { State } from '../../../reducers'
 import { connect } from './ConnectWallet.actions'
-import { ConnectWalletView } from './ConnectWallet.view'
+import { ConnectWalletStyled } from './ConnectWallet.style'
+import { ConnectedWalletBlock, CoinsInfoType, InstallWalletButton, NoWalletConnectedButton } from './ConnectWallet.view'
 
 type ConnectWalletProps = {
-  type?: string | null
   className?: string
 }
 
-export const ConnectWallet = ({ type, className }: ConnectWalletProps) => {
+export const ConnectWallet = ({ className }: ConnectWalletProps) => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
+  const { wallet, ready, accountPkh } = useSelector((state: State) => state.wallet)
+  const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { user } = useSelector((state: State) => state.user)
 
   const handleConnect = () => {
@@ -25,25 +24,33 @@ export const ConnectWallet = ({ type, className }: ConnectWalletProps) => {
   const handleNewConnect = () => {
     dispatch(connect({ forcePermission: true }))
   }
+
+  const coinsInfo: CoinsInfoType = {
+    MVKExchangeRate: exchangeRate,
+    userMVKBalance: user.myMvkTokenBalance,
+    userXTZBalance: 0,
+    userMVKStaked: user.mySMvkTokenBalance,
+    XTZExchnageRate: 0,
+  }
+
   return (
-    <ConnectWalletView
-      type={type}
-      loading={false}
-      wallet={wallet}
-      ready={ready}
-      accountPkh={accountPkh}
-      myMvkTokenBalance={user?.myMvkTokenBalance}
-      handleConnect={handleConnect}
-      handleNewConnect={handleNewConnect}
-      className={className}
-    />
+    <ConnectWalletStyled className={className} id={'connectWalletButton'}>
+      {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
+      {wallet ? (
+        <>
+          {ready && accountPkh ? (
+            <ConnectedWalletBlock
+              accountPkh={accountPkh}
+              signOutHandler={() => null}
+              changeWalletHandler={handleNewConnect}
+              coinsInfo={coinsInfo}
+            />
+          ) : null}
+          {!ready && <NoWalletConnectedButton handleConnect={handleConnect} />}
+        </>
+      ) : (
+        <InstallWalletButton />
+      )}
+    </ConnectWalletStyled>
   )
-}
-
-ConnectWallet.propTypes = {
-  type: PropTypes.string,
-}
-
-ConnectWallet.defaultProps = {
-  type: 'text',
 }

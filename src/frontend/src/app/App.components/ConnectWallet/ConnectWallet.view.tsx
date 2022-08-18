@@ -1,63 +1,86 @@
-import * as React from 'react'
-
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { useState } from 'react'
+import { ACTION_PRIMARY, TRANSPARENT } from '../Button/Button.constants'
+import { Button } from '../Button/Button.controller'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
-// components
 import Icon from '../Icon/Icon.view'
-import { ConnectWalletStyled, SignOutButton, SimpleConnectedButton, WalletConnectedButton, WalletNotConnectedButton } from './ConnectWallet.style'
+import { TzAddress } from '../TzAddress/TzAddress.view'
+import {
+  ConnectedWalletStyled,
+  SignOutButton,
+  WalletNotConnectedButton,
+  SimpleConnectedButton,
+  ConnectedWalletDetailsItemStyled,
+} from './ConnectWallet.style'
 
-type ConnectWalletViewProps = {
-  type?: string | null
-  loading: boolean
-  wallet: any
-  ready: boolean
-  accountPkh?: string
-  myMvkTokenBalance: string | number | undefined
-  handleConnect: () => void
-  handleNewConnect: () => void
-  className?: string
+export type CoinsInfoType = {
+  MVKExchangeRate: number
+  userMVKBalance: number
+  userXTZBalance: number
+  userMVKStaked: number
+  XTZExchnageRate: number
 }
 
-export const ConnectWalletView = ({
-  type,
-  loading,
-  wallet,
-  ready,
+type ConnectedWalletBlockProps = {
+  accountPkh: string
+  signOutHandler: () => void
+  changeWalletHandler: () => void
+  coinsInfo: CoinsInfoType
+}
+
+export const ConnectedWalletBlock = ({
   accountPkh,
-  myMvkTokenBalance,
-  handleConnect,
-  handleNewConnect,
-  className,
-}: ConnectWalletViewProps) => {
+  coinsInfo,
+  signOutHandler,
+  changeWalletHandler,
+}: ConnectedWalletBlockProps) => {
+  const [detailsShown, setDetailsShown] = useState(false)
+
   return (
-    <ConnectWalletStyled className={className} id={'connectWalletButton'}>
-      {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
-      {wallet ? (
-        <>
-          {ready && type !== 'simpleButton' && accountPkh ? (
-            <>
-              <WalletConnectedButton>
-                <var>
-                  <TzAddress tzAddress={accountPkh} hasIcon />
-                </var>
-                <button onClick={handleNewConnect}>
-                  <Icon id="switch" />
-                </button>
-                <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
-              </WalletConnectedButton>
-              {/* TODO: Implement disconnect from the wallet fucntional */}
-              <SignOutButton onClick={() => null}>Sign out</SignOutButton>
-            </>
-          ) : null}
-          {type === 'simpleButton' && <SimpleConnectButtonNoAddress handleConnect={handleConnect} />}
-          {!ready && type !== 'simpleButton' && <NoWalletConnectedButton handleConnect={handleConnect} />}
-        </>
-      ) : (
-        <WalletNotConnectedButton onClick={() => window.open('https://templewallet.com/', '_blank')!.focus()}>
-          Install wallet
-        </WalletNotConnectedButton>
-      )}
-    </ConnectWalletStyled>
+    <ConnectedWalletStyled>
+      <div className="visible-part" onClick={() => setDetailsShown(!detailsShown)}>
+        <Icon id="wallet" className="wallet" />
+        <var>
+          <TzAddress tzAddress={accountPkh} hasIcon={false} shouldCopy={false} />
+        </var>
+        <Icon id="paginationArrowLeft" className="arrow" />
+      </div>
+
+      <div className={`wallet-details ${detailsShown ? 'visible' : ''}`}>
+        <ConnectedWalletDetailsItem
+          buttonText={'Buy MVK'}
+          coinAmount={coinsInfo.userMVKBalance}
+          coinName={'MVK'}
+          buttonHandler={() => {}}
+          subtextAmount={coinsInfo.userMVKBalance * coinsInfo.MVKExchangeRate}
+        />
+        <ConnectedWalletDetailsItem
+          buttonText={'Stake MVK'}
+          coinAmount={coinsInfo.userMVKStaked}
+          coinName={'MVK'}
+          buttonHandler={() => {}}
+          subtextInfo="Total staked MVK"
+        />
+        <ConnectedWalletDetailsItem
+          buttonText={'Buy XTZ'}
+          coinAmount={coinsInfo.userXTZBalance}
+          coinName={'XTZ'}
+          buttonHandler={() => {}}
+          subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
+          isLast
+        />
+
+        <div className="buttons-wrapper">
+          <SignOutButton onClick={signOutHandler}>Sign out</SignOutButton>
+          <Button
+            text="Chnage Wallet"
+            onClick={changeWalletHandler}
+            kind={ACTION_PRIMARY}
+            icon="exchange"
+            className="change-wallet"
+          />
+        </div>
+      </div>
+    </ConnectedWalletStyled>
   )
 }
 
@@ -69,6 +92,15 @@ export const NoWalletConnectedButton = ({ handleConnect }: { handleConnect: () =
     </WalletNotConnectedButton>
   )
 }
+
+export const InstallWalletButton = () => {
+  return (
+    <WalletNotConnectedButton onClick={() => window.open('https://templewallet.com/', '_blank')!.focus()}>
+      Install wallet
+    </WalletNotConnectedButton>
+  )
+}
+
 export const SimpleConnectButtonNoAddress = ({ handleConnect }: { handleConnect: () => void }) => {
   return (
     <SimpleConnectedButton onClick={handleConnect}>
@@ -79,3 +111,74 @@ export const SimpleConnectButtonNoAddress = ({ handleConnect }: { handleConnect:
     </SimpleConnectedButton>
   )
 }
+
+type ConnectedWalletDetailsItemProps = {
+  buttonText: string
+  coinName: string
+  coinAmount: number
+  buttonHandler: () => void
+  isLast?: boolean
+  subtextInfo?: string
+  subtextAmount?: number
+}
+
+const ConnectedWalletDetailsItem = ({
+  buttonText,
+  coinName,
+  coinAmount,
+  buttonHandler,
+  isLast,
+  subtextInfo,
+  subtextAmount,
+}: ConnectedWalletDetailsItemProps) => {
+  return (
+    <ConnectedWalletDetailsItemStyled isLast={isLast}>
+      <div className="left-part">
+        <CommaNumber value={coinAmount} endingText={coinName} showDecimal className="main" />
+        {subtextAmount !== undefined ? (
+          <CommaNumber value={subtextAmount} endingText={'USD'} showDecimal className="subtext" />
+        ) : (
+          <div className="subtext">{subtextInfo}</div>
+        )}
+      </div>
+
+      <Button text={buttonText} kind={TRANSPARENT} onClick={buttonHandler} className="connect-wallet-details" />
+    </ConnectedWalletDetailsItemStyled>
+  )
+}
+
+// export const ConnectWalletView = ({
+//   type,
+//   wallet,
+//   ready,
+//   accountPkh,
+//   handleConnect,
+//   handleNewConnect,
+//   className,
+//   connectedWalletProps,
+// }: ConnectWalletViewProps) => {
+//   return (
+//     <ConnectWalletStyled className={className} id={'connectWalletButton'}>
+//       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
+//       {wallet ? (
+//         <>
+//           {ready && type !== 'simpleButton' && accountPkh ? (
+//             <ConnectedWalletBlock
+//               accountPkh={accountPkh}
+//               myMvkTokenBalance={connectedWalletProps.userMVKBalance}
+//               signOutHandler={() => null}
+//               changeWalletHandler={handleNewConnect}
+//             />
+//           ) : null}
+//           {type === 'simpleButton' && <SimpleConnectButtonNoAddress handleConnect={handleConnect} />}
+//           {!ready && type !== 'simpleButton' && <NoWalletConnectedButton handleConnect={handleConnect} />}
+//         </>
+//       ) : (
+//         <WalletNotConnectedButton onClick={() => window.open('https://templewallet.com/', '_blank')!.focus()}>
+//           Install wallet
+//         </WalletNotConnectedButton>
+//       )}
+//       )}
+//     </ConnectWalletStyled>
+//   )
+// }
