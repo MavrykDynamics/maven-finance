@@ -11,6 +11,10 @@ export const PopupChangeNode = ({ isModalOpened, closeModal }: { isModalOpened: 
     } else {
       document.body.style.overflow = 'unset'
     }
+
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
   }, [isModalOpened])
 
   return (

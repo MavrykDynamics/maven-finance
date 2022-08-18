@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 import { MenuLogo } from '../Menu.style'
 import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 import { MenuMobileBurger, MenuTopStyled } from './MenuTopBar.style'
+import { State } from 'reducers'
+import { useCallback } from 'react'
 
 type MenuTopBarProps = {
   setExpanded: (arg: number) => void
@@ -39,22 +41,21 @@ export const MenuTopBar = ({
   isExpandedMenu,
   openChangeNodePopupHandler,
 }: MenuTopBarProps) => {
-  const { darkThemeEnabled } = useSelector((state: any) => state.preferences)
+  const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
   // const logoMobile = '/logo-mobile.svg'
 
+  const burgerClickHandler = useCallback((e) => {
+    e.stopPropagation()
+    setExpanded(0)
+    setisExpandedMenu(!isExpandedMenu)
+  }, [])
+
   return (
     <MenuTopStyled>
       <div className="left-side">
-        <MenuMobileBurger
-          onClick={(e) => {
-            e.stopPropagation()
-            setExpanded(0)
-            setisExpandedMenu(!isExpandedMenu)
-          }}
-          className={isExpandedMenu ? 'expanded' : ''}
-        >
+        <MenuMobileBurger onClick={burgerClickHandler} className={isExpandedMenu ? 'expanded' : ''}>
           <Icon id="menuOpen" />
         </MenuMobileBurger>
 

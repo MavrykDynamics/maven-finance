@@ -7,6 +7,7 @@ export type RPCNodeType = {
   url: string
   title: string
   nodeLogoUrl?: string
+  isUser?: boolean
 }
 
 export interface PreferencesState {
