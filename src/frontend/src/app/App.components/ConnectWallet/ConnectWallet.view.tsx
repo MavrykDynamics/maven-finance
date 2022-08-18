@@ -36,8 +36,8 @@ export const ConnectedWalletBlock = ({
   const [detailsShown, setDetailsShown] = useState(false)
 
   return (
-    <ConnectedWalletStyled>
-      <div className="visible-part" onClick={() => setDetailsShown(!detailsShown)}>
+    <ConnectedWalletStyled onMouseOver={() => setDetailsShown(true)} onMouseLeave={() => setDetailsShown(false)}>
+      <div className="visible-part">
         <Icon id="wallet" className="wallet" />
         <var>
           <TzAddress tzAddress={accountPkh} hasIcon={false} shouldCopy={false} />

@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components/macro'
 import { backgroundTextColor, skyColor } from 'styles'
 import { BUTTON_RADIUS } from 'styles/constants'
 import { MavrykTheme } from 'styles/interfaces'
-import { Button } from '../Button/Button.controller'
 
 export const ConnectWalletStyled = styled.div<{ theme: MavrykTheme }>`
   text-align: center;
@@ -49,29 +48,20 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
 
   .wallet-details {
     position: absolute;
+    visibility: hidden;
     padding: 30px;
-    top: 80px;
+    top: 85px;
     opacity: 0;
-    right: 0;
-    transition: 1s all;
+    right: 15px;
+    transition: 0.6s all;
     width: 375px;
     background: #160e3f;
+    border: 1px solid #86d4c9;
     border-radius: 10px;
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-
-    &::before {
-      position: absolute;
-      top: 0;
-      left: 0;
-      content: '';
-      width: 100%;
-      height: 1px;
-      background: #503eaa;
-    }
 
     &.visible {
       opacity: 1;
+      visibility: visible;
     }
   }
 
