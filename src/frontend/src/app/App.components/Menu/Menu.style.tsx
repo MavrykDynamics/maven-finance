@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components/macro'
 import { backdropColor, cyanColor } from 'styles/colors'
+import { MENU_Z_INDEX, Z_INDEX_DEFAULT } from 'styles/constants'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -46,14 +47,14 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   @media screen and (max-width: 1400px) {
     top: 0;
     left: 0;
-    z-index: 10;
+    z-index: ${MENU_Z_INDEX};
     transition: all 0.3s;
 
     &.menu-expanded {
       width: 100vw;
       display: flex;
       background: ${backdropColor};
-      z-index: 10;
+      z-index: ${MENU_Z_INDEX};
       align-items: flex-start;
 
       .menu-backdrop {
@@ -91,7 +92,7 @@ export const MenuSidebarContent = styled.div`
   padding-top: 110px;
 `
 export const MenuLogo = styled.img`
-  z-index: 1;
+  z-index: ${Z_INDEX_DEFAULT};
   width: 218px;
   height: 43px;
 
