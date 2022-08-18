@@ -62,13 +62,13 @@ export const TopBarLinksStyled = styled.div`
   .group-links {
     position: absolute;
     display: flex;
-    top: 80px;
+    top: 85px;
     opacity: 0;
     visibility: hidden;
     padding: 20px 45px 20px 15px;
     background-color: #160e3f;
     border-radius: 10px;
-    border: 1px solid #503eaa;
+    border: 1px solid #86d4c9;
     transition: 0.6s all;
     flex-direction: column;
     row-gap: 15px;
