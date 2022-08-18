@@ -18,6 +18,7 @@ import animationData from './ship-loop.json'
 import { getGovernanceStorage } from '../../src/pages/Governance/Governance.actions'
 import { PopupChangeNode } from './App.components/ChangeNodePopup/Popup-change-node.controller'
 import { toggleRPCNodePopup } from './App.components/ChangeNodePopup/ChangeNode.actions'
+import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
 
 export const store = configureStore({})
 
@@ -25,8 +26,8 @@ const AppContainer = () => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const loading = useSelector((state: State) => state.loading)
-  const sate = useSelector((state: State) => state)
-  const showChangeNodePopup = useSelector((state: State) => state.preferences.changeNodePopupOpen)
+  const { changeNodePopupOpen, sidebarOpened } = useSelector((state: State) => state.preferences)
+
   useEffect(() => {
     dispatch(onStart())
     dispatch(getGovernanceStorage())
@@ -37,8 +38,6 @@ const AppContainer = () => {
   }, [dispatch])
 
   const closeModalHandler = useCallback(() => dispatch(toggleRPCNodePopup(false)), [])
-
-  const [isExpandedMenuMob, setExpandedMenuMob] = useState<boolean>(true)
 
   const animation = JSON.parse(JSON.stringify(animationData))
   const shipLoopOptions = {
@@ -54,7 +53,7 @@ const AppContainer = () => {
     <Router>
       {/* <ThemeToggle /> */}
       <ProgressBar />
-      <AppStyled isExpandedMenu={isExpandedMenuMob}>
+      <AppStyled isExpandedMenu={sidebarOpened}>
         {loading ? (
           <LoaderStyled>
             <figure>
@@ -65,8 +64,8 @@ const AppContainer = () => {
             </figure>
           </LoaderStyled>
         ) : null}
-        <Menu isExpandedMenu={isExpandedMenuMob} setisExpandedMenu={setExpandedMenuMob} />
-        <PopupChangeNode isModalOpened={showChangeNodePopup} closeModal={closeModalHandler} />
+        <Menu />
+        <PopupChangeNode isModalOpened={changeNodePopupOpen} closeModal={closeModalHandler} />
         <AppRoutes />
       </AppStyled>
       <Toaster />

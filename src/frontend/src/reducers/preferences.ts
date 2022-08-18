@@ -1,6 +1,6 @@
 import { TOGGLE_RPC_NODE_POPUP, SELECT_NEW_RPC_APP_NODE, SET_RPC_NODES } from 'app/App.components/ChangeNodePopup/ChangeNode.actions'
 import { TOGGLE_DARK_THEME } from '../app/App.components/DarkThemeProvider/DarkThemeProvider.actions'
-import { GET_HEAD_DATA } from '../app/App.components/Menu/Menu.actions'
+import { GET_HEAD_DATA, TOGGLE_SIDEBAR } from '../app/App.components/Menu/Menu.actions'
 import { getItemFromStorage } from '../utils/storage'
 
 export type RPCNodeType = {
@@ -16,11 +16,13 @@ export interface PreferencesState {
   changeNodePopupOpen: boolean,
   RPC_NODES: Array<RPCNodeType>
   REACT_APP_RPC_PROVIDER: string
+  sidebarOpened: boolean
 }
 
 const preferencesDefaultState: PreferencesState = {
   darkThemeEnabled: getItemFromStorage('theme') || true,
   changeNodePopupOpen: false,
+  sidebarOpened: false,
   RPC_NODES: [
     { title: 'MARIGOLD', url: 'https://jakartanet.tezos.marigold.dev/', nodeLogoUrl: 'marigold_logo.png' },
     { title: 'ECADLABS', url: 'https://jakartanet.ecadinfra.com', nodeLogoUrl: 'ECAD_logo.png' },
@@ -40,6 +42,8 @@ export function preferences(state = preferencesDefaultState, action: any): Prefe
       return { ...state, REACT_APP_RPC_PROVIDER: action.newRPCNode }
     case SET_RPC_NODES: 
       return {...state, RPC_NODES: action.newRPCNodes}
+    case TOGGLE_SIDEBAR: 
+      return {...state, sidebarOpened: action.sidebarOpened}
     default:
       return state
   }

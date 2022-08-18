@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
+import { State } from 'reducers'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
+import { toggleSidebarCollapsing } from './Menu.actions'
 import { MenuFooter, MenuGrid, MenuSidebarContent, MenuSidebarStyled } from './Menu.style'
 import { MenuTopBar } from './MenuTopBar/MenuTopBar.controller'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
@@ -11,41 +14,41 @@ type MenuViewProps = {
   loading: boolean
   accountPkh?: string
   ready: boolean
-  isExpandedMenu: boolean
-  setisExpandedMenu: (value: boolean) => void
   openChangeNodePopupHandler: () => void
 }
 
-export const MenuView = ({
-  accountPkh,
-  ready,
-  isExpandedMenu,
-  setisExpandedMenu,
-  openChangeNodePopupHandler,
-}: MenuViewProps) => {
+export const MenuView = ({ accountPkh, ready, openChangeNodePopupHandler }: MenuViewProps) => {
   const location = useLocation()
+  const dispatch = useDispatch()
   const [isExpanded, setExpanded] = useState<number>(0)
+  const { sidebarOpened } = useSelector((state: State) => state.preferences)
 
   const handleToggle = (id: number) => {
-    setisExpandedMenu(true)
+    dispatch(toggleSidebarCollapsing(true))
     setExpanded(id === isExpanded ? 0 : id)
   }
+
+  const burgerClickHandler = useCallback(() => {
+    setExpanded(0)
+    dispatch(toggleSidebarCollapsing())
+  }, [])
+
+  const sidebarBackdropClickHandler = useCallback(() => {
+    setExpanded(0)
+    dispatch(toggleSidebarCollapsing(false))
+  }, [])
 
   return (
     <>
       <MenuTopBar
-        setExpanded={setExpanded}
-        setisExpandedMenu={setisExpandedMenu}
+        burgerClickHandler={burgerClickHandler}
         openChangeNodePopupHandler={openChangeNodePopupHandler}
-        isExpandedMenu={isExpandedMenu}
+        isExpandedMenu={sidebarOpened}
       />
 
       <MenuSidebarStyled
-        className={`navbar-sticky ${isExpandedMenu ? 'menu-expanded' : 'menu-collapsed'}`}
-        onClick={() => {
-          setExpanded(0)
-          setisExpandedMenu(false)
-        }}
+        className={`navbar-sticky ${sidebarOpened ? 'menu-expanded' : 'menu-collapsed'}`}
+        onClick={sidebarBackdropClickHandler}
       >
         <MenuSidebarContent onClick={(e) => e.stopPropagation()}>
           <MenuGrid>
@@ -56,7 +59,7 @@ export const MenuView = ({
                   key={key}
                   handleToggle={handleToggle}
                   isExpanded={navigationLink.id === isExpanded}
-                  isMobMenuExpanded={isExpandedMenu}
+                  isMobMenuExpanded={sidebarOpened}
                   location={location}
                   walletReady={ready}
                   accountPkh={accountPkh}

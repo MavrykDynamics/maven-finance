@@ -9,8 +9,7 @@ import { State } from 'reducers'
 import { useCallback } from 'react'
 
 type MenuTopBarProps = {
-  setExpanded: (arg: number) => void
-  setisExpandedMenu: (arg: boolean) => void
+  burgerClickHandler: () => void
   openChangeNodePopupHandler: () => void
   isExpandedMenu: boolean
 }
@@ -35,27 +34,23 @@ const SocialIcons = () => (
   </div>
 )
 
-export const MenuTopBar = ({
-  setExpanded,
-  setisExpandedMenu,
-  isExpandedMenu,
-  openChangeNodePopupHandler,
-}: MenuTopBarProps) => {
+export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodePopupHandler }: MenuTopBarProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
   // const logoMobile = '/logo-mobile.svg'
 
-  const burgerClickHandler = useCallback((e) => {
-    e.stopPropagation()
-    setExpanded(0)
-    setisExpandedMenu(!isExpandedMenu)
-  }, [])
-
   return (
     <MenuTopStyled>
       <div className="left-side">
-        <MenuMobileBurger onClick={burgerClickHandler} className={isExpandedMenu ? 'expanded' : ''}>
+        <MenuMobileBurger
+          onClick={(e) => {
+            console.log('button click', isExpandedMenu)
+            e.stopPropagation()
+            burgerClickHandler()
+          }}
+          className={isExpandedMenu ? 'expanded' : ''}
+        >
           <Icon id="menuOpen" />
         </MenuMobileBurger>
 
