@@ -1,5 +1,3 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { State } from '../../../reducers'

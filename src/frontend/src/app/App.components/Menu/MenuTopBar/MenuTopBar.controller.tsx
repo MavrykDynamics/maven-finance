@@ -37,7 +37,7 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
-  // const logoMobile = '/logo-mobile.svg'
+  const logoMobile = '/logo-mobile.svg'
 
   return (
     <MenuTopStyled>
@@ -55,7 +55,7 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
 
         <Link to="/">
           <MenuLogo alt="logo" className={'desctop-logo'} src={logoImg} />
-          {/* <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} /> */}
+          <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} />
         </Link>
       </div>
       <div className="grouped-links">
