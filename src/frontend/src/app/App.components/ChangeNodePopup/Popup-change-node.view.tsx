@@ -1,5 +1,5 @@
 import { Input } from 'app/App.components/Input/Input.controller'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { RPCNodeType } from 'reducers/preferences'
@@ -16,16 +16,19 @@ import {
 } from './Popup-change-node.style'
 
 export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) => {
-  const [inputData, setInputData] = useState('')
-  const { RPC_NODES, REACT_APP_RPC_PROVIDER } = useSelector((state: State) => state.preferences)
   const dispatch = useDispatch()
+  const { RPC_NODES, REACT_APP_RPC_PROVIDER } = useSelector((state: State) => state.preferences)
+
+  const [inputData, setInputData] = useState('')
   const [selectedNodeByClick, setSelectedNodeByClick] = useState(REACT_APP_RPC_PROVIDER)
 
-  const addNodeHandler = () => {
+  const addNodeHandler = useCallback(() => {
     const newRPCNodes: Array<RPCNodeType> = [...RPC_NODES, { title: inputData, url: inputData, isUser: true }]
     dispatch(setNewRPCNodes(newRPCNodes))
     setInputData('')
-  }
+  }, [])
+
+  const confirmNodeSelecting = useCallback(() => dispatch(selectNewRPCNode(selectedNodeByClick)), [])
 
   return (
     <PopupContainerWrapper onClick={(e) => e.stopPropagation()}>
@@ -52,7 +55,7 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
       </ChangeNodeNodesList>
 
       <ChangeNodeNodesListItem className="add_node">
-        <div className="add-new-node-handler" onClick={() => addNodeHandler()}>
+        <div className="add-new-node-handler" onClick={addNodeHandler}>
           Add New Node
         </div>
         <Input
@@ -69,7 +72,7 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
       </DescrText>
 
       <Button
-        onClick={() => dispatch(selectNewRPCNode(selectedNodeByClick))}
+        onClick={confirmNodeSelecting}
         className="popup_btn default_svg start_verification"
         text="Confirm"
         icon="okIcon"
