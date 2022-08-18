@@ -20,6 +20,7 @@ import {
   CONTRACT_ADDRESSES_QUERY_NAME,
   CONTRACT_ADDRESSES_QUERY_VARIABLE,
 } from '../gql/queries'
+import {normalizeAddressesStorage} from './App.helpers'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -34,7 +35,7 @@ export const recaptchaRequest = () => (dispatch: any) => {
 export const onStart = () => async (dispatch: any, getState: any) => {
   const res = await getInitialData()
   console.log('%c res onStart getInitialData()', 'color:gold', res)
-  const addressesStorage = storageToTypeConverter('addresses', res[0])
+  const addressesStorage = normalizeAddressesStorage(res[0])
   const mvkTokenStorage = storageToTypeConverter('mvkToken', res[1]?.mvk_token[0])
   const doormanStorage = storageToTypeConverter('doorman', res[2]?.doorman[0])
   const delegationStorage = storageToTypeConverter('delegation', res[3]?.delegation[0])
@@ -47,6 +48,8 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const oraclesStorage = storageToTypeConverter('oracle', res[10])
 
   // if (addressesStorage) updateContractAddresses(addressesStorage)
+
+  console.log('%c ||||| addressesStorage', 'color:yellowgreen', addressesStorage);
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceId
   dispatch({

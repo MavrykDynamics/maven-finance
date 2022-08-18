@@ -1,5 +1,4 @@
 import { State } from '../../reducers'
-import { TezosToolkit } from '@taquito/taquito'
 
 // types
 import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
@@ -8,7 +7,6 @@ import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Fa
 import { normalizeFarmStorage } from './Frams.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from '../Doorman/Doorman.actions'
@@ -16,7 +14,7 @@ import { PRECISION_NUMBER } from '../../utils/constants'
 import { hideModal } from '../../app/App.components/Modal/Modal.actions'
 
 export const GET_FARM_CONTRACTS = 'GET_FARM_CONTRACTS'
-export const getFarmsContracts = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+  export const getFarmsContracts = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   const { farmStorage } = state.farm

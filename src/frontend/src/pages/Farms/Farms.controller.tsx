@@ -162,9 +162,9 @@ export const Farms = () => {
                 const depositAmount = getSummDepositedAmount(farm.farmAccounts)
                 return (
                   <div>
-                    <p>LpBalance = {farm.lpTokenBalance}</p>
+                    {/* For test <p>LpBalance = {farm.lpTokenBalance}</p>
                     <p>Stake amount = {depositAmount}</p>
-                    <p>Rewards per block= {farm.currentRewardPerBlock}</p>
+                    <p>Rewards per block= {farm.currentRewardPerBlock}</p> */}
                     <FarmCard
                       variant={farmsViewVariant}
                       farmAddress={farm.address}
