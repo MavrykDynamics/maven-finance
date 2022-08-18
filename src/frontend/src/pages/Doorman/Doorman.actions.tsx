@@ -17,42 +17,21 @@ import {
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { UserData } from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
-import {normalizeDoormanStorage} from '../../pages/Doorman/Doorman.helpers'
+import {normalizeDoormanStorage, normalizeMvkToken} from '../../pages/Doorman/Doorman.helpers'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
-
-  // const contract = accountPkh
-  //   ? await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
-  //   : await new TezosToolkit(
-  //       (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-  //     ).contract.at(mvkTokenAddress.address)
-  // const storage = await (contract as any).storage()
-
   const storage = await fetchFromIndexer(
     MVK_TOKEN_STORAGE_QUERY,
     MVK_TOKEN_STORAGE_QUERY_NAME,
     MVK_TOKEN_STORAGE_QUERY_VARIABLE,
   )
 
-  const convertedStorage = storageToTypeConverter('mvkToken', storage?.mvk_token[0])
-  //
-  // const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
-  // const myBalance = myLedgerEntry ? calcWithoutMu(myLedgerEntry?.toNumber()) : 0
-  // const totalMvkSupply = calcWithoutMu(storage?.totalSupply)
-  //
-  // const mvkTokenStorage: MvkTokenStorage = {
-  //   tokenId: await storage['token_metadata'].id.toNumber(),
-  //   maximumTotalSupply: 0,
-  //   admin: storage?.admin,
-  //   contractAddresses: storage?.contractAddresses,
-  //   totalSupply: totalMvkSupply,
-  //   whitelistContracts: storage?.contractAddresses,
-  // }
+  const convertedStorage = normalizeMvkToken(storage?.mvk_token[0])
+
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,
     mvkTokenStorage: convertedStorage,

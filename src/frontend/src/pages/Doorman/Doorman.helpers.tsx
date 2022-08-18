@@ -1,5 +1,6 @@
 // type
 import { DoormanStorage, DoormanGraphQl } from '../../utils/TypesAndInterfaces/Doorman'
+import { MvkTokenStorage, MvkTokenGraphQL } from '../../utils/TypesAndInterfaces/MvkToken'
 
 // helpers
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
@@ -17,5 +18,13 @@ export function normalizeDoormanStorage(storage: DoormanGraphQl): DoormanStorage
       farmClaimIsPaused: storage?.farm_claimed_paused,
     },
     accumulatedFeesPerShare: calcWithoutPrecision(storage?.accumulated_fees_per_share),
+  }
+}
+
+
+export function normalizeMvkToken(storage: MvkTokenGraphQL): MvkTokenStorage {
+  return {
+    totalSupply: calcWithoutPrecision(storage?.total_supply),
+    maximumTotalSupply: calcWithoutPrecision(storage?.maximum_supply),
   }
 }

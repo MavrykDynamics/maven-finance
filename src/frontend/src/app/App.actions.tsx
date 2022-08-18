@@ -23,7 +23,7 @@ import {
 
 // helpers
 import {normalizeAddressesStorage} from './App.helpers'
-import {normalizeDoormanStorage} from '../pages/Doorman/Doorman.helpers'
+import {normalizeDoormanStorage, normalizeMvkToken} from '../pages/Doorman/Doorman.helpers'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -39,7 +39,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const res = await getInitialData()
   console.log('%c res onStart getInitialData()', 'color:gold', res)
   const addressesStorage = normalizeAddressesStorage(res[0])
-  const mvkTokenStorage = storageToTypeConverter('mvkToken', res[1]?.mvk_token[0])
+  const mvkTokenStorage = normalizeMvkToken(res[1]?.mvk_token[0])
   const doormanStorage = normalizeDoormanStorage(res[2]?.doorman[0])
   const delegationStorage = storageToTypeConverter('delegation', res[3]?.delegation[0])
   const farmStorage = storageToTypeConverter('farm', res[4]?.farm)
