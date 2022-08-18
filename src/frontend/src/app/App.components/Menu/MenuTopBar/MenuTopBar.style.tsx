@@ -26,6 +26,7 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   }
 
   .right-side {
+    height: 100%;
     .settingsIcon {
       margin-left: 25px;
       cursor: pointer;

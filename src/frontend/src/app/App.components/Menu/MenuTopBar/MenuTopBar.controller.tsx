@@ -6,7 +6,6 @@ import { MenuLogo } from '../Menu.style'
 import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 import { MenuMobileBurger, MenuTopStyled } from './MenuTopBar.style'
 import { State } from 'reducers'
-import { useCallback } from 'react'
 
 type MenuTopBarProps = {
   burgerClickHandler: () => void
@@ -91,7 +90,7 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
       </div>
       <div className="right-side">
         <SocialIcons />
-        <ConnectWallet type={'main-menu'} />
+        <ConnectWallet />
         <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
           <Icon id="gear" />
         </div>
