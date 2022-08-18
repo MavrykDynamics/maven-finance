@@ -96,8 +96,23 @@ export const MenuLogo = styled.img`
   width: 218px;
   height: 43px;
 
+  &.mobile-logo {
+    display: none;
+  }
+
   @media screen and (max-width: 1535px) {
     width: 160px;
+  }
+
+  @media screen and (max-width: 920px) {
+    &.desctop-logo {
+      display: none;
+    }
+
+    &.mobile-logo {
+      display: block;
+      width: fit-content;
+    }
   }
 `
 
