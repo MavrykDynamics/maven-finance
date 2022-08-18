@@ -1,19 +1,14 @@
 import { getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+import { toggleRPCNodePopup } from '../ChangeNodePopup/ChangeNode.actions'
 
 import { showToaster } from '../Toaster/Toaster.actions'
 import { getHeadData } from './Menu.actions'
 import { MenuView } from './Menu.view'
 
-export const Menu = ({
-  isExpandedMenu,
-  setisExpandedMenu,
-}: {
-  isExpandedMenu: boolean
-  setisExpandedMenu: (value: boolean) => void
-}) => {
+export const Menu = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -30,13 +25,14 @@ export const Menu = ({
     initialDispatches(accountPkh)
   }, [accountPkh])
 
+  const openChangeNodePopup = useCallback(() => dispatch(toggleRPCNodePopup(true)), [])
+
   return (
     <MenuView
       loading={loading}
       accountPkh={accountPkh}
       ready={ready}
-      isExpandedMenu={isExpandedMenu}
-      setisExpandedMenu={setisExpandedMenu}
+      openChangeNodePopupHandler={openChangeNodePopup}
     />
   )
 }
