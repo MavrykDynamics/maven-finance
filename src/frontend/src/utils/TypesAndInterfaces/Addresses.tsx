@@ -5,7 +5,7 @@ import type {
   Usdm_Token, Usdm_Token_Controller, Vault, Aggregator, Aggregator_Factory
 } from '../generated/graphqlTypes'
  
-export type AddressesType = {
+export type AddressesGraphQl= {
   farm: {address: Farm['address']}[]
   farm_factory: {address: Farm_Factory['address']}[]
   delegation: {address: Delegation['address']}[]

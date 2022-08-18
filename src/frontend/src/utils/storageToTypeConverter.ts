@@ -35,10 +35,6 @@ import { VestingStorage } from './TypesAndInterfaces/Vesting'
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
   switch (contract) {
-    case 'doorman':
-      res = convertToDoormanStorageType(storage)
-      setItemInStorage('DoormanStorage', res)
-      break
     case 'mvkToken':
       res = convertToMvkTokenStorageType(storage)
       setItemInStorage('MvkTokenStorage', res)
@@ -109,21 +105,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
   }
 }
 
-function convertToDoormanStorageType(storage: any): DoormanStorage {
-  const totalStakedMvk = storage?.stake_accounts_aggregate?.aggregate.sum.smvk_balance ?? 0
-  return {
-    unclaimedRewards: calcWithoutPrecision(storage?.unclaimed_rewards ?? 0),
-    minMvkAmount: calcWithoutPrecision(storage?.min_mvk_amount ?? 0),
-    totalStakedMvk: calcWithoutPrecision(totalStakedMvk),
-    breakGlassConfig: {
-      stakeIsPaused: storage?.stake_paused,
-      unstakeIsPaused: storage?.unstake_paused,
-      compoundIsPaused: storage?.compound_paused,
-      farmClaimIsPaused: storage?.farm_claimed_paused,
-    },
-    accumulatedFeesPerShare: calcWithoutPrecision(storage?.accumulated_fees_per_share),
-  }
-}
 
 function convertToMvkTokenStorageType(storage: any): MvkTokenStorage {
   return {

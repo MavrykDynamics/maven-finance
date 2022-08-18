@@ -1,9 +1,9 @@
 
 // types
 import type { ContractAddressesState } from '../reducers/contractAddresses'
-import type {AddressesType} from '../utils/TypesAndInterfaces/Addresses'
+import type {AddressesGraphQl} from '../utils/TypesAndInterfaces/Addresses'
 
-export function normalizeAddressesStorage(storage: AddressesType): ContractAddressesState {
+export function normalizeAddressesStorage(storage: AddressesGraphQl): ContractAddressesState {
   return {
     farmAddress: { address: storage?.farm?.[0]?.address },
     farmFactoryAddress: { address: storage?.farm_factory?.[0]?.address },

@@ -1,3 +1,5 @@
+import type { Doorman } from '../generated/graphqlTypes'
+
 export interface UserStakeRecord {
   balance: number
   participationFeesPerShare: number
@@ -25,3 +27,5 @@ export interface DoormanStorage {
   unclaimedRewards?: number
   accumulatedFeesPerShare?: number
 }
+
+export type DoormanGraphQl = Omit<Doorman, '__typename'>
