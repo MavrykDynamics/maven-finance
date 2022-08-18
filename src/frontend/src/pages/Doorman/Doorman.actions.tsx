@@ -20,6 +20,7 @@ import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { UserData } from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
+import {normalizeDoormanStorage} from '../../pages/Doorman/Doorman.helpers'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -262,56 +263,7 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
       DOORMAN_STORAGE_QUERY_VARIABLE,
     )
 
-    const convertedStorage = storageToTypeConverter('doorman', storage?.doorman?.[0])
-    // const userStakeBalanceLedgerBigMap = await getContractBigmapKeys(doormanAddress.address, 'userStakeBalanceLedger')
-    //
-    // const userStakeBalanceLedger: UserStakeBalanceLedger = new Map<string, string>()
-    //
-    // userStakeBalanceLedgerBigMap.forEach((element: any) => {
-    //   const keyAddress = element.key
-    //   const myStakeBalanceMu = Number(element.value?.balance) || 0
-    //   const myStakeBalance = myStakeBalanceMu > 0 ? myStakeBalanceMu / PRECISION_NUMBER : 0
-    //   userStakeBalanceLedger.set(keyAddress, myStakeBalance.toFixed(2))
-    // })
-    //
-    // const doormanBreakGlassConfig: DoormanBreakGlassConfigType = {
-    //   stakeIsPaused: storage?.breakGlassConfig?.stakeIsPaused,
-    //   unstakeIsPaused: storage?.breakGlassConfig?.unstakeIsPaused,
-    //   compoundIsPaused: storage?.breakGlassConfig?.compoundIsPaused,
-    // }
-    //
-    // const stakedMvkTotalSupply = calcWithoutMu(storage?.stakedMvkTotalSupply)
-    // const tempMvkTotalSupply = calcWithoutMu(storage?.tempMvkTotalSupply)
-    // const accumulatedFeesPerShare = calcWithoutMu(storage?.accumulatedFeesPerShare)
-    // const minMvkAmount = calcWithoutMu(storage?.minMvkAmount)
-    // const tempMvkMaximumTotalSupply = calcWithoutMu(storage?.tempMvkMaximumTotalSupply)
-    //
-    // const doormanStorage: DoormanStorage = {
-    //   admin: storage?.admin,
-    //   breakGlassConfig: doormanBreakGlassConfig,
-    //   userStakeBalanceLedger: userStakeBalanceLedger,
-    //   tempMvkTotalSupply: tempMvkTotalSupply,
-    //   stakedMvkTotalSupply: stakedMvkTotalSupply,
-    //   accumulatedFeesPerShare: accumulatedFeesPerShare,
-    //   minMvkAmount: minMvkAmount,
-    //   tempMvkMaximumTotalSupply: tempMvkMaximumTotalSupply,
-    // }
-    //
-    // const doormanBreakGlassConfig: DoormanBreakGlassConfigType = {
-    //   stakeIsPaused: convertedStorage.breakGlassConfig.stakeIsPaused,
-    //   unstakeIsPaused: convertedStorage.breakGlassConfig.unstakeIsPaused,
-    //   compoundIsPaused: convertedStorage.breakGlassConfig.compoundIsPaused,
-    // }
-    //
-    // const doormanStorage: DoormanStorage = {
-    //   admin: storage?.admin,
-    //   breakGlassConfig: doormanBreakGlassConfig,
-    //   tempMvkTotalSupply: convertedStorage.tempMvkTotalSupply,
-    //   stakedMvkTotalSupply: convertedStorage.stakedMvkTotalSupply,
-    //   accumulatedFeesPerShare: convertedStorage.accumulatedFeesPerShare,
-    //   minMvkAmount: convertedStorage.minMvkAmount,
-    //   tempMvkMaximumTotalSupply: convertedStorage.tempMvkMaximumTotalSupply,
-    // }
+    const convertedStorage = normalizeDoormanStorage(storage?.doorman?.[0])
 
     updateItemInStorage('DoormanStorage', convertedStorage)
     dispatch({
