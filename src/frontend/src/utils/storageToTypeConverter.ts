@@ -12,7 +12,6 @@ import {
   SatelliteProposalVotingHistory,
   SatelliteRecord,
 } from './TypesAndInterfaces/Delegation'
-import { DoormanStorage } from './TypesAndInterfaces/Doorman'
 import {
   EmergencyGovernanceProposalRecord,
   EmergencyGovernanceStorage,
@@ -28,17 +27,12 @@ import {
   ProposalVote,
   SnapshotRecordType,
 } from './TypesAndInterfaces/Governance'
-import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { TreasuryType } from './TypesAndInterfaces/Treasury'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
   switch (contract) {
-    case 'mvkToken':
-      res = convertToMvkTokenStorageType(storage)
-      setItemInStorage('MvkTokenStorage', res)
-      break
     case 'delegation':
       res = convertToDelegationStorageType(storage)
       setItemInStorage('DelegationStorage', res)
@@ -105,13 +99,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
   }
 }
 
-
-function convertToMvkTokenStorageType(storage: any): MvkTokenStorage {
-  return {
-    totalSupply: calcWithoutPrecision(storage?.total_supply),
-    maximumTotalSupply: calcWithoutPrecision(storage?.maximum_supply),
-  }
-}
 
 function convertToDelegationStorageType(storage: any): DelegationStorage {
   const satelliteMap: SatelliteRecord[] = convertToSatelliteRecordsInterface(storage?.satellite_records)
