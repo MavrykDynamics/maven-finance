@@ -146,39 +146,3 @@ const ConnectedWalletDetailsItem = ({
     </ConnectedWalletDetailsItemStyled>
   )
 }
-
-// export const ConnectWalletView = ({
-//   type,
-//   wallet,
-//   ready,
-//   accountPkh,
-//   handleConnect,
-//   handleNewConnect,
-//   className,
-//   connectedWalletProps,
-// }: ConnectWalletViewProps) => {
-//   return (
-//     <ConnectWalletStyled className={className} id={'connectWalletButton'}>
-//       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
-//       {wallet ? (
-//         <>
-//           {ready && type !== 'simpleButton' && accountPkh ? (
-//             <ConnectedWalletBlock
-//               accountPkh={accountPkh}
-//               myMvkTokenBalance={connectedWalletProps.userMVKBalance}
-//               signOutHandler={() => null}
-//               changeWalletHandler={handleNewConnect}
-//             />
-//           ) : null}
-//           {type === 'simpleButton' && <SimpleConnectButtonNoAddress handleConnect={handleConnect} />}
-//           {!ready && type !== 'simpleButton' && <NoWalletConnectedButton handleConnect={handleConnect} />}
-//         </>
-//       ) : (
-//         <WalletNotConnectedButton onClick={() => window.open('https://templewallet.com/', '_blank')!.focus()}>
-//           Install wallet
-//         </WalletNotConnectedButton>
-//       )}
-//       )}
-//     </ConnectWalletStyled>
-//   )
-// }
