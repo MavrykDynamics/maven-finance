@@ -47,6 +47,7 @@ export const TopBarLinksStyled = styled.div`
   &:hover {
     .group-links {
       opacity: 1;
+      visibility: visible;
     }
 
     .group-name {
@@ -60,15 +61,15 @@ export const TopBarLinksStyled = styled.div`
 
   .group-links {
     position: absolute;
+    display: flex;
     top: 80px;
     opacity: 0;
-    z-index: 10;
+    visibility: hidden;
     padding: 20px 45px 20px 15px;
     background-color: #160e3f;
     border-radius: 10px;
     border: 1px solid #503eaa;
     transition: 0.6s all;
-    display: flex;
     flex-direction: column;
     row-gap: 15px;
     width: fit-content;

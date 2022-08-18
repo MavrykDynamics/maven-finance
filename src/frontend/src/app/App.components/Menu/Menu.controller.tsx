@@ -8,13 +8,7 @@ import { showToaster } from '../Toaster/Toaster.actions'
 import { getHeadData } from './Menu.actions'
 import { MenuView } from './Menu.view'
 
-export const Menu = ({
-  isExpandedMenu,
-  setisExpandedMenu,
-}: {
-  isExpandedMenu: boolean
-  setisExpandedMenu: (value: boolean) => void
-}) => {
+export const Menu = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -38,8 +32,6 @@ export const Menu = ({
       loading={loading}
       accountPkh={accountPkh}
       ready={ready}
-      isExpandedMenu={isExpandedMenu}
-      setisExpandedMenu={setisExpandedMenu}
       openChangeNodePopupHandler={openChangeNodePopup}
     />
   )

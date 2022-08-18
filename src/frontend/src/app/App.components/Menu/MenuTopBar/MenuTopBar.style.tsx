@@ -49,6 +49,10 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
       column-gap: 8px;
       margin-right: 20px;
 
+      @media screen and (max-width: 1300px) {
+        display: none;
+      }
+
       svg {
         width: 30px;
         height: 30px;
