@@ -1,23 +1,11 @@
 import { useState } from 'react'
-import { useSelector } from 'react-redux'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
-import { toggleRPCNodePopup } from '../ChangeNodePopup/ChangeNode.actions'
-import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import Icon from '../Icon/Icon.view'
-import {
-  MenuFooter,
-  MenuGrid,
-  MenuLogo,
-  MenuMobileBurger,
-  MenuSidebarContent,
-  MenuSidebarStyled,
-  MenuTopStyled,
-} from './Menu.style'
+import { MenuFooter, MenuGrid, MenuSidebarContent, MenuSidebarStyled } from './Menu.style'
+import { MenuTopBar } from './MenuTopBar/MenuTopBar.controller'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
-import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 
 type MenuViewProps = {
   loading: boolean
@@ -27,26 +15,6 @@ type MenuViewProps = {
   setisExpandedMenu: (value: boolean) => void
   openChangeNodePopupHandler: () => void
 }
-
-const SocialIcons = () => (
-  <div className="social-wrapper">
-    <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialTwitter" />
-    </a>
-    <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
-      <Icon id="socialDiscord" />
-    </a>
-    <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialTelegram" />
-    </a>
-    <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialMedium" />
-    </a>
-    <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
-      <Icon id="socialGitHub" />
-    </a>
-  </div>
-)
 
 export const MenuView = ({
   accountPkh,
@@ -58,11 +26,6 @@ export const MenuView = ({
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
 
-  const { darkThemeEnabled } = useSelector((state: any) => state.preferences)
-
-  const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
-  // const logoMobile = '/logo-mobile.svg'
-
   const handleToggle = (id: number) => {
     setisExpandedMenu(true)
     setExpanded(id === isExpanded ? 0 : id)
@@ -70,62 +33,12 @@ export const MenuView = ({
 
   return (
     <>
-      <MenuTopStyled>
-        <div className="left-side">
-          <MenuMobileBurger
-            onClick={(e) => {
-              e.stopPropagation()
-              setExpanded(0)
-              setisExpandedMenu(!isExpandedMenu)
-            }}
-            className={isExpandedMenu ? 'expanded' : ''}
-          >
-            <Icon id="menuOpen" />
-          </MenuMobileBurger>
-
-          <Link to="/">
-            <MenuLogo alt="logo" className={'desctop-logo'} src={logoImg} />
-            {/* <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} /> */}
-          </Link>
-        </div>
-        <div className="grouped-links">
-          <TopBarLinks
-            groupName={'Products'}
-            groupLinks={[
-              { name: 'Dapp', href: '/' },
-              { name: 'Liquidity Baking', href: '/' },
-              { name: 'Mavryk Bakery', href: '/' },
-              { name: 'DAO Bakery', href: '/' },
-            ]}
-          />
-          <TopBarLinks
-            groupName={'About'}
-            groupLinks={[
-              { name: 'Who we are', href: 'https://mavryk.finance/' },
-              { name: 'MVK Token', href: '/' },
-              { name: 'Team', href: '/' },
-              { name: 'Roadmap', href: '/' },
-            ]}
-          />
-          <TopBarLinks groupName={'Blog 🔥'} groupLinks={[]} />
-          <TopBarLinks
-            groupName={'Docs'}
-            groupLinks={[
-              { name: 'Litepaper', href: 'https://mavryk.finance/litepaper' },
-              { name: 'DAO docs', href: '/' },
-              { name: 'Security Audits', href: '/' },
-              { name: 'Github', href: 'https://github.com/mavrykfinance/' },
-            ]}
-          />
-        </div>
-        <div className="right-side">
-          <SocialIcons />
-          <ConnectWallet type={'main-menu'} />
-          <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
-            <Icon id="gear" />
-          </div>
-        </div>
-      </MenuTopStyled>
+      <MenuTopBar
+        setExpanded={setExpanded}
+        setisExpandedMenu={setisExpandedMenu}
+        openChangeNodePopupHandler={openChangeNodePopupHandler}
+        isExpandedMenu={isExpandedMenu}
+      />
 
       <MenuSidebarStyled
         className={`navbar-sticky ${isExpandedMenu ? 'menu-expanded' : 'menu-collapsed'}`}
