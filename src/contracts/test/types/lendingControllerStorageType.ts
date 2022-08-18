@@ -22,7 +22,6 @@ export type lendingControllerStorageType = {
     // vaults and owners
     vaults                      : MichelsonMap<MichelsonMapKey, unknown>;
     vaultCounter                : BigNumber;
-    vaultLedger                 : MichelsonMap<MichelsonMapKey, unknown>;
     ownerLedger                 : MichelsonMap<MichelsonMapKey, unknown>;
 
     // collateral tokens
@@ -31,7 +30,5 @@ export type lendingControllerStorageType = {
 
     lambdaLedger                : MichelsonMap<MichelsonMapKey, unknown>;
     vaultLambdaLedger           : MichelsonMap<MichelsonMapKey, unknown>;
-
-    tempValue                   : BigNumber;
 
 }

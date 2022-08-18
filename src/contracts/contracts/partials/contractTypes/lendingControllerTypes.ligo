@@ -78,17 +78,14 @@ type depositorLedgerType is big_map((address * string), nat)   // key - user add
 
 
 type collateralTokenRecordType is [@layout:comb] record [
-
     tokenName               : string;
     tokenContractAddress    : address;
-    tokenId                 : nat;
-
     decimals                : nat;       // token decimals
+
     oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
 
     tokenType               : tokenType; 
-
 ]
 type collateralTokenLedgerType is map(string, collateralTokenRecordType) 
 
@@ -96,9 +93,7 @@ type collateralTokenLedgerType is map(string, collateralTokenRecordType)
 type loanTokenRecordType is [@layout:comb] record [
     
     tokenName                               : string;
-    tokenContractAddress                    : address;
     tokenType                               : tokenType; 
-    tokenId                                 : nat;
     decimals                                : nat;
 
     lpTokensTotal                           : nat;
@@ -129,15 +124,6 @@ type loanTokenRecordType is [@layout:comb] record [
 type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 
-// type loanTokenRecordType is [@layout:comb] record [
-//     tokenContractAddress    : address;
-//     tokenType               : tokenType; 
-//     decimals                : nat; 
-// ]
-// type loanTokenLedgerType is big_map(string, loanTokenRecordType)
-
-
-
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
 type vaultRecordType is [@layout:comb] record [
 
@@ -160,7 +146,6 @@ type vaultRecordType is [@layout:comb] record [
 // owner types
 type ownerVaultSetType              is set(vaultIdType)                     // set of vault ids belonging to the owner 
 type ownerLedgerType                is big_map(address, ownerVaultSetType)  // big map of owners, and the corresponding vaults they own
-type vaultLedgerType                is big_map(vaultIdType, bool);
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -189,17 +174,6 @@ type removeLiquidityActionType is [@layout:comb] record [
     amount                  : nat;
 ]
 
-// collateralRatio           : nat;    // collateral ratio
-//     liquidationRatio          : nat;    // liquidation ratio
-    
-//     liquidationFee            : nat;    // liquidation fee - penalty fee paid by vault owner to liquidator
-//     adminLiquidationFee       : nat;    // admin liquidation fee - penalty fee paid by vault owner to treasury
-
-//     minimumLoanFee            : nat;    // minimum loan fee - taken at first minting
-
-//     minimumLoanFeeTreasuryShare  : nat;  // percentage of minimum loan fee that goes to the treasury
-//     interestTreasuryShare        : nat;  // percentage of interest that goes to the treasury
-
 
 type lendingControllerUpdateConfigNewValueType is nat
 type lendingControllerUpdateConfigActionType is 
@@ -209,8 +183,6 @@ type lendingControllerUpdateConfigActionType is
     |   ConfigLiquidationFeePercent     of unit
     |   ConfigAdminLiquidationFee       of unit
     |   ConfigMinimumLoanFeePercent     of unit
-    // |   ConfigAnnualServiceLoanFee      of unit
-    // |   ConfigDailyServiceLoanFee       of unit
     |   ConfigMinLoanFeeTreasuryShare   of unit
     |   ConfiginterestTreasuryShare     of unit
 
@@ -243,8 +215,6 @@ type closeVaultActionType is [@layout:comb] record [
 
 type setLoanTokenActionType is [@layout:comb] record [
     tokenName                               : string;
-    tokenContractAddress                    : address;
-    tokenId                                 : nat;
     decimals                                : nat;
 
     lpTokenContractAddress                  : address;
@@ -267,13 +237,14 @@ type updateCollateralTokenActionType is [@layout:comb] record [
 
     tokenName               : string;
     tokenContractAddress    : address;
-    tokenId                 : nat;
-    
     decimals                : nat; 
+
     oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
 
+    // variants at the end for taquito 
     tokenType               : tokenType; 
+
 ]
 
 
@@ -281,7 +252,6 @@ type withdrawFromVaultActionType is [@layout:comb] record [
     id                          : vaultIdType; 
     tokenAmount                 : nat;  
     tokenName                   : string;
-    // [@annot:to] to_             : contract(unit);
 ]
 
 
@@ -293,10 +263,6 @@ type registerDepositType is [@layout:comb] record [
 
 
 type liquidateVaultActionType is [@layout:comb] record [
-    // handle                      : vaultHandleType; 
-    // loanQuantity                : nat; 
-    // loanToken                   : string;
-    // [@annot:to] to_             : contract(unit);
     vaultId     : nat;
     vaultOwner  : address;
     amount      : nat;
@@ -426,7 +392,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     mvkTokenAddress             : address;
     governanceAddress           : address;
     
-    whitelistContracts          : whitelistContractsType;
+    whitelistContracts          : whitelistContractsType;       // can be used for vaults whitelist contracts as well
     generalContracts            : generalContractsType;
     whitelistTokenContracts     : whitelistTokenContractsType;      
 
@@ -436,8 +402,7 @@ type lendingControllerStorageType is [@layout:comb] record [
 
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
-    vaultCounter                : vaultIdType;      // nat
-    vaultLedger                 : vaultLedgerType;  // used to check if vault id is in use already
+    vaultCounter                : nat;      
     ownerLedger                 : ownerLedgerType;  // for some convenience in checking vaults owned by user
 
     // collateral tokens
@@ -447,7 +412,5 @@ type lendingControllerStorageType is [@layout:comb] record [
     // lambdas
     lambdaLedger                : lambdaLedgerType;
     vaultLambdaLedger           : lambdaLedgerType;
-
-    tempValue                   : nat;
 
 ]

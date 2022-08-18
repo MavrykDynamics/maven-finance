@@ -41,7 +41,7 @@ type vaultActionType is
     |   VaultDelegateMvkToSatellite     of satelliteAddressType
     |   VaultWithdraw                   of vaultWithdrawType
     |   VaultDeposit                    of vaultDepositType 
-    |   VaultEditDepositor              of vaultEditDepositorType
+    |   VaultUpdateDepositor            of vaultUpdateDepositorType
   
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -347,17 +347,17 @@ block {
 
 
 
-(* vaultEditDepositor entrypoint *)
-function vaultEditDepositor(const vaultEditDepositorParams : vaultEditDepositorType; var s : vaultStorageType) : return is
+(* vaultUpdateDepositor entrypoint *)
+function vaultUpdateDepositor(const vaultUpdateDepositorParams : vaultUpdateDepositorType; var s : vaultStorageType) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultEditDepositor"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultUpdateDepositor"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaVaultEditDepositor(vaultEditDepositorParams);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaVaultUpdateDepositor(vaultUpdateDepositorParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
@@ -416,7 +416,7 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
         |   VaultDelegateMvkToSatellite(parameters)      -> vaultDelegateMvkToSatellite(parameters, s)
         |   VaultWithdraw(parameters)                    -> vaultWithdraw(parameters, s)
         |   VaultDeposit(parameters)                     -> vaultDeposit(parameters, s)
-        |   VaultEditDepositor(parameters)               -> vaultEditDepositor(parameters, s)
+        |   VaultUpdateDepositor(parameters)             -> vaultUpdateDepositor(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                        -> setLambda(parameters, s)    
