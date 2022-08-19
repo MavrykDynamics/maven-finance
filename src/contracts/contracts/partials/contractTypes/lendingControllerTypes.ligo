@@ -47,8 +47,8 @@ type lendingControllerBreakGlassConfigType is record [
     // Lending Controller Vault Entrypoints
     createVaultIsPaused                 : bool; 
     closeVaultIsPaused                  : bool;
-    withdrawFromVaultIsPaused           : bool;
     registerDepositIsPaused             : bool;
+    registerWithdrawalIsPaused          : bool;
     liquidateVaultIsPaused              : bool;
     borrowIsPaused                      : bool;
     repayIsPaused                       : bool;
@@ -248,14 +248,14 @@ type updateCollateralTokenActionType is [@layout:comb] record [
 ]
 
 
-type withdrawFromVaultActionType is [@layout:comb] record [
-    id                          : vaultIdType; 
-    tokenAmount                 : nat;  
-    tokenName                   : string;
+type registerWithdrawalActionType is [@layout:comb] record [
+    handle         : vaultHandleType; 
+    amount         : nat;  
+    tokenName      : string;
 ]
 
 
-type registerDepositType is [@layout:comb] record [
+type registerDepositActionType is [@layout:comb] record [
     handle      : vaultHandleType; 
     amount      : nat;
     tokenName   : string;
@@ -305,13 +305,30 @@ type updateRewardsActionType is [@layout:comb] record [
     amount          : nat;
 ]
 
+type vaultDepositStakedMvkType is [@layout:comb] record [
+    vaultId         : nat;
+    depositAmount   : nat;
+]
+
+type vaultWithdrawStakedMvkType is [@layout:comb] record [
+    vaultId         : nat;
+    withdrawAmount  : nat;
+]
+
+type vaultLiquidateStakedMvkType is [@layout:comb] record [
+    vaultId           : nat;
+    vaultOwner        : address;
+    liquidator        : address;
+    liquidatedAmount  : nat;
+]
+
 
 type lendingControllerPausableEntrypointType is
 
         // Lending Controller Vault Entrypoints
         CreateVault                 of bool
     |   CloseVault                  of bool
-    |   WithdrawFromVault           of bool
+    |   RegisterWithdrawal          of bool
     |   RegisterDeposit             of bool
     |   LiquidateVault              of bool
     |   Borrow                      of bool
@@ -366,8 +383,8 @@ type lendingControllerLambdaActionType is
     |   LambdaCreateVault                     of createVaultActionType
     |   LambdaCloseVault                      of closeVaultActionType
     |   LambdaLiquidateVault                  of liquidateVaultActionType
-    |   LambdaWithdrawFromVault               of withdrawFromVaultActionType
-    |   LambdaRegisterDeposit                 of registerDepositType
+    |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
+    |   LambdaRegisterDeposit                 of registerDepositActionType
     |   LambdaBorrow                          of borrowActionType
     |   LambdaRepay                           of repayActionType
 
@@ -403,7 +420,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
     vaultCounter                : nat;      
-    ownerLedger                 : ownerLedgerType;  // for some convenience in checking vaults owned by user
+    ownerLedger                 : ownerLedgerType;              // for some convenience in checking vaults owned by user
 
     // collateral tokens
     collateralTokenLedger       : collateralTokenLedgerType;

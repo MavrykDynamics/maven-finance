@@ -57,9 +57,9 @@ type doormanAction is
     |   FarmClaim                   of farmClaimType
 
         // Vault Entrypoints - callable only by USDM Token Controller
-    |   VaultDepositStakedMvk       of vaultDepositStakedMvkType
-    |   VaultWithdrawStakedMvk      of vaultWithdrawStakedMvkType
-    |   VaultLiquidateStakedMvk     of vaultLiquidateStakedMvkType
+    |   OnVaultDepositStakedMvk       of onVaultDepositStakedMvkType
+    |   OnVaultWithdrawStakedMvk      of onVaultWithdrawStakedMvkType
+    |   OnVaultLiquidateStakedMvk     of onVaultLiquidateStakedMvkType
 
         // Lambda Entrypoints
     |   SetLambda                   of setLambdaType
@@ -157,17 +157,13 @@ block{
 
 
 
-// Allowed Senders: USDM Token Controller Contract
-function checkSenderIsUsdmTokenControllerContract(var s : doormanStorageType) : unit is
+// Allowed Senders: Lending Controller Contract
+function checkSenderIsLendingControllerContract(var s : doormanStorageType) : unit is
 block{
 
-    const usdmTokenControllerAddress : address = case s.generalContracts["usdmTokenController"] of [
-            Some(_address) -> _address
-        |   None           -> failwith(error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND)
-    ];
-
-    if (Tezos.get_sender() = usdmTokenControllerAddress) then skip
-    else failwith(error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED);
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+    if (Tezos.get_sender() = lendingControllerAddress) then skip
+    else failwith(error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED);
 
 } with unit
 
@@ -211,6 +207,27 @@ function checkCompoundIsNotPaused(var s : doormanStorageType) : unit is
 // helper function to check that the %farmClaim entrypoint is not paused
 function checkFarmClaimIsNotPaused(var s : doormanStorageType) : unit is
     if s.breakGlassConfig.farmClaimIsPaused then failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %onVaultDepositStakedMvk entrypoint is not paused
+function checkOnVaultDepositStakedMvkIsNotPaused(var s : doormanStorageType) : unit is
+    if s.breakGlassConfig.onVaultDepositStakedMvkIsPaused then failwith(error_ON_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %onVaultWithdrawStakedMvk entrypoint is not paused
+function checkOnVaultWithdrawStakedMvkIsNotPaused(var s : doormanStorageType) : unit is
+    if s.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused then failwith(error_ON_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %onVaultLiquidateStakedMvk entrypoint is not paused
+function checkOnVaultLiquidateStakedMvkIsNotPaused(var s : doormanStorageType) : unit is
+    if s.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused then failwith(error_ON_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -814,17 +831,17 @@ block{
 
 
 
-(* vaultDepositStakedMvk entrypoint *)
-function vaultDepositStakedMvk(const vaultDepositStakedMvkParams: vaultDepositStakedMvkType; var s: doormanStorageType): return is
+(* onVaultDepositStakedMvk entrypoint *)
+function onVaultDepositStakedMvk(const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType; var s: doormanStorageType): return is
 block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultDepositStakedMvk"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnVaultDepositStakedMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultDepositStakedMvk(onVaultDepositStakedMvkParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -833,17 +850,17 @@ block{
 
 
 
-(* vaultWithdrawStakedMvk entrypoint *)
-function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams: vaultWithdrawStakedMvkType; var s: doormanStorageType): return is
+(* onVaultWithdrawStakedMvk entrypoint *)
+function onVaultWithdrawStakedMvk(const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType; var s: doormanStorageType): return is
 block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultWithdrawStakedMvk"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnVaultWithdrawStakedMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultWithdrawStakedMvk(onVaultWithdrawStakedMvkParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -852,17 +869,17 @@ block{
 
 
 
-(* vaultLiquidateStakedMvk entrypoint *)
-function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams: vaultLiquidateStakedMvkType; var s: doormanStorageType): return is
+(* onVaultLiquidateStakedMvk entrypoint *)
+function onVaultLiquidateStakedMvk(const onVaultLiquidateStakedMvkParams : onVaultLiquidateStakedMvkType; var s: doormanStorageType): return is
 block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultLiquidateStakedMvk"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnVaultLiquidateStakedMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaOnVaultLiquidateStakedMvk(onVaultLiquidateStakedMvkParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -935,10 +952,10 @@ block {
         |   Compound(parameters)                  -> compound(parameters, s)
         |   FarmClaim(parameters)                 -> farmClaim(parameters, s)
 
-            // Vault Entrypoints - callable only by USDM Token Controller
-        |   VaultDepositStakedMvk(parameters)     -> vaultDepositStakedMvk(parameters, s)
-        |   VaultWithdrawStakedMvk(parameters)    -> vaultWithdrawStakedMvk(parameters, s)
-        |   VaultLiquidateStakedMvk(parameters)   -> vaultLiquidateStakedMvk(parameters, s)
+            // Vault Entrypoints - callable only by Lending Controller
+        |   OnVaultDepositStakedMvk(parameters)     -> onVaultDepositStakedMvk(parameters, s)
+        |   OnVaultWithdrawStakedMvk(parameters)    -> onVaultWithdrawStakedMvk(parameters, s)
+        |   OnVaultLiquidateStakedMvk(parameters)   -> onVaultLiquidateStakedMvk(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                 -> setLambda(parameters, s)
