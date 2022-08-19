@@ -52,10 +52,6 @@ export default function storageToTypeConverter(
       res = convertToDelegationStorageType(storage);
       setItemInStorage("DelegationStorage", res);
       break;
-    case "farm":
-      res = convertToFarmStorageType(storage);
-      setItemInStorage("FarmStorage", res);
-      break;
     case "emergencyGovernance":
       res = convertToEmergencyGovernanceStorageType(storage);
       setItemInStorage("EmergencyGovernanceStorage", res);
@@ -289,40 +285,6 @@ function convertToSatelliteRecordInterface({
   };
 
   return newSatelliteRecord;
-}
-
-function convertToFarmStorageType(storage: any): FarmStorage[] {
-  const farms: FarmStorage[] = [];
-  storage?.forEach((farmItem: any) => {
-    const newFarm: FarmStorage = {
-      address: farmItem.address,
-      name: farmItem.name,
-      lpTokenAddress: farmItem.lp_token_address,
-      open: farmItem.open,
-      withdrawPaused: farmItem.withdraw_paused,
-      claimPaused: farmItem.claim_paused,
-      depositPaused: farmItem.deposit_paused,
-      blocksPerMinute: farmItem.blocks_per_minute,
-      lpTokenBalance: farmItem.lp_token_balance,
-      currentRewardPerBlock: farmItem.current_reward_per_block,
-      farmFactoryId: farmItem.farm_factory_id,
-      infinite: farmItem.infinite,
-      initBlock: farmItem.init_block,
-      accumulatedMvkPerShare: calcWithoutPrecision(
-        farmItem.accumulated_mvk_per_share
-      ),
-      lastBlockUpdate: farmItem.last_block_update,
-      lpBalance: calcWithoutPrecision(farmItem.lp_balance),
-      lpToken: farmItem.lp_token,
-      rewardPerBlock: calcWithoutPrecision(farmItem.reward_per_block),
-      rewardsFromTreasury: farmItem.rewards_from_treasury,
-      totalBlocks: farmItem.total_blocks,
-      farmAccounts: farmItem.farm_accounts,
-    };
-    farms.push(newFarm);
-  });
-
-  return farms;
 }
 
 function convertToEmergencyGovernanceStorageType(

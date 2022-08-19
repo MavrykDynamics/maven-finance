@@ -1,146 +1,175 @@
 // type
-import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+import {
+  FarmStorage,
+  FarmContractType,
+} from "../../utils/TypesAndInterfaces/Farm";
 
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from '../../reducers'
-import { useCallback, useEffect, useState } from 'react'
-import { getFarmStorage } from './Farms.actions'
-import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { Page } from 'styles'
-import { FarmTopBar } from './FarmTopBar/FarmTopBar.controller'
-import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
-import { FarmCard } from './FarmCard/FarmCard.controller'
-import { Modal } from '../../app/App.components/Modal/Modal.controller'
+import { useDispatch, useSelector } from "react-redux";
+import { State } from "../../reducers";
+import { useCallback, useEffect, useState } from "react";
+import { getFarmStorage } from "./Farms.actions";
+import { PageHeader } from "../../app/App.components/PageHeader/PageHeader.controller";
+import { Page } from "styles";
+import { FarmTopBar } from "./FarmTopBar/FarmTopBar.controller";
+import { SatelliteRecord } from "../../utils/TypesAndInterfaces/Delegation";
+import { FarmCard } from "./FarmCard/FarmCard.controller";
+import { Modal } from "../../app/App.components/Modal/Modal.controller";
 
 // helpers
-import { calculateAPR, getSummDepositedAmount } from './Frams.helpers'
+import { calculateAPR, getSummDepositedAmount } from "./Frams.helpers";
 
 // styles
-import { FarmsStyled } from './Farms.style'
-import { EmptyContainer as EmptyList } from 'app/App.style'
-import { MOCK_FARMS } from './Frams.helpers'
+import { FarmsStyled } from "./Farms.style";
+import { EmptyContainer as EmptyList } from "app/App.style";
+import { MOCK_FARMS } from "./Frams.helpers";
 
-export type FarmsViewVariantType = 'vertical' | 'horizontal'
+export type FarmsViewVariantType = "vertical" | "horizontal";
 
 const EmptyContainer = () => (
   <EmptyList>
     <img src="/images/not-found.svg" alt=" No results to show" />
     <figcaption> No results to show</figcaption>
   </EmptyList>
-)
+);
 
 export const Farms = () => {
-  const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
+  const dispatch = useDispatch();
+  const loading = useSelector((state: State) => state.loading);
+  const { wallet, ready, tezos, accountPkh } = useSelector(
+    (state: State) => state.wallet
+  );
+  let { farmStorage, farmContracts } = useSelector(
+    (state: State) => state.farm
+  );
+
+  console.log("%c ||||| farmStorage", "color:yellowgreen", farmStorage);
   // farmStorage = MOCK_FARMS
-  const [farmsList, setFarmsList] = useState(farmStorage)
-  const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage[]>([])
-  const [toggleChecked, setToggleChecked] = useState(false)
-  const [liveFinished, setLiveFinished] = useState<number | undefined>(1)
-  const [stakedFarmsOnly, setStakeFarmsOnly] = useState(false)
-  const [searchValue, setSearchValue] = useState<string>('')
-  const [sortBy, setSortBy] = useState<string>('')
-  const [farmsViewVariant, setFarmsViewVariant] = useState<FarmsViewVariantType>('vertical')
+  const [farmsList, setFarmsList] = useState(farmStorage);
+  const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage>([]);
+  const [toggleChecked, setToggleChecked] = useState(false);
+  const [liveFinished, setLiveFinished] = useState<number | undefined>(1);
+  const [stakedFarmsOnly, setStakeFarmsOnly] = useState(false);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("");
+  const [farmsViewVariant, setFarmsViewVariant] =
+    useState<FarmsViewVariantType>("vertical");
 
   useEffect(() => {
-    dispatch(getFarmStorage())
-  }, [dispatch])
+    dispatch(getFarmStorage());
+  }, [dispatch]);
 
   useEffect(() => {
     const filterStakedOnly = toggleChecked
       ? farmStorage.filter(
           (item) =>
-            item.farmAccounts?.length && item.farmAccounts.some((account: any) => account?.deposited_amount > 0),
+            item.farmAccounts?.length &&
+            item.farmAccounts.some((account) => account?.deposited_amount > 0)
         )
-      : farmStorage
+      : farmStorage;
 
-    const isLive = liveFinished === 1
-    const filteredLiveFinished = filterStakedOnly.filter((item) => item.open === isLive)
+    const isLive = liveFinished === 1;
+    const filteredLiveFinished = filterStakedOnly.filter(
+      (item) => item.open === isLive
+    );
     const filteredSearch = searchValue.length
       ? filteredLiveFinished.filter((farm) => {
-          const isIncludesTokenAddress = farm.lpTokenAddress.includes(searchValue)
-          const isIncludesName = farm.name.includes(searchValue)
-          const lpTokenAddress = farm.lpTokenAddress || ''
-          const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
+          const isIncludesTokenAddress =
+            farm.lpTokenAddress.includes(searchValue);
+          const isIncludesName = farm.name.includes(searchValue);
+          const lpTokenAddress = farm.lpTokenAddress || "";
+          const farmContract = farmContracts.find(
+            (item) => item.address === lpTokenAddress
+          );
           const isIncludesAlias =
-            farmContract?.creator?.alias?.includes(searchValue) || farmContract?.metadata?.alias?.includes(searchValue)
-          return isIncludesTokenAddress || isIncludesName || isIncludesAlias
+            farmContract?.creator?.alias?.includes(searchValue) ||
+            farmContract?.metadata?.alias?.includes(searchValue);
+          return isIncludesTokenAddress || isIncludesName || isIncludesAlias;
         })
-      : filteredLiveFinished
+      : filteredLiveFinished;
 
     if (sortBy) {
-      const dataToSort = filteredSearch ? [...filteredSearch] : []
+      const dataToSort = filteredSearch ? [...filteredSearch] : [];
 
-      dataToSort.sort((a: FarmStorage, b: FarmStorage) => {
-        let res = 0
+      dataToSort.sort((a, b) => {
+        let res = 0;
         switch (sortBy) {
-          case 'active':
-            res = Number(a.open) - Number(b.open)
-            break
-          case 'highestAPY':
+          case "active":
+            res = Number(a.open) - Number(b.open);
+            break;
+          case "highestAPY":
             res =
-              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)) <
-              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance))
+              parseFloat(
+                calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)
+              ) <
+              parseFloat(
+                calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance)
+              )
                 ? 1
-                : -1
+                : -1;
 
-            break
-          case 'lowestAPY':
+            break;
+          case "lowestAPY":
             res =
-              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)) >
-              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance))
+              parseFloat(
+                calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)
+              ) >
+              parseFloat(
+                calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance)
+              )
                 ? 1
-                : -1
-            break
-          case 'highestLiquidity':
-            res = a.lpTokenBalance < b.lpTokenBalance ? 1 : -1
-            break
-          case 'lowestLiquidity':
-            res = a.lpTokenBalance > b.lpTokenBalance ? 1 : -1
-            break
-          case 'yourLargestStake':
-            res = getSummDepositedAmount(a.farmAccounts) < getSummDepositedAmount(b.farmAccounts) ? 1 : -1
-            break
-          case 'rewardsPerBlock':
-            res = a.currentRewardPerBlock < b.currentRewardPerBlock ? 1 : -1
-            break
+                : -1;
+            break;
+          case "highestLiquidity":
+            res = a.lpTokenBalance < b.lpTokenBalance ? 1 : -1;
+            break;
+          case "lowestLiquidity":
+            res = a.lpTokenBalance > b.lpTokenBalance ? 1 : -1;
+            break;
+          case "yourLargestStake":
+            res =
+              getSummDepositedAmount(a.farmAccounts) <
+              getSummDepositedAmount(b.farmAccounts)
+                ? 1
+                : -1;
+            break;
+          case "rewardsPerBlock":
+            res = a.currentRewardPerBlock < b.currentRewardPerBlock ? 1 : -1;
+            break;
           default:
-            res = 1
-            break
+            res = 1;
+            break;
         }
-        return res
-      })
-
-      setFarmsList(dataToSort)
+        return res;
+      });
+      console.log("%c ||||| dataToSort", "color:yellowgreen", dataToSort);
+      setFarmsList(dataToSort);
     } else {
-      setFarmsList(filteredSearch)
+      setFarmsList(filteredSearch);
     }
-  }, [farmStorage, liveFinished, searchValue, toggleChecked, sortBy])
+  }, [farmStorage, liveFinished, searchValue, toggleChecked, sortBy]);
 
   const handleToggleStakedFarmsOnly = (e?: any) => {
-    setToggleChecked(e?.target?.checked)
-  }
+    setToggleChecked(e?.target?.checked);
+  };
 
   const handleSetFarmsViewVariant = (variant: FarmsViewVariantType) => {
-    setFarmsViewVariant(variant)
-  }
+    setFarmsViewVariant(variant);
+  };
 
   const handleLiveFinishedToggleButtons = (tabId?: number) => {
-    setLiveFinished(tabId)
-  }
+    setLiveFinished(tabId);
+  };
 
   const handleOnSearch = (text: string) => {
-    setSearchValue(text)
-  }
+    setSearchValue(text);
+  };
 
   const handleOnSort = (sortValue: any) => {
-    setSortBy(sortValue)
-  }
+    setSortBy(sortValue);
+  };
   return (
     <Page>
-      <PageHeader page={'farms'} kind={'primary'} loading={loading} />
+      <PageHeader page={"farms"} kind={"primary"} loading={loading} />
       <FarmsStyled>
         <FarmTopBar
           ready={ready}
@@ -156,10 +185,12 @@ export const Farms = () => {
         {farmsList.length ? (
           <>
             <section className={`farm-list ${farmsViewVariant}`}>
-              {farmsList.map((farm: FarmStorage, index: number) => {
-                const lpTokenAddress = farm.lpTokenAddress || ''
-                const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
-                const depositAmount = getSummDepositedAmount(farm.farmAccounts)
+              {farmsList.map((farm, index: number) => {
+                const lpTokenAddress = farm.lpTokenAddress || "";
+                const farmContract = farmContracts.find(
+                  (item) => item.address === lpTokenAddress
+                );
+                const depositAmount = getSummDepositedAmount(farm.farmAccounts);
                 return (
                   <div>
                     {/* For test <p>LpBalance = {farm.lpTokenBalance}</p>
@@ -173,15 +204,17 @@ export const Farms = () => {
                       lpTokenBalance={farm.lpTokenBalance}
                       currentRewardPerBlock={farm.currentRewardPerBlock}
                       depositAmount={depositAmount}
-                      firstToken={'MVK'}
-                      secondToken={'USDM'}
-                      distributer={farmContract?.creator.alias || ''}
-                      firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
-                      secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
+                      firstToken={"MVK"}
+                      secondToken={"USDM"}
+                      distributer={farmContract?.creator.alias || ""}
+                      firstTokenAddress={"KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6"}
+                      secondTokenAddress={
+                        "KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6"
+                      }
                       totalLiquidity={farm.lpTokenBalance}
                     />
                   </div>
-                )
+                );
               })}
             </section>
           </>
@@ -191,5 +224,5 @@ export const Farms = () => {
       </FarmsStyled>
       <Modal />
     </Page>
-  )
-}
+  );
+};

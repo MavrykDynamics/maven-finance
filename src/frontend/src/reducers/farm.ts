@@ -1,5 +1,8 @@
 // types
-import { FarmStorage, FarmContractType } from '../utils/TypesAndInterfaces/Farm'
+import {
+  FarmStorage,
+  FarmContractType,
+} from "../utils/TypesAndInterfaces/Farm";
 
 import {
   DEPOSIT_ERROR,
@@ -14,29 +17,29 @@ import {
   WITHDRAW_RESULT,
   SELECT_FARM_ADDRESS,
   GET_FARM_CONTRACTS,
-} from '../pages/Farms/Farms.actions'
-import { HIDE_MODAL } from '../app/App.components/Modal/Modal.actions'
-import { getItemFromStorage } from '../utils/storage'
-import { UNSTAKE } from './doorman'
+} from "../pages/Farms/Farms.actions";
+import { HIDE_MODAL } from "../app/App.components/Modal/Modal.actions";
+import { getItemFromStorage } from "../utils/storage";
+import { UNSTAKE } from "./doorman";
 
 export interface FarmState {
-  type?: typeof HARVEST | typeof DEPOSIT | typeof WITHDRAW | undefined
-  farmStorage: FarmStorage[]
-  farmContracts: FarmContractType[]
-  amount?: number
-  error?: undefined
-  selectedFarmAddress?: string
+  type?: typeof HARVEST | typeof DEPOSIT | typeof WITHDRAW | undefined;
+  farmStorage: FarmStorage;
+  farmContracts: FarmContractType[];
+  amount?: number;
+  error?: undefined;
+  selectedFarmAddress?: string;
 }
-export const HARVEST = 'HARVEST',
-  DEPOSIT = 'DEPOSIT',
-  WITHDRAW = 'WITHDRAW'
-const defaultFarmStorage: FarmStorage[] = []
+export const HARVEST = "HARVEST",
+  DEPOSIT = "DEPOSIT",
+  WITHDRAW = "WITHDRAW";
+const defaultFarmStorage: FarmStorage = [];
 const farmDefaultState: FarmState = {
-  farmStorage: getItemFromStorage('FarmStorage') || defaultFarmStorage,
+  farmStorage: getItemFromStorage("FarmStorage") || defaultFarmStorage,
   farmContracts: [],
   amount: 0,
-  selectedFarmAddress: '',
-}
+  selectedFarmAddress: "",
+};
 
 export function farm(state = farmDefaultState, action: any): FarmState {
   switch (action.type) {
@@ -44,76 +47,76 @@ export function farm(state = farmDefaultState, action: any): FarmState {
       return {
         ...state,
         farmStorage: action.farmStorage,
-      }
+      };
     case GET_FARM_CONTRACTS:
       return {
         ...state,
         farmContracts: action.farmContracts,
-      }
+      };
     case HARVEST_REQUEST:
       return {
         ...state,
         type: HARVEST,
-      }
+      };
     case HARVEST_RESULT:
       return {
         ...state,
         type: HARVEST,
-      }
+      };
     case HARVEST_ERROR:
       return {
         ...state,
         type: HARVEST,
         amount: 0,
         error: action.error,
-      }
+      };
     case DEPOSIT_REQUEST:
       return {
         ...state,
         type: DEPOSIT,
         amount: action.amount,
-      }
+      };
     case DEPOSIT_RESULT:
       return {
         ...state,
         type: DEPOSIT,
-      }
+      };
     case DEPOSIT_ERROR:
       return {
         ...state,
         type: DEPOSIT,
         amount: 0,
         error: action.error,
-      }
+      };
     case WITHDRAW_REQUEST:
       return {
         ...state,
         type: WITHDRAW,
         amount: action.amount,
-      }
+      };
     case WITHDRAW_RESULT:
       return {
         ...state,
         type: WITHDRAW,
-      }
+      };
     case WITHDRAW_ERROR:
       return {
         ...state,
         type: WITHDRAW,
         amount: 0,
         error: action.error,
-      }
+      };
     case SELECT_FARM_ADDRESS:
       return {
         ...state,
         selectedFarmAddress: action.selectedFarmAddress,
-      }
+      };
     case HIDE_MODAL:
       return {
         ...state,
         selectedFarmAddress: farmDefaultState.selectedFarmAddress,
-      }
+      };
     default:
-      return state
+      return state;
   }
 }
