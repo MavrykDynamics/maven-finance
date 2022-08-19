@@ -69,11 +69,11 @@
     },
     {
         "index": 17,
-        "name": "lambdaWithdrawFromVault"
+        "name": "lambdaRegisterDeposit"
     },
     {
         "index": 18,
-        "name": "lambdaRegisterDeposit"
+        "name": "lambdaRegisterWithdrawal"
     },
     {
         "index": 19,

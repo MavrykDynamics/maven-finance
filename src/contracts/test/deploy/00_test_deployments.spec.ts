@@ -909,6 +909,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.updateGeneralContracts('aggregatorFactory', aggregatorFactory.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('governanceSatellite', governanceSatellite.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('governanceFinancial', governanceFinancial.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('lendingController', lendingController.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('tokenPoolReward', tokenPoolReward.contract.address))
   
       // whitelist contracts
