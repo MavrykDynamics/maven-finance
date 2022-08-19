@@ -1,23 +1,34 @@
-import { MichelsonMap } from '@taquito/taquito'
-import { Feed, InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
+import { MichelsonMap } from "@taquito/taquito";
+import {
+  Feed,
+  InitialOracleStorageType,
+} from "pages/Satellites/helpers/Satellites.types";
 
-import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'
-import { setItemInStorage } from './storage'
-import { BreakGlassActionRecord, BreakGlassActionSigner, BreakGlassStorage } from './TypesAndInterfaces/BreakGlass'
-import { CouncilActionRecord, CouncilActionSigner, CouncilStorage } from './TypesAndInterfaces/Council'
+import { calcWithoutMu, calcWithoutPrecision } from "./calcFunctions";
+import { setItemInStorage } from "./storage";
+import {
+  BreakGlassActionRecord,
+  BreakGlassActionSigner,
+  BreakGlassStorage,
+} from "./TypesAndInterfaces/BreakGlass";
+import {
+  CouncilActionRecord,
+  CouncilActionSigner,
+  CouncilStorage,
+} from "./TypesAndInterfaces/Council";
 import {
   DelegateRecord,
   DelegationStorage,
   SatelliteFinancialRequestVotingHistory,
   SatelliteProposalVotingHistory,
   SatelliteRecord,
-} from './TypesAndInterfaces/Delegation'
+} from "./TypesAndInterfaces/Delegation";
 import {
   EmergencyGovernanceProposalRecord,
   EmergencyGovernanceStorage,
   EmergencyGovProposalVoter,
-} from './TypesAndInterfaces/EmergencyGovernance'
-import { FarmStorage } from './TypesAndInterfaces/Farm'
+} from "./TypesAndInterfaces/EmergencyGovernance";
+import { FarmStorage } from "./TypesAndInterfaces/Farm";
 import {
   FinancialRequestRecord,
   FinancialRequestVote,
@@ -26,87 +37,102 @@ import {
   ProposalRecordType,
   ProposalVote,
   SnapshotRecordType,
-} from './TypesAndInterfaces/Governance'
-import { TreasuryType } from './TypesAndInterfaces/Treasury'
-import { VestingStorage } from './TypesAndInterfaces/Vesting'
+} from "./TypesAndInterfaces/Governance";
+import { MvkTokenStorage } from "./TypesAndInterfaces/MvkToken";
+import { TreasuryType } from "./TypesAndInterfaces/Treasury";
+import { VestingStorage } from "./TypesAndInterfaces/Vesting";
 
-export default function storageToTypeConverter(contract: string, storage: any): any {
-  let res = {}
+export default function storageToTypeConverter(
+  contract: string,
+  storage: any
+): any {
+  let res = {};
   switch (contract) {
-    case 'delegation':
-      res = convertToDelegationStorageType(storage)
-      setItemInStorage('DelegationStorage', res)
-      break
-    case 'farm':
-      res = convertToFarmStorageType(storage)
-      setItemInStorage('FarmStorage', res)
-      break
-    case 'emergencyGovernance':
-      res = convertToEmergencyGovernanceStorageType(storage)
-      setItemInStorage('EmergencyGovernanceStorage', res)
-      break
-    case 'breakGlass':
-      res = convertToBreakGlassStorageType(storage)
-      setItemInStorage('BreakGlassStorage', res)
-      break
-    case 'breakGlassStatus':
-      res = convertBreakGlassStatusStorageType(storage)
-      setItemInStorage('BreakGlassStatus', res)
-      break
-    case 'council':
-      res = convertToCouncilStorageType(storage)
-      setItemInStorage('CouncilStorage', res)
-      break
-    case 'vesting':
-      res = convertToVestingStorageType(storage)
-      setItemInStorage('VestingStorage', res)
-      break
-    case 'governance':
-      res = convertToGovernanceStorageType(storage)
-      setItemInStorage('GovernanceStorage', res)
-      break
-    case 'satelliteRecord':
-      res = convertToSatelliteRecordInterface(storage)
-      break
-    case 'treasury':
-      res = convertToTreasuryAddressType(storage)
-      setItemInStorage('TreasuryAddresses', res)
-      break
-    case 'oracle':
-      res = convertToOracleStorageType(storage)
-      setItemInStorage('OracleStorage', res)
-      break
+    case "delegation":
+      res = convertToDelegationStorageType(storage);
+      setItemInStorage("DelegationStorage", res);
+      break;
+    case "farm":
+      res = convertToFarmStorageType(storage);
+      setItemInStorage("FarmStorage", res);
+      break;
+    case "emergencyGovernance":
+      res = convertToEmergencyGovernanceStorageType(storage);
+      setItemInStorage("EmergencyGovernanceStorage", res);
+      break;
+    case "breakGlass":
+      res = convertToBreakGlassStorageType(storage);
+      setItemInStorage("BreakGlassStorage", res);
+      break;
+    case "breakGlassStatus":
+      res = convertBreakGlassStatusStorageType(storage);
+      setItemInStorage("BreakGlassStatus", res);
+      break;
+    case "council":
+      res = convertToCouncilStorageType(storage);
+      setItemInStorage("CouncilStorage", res);
+      break;
+    case "vesting":
+      res = convertToVestingStorageType(storage);
+      setItemInStorage("VestingStorage", res);
+      break;
+    case "governance":
+      res = convertToGovernanceStorageType(storage);
+      setItemInStorage("GovernanceStorage", res);
+      break;
+    case "satelliteRecord":
+      res = convertToSatelliteRecordInterface(storage);
+      break;
+    case "treasury":
+      res = convertToTreasuryAddressType(storage);
+      setItemInStorage("TreasuryAddresses", res);
+      break;
+    case "oracle":
+      res = convertToOracleStorageType(storage);
+      setItemInStorage("OracleStorage", res);
+      break;
   }
 
-  return res
+  return res;
 }
 
 function convertToTreasuryAddressType(storage: any): {
-  treasuryAddresses: Array<TreasuryType>
-  treasuryFactoryAddress: string
+  treasuryAddresses: Array<TreasuryType>;
+  treasuryFactoryAddress: string;
 } {
   return {
     treasuryAddresses: storage?.treasury,
     treasuryFactoryAddress: storage?.treasury_factory[0].address,
-  }
+  };
 }
 
 function convertToOracleStorageType(storage: any): InitialOracleStorageType {
   return {
-    feeds: storage?.aggregator.map((feed: Feed) => ({...feed, category: 'Cryptocurrency (USD pairs)', network: 'Tezos'})),
+    feeds: storage?.aggregator.map((feed: Feed) => ({
+      ...feed,
+      category: "Cryptocurrency (USD pairs)",
+      network: "Tezos",
+    })),
     feedsFactory: storage?.aggregator_factory,
-    totalOracleNetworks: storage?.aggregator ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0) : 0,
-  }
+    totalOracleNetworks: storage?.aggregator
+      ? storage.aggregator.reduce(
+          (acc: number, cur: any) => acc + cur.oracle_records.length,
+          0
+        )
+      : 0,
+  };
 }
 
-
 function convertToDelegationStorageType(storage: any): DelegationStorage {
-  const satelliteMap: SatelliteRecord[] = convertToSatelliteRecordsInterface(storage?.satellite_records)
+  const satelliteMap: SatelliteRecord[] = convertToSatelliteRecordsInterface(
+    storage?.satellite_records
+  );
 
   return {
     breakGlassConfig: {
       delegateToSatelliteIsPaused: storage?.delegate_to_satellite_paused,
-      undelegateFromSatelliteIsPaused: storage?.undelegate_from_satellite_paused,
+      undelegateFromSatelliteIsPaused:
+        storage?.undelegate_from_satellite_paused,
       registerAsSatelliteIsPaused: storage?.register_as_satellite_paused,
       unregisterAsSatelliteIsPaused: storage?.unregister_as_satellite_paused,
       updateSatelliteRecordIsPaused: storage?.update_satellite_record_paused,
@@ -125,53 +151,56 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
     satelliteLedger: satelliteMap,
     numberActiveSatellites: storage?.max_satellites,
     totalDelegatedMVK: storage?.max_satellites,
-  }
+  };
 }
 
-function convertToSatelliteRecordsInterface(satelliteRecordObject: any): SatelliteRecord[] {
-  const satelliteRecords: SatelliteRecord[] = []
+function convertToSatelliteRecordsInterface(
+  satelliteRecordObject: any
+): SatelliteRecord[] {
+  const satelliteRecords: SatelliteRecord[] = [];
   if (Array.isArray(satelliteRecordObject)) {
     satelliteRecordObject.map((satelliteRecordFromIndexer: any) => {
       const newSatelliteRecord = convertToSatelliteRecordInterface({
         satelliteRecordFromIndexer,
         userVotingHistoryIndexer: satelliteRecordFromIndexer?.user,
-      })
-      satelliteRecords.push(newSatelliteRecord)
-      return true
-    })
+      });
+      satelliteRecords.push(newSatelliteRecord);
+      return true;
+    });
   }
-  return satelliteRecords
+  return satelliteRecords;
 }
 
 function convertToSatelliteRecordInterface({
   satelliteRecordFromIndexer,
   userVotingHistoryIndexer,
 }: any): SatelliteRecord {
-  const satelliteRecord = satelliteRecordFromIndexer
-  const userVotingHistory = userVotingHistoryIndexer
+  const satelliteRecord = satelliteRecordFromIndexer;
+  const userVotingHistory = userVotingHistoryIndexer;
 
   const totalDelegatedAmount = satelliteRecord
     ? satelliteRecord.delegation_records.reduce(
-        (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
-        0,
+        (sum: any, current: { user: { smvk_balance: any } }) =>
+          sum + current.user.smvk_balance,
+        0
       )
-    : 0
+    : 0;
 
   const proposalVotingHistory: SatelliteProposalVotingHistory[] = [],
     financialRequestsVotes: SatelliteFinancialRequestVotingHistory[] = [],
-    emergencyGovernanceVotes: SatelliteFinancialRequestVotingHistory[] = []
+    emergencyGovernanceVotes: SatelliteFinancialRequestVotingHistory[] = [];
   if (userVotingHistory) {
     userVotingHistory.governance_proposal_records_votes?.forEach(
       (vote: {
-        id: any
-        current_round_vote: any
-        governance_proposal_record_id: any
-        round: any
-        timestamp: string | number | Date
-        vote: any
-        voter_id: any
-        voting_power: string
-        governance_proposal_record: any
+        id: any;
+        current_round_vote: any;
+        governance_proposal_record_id: any;
+        round: any;
+        timestamp: string | number | Date;
+        vote: any;
+        voter_id: any;
+        voting_power: string;
+        governance_proposal_record: any;
       }) => {
         const newRequestVote: SatelliteProposalVotingHistory = {
           id: vote.id,
@@ -183,22 +212,22 @@ function convertToSatelliteRecordInterface({
           voterId: vote.voter_id,
           votingPower: calcWithoutPrecision(vote.voting_power),
           requestData: vote.governance_proposal_record,
-        }
-        proposalVotingHistory.push(newRequestVote)
-      },
-    )
+        };
+        proposalVotingHistory.push(newRequestVote);
+      }
+    );
 
     if (userVotingHistory.governance_financial_requests_votes) {
       userVotingHistory.governance_financial_requests_votes?.forEach(
         (vote: {
-          id: any
-          governance_financial_request_id: any
-          round: any
-          timestamp: string | number | Date
-          vote: any
-          voter_id: any
-          voting_power: string
-          governance_financial_request: any
+          id: any;
+          governance_financial_request_id: any;
+          round: any;
+          timestamp: string | number | Date;
+          vote: any;
+          voter_id: any;
+          voting_power: string;
+          governance_financial_request: any;
         }) => {
           const newRequestVote: SatelliteFinancialRequestVotingHistory = {
             id: vote.id,
@@ -208,23 +237,23 @@ function convertToSatelliteRecordInterface({
             voterId: vote.voter_id,
             votingPower: calcWithoutPrecision(vote.voting_power),
             requestData: vote.governance_financial_request,
-          }
-          financialRequestsVotes.push(newRequestVote)
-        },
-      )
+          };
+          financialRequestsVotes.push(newRequestVote);
+        }
+      );
     }
 
     if (userVotingHistory.emergency_governance_votes) {
       userVotingHistory.emergency_governance_votes?.forEach(
         (vote: {
-          id: any
-          emergency_governance_record_id: any
-          round: any
-          timestamp: string | number | Date
-          vote: any
-          voter_id: any
-          voting_power: string
-          governance_financial_request: any
+          id: any;
+          emergency_governance_record_id: any;
+          round: any;
+          timestamp: string | number | Date;
+          vote: any;
+          voter_id: any;
+          voting_power: string;
+          governance_financial_request: any;
         }) => {
           const newRequestVote: SatelliteFinancialRequestVotingHistory = {
             id: vote.id,
@@ -234,37 +263,36 @@ function convertToSatelliteRecordInterface({
             voterId: vote.voter_id,
             votingPower: calcWithoutPrecision(vote.voting_power),
             requestData: vote.governance_financial_request,
-          }
-          emergencyGovernanceVotes.push(newRequestVote)
-        },
-      )
+          };
+          emergencyGovernanceVotes.push(newRequestVote);
+        }
+      );
     }
   }
   const newSatelliteRecord: SatelliteRecord = {
-    address: satelliteRecord?.user_id || '',
+    address: satelliteRecord?.user_id || "",
     oracleRecords: satelliteRecord?.user?.aggregator_oracle_records || [],
-    description: satelliteRecord?.description || '',
-    website: satelliteRecord?.website || '',
+    description: satelliteRecord?.description || "",
+    website: satelliteRecord?.website || "",
     participation: satelliteRecord?.participation || 0,
-    image: satelliteRecord?.image || '',
+    image: satelliteRecord?.image || "",
     mvkBalance: calcWithoutPrecision(satelliteRecord?.user.mvk_balance),
     sMvkBalance: calcWithoutPrecision(satelliteRecord?.user.smvk_balance),
-    name: satelliteRecord?.name || '',
-    registeredDateTime: new Date(satelliteRecord?.registered_datetime),
-    satelliteFee: parseFloat(satelliteRecord?.fee || '0') / 100,
+    name: satelliteRecord?.name || "",
+    satelliteFee: parseFloat(satelliteRecord?.fee || "0") / 100,
     status: satelliteRecord?.status,
     totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
     unregisteredDateTime: new Date(satelliteRecord?.unregistered_datetime),
     proposalVotingHistory,
     financialRequestsVotes,
     emergencyGovernanceVotes,
-  }
+  };
 
-  return newSatelliteRecord
+  return newSatelliteRecord;
 }
 
 function convertToFarmStorageType(storage: any): FarmStorage[] {
-  const farms: FarmStorage[] = []
+  const farms: FarmStorage[] = [];
   storage?.forEach((farmItem: any) => {
     const newFarm: FarmStorage = {
       address: farmItem.address,
@@ -280,7 +308,9 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
       farmFactoryId: farmItem.farm_factory_id,
       infinite: farmItem.infinite,
       initBlock: farmItem.init_block,
-      accumulatedMvkPerShare: calcWithoutPrecision(farmItem.accumulated_mvk_per_share),
+      accumulatedMvkPerShare: calcWithoutPrecision(
+        farmItem.accumulated_mvk_per_share
+      ),
       lastBlockUpdate: farmItem.last_block_update,
       lpBalance: calcWithoutPrecision(farmItem.lp_balance),
       lpToken: farmItem.lp_token,
@@ -288,26 +318,27 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
       rewardsFromTreasury: farmItem.rewards_from_treasury,
       totalBlocks: farmItem.total_blocks,
       farmAccounts: farmItem.farm_accounts,
-    }
-    farms.push(newFarm)
-  })
+    };
+    farms.push(newFarm);
+  });
 
-  return farms
+  return farms;
 }
 
-
-function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGovernanceStorage {
-  const eGovRecords: EmergencyGovernanceProposalRecord[] = []
+function convertToEmergencyGovernanceStorageType(
+  storage: any
+): EmergencyGovernanceStorage {
+  const eGovRecords: EmergencyGovernanceProposalRecord[] = [];
   storage?.emergency_governance_records.forEach((record: any) => {
-    const voters: EmergencyGovProposalVoter[] = []
+    const voters: EmergencyGovProposalVoter[] = [];
 
     record.voters?.forEach(
       (voter: {
-        emergency_governance_record_id: any
-        id: any
-        smvk_amount: any
-        timestamp: string | number | Date
-        voter_id: any
+        emergency_governance_record_id: any;
+        id: any;
+        smvk_amount: any;
+        timestamp: string | number | Date;
+        voter_id: any;
       }) => {
         const newVoter: EmergencyGovProposalVoter = {
           emergencyGovernanceRecordId: voter.emergency_governance_record_id,
@@ -315,10 +346,10 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
           sMvkAmount: voter.smvk_amount,
           timestamp: new Date(voter.timestamp),
           voterId: voter.voter_id,
-        }
-        voters.push(newVoter)
-      },
-    )
+        };
+        voters.push(newVoter);
+      }
+    );
     const newEGovRecord: EmergencyGovernanceProposalRecord = {
       id: record.id,
       title: record.title,
@@ -333,18 +364,24 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
       executedTimestamp: new Date(record.executed_timestamp),
       expirationTimestamp: new Date(record.expiration_timestamp),
       sMvkPercentageRequired: record.smvk_percentage_required / 100,
-      sMvkRequiredForTrigger: calcWithoutPrecision(record.smvk_required_for_trigger),
+      sMvkRequiredForTrigger: calcWithoutPrecision(
+        record.smvk_required_for_trigger
+      ),
       totalsMvkVotes: calcWithoutPrecision(record.total_smvk_votes),
       voters,
-    }
-    eGovRecords.push(newEGovRecord)
-  })
+    };
+    eGovRecords.push(newEGovRecord);
+  });
   const eGovStorage: EmergencyGovernanceStorage = {
     emergencyGovernanceLedger: eGovRecords,
     address: storage?.address,
     config: {
-      minStakedMvkRequiredToTrigger: calcWithoutPrecision(storage?.min_smvk_required_to_trigger),
-      minStakedMvkRequiredToVote: calcWithoutPrecision(storage?.min_smvk_required_to_vote),
+      minStakedMvkRequiredToTrigger: calcWithoutPrecision(
+        storage?.min_smvk_required_to_trigger
+      ),
+      minStakedMvkRequiredToVote: calcWithoutPrecision(
+        storage?.min_smvk_required_to_vote
+      ),
       requiredFeeMutez: calcWithoutMu(storage?.required_fee_mutez),
       voteExpiryDays: storage?.vote_expiry_days,
       sMvkPercentageRequired: storage?.smvk_percentage_required / 100,
@@ -354,38 +391,44 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
     },
     currentEmergencyGovernanceRecordId: storage?.current_emergency_record_id,
     nextEmergencyGovernanceRecordId: storage?.next_emergency_record_id,
-  }
+  };
 
-  return eGovStorage
+  return eGovStorage;
 }
 
 function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
   const actionLedger: BreakGlassActionRecord[] = [],
-    councilMembers: { address: string }[] = []
+    councilMembers: { address: string }[] = [];
   storage?.break_glass_action_records.forEach(
     (actionRecord: {
-      action_type: any
-      break_glass_id: any
-      executed: any
-      executed_datetime: string | number | Date
-      executed_level: number
-      expiration_datetime: string | number | Date
-      id: any
-      initiator_id: any
-      start_datetime: string | number | Date
-      status: any
-      signers: any
-      signers_count: number
+      action_type: any;
+      break_glass_id: any;
+      executed: any;
+      executed_datetime: string | number | Date;
+      executed_level: number;
+      expiration_datetime: string | number | Date;
+      id: any;
+      initiator_id: any;
+      start_datetime: string | number | Date;
+      status: any;
+      signers: any;
+      signers_count: number;
     }) => {
-      const signers: BreakGlassActionSigner[] = []
-      actionRecord.signers?.forEach((signer: { break_glass_action_record_id: any; id: any; signer_id: any }) => {
-        const newSigner: BreakGlassActionSigner = {
-          breakGlassActionRecordId: signer.break_glass_action_record_id,
-          id: signer.id,
-          signerId: signer.signer_id,
+      const signers: BreakGlassActionSigner[] = [];
+      actionRecord.signers?.forEach(
+        (signer: {
+          break_glass_action_record_id: any;
+          id: any;
+          signer_id: any;
+        }) => {
+          const newSigner: BreakGlassActionSigner = {
+            breakGlassActionRecordId: signer.break_glass_action_record_id,
+            id: signer.id,
+            signerId: signer.signer_id,
+          };
+          signers.push(newSigner);
         }
-        signers.push(newSigner)
-      })
+      );
 
       const newActionRecord: BreakGlassActionRecord = {
         actionType: actionRecord.action_type,
@@ -400,11 +443,11 @@ function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
         signers,
         executedLevel: actionRecord.executed_level,
         signersCount: actionRecord.signers_count,
-      }
+      };
 
-      actionLedger.push(newActionRecord)
-    },
-  )
+      actionLedger.push(newActionRecord);
+    }
+  );
   // storage?.council_members.forEach((member: { address: string }) => {
   //   const newMember = {
   //     address: member.address,
@@ -425,34 +468,40 @@ function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
     actionCounter: storage?.currentActionId,
     glassBroken: storage?.glassBroken,
     actionLedger,
-  }
+  };
 }
 
 function convertToCouncilStorageType(storage: any): CouncilStorage {
   const councilActionsLedger: CouncilActionRecord[] = [],
-    councilMembers: { address: string }[] = []
+    councilMembers: { address: string }[] = [];
   storage?.council_action_records.forEach(
     (actionRecord: {
-      action_type: any
-      council_id: any
-      executed: any
-      executed_datetime: string | number | Date
-      expiration_datetime: string | number | Date
-      id: any
-      initiator_id: any
-      start_datetime: string | number | Date
-      status: any
-      signers: any
+      action_type: any;
+      council_id: any;
+      executed: any;
+      executed_datetime: string | number | Date;
+      expiration_datetime: string | number | Date;
+      id: any;
+      initiator_id: any;
+      start_datetime: string | number | Date;
+      status: any;
+      signers: any;
     }) => {
-      const signers: CouncilActionSigner[] = []
-      actionRecord.signers?.forEach((signer: { council_action_record_id: any; id: any; signer_id: any }) => {
-        const newSigner: CouncilActionSigner = {
-          breakGlassActionRecordId: signer.council_action_record_id,
-          id: signer.id,
-          signerId: signer.signer_id,
+      const signers: CouncilActionSigner[] = [];
+      actionRecord.signers?.forEach(
+        (signer: {
+          council_action_record_id: any;
+          id: any;
+          signer_id: any;
+        }) => {
+          const newSigner: CouncilActionSigner = {
+            breakGlassActionRecordId: signer.council_action_record_id,
+            id: signer.id,
+            signerId: signer.signer_id,
+          };
+          signers.push(newSigner);
         }
-        signers.push(newSigner)
-      })
+      );
 
       const newActionRecord: CouncilActionRecord = {
         actionType: actionRecord.action_type,
@@ -465,11 +514,11 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
         startDatetime: new Date(actionRecord.start_datetime),
         status: actionRecord.status,
         signers,
-      }
+      };
 
-      councilActionsLedger.push(newActionRecord)
-    },
-  )
+      councilActionsLedger.push(newActionRecord);
+    }
+  );
   return {
     address: storage?.address,
     config: {
@@ -478,8 +527,10 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
     },
     actionCounter: storage?.action_counter,
     councilActionsLedger,
-    councilMembers: storage?.council_council_members?.length ? storage.council_council_members : [],
-  }
+    councilMembers: storage?.council_council_members?.length
+      ? storage.council_council_members
+      : [],
+  };
 }
 
 function convertToVestingStorageType(storage: any): VestingStorage {
@@ -492,28 +543,38 @@ function convertToVestingStorageType(storage: any): VestingStorage {
     sumAmountClaimed: storage?.amount_claimed,
     sumRemainingVested: storage?.remainder_vested,
     totalVestedAmount: storage?.total_vested_amount,
-  }
+  };
 }
 
 function convertGovernanceRound(round: number): GovernanceRoundType {
-  return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : round === 2 ? 'TIME_LOCK' : ''
+  return round === 0
+    ? "PROPOSAL"
+    : round === 1
+    ? "VOTING"
+    : round === 2
+    ? "TIME_LOCK"
+    : "";
 }
 
 function convertToGovernanceStorageType(storage: {
-  governance: any
-  governance_financial_request_record: any
-  governance_proposal_record: any
-  governance_satellite_snapshot_record: any
+  governance: any;
+  governance_financial_request_record: any;
+  governance_proposal_record: any;
+  governance_satellite_snapshot_record: any;
 }): GovernanceStorage {
-  const financialRequestRecords = convertGovernanceFinancialRequestRecordToInterface(
-    storage?.governance_financial_request_record,
-  )
-  const proposalLedger = convertGovernanceProposalRecordToInterface(storage?.governance_proposal_record)
-  const satelliteSnapshotLedger = convertGovernanceSatelliteSnapshotRecordsToInterface(
-    storage?.governance_satellite_snapshot_record,
-  )
+  const financialRequestRecords =
+    convertGovernanceFinancialRequestRecordToInterface(
+      storage?.governance_financial_request_record
+    );
+  const proposalLedger = convertGovernanceProposalRecordToInterface(
+    storage?.governance_proposal_record
+  );
+  const satelliteSnapshotLedger =
+    convertGovernanceSatelliteSnapshotRecordsToInterface(
+      storage?.governance_satellite_snapshot_record
+    );
 
-  const currentGovernance = storage?.governance?.[0] || {}
+  const currentGovernance = storage?.governance?.[0] || {};
 
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
@@ -551,126 +612,135 @@ function convertToGovernanceStorageType(storage: {
     tempFlag: currentGovernance.start_level,
     timelockProposalId: currentGovernance.timelock_proposal_id,
     cycleCounter: currentGovernance.cycle_counter ?? 0,
-    cycleHighestVotedProposalId: currentGovernance.cycle_highest_voted_proposal_id,
+    cycleHighestVotedProposalId:
+      currentGovernance.cycle_highest_voted_proposal_id,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
     // financialRequestCounter: storage?.,
     // snapshotMvkTotalSupply:storage?.,
     // financialRequestSnapshotLedger: storage?.,
-  }
+  };
 }
 
 function convertGovernanceFinancialRequestRecordToInterface(
   governance_financial_request_vote: {
-    approve_vote_total: any
-    executed: any
-    disapprove_vote_total: any
-    expiration_datetime: any
-    governance_id: any
-    id: any
-    ready: any
-    request_purpose: any
-    request_type: any
-    requested_datetime: any
-    smvk_percentage_for_approval: any
-    requester_id: any
-    smvk_required_for_approval: any
-    snapshot_smvk_total_supply: any
-    status: any
-    token_amount: any
-    token_contract_address: any
-    token_id: any
-    token_name: any
-    treasury_id: any
-    votes: any
-  }[],
+    approve_vote_total: any;
+    executed: any;
+    disapprove_vote_total: any;
+    expiration_datetime: any;
+    governance_id: any;
+    id: any;
+    ready: any;
+    request_purpose: any;
+    request_type: any;
+    requested_datetime: any;
+    smvk_percentage_for_approval: any;
+    requester_id: any;
+    smvk_required_for_approval: any;
+    snapshot_smvk_total_supply: any;
+    status: any;
+    token_amount: any;
+    token_contract_address: any;
+    token_id: any;
+    token_name: any;
+    treasury_id: any;
+    votes: any;
+  }[]
 ): FinancialRequestRecord[] {
-  const financialRequestRecords: FinancialRequestRecord[] = []
+  const financialRequestRecords: FinancialRequestRecord[] = [];
   if (Array.isArray(governance_financial_request_vote)) {
     governance_financial_request_vote.forEach((record) => {
-      const newRequestRecord = record as unknown as FinancialRequestRecord
-      newRequestRecord.votes = convertGovernanceFinancialRequestVoteToInterface(record.votes)
-      financialRequestRecords.push(newRequestRecord)
-    })
+      const newRequestRecord = record as unknown as FinancialRequestRecord;
+      newRequestRecord.votes = convertGovernanceFinancialRequestVoteToInterface(
+        record.votes
+      );
+      financialRequestRecords.push(newRequestRecord);
+    });
   }
-  return financialRequestRecords
+  return financialRequestRecords;
 }
 
 function convertGovernanceFinancialRequestVoteToInterface(
-  governance_financial_request_records: any[],
+  governance_financial_request_records: any[]
 ): FinancialRequestVote[] {
-  const financialRequestVotes: FinancialRequestVote[] = []
+  const financialRequestVotes: FinancialRequestVote[] = [];
   governance_financial_request_records.forEach((record) => {
-    const newRequestVote = record as FinancialRequestVote
-    financialRequestVotes.push(newRequestVote)
-  })
-  return financialRequestVotes
+    const newRequestVote = record as FinancialRequestVote;
+    financialRequestVotes.push(newRequestVote);
+  });
+  return financialRequestVotes;
 }
 
 function convertGovernanceProposalRecordToInterface(
   governance_proposal_record: {
-    pass_vote_smvk_total: any
-    current_cycle_end_level: any
-    current_cycle_start_level: any
-    current_round_proposal: any
-    cycle: any
-    description: any
-    nay_vote_smvk_total: any
-    id: any
-    executed: any
-    invoice: any
-    locked: any
-    min_proposal_round_vote_pct: any
-    proposal_vote_smvk_total: any
-    min_quorum_percentage: any
-    min_yay_vote_percentage: any
-    min_proposal_round_vote_req: any
-    proposer_id: any
-    quorum_smvk_total: any
-    source_code: any
-    round_highest_voted_proposal: any
-    start_datetime: any
-    status: any
-    success_reward: any
-    timelock_proposal: any
-    title: any
-    yay_vote_smvk_total: any
+    pass_vote_smvk_total: any;
+    current_cycle_end_level: any;
+    current_cycle_start_level: any;
+    current_round_proposal: any;
+    cycle: any;
+    description: any;
+    nay_vote_smvk_total: any;
+    id: any;
+    executed: any;
+    invoice: any;
+    locked: any;
+    min_proposal_round_vote_pct: any;
+    proposal_vote_smvk_total: any;
+    min_quorum_percentage: any;
+    min_yay_vote_percentage: any;
+    min_proposal_round_vote_req: any;
+    proposer_id: any;
+    quorum_smvk_total: any;
+    source_code: any;
+    round_highest_voted_proposal: any;
+    start_datetime: any;
+    status: any;
+    success_reward: any;
+    timelock_proposal: any;
+    title: any;
+    yay_vote_smvk_total: any;
     votes: {
-      current_round_vote: any
-      governance_proposal_record_id: any
-      id: any
-      round: any
-      timestamp: any
-      vote: any
-      voter_id: any
-      voting_power: any
-    }[]
-  }[],
+      current_round_vote: any;
+      governance_proposal_record_id: any;
+      id: any;
+      round: any;
+      timestamp: any;
+      vote: any;
+      voter_id: any;
+      voting_power: any;
+    }[];
+  }[]
 ): ProposalRecordType[] {
-  const governanceProposalRecords: ProposalRecordType[] = []
+  const governanceProposalRecords: ProposalRecordType[] = [];
   if (Array.isArray(governance_proposal_record)) {
     governance_proposal_record.forEach((record) => {
-      const newProposalRecord = convertGovernanceProposalRecordItemToStorageType(record)
-      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)
-      governanceProposalRecords.push(newProposalRecord)
-    })
+      const newProposalRecord =
+        convertGovernanceProposalRecordItemToStorageType(record);
+      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(
+        record.votes
+      );
+      governanceProposalRecords.push(newProposalRecord);
+    });
   }
-  return governanceProposalRecords
+  return governanceProposalRecords;
 }
 
 function convertGovernanceProposalVoteToInterface(
   votes: {
-    current_round_vote: any
-    governance_proposal_record_id: any
-    id: any
-    round: any
-    timestamp: any
-    vote: any
-    voter_id: any
-    voting_power: any
-  }[],
+    current_round_vote: any;
+    governance_proposal_record_id: any;
+    id: any;
+    round: any;
+    timestamp: any;
+    vote: any;
+    voter_id: any;
+    voting_power: any;
+  }[]
 ): Map<string, ProposalVote> {
-  const proposalVotes: Map<string, ProposalVote> = new Map<string, ProposalVote>()
+  const proposalVotes: Map<string, ProposalVote> = new Map<
+    string,
+    ProposalVote
+  >();
   votes.forEach((record) => {
     const newRequestVote: ProposalVote = {
       id: record.id,
@@ -681,35 +751,37 @@ function convertGovernanceProposalVoteToInterface(
       vote: record.vote,
       voterId: record.voter_id,
       votingPower: calcWithoutPrecision(record.voting_power),
-    }
-    proposalVotes.set(record.voter_id, newRequestVote)
-  })
-  return proposalVotes
+    };
+    proposalVotes.set(record.voter_id, newRequestVote);
+  });
+  return proposalVotes;
 }
 
 function convertGovernanceSatelliteSnapshotRecordsToInterface(
   governance_satellite_snapshot_record: {
-    id: any
-    governance_id: any
-    satellite_id: any
-    current_cycle_end_level: any
-    current_cycle_start_level: any
-    total_delegated_amount: any
-    total_mvk_balance: any
-    total_voting_power: any
-  }[],
+    id: any;
+    governance_id: any;
+    satellite_id: any;
+    current_cycle_end_level: any;
+    current_cycle_start_level: any;
+    total_delegated_amount: any;
+    total_mvk_balance: any;
+    total_voting_power: any;
+  }[]
 ): SnapshotRecordType[] {
-  const governanceProposalRecords: SnapshotRecordType[] = []
+  const governanceProposalRecords: SnapshotRecordType[] = [];
   if (Array.isArray(governance_satellite_snapshot_record)) {
     governance_satellite_snapshot_record.forEach((record) => {
-      const newProposalRecord = record as unknown as SnapshotRecordType
-      governanceProposalRecords.push(newProposalRecord)
-    })
+      const newProposalRecord = record as unknown as SnapshotRecordType;
+      governanceProposalRecords.push(newProposalRecord);
+    });
   }
-  return governanceProposalRecords
+  return governanceProposalRecords;
 }
 
-export function convertGovernanceProposalRecordItemToStorageType(item: any): ProposalRecordType {
+export function convertGovernanceProposalRecordItemToStorageType(
+  item: any
+): ProposalRecordType {
   const convertData = {
     id: item.id,
     proposerId: item.proposer_id,
@@ -744,165 +816,171 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
     details: item.details,
     invoiceTable: item.invoice_table,
     paymentProcessed: item.payment_processed,
-  }
+  };
   // @ts-ignore
-  return convertData
+  return convertData;
 }
 
 export function convertCurrentRoundProposalsStorageType(storage: {
-  governance_proposal_record: ProposalRecordType[]
+  governance_proposal_record: ProposalRecordType[];
 }): Map<string, ProposalRecordType> | undefined {
-  const governanceProposalRecord = storage?.governance_proposal_record
+  const governanceProposalRecord = storage?.governance_proposal_record;
   const mapProposalRecordType = governanceProposalRecord?.length
     ? new Map(
-        governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]),
+        governanceProposalRecord.map((item, i) => [
+          `${i}`,
+          convertGovernanceProposalRecordItemToStorageType(item),
+        ])
       )
-    : undefined
-  return mapProposalRecordType
+    : undefined;
+  return mapProposalRecordType;
 }
 
-export function convertBreakGlassStatusStorageType(storage: any): Record<string, unknown>[] {
-  const convert = [] as Record<string, unknown>[]
+export function convertBreakGlassStatusStorageType(
+  storage: any
+): Record<string, unknown>[] {
+  const convert = [] as Record<string, unknown>[];
 
-  console.log('%c ||||| storage', 'color:yellowgreen', storage);
+  console.log("%c ||||| storage", "color:yellowgreen", storage);
 
   if (storage?.doorman?.length) {
     storage.doorman.forEach((item: any) => {
       convert.push({
-        title: 'Doorman',
-        type: 'General Contracts',
+        title: "Doorman",
+        type: "General Contracts",
         address: item.address,
         methods: {
           compound: item.compound_paused,
-          'distribute reward': item.distribute_reward_paused,
-          'farm claimed': item.farm_claimed_paused,
+          "distribute reward": item.distribute_reward_paused,
+          "farm claimed": item.farm_claimed_paused,
           unstake: item.unstake_paused,
         },
-      })
-    })
+      });
+    });
   }
 
   if (storage?.delegation?.length) {
     storage.delegation.forEach((item: any) => {
       convert.push({
-        title: 'Delegation',
-        type: 'General Contracts',
+        title: "Delegation",
+        type: "General Contracts",
         address: item.address,
         methods: {
-          'delegate to satellite': item.delegate_to_satellite_paused,
-          'distribute reward': item.distribute_reward_paused,
-          'register as satellite': item.register_as_satellite_paused,
-          'undelegate from satellite': item.undelegate_from_satellite_paused,
-          'unregister as satellite': item.unregister_as_satellite_paused,
-          'update satellite record': item.update_satellite_record_paused,
+          "delegate to satellite": item.delegate_to_satellite_paused,
+          "distribute reward": item.distribute_reward_paused,
+          "register as satellite": item.register_as_satellite_paused,
+          "undelegate from satellite": item.undelegate_from_satellite_paused,
+          "unregister as satellite": item.unregister_as_satellite_paused,
+          "update satellite record": item.update_satellite_record_paused,
         },
-      })
-    })
+      });
+    });
   }
 
   if (storage?.farm_factory?.length) {
     storage.farm_factory.forEach((item: any) => {
       convert.push({
-        title: 'Farm factory',
-        type: 'Farms',
+        title: "Farm factory",
+        type: "Farms",
         address: item.address,
         methods: {
-          'create farm': item.create_farm_paused,
-          'track farm': item.track_farm_paused,
-          'untrack farm': item.untrack_farm_paused,
+          "create farm": item.create_farm_paused,
+          "track farm": item.track_farm_paused,
+          "untrack farm": item.untrack_farm_paused,
         },
-      })
-    })
+      });
+    });
   }
 
   if (storage?.farm?.length) {
     storage.farm.forEach((item: any) => {
-      console.log(item)
+      console.log(item);
       convert.push({
         title: item.name,
-        type: 'Farms',
+        type: "Farms",
         address: item.address,
         methods: {
           claim: item.claim_paused,
           deposit: item.deposit_paused,
           withdraw: item.withdraw_paused,
         },
-      })
-    })
+      });
+    });
   }
 
   if (storage?.treasury?.length) {
     storage.treasury.forEach((item: any) => {
       convert.push({
         title: item.name,
-        type: 'Treasury',
+        type: "Treasury",
         address: item.address,
         methods: {
-          'mint mvk and transfer': item.mint_mvk_and_transfer_paused,
-          'stake mvk': item.stake_mvk_paused,
+          "mint mvk and transfer": item.mint_mvk_and_transfer_paused,
+          "stake mvk": item.stake_mvk_paused,
           transfer: item.transfer_paused,
-          'unstake mvk': item.unstake_mvk_paused,
+          "unstake mvk": item.unstake_mvk_paused,
         },
-      })
-    })
+      });
+    });
   }
 
   if (storage?.treasury_factory?.length) {
     storage.treasury_factory.forEach((item: any) => {
       convert.push({
-        title: 'Treasury Factory',
-        type: 'Treasury',
+        title: "Treasury Factory",
+        type: "Treasury",
         address: item.address,
         methods: {
-          'create treasury paused': item.create_treasury_paused,
-          'track treasury paused': item.track_treasury_paused,
-          'untrack treasury paused': item.untrack_treasury_paused,
+          "create treasury paused": item.create_treasury_paused,
+          "track treasury paused": item.track_treasury_paused,
+          "untrack treasury paused": item.untrack_treasury_paused,
         },
-      })
-    })
+      });
+    });
   }
 
   if (storage?.aggregator?.length) {
     storage.aggregator.forEach((item: any) => {
       convert.push({
         title: `${item.name} Aggregator`,
-        type: 'Oracles',
+        type: "Oracles",
         address: item.address,
         methods: {
-          'request rate update deviation paused': item.request_rate_update_deviation_paused,
-          'request rate update paused': item.request_rate_update_paused,
-          'set observation commit paused': item.set_observation_commit_paused,
-          'set observation reveal paused': item.set_observation_reveal_paused,
-          'withdraw reward smvk paused': item.withdraw_reward_smvk_paused,
-          'withdraw reward xtz paused': item.withdraw_reward_xtz_paused,
+          "request rate update deviation paused":
+            item.request_rate_update_deviation_paused,
+          "request rate update paused": item.request_rate_update_paused,
+          "set observation commit paused": item.set_observation_commit_paused,
+          "set observation reveal paused": item.set_observation_reveal_paused,
+          "withdraw reward smvk paused": item.withdraw_reward_smvk_paused,
+          "withdraw reward xtz paused": item.withdraw_reward_xtz_paused,
         },
-      })
-    })
+      });
+    });
   }
   if (storage?.aggregator_factory?.length) {
     storage.aggregator_factory.forEach((item: any) => {
       convert.push({
-        title: 'Aggregator Factory',
-        type: 'Oracles',
+        title: "Aggregator Factory",
+        type: "Oracles",
         address: item.address,
         methods: {
-          'untrack aggregator paused': item.untrack_aggregator_paused,
-          'track aggregator paused': item.track_aggregator_paused,
-          'distribute reward xtz paused': item.distribute_reward_xtz_paused,
-          'distribute reward smvk paused': item.distribute_reward_smvk_paused,
-          'create aggregator paused': item.create_aggregator_paused,
+          "untrack aggregator paused": item.untrack_aggregator_paused,
+          "track aggregator paused": item.track_aggregator_paused,
+          "distribute reward xtz paused": item.distribute_reward_xtz_paused,
+          "distribute reward smvk paused": item.distribute_reward_smvk_paused,
+          "create aggregator paused": item.create_aggregator_paused,
         },
-      })
-    })
+      });
+    });
   }
 
-  return convert
+  return convert;
 }
 
 export function getEnumKeyByEnumValue<T extends { [index: string]: string }>(
   myEnum: T,
-  enumValue: string,
+  enumValue: string
 ): keyof T | null {
-  let keys = Object.keys(myEnum).filter((x) => myEnum[x] == enumValue)
-  return keys.length > 0 ? keys[0] : null
+  let keys = Object.keys(myEnum).filter((x) => myEnum[x] == enumValue);
+  return keys.length > 0 ? keys[0] : null;
 }

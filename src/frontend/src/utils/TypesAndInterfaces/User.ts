@@ -1,3 +1,5 @@
+import type {Mavryk_User} from '../generated/graphqlTypes'
+
 export interface UserData {
   myAddress: string
   myMvkTokenBalance: number
@@ -6,3 +8,5 @@ export interface UserData {
   satelliteMvkIsDelegatedTo: string
   myDelegationHistory?: any[]
 }
+
+export type MavrykUserGraphQl = Omit<Mavryk_User, '__typename'>
