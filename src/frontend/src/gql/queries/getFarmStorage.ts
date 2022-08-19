@@ -14,10 +14,8 @@ query FarmStorageQuery {
     accumulated_rewards_per_share
     current_reward_per_block
     init
-    lp_token_address
     lp_token_balance
     lp_token_id
-    lp_token_standard
     paid_rewards
     total_rewards
     unpaid_rewards
@@ -38,7 +36,7 @@ query FarmStorageQuery {
     }
   }
 }
-`
+`;
 
-export const FARM_STORAGE_QUERY_NAME = 'FarmStorageQuery'
-export const FARM_STORAGE_QUERY_VARIABLE = {}
+export const FARM_STORAGE_QUERY_NAME = "FarmStorageQuery";
+export const FARM_STORAGE_QUERY_VARIABLE = {};

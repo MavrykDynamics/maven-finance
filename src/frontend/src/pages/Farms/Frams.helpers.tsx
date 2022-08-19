@@ -9,11 +9,14 @@ import {
 import { calcWithoutMu, calcWithoutPrecision } from "../../utils/calcFunctions";
 
 export const normalizeFarmStorage = (farmList: FarmGraphQL[]) => {
+  if (!farmList?.length) return [];
+
   return farmList.map((farmItem: FarmGraphQL) => {
     return {
       address: farmItem.address,
       name: farmItem.name,
-      lpTokenAddress: farmItem.lp_token_address,
+      // TODO not exist in grapgQl
+      lpTokenAddress: "",
       open: farmItem.open,
       withdrawPaused: farmItem.withdraw_paused,
       claimPaused: farmItem.claim_paused,

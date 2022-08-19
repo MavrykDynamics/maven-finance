@@ -48,7 +48,6 @@ export function normalizeSatelliteRecord(
           timestamp: new Date(vote.timestamp),
           vote: vote.vote,
           voterId: vote.voter_id,
-          votingPower: calcWithoutPrecision(vote.voting_power),
           requestData: vote.governance_financial_request,
         };
       })
