@@ -39,6 +39,7 @@ import {
   normalizeDoormanStorage,
   normalizeMvkToken,
 } from "../pages/Doorman/Doorman.converter";
+import { normalizeFarmStorage } from "../pages/Farms/Frams.helpers";
 
 export const RECAPTCHA_REQUEST = "RECAPTCHA_REQUEST";
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -60,7 +61,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
     "delegation",
     res[3]?.delegation[0]
   );
-  const farmStorage = storageToTypeConverter("farm", res[4]?.farm);
+  const farmStorage = normalizeFarmStorage(res[4]?.farm);
   const emergencyGovernanceStorage = storageToTypeConverter(
     "emergencyGovernance",
     res[5]?.emergency_governance[0]
