@@ -33,8 +33,8 @@ const breakGlassConfig = {
     // Vault Entrypoints
     createVaultIsPaused                 : false,
     closeVaultIsPaused                  : false,
-    withdrawFromVaultIsPaused           : false,
     registerDepositIsPaused             : false,
+    registerWithdrawalIsPaused          : false,
     liquidateVaultIsPaused              : false,
     borrowIsPaused                      : false,
     repayIsPaused                       : false,

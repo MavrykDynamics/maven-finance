@@ -19,6 +19,9 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Doorman Types
+#include "../partials/contractTypes/doormanTypes.ligo"
+
 // Aggregator Types - for lastCompletedRoundPriceReturnType
 #include "../partials/contractTypes/aggregatorTypes.ligo"
 
@@ -64,8 +67,8 @@ type lendingControllerAction is
     |   UpdateCollateralToken           of updateCollateralTokenActionType
     |   CreateVault                     of createVaultActionType
     |   CloseVault                      of closeVaultActionType
-    |   RegisterDeposit                 of registerDepositType
-    |   WithdrawFromVault               of withdrawFromVaultActionType
+    |   RegisterDeposit                 of registerDepositActionType
+    |   RegisterWithdrawal              of registerWithdrawalActionType
     |   LiquidateVault                  of liquidateVaultActionType
     |   Borrow                          of borrowActionType
     |   Repay                           of repayActionType
@@ -192,7 +195,7 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 // helper function to check no loan outstanding on vault
 function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
   if vault.loanOutstandingTotal = 0n then unit
-  else failwith("Error. Loan Outstanding is not zero.")
+  else failwith(error_LOAN_OUTSTANDING_IS_NOT_ZERO)
 
 // ------------------------------------------------------------------------------
 // Misc Helper Functions Begin
@@ -210,7 +213,7 @@ function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(vau
         "%vaultWithdraw",
         vaultAddress) : option(contract(vaultWithdrawType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith("Error. VaultWithdraw entrypoint in vault not found") : contract(vaultWithdrawType))
+            |   None -> (failwith(error_VAULT_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(vaultWithdrawType))
         ]
 
 
@@ -221,40 +224,40 @@ function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(
         "%vaultDelegateTezToBaker",
         vaultAddress) : option(contract(vaultDelegateTezToBakerType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith("Error. vaultDelegateTezToBaker entrypoint in vault not found") : contract(vaultDelegateTezToBakerType))
+            |   None -> (failwith(error_VAULT_DELEGATE_TEZ_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(vaultDelegateTezToBakerType))
         ]
 
 
 
-// helper function to get %vaultDepositStakedMvk entrypoint in Doorman Contract
-function getVaultDepositStakedMvkEntrypoint(const contractAddress : address) : contract(vaultDepositStakedMvkType) is
+// helper function to get %onVaultDepositStakedMvk entrypoint in Doorman Contract
+function getOnVaultDepositStakedMvkEntrypoint(const contractAddress : address) : contract(onVaultDepositStakedMvkType) is
     case (Tezos.get_entrypoint_opt(
-        "%vaultDepositStakedMvk",
-        contractAddress) : option(contract(vaultDepositStakedMvkType))) of [
+        "%onVaultDepositStakedMvk",
+        contractAddress) : option(contract(onVaultDepositStakedMvkType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith("Error. vaultDepositStakedMvk entrypoint in contract not found") : contract(vaultDepositStakedMvkType))
+            |   None -> (failwith(error_ON_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(onVaultDepositStakedMvkType))
         ]
 
 
 
-// helper function to get vaultWithdrawStakedMvk entrypoint from doorman contract
-function getVaultWithdrawStakedMvkEntrypoint(const contractAddress : address) : contract(vaultWithdrawStakedMvkType) is
+// helper function to get %onVaultWithdrawStakedMvk entrypoint from doorman contract
+function getOnVaultWithdrawStakedMvkEntrypoint(const contractAddress : address) : contract(onVaultWithdrawStakedMvkType) is
     case (Tezos.get_entrypoint_opt(
-        "%vaultWithdrawStakedMvk",
-        contractAddress) : option(contract(vaultWithdrawStakedMvkType))) of [
+        "%onVaultWithdrawStakedMvk",
+        contractAddress) : option(contract(onVaultWithdrawStakedMvkType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith("Error. vaultWithdrawStakedMvk entrypoint in contract not found") : contract(vaultWithdrawStakedMvkType))
+            |   None -> (failwith(error_ON_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(onVaultWithdrawStakedMvkType))
         ]
 
 
 
-// helper function to get %vaultLiquidateStakedMvk entrypoint from Doorman Contract
-function getVaultLiquidateStakedMvkEntrypoint(const contractAddress : address) : contract(vaultLiquidateStakedMvkType) is
+// helper function to get %onVaultLiquidateStakedMvk entrypoint from Doorman Contract
+function getOnVaultLiquidateStakedMvkEntrypoint(const contractAddress : address) : contract(onVaultLiquidateStakedMvkType) is
     case (Tezos.get_entrypoint_opt(
-        "%vaultLiquidateStakedMvk",
-        contractAddress) : option(contract(vaultLiquidateStakedMvkType))) of [
+        "%onVaultLiquidateStakedMvk",
+        contractAddress) : option(contract(onVaultLiquidateStakedMvkType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith("Error. vaultLiquidateStakedMvk entrypoint in contract not found") : contract(vaultLiquidateStakedMvkType))
+            |   None -> (failwith(error_ON_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(onVaultLiquidateStakedMvkType))
         ]
 
 
@@ -303,38 +306,6 @@ function getRepayCallbackEntrypointInlendingControllerContract(const contractAdd
 
 
 
-// helper function to get %updateTokenPoolCallback entrypoint in Token Pool Contract
-// function getUpdateTokenPoolCallbackEntrypoint(const contractAddress : address) : contract(updateTokenPoolCallbackActionType) is
-//     case (Tezos.get_entrypoint_opt(
-//         "%updateTokenPoolCallback",
-//         contractAddress) : option(contract(updateTokenPoolCallbackActionType))) of [
-//                 Some(contr) -> contr
-//             |   None -> (failwith(error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(updateTokenPoolCallbackActionType))
-//         ];
-
-
-// helper function to get %onBorrow entrypoint in Token Pool Contract
-// function getOnBorrowEntrypointInTokenPoolContract(const contractAddress : address) : contract(onBorrowActionType) is
-//     case (Tezos.get_entrypoint_opt(
-//         "%onBorrow",
-//         contractAddress) : option(contract(onBorrowActionType))) of [
-//                 Some(contr) -> contr
-//             |   None -> (failwith(error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onBorrowActionType))
-//         ];
-
-
-
-// helper function to get %onRepay entrypoint in Token Pool Contract
-// function getOnRepayEntrypointInTokenPoolContract(const contractAddress : address) : contract(onRepayActionType) is
-//     case (Tezos.get_entrypoint_opt(
-//         "%onRepay",
-//         contractAddress) : option(contract(onRepayActionType))) of [
-//                 Some(contr) -> contr
-//             |   None -> (failwith(error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onRepayActionType))
-//         ];
-
-
-
 // helper function to get %updateRewards entrypoint in Token Pool Contract
 function getUpdateRewardsEntrypointInTokenPoolRewardContract(const contractAddress : address) : contract(updateRewardsActionType) is
     case (Tezos.get_entrypoint_opt(
@@ -355,6 +326,8 @@ function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : 
             |   None -> (failwith("Error. MintOrBurn entrypoint in LP Token contract not found") : contract(mintOrBurnParamsType))
         ]
 
+
+
 // helper function to get burn entrypoint from LP Token contract
 function getLpTokenBurnEntrypoint(const tokenContractAddress : address) : contract(burnParamsType) is
     case (Tezos.get_entrypoint_opt(
@@ -374,6 +347,35 @@ function getLpTokenBurnEntrypoint(const tokenContractAddress : address) : contra
 // Contract Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to check collateral token exists
+function checkCollateralTokenExists(const tokenName : string; const s : lendingControllerStorageType) : unit is 
+block {
+    const collateralTokenExists : unit = case s.collateralTokenLedger[tokenName] of [
+            Some(_record) -> unit 
+        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+    ];
+} with collateralTokenExists
+
+
+
+// helper function to get user staked mvk balance from Doorman contract
+function getUserStakedMvkBalanceFromDoorman(const userAddress : address; const s : lendingControllerStorageType) : nat is 
+block {
+
+    // Get Doorman Address from the General Contracts map on the Governance Contract
+    const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+
+    // get staked MVK balance of user from Doorman contract
+    const getStakedBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+    const userStakedMvkBalance : nat = case getStakedBalanceView of [
+            Some (_value) -> _value
+        |   None          -> failwith (error_USER_STAKE_RECORD_NOT_FOUND)
+    ];
+
+} with userStakedMvkBalance
+
+
+
 function mintOrBurnLpToken(const target : address; const quantity : int; const lpTokenAddress : address) : operation is 
 block {
 
@@ -383,6 +385,7 @@ block {
     ];
 
 } with (Tezos.transaction(mintOrBurnParams, 0mutez, getLpTokenMintOrBurnEntrypoint(lpTokenAddress) ) )
+
 
 
 function burnLpToken(const target : address; const amount : nat; const lpTokenAddress : address) : operation is 
@@ -1071,16 +1074,19 @@ block {
 block {
 
     var tokenName : string := "empty";
-    for _key -> collateralTokenRecord in map s.collateralTokenLedger block {
-        // case collateralTokenRecord.tokenType of [
+    for _key -> value in map s.collateralTokenLedger block {
+        
+        // case value.tokenType of [
         //     |   Tez(_tez)    -> tokenName := "tez"
         //     |   Fa12(_token) -> if tokenContractAddress = _token then tokenName := _key else skip
         //     |   Fa2(_token)  -> if tokenContractAddress = _token.tokenContractAddress then tokenName := _key else skip
         // ];
-        if collateralTokenRecord.tokenContractAddress = tokenContractAddress then tokenName := _key else skip;
-        // if tokenContractAddress = collateralTokenRecord.tokenContractAddress then block {
-        //     tokenName := _key;
-        // } else skip;
+        
+        // if value.tokenContractAddress = tokenContractAddress then tokenName := _key else skip;
+        
+        if tokenContractAddress = value.tokenContractAddress then block {
+            tokenName := _key;
+        } else skip;
 
     };
 
@@ -1453,29 +1459,8 @@ block {
 
 
 
-
-(* withdrawFromVault entrypoint *)
-function withdrawFromVault(const withdrawFromVaultParams : withdrawFromVaultActionType; var s : lendingControllerStorageType) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawFromVault"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaWithdrawFromVault(withdrawFromVaultParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
-    
-} with response
-
-
-
-
 (* registerDeposit entrypoint *)
-function registerDeposit(const registerDepositParams : registerDepositType; var s : lendingControllerStorageType) : return is 
+function registerDeposit(const registerDepositParams : registerDepositActionType; var s : lendingControllerStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterDeposit"] of [
@@ -1490,6 +1475,27 @@ block {
     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
 } with response
+
+
+
+
+(* registerWithdrawal entrypoint *)
+function registerWithdrawal(const registerWithdrawalParams : registerWithdrawalActionType; var s : lendingControllerStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterWithdrawal"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRegisterWithdrawal(registerWithdrawalParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
 
 
 
@@ -1697,7 +1703,7 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   CreateVault(parameters)                       -> createVault(parameters, s)
         |   CloseVault(parameters)                        -> closeVault(parameters, s)
         |   RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
-        |   WithdrawFromVault(parameters)                 -> withdrawFromVault(parameters, s)
+        |   RegisterWithdrawal(parameters)                -> registerWithdrawal(parameters, s)
         |   LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
         |   Borrow(parameters)                            -> borrow(parameters, s)
         |   Repay(parameters)                             -> repay(parameters, s)

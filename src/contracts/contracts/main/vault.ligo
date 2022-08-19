@@ -108,13 +108,24 @@ function ceildiv(const numerator : nat; const denominator : nat) is abs( (- nume
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to %registerDeposit entrypoint in the vault controller
-function registerDepositInLendingController(const contractAddress : address) : contract(vaultControllerDepositType) is
+// helper function to %registerDeposit entrypoint in the Lending Controller
+function getRegisterDepositEntrypointInLendingController(const contractAddress : address) : contract(registerDepositActionType) is
     case (Tezos.get_entrypoint_opt(
         "%registerDeposit",
-        contractAddress) : option(contract(vaultControllerDepositType))) of [
+        contractAddress) : option(contract(registerDepositActionType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(vaultControllerDepositType))
+            |   None -> (failwith(error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(registerDepositActionType))
+        ];
+
+
+
+// helper function to %registerWithdrawal entrypoint in the vault controller
+function getRegisterWithdrawalEntrypointInLendingController(const contractAddress : address) : contract(registerWithdrawalActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%registerWithdrawal",
+        contractAddress) : option(contract(registerWithdrawalActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(registerWithdrawalActionType))
         ];
 
 
@@ -125,12 +136,208 @@ function getDelegateToSatelliteEntrypoint(const contractAddress : address) : con
         "%delegateToSatellite",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None -> (failwith("Error. delegateToSatellite entrypoint in contract not found") : contract(address))
+            |   None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
         ]
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
+
+
+
+
+// ------------------------------------------------------------------------------
+// Contract Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get collateral token record from Lending Controller through on-chain view
+function getCollateralTokenRecord(const tokenContractAddress : address; const s : vaultStorageType) : collateralTokenRecordType is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    // check collateral token contract address exists in Lending Controller collateral token ledger
+    const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByAddressOpt", tokenContractAddress, lendingControllerAddress);
+    const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
+            Some (_opt)    -> _opt
+        |   None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND)
+    ];
+    const collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
+            Some(_record)  -> _record
+        |   None           -> failwith (error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+} with collateralTokenRecord
+
+
+
+// helper function to register deposit in lending controller
+function registerDepositInLendingController(const amount : nat; const tokenType : tokenType; const s : vaultStorageType) : operation is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    const registerDepositOperation : operation = case tokenType of [
+
+        |   Tez(_tez) -> block{
+
+                // create register deposit params
+                const registerDepositParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = "tez";
+                ];
+                
+                // create register deposit operation
+                const registerDepositOperation : operation = Tezos.transaction(
+                    registerDepositParams,
+                    0mutez,
+                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerDepositOperation
+
+        |   Fa12(token) -> block{
+
+                // get collateral token record from Lending Controller
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecord(token, s);
+
+                // create register deposit params
+                const registerDepositParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = collateralTokenRecord.tokenName;
+                ];
+                    
+                // create register deposit operation
+                const registerDepositOperation : operation = Tezos.transaction(
+                    registerDepositParams,
+                    0mutez,
+                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerDepositOperation
+
+        |   Fa2(token) -> block{
+
+                // get collateral token record from Lending Controller
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecord(token.tokenContractAddress, s);
+
+                // create register deposit params
+                const registerDepositParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = collateralTokenRecord.tokenName;
+                ];
+                    
+                // create register deposit operation
+                const registerDepositOperation : operation = Tezos.transaction(
+                    registerDepositParams,
+                    0mutez,
+                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerDepositOperation
+
+    ];
+
+} with registerDepositOperation
+
+
+
+// helper function to process vault transfer (for deposit/withdrawal)
+function processVaultTransfer(const from_ : address; const to_ : address; const amount : nat; const tokenType : tokenType) : operation is 
+block {
+
+    const processVaultTransferOperation : operation = case tokenType of [
+        |   Tez(_tez)   -> transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amount * 1mutez)
+        |   Fa12(token) -> transferFa12Token(from_, to_, amount, token)
+        |   Fa2(token)  -> transferFa2Token(from_, to_, amount, token.tokenId, token.tokenContractAddress)
+    ];
+
+} with processVaultTransferOperation
+
+
+
+// helper function to register withdrawal in lending controller
+function registerWithdrawalInLendingController(const amount : nat; const tokenType : tokenType; const s : vaultStorageType) : operation is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    const registerWithdrawalOperation : operation = case tokenType of [
+
+        |   Tez(_tez) -> block{
+
+                // create register withdrawal params
+                const registerWithdrawalParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = "tez";
+                ];
+                
+                // create register withdrawal operation
+                const registerWithdrawalOperation : operation = Tezos.transaction(
+                    registerWithdrawalParams,
+                    0mutez,
+                    getRegisterWithdrawalEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerWithdrawalOperation
+
+        |   Fa12(token) -> block{
+
+                // get collateral token record from Lending Controller
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecord(token, s);
+
+                // create register deposit params
+                const registerWithdrawalParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = collateralTokenRecord.tokenName;
+                ];
+                    
+                // create register deposit operation
+                const registerWithdrawalOperation : operation = Tezos.transaction(
+                    registerWithdrawalParams,
+                    0mutez,
+                    getRegisterWithdrawalEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerWithdrawalOperation
+
+        |   Fa2(token) -> block{
+
+                // get collateral token record from Lending Controller
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecord(token.tokenContractAddress, s);
+
+                // create register deposit params
+                const registerWithdrawalParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = collateralTokenRecord.tokenName;
+                ];
+                    
+                // create register deposit operation
+                const registerWithdrawalOperation : operation = Tezos.transaction(
+                    registerWithdrawalParams,
+                    0mutez,
+                    getRegisterWithdrawalEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerWithdrawalOperation
+
+    ];
+
+} with registerWithdrawalOperation
+
+// ------------------------------------------------------------------------------
+// Contract Helper Functions End
+// ------------------------------------------------------------------------------
+
 
 
 
