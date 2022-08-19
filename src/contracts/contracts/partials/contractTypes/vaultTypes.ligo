@@ -39,18 +39,6 @@ type vaultDepositType  is [@layout:comb] record [
     token           : tokenType;
 ]
 
-type vaultControllerDepositType is [@layout:comb] record [
-    handle      : vaultHandleType; 
-    amount      : nat;
-    tokenName   : string;
-]
-
-type registerDepositType is [@layout:comb] record [
-    handle          : vaultHandleType; 
-    amount          : nat;
-    tokenName       : string;   // name of collateral: tez, token name A, token name B
-]
-
 type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
     tokenContractAddress  : address;
     tokenName             : string;
@@ -77,7 +65,7 @@ type vaultLambdaActionType is
 
 
 // ------------------------------------------------------------------------------
-// Storage
+// Storage Type
 // ------------------------------------------------------------------------------
 
 
@@ -85,7 +73,6 @@ type vaultStorageType is record [
     
     admin                   : address;                  
     metadata                : metadataType;
-    controllerAddress       : address;                  // lending controller address
     governanceAddress       : address; 
 
     handle                  : vaultHandleType;          // owner of the vault
