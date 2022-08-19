@@ -197,6 +197,7 @@ export const Farms = () => {
                     <p>Stake amount = {depositAmount}</p>
                     <p>Rewards per block= {farm.currentRewardPerBlock}</p> */}
                     <FarmCard
+                      key={farm.address + farm.name}
                       variant={farmsViewVariant}
                       farmAddress={farm.address}
                       name={farm.name}

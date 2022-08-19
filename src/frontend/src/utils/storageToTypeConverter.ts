@@ -602,7 +602,6 @@ function convertGovernanceFinancialRequestRecordToInterface(
     snapshot_smvk_total_supply: any;
     status: any;
     token_amount: any;
-    token_contract_address: any;
     token_id: any;
     token_name: any;
     treasury_id: any;

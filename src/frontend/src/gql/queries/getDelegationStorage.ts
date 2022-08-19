@@ -54,7 +54,6 @@ export const DELEGATION_STORAGE_QUERY = `
             timestamp
             vote
             voter_id
-            voting_power
           }
           governance_proposal_records_votes {
             governance_proposal_record_id
@@ -80,7 +79,6 @@ export const DELEGATION_STORAGE_QUERY = `
             timestamp
             vote
             voter_id
-            voting_power
           }
         }
       }
@@ -91,7 +89,7 @@ export const DELEGATION_STORAGE_QUERY = `
       }
     }
   }
-`
+`;
 
-export const DELEGATION_STORAGE_QUERY_NAME = 'DelegationStorageQuery'
-export const DELEGATION_STORAGE_QUERY_VARIABLE = {}
+export const DELEGATION_STORAGE_QUERY_NAME = "DelegationStorageQuery";
+export const DELEGATION_STORAGE_QUERY_VARIABLE = {};
