@@ -3,6 +3,46 @@ import { backgroundTextColor, skyColor } from 'styles'
 import { BUTTON_RADIUS } from 'styles/constants'
 import { MavrykTheme } from 'styles/interfaces'
 
+// Common style parts START
+const VISIBLE_PART_CONNECTED_WALLET = (theme: any) => `
+.top-visible-part {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+  cursor: pointer;
+
+  var {
+    font-weight: 400;
+    font-size: 14px;
+    color: ${theme.headerSkyColor};
+  }
+
+  .end-icon {
+    height: 15px;
+    width: 10px;
+    transform: rotate(-90deg);
+    stroke: ${backgroundTextColor};
+  }
+
+  .wallet {
+    width: 22px;
+    height: 20px;
+    stroke: ${theme.headerSkyColor};
+    fill: transparent;
+  }
+}
+`
+
+const BUTTONS_WRAPPER_CONNECTED_WALLET = `
+.buttons-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+`
+// Common style parts END
+
 export const ConnectWalletStyled = styled.div<{ theme: MavrykTheme }>`
   text-align: center;
   border-radius: ${BUTTON_RADIUS};
@@ -19,32 +59,10 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   align-items: center;
 
-  .visible-part {
-    display: flex;
-    align-items: center;
-    column-gap: 10px;
-    cursor: pointer;
-
-    var {
-      font-weight: 400;
-      font-size: 14px;
-      color: ${({ theme }) => theme.headerSkyColor};
-    }
-
-    .arrow {
-      height: 15px;
-      width: 10px;
-      transform: rotate(-90deg);
-      stroke: ${backgroundTextColor};
-    }
-
-    .wallet {
-      width: 22px;
-      height: 20px;
-      stroke: ${({ theme }) => theme.headerSkyColor};
-      fill: transparent;
-    }
-  }
+  ${({ theme }) =>
+    css`
+      ${VISIBLE_PART_CONNECTED_WALLET(theme)}
+    `}
 
   .wallet-details {
     position: absolute;
@@ -63,13 +81,57 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
       opacity: 1;
       visibility: visible;
     }
+
+    &.mobile {
+      display: none;
+    }
   }
 
-  .buttons-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
+  ${BUTTONS_WRAPPER_CONNECTED_WALLET}
+`
+
+export const MobileDetailsStyled = styled.div<{ theme: MavrykTheme }>`
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 15;
+  background: #160e3f;
+
+  .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      stroke: #503eaa;
+    }
+  }
+
+  ${({ theme }) =>
+    css`
+      ${VISIBLE_PART_CONNECTED_WALLET(theme)}
+    `}
+
+  .top-visible-part {
+    width: fit-content;
+    margin: 25px auto;
+  }
+
+  .details {
+    margin: 0 auto;
+    width: 88%;
+    max-width: 375px;
+
+    ${BUTTONS_WRAPPER_CONNECTED_WALLET}
+
+    .buttons-wrapper {
+      column-gap: 25px;
+    }
   }
 `
 

@@ -144,9 +144,9 @@ export const MobileTopBarStyled = styled.div<{ show: boolean }>`
     height: fit-content;
     margin: 20px auto;
     width: fit-content;
-    button {
+    /* button {
       width: 236px;
-    }
+    } */
   }
 
   .container {
