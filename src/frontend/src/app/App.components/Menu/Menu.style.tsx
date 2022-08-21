@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components/macro'
-import { backdropColor, cyanColor } from 'styles/colors'
+import { backdropColor } from 'styles/colors'
 import { MENU_Z_INDEX, Z_INDEX_DEFAULT } from 'styles/constants'
 
 import { MavrykTheme } from '../../../styles/interfaces'
@@ -14,8 +14,10 @@ export const moveDown = keyframes`
 `
 
 export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
-  width: 232px;
+  max-width: 232px;
+  width: 100vw;
   min-height: 650px;
+  transition: 0.6s all;
   height: 100vh;
   position: fixed;
   left: 0;
@@ -27,9 +29,15 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
     display: none;
   }
 
+  > div {
+    transition: 0.6s all;
+    width: 100%;
+    max-width: 232px;
+  }
+
   @media screen and (max-width: 1535px) {
     &:not(.menu-expanded) {
-      width: 72px;
+      max-width: 72px;
 
       a .navLinkSubTitle,
       a .navLinkTitle {
@@ -38,7 +46,7 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
     }
 
     &.menu-expanded {
-      width: 100vw;
+      max-width: 100vw;
       display: flex;
       align-items: flex-start;
     }
@@ -51,7 +59,7 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
     transition: all 0.3s;
 
     &.menu-expanded {
-      width: 100vw;
+      max-width: 100vw;
       display: flex;
       background: ${backdropColor};
       z-index: ${MENU_Z_INDEX};
@@ -63,17 +71,18 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
     }
   }
 
-  > div {
-    width: 100%;
-    max-width: 232px;
-  }
+  @media screen and (max-width: 450px) {
+    &:not(.menu-expanded) {
+      max-width: 0;
+    }
 
-  &.menu-collapsed {
-    width: 72px;
+    &.menu-expanded {
+      max-width: 100vw;
+    }
 
-    a .navLinkSubTitle,
-    a .navLinkTitle {
-      display: none !important;
+    > div {
+      width: 100vw;
+      max-width: 100vw;
     }
   }
 `

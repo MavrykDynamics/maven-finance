@@ -1,4 +1,6 @@
+import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import useWindowDimensions from 'utils/useDimensions'
 
 import { State } from '../../../reducers'
 import { connect } from './ConnectWallet.actions'
@@ -14,6 +16,9 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
   const { wallet, ready, accountPkh } = useSelector((state: State) => state.wallet)
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { user } = useSelector((state: State) => state.user)
+  const { width } = useWindowDimensions()
+
+  const isMobileView = useMemo(() => width <= 870, [width])
 
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
@@ -42,6 +47,7 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
               signOutHandler={() => null}
               changeWalletHandler={handleNewConnect}
               coinsInfo={coinsInfo}
+              isMobile={isMobileView}
             />
           ) : null}
           {!ready && <NoWalletConnectedButton handleConnect={handleConnect} />}

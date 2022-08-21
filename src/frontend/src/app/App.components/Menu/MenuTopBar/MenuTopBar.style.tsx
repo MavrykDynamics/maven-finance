@@ -1,5 +1,6 @@
-import styled from 'styled-components/macro'
+import styled, { css } from 'styled-components/macro'
 import { cyanColor } from 'styles/colors'
+import { MENU_Z_INDEX } from 'styles/constants'
 
 import { MavrykTheme } from '../../../../styles/interfaces'
 
@@ -67,6 +68,38 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
     display: flex;
     align-items: center;
   }
+
+  .mobile-menu {
+    display: none;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+    align-items: center;
+    > div {
+      margin: 0;
+    }
+
+    .top-bar-toggler {
+      cursor: pointer;
+      svg {
+        max-width: 26px;
+        height: 21px;
+        stroke: #8d86eb;
+      }
+    }
+  }
+
+  @media screen and (max-width: 870px) {
+    .mobile-menu {
+      display: flex;
+    }
+
+    .grouped-links,
+    .left-side,
+    .right-side {
+      display: none;
+    }
+  }
 `
 
 export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
@@ -90,4 +123,49 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
   @media screen and (min-width: 1400px) {
     display: none;
   }
+`
+
+export const MobileTopBarStyled = styled.div<{ show: boolean }>`
+  position: absolute;
+  width: 100vw;
+  height: calc(100vh - 80px);
+  max-height: 0;
+  left: 0;
+  top: 80px;
+  background: #160e3f;
+  z-index: ${MENU_Z_INDEX};
+  transition: 0.5s all;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  #connectWalletButton {
+    height: fit-content;
+    margin: 20px auto;
+    width: fit-content;
+    button {
+      width: 236px;
+    }
+  }
+
+  .container {
+    max-width: 236px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 25px;
+  }
+
+  @media screen and (min-width: 870px) {
+    display: none;
+  }
+
+  ${({ show }) =>
+    show
+      ? css`
+          max-height: calc(100vh - 80px);
+        `
+      : ''}
 `
