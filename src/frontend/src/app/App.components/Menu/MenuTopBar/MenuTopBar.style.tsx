@@ -9,6 +9,7 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   top: 0;
   left: 0;
   width: 100%;
+  max-width: 100vw;
   height: 80px;
   z-index: 11;
   background: #160e3f;
@@ -87,6 +88,20 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
         stroke: #8d86eb;
       }
     }
+
+    .settingsIcon {
+      svg {
+        width: 28px;
+        height: 28px;
+        transition: 0.35s all;
+      }
+
+      &:hover {
+        svg {
+          stroke: ${cyanColor};
+        }
+      }
+    }
   }
 
   @media screen and (max-width: 870px) {
@@ -144,9 +159,6 @@ export const MobileTopBarStyled = styled.div<{ show: boolean }>`
     height: fit-content;
     margin: 20px auto;
     width: fit-content;
-    /* button {
-      width: 236px;
-    } */
   }
 
   .container {

@@ -99,9 +99,15 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
       </div>
 
       <div className="mobile-menu">
-        <MenuMobileBurger onClick={burgerClickHandlerWrapped} className={isExpandedMenu ? 'expanded' : ''}>
-          <Icon id="menuOpen" />
-        </MenuMobileBurger>
+        {showMobileTopBar ? (
+          <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
+            <Icon id="gear" />
+          </div>
+        ) : (
+          <MenuMobileBurger onClick={burgerClickHandlerWrapped} className={isExpandedMenu ? 'expanded' : ''}>
+            <Icon id="menuOpen" />
+          </MenuMobileBurger>
+        )}
 
         <Link to="/">
           <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} />
