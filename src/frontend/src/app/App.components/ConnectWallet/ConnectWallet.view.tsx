@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ACTION_PRIMARY, TRANSPARENT } from '../Button/Button.constants'
 import { Button } from '../Button/Button.controller'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
@@ -25,6 +25,7 @@ type ConnectedWalletBlockProps = {
   signOutHandler: () => void
   changeWalletHandler: () => void
   coinsInfo: CoinsInfoType
+  isMobile: boolean
 }
 
 export const ConnectedWalletBlock = ({
@@ -32,11 +33,16 @@ export const ConnectedWalletBlock = ({
   coinsInfo,
   signOutHandler,
   changeWalletHandler,
+  isMobile,
 }: ConnectedWalletBlockProps) => {
   const [detailsShown, setDetailsShown] = useState(false)
 
+  const mouseOverHanlder = useCallback(() => (isMobile ? undefined : setDetailsShown(true)), [])
+  const mouseLeaveHanlder = useCallback(() => (isMobile ? undefined : setDetailsShown(false)), [])
+  const clickHanler = useCallback(() => (isMobile ? setDetailsShown(true) : undefined), [])
+
   return (
-    <ConnectedWalletStyled onMouseOver={() => setDetailsShown(true)} onMouseLeave={() => setDetailsShown(false)}>
+    <ConnectedWalletStyled onMouseOver={mouseOverHanlder} onMouseLeave={mouseLeaveHanlder} onClick={clickHanler}>
       <div className="visible-part">
         <Icon id="wallet" className="wallet" />
         <var>
@@ -45,7 +51,7 @@ export const ConnectedWalletBlock = ({
         <Icon id="paginationArrowLeft" className="arrow" />
       </div>
 
-      <div className={`wallet-details ${detailsShown ? 'visible' : ''}`}>
+      <div className={`wallet-details ${detailsShown ? 'visible' : ''} ${isMobile ? 'mobile' : ''}`}>
         <ConnectedWalletDetailsItem
           buttonText={'Buy MVK'}
           coinAmount={coinsInfo.userMVKBalance}

@@ -6,6 +6,8 @@ import { MenuLogo } from '../Menu.style'
 import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 import { MenuMobileBurger, MenuTopStyled } from './MenuTopBar.style'
 import { State } from 'reducers'
+import { MobileTopBar } from './TopBarLinks/MobileTopBar.controller'
+import { useCallback, useState } from 'react'
 
 type MenuTopBarProps = {
   burgerClickHandler: () => void
@@ -35,21 +37,21 @@ const SocialIcons = () => (
 
 export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodePopupHandler }: MenuTopBarProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
+  const [showMobileTopBar, setShowModileTopBar] = useState(false)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
   const logoMobile = '/logo-mobile.svg'
 
+  const burgerClickHandlerWrapped = useCallback((e) => {
+    e.stopPropagation()
+    setShowModileTopBar(false)
+    burgerClickHandler()
+  }, [])
+
   return (
     <MenuTopStyled>
       <div className="left-side">
-        <MenuMobileBurger
-          onClick={(e) => {
-            console.log('button click', isExpandedMenu)
-            e.stopPropagation()
-            burgerClickHandler()
-          }}
-          className={isExpandedMenu ? 'expanded' : ''}
-        >
+        <MenuMobileBurger onClick={burgerClickHandlerWrapped} className={isExpandedMenu ? 'expanded' : ''}>
           <Icon id="menuOpen" />
         </MenuMobileBurger>
 
@@ -95,6 +97,22 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
           <Icon id="gear" />
         </div>
       </div>
+
+      <div className="mobile-menu">
+        <MenuMobileBurger onClick={burgerClickHandlerWrapped} className={isExpandedMenu ? 'expanded' : ''}>
+          <Icon id="menuOpen" />
+        </MenuMobileBurger>
+
+        <Link to="/">
+          <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} />
+        </Link>
+
+        <div className="top-bar-toggler" onClick={() => setShowModileTopBar(!showMobileTopBar)}>
+          {showMobileTopBar ? <Icon id="close-stroke" /> : <Icon id="mobileTopBarToggler" />}
+        </div>
+      </div>
+
+      <MobileTopBar show={showMobileTopBar} />
     </MenuTopStyled>
   )
 }

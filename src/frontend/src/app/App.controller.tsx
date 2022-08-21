@@ -19,6 +19,7 @@ import { getGovernanceStorage } from '../../src/pages/Governance/Governance.acti
 import { PopupChangeNode } from './App.components/ChangeNodePopup/Popup-change-node.controller'
 import { toggleRPCNodePopup } from './App.components/ChangeNodePopup/ChangeNode.actions'
 import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
+import useWindowDimensions from 'utils/useDimensions'
 
 export const store = configureStore({})
 
@@ -27,10 +28,12 @@ const AppContainer = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const loading = useSelector((state: State) => state.loading)
   const { changeNodePopupOpen, sidebarOpened } = useSelector((state: State) => state.preferences)
+  const { width } = useWindowDimensions()
 
   useEffect(() => {
     dispatch(onStart())
     dispatch(getGovernanceStorage())
+    dispatch(toggleSidebarCollapsing(width > 1400))
     // For using Beacon wallet, replace following lines with dispatch(setWallet())
     return TempleWallet.onAvailabilityChange((available) => {
       if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
