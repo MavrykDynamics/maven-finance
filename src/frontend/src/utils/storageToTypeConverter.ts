@@ -50,42 +50,33 @@ export default function storageToTypeConverter(
   switch (contract) {
     case "delegation":
       res = convertToDelegationStorageType(storage);
-      setItemInStorage("DelegationStorage", res);
       break;
     case "emergencyGovernance":
       res = convertToEmergencyGovernanceStorageType(storage);
-      setItemInStorage("EmergencyGovernanceStorage", res);
       break;
     case "breakGlass":
       res = convertToBreakGlassStorageType(storage);
-      setItemInStorage("BreakGlassStorage", res);
       break;
     case "breakGlassStatus":
       res = convertBreakGlassStatusStorageType(storage);
-      setItemInStorage("BreakGlassStatus", res);
       break;
     case "council":
       res = convertToCouncilStorageType(storage);
-      setItemInStorage("CouncilStorage", res);
       break;
     case "vesting":
       res = convertToVestingStorageType(storage);
-      setItemInStorage("VestingStorage", res);
       break;
     case "governance":
       res = convertToGovernanceStorageType(storage);
-      setItemInStorage("GovernanceStorage", res);
       break;
     case "satelliteRecord":
       res = convertToSatelliteRecordInterface(storage);
       break;
     case "treasury":
       res = convertToTreasuryAddressType(storage);
-      setItemInStorage("TreasuryAddresses", res);
       break;
     case "oracle":
       res = convertToOracleStorageType(storage);
-      setItemInStorage("OracleStorage", res);
       break;
   }
 
