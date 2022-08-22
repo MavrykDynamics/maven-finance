@@ -99,6 +99,14 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; isLast?
                   background: #38237c;
                 }
               `}
+
+            &.selected {
+              color: ${cyanColor};
+
+              svg {
+                stroke: ${cyanColor};
+              }
+            }
           }
 
           .group-links {

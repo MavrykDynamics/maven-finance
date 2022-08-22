@@ -39,15 +39,7 @@ export const MobileTopBar = ({ show }: { show: boolean }) => {
             setSelectedLinksBlock(selectedLinksBlock === 'About' ? null : 'About')
           }}
         />
-        <TopBarLinks
-          groupName={'Blog 🔥'}
-          groupLinks={[]}
-          useClickOpening
-          selectedLinksBlock={selectedLinksBlock}
-          setSelectedLinksBlock={() => {
-            setSelectedLinksBlock(selectedLinksBlock === 'products' ? null : 'products')
-          }}
-        />
+        <TopBarLinks groupName={'Blog 🔥'} groupLinks={[]} useClickOpening />
         <TopBarLinks
           groupName={'Docs'}
           groupLinks={[
