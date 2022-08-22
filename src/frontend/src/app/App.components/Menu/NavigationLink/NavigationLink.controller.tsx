@@ -52,6 +52,7 @@ export const NavigationLink = ({
   const mainPagePaths = [path].concat(subPages ? subPages.map(({ subPath }) => subPath) : [])
 
   const splittedPathname = location.pathname.split('/').slice(1)
+
   const mainLinkSelected = mainPagePaths.some((path) => splittedPathname.includes(path))
 
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded })

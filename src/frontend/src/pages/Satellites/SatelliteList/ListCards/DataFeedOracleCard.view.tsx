@@ -15,7 +15,7 @@ export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
   const oracleStatusType = getOracleStatus(oracle, feeds)
 
   return (
-    <Link to={`/satellites/satellite-details/${oracle.address}/`}>
+    <Link to={`/satellites/satellite-details/${oracle.address}`}>
       <SatelliteItemStyle oracle>
         <div className="item">
           <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
