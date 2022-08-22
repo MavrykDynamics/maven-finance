@@ -25,6 +25,10 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   bottom: 0;
   overflow-x: hidden;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   .mobile-logo {
     display: none;
   }
@@ -101,6 +105,10 @@ export const MenuSidebarContent = styled.div`
   height: 100%;
   background-color: ${({ theme }) => theme.containerColor};
   padding-top: 80px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `
 export const MenuLogo = styled.img`
   z-index: ${Z_INDEX_DEFAULT};
