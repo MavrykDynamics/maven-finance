@@ -90,7 +90,7 @@ describe("Lending Controller tests", async () => {
     before("setup", async () => {
 
         utils = new Utils();
-        await utils.init(alice.sk);
+        await utils.init(bob.sk);
         
         doormanInstance                         = await utils.tezos.contract.at(doormanAddress.address);
         delegationInstance                      = await utils.tezos.contract.at(delegationAddress.address);
@@ -204,8 +204,6 @@ describe("Lending Controller tests", async () => {
                     lendingControllerStorage  = await lendingControllerInstance.storage();
                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
-                    console.log(mockFa12LoanToken.tokenType);
-                
                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
     
@@ -328,6 +326,7 @@ describe("Lending Controller tests", async () => {
                     // assert.equal(mockFa2LoanToken.tokenId                , tokenId);
 
                 }
+                
                 
             } catch(e){
                 console.log(e);
@@ -1267,7 +1266,7 @@ describe("Lending Controller tests", async () => {
             const updatedLendingControllerStorage   = await lendingControllerInstance.storage();
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const mockFa12TokenCollateralBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
-            
+
             // vault Mock FA12 Token Collateral Balance
             assert.equal(mockFa12TokenCollateralBalance, depositAmount);
 
@@ -2253,21 +2252,28 @@ describe("Lending Controller tests", async () => {
             const updatedMockFa12TokenStorage             = await mockFa12TokenInstance.storage();
             const updatedLpTokenPoolMockFa12TokenStorage  = await lpTokenPoolMockFa12TokenInstance.storage();
 
-            // check new balance for loan token pool total
+            // Summary - Liquidity Removed for Mock FA12 Token
+            // 1) Loan Token Pool Record Balance - decrease
+            // 2) Lending Controller Token Balance - decrease
+            // 3) User LP Token Balance - decrease
+            // 4) User Token Balance - increase
+
+            // 1) check new balance for loan token pool total
             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
 
-            // check Eve's Mock FA12 Token balance
-            const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
-            assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance + withdrawAmount);
-
-            // check Lending Controller's Mock FA12 Token Balance
+            // 2) check Lending Controller's Mock FA12 Token Balance
             const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance - withdrawAmount);
 
-            // check Eve's LP Token Pool Mock FA12 Token balance
+            // 3) check Eve's LP Token Pool Mock FA12 Token balance
             const updatedEveLpTokenPoolMockFa12Ledger        = await updatedLpTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveLpTokenPoolMockFa12Ledger, eveInitialLpTokenPoolMockFa12TokenBalance - withdrawAmount);        
+
+            // 4) check Eve's Mock FA12 Token balance
+            const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance + withdrawAmount);
+
 
         });
 
@@ -2313,21 +2319,28 @@ describe("Lending Controller tests", async () => {
             const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
             const updatedLpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
 
-            // check new balance for loan token pool total
+            // Summary - Liquidity Removed for Mock FA2 Token
+            // 1) Loan Token Pool Record Balance - decrease
+            // 2) Lending Controller Token Balance - decrease
+            // 3) User LP Token Balance - decrease
+            // 4) User Token Balance - increase
+
+            // 1) check new balance for loan token pool total
             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
 
-            // check Eve's Mock FA2 Token balance
-            const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-            assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance + withdrawAmount);
-
-            // check Lending Controller's Mock FA2 Token Balance
+            // 2) check Lending Controller's Mock FA2 Token Balance
             const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
 
-            // check Eve's LP Token Pool Mock FA2 Token balance
+            // 3) check Eve's LP Token Pool Mock FA2 Token balance
             const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount);        
+
+            // 4) check Eve's Mock FA2 Token balance
+            const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance + withdrawAmount);
+
 
         });
 
@@ -2372,19 +2385,25 @@ describe("Lending Controller tests", async () => {
             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
             const updatedLpTokenPoolXtzStorage     = await lpTokenPoolXtzInstance.storage();
 
-            // check new balance for loan token pool total
+            // Summary - Liquidity Removed for XTZ
+            // 1) Loan Token Pool Record Balance - decrease
+            // 2) Lending Controller Token Balance - decrease
+            // 3) User LP Token Balance - decrease
+            // 4) User Token Balance - increase
+
+            // 1) check new balance for loan token pool total
             const updatedLoanTokenRecord = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
 
-            // check Lending Controller's XTZ Balance
+            // 2) check Lending Controller's XTZ Balance
             const lendingControllerXtzBalance = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
             assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance - withdrawAmount);
 
-            // check Eve's LP Token Pool XTZ balance
+            // 3) check Eve's LP Token Pool XTZ balance
             const updatedEveLpTokenPoolXtzLedger = await updatedLpTokenPoolXtzStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveLpTokenPoolXtzLedger, eveInitialLpTokenPoolXtzBalance - withdrawAmount);        
 
-            // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
+            // 4) check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
             const eveXtzBalance = await utils.tezos.tz.getBalance(eve.pkh);
             assert.equal(almostEqual(eveXtzBalance, eveInitialXtzBalance + withdrawAmount, 0.0001), true)
 
@@ -2630,7 +2649,7 @@ describe("Lending Controller tests", async () => {
         })
 
 
-        it('user (eve) can borrow again from the same vault (Mock FA12 Tokens)', async () => {
+        it('user (eve) can borrow again from the same vault (1 Mock FA12 Tokens)', async () => {
 
             await signerFactory(eve.sk);
             const vaultId            = eveVaultSet[0];
@@ -2691,7 +2710,18 @@ describe("Lending Controller tests", async () => {
             // eve's vault
             const eveVaultId         = eveVaultSet[0];
             const eveVaultOwner      = eve.pkh;
-            const borrowAmount       = 3000000; // 2 Mock FA12 Tokens
+            const loanTokenName      = "mockFa12";
+            const reserveRatio       = 30; // 30%
+
+            const loanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            const tokenPoolTotal      = loanTokenRecordView.tokenPoolTotal;
+            const totalBorrowed       = loanTokenRecordView.totalBorrowed;
+            const totalRemaining      = loanTokenRecordView.totalRemaining;
+
+            const requiredReserves    = (tokenPoolTotal * reserveRatio) / 100;
+            const borrowTooMuchAmount = (totalBorrowed - requiredReserves) + 1;
+
+            const borrowAmount        = borrowTooMuchAmount; // 2 Mock FA12 Tokens
 
             // fail borrow operation
             const failBorrowFromEveVaultOperation = await lendingControllerInstance.methods.borrow(eveVaultId, borrowAmount);
@@ -2864,14 +2894,79 @@ describe("Lending Controller tests", async () => {
     //
     describe('%repay', function () {
 
-        it('user (eve) can borrow 1 Mock FA12 Tokens', async () => {
+        it('user (eve) can repay 1 Mock FA12 Token', async () => {
+
+            await signerFactory(eve.sk);
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
+            const repayAmount        = 1000000; // 1 Mock FA12 Tokens
+            const loanTokenName      = 'mockFa12';
+ 
+            // get mock fa12 token storage 
+            const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
+            
+            // get initial eve's Mock FA12 Token balance
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : parseInt(eveMockFa12Ledger.balance);
+
+            // setup vault handle and vault record
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            // get initial loan variables
+            const initialLoanOutstandingTotal   = parseInt(vaultRecord.loanOutstandingTotal);
+            const initialLoanPrincipalTotal     = parseInt(vaultRecord.loanPrincipalTotal);
+            const initialLoanInterestTotal      = parseInt(vaultRecord.loanInterestTotal);
+
+            console.log('eveInitialMockFa12TokenBalance: ' + eveInitialMockFa12TokenBalance);
+            console.log('initialLoanOutstandingTotal: '    + initialLoanOutstandingTotal);
+            console.log('initialLoanPrincipalTotal: '      + initialLoanPrincipalTotal);
+            console.log('initialLoanInterestTotal: '       + initialLoanInterestTotal);
+
+            // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
+            // reset token allowance
+            const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                lendingControllerAddress.address,
+                0
+            ).send();
+            await resetTokenAllowance.confirmation();
+
+            // set new token allowance
+            const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                lendingControllerAddress.address,
+                repayAmount
+            ).send();
+            await setNewTokenAllowance.confirmation();
+
+            // repay operation
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            await eveRepayOperation.confirmation();
+
+            // get updated storage
+            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+            const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
+            const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
+            const updatedEveMockFa12Balance       = parseInt(updatedEveMockFa12Ledger.balance);
+
+            const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
+            const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+
+            console.log('updatedEveMockFa12Balance: '   + updatedEveMockFa12Balance);
+            console.log('updatedLoanOutstandingTotal: ' + updatedLoanOutstandingTotal);
+            console.log('updatedLoanPrincipalTotal: '   + updatedLoanPrincipalTotal);
+            console.log('updatedLoanInterestTotal: '    + updatedLoanInterestTotal);
+
+            const testLoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            console.log(testLoanTokenView);
 
         })
 
     })
-
-
-
 
 
 });
