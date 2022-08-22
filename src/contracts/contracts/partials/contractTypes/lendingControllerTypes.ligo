@@ -23,22 +23,22 @@ type collateralNameType          is string;
 
 type lendingControllerConfigType is [@layout:comb] record [
     
-    collateralRatio              : nat;        // collateral ratio
-    liquidationRatio             : nat;        // liquidation ratio
+    collateralRatio              : nat;         // collateral ratio
+    liquidationRatio             : nat;         // liquidation ratio
     
-    liquidationFeePercent        : nat;        // liquidation fee percent - penalty fee paid by vault owner to liquidator
-    adminLiquidationFeePercent   : nat;        // admin liquidation fee percent - penalty fee paid by vault owner to treasury
+    liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
+    adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
 
-    minimumLoanFeePercent        : nat;        // minimum loan fee percent - taken at first minting
+    minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
 
-    minimumLoanFeeTreasuryShare  : nat;     // percentage of minimum loan fee that goes to the treasury
-    interestTreasuryShare        : nat;     // percentage of interest that goes to the treasury
+    minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
+    interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
 
-    decimals                     : nat;     // decimals used for percentage calculation
-    maxDecimalsForCalculation    : nat;     // max decimals to be used in calculations
+    decimals                     : nat;         // decimals used for percentage calculation
+    maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
 
-    maxVaultLiquidationPercent   : nat;     // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
-    liquidationDelayInMins       : nat;     // delay before a vault can be liquidated, after it has been marked for liquidation
+    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
+    liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
 
 ]
 
