@@ -148,12 +148,6 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
     transition: 0.6s all;
   }
 
-  &:hover {
-    svg {
-      stroke: ${cyanColor};
-    }
-  }
-
   @media screen and (min-width: 1401px) {
     display: none;
   }
