@@ -40,6 +40,7 @@ import {
   normalizeMvkToken,
 } from "../pages/Doorman/Doorman.converter";
 import { normalizeFarmStorage } from "../pages/Farms/Frams.helpers";
+import { normalizeDelegationStorage } from "../pages/Satellites/Satellites.helpers";
 
 export const RECAPTCHA_REQUEST = "RECAPTCHA_REQUEST";
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -57,10 +58,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const addressesStorage = normalizeAddressesStorage(res[0]);
   const mvkTokenStorage = normalizeMvkToken(res[1]?.mvk_token[0]);
   const doormanStorage = normalizeDoormanStorage(res[2]?.doorman[0]);
-  const delegationStorage = storageToTypeConverter(
-    "delegation",
-    res[3]?.delegation[0]
-  );
+  const delegationStorage = normalizeDelegationStorage(res[3]?.delegation[0]);
   const farmStorage = normalizeFarmStorage(res[4]?.farm);
   const emergencyGovernanceStorage = storageToTypeConverter(
     "emergencyGovernance",
@@ -79,8 +77,6 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const oraclesStorage = storageToTypeConverter("oracle", res[10]);
 
   // if (addressesStorage) updateContractAddresses(addressesStorage)
-
-  console.log("%c ||||| doormanStorage", "color:yellowgreen", doormanStorage);
 
   const currentEmergencyGovernanceId =
     emergencyGovernanceStorage.currentEmergencyGovernanceId;

@@ -5,7 +5,6 @@ import {
 } from "pages/Satellites/helpers/Satellites.types";
 
 import { calcWithoutMu, calcWithoutPrecision } from "./calcFunctions";
-import { setItemInStorage } from "./storage";
 import {
   BreakGlassActionRecord,
   BreakGlassActionSigner,
@@ -16,19 +15,12 @@ import {
   CouncilActionSigner,
   CouncilStorage,
 } from "./TypesAndInterfaces/Council";
-import {
-  DelegateRecord,
-  DelegationStorage,
-  SatelliteFinancialRequestVotingHistory,
-  SatelliteProposalVotingHistory,
-  SatelliteRecord,
-} from "./TypesAndInterfaces/Delegation";
+
 import {
   EmergencyGovernanceProposalRecord,
   EmergencyGovernanceStorage,
   EmergencyGovProposalVoter,
 } from "./TypesAndInterfaces/EmergencyGovernance";
-import { FarmStorage } from "./TypesAndInterfaces/Farm";
 import {
   FinancialRequestRecord,
   FinancialRequestVote,
@@ -38,7 +30,6 @@ import {
   ProposalVote,
   SnapshotRecordType,
 } from "./TypesAndInterfaces/Governance";
-import { MvkTokenStorage } from "./TypesAndInterfaces/MvkToken";
 import { TreasuryType } from "./TypesAndInterfaces/Treasury";
 import { VestingStorage } from "./TypesAndInterfaces/Vesting";
 
@@ -48,9 +39,6 @@ export default function storageToTypeConverter(
 ): any {
   let res = {};
   switch (contract) {
-    case "delegation":
-      res = convertToDelegationStorageType(storage);
-      break;
     case "emergencyGovernance":
       res = convertToEmergencyGovernanceStorageType(storage);
       break;
@@ -105,174 +93,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
         )
       : 0,
   };
-}
-
-function convertToDelegationStorageType(storage: any): DelegationStorage {
-  const satelliteMap: SatelliteRecord[] = convertToSatelliteRecordsInterface(
-    storage?.satellite_records
-  );
-
-  return {
-    breakGlassConfig: {
-      delegateToSatelliteIsPaused: storage?.delegate_to_satellite_paused,
-      undelegateFromSatelliteIsPaused:
-        storage?.undelegate_from_satellite_paused,
-      registerAsSatelliteIsPaused: storage?.register_as_satellite_paused,
-      unregisterAsSatelliteIsPaused: storage?.unregister_as_satellite_paused,
-      updateSatelliteRecordIsPaused: storage?.update_satellite_record_paused,
-      distributeRewardPaused: storage?.distribute_reward_paused,
-    },
-    config: {
-      maxSatellites: storage?.max_satellites,
-      delegationRatio: storage?.delegation_ratio,
-      minimumStakedMvkBalance: calcWithoutMu(storage?.minimum_smvk_balance),
-      satelliteNameMaxLength: storage?.satellite_name_max_length,
-      satelliteDescriptionMaxLength: storage?.satellite_description_max_length,
-      satelliteImageMaxLength: storage?.satellite_image_max_length,
-      satelliteWebsiteMaxLength: storage?.satellite_website_max_length,
-    },
-    delegateLedger: new MichelsonMap<string, DelegateRecord>(),
-    satelliteLedger: satelliteMap,
-    numberActiveSatellites: storage?.max_satellites,
-    totalDelegatedMVK: storage?.max_satellites,
-  };
-}
-
-function convertToSatelliteRecordsInterface(
-  satelliteRecordObject: any
-): SatelliteRecord[] {
-  const satelliteRecords: SatelliteRecord[] = [];
-  if (Array.isArray(satelliteRecordObject)) {
-    satelliteRecordObject.map((satelliteRecordFromIndexer: any) => {
-      const newSatelliteRecord = convertToSatelliteRecordInterface({
-        satelliteRecordFromIndexer,
-        userVotingHistoryIndexer: satelliteRecordFromIndexer?.user,
-      });
-      satelliteRecords.push(newSatelliteRecord);
-      return true;
-    });
-  }
-  return satelliteRecords;
-}
-
-function convertToSatelliteRecordInterface({
-  satelliteRecordFromIndexer,
-  userVotingHistoryIndexer,
-}: any): SatelliteRecord {
-  const satelliteRecord = satelliteRecordFromIndexer;
-  const userVotingHistory = userVotingHistoryIndexer;
-
-  const totalDelegatedAmount = satelliteRecord
-    ? satelliteRecord.delegation_records.reduce(
-        (sum: any, current: { user: { smvk_balance: any } }) =>
-          sum + current.user.smvk_balance,
-        0
-      )
-    : 0;
-
-  const proposalVotingHistory: SatelliteProposalVotingHistory[] = [],
-    financialRequestsVotes: SatelliteFinancialRequestVotingHistory[] = [],
-    emergencyGovernanceVotes: SatelliteFinancialRequestVotingHistory[] = [];
-  if (userVotingHistory) {
-    userVotingHistory.governance_proposal_records_votes?.forEach(
-      (vote: {
-        id: any;
-        current_round_vote: any;
-        governance_proposal_record_id: any;
-        round: any;
-        timestamp: string | number | Date;
-        vote: any;
-        voter_id: any;
-        voting_power: string;
-        governance_proposal_record: any;
-      }) => {
-        const newRequestVote: SatelliteProposalVotingHistory = {
-          id: vote.id,
-          currentRoundVote: vote.current_round_vote,
-          proposalId: vote.governance_proposal_record_id,
-          round: vote.round,
-          timestamp: new Date(vote.timestamp),
-          vote: vote.vote,
-          voterId: vote.voter_id,
-          votingPower: calcWithoutPrecision(vote.voting_power),
-          requestData: vote.governance_proposal_record,
-        };
-        proposalVotingHistory.push(newRequestVote);
-      }
-    );
-
-    if (userVotingHistory.governance_financial_requests_votes) {
-      userVotingHistory.governance_financial_requests_votes?.forEach(
-        (vote: {
-          id: any;
-          governance_financial_request_id: any;
-          round: any;
-          timestamp: string | number | Date;
-          vote: any;
-          voter_id: any;
-          voting_power: string;
-          governance_financial_request: any;
-        }) => {
-          const newRequestVote: SatelliteFinancialRequestVotingHistory = {
-            id: vote.id,
-            proposalId: vote.governance_financial_request_id,
-            timestamp: new Date(vote.timestamp),
-            vote: vote.vote,
-            voterId: vote.voter_id,
-            votingPower: calcWithoutPrecision(vote.voting_power),
-            requestData: vote.governance_financial_request,
-          };
-          financialRequestsVotes.push(newRequestVote);
-        }
-      );
-    }
-
-    if (userVotingHistory.emergency_governance_votes) {
-      userVotingHistory.emergency_governance_votes?.forEach(
-        (vote: {
-          id: any;
-          emergency_governance_record_id: any;
-          round: any;
-          timestamp: string | number | Date;
-          vote: any;
-          voter_id: any;
-          voting_power: string;
-          governance_financial_request: any;
-        }) => {
-          const newRequestVote: SatelliteFinancialRequestVotingHistory = {
-            id: vote.id,
-            proposalId: vote.emergency_governance_record_id,
-            timestamp: new Date(vote.timestamp),
-            vote: vote.vote,
-            voterId: vote.voter_id,
-            votingPower: calcWithoutPrecision(vote.voting_power),
-            requestData: vote.governance_financial_request,
-          };
-          emergencyGovernanceVotes.push(newRequestVote);
-        }
-      );
-    }
-  }
-  const newSatelliteRecord: SatelliteRecord = {
-    address: satelliteRecord?.user_id || "",
-    oracleRecords: satelliteRecord?.user?.aggregator_oracle_records || [],
-    description: satelliteRecord?.description || "",
-    website: satelliteRecord?.website || "",
-    participation: satelliteRecord?.participation || 0,
-    image: satelliteRecord?.image || "",
-    mvkBalance: calcWithoutPrecision(satelliteRecord?.user.mvk_balance),
-    sMvkBalance: calcWithoutPrecision(satelliteRecord?.user.smvk_balance),
-    name: satelliteRecord?.name || "",
-    satelliteFee: parseFloat(satelliteRecord?.fee || "0") / 100,
-    status: satelliteRecord?.status,
-    totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
-    unregisteredDateTime: new Date(satelliteRecord?.unregistered_datetime),
-    proposalVotingHistory,
-    financialRequestsVotes,
-    emergencyGovernanceVotes,
-  };
-
-  return newSatelliteRecord;
 }
 
 function convertToEmergencyGovernanceStorageType(
