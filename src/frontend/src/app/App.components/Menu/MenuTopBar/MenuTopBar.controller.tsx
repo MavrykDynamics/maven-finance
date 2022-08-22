@@ -37,14 +37,14 @@ export const SocialIcons = () => (
 
 export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodePopupHandler }: MenuTopBarProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
-  const [showMobileTopBar, setShowModileTopBar] = useState(false)
+  const [showMobileTopBar, setShowMobileTopBar] = useState(false)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
   const logoMobile = '/logo-mobile.svg'
 
   const burgerClickHandlerWrapped = useCallback((e) => {
     e.stopPropagation()
-    setShowModileTopBar(false)
+    setShowMobileTopBar(false)
     burgerClickHandler()
   }, [])
 
@@ -113,7 +113,7 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
           <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} />
         </Link>
 
-        <div className="top-bar-toggler" onClick={() => setShowModileTopBar(!showMobileTopBar)}>
+        <div className="top-bar-toggler" onClick={() => setShowMobileTopBar(!showMobileTopBar)}>
           {showMobileTopBar ? <Icon id="close-stroke" /> : <Icon id="mobileTopBarToggler" />}
         </div>
       </div>
