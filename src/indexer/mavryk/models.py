@@ -2,6 +2,20 @@ from tortoise import Model, fields
 from enum import IntEnum
 
 ###
+# Inherited classes
+###
+class ContractLambda():
+    id                                      = fields.BigIntField(pk=True)
+    last_updated_at                         = fields.DatetimeField(null=True, auto_now=True)
+    lambda_name                             = fields.CharField(max_length=128, default="")
+    lambda_bytes                            = fields.TextField(default="")
+
+class LinkedContract():
+    id                                      = fields.BigIntField(pk=True)
+    contract_name                           = fields.CharField(max_length=36, default="")
+    contract_address                        = fields.CharField(max_length=36, default="")
+
+###
 # Tezos Ecosystem
 ###
 class DexType(IntEnum):
@@ -39,7 +53,7 @@ class LiquidityBakingHistoryData(Model):
         table = 'liquidity_baking_history_data'
 
 ###
-# Mavryk Ecosystem
+# Mavryk Contracts
 ###
 class StakeType(IntEnum):
     STAKE               = 0
@@ -78,33 +92,6 @@ class TokenType(IntEnum):
     FA2                 = 2
     OTHER               = 3
 
-class GeneralContract(Model):
-    id                                      = fields.BigIntField(pk=True)
-    target_contract                         = fields.CharField(max_length=36, default="")
-    contract_name                           = fields.CharField(max_length=36, default="")
-    contract_address                        = fields.CharField(max_length=36, default="")
-
-    class Meta:
-        table = 'general_contract'
-
-class WhitelistContract(Model):
-    id                                      = fields.BigIntField(pk=True)
-    target_contract                         = fields.CharField(max_length=36, default="")
-    contract_name                           = fields.CharField(max_length=36, default="")
-    contract_address                        = fields.CharField(max_length=36, default="")
-
-    class Meta:
-        table = 'whitelist_contract'
-
-class WhitelistTokenContract(Model):
-    id                                      = fields.BigIntField(pk=True)
-    target_contract                         = fields.CharField(max_length=36, default="")
-    contract_name                           = fields.CharField(max_length=36, default="")
-    contract_address                        = fields.CharField(max_length=36, default="")
-
-    class Meta:
-        table = 'whitelist_token_contract'
-
 class WhitelistDeveloper(Model):
     id                                      = fields.BigIntField(pk=True)
     governance                              = fields.ForeignKeyField('models.Governance', related_name='whitelist_developers')
@@ -134,6 +121,14 @@ class MVKToken(Model):
 
     class Meta:
         table = 'mvk_token'
+
+class GovernanceProxy(Model):
+    address                                 = fields.CharField(pk=True, max_length=36)
+    admin                                   = fields.CharField(max_length=36)
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_proxies')
+    
+    class Meta:
+        table = 'governance_proxy'
 
 # class USDMToken(Model):
 #     address                                 = fields.CharField(pk=True, max_length=36)
@@ -483,6 +478,369 @@ class TokenSale(Model):
     class Meta:
         table = 'token_sale'
 
+###
+# Mavryk Contracts lambdas
+###
+class GovernanceProxyLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.GovernanceProxy', related_name='lambdas')
+
+    class Meta:
+        table = 'governance_proxy_lambda'
+
+class GovernanceProxyProxyLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.GovernanceProxy', related_name='proxy_lambdas')
+
+    class Meta:
+        table = 'governance_proxy_proxy_lambda'
+
+class DoormanLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.Doorman', related_name='lambdas')
+
+    class Meta:
+        table = 'doorman_lambda'
+
+class FarmLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.Farm', related_name='lambdas')
+
+    class Meta:
+        table = 'farm_lambda'
+
+class FarmFactoryLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.FarmFactory', related_name='lambdas')
+
+    class Meta:
+        table = 'farm_factory_lambda'
+
+class FarmFactoryProductLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.FarmFactory', related_name='product_lambdas')
+
+    class Meta:
+        table = 'farm_factory_product_lambda'
+
+class DelegationLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.Delegation', related_name='lambdas')
+
+    class Meta:
+        table = 'delegation_lambda'
+
+class CouncilLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.Council', related_name='lambdas')
+
+    class Meta:
+        table = 'council_lambda'
+
+class VestingLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.Vesting', related_name='lambdas')
+
+    class Meta:
+        table = 'vesting_lambda'
+
+class EmergencyGovernanceLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.EmergencyGovernance', related_name='lambdas')
+
+    class Meta:
+        table = 'emergency_governance_lambda'
+
+class BreakGlassLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.BreakGlass', related_name='lambdas')
+
+    class Meta:
+        table = 'break_glass_lambda'
+
+class GovernanceLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.Governance', related_name='lambdas')
+
+    class Meta:
+        table = 'governance_lambda'
+
+class GovernanceFinancialLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.GovernanceFinancial', related_name='lambdas')
+
+    class Meta:
+        table = 'governance_financial_lambda'
+
+class GovernanceSatelliteLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceSatellite', related_name='lambdas')
+
+    class Meta:
+        table = 'governance_satellite_lambda'
+
+class AggregatorLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.Aggregator', related_name='lambdas')
+
+    class Meta:
+        table = 'aggregator_lambda'
+
+class AggregatorFactoryLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='lambdas')
+
+    class Meta:
+        table = 'aggregator_factory_lambda'
+
+class AggregatorFactoryProductLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='product_lambdas')
+
+    class Meta:
+        table = 'aggregator_factory_product_lambda'
+
+class TreasuryLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.Treasury', related_name='lambdas')
+
+    class Meta:
+        table = 'treasury_lambda'
+
+class TreasuryFactoryLambda(ContractLambda, Model):
+    contract                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='lambdas')
+
+    class Meta:
+        table = 'treasury_factory_lambda'
+
+class TreasuryFactoryProductLambda(ContractLambda, Model):
+    contract                                = fields.ForeignKeyField('models.TreasuryFactory', related_name='product_lambdas')
+
+    class Meta:
+        table = 'treasury_factory_product_lambda'
+
+###
+# Mavryk General Contracts
+###
+class GovernanceProxyGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceProxy', related_name='general_contracts')
+
+    class Meta:
+        table = 'governance_proxy_general_contract'
+
+class DoormanGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Doorman', related_name='general_contracts')
+
+    class Meta:
+        table = 'doorman_general_contract'
+
+class FarmGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Farm', related_name='general_contracts')
+
+    class Meta:
+        table = 'farm_general_contract'
+
+class FarmFactoryGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.FarmFactory', related_name='general_contracts')
+
+    class Meta:
+        table = 'farm_factory_general_contract'
+
+class DelegationGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Delegation', related_name='general_contracts')
+
+    class Meta:
+        table = 'delegation_general_contract'
+
+class CouncilGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Council', related_name='general_contracts')
+
+    class Meta:
+        table = 'council_general_contract'
+
+class VestingGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Vesting', related_name='general_contracts')
+
+    class Meta:
+        table = 'vesting_general_contract'
+
+class EmergencyGovernanceGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.EmergencyGovernance', related_name='general_contracts')
+
+    class Meta:
+        table = 'emergency_governance_general_contract'
+
+class BreakGlassGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.BreakGlass', related_name='general_contracts')
+
+    class Meta:
+        table = 'break_glass_general_contract'
+
+class GovernanceGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Governance', related_name='general_contracts')
+
+    class Meta:
+        table = 'governance_general_contract'
+
+class GovernanceFinancialGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceFinancial', related_name='general_contracts')
+
+    class Meta:
+        table = 'governance_financial_general_contract'
+
+class GovernanceSatelliteGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceSatellite', related_name='general_contracts')
+
+    class Meta:
+        table = 'governance_satellite_general_contract'
+
+class AggregatorGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Aggregator', related_name='general_contracts')
+
+    class Meta:
+        table = 'aggregator_general_contract'
+
+class AggregatorFactoryGeneralContract(LinkedContract, Model):
+    contract                                = fields.ForeignKeyField('models.AggregatorFactory', related_name='general_contracts')
+
+    class Meta:
+        table = 'aggregator_factory_general_contract'
+
+class TreasuryGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Treasury', related_name='general_contracts')
+
+    class Meta:
+        table = 'treasury_general_contract'
+
+class TreasuryFactoryGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='general_contracts')
+
+    class Meta:
+        table = 'treasury_factory_general_contract'
+
+class MVKTokenGeneralContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.MVKToken', related_name='general_contracts')
+
+    class Meta:
+        table = 'mvk_token_general_contract'
+
+###
+# Mavryk Whitelist Contracts
+###
+class GovernanceProxyWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceProxy', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'governance_proxy_whitelist_contract'
+
+class DoormanWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Doorman', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'doorman_whitelist_contract'
+
+class FarmWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Farm', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'farm_whitelist_contract'
+
+class FarmFactoryWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.FarmFactory', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'farm_factory_whitelist_contract'
+
+class DelegationWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Delegation', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'delegation_whitelist_contract'
+
+class CouncilWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Council', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'council_whitelist_contract'
+
+class VestingWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Vesting', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'vesting_whitelist_contract'
+
+class EmergencyGovernanceWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.EmergencyGovernance', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'emergency_governance_whitelist_contract'
+
+class BreakGlassWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.BreakGlass', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'break_glass_whitelist_contract'
+
+class GovernanceWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Governance', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'governance_whitelist_contract'
+
+class GovernanceFinancialWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'governance_financial_whitelist_contract'
+
+class GovernanceSatelliteWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceSatellite', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'governance_satellite_whitelist_contract'
+
+class AggregatorWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Aggregator', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'aggregator_whitelist_contract'
+
+class AggregatorFactoryWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'aggregator_factory_whitelist_contract'
+
+class TreasuryWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Treasury', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'treasury_whitelist_contract'
+
+class TreasuryFactoryWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'treasury_factory_whitelist_contract'
+
+class MVKTokenWhitelistContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.MVKToken', related_name='whitelist_contracts')
+
+    class Meta:
+        table = 'mvk_token_whitelist_contract'
+
+###
+# Mavryk Whitelist Token Contracts
+###
+class GovernanceProxyWhitelistTokenContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceProxy', related_name='whitelist_token_contracts')
+
+    class Meta:
+        table = 'governance_proxy_whitelist_token_contract'
+
+class GovernanceFinancialWhitelistTokenContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_token_contracts')
+
+    class Meta:
+        table = 'governance_financial_whitelist_token_contract'
+
+class TreasuryWhitelistTokenContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.Treasury', related_name='whitelist_token_contracts')
+
+    class Meta:
+        table = 'treasury_whitelist_token_contract'
+
+class TreasuryFactoryWhitelistTokenContract(LinkedContract, Model):
+    contract                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='whitelist_token_contracts')
+
+    class Meta:
+        table = 'treasury_factory_whitelist_token_contract'
+
+###
+# Mavryk Contracts records
+###
 class MavrykUserOperator(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     owner                                   = fields.ForeignKeyField('models.MavrykUser', related_name='users_owner')
@@ -805,9 +1163,9 @@ class GovernanceFinancialRequestRecordVote(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_financial_request            = fields.ForeignKeyField('models.GovernanceFinancialRequestRecord', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_votes')
+    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshotRecord', related_name='governance_financial_requests_votes', null=True)
     timestamp                               = fields.DatetimeField(null=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
-    voting_power                            = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'governance_financial_request_vote'
@@ -836,10 +1194,9 @@ class GovernanceSatelliteActionRecordVote(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_actions_votes')
+    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshotRecord', related_name='governance_satellite_actions_votes', null=True)
     timestamp                               = fields.DatetimeField(null=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
-    voting_power                            = fields.FloatField(default=0.0)
-
     class Meta:
         table = 'governance_satellite_action_record_vote'
 

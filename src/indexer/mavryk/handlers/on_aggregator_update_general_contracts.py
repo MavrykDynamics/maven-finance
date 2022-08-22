@@ -1,9 +1,10 @@
 
-from mavryk.utils.persisters import persist_general_contract
+from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.aggregator.parameter.update_general_contracts import UpdateGeneralContractsParameter
 from mavryk.types.aggregator.storage import AggregatorStorage
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
+import mavryk.models as models
 
 async def on_aggregator_update_general_contracts(
     ctx: HandlerContext,
@@ -11,4 +12,4 @@ async def on_aggregator_update_general_contracts(
 ) -> None:
 
     # Perists general contract
-    await persist_general_contract(update_general_contracts)
+    await persist_linked_contract(models.Aggregator, models.AggregatorGeneralContract, update_general_contracts)

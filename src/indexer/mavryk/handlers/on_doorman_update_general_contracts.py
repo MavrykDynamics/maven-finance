@@ -1,5 +1,5 @@
 
-from mavryk.utils.persisters import persist_general_contract
+from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.doorman.storage import DoormanStorage
 from dipdup.context import HandlerContext
 from mavryk.types.doorman.parameter.update_general_contracts import UpdateGeneralContractsParameter
@@ -12,4 +12,4 @@ async def on_doorman_update_general_contracts(
 ) -> None:
 
     # Perists general contract
-    await persist_general_contract(update_general_contracts)
+    await persist_linked_contract(models.Doorman, models.DoormanGeneralContract, update_general_contracts)
