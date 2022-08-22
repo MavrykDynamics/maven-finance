@@ -85,7 +85,7 @@ spec:
               value: https://api.ghostnet.tzkt.io
             - name: TZKT_MAINNET_URL
               value: https://api.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.8.1
+          image: tezosdynamics/mavryk-indexer:v0.9.0
           imagePullPolicy: Always
           ports:
             - name: metrics
@@ -143,6 +143,9 @@ data:
       mvk:
         address: KT1K2CngdTLXdYag8ECeJmJPE1oFgbJkxrbW
         typename: mvk
+      governance_proxy:
+        address: KT18hMV34JrgtJoEgPBy5GKb4BQypkEpvg3X
+        typename: governance_proxy
       governance:
         address: KT1V1zv1d68G3T6yQykqR55es9ssGd2fRx5F
         typename: governance
@@ -480,6 +483,48 @@ data:
             pattern:
               - destination: mvk
                 entrypoint: triggerInflation
+      # Governance Proxy contract indexes
+      governance_proxy:
+        kind: operation
+        datasource: tzkt_testnet
+        types:
+          - origination
+          - transaction
+        contracts:
+          - governance_proxy
+        handlers:
+          - callback: on_governance_proxy_origination
+            pattern:
+              - type: origination
+                originated_contract: governance_proxy
+          - callback: on_governance_proxy_set_admin
+            pattern:
+              - destination: governance_proxy
+                entrypoint: setAdmin
+          - callback: on_governance_proxy_set_governance
+            pattern:
+              - destination: governance_proxy
+                entrypoint: setGovernance
+          - callback: on_governance_proxy_update_whitelist_contracts
+            pattern:
+              - destination: governance_proxy
+                entrypoint: updateWhitelistContracts
+          - callback: on_governance_proxy_update_whitelist_token_contracts
+            pattern:
+              - destination: governance_proxy
+                entrypoint: updateWhitelistTokenContracts
+          - callback: on_governance_proxy_update_general_contracts
+            pattern:
+              - destination: governance_proxy
+                entrypoint: updateGeneralContracts
+          - callback: on_governance_proxy_set_lambda
+            pattern:
+              - destination: governance_proxy
+                entrypoint: setLambda
+          - callback: on_governance_proxy_set_proxy_lambda
+            pattern:
+              - destination: governance_proxy
+                entrypoint: setProxyLambda
       # Governance contract indexes
       governance:
         kind: operation
@@ -566,6 +611,10 @@ data:
             pattern:
               - destination: governance
                 entrypoint: dropProposal
+          - callback: on_governance_set_lambda
+            pattern:
+              - destination: governance
+                entrypoint: setLambda
       # Doorman contract indexes
       doorman:
         kind: operation
@@ -635,6 +684,10 @@ data:
             pattern:
               - destination: doorman
                 entrypoint: farmClaim
+          - callback: on_doorman_set_lambda
+            pattern:
+              - destination: doorman
+                entrypoint: setLambda
       # Farm contract indexes
       farm:
         kind: operation
@@ -701,6 +754,10 @@ data:
             pattern:
               - destination: farm
                 entrypoint: claim
+          - callback: on_farm_set_lambda
+            pattern:
+              - destination: farm
+                entrypoint: setLambda
       # Farm Factory contract indexes
       farm_factory:
         kind: operation
@@ -763,6 +820,14 @@ data:
             pattern:
               - destination: farm_factory
                 entrypoint: untrackFarm
+          - callback: on_farm_factory_set_lambda
+            pattern:
+              - destination: farm_factory
+                entrypoint: setLambda
+          - callback: on_farm_factory_set_product_lambda
+            pattern:
+              - destination: farm_factory
+                entrypoint: setProductLambda
       # Delegation contract indexes
       delegation:
         kind: operation
@@ -841,6 +906,10 @@ data:
             pattern:
               - destination: delegation
                 entrypoint: onStakeChange
+          - callback: on_delegation_set_lambda
+            pattern:
+              - destination: delegation
+                entrypoint: setLambda
       # Vesting contract indexes
       vesting:
         kind: operation
@@ -891,6 +960,10 @@ data:
             pattern:
               - destination: vesting
                 entrypoint: claim
+          - callback: on_vesting_set_lambda
+            pattern:
+              - destination: vesting
+                entrypoint: setLambda
       # Emergency Governance contract indexes
       emergency_governance:
         kind: operation
@@ -937,6 +1010,10 @@ data:
             pattern:
               - destination: emergency_governance
                 entrypoint: dropEmergencyGovernance
+          - callback: on_emergency_governance_set_lambda
+            pattern:
+              - destination: emergency_governance
+                entrypoint: setLambda
       # Council contract indexes
       council:
         kind: operation
@@ -1035,6 +1112,10 @@ data:
             pattern:
               - destination: council
                 entrypoint: signAction
+          - callback: on_council_set_lambda
+            pattern:
+              - destination: council
+                entrypoint: setLambda
       # Break Glass contract indexes
       break_glass:
         kind: operation
@@ -1121,6 +1202,10 @@ data:
             pattern:
               - destination: break_glass
                 entrypoint: signAction
+          - callback: on_break_glass_set_lambda
+            pattern:
+              - destination: break_glass
+                entrypoint: setLambda
       # Governance Financial contract indexes
       governance_financial:
         kind: operation
@@ -1179,6 +1264,10 @@ data:
             pattern:
               - destination: governance_financial
                 entrypoint: voteForRequest
+          - callback: on_governance_financial_set_lambda
+            pattern:
+              - destination: governance_financial
+                entrypoint: setLambda
       # Governance Satellite contract indexes
       governance_satellite:
         kind: operation
@@ -1257,6 +1346,10 @@ data:
             pattern:
               - destination: governance_satellite
                 entrypoint: voteForAction
+          - callback: on_governance_satellite_set_lambda
+            pattern:
+              - destination: governance_satellite
+                entrypoint: setLambda
       # Aggregator contract indexes
       aggregator:
         kind: operation
@@ -1339,6 +1432,10 @@ data:
             pattern:
               - destination: aggregator
                 entrypoint: withdrawRewardStakedMvk
+          - callback: on_aggregator_set_lambda
+            pattern:
+              - destination: aggregator
+                entrypoint: setLambda
       # Aggregator Factory contract indexes
       aggregator_factory:
         kind: operation
@@ -1396,6 +1493,14 @@ data:
             pattern:
               - destination: aggregator_factory
                 entrypoint: untrackAggregator
+          - callback: on_aggregator_factory_set_lambda
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: setLambda
+          - callback: on_aggregator_factory_set_product_lambda
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: setProductLambda
       # Treasury contract indexes
       treasury:
         kind: operation
@@ -1446,6 +1551,10 @@ data:
             pattern:
               - destination: treasury
                 entrypoint: transfer
+          - callback: on_treasury_set_lambda
+            pattern:
+              - destination: treasury
+                entrypoint: setLambda
       # Treasury Factory contract indexes
       treasury_factory:
         kind: operation
@@ -1512,6 +1621,14 @@ data:
             pattern:
               - destination: treasury_factory
                 entrypoint: untrackTreasury
+          - callback: on_treasury_factory_set_lambda
+            pattern:
+              - destination: treasury_factory
+                entrypoint: setLambda
+          - callback: on_treasury_factory_set_product_lambda
+            pattern:
+              - destination: treasury_factory
+                entrypoint: setProductLambda
       # Token sale contract indexes
       token_sale:
         kind: operation

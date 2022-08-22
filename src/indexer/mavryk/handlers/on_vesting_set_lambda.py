@@ -1,0 +1,15 @@
+
+from dipdup.models import Transaction
+from ..utils.persisters import persist_lambda
+from mavryk.types.vesting.parameter.set_lambda import SetLambdaParameter
+from mavryk.types.vesting.storage import VestingStorage
+from dipdup.context import HandlerContext
+import mavryk.models as models
+
+async def on_vesting_set_lambda(
+    ctx: HandlerContext,
+    set_lambda: Transaction[SetLambdaParameter, VestingStorage],
+) -> None:
+
+    # Persist lambda
+    await persist_lambda(models.Vesting, models.VestingLambda, set_lambda)
