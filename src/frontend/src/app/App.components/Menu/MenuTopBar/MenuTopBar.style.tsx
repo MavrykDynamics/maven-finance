@@ -173,6 +173,12 @@ export const MobileTopBarStyled = styled.div<{ show: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 30px;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
 
   #connectWalletButton {
     height: fit-content;
@@ -210,5 +216,5 @@ export const MobileTopBarStyled = styled.div<{ show: boolean }>`
       ? css`
           max-height: calc(100vh - 80px);
         `
-      : ''}
+      : 'padding: 0;'}
 `
