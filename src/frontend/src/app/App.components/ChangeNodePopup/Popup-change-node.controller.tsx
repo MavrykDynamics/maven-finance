@@ -1,9 +1,11 @@
+import { useCallback } from 'react'
+
+import useLockedBody from 'utils/useScrollLocking'
+
 import { PopupChangeNodeView } from './Popup-change-node.view'
 import { CSSTransition } from 'react-transition-group'
 
 import { PopupContainer, PopupStyled } from './Popup-change-node.style'
-import useLockedBody from 'utils/useScrollLocking'
-import { useCallback } from 'react'
 
 export const PopupChangeNode = ({ isModalOpened, closeModal }: { isModalOpened: boolean; closeModal: () => void }) => {
   const [_, setLocked] = useLockedBody(isModalOpened)

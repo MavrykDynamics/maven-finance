@@ -28,6 +28,7 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
     dispatch(connect({ forcePermission: true }))
   }
 
+  // will implemented after Sam's answers about data for this block
   const coinsInfo: CoinsInfoType = {
     MVKExchangeRate: exchangeRate,
     userMVKBalance: user.myMvkTokenBalance,

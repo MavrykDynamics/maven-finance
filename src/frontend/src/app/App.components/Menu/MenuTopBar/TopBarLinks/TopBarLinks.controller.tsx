@@ -21,7 +21,10 @@ export const TopBarLinks = ({
 }: TopBarLinksProps) => {
   return (
     <TopBarLinksStyled useClickOpening={useClickOpening} selected={selectedLinksBlock === groupName} isLast={isLast}>
-      <div className="group-name" onClick={setSelectedLinksBlock}>
+      <div
+        className={`group-name ${selectedLinksBlock === groupName ? 'selected' : ''}`}
+        onClick={setSelectedLinksBlock}
+      >
         {groupName} {groupLinks.length ? <Icon id="paginationArrowLeft" /> : null}
       </div>
 
