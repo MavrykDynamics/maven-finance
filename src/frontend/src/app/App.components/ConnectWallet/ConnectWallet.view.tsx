@@ -182,9 +182,7 @@ export const InstallWalletButton = () => {
 export const SimpleConnectButtonNoAddress = ({ handleConnect }: { handleConnect: () => void }) => {
   return (
     <SimpleConnectedButton onClick={handleConnect}>
-      <svg>
-        <use xlinkHref="/icons/sprites.svg#wallet" />
-      </svg>
+      <Icon id="wallet" />
       <div>Connect Wallet</div>
     </SimpleConnectedButton>
   )
@@ -220,7 +218,10 @@ const ConnectedWalletDetailsItem = ({
         )}
       </div>
 
-      <Button text={buttonText} kind={TRANSPARENT} onClick={buttonHandler} className="connect-wallet-details" />
+      <div className="btn-wrapper">
+        <Button text={buttonText} kind={TRANSPARENT} onClick={buttonHandler} className="connect-wallet-details" />
+        <Icon id="paginationArrowLeft" />
+      </div>
     </ConnectedWalletDetailsItemStyled>
   )
 }

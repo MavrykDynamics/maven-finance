@@ -219,6 +219,21 @@ export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme;
     }
   }
 
+  .btn-wrapper {
+    display: flex;
+    align-items: center;
+    svg {
+      width: 6px;
+      height: 13px;
+      transform: rotate(180deg);
+    }
+    &:hover {
+      svg {
+        stroke: ${cyanColor};
+      }
+    }
+  }
+
   ${({ isLast }) =>
     isLast
       ? ''
