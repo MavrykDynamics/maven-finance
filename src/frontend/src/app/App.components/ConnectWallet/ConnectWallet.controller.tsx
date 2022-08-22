@@ -17,8 +17,6 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
   const { user } = useSelector((state: State) => state.user)
   const isMobileView = useMedia('(max-width: 870px)')
 
-  console.log('wallet, ready, accountPkh', wallet, ready, accountPkh)
-
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
   }
