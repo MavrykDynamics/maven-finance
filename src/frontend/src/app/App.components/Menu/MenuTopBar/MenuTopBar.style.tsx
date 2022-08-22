@@ -187,6 +187,18 @@ export const MobileTopBarStyled = styled.div<{ show: boolean }>`
     display: flex;
     flex-direction: column;
     row-gap: 25px;
+
+    .social-wrapper {
+      display: flex;
+      column-gap: 10px;
+      justify-content: center;
+      margin-top: 67px;
+
+      svg {
+        width: 35px;
+        height: 35px;
+      }
+    }
   }
 
   @media screen and (min-width: 870px) {
