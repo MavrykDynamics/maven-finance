@@ -192,7 +192,7 @@ export const MobileTopBarStyled = styled.div<{ show: boolean }>`
       display: flex;
       column-gap: 10px;
       justify-content: center;
-      margin-top: 67px;
+      margin-top: auto;
 
       svg {
         width: 35px;
