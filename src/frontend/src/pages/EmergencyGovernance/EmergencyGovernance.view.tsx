@@ -167,7 +167,7 @@ export const EmergencyGovernanceView = ({
                 onClick={handleTriggerEmergencyProposal}
               />
             ) : (
-              <ConnectWallet className="connect-wallet" type={'main-menu'} />
+              <ConnectWallet className="connect-wallet" />
             )}
           </CardContentRightSide>
         </CardContent>
