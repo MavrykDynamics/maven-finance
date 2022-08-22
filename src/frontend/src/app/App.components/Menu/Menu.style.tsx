@@ -33,6 +33,7 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
     transition: 0.6s all;
     width: 100%;
     max-width: 232px;
+    height: fit-content;
   }
 
   @media screen and (max-width: 1535px) {
@@ -83,6 +84,7 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
     > div {
       width: 100vw;
       max-width: 100vw;
+      height: fit-content;
     }
   }
 `
@@ -98,7 +100,7 @@ export const MenuSidebarContent = styled.div`
   min-height: 100vh;
   height: 100%;
   background-color: ${({ theme }) => theme.containerColor};
-  padding-top: 110px;
+  padding-top: 80px;
 `
 export const MenuLogo = styled.img`
   z-index: ${Z_INDEX_DEFAULT};
@@ -113,7 +115,7 @@ export const MenuLogo = styled.img`
     width: 160px;
   }
 
-  @media screen and (max-width: 920px) {
+  @media screen and (max-width: 950px) {
     &.desctop-logo {
       display: none;
     }

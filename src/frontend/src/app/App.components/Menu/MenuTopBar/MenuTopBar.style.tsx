@@ -34,6 +34,10 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
       cursor: pointer;
       transition: 0.35s all;
 
+      @media screen and (max-width: 1000px) {
+        margin-left: 15px;
+      }
+
       svg {
         width: 28px;
         height: 28px;
@@ -86,10 +90,18 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
         max-width: 26px;
         height: 21px;
         stroke: #8d86eb;
+        transition: 0.6s all;
+      }
+
+      &:hover {
+        svg {
+          stroke: ${cyanColor};
+        }
       }
     }
 
     .settingsIcon {
+      cursor: pointer;
       svg {
         width: 28px;
         height: 28px;
@@ -133,9 +145,16 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
   svg {
     width: 30px;
     height: 30px;
+    transition: 0.6s all;
   }
 
-  @media screen and (min-width: 1400px) {
+  &:hover {
+    svg {
+      stroke: ${cyanColor};
+    }
+  }
+
+  @media screen and (min-width: 1401px) {
     display: none;
   }
 `
@@ -157,7 +176,7 @@ export const MobileTopBarStyled = styled.div<{ show: boolean }>`
 
   #connectWalletButton {
     height: fit-content;
-    margin: 20px auto;
+    margin: 20px auto 30px auto;
     width: fit-content;
   }
 
