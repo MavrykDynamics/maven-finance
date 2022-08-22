@@ -18,7 +18,7 @@ const config = {
 
     minimumLoanFeePercent       : 100,
 
-    minimumLoanFeeTreasuryShare : 100,
+    minimumLoanFeeTreasuryShare : 4000,
     interestTreasuryShare       : 100,
 
     decimals                    : 4,       // decimals 

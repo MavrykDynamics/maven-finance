@@ -253,8 +253,14 @@ block {
 
     const processVaultTransferOperation : operation = case tokenType of [
         |   Tez(_tez)   -> transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amount * 1mutez)
-        |   Fa12(token) -> transferFa12Token(from_, to_, amount, token)
-        |   Fa2(token)  -> transferFa2Token(from_, to_, amount, token.tokenId, token.tokenContractAddress)
+        |   Fa12(token) -> {
+                checkNoAmount(unit);
+                const transferOperation : operation = transferFa12Token(from_, to_, amount, token)
+            } with transferOperation
+        |   Fa2(token)  -> {
+                checkNoAmount(unit);
+                const transferOperation : operation = transferFa2Token(from_, to_, amount, token.tokenId, token.tokenContractAddress)
+            } with transferOperation
     ];
 
 } with processVaultTransferOperation

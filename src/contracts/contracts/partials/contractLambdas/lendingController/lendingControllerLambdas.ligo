@@ -466,7 +466,11 @@ block {
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
                 // burn LP Token operation
-                const burnLpTokenOperation : operation = burnLpToken(initiator, lpTokensBurned, lpTokenContractAddress);
+                const burnLpTokenOperation : operation = burnLpToken(
+                    initiator,                  // current user
+                    lpTokensBurned,             // amount of LP Tokens to burn 
+                    lpTokenContractAddress      // LP Token address
+                );
                 operations := burnLpTokenOperation # operations;
                 
                 // send tokens from token pool to initiator
@@ -1454,8 +1458,8 @@ block {
                 var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
 
                 // Get Treasury Address and Token Pool Reward Address  from the General Contracts map on the Governance Contract
-                const treasuryAddress: address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
-                const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+                const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+                const tokenPoolRewardAddress : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -1598,21 +1602,21 @@ block {
                 );
 
                 // Update rewards in Token Pool Contract
-                const updateRewardsParams : updateRewardsActionType = record [
-                    tokenName = vaultLoanTokenName;
-                    amount    = interestRewardPool;
-                ];
+                // const updateRewardsParams : updateRewardsActionType = record [
+                //     tokenName = vaultLoanTokenName;
+                //     amount    = interestRewardPool;
+                // ];
 
-                const updateRewardsInTokenPoolRewardContractOperation : operation = Tezos.transaction(
-                    updateRewardsParams,
-                    0mutez,
-                    getUpdateRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
-                );
+                // const updateRewardsInTokenPoolRewardContractOperation : operation = Tezos.transaction(
+                //     updateRewardsParams,
+                //     0mutez,
+                //     getUpdateRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
+                // );
 
                 operations := list[
                     sendInterestToTreasuryOperation;
                     sendInterestRewardToTokenPoolRewardContractOperation;
-                    updateRewardsInTokenPoolRewardContractOperation;
+                    // updateRewardsInTokenPoolRewardContractOperation;
                 ];
 
                 // ------------------------------------------------------------------
