@@ -6,7 +6,6 @@ type TopBarLinksProps = {
   groupName: string | JSX.Element
   groupLinks: Array<{ name: string; href: string }>
   useClickOpening?: boolean
-  isLast?: boolean
   selectedLinksBlock?: null | string
   setSelectedLinksBlock?: () => void
 }
@@ -17,10 +16,9 @@ export const TopBarLinks = ({
   useClickOpening,
   selectedLinksBlock,
   setSelectedLinksBlock,
-  isLast,
 }: TopBarLinksProps) => {
   return (
-    <TopBarLinksStyled useClickOpening={useClickOpening} selected={selectedLinksBlock === groupName} isLast={isLast}>
+    <TopBarLinksStyled useClickOpening={useClickOpening} selected={selectedLinksBlock === groupName}>
       <div
         className={`group-name ${selectedLinksBlock === groupName ? 'selected' : ''}`}
         onClick={setSelectedLinksBlock}

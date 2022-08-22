@@ -116,7 +116,7 @@ export const MenuLogo = styled.img`
   }
 
   @media screen and (max-width: 950px) {
-    &.desctop-logo {
+    &.desktop-logo {
       display: none;
     }
 

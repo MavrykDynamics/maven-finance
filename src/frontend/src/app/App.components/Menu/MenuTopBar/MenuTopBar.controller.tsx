@@ -56,7 +56,7 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
         </MenuMobileBurger>
 
         <Link to="/">
-          <MenuLogo alt="logo" className={'desctop-logo'} src={logoImg} />
+          <MenuLogo alt="logo" className={'desktop-logo'} src={logoImg} />
           <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} />
         </Link>
       </div>

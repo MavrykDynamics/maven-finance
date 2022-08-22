@@ -53,7 +53,6 @@ export const MobileTopBar = ({ show }: { show: boolean }) => {
           setSelectedLinksBlock={() => {
             setSelectedLinksBlock(selectedLinksBlock === 'Docs' ? null : 'Docs')
           }}
-          isLast
         />
 
         <SocialIcons />
