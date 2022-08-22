@@ -14,7 +14,7 @@ export const BGAccordion = ({ methods, accordionClickHandler, accordionId, isExp
   return (
     <AccordionWrapper>
       <AccordionToggler onClick={() => accordionClickHandler(accordionId)}>
-        Methods {<Icon className={`accordion-icon ${isExpanded ? '' : 'down'}`} id="accordion_icon" />}
+        Entrypoints {<Icon className={`accordion-icon ${isExpanded ? '' : 'down'}`} id="accordion_icon" />}
       </AccordionToggler>
       <AccordionContent className={`${isExpanded ? 'expanded' : ''}`}>
         {methodsList.map((method: string) => (
