@@ -107,7 +107,7 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
             }
           }
 
-          &:nth-child(4) {
+          &:nth-last-child(2) {
             .group-name {
               &::before {
                 display: none;

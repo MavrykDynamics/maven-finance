@@ -234,7 +234,7 @@ export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme 
     }
   }
 
-  &:not(:nth-child(3)):before {
+  &:not(:nth-last-child(2)):before {
     content: '';
     position: absolute;
     bottom: 0;
