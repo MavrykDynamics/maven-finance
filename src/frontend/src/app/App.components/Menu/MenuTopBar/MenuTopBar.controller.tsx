@@ -15,7 +15,7 @@ type MenuTopBarProps = {
   isExpandedMenu: boolean
 }
 
-const SocialIcons = () => (
+export const SocialIcons = () => (
   <div className="social-wrapper">
     <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
       <Icon id="socialTwitter" />

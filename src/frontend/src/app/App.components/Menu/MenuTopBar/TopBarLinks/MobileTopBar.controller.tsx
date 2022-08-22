@@ -1,5 +1,6 @@
 import { ConnectWallet } from 'app/App.components/ConnectWallet/ConnectWallet.controller'
 import React, { useState } from 'react'
+import { SocialIcons } from '../MenuTopBar.controller'
 import { MobileTopBarStyled } from '../MenuTopBar.style'
 import { TopBarLinks } from './TopBarLinks.controller'
 
@@ -62,6 +63,8 @@ export const MobileTopBar = ({ show }: { show: boolean }) => {
           }}
           isLast
         />
+
+        <SocialIcons />
       </div>
     </MobileTopBarStyled>
   )
