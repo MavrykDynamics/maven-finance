@@ -1,3 +1,4 @@
+import { MichelsonMap } from "@taquito/taquito";
 // types
 import type {
   DelegateRecord,
@@ -7,7 +8,10 @@ import type {
   SatelliteRecord,
 } from "../../utils/TypesAndInterfaces/Delegation";
 import type { MavrykUserGraphQl } from "../../utils/TypesAndInterfaces/User";
-import type { SatelliteRecordGraphQl } from "../../utils/TypesAndInterfaces/Delegation";
+import type {
+  SatelliteRecordGraphQl,
+  DelegationGraphQl,
+} from "../../utils/TypesAndInterfaces/Delegation";
 
 // helpers
 import { calcWithoutMu, calcWithoutPrecision } from "../../utils/calcFunctions";
@@ -86,4 +90,53 @@ export function normalizeSatelliteRecord(
   };
 
   return newSatelliteRecord;
+}
+
+function convertToSatelliteRecords(
+  satelliteRecordList: DelegationGraphQl["satellite_records"]
+): SatelliteRecord[] {
+  return satelliteRecordList?.length
+    ? satelliteRecordList.map((item) =>
+        normalizeSatelliteRecord(item, item?.user)
+      )
+    : [];
+}
+
+export function normalizeDelegationStorage(
+  delegationStorage: DelegationGraphQl
+) {
+  return {
+    breakGlassConfig: {
+      delegateToSatelliteIsPaused:
+        delegationStorage?.delegate_to_satellite_paused,
+      undelegateFromSatelliteIsPaused:
+        delegationStorage?.undelegate_from_satellite_paused,
+      registerAsSatelliteIsPaused:
+        delegationStorage?.register_as_satellite_paused,
+      unregisterAsSatelliteIsPaused:
+        delegationStorage?.unregister_as_satellite_paused,
+      updateSatelliteRecordIsPaused:
+        delegationStorage?.update_satellite_record_paused,
+      distributeRewardPaused: delegationStorage?.distribute_reward_paused,
+    },
+    config: {
+      maxSatellites: delegationStorage?.max_satellites,
+      delegationRatio: delegationStorage?.delegation_ratio,
+      minimumStakedMvkBalance: calcWithoutMu(
+        delegationStorage?.minimum_smvk_balance
+      ),
+      satelliteNameMaxLength: delegationStorage?.satellite_name_max_length,
+      satelliteDescriptionMaxLength:
+        delegationStorage?.satellite_description_max_length,
+      satelliteImageMaxLength: delegationStorage?.satellite_image_max_length,
+      satelliteWebsiteMaxLength:
+        delegationStorage?.satellite_website_max_length,
+    },
+    delegateLedger: new MichelsonMap<string, DelegateRecord>(),
+    satelliteLedger: convertToSatelliteRecords(
+      delegationStorage?.satellite_records
+    ),
+    numberActiveSatellites: delegationStorage?.max_satellites,
+    totalDelegatedMVK: delegationStorage?.max_satellites,
+  };
 }

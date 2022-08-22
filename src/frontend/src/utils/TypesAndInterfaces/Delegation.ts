@@ -1,6 +1,6 @@
 import { MichelsonMap } from "@taquito/taquito";
 import { Feed } from "pages/Satellites/helpers/Satellites.types";
-import type { Satellite_Record } from "../generated/graphqlTypes";
+import type { Satellite_Record, Delegation } from "../generated/graphqlTypes";
 import {
   Governance_Proposal_Record,
   Maybe,
@@ -93,3 +93,4 @@ export interface DelegationStorage {
 }
 
 export type SatelliteRecordGraphQl = Omit<Satellite_Record, "__typename">;
+export type DelegationGraphQl = Omit<Delegation, "__typename">;
