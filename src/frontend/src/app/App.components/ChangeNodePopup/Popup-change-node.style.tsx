@@ -89,6 +89,13 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
         overflow: hidden;
         white-space: nowrap;
       }
+
+      @media (max-width: 350px) {
+        width: 80px;
+        input {
+          width: 80px;
+        }
+      }
     }
   }
 
