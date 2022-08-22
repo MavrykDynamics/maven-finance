@@ -107,7 +107,8 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   }
 
   &.connect-wallet-details {
-    width: 30%;
+    width: fit-content;
+    padding-right: 15px;
     display: flex;
     align-items: center;
     position: relative;

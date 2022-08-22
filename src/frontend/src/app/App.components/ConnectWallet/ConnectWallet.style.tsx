@@ -1,10 +1,10 @@
 import styled, { css } from 'styled-components/macro'
-import { backgroundTextColor, skyColor } from 'styles'
+import { backgroundTextColor, cyanColor, skyColor } from 'styles'
 import { BUTTON_RADIUS } from 'styles/constants'
 import { MavrykTheme } from 'styles/interfaces'
 
 // Common style parts START
-const VISIBLE_PART_CONNECTED_WALLET = (theme: any) => `
+const VISIBLE_PART_CONNECTED_WALLET = (theme: any, isMobileDetails?: boolean) => `
 .top-visible-part {
   display: flex;
   align-items: center;
@@ -15,13 +15,20 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: any) => `
     font-weight: 400;
     font-size: 14px;
     color: ${theme.headerSkyColor};
+    transition: 0.6s all;
   }
 
   .end-icon {
     height: 15px;
     width: 10px;
     transform: rotate(-90deg);
-    stroke: ${backgroundTextColor};
+    margin-left: 3px;
+    transition: 0.6s all;
+  }
+
+  .openLink {
+    height: 15px;
+    width: 20px;
   }
 
   .wallet {
@@ -29,6 +36,34 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: any) => `
     height: 20px;
     stroke: ${theme.headerSkyColor};
     fill: transparent;
+    transition: 0.6s all;
+  }
+
+  ${
+    isMobileDetails
+      ? ''
+      : ` &:hover {
+    var, .wallet, .end-icon {
+      color: ${cyanColor};
+      stroke: ${cyanColor};
+    }
+  }`
+  }
+
+  @media screen and (max-width: 870px) {
+    var {
+      font-size: 20px;
+    }
+
+    .openLink {
+      height: 20px;
+      width: 20px;
+    }
+  
+    .wallet {
+      width: 25px;
+      height: 20px;
+    }
   }
 }
 `
@@ -98,23 +133,31 @@ export const MobileDetailsStyled = styled.div<{ theme: MavrykTheme }>`
   left: 0;
   z-index: 15;
   background: #160e3f;
+  padding-top: 60px;
 
   .close {
     position: absolute;
-    top: 5px;
-    right: 10px;
+    top: 27px;
+    right: 22px;
     cursor: pointer;
 
     svg {
-      width: 24px;
-      height: 24px;
-      stroke: #503eaa;
+      width: 26px;
+      height: 21px;
+      stroke: #8d86eb;
+      transition: 0.6s all;
+    }
+
+    &:hover {
+      svg {
+        stroke: ${cyanColor};
+      }
     }
   }
 
   ${({ theme }) =>
     css`
-      ${VISIBLE_PART_CONNECTED_WALLET(theme)}
+      ${VISIBLE_PART_CONNECTED_WALLET(theme, true)}
     `}
 
   .top-visible-part {
@@ -125,12 +168,21 @@ export const MobileDetailsStyled = styled.div<{ theme: MavrykTheme }>`
   .details {
     margin: 0 auto;
     width: 88%;
-    max-width: 375px;
+    max-width: 500px;
 
     ${BUTTONS_WRAPPER_CONNECTED_WALLET}
 
     .buttons-wrapper {
       column-gap: 25px;
+    }
+  }
+
+  @media screen and (max-width: 450px) {
+    padding-top: 30px;
+
+    .details {
+      margin: 0 auto;
+      width: 88%;
     }
   }
 `

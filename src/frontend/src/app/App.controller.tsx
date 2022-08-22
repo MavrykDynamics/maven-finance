@@ -33,12 +33,15 @@ const AppContainer = () => {
   useEffect(() => {
     dispatch(onStart())
     dispatch(getGovernanceStorage())
-    dispatch(toggleSidebarCollapsing(width > 1400))
     // For using Beacon wallet, replace following lines with dispatch(setWallet())
     return TempleWallet.onAvailabilityChange((available) => {
       if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
     })
   }, [dispatch])
+
+  useEffect(() => {
+    dispatch(toggleSidebarCollapsing(width > 1400))
+  }, [width])
 
   const closeModalHandler = useCallback(() => dispatch(toggleRPCNodePopup(false)), [])
 

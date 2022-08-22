@@ -46,7 +46,7 @@ export const MobileDetailsBlock = ({
         <var>
           <TzAddress tzAddress={accountPkh} hasIcon={false} shouldCopy={false} />
         </var>
-        <Icon id="openLink" className="end-icon" />
+        <Icon id="openLinkRight" className="openLink" />
       </div>
 
       <div className="details">
@@ -97,10 +97,9 @@ export const ConnectedWalletBlock = ({
 }: ConnectedWalletBlockProps) => {
   const [detailsShown, setDetailsShown] = useState(false)
 
-  const mouseOverHanlder = useCallback(() => (isMobile ? undefined : setDetailsShown(true)), [])
-  const closeHandler = useCallback(() => (isMobile ? undefined : setDetailsShown(false)), [])
-  const mobileClickOpenHanler = useCallback(() => (isMobile ? setDetailsShown(true) : undefined), [])
-  const mobileClickCloseHanler = useCallback(() => (isMobile ? setDetailsShown(false) : undefined), [])
+  const mouseOverHanlder = useCallback(() => (isMobile ? undefined : setDetailsShown(true)), [isMobile])
+  const mobileClickOpenHanler = useCallback(() => (isMobile ? setDetailsShown(true) : undefined), [isMobile])
+  const closeHandler = useCallback(() => setDetailsShown(false), [])
 
   if (isMobile && detailsShown)
     return (
@@ -110,7 +109,7 @@ export const ConnectedWalletBlock = ({
         signOutHandler={signOutHandler}
         changeWalletHandler={changeWalletHandler}
         isMobile={isMobile}
-        handleCloseBtn={mobileClickCloseHanler}
+        handleCloseBtn={closeHandler}
       />
     )
 
