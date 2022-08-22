@@ -13,4 +13,4 @@ export const platformDevice: platformDeviceType =
       }
     : null
 
-export const isMobile = false //platformDevice?.isAndroid || platformDevice?.isIos || platformDevice?.isIpad
+export const isMobile = platformDevice?.isAndroid || platformDevice?.isIos || platformDevice?.isIpad
