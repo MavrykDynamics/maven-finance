@@ -6,7 +6,6 @@ import {
 } from "app/App.components/Toaster/Toaster.constants";
 import { State } from "reducers";
 import { fetchFromIndexerWithPromise } from "../../gql/fetchGraphQL";
-import storageToTypeConverter from "../../utils/storageToTypeConverter";
 import {
   SATELLITE_RECORDS_QUERY,
   SATELLITE_RECORDS_QUERY_NAME,
@@ -34,27 +33,9 @@ export const getSatelliteByAddress =
         USER_VOTING_HYSTORY_VARIABLES(satelliteAddress)
       );
 
-      const satelliteRecord = storageToTypeConverter("satelliteRecord", {
-        satelliteRecordFromIndexer:
-          satelliteRecordFromIndexer?.satellite_record?.[0],
-        userVotingHistoryIndexer: userVotingHistoryIndexer?.mavryk_user?.[0],
-      });
-
-      console.log(
-        "%c ||||| satelliteRecord",
-        "color:yellowgreen",
-        satelliteRecord
-      );
-
-      const satelliteRecord2 = normalizeSatelliteRecord(
+      const satelliteRecord = normalizeSatelliteRecord(
         satelliteRecordFromIndexer?.satellite_record?.[0],
         userVotingHistoryIndexer?.mavryk_user?.[0]
-      );
-
-      console.log(
-        "%c ||||| satelliteRecord2",
-        "color:yellowgreen",
-        satelliteRecord2
       );
 
       dispatch({
