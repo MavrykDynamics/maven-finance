@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 import { cyanColor, darkPurpleColor, silverColor } from 'styles'
 
-export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; isLast?: boolean; selected?: boolean }>`
+export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selected?: boolean }>`
   margin: 0 25px;
   height: 100%;
   position: relative;
@@ -69,7 +69,7 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; isLast?
     }
   }
 
-  ${({ useClickOpening, selected, isLast }) =>
+  ${({ useClickOpening, selected }) =>
     useClickOpening
       ? css`
           display: flex;
@@ -86,10 +86,8 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; isLast?
             justify-content: space-between;
 
             ${() =>
-              !selected &&
-              !isLast &&
               css`
-                &::before {
+                &:not(.selected):before {
                   position: absolute;
                   height: 2px;
                   width: 100%;
@@ -105,6 +103,14 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; isLast?
 
               svg {
                 stroke: ${cyanColor};
+              }
+            }
+          }
+
+          &:nth-child(4) {
+            .group-name {
+              &::before {
+                display: none;
               }
             }
           }

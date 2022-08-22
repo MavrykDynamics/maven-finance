@@ -70,7 +70,6 @@ export const MobileDetailsBlock = ({
           coinName={'XTZ'}
           buttonHandler={() => {}}
           subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
-          isLast
         />
 
         <div className="buttons-wrapper">
@@ -144,7 +143,6 @@ export const ConnectedWalletBlock = ({
           coinName={'XTZ'}
           buttonHandler={() => {}}
           subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
-          isLast
         />
 
         <div className="buttons-wrapper">
@@ -193,7 +191,6 @@ type ConnectedWalletDetailsItemProps = {
   coinName: string
   coinAmount: number
   buttonHandler: () => void
-  isLast?: boolean
   subtextInfo?: string
   subtextAmount?: number
 }
@@ -203,12 +200,11 @@ const ConnectedWalletDetailsItem = ({
   coinName,
   coinAmount,
   buttonHandler,
-  isLast,
   subtextInfo,
   subtextAmount,
 }: ConnectedWalletDetailsItemProps) => {
   return (
-    <ConnectedWalletDetailsItemStyled isLast={isLast}>
+    <ConnectedWalletDetailsItemStyled>
       <div className="left-part">
         <CommaNumber value={coinAmount} endingText={coinName} showDecimal className="main" />
         {subtextAmount !== undefined ? (

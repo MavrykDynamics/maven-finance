@@ -19,7 +19,7 @@ import { getGovernanceStorage } from '../../src/pages/Governance/Governance.acti
 import { PopupChangeNode } from './App.components/ChangeNodePopup/Popup-change-node.controller'
 import { toggleRPCNodePopup } from './App.components/ChangeNodePopup/ChangeNode.actions'
 import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
-import useWindowDimensions from 'utils/useDimensions'
+import { useMedia } from 'react-use'
 
 export const store = configureStore({})
 
@@ -28,7 +28,7 @@ const AppContainer = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const loading = useSelector((state: State) => state.loading)
   const { changeNodePopupOpen, sidebarOpened } = useSelector((state: State) => state.preferences)
-  const { width } = useWindowDimensions()
+  const showSidebarOpened = useMedia('(min-width: 1400px)')
 
   useEffect(() => {
     dispatch(onStart())
@@ -40,8 +40,8 @@ const AppContainer = () => {
   }, [dispatch])
 
   useEffect(() => {
-    dispatch(toggleSidebarCollapsing(width > 1400))
-  }, [width])
+    dispatch(toggleSidebarCollapsing(showSidebarOpened))
+  }, [showSidebarOpened])
 
   const closeModalHandler = useCallback(() => dispatch(toggleRPCNodePopup(false)), [])
 

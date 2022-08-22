@@ -187,7 +187,7 @@ export const MobileDetailsStyled = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme; isLast?: boolean }>`
+export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
@@ -234,19 +234,14 @@ export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme;
     }
   }
 
-  ${({ isLast }) =>
-    isLast
-      ? ''
-      : css`
-          &::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 1px;
-            background: #503eaa;
-          }
-        `}
+  &:not(:nth-child(3)):before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: #503eaa;
+  }
 `
 
 export const WalletConnectedButton = styled.div<{ theme: MavrykTheme }>`
