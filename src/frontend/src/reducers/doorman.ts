@@ -46,7 +46,7 @@ const doormanDefaultState: DoormanState = {
   type: undefined,
   amount: 0,
   error: undefined,
-  doormanStorage: getItemFromStorage("DoormanStorage") ?? defaultStorageState,
+  doormanStorage: defaultStorageState,
   totalStakedMvk: 0,
 };
 

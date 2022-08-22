@@ -323,7 +323,6 @@ export const getDoormanStorage =
 
       const convertedStorage = normalizeDoormanStorage(storage?.doorman?.[0]);
 
-      updateItemInStorage("DoormanStorage", convertedStorage);
       dispatch({
         type: GET_DOORMAN_STORAGE,
         storage: convertedStorage,
@@ -388,7 +387,6 @@ export const updateUserData =
       const userState = state.user;
       // @ts-ignore
       userState[field] = value;
-      updateItemInStorage("UserData", value);
       dispatch({
         type: UPDATE_USER_DATA,
         userKey: field,

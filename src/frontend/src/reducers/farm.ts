@@ -35,7 +35,7 @@ export const HARVEST = "HARVEST",
   WITHDRAW = "WITHDRAW";
 const defaultFarmStorage: FarmStorage = [];
 const farmDefaultState: FarmState = {
-  farmStorage: getItemFromStorage("FarmStorage") || defaultFarmStorage,
+  farmStorage: defaultFarmStorage,
   farmContracts: [],
   amount: 0,
   selectedFarmAddress: "",

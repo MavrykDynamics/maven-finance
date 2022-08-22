@@ -68,8 +68,7 @@ const defaultDelegationStorage: DelegationStorage = {
   totalDelegatedMVK: 0,
 };
 const delegationDefaultState: DelegationState = {
-  delegationStorage:
-    getItemFromStorage("DelegationStorage") || defaultDelegationStorage,
+  delegationStorage: defaultDelegationStorage,
   amount: 0,
   currentSatellite: {
     status: SatelliteStatus.INACTIVE,
