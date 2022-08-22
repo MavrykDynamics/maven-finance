@@ -69,9 +69,6 @@ export default function storageToTypeConverter(
     case "governance":
       res = convertToGovernanceStorageType(storage);
       break;
-    case "satelliteRecord":
-      res = convertToSatelliteRecordInterface(storage);
-      break;
     case "treasury":
       res = convertToTreasuryAddressType(storage);
       break;
