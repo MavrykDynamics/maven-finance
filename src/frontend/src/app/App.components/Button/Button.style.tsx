@@ -107,33 +107,15 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   }
 
   &.connect-wallet-details {
-    width: fit-content;
-    padding-right: 15px;
     display: flex;
     align-items: center;
     position: relative;
-    margin-right: 10px;
-    padding-right: auto;
+    margin-right: 15px;
     color: ${cyanColor};
     opacity: 0.7;
 
-    &::before {
-      position: absolute;
-      content: '';
-      background-image: url("data:image/svg+xml,%3Csvg width='6' height='12' viewBox='0 0 6 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.779462 11.8032C0.611967 11.6814 0.574936 11.4469 0.69675 11.2794L4.53634 5.99997L0.69675 0.720537C0.574936 0.553042 0.611967 0.318511 0.779462 0.196697C0.946957 0.0748825 1.18149 0.111914 1.3033 0.279408L5.3033 5.77941C5.39893 5.9109 5.39893 6.08904 5.3033 6.22054L1.3033 11.7205C1.18149 11.888 0.946957 11.9251 0.779462 11.8032Z' fill='%238D86EB'/%3E%3C/svg%3E%0A");
-      background-repeat: no-repeat;
-      width: 8px;
-      height: 13px;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
     &:hover {
       opacity: 1;
-      &::before {
-        background-image: url("data:image/svg+xml,%3Csvg width='6' height='12' viewBox='0 0 6 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.779462 11.8032C0.611967 11.6814 0.574936 11.4469 0.69675 11.2794L4.53634 5.99997L0.69675 0.720537C0.574936 0.553042 0.611967 0.318511 0.779462 0.196697C0.946957 0.0748825 1.18149 0.111914 1.3033 0.279408L5.3033 5.77941C5.39893 5.9109 5.39893 6.08904 5.3033 6.22054L1.3033 11.7205C1.18149 11.888 0.946957 11.9251 0.779462 11.8032Z' fill='%2386D4C9'/%3E%3C/svg%3E%0A");
-      }
     }
   }
 
