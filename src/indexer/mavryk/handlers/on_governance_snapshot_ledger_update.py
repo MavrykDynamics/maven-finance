@@ -37,13 +37,13 @@ async def on_governance_snapshot_ledger_update(
         )
         await user.save()
 
-        snapshot_record         = models.GovernanceSatelliteSnapshotRecord(
+        snapshot_record, _      = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
             governance              = governance,
             user                    = user,
-            ready                   = ready,
-            total_smvk_balance      = total_smvk_balance,
-            total_delegated_amount  = total_delegated_amount,
-            total_voting_power      = total_voting_power,
             cycle                   = governance_cycle
         )
+        snapshot_record.ready                   = ready
+        snapshot_record.total_smvk_balance      = total_smvk_balance
+        snapshot_record.total_delegated_amount  = total_delegated_amount
+        snapshot_record.total_voting_power      = total_voting_power
         await snapshot_record.save()

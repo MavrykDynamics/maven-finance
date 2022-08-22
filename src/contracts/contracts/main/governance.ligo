@@ -52,14 +52,14 @@ type governanceAction is
     |   SetContractGovernance           of setContractGovernanceType
     
         // Governance Cycle Entrypoints
-    |   UpdateSatelliteSnapshot         of updateSatelliteSnapshotType         
+    |   UpdateSatelliteSnapshot         of updateSatelliteSnapshotType
     |   StartNextRound                  of bool
     |   Propose                         of newProposalType
     |   ProposalRoundVote               of actionIdType
     |   UpdateProposalData              of updateProposalDataType
     |   UpdatePaymentData               of updatePaymentDataType
-    |   LockProposal                    of actionIdType      
-    |   VotingRoundVote                 of (votingRoundVoteType)    
+    |   LockProposal                    of actionIdType
+    |   VotingRoundVote                 of (votingRoundVoteType)
     |   ExecuteProposal                 of (unit)
     |   ProcessProposalPayment          of actionIdType
     |   ProcessProposalSingleData       of (unit)

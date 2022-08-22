@@ -410,62 +410,40 @@ async def persist_governance_satellite_action(action):
 # PERSIST CONTRACTS
 #
 ###
-async def persist_general_contract(update_general_contracts):
+async def persist_linked_contract(contract_class, linked_contract_class, update_linked_contracts):
     # Get operation info
-    target_address          = update_general_contracts.data.target_address
-    contract_address        = update_general_contracts.parameter.generalContractAddress
-    contract_name           = update_general_contracts.parameter.generalContractName
-    contract_in_storage     = contract_name in update_general_contracts.storage.generalContracts
+    target_address          = update_linked_contracts.data.target_address
+    contract                = await contract_class.get(
+        address         = target_address
+    )
 
+    contract_address        = ""
+    contract_name           = ""
+    contract_in_storage     = False
+    if hasattr(update_linked_contracts.parameter, "generalContractAddress"):
+        contract_address        = update_linked_contracts.parameter.generalContractAddress
+        contract_name           = update_linked_contracts.parameter.generalContractName
+        contract_in_storage     = contract_name in update_linked_contracts.storage.generalContracts
+    elif hasattr(update_linked_contracts.parameter, "whitelistContractAddress"):
+        contract_address        = update_linked_contracts.parameter.whitelistContractAddress
+        contract_name           = update_linked_contracts.parameter.whitelistContractName
+        contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistContracts
+    elif hasattr(update_linked_contracts.parameter, "whitelistTokenContractAddress"):
+        contract_address        = update_linked_contracts.parameter.whitelistTokenContractAddress
+        contract_name           = update_linked_contracts.parameter.whitelistTokenContractName
+        contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistTokenContracts
+   
     # Update general contracts record
-    general_contract, _ = await models.GeneralContract.get_or_create(
-        target_contract = target_address,
+    linked_contract, _ = await linked_contract_class.get_or_create(
+        contract        = contract,
         contract_name   = contract_name
     )
-    general_contract.contract_address   = contract_address
+    linked_contract.contract_address   = contract_address
 
     if contract_in_storage:
-        await general_contract.save()
+        await linked_contract.save()
     else:
-        await general_contract.delete()
-
-async def persist_whitelist_contract(update_whitelist_contracts):
-    # Get operation info
-    target_address          = update_whitelist_contracts.data.target_address
-    contract_address        = update_whitelist_contracts.parameter.whitelistContractAddress
-    contract_name           = update_whitelist_contracts.parameter.whitelistContractName
-    contract_in_storage     = contract_name in update_whitelist_contracts.storage.whitelistContracts
-
-    # Update general contracts record
-    whitelist_contract, _ = await models.WhitelistContract.get_or_create(
-        target_contract = target_address,
-        contract_name   = contract_name
-    )
-    whitelist_contract.contract_address   = contract_address
-
-    if contract_in_storage:
-        await whitelist_contract.save()
-    else:
-        await whitelist_contract.delete()
-
-async def persist_whitelist_token_contract(update_whitelist_token_contracts):
-    # Get operation info
-    target_address          = update_whitelist_token_contracts.data.target_address
-    contract_address        = update_whitelist_token_contracts.parameter.tokenContractAddress
-    contract_name           = update_whitelist_token_contracts.parameter.tokenContractName
-    contract_in_storage     = contract_name in update_whitelist_token_contracts.storage.whitelistTokenContracts
-
-    # Update general contracts record
-    whitelist_token_contract, _ = await models.WhitelistTokenContract.get_or_create(
-        target_contract = target_address,
-        contract_name   = contract_name
-    )
-    whitelist_token_contract.contract_address   = contract_address
-
-    if contract_in_storage:
-        await whitelist_token_contract.save()
-    else:
-        await whitelist_token_contract.delete()
+        await linked_contract.delete()
 
 ###
 #
@@ -485,3 +463,48 @@ async def persist_governance(set_governance,contract):
     await governance.save()
     contract.governance     = governance
     await contract.save()
+
+###
+#
+# PERSIST LAMBDAS
+#
+###
+async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
+    
+    # Get operation values
+    contract_address        = set_lambda.data.target_address
+    timestamp               = set_lambda.data.timestamp
+    lambda_bytes            = set_lambda.parameter.func_bytes
+    lambda_name             = set_lambda.parameter.name
+
+    # Save / Update record
+    contract                = await contract_class.get(
+        address     = contract_address
+    )
+    contract_lambda, _      = await lambda_contract_class.get_or_create(
+        contract        = contract,
+        lambda_name     = lambda_name,
+    )
+    contract_lambda.last_updated_at     = timestamp
+    contract_lambda.lambda_bytes        = lambda_bytes
+    await contract_lambda.save()
+
+async def persist_proxy_lambda(contract_class, proxy_lambda_contract_class, set_proxy_lambda):
+    
+    # Get operation values
+    contract_address        = set_proxy_lambda.data.target_address
+    timestamp               = set_proxy_lambda.data.timestamp
+    lambda_bytes            = set_proxy_lambda.parameter.func_bytes
+    lambda_name             = set_proxy_lambda.parameter.id
+
+    # Save / Update record
+    contract                = await contract_class.get(
+        address     = contract_address
+    )
+    contract_lambda, _      = await proxy_lambda_contract_class.get_or_create(
+        contract        = contract,
+        lambda_name     = lambda_name
+    )
+    contract_lambda.last_updated_at     = timestamp
+    contract_lambda.lambda_bytes        = lambda_bytes
+    await contract_lambda.save()
