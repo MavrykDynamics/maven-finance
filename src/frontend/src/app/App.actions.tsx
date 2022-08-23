@@ -45,6 +45,7 @@ import {
 import { normalizeFarmStorage } from "../pages/Farms/Frams.helpers";
 import { normalizeDelegationStorage } from "../pages/Satellites/Satellites.helpers";
 import { normalizeEmergencyGovernance } from "../pages/EmergencyGovernance/EmergencyGovernance.helpers";
+import { normalizeBreakGlass } from "../pages/BreakGlass/BreakGlass.helpers";
 
 export const RECAPTCHA_REQUEST = "RECAPTCHA_REQUEST";
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -66,10 +67,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const farmStorage = normalizeFarmStorage(res[4]?.farm);
   const emergencyGovernanceStorage: EmergencyGovernanceStorage =
     normalizeEmergencyGovernance(res[5]?.emergency_governance[0]);
-  const breakGlassStorage = storageToTypeConverter(
-    "breakGlass",
-    res[6]?.break_glass[0]
-  );
+  const breakGlassStorage = normalizeBreakGlass(res[6]?.break_glass[0]);
   const councilStorage = storageToTypeConverter(
     "council",
     res[7]?.council?.[0]
