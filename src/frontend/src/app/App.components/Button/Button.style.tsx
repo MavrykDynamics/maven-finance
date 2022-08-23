@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components/macro'
 
-import { primaryColor, darkColor, skyColor } from '../../../styles'
+import { primaryColor, darkColor, skyColor, cyanColor } from '../../../styles'
 import { BUTTON_RADIUS } from '../../../styles/constants'
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -104,6 +104,23 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     &.actionSecondary svg {
       fill: ${({ theme }) => theme.actionPrimaryBtnColor};
     }
+  }
+
+  &.connect-wallet-details {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-right: 15px;
+    color: ${cyanColor};
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &.change-wallet {
+    width: 185px;
   }
 `
 
