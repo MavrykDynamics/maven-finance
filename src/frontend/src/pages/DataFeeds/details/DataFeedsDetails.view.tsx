@@ -28,7 +28,16 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 // styles
-import { DataFeedInfoBlock, DataFeedsStyled, DataFeedsTitle, DataFeedSubTitleText, DataFeedValueText, UsersListCardsWrapper, UsersListWrapper, UserSmallCard } from './DataFeedsDetails.style'
+import {
+  DataFeedInfoBlock,
+  DataFeedsStyled,
+  DataFeedsTitle,
+  DataFeedSubTitleText,
+  DataFeedValueText,
+  UsersListCardsWrapper,
+  UsersListWrapper,
+  UserSmallCard,
+} from './DataFeedsDetails.style'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -254,7 +263,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
           <h1>Users</h1>
         </GovRightContainerTitleArea>
 
-        <Link to="users">
+        <Link to="oracles-users">
           <div className="see-all-link">
             See all users
             <Icon id="arrow-left-stroke" />
@@ -263,10 +272,12 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
 
         <UsersListCardsWrapper>
           {usersData.map((user) => (
-            <UserSmallCard>
-              <div className="img-wrapper">logo</div>
-              {user.name}
-            </UserSmallCard>
+            <Link to={`/satellites/user-details/${user.id}`}>
+              <UserSmallCard>
+                <div className="img-wrapper">logo</div>
+                {user.name}
+              </UserSmallCard>
+            </Link>
           ))}
         </UsersListCardsWrapper>
       </UsersListWrapper>

@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { cyanColor } from 'styles'
+import { boxShadowColor, cyanColor } from 'styles'
 
 export const DataFeedsStyled = styled.div`
   display: flex;
@@ -269,6 +269,7 @@ export const UserSmallCard = styled.div`
   border: 1px solid #503eaa;
   border-radius: 10px;
   padding: 20px 35px;
+  transition: 0.6s all;
 
   .img-wrapper {
     width: 40px;
@@ -278,5 +279,11 @@ export const UserSmallCard = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  &:hover {
+    border-color: ${cyanColor};
+    box-shadow: 0px 4px 4px ${boxShadowColor};
+    cursor: pointer;
   }
 `
