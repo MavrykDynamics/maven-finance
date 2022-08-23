@@ -5,22 +5,13 @@ import {
 } from "pages/Satellites/helpers/Satellites.types";
 
 import { calcWithoutMu, calcWithoutPrecision } from "./calcFunctions";
-import {
-  BreakGlassActionRecord,
-  BreakGlassActionSigner,
-  BreakGlassStorage,
-} from "./TypesAndInterfaces/BreakGlass";
+
 import {
   CouncilActionRecord,
   CouncilActionSigner,
   CouncilStorage,
 } from "./TypesAndInterfaces/Council";
 
-import {
-  EmergencyGovernanceProposalRecord,
-  EmergencyGovernanceStorage,
-  EmergencyGovProposalVoter,
-} from "./TypesAndInterfaces/EmergencyGovernance";
 import {
   FinancialRequestRecord,
   FinancialRequestVote,
@@ -39,9 +30,6 @@ export default function storageToTypeConverter(
 ): any {
   let res = {};
   switch (contract) {
-    case "breakGlass":
-      res = convertToBreakGlassStorageType(storage);
-      break;
     case "breakGlassStatus":
       res = convertBreakGlassStatusStorageType(storage);
       break;
@@ -89,81 +77,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
           0
         )
       : 0,
-  };
-}
-
-function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
-  const actionLedger: BreakGlassActionRecord[] = [],
-    councilMembers: { address: string }[] = [];
-  storage?.break_glass_action_records.forEach(
-    (actionRecord: {
-      action_type: any;
-      break_glass_id: any;
-      executed: any;
-      executed_datetime: string | number | Date;
-      executed_level: number;
-      expiration_datetime: string | number | Date;
-      id: any;
-      initiator_id: any;
-      start_datetime: string | number | Date;
-      status: any;
-      signers: any;
-      signers_count: number;
-    }) => {
-      const signers: BreakGlassActionSigner[] = [];
-      actionRecord.signers?.forEach(
-        (signer: {
-          break_glass_action_record_id: any;
-          id: any;
-          signer_id: any;
-        }) => {
-          const newSigner: BreakGlassActionSigner = {
-            breakGlassActionRecordId: signer.break_glass_action_record_id,
-            id: signer.id,
-            signerId: signer.signer_id,
-          };
-          signers.push(newSigner);
-        }
-      );
-
-      const newActionRecord: BreakGlassActionRecord = {
-        actionType: actionRecord.action_type,
-        breakGlassId: actionRecord.break_glass_id,
-        executed: actionRecord.executed,
-        executedDatetime: new Date(actionRecord.executed_datetime),
-        expirationDatetime: new Date(actionRecord.expiration_datetime),
-        id: actionRecord.id,
-        initiatorId: actionRecord.initiator_id,
-        startDatetime: new Date(actionRecord.start_datetime),
-        status: actionRecord.status,
-        signers,
-        executedLevel: actionRecord.executed_level,
-        signersCount: actionRecord.signers_count,
-      };
-
-      actionLedger.push(newActionRecord);
-    }
-  );
-  // storage?.council_members.forEach((member: { address: string }) => {
-  //   const newMember = {
-  //     address: member.address,
-  //   }
-  //   councilMembers.push(newMember)
-  // })
-  return {
-    address: storage?.address,
-    admin: storage?.admin,
-    governanceId: storage?.governance_id,
-    config: {
-      threshold: storage?.threshold,
-      actionExpiryDays: storage?.action_expiry_days,
-      councilMemberNameMaxLength: storage?.council_member_name_max_length,
-      councilMemberImageMaxLength: storage?.council_member_image_max_length,
-      councilMemberWebsiteMaxLength: storage?.council_member_website_max_length,
-    },
-    actionCounter: storage?.currentActionId,
-    glassBroken: storage?.glassBroken,
-    actionLedger,
   };
 }
 
@@ -535,8 +448,6 @@ export function convertBreakGlassStatusStorageType(
   storage: any
 ): Record<string, unknown>[] {
   const convert = [] as Record<string, unknown>[];
-
-  console.log("%c ||||| storage", "color:yellowgreen", storage);
 
   if (storage?.doorman?.length) {
     storage.doorman.forEach((item: any) => {
