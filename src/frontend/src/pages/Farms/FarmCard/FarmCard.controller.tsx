@@ -1,48 +1,56 @@
-import { useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from 'reducers'
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { State } from "reducers";
 
 // types
-import type { FarmsViewVariantType } from '../Farms.controller'
+import type { FarmsViewVariantType } from "../Farms.controller";
 
 // view
-import Expand from '../../../app/App.components/Expand/Expand.view'
-import { Button } from '../../../app/App.components/Button/Button.controller'
-import { ButtonCircle } from '../../../app/App.components/Button/ButtonCircle.view'
-import { ConnectWallet } from '../../../app/App.components/ConnectWallet/ConnectWallet.controller'
-import { ColoredLine } from '../../../app/App.components/ColoredLine/ColoredLine.view'
-import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
-import { deposit, harvest, withdraw } from '../Farms.actions'
-import { ButtonIcon } from '../../../app/App.components/Button/Button.style'
-import { showModal } from '../../../app/App.components/Modal/Modal.actions'
-import Icon from '../../../app/App.components/Icon/Icon.view'
-import RoiCalculator from '../RoiCalculator/RoiCalculator.controller'
-import CoinsIcons from '../../../app/App.components/Icon/CoinsIcons.view'
+import Expand from "../../../app/App.components/Expand/Expand.view";
+import { Button } from "../../../app/App.components/Button/Button.controller";
+import { ButtonCircle } from "../../../app/App.components/Button/ButtonCircle.view";
+import { ConnectWallet } from "../../../app/App.components/ConnectWallet/ConnectWallet.controller";
+import { ColoredLine } from "../../../app/App.components/ColoredLine/ColoredLine.view";
+import { CommaNumber } from "../../../app/App.components/CommaNumber/CommaNumber.controller";
+import { deposit, harvest, withdraw } from "../Farms.actions";
+import { ButtonIcon } from "../../../app/App.components/Button/Button.style";
+import { showModal } from "../../../app/App.components/Modal/Modal.actions";
+import Icon from "../../../app/App.components/Icon/Icon.view";
+import RoiCalculator from "../RoiCalculator/RoiCalculator.controller";
+import CoinsIcons from "../../../app/App.components/Icon/CoinsIcons.view";
 
 // const
-import { SELECT_FARM_ADDRESS } from '../Farms.actions'
-import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
+import { SELECT_FARM_ADDRESS } from "../Farms.actions";
+import {
+  FARM_DEPOSIT,
+  FARM_WITHDRAW,
+} from "../../../app/App.components/Modal/Modal.constants";
 
 // helpers
-import { calculateAPR } from '../Frams.helpers'
+import { calculateAPR } from "../Frams.helpers";
 
 // styles
-import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
+import {
+  FarmCardStyled,
+  FarmHarvestStyled,
+  FarmStakeStyled,
+} from "./FarmCard.style";
 
 type FarmCardProps = {
-  name: string
-  farmAddress: string
-  firstToken: string
-  secondToken: string
-  distributer: string
-  lpTokenAddress: string
-  lpTokenBalance: number
-  currentRewardPerBlock: number
-  firstTokenAddress: string
-  secondTokenAddress: string
-  variant: FarmsViewVariantType
-  totalLiquidity: number
-}
+  name: string;
+  farmAddress: string;
+  firstToken: string;
+  secondToken: string;
+  distributer: string;
+  lpTokenAddress: string;
+  lpTokenBalance: number;
+  currentRewardPerBlock: number;
+  firstTokenAddress: string;
+  secondTokenAddress: string;
+  variant: FarmsViewVariantType;
+  totalLiquidity: number;
+  depositAmount: number;
+};
 export const FarmCard = ({
   farmAddress,
   firstToken,
@@ -56,40 +64,48 @@ export const FarmCard = ({
   name,
   lpTokenBalance,
   currentRewardPerBlock,
+  depositAmount,
 }: FarmCardProps) => {
-  const dispatch = useDispatch()
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const [visibleModal, setVisibleModal] = useState(false)
-  const myFarmStakedBalance = 45645.8987
-  const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)
+  const dispatch = useDispatch();
+  const { wallet, ready, tezos, accountPkh } = useSelector(
+    (state: State) => state.wallet
+  );
+  const [visibleModal, setVisibleModal] = useState(false);
+  const myFarmStakedBalance = 45645.8987;
+  const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance);
+
+  const disabled = !wallet || !ready || !depositAmount;
 
   const harvestRewards = () => {
-    dispatch(harvest(farmAddress))
-  }
+    dispatch(harvest(farmAddress));
+  };
 
   const setReduxFarmAddress = async () => {
-    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: farmAddress })
-  }
+    await dispatch({
+      type: SELECT_FARM_ADDRESS,
+      selectedFarmAddress: farmAddress,
+    });
+  };
 
   const triggerDepositModal = async () => {
-    await setReduxFarmAddress()
-    await dispatch(showModal(FARM_DEPOSIT))
-  }
+    await setReduxFarmAddress();
+    await dispatch(showModal(FARM_DEPOSIT));
+  };
 
   const triggerWithdrawModal = async () => {
-    await setReduxFarmAddress()
-    await dispatch(showModal(FARM_WITHDRAW))
-  }
+    await setReduxFarmAddress();
+    await dispatch(showModal(FARM_WITHDRAW));
+  };
 
   const triggerCalculatorModal = async () => {
-    await setReduxFarmAddress()
-    setVisibleModal(true)
-  }
+    await setReduxFarmAddress();
+    setVisibleModal(true);
+  };
 
   const closeCalculatorModal = async () => {
-    setVisibleModal(false)
-    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: '' })
-  }
+    setVisibleModal(false);
+    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: "" });
+  };
 
   const logoHeaderContent = (
     <div className="farm-card-header">
@@ -102,14 +118,14 @@ export const FarmCard = ({
         <p>{distributer}</p>
       </div>
     </div>
-  )
+  );
 
   const unclaimedSMVKBlock = (
     <div className="farm-info">
       <h3>Unclaimed sMVK</h3>
       <var>0.00</var>
     </div>
-  )
+  );
 
   const aprBlock = (
     <div className="farm-info">
@@ -121,28 +137,28 @@ export const FarmCard = ({
         </button>
       </div>
     </div>
-  )
+  );
 
   const liquidityBlock = (
     <div className="farm-info">
       <h3>Liquidity</h3>
       <var>$209,544,892</var>
     </div>
-  )
+  );
 
   const totalLiquidityBlock = (
     <div className="farm-info">
       <h3>Total Liquidity</h3>
-      <var>$209,544,892</var>
+      <var>${totalLiquidity}</var>
     </div>
-  )
+  );
 
   const earnBlock = (
     <div className="farm-info">
       <h3>Earn</h3>
       <var>sMVK+Fees</var>
     </div>
-  )
+  );
 
   const stakedBlock = (
     <div className="farm-info">
@@ -151,21 +167,29 @@ export const FarmCard = ({
         <CommaNumber value={Number(myFarmStakedBalance)} />
       </var>
     </div>
-  )
+  );
 
   const linksBlock = (
     <div className="links-block">
       <a target="_blank" rel="noreferrer" href="https://mavryk.finance/">
         Get MVK-tzBTC <Icon id="send" />
       </a>
-      <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${farmAddress}`}>
+      <a
+        target="_blank"
+        rel="noreferrer"
+        href={`https://tzkt.io/${farmAddress}`}
+      >
         View Contract <Icon id="send" />
       </a>
-      <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${lpTokenAddress}`}>
+      <a
+        target="_blank"
+        rel="noreferrer"
+        href={`https://tzkt.io/${lpTokenAddress}`}
+      >
         See Pair Info <Icon id="send" />
       </a>
     </div>
-  )
+  );
 
   const harvestBlock = (
     <FarmHarvestStyled className="farm-harvest">
@@ -173,9 +197,14 @@ export const FarmCard = ({
         <h3>sMVK Earned</h3>
         <var>0.00</var>
       </div>
-      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
+      <Button
+        kind="actionPrimary"
+        text={"Harvest"}
+        onClick={harvestRewards}
+        disabled={disabled}
+      />
     </FarmHarvestStyled>
-  )
+  );
 
   const farmingBlock = (
     <>
@@ -190,23 +219,41 @@ export const FarmCard = ({
           <div className="circle-buttons">
             {/* <ButtonCircle onClick={triggerDepositModal} kind="actionPrimary" text="" icon="add" />
             <ButtonCircle onClick={triggerWithdrawModal} kind="actionSecondary" text="" icon="subtract" /> */}
-            <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
-            <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
+            <Button
+              text="Stake LP"
+              kind="actionPrimary"
+              icon="in"
+              onClick={triggerDepositModal}
+            />
+            <Button
+              text="UnStake LP"
+              kind="actionSecondary"
+              icon="out"
+              onClick={triggerWithdrawModal}
+            />
           </div>
         </FarmStakeStyled>
       )}
     </>
-  )
+  );
 
   const questionLinkBlock = (
-    <a className="info-link" href="https://mavryk.finance/litepaper#yield-farming" target="_blank" rel="noreferrer">
+    <a
+      className="info-link"
+      href="https://mavryk.finance/litepaper#yield-farming"
+      target="_blank"
+      rel="noreferrer"
+    >
       <Icon id="question" />
     </a>
-  )
+  );
 
-  if (variant === 'vertical') {
+  if (variant === "vertical") {
     return (
-      <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion} ${variant}`}>
+      <FarmCardStyled
+        key={lpTokenAddress}
+        className={`contractCard accordion} ${variant}`}
+      >
         {questionLinkBlock}
         {logoHeaderContent}
         <div className="farm-info-vertical">
@@ -222,13 +269,18 @@ export const FarmCard = ({
             {linksBlock}
           </>
         </Expand>
-        {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
+        {visibleModal ? (
+          <RoiCalculator
+            lpTokenAddress={lpTokenAddress}
+            onClose={closeCalculatorModal}
+          />
+        ) : null}
       </FarmCardStyled>
-    )
+    );
   }
 
   return (
-    <FarmCardStyled key={lpTokenAddress} className={`contractCard  ${variant}`}>
+    <FarmCardStyled className={`contractCard  ${variant}`}>
       {questionLinkBlock}
       <Expand
         header={
@@ -247,7 +299,12 @@ export const FarmCard = ({
           {linksBlock}
         </div>
       </Expand>
-      {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
+      {visibleModal ? (
+        <RoiCalculator
+          lpTokenAddress={lpTokenAddress}
+          onClose={closeCalculatorModal}
+        />
+      ) : null}
     </FarmCardStyled>
-  )
-}
+  );
+};

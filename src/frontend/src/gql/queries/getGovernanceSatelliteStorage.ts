@@ -53,13 +53,13 @@ export const GOVERNANCE_SATELLITE_STORAGE_QUERY = `
             timestamp
             vote
             voter_id
-            voting_power
           }
         }
       }
     }
   }
-`
+`;
 
-export const GOVERNANCE_SATELLITE_STORAGE_QUERY_NAME = 'GetGovernanceSatelliteStorageQuery'
-export const GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE = {}
+export const GOVERNANCE_SATELLITE_STORAGE_QUERY_NAME =
+  "GetGovernanceSatelliteStorageQuery";
+export const GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE = {};
