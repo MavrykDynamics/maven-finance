@@ -24,7 +24,16 @@
   become_user: postgres
   lineinfile: dest="{{ pg_main_conf.stdout }}"
     regexp="^listen_addresses"
-    line="listen_addresses = '*'" state=present
+    line="listen_addresses = '*'"
+    state=present
+
+- name: Postgresql should accept 30 connections
+  become: true
+  become_user: postgres
+  lineinfile: dest="{{ pg_main_conf.stdout }}"
+    regexp="^max_connections"
+    line="max_connections = 30"
+    state=present
 
 - name: Postgresql should allow access to host
   become: true
