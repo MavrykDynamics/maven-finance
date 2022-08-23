@@ -1,3 +1,6 @@
+// types
+import type { EmergencyGovernanceStorage } from "../utils/TypesAndInterfaces/EmergencyGovernance";
+
 import { fetchFromIndexer, getInitialData } from "../gql/fetchGraphQL";
 import storageToTypeConverter from "../utils/storageToTypeConverter";
 
@@ -41,6 +44,7 @@ import {
 } from "../pages/Doorman/Doorman.converter";
 import { normalizeFarmStorage } from "../pages/Farms/Frams.helpers";
 import { normalizeDelegationStorage } from "../pages/Satellites/Satellites.helpers";
+import { normalizeEmergencyGovernance } from "../pages/EmergencyGovernance/EmergencyGovernance.helpers";
 
 export const RECAPTCHA_REQUEST = "RECAPTCHA_REQUEST";
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -60,10 +64,8 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const doormanStorage = normalizeDoormanStorage(res[2]?.doorman[0]);
   const delegationStorage = normalizeDelegationStorage(res[3]?.delegation[0]);
   const farmStorage = normalizeFarmStorage(res[4]?.farm);
-  const emergencyGovernanceStorage = storageToTypeConverter(
-    "emergencyGovernance",
-    res[5]?.emergency_governance[0]
-  );
+  const emergencyGovernanceStorage: EmergencyGovernanceStorage =
+    normalizeEmergencyGovernance(res[5]?.emergency_governance[0]);
   const breakGlassStorage = storageToTypeConverter(
     "breakGlass",
     res[6]?.break_glass[0]
@@ -79,7 +81,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   // if (addressesStorage) updateContractAddresses(addressesStorage)
 
   const currentEmergencyGovernanceId =
-    emergencyGovernanceStorage.currentEmergencyGovernanceId;
+    emergencyGovernanceStorage.currentEmergencyGovernanceRecordId;
   dispatch({
     type: SET_EMERGENCY_GOVERNANCE_ACTIVE,
     emergencyGovActive: currentEmergencyGovernanceId !== 0,

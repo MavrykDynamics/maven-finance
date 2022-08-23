@@ -39,9 +39,6 @@ export default function storageToTypeConverter(
 ): any {
   let res = {};
   switch (contract) {
-    case "emergencyGovernance":
-      res = convertToEmergencyGovernanceStorageType(storage);
-      break;
     case "breakGlass":
       res = convertToBreakGlassStorageType(storage);
       break;
@@ -93,77 +90,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
         )
       : 0,
   };
-}
-
-function convertToEmergencyGovernanceStorageType(
-  storage: any
-): EmergencyGovernanceStorage {
-  const eGovRecords: EmergencyGovernanceProposalRecord[] = [];
-  storage?.emergency_governance_records.forEach((record: any) => {
-    const voters: EmergencyGovProposalVoter[] = [];
-
-    record.voters?.forEach(
-      (voter: {
-        emergency_governance_record_id: any;
-        id: any;
-        smvk_amount: any;
-        timestamp: string | number | Date;
-        voter_id: any;
-      }) => {
-        const newVoter: EmergencyGovProposalVoter = {
-          emergencyGovernanceRecordId: voter.emergency_governance_record_id,
-          id: voter.id,
-          sMvkAmount: voter.smvk_amount,
-          timestamp: new Date(voter.timestamp),
-          voterId: voter.voter_id,
-        };
-        voters.push(newVoter);
-      }
-    );
-    const newEGovRecord: EmergencyGovernanceProposalRecord = {
-      id: record.id,
-      title: record.title,
-      description: record.description,
-      executedLevel: record.executed_level,
-      startLevel: record.start_level,
-      dropped: record.dropped,
-      executed: record.executed,
-      proposerId: record.proposer_id,
-      emergencyGovernanceId: record.emergency_governance_id,
-      startTimestamp: new Date(record.start_timestamp),
-      executedTimestamp: new Date(record.executed_timestamp),
-      expirationTimestamp: new Date(record.expiration_timestamp),
-      sMvkPercentageRequired: record.smvk_percentage_required / 100,
-      sMvkRequiredForTrigger: calcWithoutPrecision(
-        record.smvk_required_for_trigger
-      ),
-      totalsMvkVotes: calcWithoutPrecision(record.total_smvk_votes),
-      voters,
-    };
-    eGovRecords.push(newEGovRecord);
-  });
-  const eGovStorage: EmergencyGovernanceStorage = {
-    emergencyGovernanceLedger: eGovRecords,
-    address: storage?.address,
-    config: {
-      minStakedMvkRequiredToTrigger: calcWithoutPrecision(
-        storage?.min_smvk_required_to_trigger
-      ),
-      minStakedMvkRequiredToVote: calcWithoutPrecision(
-        storage?.min_smvk_required_to_vote
-      ),
-      requiredFeeMutez: calcWithoutMu(storage?.required_fee_mutez),
-      voteExpiryDays: storage?.vote_expiry_days,
-      sMvkPercentageRequired: storage?.smvk_percentage_required / 100,
-      proposalTitleMaxLength: 400,
-      proposalDescMaxLength: 400,
-      decimals: storage?.decmials,
-    },
-    currentEmergencyGovernanceRecordId: storage?.current_emergency_record_id,
-    nextEmergencyGovernanceRecordId: storage?.next_emergency_record_id,
-  };
-
-  return eGovStorage;
 }
 
 function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
