@@ -1,16 +1,9 @@
-import { MichelsonMap } from "@taquito/taquito";
-import {
-  Feed,
-  InitialOracleStorageType,
-} from "pages/Satellites/helpers/Satellites.types";
+import { MichelsonMap } from '@taquito/taquito'
+import { Feed, InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
 
-import { calcWithoutMu, calcWithoutPrecision } from "./calcFunctions";
+import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'
 
-import {
-  CouncilActionRecord,
-  CouncilActionSigner,
-  CouncilStorage,
-} from "./TypesAndInterfaces/Council";
+import { CouncilActionRecord, CouncilActionSigner, CouncilStorage } from './TypesAndInterfaces/Council'
 
 import {
   FinancialRequestRecord,
@@ -20,97 +13,82 @@ import {
   ProposalRecordType,
   ProposalVote,
   SnapshotRecordType,
-} from "./TypesAndInterfaces/Governance";
-import { TreasuryType } from "./TypesAndInterfaces/Treasury";
-import { VestingStorage } from "./TypesAndInterfaces/Vesting";
+} from './TypesAndInterfaces/Governance'
+import { TreasuryType } from './TypesAndInterfaces/Treasury'
+import { VestingStorage } from './TypesAndInterfaces/Vesting'
 
-export default function storageToTypeConverter(
-  contract: string,
-  storage: any
-): any {
-  let res = {};
+export default function storageToTypeConverter(contract: string, storage: any): any {
+  let res = {}
   switch (contract) {
-    case "breakGlassStatus":
-      res = convertBreakGlassStatusStorageType(storage);
-      break;
-    case "council":
-      res = convertToCouncilStorageType(storage);
-      break;
-    case "vesting":
-      res = convertToVestingStorageType(storage);
-      break;
-    case "governance":
-      res = convertToGovernanceStorageType(storage);
-      break;
-    case "treasury":
-      res = convertToTreasuryAddressType(storage);
-      break;
-    case "oracle":
-      res = convertToOracleStorageType(storage);
-      break;
+    case 'council':
+      res = convertToCouncilStorageType(storage)
+      break
+    case 'vesting':
+      res = convertToVestingStorageType(storage)
+      break
+    case 'governance':
+      res = convertToGovernanceStorageType(storage)
+      break
+    case 'treasury':
+      res = convertToTreasuryAddressType(storage)
+      break
+    case 'oracle':
+      res = convertToOracleStorageType(storage)
+      break
   }
 
-  return res;
+  return res
 }
 
 function convertToTreasuryAddressType(storage: any): {
-  treasuryAddresses: Array<TreasuryType>;
-  treasuryFactoryAddress: string;
+  treasuryAddresses: Array<TreasuryType>
+  treasuryFactoryAddress: string
 } {
   return {
     treasuryAddresses: storage?.treasury,
     treasuryFactoryAddress: storage?.treasury_factory[0].address,
-  };
+  }
 }
 
 function convertToOracleStorageType(storage: any): InitialOracleStorageType {
   return {
     feeds: storage?.aggregator.map((feed: Feed) => ({
       ...feed,
-      category: "Cryptocurrency (USD pairs)",
-      network: "Tezos",
+      category: 'Cryptocurrency (USD pairs)',
+      network: 'Tezos',
     })),
     feedsFactory: storage?.aggregator_factory,
     totalOracleNetworks: storage?.aggregator
-      ? storage.aggregator.reduce(
-          (acc: number, cur: any) => acc + cur.oracle_records.length,
-          0
-        )
+      ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0)
       : 0,
-  };
+  }
 }
 
 function convertToCouncilStorageType(storage: any): CouncilStorage {
   const councilActionsLedger: CouncilActionRecord[] = [],
-    councilMembers: { address: string }[] = [];
+    councilMembers: { address: string }[] = []
   storage?.council_action_records.forEach(
     (actionRecord: {
-      action_type: any;
-      council_id: any;
-      executed: any;
-      executed_datetime: string | number | Date;
-      expiration_datetime: string | number | Date;
-      id: any;
-      initiator_id: any;
-      start_datetime: string | number | Date;
-      status: any;
-      signers: any;
+      action_type: any
+      council_id: any
+      executed: any
+      executed_datetime: string | number | Date
+      expiration_datetime: string | number | Date
+      id: any
+      initiator_id: any
+      start_datetime: string | number | Date
+      status: any
+      signers: any
     }) => {
-      const signers: CouncilActionSigner[] = [];
-      actionRecord.signers?.forEach(
-        (signer: {
-          council_action_record_id: any;
-          id: any;
-          signer_id: any;
-        }) => {
-          const newSigner: CouncilActionSigner = {
-            breakGlassActionRecordId: signer.council_action_record_id,
-            id: signer.id,
-            signerId: signer.signer_id,
-          };
-          signers.push(newSigner);
+      const signers: CouncilActionSigner[] = []
+      actionRecord.signers?.forEach((signer: { council_action_record_id: any; id: any; signer_id: any }) => {
+        const newSigner: CouncilActionSigner = {
+          breakGlassActionRecordId: signer.council_action_record_id,
+          id: signer.id,
+          signerId: signer.signer_id,
         }
-      );
+        signers.push(newSigner)
+      })
 
       const newActionRecord: CouncilActionRecord = {
         actionType: actionRecord.action_type,
@@ -123,11 +101,11 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
         startDatetime: new Date(actionRecord.start_datetime),
         status: actionRecord.status,
         signers,
-      };
+      }
 
-      councilActionsLedger.push(newActionRecord);
-    }
-  );
+      councilActionsLedger.push(newActionRecord)
+    },
+  )
   return {
     address: storage?.address,
     config: {
@@ -136,10 +114,8 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
     },
     actionCounter: storage?.action_counter,
     councilActionsLedger,
-    councilMembers: storage?.council_council_members?.length
-      ? storage.council_council_members
-      : [],
-  };
+    councilMembers: storage?.council_council_members?.length ? storage.council_council_members : [],
+  }
 }
 
 function convertToVestingStorageType(storage: any): VestingStorage {
@@ -152,38 +128,28 @@ function convertToVestingStorageType(storage: any): VestingStorage {
     sumAmountClaimed: storage?.amount_claimed,
     sumRemainingVested: storage?.remainder_vested,
     totalVestedAmount: storage?.total_vested_amount,
-  };
+  }
 }
 
 function convertGovernanceRound(round: number): GovernanceRoundType {
-  return round === 0
-    ? "PROPOSAL"
-    : round === 1
-    ? "VOTING"
-    : round === 2
-    ? "TIME_LOCK"
-    : "";
+  return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : round === 2 ? 'TIME_LOCK' : ''
 }
 
 function convertToGovernanceStorageType(storage: {
-  governance: any;
-  governance_financial_request_record: any;
-  governance_proposal_record: any;
-  governance_satellite_snapshot_record: any;
+  governance: any
+  governance_financial_request_record: any
+  governance_proposal_record: any
+  governance_satellite_snapshot_record: any
 }): GovernanceStorage {
-  const financialRequestRecords =
-    convertGovernanceFinancialRequestRecordToInterface(
-      storage?.governance_financial_request_record
-    );
-  const proposalLedger = convertGovernanceProposalRecordToInterface(
-    storage?.governance_proposal_record
-  );
-  const satelliteSnapshotLedger =
-    convertGovernanceSatelliteSnapshotRecordsToInterface(
-      storage?.governance_satellite_snapshot_record
-    );
+  const financialRequestRecords = convertGovernanceFinancialRequestRecordToInterface(
+    storage?.governance_financial_request_record,
+  )
+  const proposalLedger = convertGovernanceProposalRecordToInterface(storage?.governance_proposal_record)
+  const satelliteSnapshotLedger = convertGovernanceSatelliteSnapshotRecordsToInterface(
+    storage?.governance_satellite_snapshot_record,
+  )
 
-  const currentGovernance = storage?.governance?.[0] || {};
+  const currentGovernance = storage?.governance?.[0] || {}
 
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
@@ -221,134 +187,125 @@ function convertToGovernanceStorageType(storage: {
     tempFlag: currentGovernance.start_level,
     timelockProposalId: currentGovernance.timelock_proposal_id,
     cycleCounter: currentGovernance.cycle_counter ?? 0,
-    cycleHighestVotedProposalId:
-      currentGovernance.cycle_highest_voted_proposal_id,
+    cycleHighestVotedProposalId: currentGovernance.cycle_highest_voted_proposal_id,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
     // financialRequestCounter: storage?.,
     // snapshotMvkTotalSupply:storage?.,
     // financialRequestSnapshotLedger: storage?.,
-  };
+  }
 }
 
 function convertGovernanceFinancialRequestRecordToInterface(
   governance_financial_request_vote: {
-    approve_vote_total: any;
-    executed: any;
-    disapprove_vote_total: any;
-    expiration_datetime: any;
-    governance_id: any;
-    id: any;
-    ready: any;
-    request_purpose: any;
-    request_type: any;
-    requested_datetime: any;
-    smvk_percentage_for_approval: any;
-    requester_id: any;
-    smvk_required_for_approval: any;
-    snapshot_smvk_total_supply: any;
-    status: any;
-    token_amount: any;
-    token_id: any;
-    token_name: any;
-    treasury_id: any;
-    votes: any;
-  }[]
+    approve_vote_total: any
+    executed: any
+    disapprove_vote_total: any
+    expiration_datetime: any
+    governance_id: any
+    id: any
+    ready: any
+    request_purpose: any
+    request_type: any
+    requested_datetime: any
+    smvk_percentage_for_approval: any
+    requester_id: any
+    smvk_required_for_approval: any
+    snapshot_smvk_total_supply: any
+    status: any
+    token_amount: any
+    token_id: any
+    token_name: any
+    treasury_id: any
+    votes: any
+  }[],
 ): FinancialRequestRecord[] {
-  const financialRequestRecords: FinancialRequestRecord[] = [];
+  const financialRequestRecords: FinancialRequestRecord[] = []
   if (Array.isArray(governance_financial_request_vote)) {
     governance_financial_request_vote.forEach((record) => {
-      const newRequestRecord = record as unknown as FinancialRequestRecord;
-      newRequestRecord.votes = convertGovernanceFinancialRequestVoteToInterface(
-        record.votes
-      );
-      financialRequestRecords.push(newRequestRecord);
-    });
+      const newRequestRecord = record as unknown as FinancialRequestRecord
+      newRequestRecord.votes = convertGovernanceFinancialRequestVoteToInterface(record.votes)
+      financialRequestRecords.push(newRequestRecord)
+    })
   }
-  return financialRequestRecords;
+  return financialRequestRecords
 }
 
 function convertGovernanceFinancialRequestVoteToInterface(
-  governance_financial_request_records: any[]
+  governance_financial_request_records: any[],
 ): FinancialRequestVote[] {
-  const financialRequestVotes: FinancialRequestVote[] = [];
+  const financialRequestVotes: FinancialRequestVote[] = []
   governance_financial_request_records.forEach((record) => {
-    const newRequestVote = record as FinancialRequestVote;
-    financialRequestVotes.push(newRequestVote);
-  });
-  return financialRequestVotes;
+    const newRequestVote = record as FinancialRequestVote
+    financialRequestVotes.push(newRequestVote)
+  })
+  return financialRequestVotes
 }
 
 function convertGovernanceProposalRecordToInterface(
   governance_proposal_record: {
-    pass_vote_smvk_total: any;
-    current_cycle_end_level: any;
-    current_cycle_start_level: any;
-    current_round_proposal: any;
-    cycle: any;
-    description: any;
-    nay_vote_smvk_total: any;
-    id: any;
-    executed: any;
-    invoice: any;
-    locked: any;
-    min_proposal_round_vote_pct: any;
-    proposal_vote_smvk_total: any;
-    min_quorum_percentage: any;
-    min_yay_vote_percentage: any;
-    min_proposal_round_vote_req: any;
-    proposer_id: any;
-    quorum_smvk_total: any;
-    source_code: any;
-    round_highest_voted_proposal: any;
-    start_datetime: any;
-    status: any;
-    success_reward: any;
-    timelock_proposal: any;
-    title: any;
-    yay_vote_smvk_total: any;
+    pass_vote_smvk_total: any
+    current_cycle_end_level: any
+    current_cycle_start_level: any
+    current_round_proposal: any
+    cycle: any
+    description: any
+    nay_vote_smvk_total: any
+    id: any
+    executed: any
+    invoice: any
+    locked: any
+    min_proposal_round_vote_pct: any
+    proposal_vote_smvk_total: any
+    min_quorum_percentage: any
+    min_yay_vote_percentage: any
+    min_proposal_round_vote_req: any
+    proposer_id: any
+    quorum_smvk_total: any
+    source_code: any
+    round_highest_voted_proposal: any
+    start_datetime: any
+    status: any
+    success_reward: any
+    timelock_proposal: any
+    title: any
+    yay_vote_smvk_total: any
     votes: {
-      current_round_vote: any;
-      governance_proposal_record_id: any;
-      id: any;
-      round: any;
-      timestamp: any;
-      vote: any;
-      voter_id: any;
-      voting_power: any;
-    }[];
-  }[]
+      current_round_vote: any
+      governance_proposal_record_id: any
+      id: any
+      round: any
+      timestamp: any
+      vote: any
+      voter_id: any
+      voting_power: any
+    }[]
+  }[],
 ): ProposalRecordType[] {
-  const governanceProposalRecords: ProposalRecordType[] = [];
+  const governanceProposalRecords: ProposalRecordType[] = []
   if (Array.isArray(governance_proposal_record)) {
     governance_proposal_record.forEach((record) => {
-      const newProposalRecord =
-        convertGovernanceProposalRecordItemToStorageType(record);
-      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(
-        record.votes
-      );
-      governanceProposalRecords.push(newProposalRecord);
-    });
+      const newProposalRecord = convertGovernanceProposalRecordItemToStorageType(record)
+      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)
+      governanceProposalRecords.push(newProposalRecord)
+    })
   }
-  return governanceProposalRecords;
+  return governanceProposalRecords
 }
 
 function convertGovernanceProposalVoteToInterface(
   votes: {
-    current_round_vote: any;
-    governance_proposal_record_id: any;
-    id: any;
-    round: any;
-    timestamp: any;
-    vote: any;
-    voter_id: any;
-    voting_power: any;
-  }[]
+    current_round_vote: any
+    governance_proposal_record_id: any
+    id: any
+    round: any
+    timestamp: any
+    vote: any
+    voter_id: any
+    voting_power: any
+  }[],
 ): Map<string, ProposalVote> {
-  const proposalVotes: Map<string, ProposalVote> = new Map<
-    string,
-    ProposalVote
-  >();
+  const proposalVotes: Map<string, ProposalVote> = new Map<string, ProposalVote>()
   votes.forEach((record) => {
     const newRequestVote: ProposalVote = {
       id: record.id,
@@ -359,37 +316,35 @@ function convertGovernanceProposalVoteToInterface(
       vote: record.vote,
       voterId: record.voter_id,
       votingPower: calcWithoutPrecision(record.voting_power),
-    };
-    proposalVotes.set(record.voter_id, newRequestVote);
-  });
-  return proposalVotes;
+    }
+    proposalVotes.set(record.voter_id, newRequestVote)
+  })
+  return proposalVotes
 }
 
 function convertGovernanceSatelliteSnapshotRecordsToInterface(
   governance_satellite_snapshot_record: {
-    id: any;
-    governance_id: any;
-    satellite_id: any;
-    current_cycle_end_level: any;
-    current_cycle_start_level: any;
-    total_delegated_amount: any;
-    total_mvk_balance: any;
-    total_voting_power: any;
-  }[]
+    id: any
+    governance_id: any
+    satellite_id: any
+    current_cycle_end_level: any
+    current_cycle_start_level: any
+    total_delegated_amount: any
+    total_mvk_balance: any
+    total_voting_power: any
+  }[],
 ): SnapshotRecordType[] {
-  const governanceProposalRecords: SnapshotRecordType[] = [];
+  const governanceProposalRecords: SnapshotRecordType[] = []
   if (Array.isArray(governance_satellite_snapshot_record)) {
     governance_satellite_snapshot_record.forEach((record) => {
-      const newProposalRecord = record as unknown as SnapshotRecordType;
-      governanceProposalRecords.push(newProposalRecord);
-    });
+      const newProposalRecord = record as unknown as SnapshotRecordType
+      governanceProposalRecords.push(newProposalRecord)
+    })
   }
-  return governanceProposalRecords;
+  return governanceProposalRecords
 }
 
-export function convertGovernanceProposalRecordItemToStorageType(
-  item: any
-): ProposalRecordType {
+export function convertGovernanceProposalRecordItemToStorageType(item: any): ProposalRecordType {
   const convertData = {
     id: item.id,
     proposerId: item.proposer_id,
@@ -424,169 +379,27 @@ export function convertGovernanceProposalRecordItemToStorageType(
     details: item.details,
     invoiceTable: item.invoice_table,
     paymentProcessed: item.payment_processed,
-  };
+  }
   // @ts-ignore
-  return convertData;
+  return convertData
 }
 
 export function convertCurrentRoundProposalsStorageType(storage: {
-  governance_proposal_record: ProposalRecordType[];
+  governance_proposal_record: ProposalRecordType[]
 }): Map<string, ProposalRecordType> | undefined {
-  const governanceProposalRecord = storage?.governance_proposal_record;
+  const governanceProposalRecord = storage?.governance_proposal_record
   const mapProposalRecordType = governanceProposalRecord?.length
     ? new Map(
-        governanceProposalRecord.map((item, i) => [
-          `${i}`,
-          convertGovernanceProposalRecordItemToStorageType(item),
-        ])
+        governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]),
       )
-    : undefined;
-  return mapProposalRecordType;
-}
-
-export function convertBreakGlassStatusStorageType(
-  storage: any
-): Record<string, unknown>[] {
-  const convert = [] as Record<string, unknown>[];
-
-  if (storage?.doorman?.length) {
-    storage.doorman.forEach((item: any) => {
-      convert.push({
-        title: "Doorman",
-        type: "General Contracts",
-        address: item.address,
-        methods: {
-          compound: item.compound_paused,
-          "distribute reward": item.distribute_reward_paused,
-          "farm claimed": item.farm_claimed_paused,
-          unstake: item.unstake_paused,
-        },
-      });
-    });
-  }
-
-  if (storage?.delegation?.length) {
-    storage.delegation.forEach((item: any) => {
-      convert.push({
-        title: "Delegation",
-        type: "General Contracts",
-        address: item.address,
-        methods: {
-          "delegate to satellite": item.delegate_to_satellite_paused,
-          "distribute reward": item.distribute_reward_paused,
-          "register as satellite": item.register_as_satellite_paused,
-          "undelegate from satellite": item.undelegate_from_satellite_paused,
-          "unregister as satellite": item.unregister_as_satellite_paused,
-          "update satellite record": item.update_satellite_record_paused,
-        },
-      });
-    });
-  }
-
-  if (storage?.farm_factory?.length) {
-    storage.farm_factory.forEach((item: any) => {
-      convert.push({
-        title: "Farm factory",
-        type: "Farms",
-        address: item.address,
-        methods: {
-          "create farm": item.create_farm_paused,
-          "track farm": item.track_farm_paused,
-          "untrack farm": item.untrack_farm_paused,
-        },
-      });
-    });
-  }
-
-  if (storage?.farm?.length) {
-    storage.farm.forEach((item: any) => {
-      console.log(item);
-      convert.push({
-        title: item.name,
-        type: "Farms",
-        address: item.address,
-        methods: {
-          claim: item.claim_paused,
-          deposit: item.deposit_paused,
-          withdraw: item.withdraw_paused,
-        },
-      });
-    });
-  }
-
-  if (storage?.treasury?.length) {
-    storage.treasury.forEach((item: any) => {
-      convert.push({
-        title: item.name,
-        type: "Treasury",
-        address: item.address,
-        methods: {
-          "mint mvk and transfer": item.mint_mvk_and_transfer_paused,
-          "stake mvk": item.stake_mvk_paused,
-          transfer: item.transfer_paused,
-          "unstake mvk": item.unstake_mvk_paused,
-        },
-      });
-    });
-  }
-
-  if (storage?.treasury_factory?.length) {
-    storage.treasury_factory.forEach((item: any) => {
-      convert.push({
-        title: "Treasury Factory",
-        type: "Treasury",
-        address: item.address,
-        methods: {
-          "create treasury paused": item.create_treasury_paused,
-          "track treasury paused": item.track_treasury_paused,
-          "untrack treasury paused": item.untrack_treasury_paused,
-        },
-      });
-    });
-  }
-
-  if (storage?.aggregator?.length) {
-    storage.aggregator.forEach((item: any) => {
-      convert.push({
-        title: `${item.name} Aggregator`,
-        type: "Oracles",
-        address: item.address,
-        methods: {
-          "request rate update deviation paused":
-            item.request_rate_update_deviation_paused,
-          "request rate update paused": item.request_rate_update_paused,
-          "set observation commit paused": item.set_observation_commit_paused,
-          "set observation reveal paused": item.set_observation_reveal_paused,
-          "withdraw reward smvk paused": item.withdraw_reward_smvk_paused,
-          "withdraw reward xtz paused": item.withdraw_reward_xtz_paused,
-        },
-      });
-    });
-  }
-  if (storage?.aggregator_factory?.length) {
-    storage.aggregator_factory.forEach((item: any) => {
-      convert.push({
-        title: "Aggregator Factory",
-        type: "Oracles",
-        address: item.address,
-        methods: {
-          "untrack aggregator paused": item.untrack_aggregator_paused,
-          "track aggregator paused": item.track_aggregator_paused,
-          "distribute reward xtz paused": item.distribute_reward_xtz_paused,
-          "distribute reward smvk paused": item.distribute_reward_smvk_paused,
-          "create aggregator paused": item.create_aggregator_paused,
-        },
-      });
-    });
-  }
-
-  return convert;
+    : undefined
+  return mapProposalRecordType
 }
 
 export function getEnumKeyByEnumValue<T extends { [index: string]: string }>(
   myEnum: T,
-  enumValue: string
+  enumValue: string,
 ): keyof T | null {
-  let keys = Object.keys(myEnum).filter((x) => myEnum[x] == enumValue);
-  return keys.length > 0 ? keys[0] : null;
+  let keys = Object.keys(myEnum).filter((x) => myEnum[x] == enumValue)
+  return keys.length > 0 ? keys[0] : null
 }
