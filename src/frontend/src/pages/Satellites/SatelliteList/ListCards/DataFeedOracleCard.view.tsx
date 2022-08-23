@@ -1,3 +1,4 @@
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
@@ -25,15 +26,25 @@ export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
         </div>
         <div className="item">
           <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-            Answer
+            sMVK Rewards
           </DataFeedSubTitleText>
-          <var>$ priceeee</var>
+          <var>
+            <CommaNumber
+              beginningText="$"
+              value={oracle.oracleRecords.reduce<number>((acc, { sMVKReward }) => (acc += sMVKReward), 0)}
+            />
+          </var>
         </div>
         <div className="item">
           <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-            Date
+            XTZ Rewards
           </DataFeedSubTitleText>
-          <var>{getDate_MDY_Format(oracle.unregisteredDateTime?.toString() || '')}</var>
+          <var>
+            <CommaNumber
+              beginningText="$"
+              value={oracle.oracleRecords.reduce<number>((acc, { XTZReward }) => (acc += XTZReward), 0)}
+            />
+          </var>
         </div>
         <div className="item center-v">
           <SatelliteOracleStatusComponent statusType={oracleStatusType}>

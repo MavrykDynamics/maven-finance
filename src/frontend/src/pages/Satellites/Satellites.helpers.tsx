@@ -64,9 +64,17 @@ export function normalizeSatelliteRecord(
       })
     : []
 
+  const oracleRecords = (satelliteRecord?.user?.aggregator_oracle_records || []).map(({ oracle, ...rest }) => {
+    return {
+      ...rest,
+      sMVKReward: oracle?.aggregator_oracle_rewards_smvk?.[0]?.smvk || 0,
+      XTZReward: oracle?.aggregator_oracle_rewards_xtz?.[0]?.xtz || 0,
+    }
+  })
+
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord?.user_id || '',
-    oracleRecords: satelliteRecord?.user?.aggregator_oracle_records || [],
+    oracleRecords,
     description: satelliteRecord?.description || '',
     website: satelliteRecord?.website || '',
     participation: 0,

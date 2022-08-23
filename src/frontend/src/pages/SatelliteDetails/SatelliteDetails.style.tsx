@@ -84,7 +84,7 @@ export const SatelliteVotingInfoWrapper = styled.div`
 
   .voting-info-list-wrapper {
     max-height: 84px;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding-right: 10px;
     margin-top: 10px;
   }

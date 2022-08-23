@@ -40,6 +40,14 @@ export const DELEGATION_STORAGE_QUERY = `
             aggregator_id
             id
             oracle_id
+            oracle {
+              aggregator_oracle_rewards_xtz {
+                xtz
+              }
+              aggregator_oracle_rewards_smvk {
+                smvk
+              }
+            }
           }
           emergency_governance_votes {
             emergency_governance_record_id
@@ -89,7 +97,7 @@ export const DELEGATION_STORAGE_QUERY = `
       }
     }
   }
-`;
+`
 
-export const DELEGATION_STORAGE_QUERY_NAME = "DelegationStorageQuery";
-export const DELEGATION_STORAGE_QUERY_VARIABLE = {};
+export const DELEGATION_STORAGE_QUERY_NAME = 'DelegationStorageQuery'
+export const DELEGATION_STORAGE_QUERY_VARIABLE = {}
