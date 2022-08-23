@@ -167,12 +167,12 @@ describe("Lending Controller tests", async () => {
                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
                 const lpTokenId                             = 0;
 
-                const reserveRatio                          = 5000;
-                const optimalUtilisationRate                = 300;
-                const baseInterestRate                      = 5;
-                const maxInterestRate                       = 50;
-                const interestRateBelowOptimalUtilisation   = 100;
-                const interestRateAboveOptimalUtilisation   = 300;
+                const reserveRatio                          = 3000; // 30% reserves
+                const optimalUtilisationRate                = 3000; // 30% utilisation rate kink
+                const baseInterestRate                      = 500;  // 5%
+                const maxInterestRate                       = 2500; // 25% 
+                const interestRateBelowOptimalUtilisation   = 1000; // 10% 
+                const interestRateAboveOptimalUtilisation   = 2000; // 20%
 
                 // check if loan token exists
                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
@@ -255,12 +255,12 @@ describe("Lending Controller tests", async () => {
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
                 const lpTokenId                             = 0;
 
-                const reserveRatio                          = 5000;
-                const optimalUtilisationRate                = 300;
-                const baseInterestRate                      = 5;
-                const maxInterestRate                       = 50;
-                const interestRateBelowOptimalUtilisation   = 100;
-                const interestRateAboveOptimalUtilisation   = 300;
+                const reserveRatio                          = 3000; // 30% reserves
+                const optimalUtilisationRate                = 3000; // 30% utilisation rate kink
+                const baseInterestRate                      = 500;  // 5%
+                const maxInterestRate                       = 2500; // 25% 
+                const interestRateBelowOptimalUtilisation   = 1000; // 10% 
+                const interestRateAboveOptimalUtilisation   = 2000; // 20%
 
                 // const contractParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
                 // console.log(JSON.stringify(contractParameterSchema,null,2));
@@ -348,12 +348,12 @@ describe("Lending Controller tests", async () => {
                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
                 const lpTokenId                             = 0;
 
-                const reserveRatio                          = 5000;
-                const optimalUtilisationRate                = 300;
-                const baseInterestRate                      = 5;
-                const maxInterestRate                       = 50;
-                const interestRateBelowOptimalUtilisation   = 100;
-                const interestRateAboveOptimalUtilisation   = 300;
+                const reserveRatio                          = 3000; // 30% reserves
+                const optimalUtilisationRate                = 3000; // 30% utilisation rate kink
+                const baseInterestRate                      = 500;  // 5%
+                const maxInterestRate                       = 2500; // 25% 
+                const interestRateBelowOptimalUtilisation   = 1000; // 10% 
+                const interestRateAboveOptimalUtilisation   = 2000; // 20%
 
                 // check if loan token exists
                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
@@ -436,12 +436,12 @@ describe("Lending Controller tests", async () => {
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
                 const lpTokenId                             = 0;
 
-                const reserveRatio                          = 5000;
-                const optimalUtilisationRate                = 300;
-                const baseInterestRate                      = 5;
-                const maxInterestRate                       = 50;
-                const interestRateBelowOptimalUtilisation   = 100;
-                const interestRateAboveOptimalUtilisation   = 300;
+                const reserveRatio                          = 3000; // 30% reserves
+                const optimalUtilisationRate                = 3000; // 30% utilisation rate kink
+                const baseInterestRate                      = 500;  // 5%
+                const maxInterestRate                       = 2500; // 25% 
+                const interestRateBelowOptimalUtilisation   = 1000; // 10% 
+                const interestRateAboveOptimalUtilisation   = 2000; // 20%
 
                 await chai.expect(lendingControllerInstance.methods.setLoanToken(
                         
@@ -2533,6 +2533,24 @@ describe("Lending Controller tests", async () => {
             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
 
+            // check interests changes
+            const loanTokenName = "mockFa12";
+            const testLoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            console.log(testLoanTokenView);
+
+            const borrowIndex = await updatedLendingControllerStorage.tempMap.get("updateTokenState - borrowIndex");
+            const compoundedInterest = await updatedLendingControllerStorage.tempMap.get("updateTokenState - compoundedInterest");
+            const currentInterestRate = await updatedLendingControllerStorage.tempMap.get("updateInterestRate - currentInterestRate");
+
+            console.log(updatedLendingControllerStorage.tempMap);
+            console.log('borrowIndex: ' + borrowIndex);
+            console.log('compoundedInterest: ' + compoundedInterest);
+            console.log('currentInterestRate: ' + currentInterestRate);
+
+            console.log('updatedvaultRecord');
+            console.log(updatedvaultRecord);
+            console.log("updatedLoanOutstandingTotal: " + updatedLoanOutstandingTotal);
+
             // check vault loan records
             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal + borrowAmount);
             assert.equal(updatedLoanPrincipalTotal, initialLoanPrincipalTotal + borrowAmount);
@@ -2711,14 +2729,16 @@ describe("Lending Controller tests", async () => {
             const eveVaultId         = eveVaultSet[0];
             const eveVaultOwner      = eve.pkh;
             const loanTokenName      = "mockFa12";
-            const reserveRatio       = 30; // 30%
+
+            const decimals           = 4;
+            const reserveRatio       = 3000; // 30%
 
             const loanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
             const tokenPoolTotal      = loanTokenRecordView.tokenPoolTotal;
             const totalBorrowed       = loanTokenRecordView.totalBorrowed;
             const totalRemaining      = loanTokenRecordView.totalRemaining;
 
-            const requiredReserves    = (tokenPoolTotal * reserveRatio) / 100;
+            const requiredReserves    = (tokenPoolTotal * reserveRatio) / (10 ** decimals);
             const borrowTooMuchAmount = (totalBorrowed - requiredReserves) + 1;
 
             const borrowAmount        = borrowTooMuchAmount; // 2 Mock FA12 Tokens
@@ -2811,7 +2831,7 @@ describe("Lending Controller tests", async () => {
             await signerFactory(eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
-            const borrowAmount       = 3000000; // 1 Mock FA12 Tokens
+            const borrowAmount       = 3000000; // 3 Mock FA12 Tokens
 
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
             const minimumLoanFeePercent  = lendingControllerStorage.config.minimumLoanFeePercent; // e.g. 1%
@@ -2889,84 +2909,93 @@ describe("Lending Controller tests", async () => {
 
 
 
-    // 
-    // Test: repay
-    //
-    describe('%repay', function () {
+    // // 
+    // // Test: repay
+    // //
+    // describe('%repay', function () {
 
-        it('user (eve) can repay 1 Mock FA12 Token', async () => {
+    //     it('user (eve) can repay 1 Mock FA12 Token', async () => {
 
-            await signerFactory(eve.sk);
-            const vaultId            = eveVaultSet[0];
-            const vaultOwner         = eve.pkh;
-            const repayAmount        = 1000000; // 1 Mock FA12 Tokens
-            const loanTokenName      = 'mockFa12';
+    //         await signerFactory(eve.sk);
+    //         const vaultId            = eveVaultSet[0];
+    //         const vaultOwner         = eve.pkh;
+    //         const repayAmount        = 1000000; // 1 Mock FA12 Tokens
+    //         const loanTokenName      = 'mockFa12';
  
-            // get mock fa12 token storage 
-            const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
+    //         // get mock fa12 token storage 
+    //         const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
             
-            // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
-            const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : parseInt(eveMockFa12Ledger.balance);
+    //         // get initial eve's Mock FA12 Token balance
+    //         const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+    //         const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : parseInt(eveMockFa12Ledger.balance);
 
-            // setup vault handle and vault record
-            const vaultHandle = {
-                "id"    : vaultId,
-                "owner" : vaultOwner
-            };
-            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+    //         // setup vault handle and vault record
+    //         const vaultHandle = {
+    //             "id"    : vaultId,
+    //             "owner" : vaultOwner
+    //         };
+    //         const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            // get initial loan variables
-            const initialLoanOutstandingTotal   = parseInt(vaultRecord.loanOutstandingTotal);
-            const initialLoanPrincipalTotal     = parseInt(vaultRecord.loanPrincipalTotal);
-            const initialLoanInterestTotal      = parseInt(vaultRecord.loanInterestTotal);
+    //         // get initial loan variables
+    //         const initialLoanOutstandingTotal   = parseInt(vaultRecord.loanOutstandingTotal);
+    //         const initialLoanPrincipalTotal     = parseInt(vaultRecord.loanPrincipalTotal);
+    //         const initialLoanInterestTotal      = parseInt(vaultRecord.loanInterestTotal);
 
-            console.log('eveInitialMockFa12TokenBalance: ' + eveInitialMockFa12TokenBalance);
-            console.log('initialLoanOutstandingTotal: '    + initialLoanOutstandingTotal);
-            console.log('initialLoanPrincipalTotal: '      + initialLoanPrincipalTotal);
-            console.log('initialLoanInterestTotal: '       + initialLoanInterestTotal);
+    //         console.log('eveInitialMockFa12TokenBalance: ' + eveInitialMockFa12TokenBalance);
+    //         console.log('initialLoanOutstandingTotal: '    + initialLoanOutstandingTotal);
+    //         console.log('initialLoanPrincipalTotal: '      + initialLoanPrincipalTotal);
+    //         console.log('initialLoanInterestTotal: '       + initialLoanInterestTotal);
 
-            // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
-            // reset token allowance
-            const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                lendingControllerAddress.address,
-                0
-            ).send();
-            await resetTokenAllowance.confirmation();
+    //         // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
+    //         // reset token allowance
+    //         const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+    //             lendingControllerAddress.address,
+    //             0
+    //         ).send();
+    //         await resetTokenAllowance.confirmation();
 
-            // set new token allowance
-            const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-                lendingControllerAddress.address,
-                repayAmount
-            ).send();
-            await setNewTokenAllowance.confirmation();
+    //         // set new token allowance
+    //         const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+    //             lendingControllerAddress.address,
+    //             repayAmount
+    //         ).send();
+    //         await setNewTokenAllowance.confirmation();
 
-            // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
-            await eveRepayOperation.confirmation();
+    //         // repay operation
+    //         const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+    //         await eveRepayOperation.confirmation();
 
-            // get updated storage
-            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-            const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
-            const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
-            const updatedEveMockFa12Balance       = parseInt(updatedEveMockFa12Ledger.balance);
+    //         // get updated storage
+    //         const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+    //         const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+    //         const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
+    //         const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
+    //         const updatedEveMockFa12Balance       = parseInt(updatedEveMockFa12Ledger.balance);
 
-            const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-            const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+    //         const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
+    //         const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
+    //         const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
 
-            console.log('updatedEveMockFa12Balance: '   + updatedEveMockFa12Balance);
-            console.log('updatedLoanOutstandingTotal: ' + updatedLoanOutstandingTotal);
-            console.log('updatedLoanPrincipalTotal: '   + updatedLoanPrincipalTotal);
-            console.log('updatedLoanInterestTotal: '    + updatedLoanInterestTotal);
+    //         console.log('updatedEveMockFa12Balance: '   + updatedEveMockFa12Balance);
+    //         console.log('updatedLoanOutstandingTotal: ' + updatedLoanOutstandingTotal);
+    //         console.log('updatedLoanPrincipalTotal: '   + updatedLoanPrincipalTotal);
+    //         console.log('updatedLoanInterestTotal: '    + updatedLoanInterestTotal);
 
-            const testLoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
-            console.log(testLoanTokenView);
+    //         const testLoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         console.log(testLoanTokenView);
 
-        })
+    //         const borrowIndex = await updatedLendingControllerStorage.tempMap.get("updateTokenState - borrowIndex");
+    //         const compoundedInterest = await updatedLendingControllerStorage.tempMap.get("updateTokenState - compoundedInterest");
+    //         const currentInterestRate = await updatedLendingControllerStorage.tempMap.get("updateInterestRate - currentInterestRate");
 
-    })
+    //         console.log(updatedLendingControllerStorage.tempMap);
+    //         console.log('borrowIndex: ' + borrowIndex);
+    //         console.log('compoundedInterest: ' + compoundedInterest);
+    //         console.log('currentInterestRate: ' + currentInterestRate);
+
+    //     })
+
+    // })
 
 
 });

@@ -54,12 +54,6 @@ import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
 import { LPToken } from "../helpers/testLPHelper"
 import { TokenPoolLpToken } from "../helpers/tokenPoolLpTokenHelper"
 
-// import { UsdmToken } from "../helpers/usdmTokenHelper"
-// import { UsdmTokenController } from "../helpers/usdmTokenControllerHelper"
-// import { LpTokenUsdmXtz } from "../helpers/lpTokenUsdmXtzHelper"
-// import { Cfmm } from "../helpers/cfmmHelper"
-// import { CfmmTezFa2Token } from "../helpers/cfmmTezFa2TokenHelper"
-// import { CfmmTezFa12Token } from "../helpers/cfmmTezFa12TokenHelper"
 import { Vault } from "../helpers/vaultHelper"
 
 import { LendingController, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerHelper"
@@ -98,12 +92,6 @@ import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
 import { lpStorage } from "../../storage/testLPTokenStorage"
 import { tokenPoolLpTokenStorage } from "../../storage/tokenPoolLpTokenStorage"
 
-// import { usdmTokenStorage } from "../../storage/usdmTokenStorage"
-// import { usdmTokenControllerStorage } from "../../storage/usdmTokenControllerStorage"
-// import { lpTokenUsdmXtzStorage } from "../../storage/lpTokenUsdmXtzStorage"
-// import { cfmmStorage } from "../../storage/cfmmStorage"
-// import { cfmmTezFa2TokenStorage } from "../../storage/cfmmTezFa2TokenStorage"
-// import { cfmmTezFa12TokenStorage } from "../../storage/cfmmTezFa12TokenStorage"
 import { vaultStorage } from "../../storage/vaultStorage"
 
 
@@ -147,18 +135,6 @@ describe('Contracts Deployment for Tests', async () => {
   var lpTokenPoolMockFa12Token : TokenPoolLpToken;
   var lpTokenPoolMockFa2Token : TokenPoolLpToken;
   var lpTokenPoolXtz : TokenPoolLpToken;
-
-  // var usdmToken : UsdmToken
-  // var usdmTokenController : UsdmTokenController
-  
-  // var lpTokenUsdmXtz : LpTokenUsdmXtz
-  // var lpTokenMockFa2Xtz : LpTokenUsdmXtz
-  // var lpTokenMockFa12Xtz : MockFa12Token
-
-  // var cfmm : Cfmm
-  // var cfmmTezUsdm : CfmmTezFa2Token
-  // var cfmmTezMockFa2Token : CfmmTezFa2Token
-  // var cfmmTezMockFa12Token : CfmmTezFa12Token
 
   var lendingController : LendingController
   var tokenPoolReward : TokenPoolReward
@@ -521,134 +497,7 @@ describe('Contracts Deployment for Tests', async () => {
   
 
 
-      // usdmToken = await UsdmToken.originate(
-      //   utils.tezos,
-      //   usdmTokenStorage
-      // );
-  
-      // console.log("USDM Token originated")
-  
-  
-  
-      // usdmTokenControllerStorage.collateralTokenLedger = MichelsonMap.fromLiteral({
-      //   "mockFA12"  : {
-      //     "tokenContractAddress" : mockFa12Token.contract.address, 
-      //     "tokenType": {
-      //       "fa12" : mockFa12Token.contract.address
-      //     }
-      //   },
-      //   "mockFA2"   : {
-      //     "tokenContractAddress" : mockFa2Token.contract.address, 
-      //     "tokenType" : {
-      //       "fa2": {
-      //         "tokenContractAddress" : mockFa2Token.contract.address, 
-      //         "tokenId" : 0
-      //       }
-      //     }
-      //   },
-      //   "mvk"       : {
-      //     "tokenContractAddress" : mvkToken.contract.address, 
-      //     "tokenType" : {
-      //       "fa2": {
-      //         "tokenContractAddress" : mvkToken.contract.address, 
-      //         "tokenId" : 0
-      //       }
-      //     }
-      //   },
-      //   "usdm"       : {
-      //     "tokenContractAddress" : usdmToken.contract.address, 
-      //     "tokenType" : {
-      //       "fa2": {
-      //         "tokenContractAddress" : usdmToken.contract.address, 
-      //         "tokenId" : 0
-      //       }
-      //     }
-      //   }
-      // });
-      // usdmTokenControllerStorage.usdmTokenAddress = usdmToken.contract.address;
-      // usdmTokenController = await UsdmTokenController.originate(
-      //   utils.tezos,
-      //   usdmTokenControllerStorage
-      // );
-
-      // console.log("USDM Token Controller originated")
-
-      // cfmmStorage.usdmTokenAddress = usdmToken.contract.address;
-      // cfmm = await Cfmm.originate(
-      //   utils.tezos,
-      //   cfmmStorage
-      // );
-
-      // console.log("CFMM originated")
-
-      // lpTokenUsdmXtz = await LpTokenUsdmXtz.originate(
-      //   utils.tezos,
-      //   lpTokenUsdmXtzStorage
-      // );
-
-      // console.log("LP Token USDM/XTZ originated")
-
-      // lpTokenMockFa2Xtz = await LpTokenUsdmXtz.originate(
-      //   utils.tezos,
-      //   lpTokenUsdmXtzStorage
-      // );
-
-      // console.log("LP Token MockFa2/XTZ originated")
-
-      // mockFa12TokenStorage.ledger = MichelsonMap.fromLiteral({});
-      // lpTokenMockFa12Xtz = await MockFa12Token.originate(
-      //   utils.tezos,
-      //   mockFa12TokenStorage
-      // );
-
-      // console.log("LP Token MockFa12/XTZ originated")
-
-      // cfmmTezFa2TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
-      // cfmmTezFa2TokenStorage.lpTokenAddress             = lpTokenUsdmXtz.contract.address;
-      // cfmmTezFa2TokenStorage.tokenName                  = "usdm";
-      // cfmmTezFa2TokenStorage.tokenAddress               = usdmToken.contract.address;
-      // cfmmTezUsdm = await CfmmTezFa2Token.originate(
-      //   utils.tezos,
-      //   cfmmTezFa2TokenStorage
-      // );
-
-      // console.log("CFMM (XTZ/USDM) originated")
-
-
       
-      // cfmmTezFa2TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
-      // cfmmTezFa2TokenStorage.lpTokenAddress             = lpTokenMockFa2Xtz.contract.address;
-      // cfmmTezFa2TokenStorage.lpTokensTotal              = new BigNumber(200000000); // 200 LP Tokens - 1:10 ratio
-      // cfmmTezFa2TokenStorage.tokenName                  = "mockFa2";
-      // cfmmTezFa2TokenStorage.tokenAddress               = mockFa2Token.contract.address;
-      // cfmmTezMockFa2Token = await CfmmTezFa2Token.originate(
-      //   utils.tezos,
-      //   cfmmTezFa2TokenStorage
-      // );
-
-      // console.log("CFMM (XTZ/MockFa2Token) originated")
-
-
-      // cfmmTezFa12TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
-      // cfmmTezFa12TokenStorage.lpTokenAddress             = lpTokenMockFa12Xtz.contract.address;
-      // cfmmTezFa12TokenStorage.lpTokensTotal              = new BigNumber(100000000); // 100 LP Tokens - 1:20 ratio
-      // cfmmTezFa12TokenStorage.tokenName                  = "mockFa12";
-      // cfmmTezFa12TokenStorage.tokenAddress               = mockFa12Token.contract.address;
-      // cfmmTezMockFa12Token = await CfmmTezFa12Token.originate(
-      //   utils.tezos,
-      //   cfmmTezFa12TokenStorage
-      // );
-
-      // console.log("CFMM (XTZ/MockFa12Token) originated")
-
-
-      // usdmToken = await UsdmToken.originate(
-      //   utils.tezos,
-      //   usdmTokenStorage
-      // );
-
-      // console.log("USDM Token originated")
-
   
   
       /* ---- ---- ---- ---- ---- */
@@ -814,7 +663,7 @@ describe('Contracts Deployment for Tests', async () => {
   
       console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
       
-      // Send MVK to treasury contract and council (TODO: keep?)
+      // Send MVK to treasury contract and council 
       const transferToTreasury = await mvkToken.contract.methods
         .transfer([
           {
@@ -944,60 +793,7 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Governance Financial Contract - set whitelist token contract addresss [MockFA12, MockFA2, MVK]')
   
 
-      // LP Token XTZ/USDM
-      // const setCfmmContractAddressInLpTokenUsdmXtzOperation = await lpTokenUsdmXtz.contract.methods
-      // .updateWhitelistContracts("cfmm", cfmmTezUsdm.contract.address)
-      // .send();  
-      // await setCfmmContractAddressInLpTokenUsdmXtzOperation.confirmation();
-      // console.log('cfmm (XTZ/USDM) contract address set in LP Token (USDM/XTZ) whitelist')
-
-      // USDM Token
-      // const setUsdmTokenControllerInUsdmTokenWhitelistOperation = await usdmToken.contract.methods
-      //   .updateWhitelistContracts("controller", usdmTokenController.contract.address)
-      //   .send();  
-      // await setUsdmTokenControllerInUsdmTokenWhitelistOperation.confirmation();
-      // console.log('USDM Token Controller set in USDM Token whitelist')
-
-      // LP Token XTZ/MockFA2
-      // const setCfmmContractAddressInLpTokenMockFa2TokenXtzOperation = await lpTokenMockFa2Xtz.contract.methods
-      //   .updateWhitelistContracts("cfmm", cfmmTezMockFa2Token.contract.address)
-      //   .send();  
-      // await setCfmmContractAddressInLpTokenMockFa2TokenXtzOperation.confirmation();
-      // console.log('cfmm (XTZ/MockFa2Token) contract address set in LP Token (MockFa2Token/XTZ) whitelist')
-
-      // LP Token XTZ/MockFA12
-      // const setCfmmContractAddressInLpTokenMockFa12TokenXtzOperation = await lpTokenMockFa12Xtz.contract.methods
-      //   .updateWhitelistContracts("cfmm", cfmmTezMockFa12Token.contract.address)
-      //   .send();  
-      // await setCfmmContractAddressInLpTokenMockFa12TokenXtzOperation.confirmation();
-      // console.log('cfmm (XTZ/MockFa12Token) contract address set in LP Token (MockFa12Token/XTZ) whitelist')
-
-
-      // const usdmTokenControllerContractsBatch = await tezos.wallet
-      // .batch()
-  
-      // update cfmm address ledger
-      // .withContractCall(usdmTokenController.contract.methods.updateCfmmAddressLedger("usdm", cfmmTezUsdm.contract.address))
-      // .withContractCall(usdmTokenController.contract.methods.updateCfmmAddressLedger("mockFa2Token", cfmmTezMockFa2Token.contract.address))
-      // .withContractCall(usdmTokenController.contract.methods.updateCfmmAddressLedger("mockFa2Token", cfmmTezMockFa2Token.contract.address))
-  
-      // const usdmTokenControllerContractsBatchOperation = await usdmTokenControllerContractsBatch.send()
-      // await confirmOperation(tezos, usdmTokenControllerContractsBatchOperation.opHash)
-      
-      
-      // await saveContractAddress("usdmTokenAddress", usdmToken.contract.address)
-      // await saveContractAddress("usdmTokenControllerAddress", usdmTokenController.contract.address)
-      
-      // await saveContractAddress("lpTokenUsdmXtzTokenAddress", lpTokenUsdmXtz.contract.address)
-      // await saveContractAddress("lpTokenMockFa2XtzAddress", lpTokenMockFa2Xtz.contract.address)
-      // await saveContractAddress("lpTokenMockFa12XtzAddress", lpTokenMockFa12Xtz.contract.address)
-
-      // // await saveContractAddress("cfmmAddress", cfmm.contract.address)
-      // await saveContractAddress("cfmmTezUsdmAddress", cfmmTezUsdm.contract.address)
-      // await saveContractAddress("cfmmTezMockFa2TokenAddress", cfmmTezMockFa2Token.contract.address)
-      // await saveContractAddress("cfmmTezMockFa12TokenAddress", cfmmTezMockFa12Token.contract.address)
-
-
+   
       // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
       // Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]
       const treasuryContractsBatch = await tezos.wallet

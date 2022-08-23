@@ -130,4 +130,5 @@ export const lendingControllerStorage : lendingControllerStorageType = {
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
 
+    tempMap                         : MichelsonMap.fromLiteral({}),
 }

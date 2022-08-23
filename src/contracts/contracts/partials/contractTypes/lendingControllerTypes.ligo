@@ -281,25 +281,6 @@ type repayActionType is [@layout:comb] record [
 ]
 
 
-type vaultCallbackActionType is [@layout:comb] record [ 
-    vaultId             : nat;
-    quantity            : nat;
-    initiator           : address;
-    tokenBorrowIndex    : nat;
-]
-
-type updateTokenPoolCallbackActionType is [@layout:comb] record [
-    
-    tokenName       : string;
-    callback        : contract(vaultCallbackActionType);
-
-    // pass on to callback
-    vaultId         : nat;  
-    quantity        : nat;
-    initiator       : address;
-
-]
-
 type updateRewardsActionType is [@layout:comb] record [
     tokenName       : string;
     amount          : nat;
@@ -429,5 +410,8 @@ type lendingControllerStorageType is [@layout:comb] record [
     // lambdas
     lambdaLedger                : lambdaLedgerType;
     vaultLambdaLedger           : lambdaLedgerType;
+
+    // temp
+    tempMap                     : map(string, nat);
 
 ]
