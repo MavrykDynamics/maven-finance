@@ -11,7 +11,7 @@ export const DataFeedCard = ({ feed }: { feed: Feed }) => {
   const isTrustedAnswer = feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
 
   return (
-    <Link to={`/satellites/feed-details/${feed.address}/`}>
+    <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle>
         <div className="item">
           <h5>Feed</h5>

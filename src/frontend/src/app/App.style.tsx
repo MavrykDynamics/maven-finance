@@ -9,7 +9,7 @@ export const AppStyled = styled.div<{ theme: MavrykTheme; isExpandedMenu?: boole
   min-height: 100vh;
   padding-left: ${({ isExpandedMenu }) => (isExpandedMenu ? '232px' : '72px')};
 
-  @media screen and (max-width: 1260px) {
+  @media screen and (max-width: 1400px) {
     padding-left: 72px;
   }
 `

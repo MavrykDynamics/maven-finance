@@ -1,125 +1,54 @@
-import { useState } from 'react'
-import { useSelector } from 'react-redux'
-import { Link, useLocation } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
+import { State } from 'reducers'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
-import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import Icon from '../Icon/Icon.view'
-import {
-  MenuFooter,
-  MenuGrid,
-  MenuLogo,
-  MenuMobileBurger,
-  MenuSidebarContent,
-  MenuSidebarStyled,
-  MenuTopStyled,
-} from './Menu.style'
+import { toggleSidebarCollapsing } from './Menu.actions'
+import { MenuFooter, MenuGrid, MenuSidebarContent, MenuSidebarStyled } from './Menu.style'
+import { MenuTopBar } from './MenuTopBar/MenuTopBar.controller'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
-import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 
 type MenuViewProps = {
   loading: boolean
   accountPkh?: string
   ready: boolean
-  isExpandedMenu: boolean
-  setisExpandedMenu: (value: boolean) => void
+  openChangeNodePopupHandler: () => void
 }
 
-const SocialIcons = () => (
-  <div className="social-wrapper">
-    <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
-      <Icon id="socialDiscord" />
-    </a>
-    <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
-      <Icon id="socialGitHub" />
-    </a>
-    <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialMedium" />
-    </a>
-    <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialTelegram" />
-    </a>
-    <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialTwitter" />
-    </a>
-  </div>
-)
-
-export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu }: MenuViewProps) => {
+export const MenuView = ({ accountPkh, ready, openChangeNodePopupHandler }: MenuViewProps) => {
   const location = useLocation()
+  const dispatch = useDispatch()
   const [isExpanded, setExpanded] = useState<number>(0)
-
-  const { darkThemeEnabled } = useSelector((state: any) => state.preferences)
-
-  const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
-  // const logoMobile = '/logo-mobile.svg'
+  const { sidebarOpened } = useSelector((state: State) => state.preferences)
 
   const handleToggle = (id: number) => {
-    setisExpandedMenu(true)
+    dispatch(toggleSidebarCollapsing(true))
     setExpanded(id === isExpanded ? 0 : id)
   }
 
+  const burgerClickHandler = useCallback(() => {
+    setExpanded(0)
+    dispatch(toggleSidebarCollapsing())
+  }, [])
+
+  const sidebarBackdropClickHandler = useCallback(() => {
+    setExpanded(0)
+    dispatch(toggleSidebarCollapsing(false))
+  }, [])
+
   return (
     <>
-      <MenuTopStyled>
-        <div className="left-side">
-          <MenuMobileBurger
-            onClick={(e) => {
-              e.stopPropagation()
-              setExpanded(0)
-              setisExpandedMenu(!isExpandedMenu)
-            }}
-            className={isExpandedMenu ? 'expanded' : ''}
-          >
-            <Icon id="menuOpen" />
-          </MenuMobileBurger>
-
-          <Link to="/">
-            <MenuLogo alt="logo" className={'desctop-logo'} src={logoImg} />
-            {/* <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} /> */}
-          </Link>
-        </div>
-        <div className="grouped-links">
-          <TopBarLinks
-            groupName={'Products'}
-            groupLinks={[
-              { name: 'link 9', href: 'gdfgd' },
-              { name: 'link 6', href: 'gdfgd' },
-            ]}
-          />
-          <TopBarLinks
-            groupName={'About'}
-            groupLinks={[
-              { name: 'link 1', href: 'gdfgd' },
-              { name: 'link 7', href: 'gdfgd' },
-            ]}
-          />
-          <TopBarLinks groupName={'Blog 🔥'} groupLinks={[]} />
-          <TopBarLinks
-            groupName={'Docs'}
-            groupLinks={[
-              { name: 'link 1', href: 'gdfgd' },
-              { name: 'link 2', href: 'gdfgd' },
-              { name: 'link 4', href: 'gdfgd' },
-            ]}
-          />
-        </div>
-        <div className="right-side">
-          <SocialIcons />
-          <ConnectWallet type={'main-menu'} />
-          <div className="settingsIcon">
-            <Icon id="gear" />
-          </div>
-        </div>
-      </MenuTopStyled>
+      <MenuTopBar
+        burgerClickHandler={burgerClickHandler}
+        openChangeNodePopupHandler={openChangeNodePopupHandler}
+        isExpandedMenu={sidebarOpened}
+      />
 
       <MenuSidebarStyled
-        className={`navbar-sticky ${isExpandedMenu ? 'menu-expanded' : 'menu-collapsed'}`}
-        onClick={() => {
-          setExpanded(0)
-          setisExpandedMenu(false)
-        }}
+        className={`navbar-sticky ${sidebarOpened ? 'menu-expanded' : 'menu-collapsed'}`}
+        onClick={sidebarBackdropClickHandler}
       >
         <MenuSidebarContent onClick={(e) => e.stopPropagation()}>
           <MenuGrid>
@@ -130,7 +59,7 @@ export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu 
                   key={key}
                   handleToggle={handleToggle}
                   isExpanded={navigationLink.id === isExpanded}
-                  isMobMenuExpanded={isExpandedMenu}
+                  isMobMenuExpanded={sidebarOpened}
                   location={location}
                   walletReady={ready}
                   accountPkh={accountPkh}

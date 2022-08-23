@@ -12,3 +12,12 @@ export const getHeadData = () => async (dispatch: any, getState: any) => {
     })
   }
 }
+
+export const TOGGLE_SIDEBAR = 'TOGGLE_SIDEBAR'
+export const toggleSidebarCollapsing = (isOpened?: boolean) => (dispatch: any, getState: () => State) => {
+  const { preferences } = getState()
+  dispatch({
+    type: TOGGLE_SIDEBAR,
+    sidebarOpened: isOpened ?? !preferences.sidebarOpened,
+  })
+}
