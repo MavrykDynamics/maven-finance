@@ -1,7 +1,6 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
-import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -30,7 +29,7 @@ export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
           </DataFeedSubTitleText>
           <var>
             <CommaNumber
-              beginningText="$"
+              showDecimal
               value={oracle.oracleRecords.reduce<number>((acc, { sMVKReward }) => (acc += sMVKReward), 0)}
             />
           </var>
@@ -41,7 +40,7 @@ export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
           </DataFeedSubTitleText>
           <var>
             <CommaNumber
-              beginningText="$"
+              showDecimal
               value={oracle.oracleRecords.reduce<number>((acc, { XTZReward }) => (acc += XTZReward), 0)}
             />
           </var>

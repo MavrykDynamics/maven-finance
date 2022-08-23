@@ -1,30 +1,27 @@
+import moment from 'moment'
+import { useCallback, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+
 // consts, helpers
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
-import { Button } from 'app/App.components/Button/Button.controller'
-import Chart from 'app/App.components/Chart/Chart.view'
-import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import Icon from 'app/App.components/Icon/Icon.view'
-import { InputErrorMessage } from 'app/App.components/Input/Input.style'
+import { usersData } from 'pages/UsersOracles/users.const'
 import { PRIMARY } from 'app/App.components/PageHeader/PageHeader.constants'
-// view
-import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
-import { Timer } from 'app/App.components/Timer/Timer.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import { EmptyContainer } from 'app/App.style'
-import moment from 'moment'
 import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
-import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { INFO_SVG_ENCODED, QUESTION_MARK_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+// view
+import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
+import { Button } from 'app/App.components/Button/Button.controller'
+import Chart from 'app/App.components/Chart/Chart.view'
+import Icon from 'app/App.components/Icon/Icon.view'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { Timer } from 'app/App.components/Timer/Timer.controller'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
-import { usersData } from 'pages/UsersOracles/users.const'
-import React, { useCallback, useMemo, useState } from 'react'
-import { useHistory } from 'react-router'
-import { Link } from 'react-router-dom'
-import { cyanColor, downColor, Page } from 'styles'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
+import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 
 import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 // styles
@@ -38,6 +35,10 @@ import {
   UsersListWrapper,
   UserSmallCard,
 } from './DataFeedsDetails.style'
+import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
+import { InputErrorMessage } from 'app/App.components/Input/Input.style'
+import { EmptyContainer } from 'app/App.style'
+import { cyanColor, downColor, Page } from 'styles'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -63,8 +64,6 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
     () => oracles.filter((satellite) => arrOfOracleRecords().includes(satellite.address)),
     [oracles, arrOfOracleRecords],
   )
-
-  const history = useHistory()
 
   const isTrustedAnswer = feed && feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
   const heartbeatUpdateInfo =
