@@ -78,7 +78,7 @@ export const FarmCardStyled = styled(Card)`
     align-items: baseline;
 
     .expand-header {
-      grid-template-columns: 250px 1fr 1fr 1fr 1fr 120px;
+      grid-template-columns: 300px 1fr 1fr 1fr 1fr 100px;
       padding-left: 40px;
     }
 
