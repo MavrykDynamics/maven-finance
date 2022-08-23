@@ -57,7 +57,7 @@ type LendingControllerContractAbstraction<T extends ContractProvider | Wallet = 
 
 export const setLendingControllerLambdas = async (tezosToolkit: TezosToolkit, contract: LendingControllerContractAbstraction) => {
 
-    const lambdasPerBatch = 10;
+    const lambdasPerBatch = 8;
 
     const lambdasCount = lendingControllerLambdas.length;
     const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
