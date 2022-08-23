@@ -60,14 +60,6 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     opacity: 0.8;
   }
 
-  &.glassBroken,
-  button:disabled,
-  button[disabled] {
-    border: 1px solid ${({ theme }) => theme.downColor};
-    background-color: ${({ theme }) => theme.containerColor};
-    color: ${({ theme }) => theme.downColor};
-  }
-
   &.votingFor {
     color: ${darkColor};
     background-color: ${({ theme }) => theme.upColor};
