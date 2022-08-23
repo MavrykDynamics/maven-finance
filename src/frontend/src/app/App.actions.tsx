@@ -12,7 +12,8 @@ import {
   SET_EMERGENCY_GOVERNANCE_ACTIVE,
 } from '../pages/EmergencyGovernance/EmergencyGovernance.actions'
 import { GET_BREAK_GLASS_STORAGE, SET_GLASS_BROKEN } from '../pages/BreakGlass/BreakGlass.actions'
-import { GET_COUNCIL_STORAGE, GET_VESTING_STORAGE } from '../pages/Treasury/Treasury.actions'
+import { GET_VESTING_STORAGE } from '../pages/Treasury/Treasury.actions'
+import { GET_COUNCIL_STORAGE } from '../pages/Council/Council.actions'
 import {
   GET_GOVERNANCE_STORAGE,
   SET_GOVERNANCE_PHASE,
