@@ -37,6 +37,7 @@ export interface SatelliteRecord {
   website: string;
   participation: number;
   satelliteFee: number;
+  delegatorCount: number;
   status: SatelliteStatus;
   mvkBalance: number;
   sMvkBalance: number;

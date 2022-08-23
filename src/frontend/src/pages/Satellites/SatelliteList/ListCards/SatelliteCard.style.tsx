@@ -161,7 +161,6 @@ export const SatelliteCardRow = styled.div<{ theme: MavrykTheme }>`
 export const SatelliteProfileImageContainer = styled.div`
   display: flex;
   justify-content: space-around;
-  align-items: center;
   height: 50px;
   width: 50px;
   margin-right: 10px;
@@ -187,7 +186,7 @@ export const SatelliteTextGroup = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: space-around;
 
   &.voted {
     margin-left: 70px;

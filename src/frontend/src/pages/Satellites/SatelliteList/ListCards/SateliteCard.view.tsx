@@ -16,7 +16,21 @@ import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 import { SatelliteListItemProps } from '../../helpers/Satellites.types'
-import { SatelliteCard, SatelliteCardButtons, SatelliteCardInner, SatelliteCardRow, SatelliteCardTopRow, SatelliteMainText, SatelliteOracleStatusComponent, SatelliteProfileDetails, SatelliteProfileImage, SatelliteProfileImageContainer, SatelliteSubText, SatelliteTextGroup, SideBySideImageAndText } from './SatelliteCard.style'
+import {
+  SatelliteCard,
+  SatelliteCardButtons,
+  SatelliteCardInner,
+  SatelliteCardRow,
+  SatelliteCardTopRow,
+  SatelliteMainText,
+  SatelliteOracleStatusComponent,
+  SatelliteProfileDetails,
+  SatelliteProfileImage,
+  SatelliteProfileImageContainer,
+  SatelliteSubText,
+  SatelliteTextGroup,
+  SideBySideImageAndText,
+} from './SatelliteCard.style'
 
 export const SatelliteListItem = ({
   satellite,
@@ -49,10 +63,10 @@ export const SatelliteListItem = ({
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
 
-  const signedFeedsCount = React.useMemo(() => feeds.filter((feed) => feed.admin === satellite.address).length, [
-    feeds,
-    satellite.address,
-  ])
+  const signedFeedsCount = React.useMemo(
+    () => feeds.filter((feed) => feed.admin === satellite.address).length,
+    [feeds, satellite.address],
+  )
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
 
@@ -81,21 +95,21 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {(isExtendedListItem && isSatelliteOracle) || !isSatelliteOracle ? (
+            {isExtendedListItem && !isSatelliteOracle ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Your delegated MVK</SatelliteMainText>
                 <SatelliteSubText>
-                  {userIsDelegatedToThisSatellite ? <CommaNumber value={myDelegatedMVK} /> : <div>0</div>}
+                  <CommaNumber value={userIsDelegatedToThisSatellite ? myDelegatedMVK : 0} />
                 </SatelliteSubText>
               </SatelliteTextGroup>
-            ) : (
-              <SatelliteTextGroup>
-                <SatelliteMainText>Free sMVK Space</SatelliteMainText>
-                <SatelliteSubText>
-                  <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
-                </SatelliteSubText>
-              </SatelliteTextGroup>
-            )}
+            ) : null}
+
+            <SatelliteTextGroup>
+              <SatelliteMainText>Free sMVK Space</SatelliteMainText>
+              <SatelliteSubText>
+                <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
+              </SatelliteSubText>
+            </SatelliteTextGroup>
 
             {isExtendedListItem && isSatelliteOracle ? (
               <SatelliteTextGroup>
@@ -130,7 +144,16 @@ export const SatelliteListItem = ({
               <SatelliteTextGroup>
                 <SatelliteMainText>Fee</SatelliteMainText>
                 <SatelliteSubText>
-                  <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
+                  <CommaNumber value={satellite.satelliteFee} endingText="%" />
+                </SatelliteSubText>
+              </SatelliteTextGroup>
+            ) : null}
+
+            {isExtendedListItem && !isSatelliteOracle ? (
+              <SatelliteTextGroup>
+                <SatelliteMainText>Count of delegators</SatelliteMainText>
+                <SatelliteSubText>
+                  <CommaNumber value={satellite.delegatorCount} />
                 </SatelliteSubText>
               </SatelliteTextGroup>
             ) : null}
