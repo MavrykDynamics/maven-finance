@@ -7,15 +7,14 @@ import { Link } from 'react-router-dom'
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
 export const DataFeedCard = ({ feed }: { feed: Feed }) => {
-  // const fetchAwaitLogo = async () => await fetch('https://images.coinviewer.io/currencies/64x64/BTC.png')
-
-  // console.log(fetchAwaitLogo)
-
   return (
     <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle>
-        <div className="item">
-          <img src={`//logo.chainbit.xyz/${feed.token_1_symbol.toLowerCase()}`} />
+        <div className="item with-img">
+          <img
+            src={`//logo.chainbit.xyz/${feed.token_1_symbol.toLowerCase()}`}
+            alt={`${feed.token_1_symbol.toLowerCase()} logo`}
+          />
           <h5>Feed</h5>
           <var>
             {feed.token_1_symbol}/{feed.token_0_symbol}

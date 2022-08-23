@@ -16,6 +16,21 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
   }
 
   .item {
+    &.with-img {
+      padding-left: 45px;
+      position: relative;
+
+      img {
+        display: block;
+        position: absolute;
+        max-height: 32px;
+        max-width: 32px;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+      }
+    }
     h5 {
       color: ${skyColor};
       font-weight: 400;
