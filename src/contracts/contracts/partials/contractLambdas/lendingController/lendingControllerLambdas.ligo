@@ -414,6 +414,12 @@ block {
                 const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, int(amount), loanTokenRecord.lpTokenContractAddress);
                 operations := mintLpTokensTokensOperation # operations;
 
+                // Token Pool: Update interest rate
+                s := updateInterestRate(loanTokenRecord, s);
+
+                // Token Pool: Calculate compounded interest and update token state (borrow index)
+                s := updateTokenState(loanTokenRecord, s);
+
             }
         |   _ -> skip
     ];
@@ -489,6 +495,12 @@ block {
 
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
+
+                // Token Pool: Update interest rate
+                s := updateInterestRate(loanTokenRecord, s);
+
+                // Token Pool: Calculate compounded interest and update token state (borrow index)
+                s := updateTokenState(loanTokenRecord, s);
                 
             }
         |   _ -> skip
@@ -824,23 +836,22 @@ block {
                 then skip 
                 else failwith(error_VAULT_IS_NOT_UNDERCOLLATERIZED);
 
-                // Token Pool: Update interest rate
-                s := updateInterestRate(vaultLoanTokenName, s);
-
-                // Token Pool: Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(vaultLoanTokenName, s);
-
-                
-                // ------------------------------------------------------------------
-                // Update Vault interest
-                // ------------------------------------------------------------------
-
-
                 // Get loan token type
                 var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
+
+                // Token Pool: Update interest rate
+                s := updateInterestRate(loanTokenRecord, s);
+
+                // Token Pool: Calculate compounded interest and update token state (borrow index)
+                s := updateTokenState(loanTokenRecord, s);
+
+                
+                // ------------------------------------------------------------------
+                // Update Vault interest
+                // ------------------------------------------------------------------
 
                 const totalBorrowed          : nat   = loanTokenRecord.totalBorrowed;
                 const totalRemaining         : nat   = loanTokenRecord.totalRemaining;
@@ -1275,17 +1286,17 @@ block {
                 // Get vault loan token name
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-                // Token Pool: Update interest rate
-                s := updateInterestRate(vaultLoanTokenName, s);
-
-                // Token Pool: Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(vaultLoanTokenName, s);
-
                 // Get loan token type
                 var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
+
+                // Token Pool: Update interest rate
+                s := updateInterestRate(loanTokenRecord, s);
+
+                // Token Pool: Calculate compounded interest and update token state (borrow index)
+                s := updateTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 const reserveRatio      : nat         = loanTokenRecord.reserveRatio;
@@ -1471,17 +1482,17 @@ block {
                 var vault : vaultRecordType := getVault(vaultHandle, s);
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-                // Token Pool: Update interest rate
-                s := updateInterestRate(vaultLoanTokenName, s);
-
-                // Token Pool: Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(vaultLoanTokenName, s);
-
                 // Get loan token type
                 var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
+
+                // Token Pool: Update interest rate
+                s := updateInterestRate(loanTokenRecord, s);
+
+                // Token Pool: Calculate compounded interest and update token state (borrow index)
+                s := updateTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 // const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
