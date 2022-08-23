@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { boxShadowColor, cyanColor } from 'styles'
+import { boxShadowColor, cyanColor, downColor, upColor } from 'styles'
 
 export const DataFeedsStyled = styled.div`
   display: flex;
@@ -22,6 +22,7 @@ export const DataFeedsStyled = styled.div`
     color: #8d86eb;
     opacity: 0;
     transition: 0.5s all;
+    visibility: hidden;
   }
 
   .top-section-wrapper {
@@ -39,6 +40,25 @@ export const DataFeedsStyled = styled.div`
         display: flex;
         justify-content: space-between;
         position: relative;
+
+        .name-part {
+          padding-left: 55px;
+          position: relative;
+
+          .img-wrapper {
+            position: absolute;
+            height: 90%;
+            max-width: 45px;
+            left: 0;
+            font-size: 14px;
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+        }
 
         .price-part {
           display: flex;
@@ -77,6 +97,8 @@ export const DataFeedsStyled = styled.div`
       .info-wrapper {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        margin: 15px 0;
       }
 
       .adresses-info,
@@ -143,6 +165,7 @@ export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: numbe
   &:hover {
     .on-svg-hover-info {
       opacity: 1;
+      visibility: visible;
     }
   }
 
@@ -194,6 +217,7 @@ export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?:
   &:hover {
     .on-svg-hover-info {
       opacity: 1;
+      visibility: visible;
     }
   }
 
