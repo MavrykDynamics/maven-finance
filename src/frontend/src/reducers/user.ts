@@ -18,6 +18,7 @@ const defaultUser: UserData = {
   mySMvkTokenBalance: 0,
   participationFeesPerShare: 0,
   satelliteMvkIsDelegatedTo: "",
+  isSatellite: false
 };
 const userDefaultState: UserState = {
   type: GET_USER_DATA,

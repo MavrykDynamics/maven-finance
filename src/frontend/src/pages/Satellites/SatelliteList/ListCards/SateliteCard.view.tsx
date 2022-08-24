@@ -51,6 +51,7 @@ export const SatelliteListItem = ({
     governanceStorage: { proposalLedger },
   } = useSelector((state: State) => state.governance)
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
+  const { isSatellite } = useSelector((state: State) => state.user.user)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const isSatelliteOracle = satellite.oracleRecords.length
@@ -69,6 +70,25 @@ export const SatelliteListItem = ({
   )
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
+
+  const showButtons = !isSatellite && satellite.status === 0
+  const buttonToShow = userIsDelegatedToThisSatellite ? (
+    <Button
+      text="Undelegate"
+      icon="man-close"
+      kind={ACTION_SECONDARY}
+      loading={loading}
+      onClick={() => undelegateCallback()}
+    />
+  ) : (
+    <Button
+      text="Delegate"
+      icon="man-check"
+      kind={ACTION_PRIMARY}
+      loading={loading}
+      onClick={() => delegateCallback(satellite.address)}
+    />
+  )
 
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
@@ -172,34 +192,12 @@ export const SatelliteListItem = ({
         </div>
 
         <SatelliteCardButtons>
-          {userIsDelegatedToThisSatellite ? (
-            <>
-              {satellite.status === 0 ? (
-                <Button
-                  text="Undelegate"
-                  icon="man-close"
-                  kind={ACTION_SECONDARY}
-                  loading={loading}
-                  onClick={() => undelegateCallback()}
-                />
-              ) : null}
-            </>
+          {showButtons ? (
+            buttonToShow
           ) : (
-            <>
-              {satellite.status === 0 ? (
-                <Button
-                  text="Delegate"
-                  icon="man-check"
-                  kind={ACTION_PRIMARY}
-                  loading={loading}
-                  onClick={() => delegateCallback(satellite.address)}
-                />
-              ) : (
-                <div>
-                  <StatusFlag status={DOWN} text={'INACTIVE'} />
-                </div>
-              )}
-            </>
+            <div>
+              <StatusFlag status={DOWN} text={'INACTIVE'} />
+            </div>
           )}
         </SatelliteCardButtons>
       </SatelliteCardInner>
