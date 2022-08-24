@@ -33,6 +33,10 @@ export const VotingAreaStyled = styled.article`
     font-size: 18px;
     line-height: 18px;
   }
+
+  &.FRVoting {
+    margin-bottom: 24px;
+  }
 `
 
 export const VotingButtonsContainer = styled.div`
@@ -54,6 +58,7 @@ export const VotingButtonsContainer = styled.div`
 
   &.FRVoting {
     justify-content: space-between;
+    padding-top: 5px;
     > button {
       width: 48.5%;
     }

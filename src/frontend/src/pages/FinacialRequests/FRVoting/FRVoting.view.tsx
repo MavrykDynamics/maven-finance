@@ -35,8 +35,6 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
 
   const handleConnect = () => dispatch(connect({ forcePermission: false }))
 
-  console.log('selectedRequest', selectedRequest)
-
   const [votingStats, setVoteStatistics] = useState({
     totalVotes: selectedRequest.pass_vote_smvk_total + selectedRequest.nay_vote_smvk_total,
     forVotes: selectedRequest.pass_vote_smvk_total,
@@ -89,27 +87,33 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
   )
   const forVotesWidth = (votingStats.forVotes / totalVotesWithUnused) * 100
   const againstVotesWidth = (votingStats.againstVotes / totalVotesWithUnused) * 100
-  const abstainVotesWidth = (votingStats.abstainVotesMVKTotal / totalVotesWithUnused) * 100
+  // TODO: uncomment if abstain implement in gql, or can switch to VotingBar component if abstain will be avaliable
+  // const abstainVotesWidth = (votingStats.abstainVotesMVKTotal / totalVotesWithUnused) * 100
 
   return (
     <>
-      <VotingContainer showButtons={!walletConnected && !walletConnected}>
+      <VotingContainer showButtons={!walletConnected && isActiveVoting}>
         <QuorumBar width={votingStats.quorum}>
           Quorum <b>{votingStats.quorum.toFixed(2)}%</b>
         </QuorumBar>
         <VotingBarStyled>
-          <Tooltip title={`${votingStats.forVotes} Approve votes`}>
+          <Tooltip title={`${votingStats.forVotes} Yay votes`}>
             <VotingFor width={forVotesWidth}>
               <CommaNumber value={votingStats.forVotes} />
             </VotingFor>
           </Tooltip>
+          {/* <Tooltip title={`${votingStats.abstainVotesMVKTotal} Abstention votes`}>
+          <VotingAbstention width={abstainingVotesWidth}>
+            <CommaNumber value={votingStats.abstainVotesMVKTotal} />
+          </VotingAbstention>
+        </Tooltip> */}
           <Tooltip title={`${votingStats.unUsedVotes} Unused votes`}>
             <VotingAbstention width={100 - forVotesWidth - againstVotesWidth}>
               <CommaNumber value={votingStats.unUsedVotes} />
             </VotingAbstention>
           </Tooltip>
 
-          <Tooltip title={`${votingStats.againstVotes} Disapprove votes`}>
+          <Tooltip title={`${votingStats.againstVotes} Nay votes`}>
             <VotingAgainst width={againstVotesWidth}>
               <CommaNumber value={votingStats.againstVotes} />
             </VotingAgainst>
@@ -118,19 +122,26 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
       </VotingContainer>
 
       {walletConnected && isActiveVoting ? (
-        <VotingAreaStyled>
+        <VotingAreaStyled className="FRVoting">
           {isActiveVoting ? (
             walletConnected ? (
               <VotingButtonsContainer className="FRVoting">
                 <Button
-                  text={'Approve'}
+                  text={'Vote YES'}
                   onClick={() => handleVotingRoundVote('FOR')}
                   type={SUBMIT}
                   kind={'votingFor'}
                   loading={loading}
                 />
+                {/* <Button
+                  text={'Vote PASS'}
+                  onClick={() => handleVotingRoundVote('ABSTAIN')}
+                  type={SUBMIT}
+                  kind={'votingAbstain'}
+                  loading={loading}
+                /> */}
                 <Button
-                  text={'Disapprove'}
+                  text={'Vote NO'}
                   onClick={() => handleVotingRoundVote('AGAINST')}
                   type={SUBMIT}
                   kind={'votingAgainst'}
