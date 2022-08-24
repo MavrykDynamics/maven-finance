@@ -3,8 +3,6 @@ import { Feed, InitialOracleStorageType } from 'pages/Satellites/helpers/Satelli
 
 import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'
 
-import { CouncilActionRecord, CouncilActionSigner, CouncilStorage } from './TypesAndInterfaces/Council'
-
 import {
   FinancialRequestRecord,
   FinancialRequestVote,
@@ -15,14 +13,10 @@ import {
   SnapshotRecordType,
 } from './TypesAndInterfaces/Governance'
 import { TreasuryType } from './TypesAndInterfaces/Treasury'
-import { VestingStorage } from './TypesAndInterfaces/Vesting'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
   switch (contract) {
-    case 'vesting':
-      res = convertToVestingStorageType(storage)
-      break
     case 'governance':
       res = convertToGovernanceStorageType(storage)
       break
@@ -58,19 +52,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
     totalOracleNetworks: storage?.aggregator
       ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0)
       : 0,
-  }
-}
-
-function convertToVestingStorageType(storage: any): VestingStorage {
-  return {
-    address: storage?.address,
-    config: {
-      defaultCliffPeriod: storage?.default_cliff_period,
-      defaultCooldownPeriod: storage?.default_cooldown_period,
-    },
-    sumAmountClaimed: storage?.amount_claimed,
-    sumRemainingVested: storage?.remainder_vested,
-    totalVestedAmount: storage?.total_vested_amount,
   }
 }
 
