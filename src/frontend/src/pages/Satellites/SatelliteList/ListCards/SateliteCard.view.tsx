@@ -111,7 +111,7 @@ export const SatelliteListItem = ({
             <SatelliteTextGroup>
               <SatelliteMainText>Delegated MVK</SatelliteMainText>
               <SatelliteSubText>
-                <CommaNumber value={totalDelegatedMVK} />
+                <CommaNumber value={totalDelegatedMVK + sMvkBalance} />
               </SatelliteSubText>
             </SatelliteTextGroup>
 
