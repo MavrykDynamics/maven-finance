@@ -35,10 +35,13 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
 
   const handleConnect = () => dispatch(connect({ forcePermission: false }))
 
+  console.log('selectedRequest', selectedRequest)
+
   const [votingStats, setVoteStatistics] = useState({
     totalVotes: selectedRequest.pass_vote_smvk_total + selectedRequest.nay_vote_smvk_total,
     forVotes: selectedRequest.pass_vote_smvk_total,
     againstVotes: selectedRequest.nay_vote_smvk_total,
+    abstainVotesMVKTotal: 0,
     unUsedVotes: Math.round(
       selectedRequest.snapshot_smvk_total_supply / PRECISION_NUMBER -
         selectedRequest.pass_vote_smvk_total -
@@ -59,11 +62,19 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
         })
         break
       case 'AGAINST':
+        voteType = 'nay'
+        setVoteStatistics({
+          ...votingStats,
+          againstVotes: votingStats.againstVotes + 1,
+          unUsedVotes: +votingStats.unUsedVotes - 1,
+        })
+        break
+      case 'ABSTAIN':
       default:
         voteType = 'abstain'
         setVoteStatistics({
           ...votingStats,
-          againstVotes: +votingStats.againstVotes + 1,
+          abstainVotesMVKTotal: votingStats.abstainVotesMVKTotal + 1,
           unUsedVotes: +votingStats.unUsedVotes - 1,
         })
         break
@@ -73,11 +84,12 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
   }
 
   const totalVotesWithUnused = useMemo(
-    () => votingStats.forVotes + votingStats.againstVotes + votingStats.unUsedVotes,
-    [votingStats.againstVotes, votingStats.forVotes, votingStats.unUsedVotes],
+    () => votingStats.forVotes + votingStats.againstVotes + votingStats.unUsedVotes + votingStats.abstainVotesMVKTotal,
+    [votingStats.againstVotes, votingStats.forVotes, votingStats.unUsedVotes, votingStats.abstainVotesMVKTotal],
   )
   const forVotesWidth = (votingStats.forVotes / totalVotesWithUnused) * 100
   const againstVotesWidth = (votingStats.againstVotes / totalVotesWithUnused) * 100
+  const abstainVotesWidth = (votingStats.abstainVotesMVKTotal / totalVotesWithUnused) * 100
 
   return (
     <>
