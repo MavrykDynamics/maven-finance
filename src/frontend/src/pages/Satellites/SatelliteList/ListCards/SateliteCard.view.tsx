@@ -202,13 +202,15 @@ export const SatelliteListItem = ({
         </SatelliteCardButtons>
       </SatelliteCardInner>
 
-      {children && children}
-
-      {currentlySupportingProposal && !children ? (
+      {children ? (
+        children
+      ) : currentlySupportingProposal ? (
         <SatelliteCardRow>
           Currently supporting Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}
         </SatelliteCardRow>
-      ) : null}
+      ) : (
+        <SatelliteCardRow>Considering</SatelliteCardRow>
+      )}
     </SatelliteCard>
   )
 }

@@ -20,7 +20,8 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
       padding-left: 45px;
       position: relative;
 
-      img {
+      img,
+      svg {
         display: block;
         position: absolute;
         max-height: 32px;

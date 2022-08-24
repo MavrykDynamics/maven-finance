@@ -88,11 +88,15 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
             <div className="top">
               <div className="name-part">
                 <div className="img-wrapper">
-                  <img
-                    src={`//logo.chainbit.xyz/${feed.token_1_symbol.toLowerCase()}`}
-                    alt={`${feed.token_1_symbol.toLowerCase()} logo`}
-                    loading="lazy"
-                  />
+                  {feed.token_1_symbol.toLowerCase() === 'mvk' ? (
+                    <Icon id="mvkTokenGold" />
+                  ) : (
+                    <img
+                      src={`//logo.chainbit.xyz/${feed.token_1_symbol.toLowerCase()}`}
+                      alt={`${feed.token_1_symbol.toLowerCase()} logo`}
+                      loading="lazy"
+                    />
+                  )}
                 </div>
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
                   {feed.token_1_symbol}/{feed.token_0_symbol}
