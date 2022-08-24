@@ -97,7 +97,7 @@ type lendingControllerUnpackLambdaFunctionType is (lendingControllerLambdaAction
 // ------------------------------------------------------------------------------
 
 const zeroAddress            : address  = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
-const fixedPointAccuracy     : nat      = 1_000_000_000_000_000_000_000_000n;   // 10^24     - // for use in division
+const fixedPointAccuracy     : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27     - // for use in division
 // const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;           // 10^18    - // for use in division with tez
 const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000_000_000_000n;           // 10^27    - // for use in division with tez
 
@@ -383,7 +383,7 @@ block {
     // init variables for convenience
     const tokenName                             : string        = setLoanTokenParams.tokenName;
     const tokenType                             : tokenType     = setLoanTokenParams.tokenType;
-    const decimals                              : nat           = setLoanTokenParams.decimals;
+    const tokenDecimals                         : nat           = setLoanTokenParams.tokenDecimals;
 
     const lpTokenContractAddress                : address       = setLoanTokenParams.lpTokenContractAddress;
     const lpTokenId                             : nat           = setLoanTokenParams.lpTokenId;
@@ -399,7 +399,7 @@ block {
                     
         tokenName                           = tokenName;
         tokenType                           = tokenType;
-        decimals                            = decimals;
+        tokenDecimals                       = tokenDecimals;
 
         lpTokensTotal                       = 0n;
         lpTokenContractAddress              = lpTokenContractAddress;
@@ -417,10 +417,10 @@ block {
         interestRateBelowOptimalUtilisation = interestRateBelowOptimalUtilisation;
         interestRateAboveOptimalUtilisation = interestRateAboveOptimalUtilisation;
 
-        currentInterestRate                 = 1n;
+        currentInterestRate                 = baseInterestRate;
         lastUpdatedBlockLevel               = Tezos.get_level();
-        accumulatedRewardsPerShare          = 1n;
-        borrowIndex                         = 1n;
+        accumulatedRewardsPerShare          = fixedPointAccuracy;
+        borrowIndex                         = fixedPointAccuracy;
 
     ];
 
@@ -452,7 +452,7 @@ block {
 
 
 
-function checkInCollateralTokenLedger(const collateralTokenRecord : collateralTokenRecordType; var s : lendingControllerStorageType) : bool is 
+function checkInCollateralTokenLedger(const collateralTokenRecord : collateralTokenRecordType; const s : lendingControllerStorageType) : bool is 
 block {
   
   var inCollateralTokenLedgerBool : bool := False;
@@ -466,7 +466,26 @@ block {
 
 
 // helper function to get vault
-function getVault(const handle : vaultHandleType; var s : lendingControllerStorageType) : vaultRecordType is 
+function getVault(const vaultId : nat; const vaultOwner : address; const s : lendingControllerStorageType) : vaultRecordType is 
+block {
+
+    // Make vault handle
+    const vaultHandle : vaultHandleType = record [
+        id     = vaultId;
+        owner  = vaultOwner;
+    ];
+
+    var vault : vaultRecordType := case s.vaults[vaultHandle] of [
+            Some(_vault) -> _vault
+        |   None -> failwith("Error. Vault not found.")
+    ];
+
+} with vault
+
+
+
+// helper function to get vault by vaultHandle
+function getVaultByHandle(const handle : vaultHandleType; const s : lendingControllerStorageType) : vaultRecordType is 
 block {
     var vault : vaultRecordType := case s.vaults[handle] of [
             Some(_vault) -> _vault
@@ -674,7 +693,7 @@ block {
     // get last completed round price of token from Oracle view
     const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
     
-    const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
+    const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
     const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
     const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
 
@@ -836,13 +855,13 @@ block{
         const expMinusOne : nat = abs(exp - 1n);
         const expMinusTwo : nat = if exp > 2n then abs(exp - 2n) else 0n;
 
-        const basePowerTwo : nat = (interestRate * interestRate * fixedPointAccuracy) / (blocksPerYear * blocksPerYear);
-        const basePowerThree : nat = (basePowerTwo * interestRate) / blocksPerYear;
+        const basePowerTwo : nat = ((interestRate * interestRate) / fixedPointAccuracy) / (blocksPerYear * blocksPerYear); 
+        const basePowerThree : nat = ((basePowerTwo * interestRate) / fixedPointAccuracy) / blocksPerYear;
 
         const secondTerm : nat = (exp * expMinusOne * basePowerTwo) / 2n;
         const thirdTerm : nat = (exp * expMinusOne * expMinusTwo * basePowerThree) / 6n;
 
-        compoundedInterest := (((interestRate * exp * fixedPointAccuracy) / blocksPerYear) + secondTerm + thirdTerm);
+        compoundedInterest := fixedPointAccuracy + (interestRate * exp) + secondTerm + thirdTerm;
 
         s.tempMap["calculateCompoundedInterest - secondTerm"] := secondTerm;
         s.tempMap["calculateCompoundedInterest - thirdTerm"] := thirdTerm;
@@ -900,83 +919,38 @@ block{
 
 
 // helper function to update token state
-function updateTokenState(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : lendingControllerStorageType is
+// - updates last updated block level and borrow index
+function updateLoanTokenState(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : loanTokenRecordType is
 block{
-
-    // get token record
-    // var tokenRecord : loanTokenRecordType := case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
-    //         Some (_tokenRecord) -> _tokenRecord
-    //     |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    // ];
-
-    const lastUpdatedBlockLevel : nat = loanTokenRecord.lastUpdatedBlockLevel;
-    const tokenName : string = loanTokenRecord.tokenName;
-
-    // init variables
-    var borrowIndex : nat := loanTokenRecord.borrowIndex;
-
-    if Tezos.get_level() > lastUpdatedBlockLevel then {
-
-        const lastUpdatedBlockLevel  : nat = loanTokenRecord.lastUpdatedBlockLevel;
-        const currentInterestRate    : nat = loanTokenRecord.currentInterestRate;
-
-        const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel, s);
-        borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy;
-
-        s.tempMap["updateTokenState - compoundedInterest"] := compoundedInterest;
-        s.tempMap["updateTokenState - borrowIndex"] := borrowIndex;
-
-    } else skip;
-
-    loanTokenRecord.lastUpdatedBlockLevel := Tezos.get_level();
-    loanTokenRecord.borrowIndex := borrowIndex;
-    s.loanTokenLedger[tokenName] := loanTokenRecord;
-
-} with (s)
-
-
-
-// helper function to updateInterestRate
-function updateInterestRate(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : lendingControllerStorageType is
-block {
-
-    // AAVE Whitepaper reference for interest rate: https://github.com/aave/aave-protocol/blob/master/docs/Aave_Protocol_Whitepaper_v1_0.pdf
-
-    // get token record
-    // var tokenRecord : loanTokenRecordType := case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
-    //         Some (_tokenRecord) -> _tokenRecord
-    //     |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    // ];
-
-    // init params
-    const tokenName                 : string = loanTokenRecord.tokenName;
+    
     const tokenPoolTotal            : nat    = loanTokenRecord.tokenPoolTotal;             // 1e6
     const totalBorrowed             : nat    = loanTokenRecord.totalBorrowed;              // 1e6
-    const optimalUtilisationRate    : nat    = loanTokenRecord.optimalUtilisationRate;     // 1e4
+    const optimalUtilisationRate    : nat    = loanTokenRecord.optimalUtilisationRate;     // 1e27
+    const lastUpdatedBlockLevel     : nat    = loanTokenRecord.lastUpdatedBlockLevel;
 
-    const baseInterestRate                      : nat = loanTokenRecord.baseInterestRate;                    // r0
-    const interestRateBelowOptimalUtilisation   : nat = loanTokenRecord.interestRateBelowOptimalUtilisation; // r1
-    const interestRateAboveOptimalUtilisation   : nat = loanTokenRecord.interestRateAboveOptimalUtilisation; // r2
+    const baseInterestRate                      : nat = loanTokenRecord.baseInterestRate;                    // r0 - 1e27
+    const interestRateBelowOptimalUtilisation   : nat = loanTokenRecord.interestRateBelowOptimalUtilisation; // r1 - 1e27
+    const interestRateAboveOptimalUtilisation   : nat = loanTokenRecord.interestRateAboveOptimalUtilisation; // r2 - 1e27
 
+    var borrowIndex                 : nat   := loanTokenRecord.borrowIndex;
     var currentInterestRate         : nat := loanTokenRecord.currentInterestRate;
+
+    // calculate utilisation rate - total debt borrowed / token pool total
+    const utilisationRate : nat = (totalBorrowed * fixedPointAccuracy) / tokenPoolTotal;  // utilisation rate, or ratio of debt to total amount -> (1e6 * 1e27 / 1e6) -> 1e27
 
     // if total borrowed is greater than 0
     if totalBorrowed > 0n then {
 
-        // calculate utilisation rate - total debt borrowed / token pool total
-        const utilisationRate : nat = (totalBorrowed * fixedPointAccuracy) / tokenPoolTotal;  // utilisation rate, or ratio of debt to total amount -> (1e6 * 1e24 / 1e6) -> 1e24
-        const rebasedOptimalUtilisationRate : nat = optimalUtilisationRate * fpa10e20;        // set base decimals to the same as utilisation rate - 1e4 * 1e20 -> 1e24
-
-        if utilisationRate > rebasedOptimalUtilisationRate then {
+        if utilisationRate > optimalUtilisationRate then {
 
             // utilisation rate is above optimal rate
 
-            const firstTerm : nat = baseInterestRate;                       // 1e4
-            const secondTerm : nat = interestRateBelowOptimalUtilisation;   // 1e4
+            const firstTerm : nat = baseInterestRate;                       // 1e27
+            const secondTerm : nat = interestRateBelowOptimalUtilisation;   // 1e27
             
-            const utilisationRateLessOptimalRate : nat = abs(utilisationRate - rebasedOptimalUtilisationRate);  // 1e24 (from above)
-            const coefficientDenominator : nat = (abs(fpa10e4 - optimalUtilisationRate)) * fpa10e20;            // 1e4 * 1e20 -> 1e24
-            const thirdTerm : nat = (((utilisationRateLessOptimalRate * fixedPointAccuracy) / coefficientDenominator) * interestRateAboveOptimalUtilisation) / fixedPointAccuracy;
+            const utilisationRateLessOptimalRate : nat = abs(utilisationRate - optimalUtilisationRate);       // 1e27 (from above)
+            const coefficientDenominator : nat = abs(fixedPointAccuracy - optimalUtilisationRate);            // 1e27 - 1e27 -> 1e27
+            const thirdTerm : nat = (((utilisationRateLessOptimalRate * fixedPointAccuracy) / coefficientDenominator) * interestRateAboveOptimalUtilisation) / fixedPointAccuracy; // ( ((1e27 * 1e27) / 1e27) * 1e27) / 1e27 -> 1e27
 
             currentInterestRate := firstTerm + secondTerm + thirdTerm;
 
@@ -984,25 +958,154 @@ block {
 
             // utilisation rate is below optimal rate
 
-            const firstTerm : nat = baseInterestRate;
+            const firstTerm : nat = baseInterestRate; // 1e27
 
-            const secondTermCoefficient : nat = (utilisationRate * fixedPointAccuracy) / optimalUtilisationRate;
-            const secondTerm : nat = (secondTermCoefficient * interestRateBelowOptimalUtilisation) / fixedPointAccuracy;
+            const secondTermCoefficient : nat = (utilisationRate * fixedPointAccuracy) / optimalUtilisationRate;            // 1e27 * 1e27 / 1e27 -> 1e27
+            const secondTerm : nat = (secondTermCoefficient * interestRateBelowOptimalUtilisation) / fixedPointAccuracy;    // 1e27 * 1e27 / 1e27 -> 1e27
 
-            currentInterestRate := firstTerm + secondTerm;
+            currentInterestRate := firstTerm + secondTerm; 
 
         };
 
-        s.tempMap["updateInterestRate - currentInterestRate"] := currentInterestRate;
-
-        // update storage
-        loanTokenRecord.utilisationRate := utilisationRate;
-        loanTokenRecord.currentInterestRate := currentInterestRate;
-        s.loanTokenLedger[tokenName] := loanTokenRecord;
+        s.tempMap["updateInterestRate - utilisationRate"]       := utilisationRate;
+        s.tempMap["updateInterestRate - currentInterestRate"]   := currentInterestRate;
 
     } else skip;
     
-} with (s)
+
+    if Tezos.get_level() > lastUpdatedBlockLevel then {
+
+        const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel, s); // 1e27 
+        borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1e27 x 1e27 / 1e27 -> 1e27
+
+        s.tempMap["updateLoanTokenState - compoundedInterest"] := compoundedInterest;
+        s.tempMap["updateLoanTokenState - borrowIndex"]        := borrowIndex;
+
+    } else skip;
+
+    loanTokenRecord.lastUpdatedBlockLevel   := Tezos.get_level();
+    loanTokenRecord.borrowIndex             := borrowIndex;
+    loanTokenRecord.utilisationRate         := utilisationRate;
+    loanTokenRecord.currentInterestRate     := currentInterestRate;
+
+} with loanTokenRecord
+
+
+
+// accrue interest to vault
+function accrueInterestToVault(const currentLoanOutstandingTotal : nat; const vaultBorrowIndex : nat; const tokenBorrowIndex : nat) : nat is 
+block {
+
+    // init new loan outstanding total
+    var newLoanOutstandingTotal : nat := currentLoanOutstandingTotal;
+
+    if currentLoanOutstandingTotal > 0n then block {
+
+        if vaultBorrowIndex =/= 0n
+        then newLoanOutstandingTotal := (currentLoanOutstandingTotal * tokenBorrowIndex) / vaultBorrowIndex
+        else skip;
+
+    } else skip;
+
+} with newLoanOutstandingTotal
+
+
+
+// helper function to update token state
+// - updates last updated block level and borrow index
+// function updateLoanTokenState(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : lendingControllerStorageType is
+// block{
+
+//     const lastUpdatedBlockLevel : nat = loanTokenRecord.lastUpdatedBlockLevel;
+//     const tokenName : string = loanTokenRecord.tokenName;
+
+//     // init variables
+//     var borrowIndex : nat := loanTokenRecord.borrowIndex;
+
+//     if Tezos.get_level() > lastUpdatedBlockLevel then {
+
+//         const lastUpdatedBlockLevel  : nat = loanTokenRecord.lastUpdatedBlockLevel;
+//         const currentInterestRate    : nat = loanTokenRecord.currentInterestRate;
+
+//         const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel, s); // 1e27 
+//         borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1 x 1e27 / 1e27 -> 1
+
+//         s.tempMap["updateLoanTokenState - compoundedInterest"] := compoundedInterest;
+//         s.tempMap["updateLoanTokenState - borrowIndex"]        := borrowIndex;
+
+//     } else skip;
+
+//     loanTokenRecord.lastUpdatedBlockLevel   := Tezos.get_level();
+//     loanTokenRecord.borrowIndex             := borrowIndex;
+//     s.loanTokenLedger[tokenName]            := loanTokenRecord;
+
+// } with (s)
+
+
+
+// helper function to updateInterestRate
+// - updates utilisation rate and current interest rate
+// function updateInterestRate(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : lendingControllerStorageType is
+// block {
+
+//     // AAVE Whitepaper reference for interest rate: https://github.com/aave/aave-protocol/blob/master/docs/Aave_Protocol_Whitepaper_v1_0.pdf
+
+//     // init params
+//     const tokenName                 : string = loanTokenRecord.tokenName;
+//     const tokenPoolTotal            : nat    = loanTokenRecord.tokenPoolTotal;             // 1e6
+//     const totalBorrowed             : nat    = loanTokenRecord.totalBorrowed;              // 1e6
+//     const optimalUtilisationRate    : nat    = loanTokenRecord.optimalUtilisationRate;     // 1e27
+
+//     const baseInterestRate                      : nat = loanTokenRecord.baseInterestRate;                    // r0 - 1e27
+//     const interestRateBelowOptimalUtilisation   : nat = loanTokenRecord.interestRateBelowOptimalUtilisation; // r1 - 1e27
+//     const interestRateAboveOptimalUtilisation   : nat = loanTokenRecord.interestRateAboveOptimalUtilisation; // r2 - 1e27
+
+//     var currentInterestRate         : nat := loanTokenRecord.currentInterestRate;
+
+//     // calculate utilisation rate - total debt borrowed / token pool total
+//     const utilisationRate : nat = (totalBorrowed * fixedPointAccuracy) / tokenPoolTotal;  // utilisation rate, or ratio of debt to total amount -> (1e6 * 1e27 / 1e6) -> 1e27
+
+//     // if total borrowed is greater than 0
+//     if totalBorrowed > 0n then {
+
+//         if utilisationRate > optimalUtilisationRate then {
+
+//             // utilisation rate is above optimal rate
+
+//             const firstTerm : nat = baseInterestRate;                       // 1e27
+//             const secondTerm : nat = interestRateBelowOptimalUtilisation;   // 1e27
+            
+//             const utilisationRateLessOptimalRate : nat = abs(utilisationRate - optimalUtilisationRate);       // 1e27 (from above)
+//             // const coefficientDenominator : nat = (abs(fpa10e4 - optimalUtilisationRate)) * fpa10e23;       // 1e4 * 1e23 -> 1e27
+//             const coefficientDenominator : nat = abs(fixedPointAccuracy - optimalUtilisationRate);            // 1e27 - 1e27 -> 1e27
+//             const thirdTerm : nat = (((utilisationRateLessOptimalRate * fixedPointAccuracy) / coefficientDenominator) * interestRateAboveOptimalUtilisation) / fixedPointAccuracy; // ( ((1e27 * 1e27) / 1e27) * 1e27) / 1e27 -> 1e27
+
+//             currentInterestRate := firstTerm + secondTerm + thirdTerm;
+
+//         } else {
+
+//             // utilisation rate is below optimal rate
+
+//             const firstTerm : nat = baseInterestRate; // 1e27
+
+//             const secondTermCoefficient : nat = (utilisationRate * fixedPointAccuracy) / optimalUtilisationRate;            // 1e27 * 1e27 / 1e27 -> 1e27
+//             const secondTerm : nat = (secondTermCoefficient * interestRateBelowOptimalUtilisation) / fixedPointAccuracy;    // 1e27 * 1e27 / 1e27 -> 1e27
+
+//             currentInterestRate := firstTerm + secondTerm; 
+
+//         };
+
+//     } else skip;
+
+//     s.tempMap["updateInterestRate - utilisationRate"]       := utilisationRate;
+//     s.tempMap["updateInterestRate - currentInterestRate"]   := currentInterestRate;
+
+//     // update storage
+//     loanTokenRecord.utilisationRate      := utilisationRate;
+//     loanTokenRecord.currentInterestRate  := currentInterestRate;
+//     s.loanTokenLedger[tokenName]         := loanTokenRecord;
+    
+// } with (s)
 
 
 // ------------------------------------------------------------------------------
@@ -1073,15 +1176,7 @@ block {
 
     var tokenName : string := "empty";
     for _key -> value in map s.collateralTokenLedger block {
-        
-        // case value.tokenType of [
-        //     |   Tez(_tez)    -> tokenName := "tez"
-        //     |   Fa12(_token) -> if tokenContractAddress = _token then tokenName := _key else skip
-        //     |   Fa2(_token)  -> if tokenContractAddress = _token.tokenContractAddress then tokenName := _key else skip
-        // ];
-        
         if value.tokenContractAddress = tokenContractAddress then tokenName := _key else skip;
-
     };
 
     const collateralTokenRecord : option(collateralTokenRecordType) = Map.find_opt(tokenName, s.collateralTokenLedger)

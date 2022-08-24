@@ -400,7 +400,7 @@ block {
                 s := updateInterestRate(tokenName, s);
 
                 // Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(tokenName, s);
+                s := updateLoanTokenState(tokenName, s);
 
                 // Get Token Record and info
                 const tokenRecord : tokenRecordType = case s.tokenLedger[tokenName] of [
@@ -531,7 +531,7 @@ block {
                 s := updateInterestRate(tokenName, s);
 
                 // Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(tokenName, s);
+                s := updateLoanTokenState(tokenName, s);
 
                 
             }
@@ -609,7 +609,7 @@ block {
                 s := updateInterestRate(tokenName, s);
 
                 // Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(tokenName, s);
+                s := updateLoanTokenState(tokenName, s);
                 
             }
         |   _ -> skip

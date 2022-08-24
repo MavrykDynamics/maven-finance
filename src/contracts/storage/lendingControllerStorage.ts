@@ -22,6 +22,7 @@ const config = {
     interestTreasuryShare       : 100,
 
     decimals                    : 4,       // decimals 
+    interestRateDecimals        : 27,      // interest rate decimals
     maxDecimalsForCalculation   : 32,
 
     maxVaultLiquidationPercent  : 500,
@@ -72,7 +73,7 @@ const usdtRecord = {
     tokenContractAddress        : zeroAddress,
     tokenType                   : usdtTokenType, 
     tokenId                     : 0,
-    decimals                    : 6,
+    tokenDecimals               : 6,
 
     lpTokensTotal               : 0,
     lpTokenContractAddress      : zeroAddress,

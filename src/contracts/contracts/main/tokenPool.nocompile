@@ -318,7 +318,7 @@ block{
 
 
 // helper function to update token state
-function updateTokenState(const tokenName : string; var s : tokenPoolStorageType) : tokenPoolStorageType is
+function updateLoanTokenState(const tokenName : string; var s : tokenPoolStorageType) : tokenPoolStorageType is
 block{
 
     // get token record
