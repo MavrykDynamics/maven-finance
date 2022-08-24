@@ -74,7 +74,7 @@ export const FarmWithdrawModal = ({ loading, cancelCallback }: { loading: boolea
 
         <FarmInputSection onSubmit={handleSubmit}>
           <div className="input-info">
-            <p>Min 1 LP token</p>
+            <div />
             <button>Use Max</button>
           </div>
           <Input
