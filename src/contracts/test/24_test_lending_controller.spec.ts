@@ -162,17 +162,18 @@ describe("Lending Controller tests", async () => {
                 const tokenName                             = "mockFa12";
                 const tokenContractAddress                  = mockFa12TokenAddress.address;
                 const tokenType                             = "fa12";
-                const decimals                              = 6;
+                const tokenDecimals                         = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
                 const lpTokenId                             = 0;
 
-                const reserveRatio                          = 3000; // 30% reserves
-                const optimalUtilisationRate                = 3000; // 30% utilisation rate kink
-                const baseInterestRate                      = 500;  // 5%
-                const maxInterestRate                       = 2500; // 25% 
-                const interestRateBelowOptimalUtilisation   = 1000; // 10% 
-                const interestRateAboveOptimalUtilisation   = 2000; // 20%
+                const interestRateDecimals                  = 27;
+                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
                 // check if loan token exists
                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
@@ -182,7 +183,7 @@ describe("Lending Controller tests", async () => {
                     const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
                         tokenName,
-                        decimals,
+                        tokenDecimals,
 
                         lpTokenContractAddress,
                         lpTokenId,
@@ -250,17 +251,18 @@ describe("Lending Controller tests", async () => {
                 const tokenContractAddress                  = mockFa2TokenAddress.address;
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
-                const decimals                              = 6;
+                const tokenDecimals                         = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
                 const lpTokenId                             = 0;
 
-                const reserveRatio                          = 3000; // 30% reserves
-                const optimalUtilisationRate                = 3000; // 30% utilisation rate kink
-                const baseInterestRate                      = 500;  // 5%
-                const maxInterestRate                       = 2500; // 25% 
-                const interestRateBelowOptimalUtilisation   = 1000; // 10% 
-                const interestRateAboveOptimalUtilisation   = 2000; // 20%
+                const interestRateDecimals                  = 27;
+                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
                 // const contractParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
                 // console.log(JSON.stringify(contractParameterSchema,null,2));
@@ -272,7 +274,7 @@ describe("Lending Controller tests", async () => {
                     const adminSetMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
                         tokenName,
-                        decimals,
+                        tokenDecimals,
 
                         lpTokenContractAddress,
                         lpTokenId,
@@ -343,17 +345,18 @@ describe("Lending Controller tests", async () => {
 
                 const tokenName                             = "tez";
                 const tokenType                             = "tez";
-                const decimals                              = 6;
+                const tokenDecimals                         = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
                 const lpTokenId                             = 0;
 
-                const reserveRatio                          = 3000; // 30% reserves
-                const optimalUtilisationRate                = 3000; // 30% utilisation rate kink
-                const baseInterestRate                      = 500;  // 5%
-                const maxInterestRate                       = 2500; // 25% 
-                const interestRateBelowOptimalUtilisation   = 1000; // 10% 
-                const interestRateAboveOptimalUtilisation   = 2000; // 20%
+                const interestRateDecimals                  = 27;
+                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
                 // check if loan token exists
                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
@@ -363,7 +366,7 @@ describe("Lending Controller tests", async () => {
                     const adminSeTezLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
                         tokenName,
-                        decimals,
+                        tokenDecimals,
 
                         lpTokenContractAddress,
                         lpTokenId,
@@ -385,7 +388,7 @@ describe("Lending Controller tests", async () => {
                     const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
                     assert.equal(tezLoanToken.tokenName              , tokenName);
-                    assert.equal(tezLoanToken.decimals               , decimals);
+                    assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
 
                     assert.equal(tezLoanToken.lpTokensTotal          , 0);
                     assert.equal(tezLoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -431,22 +434,23 @@ describe("Lending Controller tests", async () => {
                 const tokenContractAddress                  = mockFa2TokenAddress.address;
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
-                const decimals                              = 6;
+                const tokenDecimals                         = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
                 const lpTokenId                             = 0;
 
-                const reserveRatio                          = 3000; // 30% reserves
-                const optimalUtilisationRate                = 3000; // 30% utilisation rate kink
-                const baseInterestRate                      = 500;  // 5%
-                const maxInterestRate                       = 2500; // 25% 
-                const interestRateBelowOptimalUtilisation   = 1000; // 10% 
-                const interestRateAboveOptimalUtilisation   = 2000; // 20%
+                const interestRateDecimals                  = 27;
+                const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+                const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+                const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+                const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+                const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+                const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
                 await chai.expect(lendingControllerInstance.methods.setLoanToken(
                         
                     tokenName,
-                    decimals,
+                    tokenDecimals,
 
                     lpTokenContractAddress,
                     lpTokenId,
@@ -498,7 +502,7 @@ describe("Lending Controller tests", async () => {
                 const tokenType                  = "fa12";
                 const tokenId                    = 0;
 
-                const decimals                   = 6;
+                const tokenDecimals              = 6;
                 const oracleType                 = "oracle";
                 const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
                 
@@ -511,7 +515,7 @@ describe("Lending Controller tests", async () => {
                         
                         tokenName,
                         tokenContractAddress,
-                        decimals,
+                        tokenDecimals,
 
                         oracleType,
                         oracleAddress,
@@ -532,7 +536,7 @@ describe("Lending Controller tests", async () => {
                 // assert.equal(mockFa12CollateralToken.tokenContractAddress   , tokenContractAddress);
                 // assert.equal(mockFa12CollateralToken.tokenId                , tokenId);
 
-                assert.equal(mockFa12CollateralToken.decimals               , decimals);
+                assert.equal(mockFa12CollateralToken.tokenDecimals          , tokenDecimals);
                 assert.equal(mockFa12CollateralToken.oracleType             , oracleType);
                 assert.equal(mockFa12CollateralToken.oracleAddress          , oracleAddress);
                 
@@ -554,7 +558,7 @@ describe("Lending Controller tests", async () => {
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
 
-                const decimals                              = 6;
+                const tokenDecimals                         = 6;
                 const oracleType                            = "oracle";
                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;;
                 
@@ -567,7 +571,7 @@ describe("Lending Controller tests", async () => {
                         
                         tokenName,
                         tokenContractAddress,
-                        decimals,
+                        tokenDecimals,
 
                         oracleType,
                         oracleAddress,
@@ -589,7 +593,7 @@ describe("Lending Controller tests", async () => {
                 // assert.equal(mockFa2CollateralToken.tokenContractAddress   , tokenContractAddress);
                 // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
 
-                assert.equal(mockFa2CollateralToken.decimals               , decimals);
+                assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
                 assert.equal(mockFa2CollateralToken.oracleType             , oracleType);
                 assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
 
@@ -611,7 +615,7 @@ describe("Lending Controller tests", async () => {
                 const tokenType                             = "tez";
                 const tokenId                               = 0;
 
-                const decimals                              = 6;
+                const tokenDecimals                         = 6;
                 const oracleType                            = "oracle";
                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;;
                 
@@ -624,7 +628,7 @@ describe("Lending Controller tests", async () => {
                         
                         tokenName,
                         tokenContractAddress,
-                        decimals,
+                        tokenDecimals,
 
                         oracleType,
                         oracleAddress,
@@ -646,7 +650,7 @@ describe("Lending Controller tests", async () => {
                 // assert.equal(mockFa2CollateralToken.tokenContractAddress   , tokenContractAddress);
                 // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
 
-                assert.equal(mockFa2CollateralToken.decimals               , decimals);
+                assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
                 assert.equal(mockFa2CollateralToken.oracleType             , oracleType);
                 assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
 
@@ -668,7 +672,7 @@ describe("Lending Controller tests", async () => {
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
 
-                const decimals                              = 6;
+                const tokenDecimals                         = 6;
                 const oracleType                            = "oracle";
                 const oracleAddress                         = zeroAddress;
             
@@ -677,7 +681,7 @@ describe("Lending Controller tests", async () => {
                         
                     tokenName,
                     tokenContractAddress,
-                    decimals,
+                    tokenDecimals,
 
                     oracleType,
                     oracleAddress,
@@ -2533,24 +2537,6 @@ describe("Lending Controller tests", async () => {
             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
 
-            // check interests changes
-            const loanTokenName = "mockFa12";
-            const testLoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
-            console.log(testLoanTokenView);
-
-            const borrowIndex = await updatedLendingControllerStorage.tempMap.get("updateTokenState - borrowIndex");
-            const compoundedInterest = await updatedLendingControllerStorage.tempMap.get("updateTokenState - compoundedInterest");
-            const currentInterestRate = await updatedLendingControllerStorage.tempMap.get("updateInterestRate - currentInterestRate");
-
-            console.log(updatedLendingControllerStorage.tempMap);
-            console.log('borrowIndex: ' + borrowIndex);
-            console.log('compoundedInterest: ' + compoundedInterest);
-            console.log('currentInterestRate: ' + currentInterestRate);
-
-            console.log('updatedvaultRecord');
-            console.log(updatedvaultRecord);
-            console.log("updatedLoanOutstandingTotal: " + updatedLoanOutstandingTotal);
-
             // check vault loan records
             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal + borrowAmount);
             assert.equal(updatedLoanPrincipalTotal, initialLoanPrincipalTotal + borrowAmount);
@@ -2739,7 +2725,7 @@ describe("Lending Controller tests", async () => {
             const totalRemaining      = loanTokenRecordView.totalRemaining;
 
             const requiredReserves    = (tokenPoolTotal * reserveRatio) / (10 ** decimals);
-            const borrowTooMuchAmount = (totalBorrowed - requiredReserves) + 1;
+            const borrowTooMuchAmount = (tokenPoolTotal - requiredReserves - totalBorrowed) + 10;
 
             const borrowAmount        = borrowTooMuchAmount; // 2 Mock FA12 Tokens
 
@@ -2869,6 +2855,25 @@ describe("Lending Controller tests", async () => {
             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
 
+            // check interests changes
+            const testMockFa12LoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord("mockFa12").executeView({ viewCaller : bob.pkh});
+            const testMockFa2LoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord("mockFa2").executeView({ viewCaller : bob.pkh});
+            const testMockTezLoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord("tez").executeView({ viewCaller : bob.pkh});
+            console.log(testMockFa12LoanTokenView);
+            console.log(testMockFa2LoanTokenView);
+            console.log(testMockTezLoanTokenView);
+
+            const borrowIndex = await updatedLendingControllerStorage.tempMap.get("updateLoanTokenState - borrowIndex");
+            const compoundedInterest = await updatedLendingControllerStorage.tempMap.get("updateLoanTokenState - compoundedInterest");
+            const currentInterestRate = await updatedLendingControllerStorage.tempMap.get("updateInterestRate - currentInterestRate");
+            const utilisationRate = await updatedLendingControllerStorage.tempMap.get("updateInterestRate - utilisationRate");
+
+            // console.log(updatedLendingControllerStorage.tempMap);
+            console.log('borrowIndex: ' + borrowIndex);
+            console.log('compoundedInterest: ' + compoundedInterest);
+            console.log('utilisationRate: ' + utilisationRate);
+            console.log('currentInterestRate: ' + currentInterestRate);
+
             // check vault loan records
             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal + borrowAmount);
             assert.equal(updatedLoanPrincipalTotal, initialLoanPrincipalTotal + borrowAmount);
@@ -2909,9 +2914,9 @@ describe("Lending Controller tests", async () => {
 
 
 
-    // // 
-    // // Test: repay
-    // //
+    // 
+    // Test: repay
+    //
     // describe('%repay', function () {
 
     //     it('user (eve) can repay 1 Mock FA12 Token', async () => {
@@ -2984,8 +2989,8 @@ describe("Lending Controller tests", async () => {
     //         const testLoanTokenView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         console.log(testLoanTokenView);
 
-    //         const borrowIndex = await updatedLendingControllerStorage.tempMap.get("updateTokenState - borrowIndex");
-    //         const compoundedInterest = await updatedLendingControllerStorage.tempMap.get("updateTokenState - compoundedInterest");
+    //         const borrowIndex = await updatedLendingControllerStorage.tempMap.get("updateLoanTokenState - borrowIndex");
+    //         const compoundedInterest = await updatedLendingControllerStorage.tempMap.get("updateLoanTokenState - compoundedInterest");
     //         const currentInterestRate = await updatedLendingControllerStorage.tempMap.get("updateInterestRate - currentInterestRate");
 
     //         console.log(updatedLendingControllerStorage.tempMap);
