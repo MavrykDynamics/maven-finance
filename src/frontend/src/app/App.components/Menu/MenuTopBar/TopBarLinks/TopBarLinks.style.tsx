@@ -31,11 +31,20 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
       stroke: ${silverColor};
     }
 
+    a {
+      color: ${silverColor};
+      transition: 0.35s all;
+    }
+
     &:hover {
       color: ${cyanColor};
 
       svg {
         stroke: ${cyanColor};
+      }
+
+      a {
+        color: ${cyanColor};
       }
     }
 
