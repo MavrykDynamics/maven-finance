@@ -35,6 +35,7 @@ type lendingControllerConfigType is [@layout:comb] record [
     interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
 
     decimals                     : nat;         // decimals used for percentage calculation
+    interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
     maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
 
     maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
@@ -80,7 +81,7 @@ type depositorLedgerType is big_map((address * string), nat)   // key - user add
 type collateralTokenRecordType is [@layout:comb] record [
     tokenName               : string;
     tokenContractAddress    : address;
-    decimals                : nat;       // token decimals
+    tokenDecimals           : nat;       // token decimals
 
     oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
@@ -94,7 +95,7 @@ type loanTokenRecordType is [@layout:comb] record [
     
     tokenName                               : string;
     tokenType                               : tokenType; 
-    decimals                                : nat;
+    tokenDecimals                           : nat;
 
     lpTokensTotal                           : nat;
     lpTokenContractAddress                  : address;
@@ -215,7 +216,7 @@ type closeVaultActionType is [@layout:comb] record [
 
 type setLoanTokenActionType is [@layout:comb] record [
     tokenName                               : string;
-    decimals                                : nat;
+    tokenDecimals                           : nat;
 
     lpTokenContractAddress                  : address;
     lpTokenId                               : nat;
@@ -237,7 +238,7 @@ type updateCollateralTokenActionType is [@layout:comb] record [
 
     tokenName               : string;
     tokenContractAddress    : address;
-    decimals                : nat; 
+    tokenDecimals           : nat; 
 
     oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
