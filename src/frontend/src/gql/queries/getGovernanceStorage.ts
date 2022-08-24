@@ -45,13 +45,10 @@ export const GOVERNANCE_STORAGE_QUERY = `
       snapshot_smvk_total_supply
       status
       token_amount
-      token_contract_address
       token_id
-      token_name
       treasury_id
       governance_financial_id
       key_hash
-      token_type
       pass_vote_smvk_total
       nay_vote_smvk_total
       yay_vote_smvk_total
@@ -61,7 +58,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
         timestamp
         vote
         voter_id
-        voting_power
       }
       governance_financial {
         governance {
@@ -109,7 +105,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
         round
         vote
         voter_id
-        voting_power
       }
       proposal_data {
         bytes
@@ -124,17 +119,15 @@ export const GOVERNANCE_STORAGE_QUERY = `
         record_internal_id
         title
         to__id
-        token_address
         token_amount
         token_id
-        token_standard
       }
     }
   }
-`
+`;
 
-export const GOVERNANCE_STORAGE_QUERY_NAME = 'GetGovernanceStorageQuery'
-export const GOVERNANCE_STORAGE_QUERY_VARIABLE = {}
+export const GOVERNANCE_STORAGE_QUERY_NAME = "GetGovernanceStorageQuery";
+export const GOVERNANCE_STORAGE_QUERY_VARIABLE = {};
 
 export const CURRENT_ROUND_PROPOSALS_QUERY = `
 query GetCurrentRoundProposalsQuery {
@@ -178,7 +171,6 @@ query GetCurrentRoundProposalsQuery {
         round
         vote
         voter_id
-        voting_power
       }
       proposal_data {
         bytes
@@ -200,7 +192,8 @@ query GetCurrentRoundProposalsQuery {
       }
     }
   }
-`
+`;
 
-export const CURRENT_ROUND_PROPOSALS_QUERY_NAME = 'GetCurrentRoundProposalsQuery'
-export const CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE = {}
+export const CURRENT_ROUND_PROPOSALS_QUERY_NAME =
+  "GetCurrentRoundProposalsQuery";
+export const CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE = {};

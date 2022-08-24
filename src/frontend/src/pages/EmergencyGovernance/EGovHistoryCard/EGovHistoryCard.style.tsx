@@ -1,7 +1,13 @@
-import styled from 'styled-components/macro'
-import { Card, royalPurpleColor, cyanColor, boxShadowColor, CardHover } from 'styles'
+import styled from "styled-components/macro";
+import {
+  Card,
+  royalPurpleColor,
+  cyanColor,
+  boxShadowColor,
+  CardHover,
+} from "styles";
 
-import { MavrykTheme } from '../../../styles/interfaces'
+import { MavrykTheme } from "../../../styles/interfaces";
 
 export const EGovHistoryCardStyled = styled(CardHover)`
   width: 100%;
@@ -11,14 +17,17 @@ export const EGovHistoryCardStyled = styled(CardHover)`
   padding: 0;
   cursor: pointer;
   overflow: hidden;
-`
-export const EGovHistoryCardTopSection = styled.div<{ height: number; theme: MavrykTheme }>`
+`;
+export const EGovHistoryCardTopSection = styled.div<{
+  height: number;
+  theme: MavrykTheme;
+}>`
   width: 100%;
   display: grid;
   grid-template-columns: 180px 260px 150px auto 130px;
   padding: 20px 40px;
   padding-right: 26px;
-`
+`;
 
 export const EGovHistoryArrowButton = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
@@ -33,7 +42,7 @@ export const EGovHistoryArrowButton = styled.div<{ theme: MavrykTheme }>`
     stroke-width: 5px;
     fill: none;
   }
-`
+`;
 
 export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -48,7 +57,7 @@ export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.headerSkyColor};
   }
 
-  > p {
+  .group-data {
     margin-bottom: 0;
     margin-top: 0;
     color: ${({ theme }) => theme.valueColor};
@@ -71,9 +80,12 @@ export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
     margin-left: auto;
     justify-content: center;
   }
-`
+`;
 
-export const EGovHistoryCardDropDown = styled.div<{ height: number; theme: MavrykTheme }>`
+export const EGovHistoryCardDropDown = styled.div<{
+  height: number;
+  theme: MavrykTheme;
+}>`
   width: 100%;
   height: 0;
   justify-content: space-between;
@@ -109,7 +121,7 @@ export const EGovHistoryCardDropDown = styled.div<{ height: number; theme: Mavry
   }
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     border-top: 1px solid ${royalPurpleColor};
     width: 100%;
@@ -138,4 +150,4 @@ export const EGovHistoryCardDropDown = styled.div<{ height: number; theme: Mavry
   &.hide {
     height: 0; /* changed */
   }
-`
+`;

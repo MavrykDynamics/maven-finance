@@ -1,14 +1,14 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { cyanColor, darkPurpleColor, silverColor } from 'styles'
 
-export const TopBarLinksStyled = styled.div`
+export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selected?: boolean }>`
   margin: 0 25px;
   height: 100%;
   position: relative;
   display: flex;
   align-items: center;
 
-  @media screen and (max-width: 1400px) {
+  @media screen and (min-width: 870px) and (max-width: 1400px) {
     margin: 0 15px;
   }
 
@@ -44,36 +44,13 @@ export const TopBarLinksStyled = styled.div`
     }
   }
 
-  &:hover {
-    .group-links {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .group-name {
-      color: ${cyanColor};
-
-      svg {
-        stroke: ${cyanColor};
-      }
-    }
-  }
-
   .group-links {
-    position: absolute;
     display: flex;
-    top: 80px;
-    opacity: 0;
-    visibility: hidden;
     padding: 20px 45px 20px 15px;
     background-color: #160e3f;
-    border-radius: 10px;
-    border: 1px solid #503eaa;
     transition: 0.6s all;
     flex-direction: column;
     row-gap: 15px;
-    width: fit-content;
-    color: ${silverColor};
 
     a {
       text-transform: capitalize;
@@ -91,4 +68,100 @@ export const TopBarLinksStyled = styled.div`
       }
     }
   }
+
+  ${({ useClickOpening, selected }) =>
+    useClickOpening
+      ? css`
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          height: fit-content;
+          margin: 0;
+
+          .group-name {
+            align-self: flex-start;
+            line-height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+
+            ${() =>
+              css`
+                &:not(.selected):before {
+                  position: absolute;
+                  height: 2px;
+                  width: 100%;
+                  left: 0;
+                  bottom: -10px;
+                  content: '';
+                  background: #38237c;
+                }
+              `}
+
+            &.selected {
+              color: ${cyanColor};
+
+              svg {
+                stroke: ${cyanColor};
+              }
+            }
+          }
+
+          &:nth-last-child(2) {
+            .group-name {
+              &::before {
+                display: none;
+              }
+            }
+          }
+
+          .group-links {
+            height: fit-content;
+            width: 100vw;
+            align-items: center;
+            max-height: 0;
+            display: none;
+            overflow: hidden;
+            background: #080628;
+            margin-top: 10px;
+
+            a {
+              width: 200px;
+              margin-left: 15px;
+            }
+
+            ${() =>
+              selected &&
+              css`
+                display: flex;
+                max-height: fit-content;
+              `}
+          }
+        `
+      : css`
+          .group-links {
+            position: absolute;
+            top: 85px;
+            opacity: 0;
+            visibility: hidden;
+            width: fit-content;
+            border-radius: 10px;
+            border: 1px solid #86d4c9;
+          }
+
+          &:hover {
+            .group-links {
+              opacity: 1;
+              visibility: visible;
+            }
+
+            .group-name {
+              color: ${cyanColor};
+
+              svg {
+                stroke: ${cyanColor};
+              }
+            }
+          }
+        `}
 `

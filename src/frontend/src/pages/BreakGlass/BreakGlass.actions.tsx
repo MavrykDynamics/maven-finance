@@ -9,6 +9,7 @@ import {
   BREAK_GLASS_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import { normalizeBreakGlass, normalizeBreakGlassStatus } from './BreakGlass.helpers'
 
 export const GET_BREAK_GLASS_STORAGE = 'GET_BREAK_GLASS_STORAGE'
 export const SET_GLASS_BROKEN = 'SET_GLASS_BROKEN'
@@ -20,9 +21,13 @@ export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: an
     BREAK_GLASS_STORAGE_QUERY_NAME,
     BREAK_GLASS_STORAGE_QUERY_VARIABLE,
   )
-  const convertedStorage = storageToTypeConverter('breakGlass', storage?.break_glass[0])
 
-  dispatch({ type: SET_GLASS_BROKEN, glassBroken: convertedStorage.glassBroken })
+  const convertedStorage = normalizeBreakGlass(storage?.break_glass[0])
+
+  dispatch({
+    type: SET_GLASS_BROKEN,
+    glassBroken: convertedStorage.glassBroken,
+  })
   dispatch({
     type: GET_BREAK_GLASS_STORAGE,
     breakGlassStorage: storage,
@@ -36,11 +41,11 @@ export const getBreakGlassStatus = (accountPkh?: string) => async (dispatch: any
     BREAK_GLASS_STATUS_QUERY_NAME,
     BREAK_GLASS_STATUS_QUERY_VARIABLE,
   )
-  console.log(storage)
-  const convertedStorage = storageToTypeConverter('breakGlassStatus', storage)
+
+  const breakGlassStatus = normalizeBreakGlassStatus(storage)
 
   dispatch({
     type: GET_BREAK_GLASS_STATUS,
-    breakGlassStatus: convertedStorage,
+    breakGlassStatus,
   })
 }

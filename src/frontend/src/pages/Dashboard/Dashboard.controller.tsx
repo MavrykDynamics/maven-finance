@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect } from 'react'
 import { DashboardStyled } from './Dashboard.style'
-import { getCouncilStorage, getVestingStorage } from '../Treasury/Treasury.actions'
+import { getVestingStorage } from '../Treasury/Treasury.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 
@@ -15,7 +15,6 @@ export const Dashboard = () => {
   const { vestingStorage } = useSelector((state: State) => state.vesting)
 
   useEffect(() => {
-    dispatch(getCouncilStorage())
     dispatch(getVestingStorage())
   }, [dispatch])
 

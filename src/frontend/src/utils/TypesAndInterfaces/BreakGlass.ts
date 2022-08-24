@@ -1,43 +1,30 @@
-type BreakGlassConfig = {
-  threshold: number // min number of council members who need to agree on action
-  actionExpiryDays: number // action expiry in number of days
-  councilMemberNameMaxLength: number
-  councilMemberWebsiteMaxLength: number
-  councilMemberImageMaxLength: number
-}
+// type
+import type {
+  Break_Glass,
+  Aggregator,
+  Aggregator_Factory,
+  Delegation,
+  Doorman,
+  Farm,
+  Farm_Factory,
+  Treasury,
+  Treasury_Factory,
+} from '../generated/graphqlTypes'
 
-export enum BreakGlassActionStatus {
-  PENDING = 0,
-  FLUSHED = 1,
-  EXECUTED = 2,
-}
+import { normalizeBreakGlass, normalizeBreakGlassStatus } from '../../pages/BreakGlass/BreakGlass.helpers'
 
-export type BreakGlassActionSigner = {
-  signerId: string
-  id: number
-  breakGlassActionRecordId: number
-}
-export type BreakGlassActionRecord = {
-  actionType: string
-  breakGlassId: number
-  executed: boolean
-  executedDatetime: Date
-  executedLevel: number
-  expirationDatetime: Date
-  id: number
-  initiatorId: string
-  startDatetime: Date
-  status: BreakGlassActionStatus
-  signers: BreakGlassActionSigner[]
-  signersCount: number
-}
+export type BreakGlassStorage = ReturnType<typeof normalizeBreakGlass>
+export type BreakGlassStatusStorage = ReturnType<typeof normalizeBreakGlassStatus>
 
-export interface BreakGlassStorage {
-  address: string
-  admin: string
-  config: BreakGlassConfig
-  glassBroken: boolean
-  actionCounter: number
-  actionLedger: BreakGlassActionRecord[]
-  governanceId: string
+export type BreakGlassGraphQL = Omit<Break_Glass, '__typename'>
+
+export type BreakGlassStatusGraphQL = {
+  aggregator: Aggregator[]
+  aggregator_factory: Aggregator_Factory[]
+  delegation: Delegation[]
+  doorman: Doorman[]
+  farm: Farm[]
+  farm_factory: Farm_Factory[]
+  treasury: Treasury[]
+  treasury_factory: Treasury_Factory[]
 }

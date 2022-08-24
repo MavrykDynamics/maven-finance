@@ -55,10 +55,10 @@ export const AppRoutes = () => {
       <Route exact path="/become-satellite">
         <BecomeSatellite />
       </Route>
-      <Route exact path="/satellites/satellite-details/:satelliteId/">
+      <Route exact path="/satellites/satellite-details/:satelliteId">
         <SatelliteDetails />
       </Route>
-      <Route exact path="/satellites/feed-details/:feedId/">
+      <Route exact path="/satellites/feed-details/:feedId">
         <DataFeedDetails />
       </Route>
       <Route exact path="/governance">
@@ -85,7 +85,7 @@ export const AppRoutes = () => {
       <Route exact path="/users">
         <Users />
       </Route>
-      <Route exact path="/satellites/user-details/:userId/">
+      <Route exact path="/satellites/user-details/:userId">
         <UserDetails />
       </Route>
       <ProtectedRoute

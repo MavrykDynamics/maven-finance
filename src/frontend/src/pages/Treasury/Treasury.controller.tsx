@@ -4,7 +4,7 @@ import { State } from 'reducers'
 import { useEffect } from 'react'
 
 // actions
-import { getCouncilStorage, fillTreasuryStorage, getVestingStorage } from './Treasury.actions'
+import { fillTreasuryStorage } from './Treasury.actions'
 
 // controller
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'

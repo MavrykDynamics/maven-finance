@@ -4,8 +4,8 @@ import { MvkTokenStorage } from '../utils/TypesAndInterfaces/MvkToken'
 
 export interface MvkTokenState {
   mvkTokenStorage: MvkTokenStorage | any
-  myMvkTokenBalance?: string
-  exchangeRate?: number
+  myMvkTokenBalance: string
+  exchangeRate: number
 }
 
 const defaultMvkTokenStorage: MvkTokenStorage = {

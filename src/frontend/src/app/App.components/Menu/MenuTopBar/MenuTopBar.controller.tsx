@@ -6,7 +6,8 @@ import { MenuLogo } from '../Menu.style'
 import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 import { MenuMobileBurger, MenuTopStyled } from './MenuTopBar.style'
 import { State } from 'reducers'
-import { useCallback } from 'react'
+import { MobileTopBar } from './TopBarLinks/MobileTopBar.controller'
+import { useCallback, useState } from 'react'
 
 type MenuTopBarProps = {
   burgerClickHandler: () => void
@@ -14,7 +15,7 @@ type MenuTopBarProps = {
   isExpandedMenu: boolean
 }
 
-const SocialIcons = () => (
+export const SocialIcons = () => (
   <div className="social-wrapper">
     <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
       <Icon id="socialTwitter" />
@@ -36,27 +37,27 @@ const SocialIcons = () => (
 
 export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodePopupHandler }: MenuTopBarProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
+  const [showMobileTopBar, setShowMobileTopBar] = useState(false)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
-  // const logoMobile = '/logo-mobile.svg'
+  const logoMobile = '/logo-mobile.svg'
+
+  const burgerClickHandlerWrapped = useCallback((e) => {
+    e.stopPropagation()
+    setShowMobileTopBar(false)
+    burgerClickHandler()
+  }, [])
 
   return (
     <MenuTopStyled>
       <div className="left-side">
-        <MenuMobileBurger
-          onClick={(e) => {
-            console.log('button click', isExpandedMenu)
-            e.stopPropagation()
-            burgerClickHandler()
-          }}
-          className={isExpandedMenu ? 'expanded' : ''}
-        >
+        <MenuMobileBurger onClick={burgerClickHandlerWrapped} className={isExpandedMenu ? 'expanded' : ''}>
           <Icon id="menuOpen" />
         </MenuMobileBurger>
 
         <Link to="/">
-          <MenuLogo alt="logo" className={'desctop-logo'} src={logoImg} />
-          {/* <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} /> */}
+          <MenuLogo alt="logo" className={'desktop-logo'} src={logoImg} />
+          <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} />
         </Link>
       </div>
       <div className="grouped-links">
@@ -91,11 +92,33 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
       </div>
       <div className="right-side">
         <SocialIcons />
-        <ConnectWallet type={'main-menu'} />
+        <ConnectWallet />
         <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
           <Icon id="gear" />
         </div>
       </div>
+
+      <div className="mobile-menu">
+        {showMobileTopBar ? (
+          <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
+            <Icon id="gear" />
+          </div>
+        ) : (
+          <MenuMobileBurger onClick={burgerClickHandlerWrapped} className={isExpandedMenu ? 'expanded' : ''}>
+            <Icon id="menuOpen" />
+          </MenuMobileBurger>
+        )}
+
+        <Link to="/">
+          <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} />
+        </Link>
+
+        <div className="top-bar-toggler" onClick={() => setShowMobileTopBar(!showMobileTopBar)}>
+          {showMobileTopBar ? <Icon id="close-stroke" /> : <Icon id="mobileTopBarToggler" />}
+        </div>
+      </div>
+
+      <MobileTopBar show={showMobileTopBar} />
     </MenuTopStyled>
   )
 }
