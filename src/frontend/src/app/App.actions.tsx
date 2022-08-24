@@ -26,7 +26,7 @@ import {
 } from '../gql/queries'
 
 // helpers
-import { normalizeAddressesStorage } from './App.helpers'
+import { normalizeAddressesStorage, normalizeVestingStorage } from './App.helpers'
 import { normalizeDoormanStorage, normalizeMvkToken } from '../pages/Doorman/Doorman.converter'
 import { normalizeFarmStorage } from '../pages/Farms/Frams.helpers'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
@@ -58,7 +58,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   )
   const breakGlassStorage = normalizeBreakGlass(res[6]?.break_glass[0])
   const councilStorage = noralizeCouncilStorage(res[7]?.council?.[0])
-  const vestingStorage = storageToTypeConverter('vesting', res[8]?.vesting[0])
+  const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
   const governanceStorage = storageToTypeConverter('governance', res[9])
   const oraclesStorage = storageToTypeConverter('oracle', res[10])
 
