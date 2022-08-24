@@ -33,6 +33,7 @@ import { CouncilFormTransferTokens } from './CouncilForms/CouncilFormTransferTok
 import { CouncilFormRequestTokens } from './CouncilForms/CouncilFormRequestTokens.view'
 import { CouncilFormRequestTokenMint } from './CouncilForms/CouncilFormRequestTokenMint.view'
 import { CouncilFormDropFinancialRequest } from './CouncilForms/CouncilFormDropFinancialRequest.view'
+import { CouncilFormRemoveVestee } from './CouncilForms/CouncilFormRemoveVestee.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // styles
@@ -67,6 +68,7 @@ export const Council = () => {
     { text: 'Add Council Member', value: 'addCouncilMember' },
     { text: 'Update Vestee', value: 'updateVestee' },
     { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
+    { text: 'Remove Vestee', value: 'removeVestee' },
     { text: 'Change Council Member', value: 'changeCouncilMember' },
     { text: 'Remove Council Member', value: 'removeCouncilMember' },
     { text: 'Update Council Member Info', value: 'updateCouncilMemberInfo' },
@@ -179,6 +181,7 @@ export const Council = () => {
                 {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
                 {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember /> : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
+                {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee /> : null}
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
                 {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember /> : null}
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
