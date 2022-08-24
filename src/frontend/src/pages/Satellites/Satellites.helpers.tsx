@@ -1,12 +1,6 @@
 import { MichelsonMap } from '@taquito/taquito'
 // types
-import type {
-  DelegateRecord,
-  DelegationStorage,
-  SatelliteFinancialRequestVotingHistory,
-  SatelliteProposalVotingHistory,
-  SatelliteRecord,
-} from '../../utils/TypesAndInterfaces/Delegation'
+import type { DelegateRecord, SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import type { MavrykUserGraphQl } from '../../utils/TypesAndInterfaces/User'
 import type { SatelliteRecordGraphQl, DelegationGraphQl } from '../../utils/TypesAndInterfaces/Delegation'
 
@@ -64,6 +58,18 @@ export function normalizeSatelliteRecord(
       })
     : []
 
+  const satelliteActionVotes = userVotingHistory
+    ? userVotingHistory.governance_satellite_actions_votes?.map((vote) => {
+        return {
+          id: vote.id,
+          proposalId: vote.governance_satellite_action_id || 0,
+          timestamp: new Date(vote.timestamp),
+          vote: vote.vote,
+          voterId: vote.voter_id,
+        }
+      })
+    : []
+
   const oracleRecords = (satelliteRecord?.user?.aggregator_oracle_records || []).map(({ oracle, ...rest }) => {
     return {
       ...rest,
@@ -91,6 +97,7 @@ export function normalizeSatelliteRecord(
     proposalVotingHistory,
     financialRequestsVotes,
     emergencyGovernanceVotes,
+    satelliteActionVotes,
   }
 
   return newSatelliteRecord
@@ -103,8 +110,6 @@ function convertToSatelliteRecords(satelliteRecordList: DelegationGraphQl['satel
 }
 
 export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl) {
-  console.log('delegationStorage', delegationStorage)
-
   return {
     breakGlassConfig: {
       delegateToSatelliteIsPaused: delegationStorage?.delegate_to_satellite_paused,

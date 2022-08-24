@@ -274,8 +274,6 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
 
     const userInfoData = userInfoFromIndexer?.mavryk_user[0]
 
-    console.log(userInfoData)
-
     const userIsDelegatedToSatellite = userInfoData?.delegation_records.length > 0
     const userInfo: UserData = {
       myAddress: userInfoData?.address,
