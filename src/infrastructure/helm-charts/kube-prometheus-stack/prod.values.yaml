@@ -813,6 +813,17 @@ kube-prometheus-stack:
       #   replacement: $1
       #   action: replace
 
+    # Persistence coming from the dependency
+    persistence:
+      enabled: true
+      type: pvc
+      storageClassName: do-block-storage
+      accessModes:
+        - ReadWriteOnce
+      size: 4Gi
+      finalizers:
+        - kubernetes.io/pvc-protection
+
   ## Component scraping the kube api server
   ##
   kubeApiServer:

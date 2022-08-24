@@ -69,7 +69,7 @@
 
 # Deploy the indexer on Kubernetes
 
-The documentation about the deployment is inside de **Infrastructure** subfolder.
+The documentation about the deployment is inside de **Infrastructure** subfolder [here](../infrastructure/helm-charts/mavryk-indexer/README.md).
 
 # Indexer debug and update useful info
 

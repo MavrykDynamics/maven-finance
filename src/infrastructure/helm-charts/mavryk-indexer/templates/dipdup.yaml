@@ -135,6 +135,14 @@ data:
         rollback: ignore
         config_modified: wipe
         schema_modified: wipe
+
+    datasources:
+      tzkt_testnet:
+        kind: tzkt
+        url: ${TZKT_TESTNET_URL:-changeme}
+      tzkt_mainnet:
+        kind: tzkt
+        url: ${TZKT_MAINNET_URL:-changeme}
   {{- with .Values.dipdup.extraConfig }}
     {{ tpl . $ | nindent 4 }}
   {{- end }}

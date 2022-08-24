@@ -28,6 +28,14 @@ advanced:
     config_modified: wipe
     schema_modified: wipe
 
+datasources:
+  tzkt_testnet:
+    kind: tzkt
+    url: ${TZKT_TESTNET_URL:-changeme}
+  tzkt_mainnet:
+    kind: tzkt
+    url: ${TZKT_MAINNET_URL:-changeme}
+
 contracts:
   liquidity_baking:
     address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
@@ -86,14 +94,6 @@ contracts:
   token_sale:
     address: KT1JnwFdmJs43bT61XZXCCcGvDam7s4MCLjQ
     typename: token_sale
-
-datasources:
-  tzkt_testnet:
-    kind: tzkt
-    url: ${TZKT_TESTNET_URL:-changeme}
-  tzkt_mainnet:
-    kind: tzkt
-    url: ${TZKT_MAINNET_URL:-changeme}
 
 templates:
   # Template for Farm Factory
