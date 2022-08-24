@@ -17,9 +17,7 @@ export const VotingContainer = styled.aside<{ theme: MavrykTheme; showButtons?: 
   display: flex;
   flex-direction: column;
   margin-top: 42px;
-
-  margin-bottom: ${({ showButtons }) => (showButtons ? '42px' : '0')};
-
+  margin-bottom: ${({ showButtons }) => (showButtons ? 0 : '42px')};
   text-align: end;
 `
 export const QuorumBar = styled.div<{ width: number; theme: MavrykTheme }>`
