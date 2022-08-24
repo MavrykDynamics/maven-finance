@@ -20,9 +20,6 @@ import { VestingStorage } from './TypesAndInterfaces/Vesting'
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
   switch (contract) {
-    case 'council':
-      res = convertToCouncilStorageType(storage)
-      break
     case 'vesting':
       res = convertToVestingStorageType(storage)
       break
@@ -61,60 +58,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
     totalOracleNetworks: storage?.aggregator
       ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0)
       : 0,
-  }
-}
-
-function convertToCouncilStorageType(storage: any): CouncilStorage {
-  const councilActionsLedger: CouncilActionRecord[] = [],
-    councilMembers: { address: string }[] = []
-  storage?.council_action_records.forEach(
-    (actionRecord: {
-      action_type: any
-      council_id: any
-      executed: any
-      executed_datetime: string | number | Date
-      expiration_datetime: string | number | Date
-      id: any
-      initiator_id: any
-      start_datetime: string | number | Date
-      status: any
-      signers: any
-    }) => {
-      const signers: CouncilActionSigner[] = []
-      actionRecord.signers?.forEach((signer: { council_action_record_id: any; id: any; signer_id: any }) => {
-        const newSigner: CouncilActionSigner = {
-          breakGlassActionRecordId: signer.council_action_record_id,
-          id: signer.id,
-          signerId: signer.signer_id,
-        }
-        signers.push(newSigner)
-      })
-
-      const newActionRecord: CouncilActionRecord = {
-        actionType: actionRecord.action_type,
-        councilId: actionRecord.council_id,
-        executed: actionRecord.executed,
-        executedDatetime: new Date(actionRecord.executed_datetime),
-        expirationDatetime: new Date(actionRecord.expiration_datetime),
-        id: actionRecord.id,
-        initiatorId: actionRecord.initiator_id,
-        startDatetime: new Date(actionRecord.start_datetime),
-        status: actionRecord.status,
-        signers,
-      }
-
-      councilActionsLedger.push(newActionRecord)
-    },
-  )
-  return {
-    address: storage?.address,
-    config: {
-      threshold: storage?.threshold,
-      actionExpiryDays: storage?.action_expiry_days,
-    },
-    actionCounter: storage?.action_counter,
-    councilActionsLedger,
-    councilMembers: storage?.council_council_members?.length ? storage.council_council_members : [],
   }
 }
 
