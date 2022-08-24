@@ -125,7 +125,7 @@ export const EmergencyGovernanceView = ({
     <>
       <EmergencyGovernanceCard>
         <h1>What is it?</h1>
-        <p>
+        <div className="inner">
           Handles the event of fatal flaw discovered → hold an emergency governance vote to pause all entrypoints in
           main contracts and pass access to the break glass contract where further actions will be determined by the
           break glass council members using a multi-sig.{' '}
@@ -138,7 +138,7 @@ export const EmergencyGovernanceView = ({
               Read documentation here.
             </a>
           </FAQLink>
-        </p>
+        </div>
       </EmergencyGovernanceCard>
 
       {/* {emergencyGovernanceActive && accountPkh ? (
@@ -152,7 +152,7 @@ export const EmergencyGovernanceView = ({
         <CardContent>
           <CardContentLeftSide>
             <h1>Trigger Emergency Governance Vote</h1>
-            <p>
+            <p className="inner">
               Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
               industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and
               scrambled it to make ...
@@ -167,7 +167,7 @@ export const EmergencyGovernanceView = ({
                 onClick={handleTriggerEmergencyProposal}
               />
             ) : (
-              <ConnectWallet className="connect-wallet" type={'main-menu'} />
+              <ConnectWallet className="connect-wallet" />
             )}
           </CardContentRightSide>
         </CardContent>

@@ -3,13 +3,12 @@ import {
   SET_GLASS_BROKEN,
   GET_BREAK_GLASS_STATUS,
 } from '../pages/BreakGlass/BreakGlass.actions'
-import { BreakGlassStorage } from '../utils/TypesAndInterfaces/BreakGlass'
-import { getItemFromStorage } from '../utils/storage'
+import { BreakGlassStorage, BreakGlassStatusStorage } from '../utils/TypesAndInterfaces/BreakGlass'
 
 export interface BreakGlassState {
-  breakGlassStorage: BreakGlassStorage | any
+  breakGlassStorage: BreakGlassStorage
   glassBroken: boolean
-  breakGlassStatus: any
+  breakGlassStatus: BreakGlassStatusStorage
 }
 
 const defaultBreakGlassStorage: BreakGlassStorage = {
@@ -28,7 +27,7 @@ const defaultBreakGlassStorage: BreakGlassStorage = {
   glassBroken: false,
 }
 const breakGlassDefaultState: BreakGlassState = {
-  breakGlassStorage: getItemFromStorage('BreakGlassStorage') || defaultBreakGlassStorage,
+  breakGlassStorage: defaultBreakGlassStorage,
   glassBroken: false,
   breakGlassStatus: [],
 }
@@ -39,8 +38,8 @@ export function breakGlass(state = breakGlassDefaultState, action: any): BreakGl
       return {
         ...state,
         breakGlassStorage: action.breakGlassStorage,
-      }   
-      case GET_BREAK_GLASS_STATUS:
+      }
+    case GET_BREAK_GLASS_STATUS:
       return {
         ...state,
         breakGlassStatus: action.breakGlassStatus,

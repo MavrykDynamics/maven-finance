@@ -1,11 +1,9 @@
-type VestingConfig = {
-  defaultCliffPeriod: number
-  defaultCooldownPeriod: number
-}
-export interface VestingStorage {
-  address: string
-  config: VestingConfig
-  totalVestedAmount: number
-  sumAmountClaimed: number
-  sumRemainingVested: number
-}
+// type
+import type { Vesting } from '../generated/graphqlTypes'
+
+// helpers
+import { normalizeVestingStorage } from '../../app/App.helpers'
+
+export type VestingStorage = ReturnType<typeof normalizeVestingStorage>
+
+export type VestingGraphQL = Omit<Vesting, '__typename'>

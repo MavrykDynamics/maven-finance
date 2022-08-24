@@ -1,9 +1,8 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
+
 import {
   COUNCIL_PAST_ACTIONS_QUERY,
   COUNCIL_PAST_ACTIONS_NAME,
@@ -15,6 +14,7 @@ import {
   COUNCIL_STORAGE_QUERY_NAME,
   COUNCIL_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries/getCouncilStorage'
+import { noralizeCouncilStorage } from './Council.helpers'
 
 export const GET_COUNCIL_STORAGE = 'GET_COUNCIL_STORAGE'
 export const getCouncilStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -25,7 +25,7 @@ export const getCouncilStorage = (accountPkh?: string) => async (dispatch: any, 
     COUNCIL_STORAGE_QUERY_NAME,
     COUNCIL_STORAGE_QUERY_VARIABLE,
   )
-  const convertedStorage = storageToTypeConverter('council', storage?.council[0])
+  const convertedStorage = noralizeCouncilStorage(storage?.council[0])
 
   dispatch({
     type: GET_COUNCIL_STORAGE,

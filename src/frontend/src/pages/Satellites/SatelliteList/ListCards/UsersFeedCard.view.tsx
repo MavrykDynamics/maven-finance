@@ -7,7 +7,7 @@ import { SatelliteItemStyle } from './SatelliteCard.style'
 
 export const UserDataFeedCard = ({ feed }: { feed: Feed }) => {
   return (
-    <Link to={`/satellites/feed-details/${feed.address}/`}>
+    <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle className="userFeed">
         <div className="item">
           <h5>Feed</h5>
