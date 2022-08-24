@@ -778,3 +778,51 @@ export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: a
     })
   }
 }
+
+// Set Baker Request
+export const SET_BAKER_REQUEST = 'SET_BAKER_REQUEST'
+export const SET_BAKER_RESULT = 'SET_BAKER_RESULT'
+export const SET_BAKER_ERROR = 'SET_BAKER_ERROR'
+export const setBakerRequest = (bakerHash: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: SET_BAKER_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.councilActionSetBaker(bakerHash).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Set Baker Request...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Set Baker Request done', 'All good :)'))
+
+    dispatch(getCouncilStorage())
+    dispatch(getCouncilPastActionsStorage())
+    dispatch(getCouncilPendingActionsStorage())
+    dispatch({
+      type: SET_BAKER_RESULT,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: SET_BAKER_ERROR,
+      error,
+    })
+  }
+}
