@@ -8,11 +8,11 @@ locals {
 }
 
 terraform {
-  source = "../../modules//vpc"
+  source = "../../modules//space"
 }
 
 inputs = {
-  name                  = "mavryk-vpc-sfo3"
-  region                = local.do_region
-  ip_range              = "10.10.11.0/24"
+  name                  = "mavryk-infra"
+  region                = "ams3"
+  versioning_enabled    = true
 }

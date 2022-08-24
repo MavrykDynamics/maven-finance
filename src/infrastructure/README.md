@@ -12,6 +12,7 @@ _All of the listed tools versions are very important. Please follow them to avoi
 - [TGenv](https://github.com/cunymatthieu/tgenv): used to control and properly install [Terragrunt](https://terragrunt.gruntwork.io/). Terragrunt is used to template modules made with Terraform.
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl): command-line tool used to interact with a Kubernetes cluster.
 - [Helm 3.8.1](https://helm.sh/docs/intro/quickstart/): used to template Kubernetes manifest and to configure and install third-party apps easily on Kubernetes.
+- [kubctx/kubens](https://github.com/ahmetb/kubectx): used to easily switch between namespaces and contexts on k8s.
 
 ### Environment Variables
 

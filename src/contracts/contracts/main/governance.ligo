@@ -60,9 +60,9 @@ type governanceAction is
     |   UpdatePaymentData               of updatePaymentDataType
     |   LockProposal                    of actionIdType
     |   VotingRoundVote                 of (votingRoundVoteType)
-    |   ExecuteProposal                 of (unit)
+    |   ExecuteProposal                 of actionIdType
     |   ProcessProposalPayment          of actionIdType
-    |   ProcessProposalSingleData       of (unit)
+    |   ProcessProposalSingleData       of actionIdType
     |   DistributeProposalRewards       of distributeProposalRewardsType
     |   DropProposal                    of actionIdType
 
@@ -280,12 +280,12 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
 
 
 // helper function to %executeProposal entrypoint on the Governance Contract
-function getExecuteProposalEntrypoint(const contractAddress : address) : contract(unit) is
+function getExecuteProposalEntrypoint(const contractAddress : address) : contract(actionIdType) is
     case (Tezos.get_entrypoint_opt(
         "%executeProposal",
-        contractAddress) : option(contract(unit))) of [
+        contractAddress) : option(contract(actionIdType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_EXECUTE_PROPOSAL_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(unit))
+            |   None -> (failwith(error_EXECUTE_PROPOSAL_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(actionIdType))
         ];
 
 
@@ -1217,7 +1217,7 @@ block {
 
 
 // (* executeProposal entrypoint *)
-function executeProposal(var s : governanceStorageType) : return is 
+function executeProposal(const proposalId : actionIdType; var s : governanceStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaExecuteProposal"] of [
@@ -1226,7 +1226,7 @@ block {
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaExecuteProposal(unit);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaExecuteProposal(proposalId);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1255,7 +1255,7 @@ block {
 
 
 // (* processProposalSingleData entrypoint *)
-function processProposalSingleData(var s : governanceStorageType) : return is 
+function processProposalSingleData(const proposalId : actionIdType; var s : governanceStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaProcessProposalSingleData"] of [
@@ -1264,7 +1264,7 @@ block {
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaProcessProposalSingleData(unit);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaProcessProposalSingleData(proposalId);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1375,9 +1375,9 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   UpdatePaymentData(parameters)               -> updatePaymentData(parameters, s)
         |   LockProposal(parameters)                    -> lockProposal(parameters, s)
         |   VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
-        |   ExecuteProposal(_parameters)                -> executeProposal(s)
+        |   ExecuteProposal(parameters)                 -> executeProposal(parameters, s)
         |   ProcessProposalPayment(parameters)          -> processProposalPayment(parameters, s)
-        |   ProcessProposalSingleData(_parameters)      -> processProposalSingleData(s)
+        |   ProcessProposalSingleData(parameters)       -> processProposalSingleData(parameters, s)
         |   DistributeProposalRewards(parameters)       -> distributeProposalRewards(parameters, s)
         |   DropProposal(parameters)                    -> dropProposal(parameters, s)
 
