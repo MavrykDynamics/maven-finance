@@ -730,3 +730,51 @@ export const dropFinancialRequest = (financialReqID: number) => async (dispatch:
     })
   }
 }
+
+// Remove Vestee Request
+export const REMOVE_VESTEE_REQUEST = 'REMOVE_VESTEE_REQUEST'
+export const REMOVE_VESTEE_RESULT = 'REMOVE_VESTEE_RESULT'
+export const REMOVE_VESTEE_ERROR = 'REMOVE_VESTEE_ERROR'
+export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: REMOVE_VESTEE_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.councilActionRemoveVestee(vesteeAddress).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Remove Vestee Request...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Remove Vestee Request done', 'All good :)'))
+
+    dispatch(getCouncilStorage())
+    dispatch(getCouncilPastActionsStorage())
+    dispatch(getCouncilPendingActionsStorage())
+    dispatch({
+      type: REMOVE_VESTEE_RESULT,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: REMOVE_VESTEE_ERROR,
+      error,
+    })
+  }
+}
