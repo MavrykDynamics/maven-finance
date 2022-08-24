@@ -2,6 +2,9 @@ import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import {
   GET_TREASURY_DATA,
+  TREASURY_SMVK_QUERY,
+  TREASURY_SMVK_QUERY_NAME,
+  TREASURY_SMVK_QUERY_VARIABLES,
   TREASURY_STORAGE_QUERY_NAME,
   TREASURY_STORAGE_QUERY_VARIABLE,
 } from 'gql/queries/getTreasuryStorage'
@@ -27,6 +30,39 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
     // Parse gql data to understandable data format
     const convertedStorage = storageToTypeConverter('treasury', treasuryAddressesStorage)
 
+    // Get sMVK balances from gql
+    const sMVKAmounts = await fetchFromIndexer(
+      TREASURY_SMVK_QUERY,
+      TREASURY_SMVK_QUERY_NAME,
+      TREASURY_SMVK_QUERY_VARIABLES(
+        convertedStorage.treasuryAddresses.map(({ address }: { address: string }) => address),
+      ),
+    )
+
+    // Parse sMVK amount for each treasury, to make this structure usable
+    const parsedsMVKAmount = sMVKAmounts.mavryk_user?.map(
+      ({ smvk_balance, address }: { smvk_balance: number; address: string }) => {
+        // TODO: clarify some fieds for sMVK (Example of token object)
+        // balance: 5299.975
+        // contract: "KT1FzmWjf3Wi5MsxvjwZa1CkwekSzhhAPJpj"
+        // decimals: 9
+        // is_transferable: true
+        // name: "MAVRYK"
+        // network: "ghostnet"
+        // symbol: "MVK"
+        // thumbnail_uri: "https://mavryk.finance/logo192.png"
+        // token_id: 0
+
+        return {
+          balance: smvk_balance,
+          treasuryAddress: address,
+          name: 'Staked MAVRYK',
+          symbol: 'sMVK',
+          token_id: 0,
+        }
+      },
+    )
+
     // Map addresses to api cals with treasury addresses
     const getTreasuryCallbacks: Array<() => FetchedTreasuryType> = convertedStorage.treasuryAddresses.map(
       ({ address }: { address: string }) =>
@@ -38,13 +74,17 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
     const fetchedTheasuryData = await Promise.all(getTreasuryCallbacks.map((fn) => fn()))
 
     // Map every treasury to combine treasury name, and divide balance by constant
-
     const treasuryStorage = convertedStorage.treasuryAddresses.map((treasuryData: TreasuryGQLType, idx: number) => {
       const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances
         .map((token) => ({
           ...token,
           balance: Number(token.balance) / TREASURY_BALANCE_DIVIDER,
         }))
+        .concat(
+          parsedsMVKAmount.find(
+            ({ treasuryAddress }: { treasuryAddress: string }) => treasuryAddress === treasuryData.address,
+          ) || [],
+        )
         .sort(
           (asset1, asset2) =>
             asset2.balance * TREASURY_ASSSET_BALANCE_DIVIDER - asset1.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
