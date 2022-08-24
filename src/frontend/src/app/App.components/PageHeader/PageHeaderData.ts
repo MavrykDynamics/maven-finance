@@ -130,8 +130,8 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
   [
     'break glass',
     {
-      title: 'Contracts Statuses',
-      subText: 'Contracts Statuses and emergency shutdown protocol',
+      title: 'Contract Status',
+      subText: 'Contract status and emergency shutdown protocol',
       foregroundImageSrc: '/images/break-glass-header.svg',
       backgroundImageSrc: '/images/dapp-header-bg.svg',
     },
