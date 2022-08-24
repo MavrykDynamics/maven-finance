@@ -35,6 +35,7 @@ import { CouncilFormRequestTokenMint } from './CouncilForms/CouncilFormRequestTo
 import { CouncilFormDropFinancialRequest } from './CouncilForms/CouncilFormDropFinancialRequest.view'
 import { CouncilFormRemoveVestee } from './CouncilForms/CouncilFormRemoveVestee.view'
 import { CouncilFormSetBaker } from './CouncilForms/CouncilFormSetBaker.view'
+import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContractBaker.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // styles
@@ -78,6 +79,7 @@ export const Council = () => {
     { text: 'Request Token Mint', value: 'requestTokenMint' },
     { text: 'Drop Financial Request', value: 'dropFinancialRequest' },
     { text: 'Set Baker', value: 'setBaker' },
+    { text: 'Set Contract Baker', value: 'setContractBaker' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -193,6 +195,7 @@ export const Council = () => {
                 {chosenDdItem?.value === 'requestTokenMint' ? <CouncilFormRequestTokenMint /> : null}
                 {chosenDdItem?.value === 'dropFinancialRequest' ? <CouncilFormDropFinancialRequest /> : null}
                 {chosenDdItem?.value === 'setBaker' ? <CouncilFormSetBaker /> : null}
+                {chosenDdItem?.value === 'setContractBaker' ? <CouncilFormSetContractBaker /> : null}
               </DropdownCard>
             ) : null}
 
