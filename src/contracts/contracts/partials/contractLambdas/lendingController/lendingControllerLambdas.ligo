@@ -398,9 +398,6 @@ block {
                 loanTokenRecord.lpTokensTotal    := loanTokenRecord.lpTokensTotal + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
-                // Update Token Ledger
-                s.loanTokenLedger[loanTokenName] := loanTokenRecord;
-
                 // send tokens to token pool (self address) operation
                 const sendTokensToTokenPoolOperation : operation = tokenPoolTransfer(
                     initiator,                  // from_
@@ -414,11 +411,12 @@ block {
                 const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, int(amount), loanTokenRecord.lpTokenContractAddress);
                 operations := mintLpTokensTokensOperation # operations;
 
-                // Token Pool: Update interest rate
-                s := updateInterestRate(loanTokenRecord, s);
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
-                // Token Pool: Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(loanTokenRecord, s);
+                // Update Token Ledger
+                s.loanTokenLedger[loanTokenName] := loanTokenRecord;
+
 
             }
         |   _ -> skip
@@ -493,14 +491,11 @@ block {
                 loanTokenRecord.lpTokensTotal    := newLpTokensTotal;
                 loanTokenRecord.totalRemaining   := newTotalRemaining;
 
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
+
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
-
-                // Token Pool: Update interest rate
-                s := updateInterestRate(loanTokenRecord, s);
-
-                // Token Pool: Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(loanTokenRecord, s);
                 
             }
         |   _ -> skip
@@ -530,7 +525,7 @@ block {
                 const tokenName             : string       = updateCollateralTokenParams.tokenName;
                 const tokenContractAddress  : address      = updateCollateralTokenParams.tokenContractAddress;
                 const tokenType             : tokenType    = updateCollateralTokenParams.tokenType;
-                const decimals              : nat          = updateCollateralTokenParams.decimals;
+                const tokenDecimals         : nat          = updateCollateralTokenParams.tokenDecimals;
                 const oracleType            : string       = updateCollateralTokenParams.oracleType;
                 var oracleAddress           : address     := updateCollateralTokenParams.oracleAddress;
 
@@ -542,7 +537,7 @@ block {
                     tokenName            = tokenName;
                     tokenContractAddress = tokenContractAddress;
                     tokenType            = tokenType;
-                    decimals             = decimals;
+                    tokenDecimals        = tokenDecimals;
 
                     oracleType           = oracleType;
                     oracleAddress        = oracleAddress;
@@ -644,7 +639,7 @@ block {
                     vaultOrigination.1,             // vault address
                     collateralBalanceLedgerMap,     // collateral balance ledger
                     loanTokenRecord.tokenName,      // loan token name
-                    loanTokenRecord.decimals,       // loan token decimals
+                    loanTokenRecord.tokenDecimals,  // loan token decimals
                     tokenBorrowIndex                // token borrow index
                 );
                 
@@ -684,15 +679,16 @@ block {
                 // init parameters 
                 const vaultId     : vaultIdType      = closeVaultParams.vaultId;
                 const vaultOwner  : vaultOwnerType   = Tezos.get_sender();
-                
-                // make vault handle
+
+                // Make vault handle
                 const vaultHandle : vaultHandleType = record [
                     id     = vaultId;
                     owner  = vaultOwner;
                 ];
 
-                // get vault
-                var vault : vaultRecordType := getVault(vaultHandle, s);
+                // Get vault if exists
+                var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+
                 const vaultAddress : address = vault.address;
 
                 // check that vault has zero loan oustanding
@@ -809,15 +805,14 @@ block {
                 // Get Vault record and parameters
                 // ------------------------------------------------------------------
 
-
-                // make vault handle
+                // Make vault handle
                 const vaultHandle : vaultHandleType = record [
                     id     = vaultId;
                     owner  = vaultOwner;
                 ];
 
                 // get vault record
-                var vault : vaultRecordType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
 
                 // init vault parameters
                 const vaultLoanTokenName            : string  = vault.loanToken; // USDT, EURL, some other crypto coin
@@ -842,11 +837,8 @@ block {
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
-                // Token Pool: Update interest rate
-                s := updateInterestRate(loanTokenRecord, s);
-
-                // Token Pool: Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(loanTokenRecord, s);
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 
                 // ------------------------------------------------------------------
@@ -863,24 +855,15 @@ block {
                 var newLoanInterestTotal     : nat  := vault.loanInterestTotal;
 
                 // calculate interest
-                if currentLoanOutstandingTotal > 0n then block {
-                    
-                    // get difference in borrow index
-                    if vaultBorrowIndex > tokenBorrowIndex then failwith(error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX) else skip;
-                    const borrowIndexDifference : nat = abs(tokenBorrowIndex - vaultBorrowIndex);
+                newLoanOutstandingTotal := accrueInterestToVault(
+                    currentLoanOutstandingTotal,
+                    vaultBorrowIndex,
+                    tokenBorrowIndex
+                );
 
-                    // calculate interest accrued
-                    const interestAccrued : nat = (currentLoanOutstandingTotal * borrowIndexDifference) / fpa10e9; // borrow index currently at 1e9
-
-                    // calculate new loan outstanding
-                    newLoanOutstandingTotal := currentLoanOutstandingTotal + interestAccrued;
-
-                    // increment loan interest total
-                    newLoanInterestTotal := newLoanInterestTotal + interestAccrued;
-
-                } else skip;
-
-
+                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+                
                 // ------------------------------------------------------------------
                 // Liquidation Process
                 // ------------------------------------------------------------------
@@ -910,7 +893,7 @@ block {
                         // get last completed round price of token from Oracle view
                         const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
                         
-                        const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
+                        const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
                         const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
                         const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
 
@@ -1152,7 +1135,7 @@ block {
                 // const initiator           : vaultOwnerType    = Tezos.get_sender(); // vault address that initiated deposit
 
                 // get vault
-                var vault : vaultRecordType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 // if tez is to be withdrawn, check that Tezos amount should be the same as withdraw amount
                 if tokenName = "tez" then block {
@@ -1177,22 +1160,6 @@ block {
                 if isUnderCollaterized(vault, s) 
                 then failwith(error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED) 
                 else skip;
-                
-                
-                // get collateral token record - with token contract address and token type
-                // const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                //         Some(_collateralTokenRecord) -> _collateralTokenRecord
-                //     |   None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-                // ];
-
-                // send tokens from vault to treasury
-                // const withdrawOperation : operation = withdrawFromVaultOperation(
-                //     initiator,                          // to_
-                //     withdrawalAmount,                   // token amount to be withdrawn
-                //     collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
-                //     vault.address                       // vault address
-                // );
-                // operations := withdrawOperation # operations;
                 
                 // save and update new balance for collateral token
                 vault.collateralBalanceLedger[tokenName] := newCollateralBalance;
@@ -1229,7 +1196,7 @@ block {
                 };
 
                 // get vault
-                var vault : vaultRecordType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 // check if sender matches vault; if match, then update and save vault with new collateral balance
                 if vault.address =/= initiator then failwith(error_SENDER_MUST_BE_VAULT_ADDRESS) else skip;
@@ -1281,7 +1248,7 @@ block {
                 ];
 
                 // Get vault if exists
-                var vault : vaultRecordType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 // Get vault loan token name
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
@@ -1292,11 +1259,8 @@ block {
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
-                // Token Pool: Update interest rate
-                s := updateInterestRate(loanTokenRecord, s);
-
-                // Token Pool: Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(loanTokenRecord, s);
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 const reserveRatio      : nat         = loanTokenRecord.reserveRatio;
@@ -1329,6 +1293,7 @@ block {
 
                 // Get current user loan outstanding
                 const currentLoanOutstandingTotal : nat = vault.loanOutstandingTotal;
+                const initialLoanPrincipalTotal   : nat = vault.loanPrincipalTotal;
                 
                 // Init new total amounts
                 var newLoanOutstandingTotal     : nat := currentLoanOutstandingTotal;
@@ -1339,23 +1304,15 @@ block {
                 // Calculate fees on past loan outstanding
                 // ------------------------------------------------------------------
 
-                // calculate interest amount
-                if currentLoanOutstandingTotal > 0n then block {
-                    
-                    // get difference in borrow index
-                    if vaultBorrowIndex > tokenBorrowIndex then failwith(error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX) else skip;
-                    const borrowIndexDifference : nat = abs(tokenBorrowIndex - vaultBorrowIndex);
+                // calculate interest
+                newLoanOutstandingTotal := accrueInterestToVault(
+                    currentLoanOutstandingTotal,
+                    vaultBorrowIndex,
+                    tokenBorrowIndex
+                );
 
-                    // calculate interest accrued (to add to current loan outstanding)
-                    const interestAccrued : nat = (currentLoanOutstandingTotal * borrowIndexDifference) / fpa10e9; // borrow index currently at 1e9
-
-                    // calculate new loan outstanding
-                    newLoanOutstandingTotal := currentLoanOutstandingTotal + interestAccrued;
-
-                    // increment loan interest total
-                    newLoanInterestTotal := newLoanInterestTotal + interestAccrued;
-
-                } else skip;
+                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
 
                 // ------------------------------------------------------------------
                 // Calculate Final Borrow Amount
@@ -1478,8 +1435,9 @@ block {
                     owner  = initiator;
                 ];
 
-                // Get vault and vault loan token name
-                var vault : vaultRecordType := getVault(vaultHandle, s);
+                // Get vault if exists
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
                 // Get loan token type
@@ -1488,11 +1446,8 @@ block {
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
-                // Token Pool: Update interest rate
-                s := updateInterestRate(loanTokenRecord, s);
-
-                // Token Pool: Calculate compounded interest and update token state (borrow index)
-                s := updateTokenState(loanTokenRecord, s);
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 // const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
@@ -1521,23 +1476,15 @@ block {
                 // Calculate fees on past loan outstanding
                 // ------------------------------------------------------------------
 
-                // calculate interest
-                if currentLoanOutstandingTotal > 0n then block {
-                    
-                    // get difference in borrow index
-                    if vaultBorrowIndex > tokenBorrowIndex then failwith(error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX) else skip;
-                    const borrowIndexDifference : nat = abs(tokenBorrowIndex - vaultBorrowIndex);
+                newLoanOutstandingTotal := accrueInterestToVault(
+                    currentLoanOutstandingTotal,
+                    vaultBorrowIndex,
+                    tokenBorrowIndex
+                );
 
-                    // calculate interest accrued
-                    const interestAccrued : nat = (currentLoanOutstandingTotal * borrowIndexDifference) / fpa10e9; // borrow index currently at 1e9
+                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
 
-                    // calculate new loan outstanding
-                    newLoanOutstandingTotal := currentLoanOutstandingTotal + interestAccrued;
-
-                    // increment loan interest total
-                    newLoanInterestTotal := newLoanInterestTotal + interestAccrued;
-
-                } else skip;
 
                 // ------------------------------------------------------------------
                 // Calculate Principal / Interest Repayments
@@ -1717,12 +1664,14 @@ block {
                 // check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
 
-                // setup vault handle and get vault
+                // Make vault handle
                 const vaultHandle : vaultHandleType = record [
                     id     = vaultId;
                     owner  = vaultOwner;
                 ];
-                var vault : vaultRecordType := getVault(vaultHandle, s);
+
+                // Get vault if exists
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType = record [
                     vaultOwner    = vaultOwner;
@@ -1777,14 +1726,14 @@ block {
                 // check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
 
-                // make vault handle
+                // Make vault handle
                 const vaultHandle : vaultHandleType = record [
                     id     = vaultId;
                     owner  = vaultOwner;
                 ];
 
-                // get vault
-                var vault : vaultRecordType := getVault(vaultHandle, s);
+                // Get vault if exists
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 // Get current vault staked MVK balance from Doorman contract
                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
@@ -1810,7 +1759,6 @@ block {
                 // save and update new balance for collateral token
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
                 s.vaults[vaultHandle]                     := vault;
-
                 
             }
         |   _ -> skip
@@ -1845,15 +1793,15 @@ block {
                 // check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
 
-                // make vault handle
+                // Make vault handle
                 const vaultHandle : vaultHandleType = record [
                     id     = vaultId;
                     owner  = vaultOwner;
                 ];
 
-                // get vault
-                var vault : vaultRecordType := getVault(vaultHandle, s);
-
+                // Get vault if exists
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+                
                 // Get current vault staked MVK balance from Doorman contract
                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
 
