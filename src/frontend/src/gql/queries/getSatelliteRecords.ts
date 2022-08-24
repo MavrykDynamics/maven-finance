@@ -39,6 +39,13 @@ export const SATELLITE_RECORDS_QUERY = `
           vote
           voter_id
         }
+        governance_satellite_actions_votes {
+          governance_satellite_action_id
+          id
+          timestamp
+          vote
+          voter_id
+        }
         governance_proposal_records_votes {
           governance_proposal_record_id
           id
@@ -123,6 +130,13 @@ export const USER_VOTING_HYSTORY_QUERY = `
         vote
         voter_id
         voting_power
+      }
+      governance_satellite_actions_votes {
+        governance_satellite_action_id
+        id
+        timestamp
+        vote
+        voter_id
       }
     }
   }

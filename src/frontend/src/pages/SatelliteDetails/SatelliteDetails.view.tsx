@@ -130,7 +130,9 @@ export const SatelliteDetailsView = ({
                   {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
                   {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
                   {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
+                  {satellite.satelliteActionVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
                   {!satellite.proposalVotingHistory?.length &&
+                    !satellite.satelliteActionVotes?.length &&
                     !satellite.financialRequestsVotes?.length &&
                     !satellite.emergencyGovernanceVotes?.length && (
                       <SatelliteVotingHistoryListItem>
