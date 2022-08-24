@@ -50,7 +50,7 @@ type delegationAction is
         // Pause / Break Glass Entrypoints
     |   PauseAll                          of (unit)
     |   UnpauseAll                        of (unit)
-    |   TogglePauseEntrypoint            of delegationTogglePauseEntrypointType
+    |   TogglePauseEntrypoint             of delegationTogglePauseEntrypointType
 
         // Delegation Entrypoints
     |   DelegateToSatellite               of delegateToSatelliteType    

@@ -66,14 +66,6 @@ dipdup:
         address: KT1PjHDJy5zQMLjaw5A98RdJ5sh71C9gXdXU
         typename: treasury_factory
 
-    datasources:
-      tzkt_testnet:
-        kind: tzkt
-        url: ${TZKT_TESTNET_URL:-changeme}
-      tzkt_mainnet:
-        kind: tzkt
-        url: ${TZKT_MAINNET_URL:-changeme}
-
     templates:
       # Template for Farm Factory
       farm_template:
@@ -1428,7 +1420,7 @@ hasura:
 
 # pgadmin4 module values
 pgadmin4:
-  enabled: false
+  enabled: true
   replicaCount: 1
 
   ## pgAdmin4 container image

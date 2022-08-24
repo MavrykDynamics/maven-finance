@@ -82,6 +82,7 @@ class GovernanceProposalRecord(Model):
     locked                                  = fields.BooleanField(default=False)
     payment_processed                       = fields.BooleanField(default=False)
     reward_claim_ready                      = fields.BooleanField(default=False)
+    execution_ready                         = fields.BooleanField(default=False)
     success_reward                          = fields.FloatField(default=0)
     total_voters_reward                     = fields.FloatField(default=0)
     proposal_vote_count                     = fields.BigIntField(default=0)
