@@ -101,10 +101,13 @@ export const MenuSidebarContent = styled.div`
   text-align: center;
   width: 100%;
   max-width: 232px;
-  min-height: 100vh;
   height: 100%;
   background-color: ${({ theme }) => theme.containerColor};
   padding-top: 80px;
+  min-height: 650px;
+  transition: 0.6s all;
+  height: fit-content;
+  overflow-y: scroll;
 
   &::-webkit-scrollbar {
     display: none;
