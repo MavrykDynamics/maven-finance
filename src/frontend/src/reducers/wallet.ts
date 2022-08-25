@@ -1,4 +1,4 @@
-import { CONNECT, SET_WALLET } from 'app/App.components/ConnectWallet/ConnectWallet.actions'
+import { CONNECT, DISCONNECT, SET_WALLET } from 'app/App.components/ConnectWallet/ConnectWallet.actions'
 import { TempleWallet } from '@temple-wallet/dapp'
 import { TezosToolkit } from '@taquito/taquito'
 
@@ -30,6 +30,11 @@ export function wallet(state = walletDefaultState, action: any): WalletState {
         tezos: action.tezos,
         ready: action.ready,
         accountPkh: action.accountPkh,
+      }
+    case DISCONNECT:
+      return {
+        ...state,
+        ...walletDefaultState,
       }
     default:
       return state

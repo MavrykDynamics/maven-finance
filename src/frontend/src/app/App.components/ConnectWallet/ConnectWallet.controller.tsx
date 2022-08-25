@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useMedia } from 'react-use'
 
 import { State } from '../../../reducers'
-import { connect } from './ConnectWallet.actions'
+import { connect, disconnect } from './ConnectWallet.actions'
 import { ConnectWalletStyled } from './ConnectWallet.style'
 import { ConnectedWalletBlock, CoinsInfoType, InstallWalletButton, NoWalletConnectedButton } from './ConnectWallet.view'
 
@@ -25,6 +25,10 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
     dispatch(connect({ forcePermission: true }))
   }
 
+  const disconnectWallet = () => {
+    dispatch(disconnect())
+  }
+
   // will implemented after Sam's answers about data for this block
   const coinsInfo: CoinsInfoType = {
     MVKExchangeRate: exchangeRate,
@@ -42,7 +46,7 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
           {ready && accountPkh ? (
             <ConnectedWalletBlock
               accountPkh={accountPkh}
-              signOutHandler={() => null}
+              signOutHandler={disconnectWallet}
               changeWalletHandler={handleNewConnect}
               coinsInfo={coinsInfo}
               isMobile={isMobileView}
