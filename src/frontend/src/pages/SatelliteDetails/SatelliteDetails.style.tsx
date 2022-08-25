@@ -113,6 +113,10 @@ export const SatelliteVotingHistoryListItem = styled.div`
   justify-content: space-between;
   max-height: 28px;
 
+  p:first-letter {
+    text-transform: uppercase;
+  }
+
   .satellite-voting-history-info {
     flex-shrink: 0;
     padding-left: 16px;

@@ -1,16 +1,17 @@
 import { MichelsonMap } from '@taquito/taquito'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 import type { Satellite_Record, Delegation } from '../generated/graphqlTypes'
 import { Governance_Proposal_Record, Maybe, Governance_Financial_Request_Record } from '../generated/graphqlTypes'
 
-import { FinancialRequestVote, ProposalStatus, ProposalVote } from './Governance'
+import { FinancialRequestVote, ProposalVote } from './Governance'
 
 export interface SatelliteProposalVotingHistory extends ProposalVote {
   requestData: Maybe<Governance_Proposal_Record> | undefined
+  voteName?: string
 }
 
 export interface SatelliteFinancialRequestVotingHistory extends FinancialRequestVote {
   requestData?: Maybe<Governance_Financial_Request_Record> | undefined
+  voteName?: string
 }
 
 export enum SatelliteStatus {

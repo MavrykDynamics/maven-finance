@@ -33,16 +33,10 @@ type SatelliteDetailsViewProps = {
   userStakedBalanceInSatellite: number
 }
 
-const renderVotingHistoryItem = (item: any, proposalLedger: any) => {
-  const filteredProposal = proposalLedger?.length
-    ? proposalLedger.find((proposal: any) => proposal.id === item.proposalId)
-    : null
-
+const renderVotingHistoryItem = (item: any) => {
   return (
     <SatelliteVotingHistoryListItem key={item.id}>
-      <p>
-        Proposal {item.proposalId} - {filteredProposal?.title}
-      </p>
+      <p>{item?.voteName.split('_').join(' ').toLowerCase()}</p>
       <span className="satellite-voting-history-info">
         Voted{' '}
         {item.vote === 1 ? (
@@ -76,10 +70,6 @@ export const SatelliteDetailsView = ({
 
   const { user } = useSelector((state: State) => state.user)
   const { participationMetrics } = useSelector((state: State) => state.delegation)
-  const {
-    governanceStorage: { proposalLedger = [] },
-  } = useSelector((state: State) => state.governance)
-
   const isSameId = satellite?.address === satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
 
@@ -127,10 +117,10 @@ export const SatelliteDetailsView = ({
               <SatelliteVotingInfoWrapper>
                 <BlockName>Voting History:</BlockName>
                 <div className="voting-info-list-wrapper scroll-block">
-                  {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
-                  {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
-                  {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
-                  {satellite.satelliteActionVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
+                  {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item))}
+                  {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item))}
+                  {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item))}
+                  {satellite.satelliteActionVotes?.map((item) => renderVotingHistoryItem(item))}
                   {!satellite.proposalVotingHistory?.length &&
                     !satellite.satelliteActionVotes?.length &&
                     !satellite.financialRequestsVotes?.length &&

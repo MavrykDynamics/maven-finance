@@ -20,8 +20,6 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
 
     const delegationStorage = normalizeDelegationStorage(delegationStorageFromIndexer?.delegation[0])
 
-    console.log(delegationStorage)
-
     dispatch({
       type: GET_DELEGATION_STORAGE,
       delegationStorage,

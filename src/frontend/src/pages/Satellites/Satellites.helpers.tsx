@@ -18,6 +18,8 @@ export function normalizeSatelliteRecord(
       )
     : 0
 
+  console.log('11111', userVotingHistory)
+
   const proposalVotingHistory = userVotingHistory
     ? userVotingHistory?.governance_proposal_records_votes?.map((vote) => {
         return {
@@ -30,6 +32,7 @@ export function normalizeSatelliteRecord(
           voterId: vote.voter_id,
           votingPower: calcWithoutPrecision(vote.voting_power),
           requestData: vote.governance_proposal_record,
+          voteName: vote?.governance_proposal_record?.title,
         }
       })
     : []
@@ -43,6 +46,7 @@ export function normalizeSatelliteRecord(
           vote: vote.vote,
           voterId: vote.voter_id,
           requestData: vote.governance_financial_request,
+          voteName: vote?.governance_financial_request?.request_type,
         }
       })
     : []
@@ -54,6 +58,7 @@ export function normalizeSatelliteRecord(
           proposalId: vote.emergency_governance_record_id,
           timestamp: new Date(vote.timestamp),
           voterId: vote.voter_id,
+          voteName: vote?.emergency_governance_record?.title,
         }
       })
     : []
@@ -66,6 +71,7 @@ export function normalizeSatelliteRecord(
           timestamp: new Date(vote.timestamp),
           vote: vote.vote,
           voterId: vote.voter_id,
+          voteName: vote?.governance_satellite_action?.governance_type,
         }
       })
     : []
