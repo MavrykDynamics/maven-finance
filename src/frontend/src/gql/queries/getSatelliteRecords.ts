@@ -31,6 +31,9 @@ export const SATELLITE_RECORDS_QUERY = `
           smvk_amount
           timestamp
           voter_id
+          emergency_governance_record {
+            title
+          }
         }
         governance_financial_requests_votes {
           governance_financial_request_id
@@ -38,6 +41,9 @@ export const SATELLITE_RECORDS_QUERY = `
           timestamp
           vote
           voter_id
+          governance_financial_request {
+            request_type
+          }
         }
         governance_satellite_actions_votes {
           governance_satellite_action_id
@@ -45,6 +51,9 @@ export const SATELLITE_RECORDS_QUERY = `
           timestamp
           vote
           voter_id
+          governance_satellite_action {
+            governance_type
+          }
         }
         governance_proposal_records_votes {
           governance_proposal_record_id
@@ -53,6 +62,7 @@ export const SATELLITE_RECORDS_QUERY = `
           round
           vote
           voter_id
+          timestamp
           governance_proposal_record {
             current_cycle_end_level
             current_cycle_start_level
@@ -134,6 +144,7 @@ export const USER_VOTING_HYSTORY_QUERY = `
         vote
         voter_id
         voting_power
+        timestamp
         governance_proposal_record {
           title
         }
