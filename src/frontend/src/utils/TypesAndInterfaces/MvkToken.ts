@@ -1,3 +1,4 @@
+import type {Mvk_Token} from '../generated/graphqlTypes'
 import { MichelsonMap } from '@taquito/taquito'
 
 export interface MvkTokenStorage {
@@ -8,3 +9,5 @@ export interface MvkTokenStorage {
   totalSupply: number
   maximumTotalSupply: number
 }
+
+export type MvkTokenGraphQL = Omit<Mvk_Token, '__typename'>

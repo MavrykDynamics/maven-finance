@@ -1,0 +1,210 @@
+# Query: DoormanStorage
+# ContextLines: 1
+
+53 results - 17 files
+
+src/app/App.actions.tsx:
+   38  import {
+   39:   normalizeDoormanStorage,
+   40    normalizeMvkToken,
+
+   58    const mvkTokenStorage = normalizeMvkToken(res[1]?.mvk_token[0]);
+   59:   const doormanStorage = normalizeDoormanStorage(res[2]?.doorman[0]);
+   60    const delegationStorage = storageToTypeConverter(
+
+   82  
+   83:   console.log("%c ||||| doormanStorage", "color:yellowgreen", doormanStorage);
+   84  
+
+  105      type: GET_DOORMAN_STORAGE,
+  106:     storage: doormanStorage,
+  107:     totalStakedMvkSupply: doormanStorage.totalStakedMvk,
+  108    });
+
+src/gql/queries/getDoormanStorage.ts:
+   1  export const DOORMAN_STORAGE_QUERY = `
+   2:   query DoormanStorageQuery {
+   3      doorman {
+
+  22  
+  23: export const DOORMAN_STORAGE_QUERY_NAME = 'DoormanStorageQuery'
+  24  export const DOORMAN_STORAGE_QUERY_VARIABLE = {}
+
+src/gql/queries/index.ts:
+  1  export * from './getContractAddresses'
+  2: export * from './getDoormanStorage'
+  3  export * from './getMvkTokenStorage'
+
+src/pages/BecomeSatellite/BecomeSatellite.controller.tsx:
+   1  import {
+   2:   getDoormanStorage,
+   3    getMvkTokenStorage,
+
+  50        dispatch(getMvkTokenStorage(accountPkh));
+  51:       dispatch(getDoormanStorage());
+  52      }
+
+src/pages/Council/Council.actions.tsx:
+  2  import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
+  3: import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
+  4  import { State } from 'reducers'
+
+src/pages/Doorman/Doorman.actions.tsx:
+   26  import {
+   27:   normalizeDoormanStorage,
+   28    normalizeMvkToken,
+
+  152        dispatch(getMvkTokenStorage(state.wallet.accountPkh));
+  153:       dispatch(getDoormanStorage());
+  154      } catch (error: any) {
+
+  234        dispatch(getMvkTokenStorage(state.wallet.accountPkh));
+  235:       dispatch(getDoormanStorage());
+  236      } catch (error: any) {
+
+  298        dispatch(getMvkTokenStorage(state.wallet.accountPkh));
+  299:       dispatch(getDoormanStorage());
+  300      } catch (error: any) {
+
+  312  export const GET_DOORMAN_STORAGE = "GET_DOORMAN_STORAGE";
+  313: export const getDoormanStorage =
+  314    (accountPkh?: string) => async (dispatch: any, getState: any) => {
+
+  323  
+  324:       const convertedStorage = normalizeDoormanStorage(storage?.doorman?.[0]);
+  325  
+  326:       updateItemInStorage("DoormanStorage", convertedStorage);
+  327        dispatch({
+
+src/pages/Doorman/Doorman.controller.tsx:
+  13  // actions
+  14: import { getDoormanStorage, getMvkTokenStorage, getUserData, stake } from './Doorman.actions'
+  15  import { DoormanInfoStyled } from './Doorman.style'
+
+  25    const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
+  26:   const { doormanStorage, totalStakedMvk } = useSelector((state: State) => state.doorman)
+  27    const { user } = useSelector((state: State) => state.user)
+  28  
+  29:   // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
+  30    // const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
+
+  34        dispatch(getMvkTokenStorage(accountPkh))
+  35:       dispatch(getDoormanStorage(accountPkh))
+  36      } else {
+  37        dispatch(getMvkTokenStorage())
+  38:       dispatch(getDoormanStorage())
+  39      }
+
+src/pages/Doorman/Doorman.converter.tsx:
+  10  
+  11: export function normalizeDoormanStorage(storage: DoormanGraphQl) {
+  12    const totalStakedMvk =
+
+src/pages/Doorman/DoormanStats/DoormanStats.controller.tsx:
+   4  
+   5: import { getDoormanStorage, getMvkTokenStorage } from '../Doorman.actions'
+   6  import { DoormanStatsView } from './DoormanStats.view'
+
+  11    const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
+  12:   const { doormanStorage, totalStakedMvk } = useSelector((state: State) => state.doorman)
+  13  
+
+  15      dispatch(getMvkTokenStorage())
+  16:     dispatch(getDoormanStorage())
+  17    }, [dispatch, totalStakedMvk])
+
+src/pages/Doorman/ExitFeeModal/ExitFeeModal.controller.tsx:
+   3  import { State } from 'reducers'
+   4: import { getDoormanStorage, getMvkTokenStorage, unstake } from '../Doorman.actions'
+   5  
+
+  14    const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
+  15:   const { doormanStorage, totalStakedMvk } = useSelector((state: State) => state.doorman)
+  16  
+
+  20      }
+  21:     dispatch(getDoormanStorage())
+  22    }, [dispatch, accountPkh, showing])
+
+src/pages/EmergencyGovernance/EmergencyGovernance.actions.tsx:
+  11  import storageToTypeConverter from '../../utils/storageToTypeConverter'
+  12: import { getDoormanStorage, getMvkTokenStorage } from '../Doorman/Doorman.actions'
+  13  import { HIDE_EXIT_FEE_MODAL } from '../Doorman/ExitFeeModal/ExitFeeModal.actions'
+
+  98        dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+  99:       dispatch(getDoormanStorage())
+  100      } catch (error: any) {
+
+src/pages/Farms/Farms.actions.tsx:
+   23  import {
+   24:   getDoormanStorage,
+   25    getMvkTokenStorage,
+
+  142        await dispatch(getMvkTokenStorage(state.wallet.accountPkh));
+  143:       await dispatch(getDoormanStorage());
+  144      } catch (error: any) {
+
+  218        await dispatch(getMvkTokenStorage(state.wallet.accountPkh));
+  219:       await dispatch(getDoormanStorage());
+  220      } catch (error: any) {
+
+  291        await dispatch(getMvkTokenStorage(state.wallet.accountPkh));
+  292:       await dispatch(getDoormanStorage());
+  293      } catch (error: any) {
+
+src/pages/SatelliteGovernance/SatelliteGovernance.actions.tsx:
+  2  import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
+  3: import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
+  4  import { State } from 'reducers'
+
+src/pages/Satellites/Satellites.actions.tsx:
+    2  import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
+    3: import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
+    4  import { State } from 'reducers'
+
+   84      dispatch(getDelegationStorage())
+   85:     dispatch(getDoormanStorage())
+   86    } catch (error: any) {
+
+  134      dispatch(getDelegationStorage())
+  135:     dispatch(getDoormanStorage())
+  136    } catch (error: any) {
+
+src/pages/Satellites/Satellites.controller.tsx:
+  11  // consts, helpers, actions
+  12: import { getMvkTokenStorage, getDoormanStorage } from 'pages/Doorman/Doorman.actions'
+  13  import { getTotalDelegatedMVK } from './helpers/Satellites.consts'
+
+  29        dispatch(getMvkTokenStorage(accountPkh))
+  30:       dispatch(getDoormanStorage())
+  31      }
+
+src/reducers/doorman.ts:
+   13  import { getItemFromStorage } from "../utils/storage";
+   14: import { DoormanStorage } from "../utils/TypesAndInterfaces/Doorman";
+   15  
+
+   27    error?: any;
+   28:   doormanStorage?: DoormanStorage;
+   29    totalStakedMvk?: number;
+
+   31  
+   32: const defaultStorageState: DoormanStorage = {
+   33    minMvkAmount: 0,
+
+   48    error: undefined,
+   49:   doormanStorage: defaultStorageState,
+   50    totalStakedMvk: 0,
+
+  121          type: GET_DOORMAN_STORAGE,
+  122:         doormanStorage: action.storage,
+  123          totalStakedMvk: action.totalStakedMvkSupply,
+
+src/utils/TypesAndInterfaces/Doorman.ts:
+   4  // conterters
+   5: import { normalizeDoormanStorage } from "../../pages/Doorman/Doorman.converter";
+   6  
+
+  22  
+  23: export type DoormanStorage = ReturnType<typeof normalizeDoormanStorage>;
+  24  

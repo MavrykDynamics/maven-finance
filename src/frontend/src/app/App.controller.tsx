@@ -21,7 +21,7 @@ import { toggleRPCNodePopup } from './App.components/ChangeNodePopup/ChangeNode.
 import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
 import { useMedia } from 'react-use'
 
-export const store = configureStore({})
+export const { store, persistor } = configureStore({})
 
 const AppContainer = () => {
   const dispatch = useDispatch()

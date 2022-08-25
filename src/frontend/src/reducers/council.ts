@@ -1,6 +1,6 @@
-import { GET_COUNCIL_STORAGE } from '../pages/Treasury/Treasury.actions'
+import { GET_COUNCIL_STORAGE } from '../pages/Council/Council.actions'
 import { CouncilStorage } from '../utils/TypesAndInterfaces/Council'
-import { getItemFromStorage } from '../utils/storage'
+
 import { GET_COUNCIL_PAST_ACTIONS_STORAGE, GET_COUNCIL_PENDING_ACTIONS_STORAGE } from '../pages/Council/Council.actions'
 
 export interface CouncilPastAction {
@@ -17,7 +17,6 @@ export interface CouncilPastAction {
   action_type: string
   council_action_record_parameters: Record<string, string>[]
 }
-
 
 export interface CouncilState {
   councilStorage: CouncilStorage | any
@@ -36,7 +35,7 @@ const defaultCouncilStorage: CouncilStorage = {
   actionCounter: 0,
 }
 const councilDefaultState: CouncilState = {
-  councilStorage: getItemFromStorage('CouncilStorage') || defaultCouncilStorage,
+  councilStorage: defaultCouncilStorage,
   councilPendingActions: [],
   councilPastActions: [],
 }

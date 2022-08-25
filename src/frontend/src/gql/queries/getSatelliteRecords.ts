@@ -38,7 +38,6 @@ export const SATELLITE_RECORDS_QUERY = `
           timestamp
           vote
           voter_id
-          voting_power
         }
         governance_proposal_records_votes {
           governance_proposal_record_id
@@ -47,7 +46,6 @@ export const SATELLITE_RECORDS_QUERY = `
           round
           vote
           voter_id
-          voting_power
           governance_proposal_record {
             current_cycle_end_level
             current_cycle_start_level
@@ -86,11 +84,13 @@ export const SATELLITE_RECORDS_QUERY = `
       }
     }
   }
-`
+`;
 
-export const SATELLITE_RECORDS_QUERY_NAME = 'GetSatelliteRecord'
+export const SATELLITE_RECORDS_QUERY_NAME = "GetSatelliteRecord";
 
-export function SATELLITE_RECORDS_QUERY_VARIABLES(address: string): Record<string, any> {
+export function SATELLITE_RECORDS_QUERY_VARIABLES(
+  address: string
+): Record<string, any> {
   /* prettier-ignore */
   return { _eq: address }
 }
@@ -114,7 +114,6 @@ export const USER_VOTING_HYSTORY_QUERY = `
         timestamp
         vote
         voter_id
-        voting_power
       }
       governance_proposal_records_votes {
         governance_proposal_record_id
@@ -127,11 +126,13 @@ export const USER_VOTING_HYSTORY_QUERY = `
       }
     }
   }
-`
+`;
 
-export const USER_VOTING_HYSTORY_NAME = 'UserVotingHistory'
+export const USER_VOTING_HYSTORY_NAME = "UserVotingHistory";
 
-export function USER_VOTING_HYSTORY_VARIABLES(address: string): Record<string, any> {
+export function USER_VOTING_HYSTORY_VARIABLES(
+  address: string
+): Record<string, any> {
   /* prettier-ignore */
   return { _eq: address }
 }
