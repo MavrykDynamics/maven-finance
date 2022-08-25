@@ -192,9 +192,6 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   Decimals
                   <div className="on-svg-hover-info">Countdown until the data is next written on-chain</div>
                 </DataFeedsTitle>
-                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {moment(new Date(feed.last_completed_round_price_timestamp)).fromNow()}
-                </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {''.padEnd(feed.decimals, '0')}
                 </DataFeedValueText>
