@@ -4,11 +4,11 @@ import { ABOUT_LINKS, BLOG_LINKS, DOCS_LINKS, PRODUCTS_LINKS, SocialIcons } from
 import { MobileTopBarStyled } from '../MenuTopBar.style'
 import { TopBarLinks } from './TopBarLinks.controller'
 
-export const MobileTopBar = ({ show }: { show: boolean }) => {
+export const MobileTopBar = ({ show, closeMobileMenu }: { show: boolean; closeMobileMenu: (e: any) => void }) => {
   const [selectedLinksBlock, setSelectedLinksBlock] = useState<null | string>(null)
   return (
     <MobileTopBarStyled show={show}>
-      <ConnectWallet />
+      <ConnectWallet closeMobileMenu={closeMobileMenu} />
 
       <div className="container">
         <TopBarLinks

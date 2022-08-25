@@ -9,7 +9,7 @@ type ButtonViewProps = {
   icon?: string
   className?: string
   kind?: ButtonStyle
-  onClick?: () => void
+  onClick?: (e: any) => void
   clickCallback: () => void
   clicked: boolean
   type?: ButtonTypes
@@ -45,9 +45,9 @@ export const ButtonView = ({
   return (
     <ButtonStyled
       className={`${buttonClasses} ${className}`}
-      onClick={() => {
+      onClick={(e) => {
         clickCallback()
-        onClick && onClick()
+        onClick && onClick(e)
       }}
       type={type}
       disabled={glassBroken || disabled}

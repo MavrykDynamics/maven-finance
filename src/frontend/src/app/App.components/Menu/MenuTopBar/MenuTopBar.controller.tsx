@@ -8,6 +8,7 @@ import { MenuMobileBurger, MenuTopStyled } from './MenuTopBar.style'
 import { State } from 'reducers'
 import { MobileTopBar } from './TopBarLinks/MobileTopBar.controller'
 import { useCallback, useState } from 'react'
+import { useMedia } from 'react-use'
 
 type MenuTopBarProps = {
   burgerClickHandler: () => void
@@ -61,6 +62,7 @@ export const DOCS_LINKS = [
 export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodePopupHandler }: MenuTopBarProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
   const [showMobileTopBar, setShowMobileTopBar] = useState(false)
+  const isMobileView = useMedia('(max-width: 870px)')
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
   const logoMobile = '/logo-mobile.svg'
@@ -91,7 +93,7 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
       </div>
       <div className="right-side">
         <SocialIcons />
-        <ConnectWallet />
+        {!isMobileView ? <ConnectWallet /> : null}
         <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
           <Icon id="gear" />
         </div>
@@ -117,7 +119,7 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
         </div>
       </div>
 
-      <MobileTopBar show={showMobileTopBar} />
+      <MobileTopBar show={showMobileTopBar} closeMobileMenu={burgerClickHandlerWrapped} />
     </MenuTopStyled>
   )
 }

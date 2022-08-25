@@ -7,15 +7,17 @@ import { State } from '../../../reducers'
 import { connect, disconnect } from './ConnectWallet.actions'
 import { ConnectWalletStyled } from './ConnectWallet.style'
 import { ConnectedWalletBlock, CoinsInfoType, InstallWalletButton, NoWalletConnectedButton } from './ConnectWallet.view'
-import { getWertOptions } from './Wert.io.helpers'
-import { useState } from 'react'
-import WertIoPopup from './WertIoPopup'
+import { getWertOptions } from './Wert/WertIO.const'
+import { useCallback, useState } from 'react'
+import WertIoPopup from './Wert/WertIoPopup'
+import { toggleSidebarCollapsing } from '../Menu/Menu.actions'
 
 type ConnectWalletProps = {
   className?: string
+  closeMobileMenu?: (e: any) => void
 }
 
-export const ConnectWallet = ({ className }: ConnectWalletProps) => {
+export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps) => {
   const dispatch = useDispatch()
   const history = useHistory()
   const [showWertIoPopup, setShowWertIoPopup] = useState(false)
@@ -37,7 +39,7 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
   }
 
   const mountWertWiget = (commodity: string) => {
-    const wertOptions = getWertOptions(commodity, () => setShowWertIoPopup(true))
+    const wertOptions = getWertOptions(commodity, setShowWertIoPopup)
     const wertWidgetInstance = new WertWidget(wertOptions)
     wertWidgetInstance.mount()
   }
@@ -57,6 +59,12 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
     stakeMVKHandler: () => history.push('/'),
   }
 
+  const closeAllForMobileMenu = useCallback((e: any) => {
+    setShowWertIoPopup(false)
+    if (closeMobileMenu) closeMobileMenu(e)
+    dispatch(toggleSidebarCollapsing(false))
+  }, [])
+
   return (
     <ConnectWalletStyled className={className} id={'connectWalletButton'}>
       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
@@ -71,6 +79,7 @@ export const ConnectWallet = ({ className }: ConnectWalletProps) => {
                 coinsInfo={coinsInfo}
                 isMobile={isMobileView}
                 detailsHandlers={detailsHandlers}
+                closeMobileMenu={closeAllForMobileMenu}
               />
               <WertIoPopup closePopup={() => setShowWertIoPopup(false)} isOpened={showWertIoPopup} />
             </>
