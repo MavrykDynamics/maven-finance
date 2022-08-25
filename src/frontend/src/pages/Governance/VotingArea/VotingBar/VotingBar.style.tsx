@@ -40,7 +40,7 @@ export const QuorumBar = styled.div<{ width: number; theme: MavrykTheme }>`
   }
 `
 export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
-  z-index: 11;
+  z-index: 10;
   height: 4px;
   display: flex;
   flex-direction: row;

@@ -141,10 +141,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                     {TREASURY_NUMBER_FORMATTER.format(Number(balanceValue.balance.toFixed(3)))}
                   </p>
                   <p className="asset-value right-text value">
-                    ${' '}
-                    {TREASURY_NUMBER_FORMATTER.format(
-                      Number((balanceValue.balance * TREASURY_ASSSET_BALANCE_DIVIDER).toFixed(3)),
-                    )}
+                    $ {TREASURY_NUMBER_FORMATTER.format(Number((balanceValue.balance * balanceValue.rate).toFixed(3)))}
                   </p>
                 </div>
               )
