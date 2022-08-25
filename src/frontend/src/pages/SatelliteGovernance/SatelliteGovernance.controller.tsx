@@ -52,6 +52,7 @@ const itemsForDropDown = [
   { text: 'Add to Aggregator', value: 'addToAggregator' },
   { text: 'Restore Satellite', value: 'restoreSatellite' },
   { text: 'Set Aggregator Maintainer', value: 'setAggregatorMaintainer' },
+  { text: 'Update Aggregator Status', value: 'updateAggregatorStatus' },
 ]
 
 const getOngoingActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
