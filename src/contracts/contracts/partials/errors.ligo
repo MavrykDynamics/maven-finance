@@ -1167,6 +1167,9 @@
 [@inline] const error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED                                                     = 824n;
 
 [@inline] const error_VAULT_IS_NOT_UNDERCOLLATERIZED                                                                    = 825n;
+[@inline] const error_VAULT_IS_NOT_LIQUIDATABLE                                                                         = 825n;
+[@inline] const error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION                                                     = 825n;
+[@inline] const error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED                                                               = 825n;
 
 [@inline] const error_OWNER_VAULT_SET_DOES_NOT_EXIST                                                                    = 826n;
 

@@ -141,6 +141,8 @@ type vaultRecordType is [@layout:comb] record [
     
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
     lastUpdatedTimestamp        : timestamp;                     // timestamp of when vault was last updated
+
+    markedForLiquidationTimestamp  : timestamp;                  // timestamp of when vault was marked for liquidation
     
 ]
 
@@ -262,6 +264,10 @@ type registerDepositActionType is [@layout:comb] record [
     tokenName   : string;
 ]
 
+type markForLiquidationActionType is [@layout:comb] record [
+    vaultId     : nat;
+    vaultOwner  : address;
+]
 
 type liquidateVaultActionType is [@layout:comb] record [
     vaultId     : nat;
@@ -364,6 +370,7 @@ type lendingControllerLambdaActionType is
     |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
     |   LambdaCreateVault                     of createVaultActionType
     |   LambdaCloseVault                      of closeVaultActionType
+    |   LambdaMarkForLiquidation              of markForLiquidationActionType
     |   LambdaLiquidateVault                  of liquidateVaultActionType
     |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
     |   LambdaRegisterDeposit                 of registerDepositActionType
