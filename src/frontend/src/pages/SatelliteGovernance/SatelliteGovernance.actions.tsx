@@ -467,3 +467,50 @@ export const voteForAction =
       })
     }
   }
+
+// Restore Satellite
+export const RESTORE_SATELLITE_REQUEST = 'RESTORE_SATELLITE_REQUEST'
+export const RESTORE_SATELLITE_RESULT = 'RESTORE_SATELLITE_RESULT'
+export const RESTORE_SATELLITE_ERROR = 'RESTORE_SATELLITE_ERROR'
+export const restoreSatellite = (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: RESTORE_SATELLITE_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.restoreSatellite(satelliteAddress, purpose).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Restore Satellite...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    await dispatch(showToaster(SUCCESS, 'Restore Satellite done', 'All good :)'))
+
+    await dispatch({
+      type: RESTORE_SATELLITE_RESULT,
+    })
+
+    await dispatch(getGovernanceSatelliteStorage())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: RESTORE_SATELLITE_ERROR,
+      error,
+    })
+  }
+}
