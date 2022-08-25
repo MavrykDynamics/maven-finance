@@ -95,18 +95,16 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   {feed.token_1_symbol}/{feed.token_0_symbol}
                 </DataFeedsTitle>
 
-                <DataFeedsTitle
-                  svgContent={QUESTION_MARK_SVG_ENCODED}
-                  onClick={() => {
-                    // TODO: add link for question mark icon click ORACLE_SI
-                    // history.push('/somewhere')
-                  }}
-                  style={{
-                    textTransform: 'initial',
-                  }}
-                >
-                  Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
-                </DataFeedsTitle>
+                <a href="https://mavryk.finance/litepaper" target="_blank" rel="noreferrer">
+                  <DataFeedsTitle
+                    svgContent={QUESTION_MARK_SVG_ENCODED}
+                    style={{
+                      textTransform: 'initial',
+                    }}
+                  >
+                    Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
+                  </DataFeedsTitle>
+                </a>
               </div>
               <div className="price-part">
                 <DataFeedValueText fontSize={22} fontWeidth={600}>
