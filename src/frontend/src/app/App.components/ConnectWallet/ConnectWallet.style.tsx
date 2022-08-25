@@ -43,11 +43,12 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: any, isMobileDetails?: boolean) =>
     isMobileDetails
       ? ''
       : ` &:hover {
-    var, .wallet, .end-icon {
-      color: ${cyanColor};
-      stroke: ${cyanColor};
+      var, .wallet, .end-icon {
+        color: ${cyanColor};
+        stroke: ${cyanColor};
+      }
     }
-  }`
+  `
   }
 
   @media screen and (max-width: 870px) {
@@ -98,6 +99,12 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
     css`
       ${VISIBLE_PART_CONNECTED_WALLET(theme)}
     `}
+
+  &:hover {
+    .end-icon {
+      transform: rotate(90deg);
+    }
+  }
 
   .wallet-details {
     position: absolute;

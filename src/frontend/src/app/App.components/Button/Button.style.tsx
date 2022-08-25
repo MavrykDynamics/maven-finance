@@ -121,6 +121,16 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
 
   &.change-wallet {
     width: 185px;
+
+    svg {
+      stroke-width: 0.3;
+    }
+  }
+
+  &.start_verification {
+    svg {
+      stroke-width: 0.3;
+    }
   }
 `
 
