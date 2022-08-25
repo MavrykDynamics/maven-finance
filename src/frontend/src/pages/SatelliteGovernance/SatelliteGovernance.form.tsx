@@ -20,6 +20,7 @@ import {
   removeOracleInAggregator,
   addOracleToAggregator,
   restoreSatellite,
+  setAggregatorMaintainer,
 } from './SatelliteGovernance.actions'
 
 // style
@@ -94,6 +95,14 @@ const CONTENT_FORM = new Map<string, Record<string, string>>([
       btnIcon: 'plus',
     },
   ],
+  [
+    'setAggregatorMaintainer',
+    {
+      title: 'Set Aggregator Maintainer',
+      btnText: 'Set Aggregator Maintainer',
+      btnIcon: 'plus',
+    },
+  ],
 ])
 
 export const SatelliteGovernanceForm = ({ variant }: Props) => {
@@ -113,7 +122,8 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
 
   const content = CONTENT_FORM.get(variant)
 
-  const isFieldOracleAdress = variant === 'removeFromAggregator' || variant === 'addToAggregator'
+  const isFieldOracleAdress =
+    variant === 'removeFromAggregator' || variant === 'addToAggregator' || variant === 'setAggregatorMaintainer'
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
@@ -129,6 +139,8 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
       if (variant === 'addToAggregator') await dispatch(addOracleToAggregator(oracleAddress, satelliteAddress, purpose))
       if (variant === 'restoreSatellite')
         await dispatch(addOracleToAggregator(oracleAddress, satelliteAddress, purpose))
+      if (variant === 'setAggregatorMaintainer')
+        await dispatch(setAggregatorMaintainer(oracleAddress, satelliteAddress, purpose))
       setForm({
         oracleAddress: '',
         satelliteAddress: '',
@@ -174,7 +186,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
           <p>Please enter a valid tz1 adress of the satellite to take action on</p>
           <fieldset>
             <div className="satellite-address">
-              <label>Satellite Address</label>
+              <label>{variant === 'setAggregatorMaintainer' ? 'Maintainer Address' : 'Satellite Address'}</label>
               <Input
                 value={satelliteAddress}
                 name="satelliteAddress"
@@ -189,7 +201,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
             </div>
             {isFieldOracleAdress ? (
               <div className="satellite-address">
-                <label>Oracle Address</label>
+                <label>{variant === 'setAggregatorMaintainer' ? 'Aggregator Address' : 'Oracle Address'}</label>
                 <Input
                   value={oracleAddress}
                   name="oracleAddress"

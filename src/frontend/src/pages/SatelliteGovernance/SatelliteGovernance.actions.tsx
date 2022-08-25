@@ -371,6 +371,56 @@ export const addOracleToAggregator =
     }
   }
 
+// Set Aggregator Maintainer
+export const SET_AGGREGATOR_MAINTAINER_REQUEST = 'SET_AGGREGATOR_MAINTAINER_REQUEST'
+export const SET_AGGREGATOR_MAINTAINER_RESULT = 'SET_AGGREGATOR_MAINTAINER_RESULT'
+export const SET_AGGREGATOR_MAINTAINER_ERROR = 'SET_AGGREGATOR_MAINTAINER_ERROR'
+export const setAggregatorMaintainer =
+  (oracleAddress: string, satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: SET_AGGREGATOR_MAINTAINER_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .setAggregatorMaintainer(oracleAddress, satelliteAddress, purpose)
+        .send()
+      console.log('transaction', transaction)
+
+      await dispatch(showToaster(INFO, 'Set Aggregator Maintainer...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Set Aggregator Maintainer done', 'All good :)'))
+
+      await dispatch({
+        type: SET_AGGREGATOR_MAINTAINER_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: SET_AGGREGATOR_MAINTAINER_ERROR,
+        error,
+      })
+    }
+  }
+
 // Drop Action
 export const DROP_ACTION_REQUEST = 'DROP_ACTION_REQUEST'
 export const DROP_ACTION_RESULT = 'DROP_ACTION_RESULT'
