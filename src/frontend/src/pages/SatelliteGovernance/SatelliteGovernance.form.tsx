@@ -19,6 +19,7 @@ import {
   removeOracles,
   removeOracleInAggregator,
   addOracleToAggregator,
+  restoreSatellite,
 } from './SatelliteGovernance.actions'
 
 // style
@@ -85,6 +86,14 @@ const CONTENT_FORM = new Map<string, Record<string, string>>([
       btnIcon: 'plus',
     },
   ],
+  [
+    'restoreSatellite',
+    {
+      title: 'Restore Satellite',
+      btnText: 'Restore Satellite',
+      btnIcon: 'plus',
+    },
+  ],
 ])
 
 export const SatelliteGovernanceForm = ({ variant }: Props) => {
@@ -114,9 +123,12 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
       if (variant === 'banSatellite') await dispatch(banSatellite(satelliteAddress, purpose))
       if (variant === 'unbanSatellite') await dispatch(unbanSatellite(satelliteAddress, purpose))
       if (variant === 'removeOracles') await dispatch(removeOracles(satelliteAddress, purpose))
+      if (variant === 'restoreSatellite') await dispatch(restoreSatellite(satelliteAddress, purpose))
       if (variant === 'removeFromAggregator')
         await dispatch(removeOracleInAggregator(oracleAddress, satelliteAddress, purpose))
       if (variant === 'addToAggregator') await dispatch(addOracleToAggregator(oracleAddress, satelliteAddress, purpose))
+      if (variant === 'restoreSatellite')
+        await dispatch(addOracleToAggregator(oracleAddress, satelliteAddress, purpose))
       setForm({
         oracleAddress: '',
         satelliteAddress: '',
