@@ -1,4 +1,4 @@
-export const getWertOptions = (commodity: string, setPopupActive: () => void) => ({
+export const getWertOptions = (commodity: string, setPopupActive: (open: boolean) => void) => ({
   partner_id: '01G0MCBQFJE47YZ0SECRKM81CD',
   commodity,
   origin: 'https://sandbox.wert.io',
@@ -19,6 +19,8 @@ export const getWertOptions = (commodity: string, setPopupActive: () => void) =>
   height: 600,
   width: 400,
   listeners: {
-    loaded: () => setPopupActive(),
+    loaded: () => setPopupActive(true),
+    error: () => setPopupActive(false),
+    close: () => setPopupActive(false)
   },
 })
