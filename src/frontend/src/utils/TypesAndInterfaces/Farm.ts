@@ -1,3 +1,9 @@
+// type
+import type { Farm } from '../generated/graphqlTypes'
+
+// helpers
+import { normalizeFarmStorage } from '../../pages/Farms/Frams.helpers'
+
 export interface FarmAccountsType {
   claimed_rewards: number
   deposited_amount: number
@@ -6,31 +12,6 @@ export interface FarmAccountsType {
   unclaimed_rewards: number
   user_id: string
   participation_rewards_per_share: number
-}
-
-
-export interface FarmStorage {
-  accumulatedMvkPerShare: number
-  address: string
-  lpTokenAddress: string
-  name: string
-  blocksPerMinute: number
-  lpTokenBalance: number
-  currentRewardPerBlock: number
-  claimPaused: boolean
-  depositPaused: boolean
-  farmFactoryId: string
-  infinite: boolean
-  initBlock: number
-  lastBlockUpdate: number
-  lpBalance: number
-  lpToken: string
-  open: boolean
-  rewardPerBlock: number
-  rewardsFromTreasury: boolean
-  totalBlocks: number
-  withdrawPaused: boolean
-  farmAccounts: FarmAccountsType[]
 }
 
 export type TzipsType = 'fa1' | 'fa12' | 'fa2'
@@ -69,3 +50,6 @@ export type FarmContractType = {
   codeHash: number
 }
 
+export type FarmStorage = ReturnType<typeof normalizeFarmStorage>
+
+export type FarmGraphQL = Omit<Farm, '__typename'>

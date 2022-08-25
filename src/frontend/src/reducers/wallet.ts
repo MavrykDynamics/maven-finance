@@ -3,11 +3,11 @@ import { TempleWallet } from '@temple-wallet/dapp'
 import { TezosToolkit } from '@taquito/taquito'
 
 export interface WalletState {
-  wallet?: TempleWallet
-  tezos?: TezosToolkit
-  accountPkh?: string
-  ready: boolean
-  error?: any
+  wallet?: TempleWallet;
+  tezos?: TezosToolkit;
+  accountPkh?: string;
+  ready: boolean;
+  error?: any;
 }
 
 const walletDefaultState: WalletState = {
@@ -15,7 +15,7 @@ const walletDefaultState: WalletState = {
   tezos: undefined,
   accountPkh: undefined,
   ready: false,
-}
+};
 
 export function wallet(state = walletDefaultState, action: any): WalletState {
   switch (action.type) {
@@ -23,7 +23,7 @@ export function wallet(state = walletDefaultState, action: any): WalletState {
       return {
         ...state,
         wallet: action.wallet,
-      }
+      };
     case CONNECT:
       return {
         ...state,
@@ -37,6 +37,6 @@ export function wallet(state = walletDefaultState, action: any): WalletState {
         ...walletDefaultState,
       }
     default:
-      return state
+      return state;
   }
 }

@@ -1,27 +1,25 @@
+// type
+import type { Doorman } from "../generated/graphqlTypes";
+
+// conterters
+import { normalizeDoormanStorage } from "../../pages/Doorman/Doorman.converter";
+
 export interface UserStakeRecord {
-  balance: number
-  participationFeesPerShare: number
+  balance: number;
+  participationFeesPerShare: number;
 }
 
-export type UserStakeBalanceLedger = Map<string, string>
+export type UserStakeBalanceLedger = Map<string, string>;
 
-export type UserStakeRecordsLedger = Map<string, Map<number, UserStakeRecord>>
+export type UserStakeRecordsLedger = Map<string, Map<number, UserStakeRecord>>;
 
 export interface DoormanBreakGlassConfigType {
-  stakeIsPaused: boolean
-  unstakeIsPaused: boolean
-  compoundIsPaused: boolean
-  farmClaimIsPaused: boolean
+  stakeIsPaused: boolean;
+  unstakeIsPaused: boolean;
+  compoundIsPaused: boolean;
+  farmClaimIsPaused: boolean;
 }
 
-export interface DoormanStorage {
-  admin?: string
-  minMvkAmount?: number
+export type DoormanStorage = ReturnType<typeof normalizeDoormanStorage>;
 
-  breakGlassConfig?: DoormanBreakGlassConfigType
-  userStakeBalanceLedger?: UserStakeBalanceLedger
-
-  totalStakedMvk?: number
-  unclaimedRewards?: number
-  accumulatedFeesPerShare?: number
-}
+export type DoormanGraphQl = Omit<Doorman, "__typename">;

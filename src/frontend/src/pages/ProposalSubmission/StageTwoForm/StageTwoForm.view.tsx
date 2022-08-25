@@ -189,7 +189,7 @@ export const StageTwoFormView = ({
             className="bytes"
             text="Submit Bytes"
             kind="actionPrimary"
-            disabled={disabled || !isAllBytesExist}
+            disabled={disabled}
             onClick={handleAddProposal}
           />
         )}

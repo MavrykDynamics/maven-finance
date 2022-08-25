@@ -42,6 +42,7 @@ type FarmCardProps = {
   secondTokenAddress: string
   variant: FarmsViewVariantType
   totalLiquidity: number
+  depositAmount: number
 }
 export const FarmCard = ({
   farmAddress,
@@ -56,6 +57,7 @@ export const FarmCard = ({
   name,
   lpTokenBalance,
   currentRewardPerBlock,
+  depositAmount,
 }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -63,12 +65,17 @@ export const FarmCard = ({
   const myFarmStakedBalance = 45645.8987
   const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)
 
+  const disabled = !wallet || !ready || !depositAmount
+
   const harvestRewards = () => {
     dispatch(harvest(farmAddress))
   }
 
   const setReduxFarmAddress = async () => {
-    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: farmAddress })
+    await dispatch({
+      type: SELECT_FARM_ADDRESS,
+      selectedFarmAddress: farmAddress,
+    })
   }
 
   const triggerDepositModal = async () => {
@@ -133,7 +140,7 @@ export const FarmCard = ({
   const totalLiquidityBlock = (
     <div className="farm-info">
       <h3>Total Liquidity</h3>
-      <var>$209,544,892</var>
+      <var>${totalLiquidity}</var>
     </div>
   )
 
@@ -173,7 +180,7 @@ export const FarmCard = ({
         <h3>sMVK Earned</h3>
         <var>0.00</var>
       </div>
-      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
+      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={disabled} />
     </FarmHarvestStyled>
   )
 
@@ -212,15 +219,13 @@ export const FarmCard = ({
         <div className="farm-info-vertical">
           {aprBlock}
           {earnBlock}
+          {totalLiquidityBlock}
         </div>
         <div className="vertical-harvest">{harvestBlock}</div>
         <div className="vertical-harvest">{farmingBlock}</div>
 
         <Expand className="vertical-expand" showText header={<></>}>
-          <>
-            <div className="farm-info-vertical">{totalLiquidityBlock}</div>
-            {linksBlock}
-          </>
+          {linksBlock}
         </Expand>
         {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
       </FarmCardStyled>
@@ -228,7 +233,7 @@ export const FarmCard = ({
   }
 
   return (
-    <FarmCardStyled key={lpTokenAddress} className={`contractCard  ${variant}`}>
+    <FarmCardStyled className={`contractCard  ${variant}`}>
       {questionLinkBlock}
       <Expand
         header={

@@ -31,7 +31,7 @@ import {
   VESTING_STORAGE_QUERY_VARIABLE,
   ORACLE_STORAGE_QUERY,
   ORACLE_STORAGE_QUERY_NAME,
-  ORACLE_STORAGE_QUERY_VARIABLE
+  ORACLE_STORAGE_QUERY_VARIABLE,
 } from './queries'
 
 async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, any>) {
@@ -48,7 +48,7 @@ async function fetchGraphQL(operationsDoc: string, operationName: string, variab
   //   }),
   // })
   // return await result.json()
-// console.log('%c ||||| process.env', 'color:yellowgreen', process.env);
+  // console.log('%c ||||| process.env', 'color:yellowgreen', process.env);
   const developmentAPI = process.env.REACT_APP_DEV_GRAPHQL_API || 'https://api-dev.mavryk.finance/v1/graphql'
 
   const prodictionAPI = process.env.REACT_APP_GRAPHQL_API || 'https://api-dev.mavryk.finance/v1/graphql'
