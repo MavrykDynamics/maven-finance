@@ -107,7 +107,7 @@ export const MenuSidebarContent = styled.div`
   transition: 0.6s all;
   height: fit-content;
   min-height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   &::-webkit-scrollbar {
     display: none;

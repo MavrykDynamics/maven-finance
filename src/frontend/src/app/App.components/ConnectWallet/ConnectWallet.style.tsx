@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { backdropColor, backgroundTextColor, cyanColor, skyColor } from 'styles'
+import { cyanColor, skyColor } from 'styles'
 import { BUTTON_RADIUS } from 'styles/constants'
 import { MavrykTheme } from 'styles/interfaces'
 
