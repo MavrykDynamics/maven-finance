@@ -157,6 +157,34 @@ export const PopupContainer = styled.div`
   top: 0;
   left: 0;
   display: flex;
+
+  .wert-io-wrapper {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 535px;
+    width: 100%;
+    height: 660px;
+
+    .close_modal {
+      position: absolute;
+      font-size: 60px;
+      font-weight: 100;
+      height: 35px;
+      width: 35px;
+      color: #8d86eb;
+      transform: rotate(45deg);
+      top: 15px;
+      right: 15px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 550px) {
+      width: 100vw;
+      height: 100vh !important;
+    }
+  }
 `
 
 export const PopupTitle = styled.div`

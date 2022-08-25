@@ -27,6 +27,11 @@ type ConnectedWalletBlockProps = {
   changeWalletHandler: () => void
   coinsInfo: CoinsInfoType
   isMobile: boolean
+  detailsHandlers: {
+    buyXTZHandler: () => void
+    buyMVKHandler: () => void
+    stakeMVKHandler: () => void
+  }
 }
 
 export const MobileDetailsBlock = ({
@@ -92,6 +97,7 @@ export const ConnectedWalletBlock = ({
   coinsInfo,
   signOutHandler,
   changeWalletHandler,
+  detailsHandlers,
   isMobile,
 }: ConnectedWalletBlockProps) => {
   const [detailsShown, setDetailsShown] = useState(false)
@@ -109,6 +115,7 @@ export const ConnectedWalletBlock = ({
         changeWalletHandler={changeWalletHandler}
         isMobile={isMobile}
         handleCloseBtn={closeHandler}
+        detailsHandlers={detailsHandlers}
       />
     )
 
@@ -127,21 +134,21 @@ export const ConnectedWalletBlock = ({
           buttonText={'Buy MVK'}
           coinAmount={coinsInfo.userMVKBalance}
           coinName={'MVK'}
-          buttonHandler={() => {}}
+          buttonHandler={detailsHandlers.buyMVKHandler}
           subtextAmount={coinsInfo.userMVKBalance * coinsInfo.MVKExchangeRate}
         />
         <ConnectedWalletDetailsItem
           buttonText={'Stake MVK'}
           coinAmount={coinsInfo.userMVKStaked}
           coinName={'MVK'}
-          buttonHandler={() => {}}
+          buttonHandler={detailsHandlers.stakeMVKHandler}
           subtextInfo="Total staked MVK"
         />
         <ConnectedWalletDetailsItem
           buttonText={'Buy XTZ'}
           coinAmount={coinsInfo.userXTZBalance}
           coinName={'XTZ'}
-          buttonHandler={() => {}}
+          buttonHandler={detailsHandlers.buyXTZHandler}
           subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
         />
 
