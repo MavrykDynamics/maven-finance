@@ -120,6 +120,7 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
 
               svg {
                 stroke: ${cyanColor};
+                transform: rotate(90deg);
               }
             }
           }
