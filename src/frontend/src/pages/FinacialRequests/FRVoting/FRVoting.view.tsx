@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Tooltip } from '@mui/material'
 import { useDispatch } from 'react-redux'
 
@@ -37,11 +37,12 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
 
   const [votingStats, setVoteStatistics] = useState({
     totalVotes: selectedRequest.pass_vote_smvk_total + selectedRequest.nay_vote_smvk_total,
-    forVotes: selectedRequest.pass_vote_smvk_total,
+    forVotes: selectedRequest.yay_vote_smvk_total,
     againstVotes: selectedRequest.nay_vote_smvk_total,
-    abstainVotesMVKTotal: 0,
+    abstainVotesMVKTotal: selectedRequest.pass_vote_smvk_total,
     unUsedVotes: Math.round(
       selectedRequest.snapshot_smvk_total_supply / PRECISION_NUMBER -
+        selectedRequest.yay_vote_smvk_total -
         selectedRequest.pass_vote_smvk_total -
         selectedRequest.nay_vote_smvk_total,
     ),
@@ -87,8 +88,7 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
   )
   const forVotesWidth = (votingStats.forVotes / totalVotesWithUnused) * 100
   const againstVotesWidth = (votingStats.againstVotes / totalVotesWithUnused) * 100
-  // TODO: uncomment if abstain implement in gql, or can switch to VotingBar component if abstain will be avaliable
-  // const abstainVotesWidth = (votingStats.abstainVotesMVKTotal / totalVotesWithUnused) * 100
+  const abstainVotesWidth = (votingStats.abstainVotesMVKTotal / totalVotesWithUnused) * 100
 
   return (
     <>
@@ -102,11 +102,11 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
               <CommaNumber value={votingStats.forVotes} />
             </VotingFor>
           </Tooltip>
-          {/* <Tooltip title={`${votingStats.abstainVotesMVKTotal} Abstention votes`}>
-          <VotingAbstention width={abstainingVotesWidth}>
-            <CommaNumber value={votingStats.abstainVotesMVKTotal} />
-          </VotingAbstention>
-        </Tooltip> */}
+          <Tooltip title={`${votingStats.abstainVotesMVKTotal} Abstention votes`}>
+            <VotingAbstention width={abstainVotesWidth}>
+              <CommaNumber value={votingStats.abstainVotesMVKTotal} />
+            </VotingAbstention>
+          </Tooltip>
           <Tooltip title={`${votingStats.unUsedVotes} Unused votes`}>
             <VotingAbstention width={100 - forVotesWidth - againstVotesWidth}>
               <CommaNumber value={votingStats.unUsedVotes} />
@@ -121,40 +121,38 @@ const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }:
         </VotingBarStyled>
       </VotingContainer>
 
-      {walletConnected && isActiveVoting ? (
+      {isActiveVoting ? (
         <VotingAreaStyled className="FRVoting">
-          {isActiveVoting ? (
-            walletConnected ? (
-              <VotingButtonsContainer className="FRVoting">
-                <Button
-                  text={'Vote YES'}
-                  onClick={() => handleVotingRoundVote('FOR')}
-                  type={SUBMIT}
-                  kind={'votingFor'}
-                  loading={loading}
-                />
-                {/* <Button
-                  text={'Vote PASS'}
-                  onClick={() => handleVotingRoundVote('ABSTAIN')}
-                  type={SUBMIT}
-                  kind={'votingAbstain'}
-                  loading={loading}
-                /> */}
-                <Button
-                  text={'Vote NO'}
-                  onClick={() => handleVotingRoundVote('AGAINST')}
-                  type={SUBMIT}
-                  kind={'votingAgainst'}
-                  loading={loading}
-                />
-              </VotingButtonsContainer>
-            ) : (
-              <div className="voted-block">
-                <CommaNumber className="voted-label" value={votingStats.totalVotes} endingText={'voted MVK'} />
-                <NoWalletConnectedButton handleConnect={handleConnect} />
-              </div>
-            )
-          ) : null}
+          {walletConnected ? (
+            <VotingButtonsContainer className="FRVoting">
+              <Button
+                text={'Vote YES'}
+                onClick={() => handleVotingRoundVote('FOR')}
+                type={SUBMIT}
+                kind={'votingFor'}
+                loading={loading}
+              />
+              <Button
+                text={'Vote PASS'}
+                onClick={() => handleVotingRoundVote('ABSTAIN')}
+                type={SUBMIT}
+                kind={'votingAbstain'}
+                loading={loading}
+              />
+              <Button
+                text={'Vote NO'}
+                onClick={() => handleVotingRoundVote('AGAINST')}
+                type={SUBMIT}
+                kind={'votingAgainst'}
+                loading={loading}
+              />
+            </VotingButtonsContainer>
+          ) : (
+            <div className="voted-block">
+              <CommaNumber className="voted-label" value={votingStats.totalVotes} endingText={'voted MVK'} />
+              <NoWalletConnectedButton handleConnect={handleConnect} />
+            </div>
+          )}
         </VotingAreaStyled>
       ) : null}
     </>

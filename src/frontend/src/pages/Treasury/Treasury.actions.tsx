@@ -14,12 +14,18 @@ import { FetchedTreasuryType, TreasuryGQLType } from 'utils/TypesAndInterfaces/T
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
 import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './treasury.const'
+import CoinGecko from 'coingecko-api'
+
+const coinGeckoClient = new CoinGecko()
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
 
-export const fillTreasuryStorage = () => async (dispatch: any) => {
+export const fillTreasuryStorage = () => async (dispatch: any, getState: () => State) => {
   try {
+    const {
+      mvkToken: { exchangeRate: MVK_EXCHANGE_RATE },
+    } = getState()
     // Get treasury addresses from gql
     const treasuryAddressesStorage = await fetchFromIndexer(
       GET_TREASURY_DATA,
@@ -59,6 +65,7 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
           name: 'Staked MAVRYK',
           symbol: 'sMVK',
           token_id: 0,
+          rate: MVK_EXCHANGE_RATE,
         }
       },
     )
@@ -73,12 +80,27 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
     // Await promises from upper
     const fetchedTheasuryData = await Promise.all(getTreasuryCallbacks.map((fn) => fn()))
 
+    // Mapping assets for every treasury, to fetch rates for them
+    const arrayOfAssetsSymbols: Set<string> = fetchedTheasuryData.reduce((acc, treasuryData) => {
+      treasuryData.balances.forEach((asset) => acc.add(asset.symbol))
+      return acc
+    }, new Set<string>())
+
+    // Fetching rates for every asset in treasury
+    const treasuryAssetsPrices = (
+      await coinGeckoClient.simple.price({
+        ids: Array.from(arrayOfAssetsSymbols),
+        vs_currencies: ['usd'],
+      })
+    ).data
+
     // Map every treasury to combine treasury name, and divide balance by constant
     const treasuryStorage = convertedStorage.treasuryAddresses.map((treasuryData: TreasuryGQLType, idx: number) => {
       const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances
         .map((token) => ({
           ...token,
           balance: Number(token.balance) / TREASURY_BALANCE_DIVIDER,
+          rate: token.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[token.symbol],
         }))
         .concat(
           parsedsMVKAmount.find(
