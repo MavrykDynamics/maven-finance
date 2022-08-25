@@ -148,7 +148,7 @@ export const ConnectedWalletBlock = ({
         <div className="buttons-wrapper">
           <SignOutButton onClick={signOutHandler}>Sign out</SignOutButton>
           <Button
-            text="Chnage Wallet"
+            text="Change Wallet"
             onClick={changeWalletHandler}
             kind={ACTION_PRIMARY}
             icon="exchange"

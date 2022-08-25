@@ -24,6 +24,7 @@ export const PopupContainerWrapper = styled.div`
   .close_modal {
     position: absolute;
     font-size: 35px;
+    font-weight: 100;
     height: 18px;
     width: 18px;
     color: #8d86eb;
@@ -40,7 +41,7 @@ export const ChangeNodeNodesList = styled.div`
   margin-top: 18px;
   max-height: 200px;
   height: fit-content;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-right: 10px;
 `
 
@@ -69,33 +70,24 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       color: #8d86eb;
       cursor: pointer;
       transition: 0.5s all;
+      white-space: nowrap;
+      margin-right: 10px;
 
       &:hover {
         color: ${cyanColor};
       }
     }
 
-    #inputStyled {
-      max-width: 100px;
-
-      input {
-        width: 100px;
-        border: none;
-        padding: 0;
-        padding-left: 7px;
-        color: #6a6a9b;
-        font-size: 16px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-
-      @media (max-width: 350px) {
-        width: 80px;
-        input {
-          width: 80px;
-        }
-      }
+    input {
+      width: 100%;
+      border: none;
+      padding: 0;
+      padding-left: 7px;
+      color: #6a6a9b;
+      font-size: 16px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
   }
 
@@ -145,7 +137,7 @@ export const PopupStyled = styled.div`
   .close_modal {
     position: absolute;
     font-size: 60px;
-    font-weight: 400;
+    font-weight: 100;
     height: 35px;
     width: 35px;
     color: #8d86eb;
@@ -160,7 +152,7 @@ export const PopupContainer = styled.div`
   width: 100vw;
   height: 100vh;
   background-color: #0000007a;
-  z-index: 100;
+  z-index: 11;
   position: fixed;
   top: 0;
   left: 0;
