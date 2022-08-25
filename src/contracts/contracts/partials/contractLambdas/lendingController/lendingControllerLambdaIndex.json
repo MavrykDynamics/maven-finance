@@ -65,34 +65,38 @@
     },
     {
         "index": 16,
-        "name": "lambdaLiquidateVault"
+        "name": "lambdaMarkForLiquidation"
     },
     {
         "index": 17,
-        "name": "lambdaRegisterDeposit"
+        "name": "lambdaLiquidateVault"
     },
     {
         "index": 18,
-        "name": "lambdaRegisterWithdrawal"
+        "name": "lambdaRegisterDeposit"
     },
     {
         "index": 19,
-        "name": "lambdaBorrow"
+        "name": "lambdaRegisterWithdrawal"
     },
     {
         "index": 20,
-        "name": "lambdaRepay"
+        "name": "lambdaBorrow"
     },
     {
         "index": 21,
-        "name": "lambdaVaultDepositStakedMvk"
+        "name": "lambdaRepay"
     },
     {
         "index": 22,
-        "name": "lambdaVaultWithdrawStakedMvk"
+        "name": "lambdaVaultDepositStakedMvk"
     },
     {
         "index": 23,
+        "name": "lambdaVaultWithdrawStakedMvk"
+    },
+    {
+        "index": 24,
         "name": "lambdaVaultLiquidateStakedMvk"
     }
     
