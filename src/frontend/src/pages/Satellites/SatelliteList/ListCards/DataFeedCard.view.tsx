@@ -1,4 +1,5 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import Icon from 'app/App.components/Icon/Icon.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
@@ -12,14 +13,7 @@ export const DataFeedCard = ({ feed }: { feed: Feed }) => {
     <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle>
         <div className="item with-img">
-          {feed.token_1_symbol.toLowerCase() === 'mvk' ? (
-            <Icon id="mvkTokenGold" />
-          ) : (
-            <img
-              src={`//logo.chainbit.xyz/${feed.token_1_symbol.toLowerCase()}`}
-              alt={`${feed.token_1_symbol.toLowerCase()} logo`}
-            />
-          )}
+          <CoinsLogo assetName={feed.token_1_symbol} />
           <h5>Feed</h5>
           <var>
             {feed.token_1_symbol}/{feed.token_0_symbol}

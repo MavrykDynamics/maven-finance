@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-import { Card, skyColor, cyanColor, headerColor, royalPurpleColor } from 'styles'
+import Icon from './Icon.view'
 
 export const FarmCardTokenLogoContainer = styled.figure<{ theme: MavrykTheme }>`
   height: 50px;
@@ -36,5 +36,19 @@ export default function CoinsIcons() {
       <FarmCardFirstTokenIcon src={'/images/coin-gold.svg'} />
       <FarmCardSecondTokenIcon src={'/images/coin-silver.svg'} />
     </FarmCardTokenLogoContainer>
+  )
+}
+
+// General Assets logo component
+export const CoinsLogo = ({ assetName, className }: { assetName: string; className?: string }) => {
+  return assetName.toLowerCase() === 'mvk' ? (
+    <Icon id="mvkTokenGold" className={className} />
+  ) : (
+    <img
+      className={className}
+      src={`//logo.chainbit.xyz/${assetName.toLowerCase()}`}
+      alt={`${assetName.toLowerCase()} logo`}
+      loading="lazy"
+    />
   )
 }
