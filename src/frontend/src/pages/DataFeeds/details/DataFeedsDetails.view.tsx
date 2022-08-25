@@ -39,6 +39,7 @@ import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { InputErrorMessage } from 'app/App.components/Input/Input.style'
 import { EmptyContainer } from 'app/App.style'
 import { cyanColor, downColor, Page, upColor } from 'styles'
+import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -88,15 +89,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
             <div className="top">
               <div className="name-part">
                 <div className="img-wrapper">
-                  {feed.token_1_symbol.toLowerCase() === 'mvk' ? (
-                    <Icon id="mvkTokenGold" />
-                  ) : (
-                    <img
-                      src={`//logo.chainbit.xyz/${feed.token_1_symbol.toLowerCase()}`}
-                      alt={`${feed.token_1_symbol.toLowerCase()} logo`}
-                      loading="lazy"
-                    />
-                  )}
+                  <CoinsLogo assetName={feed.token_1_symbol} />
                 </div>
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
                   {feed.token_1_symbol}/{feed.token_0_symbol}
