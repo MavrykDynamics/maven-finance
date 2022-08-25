@@ -65,6 +65,7 @@ query DelegationStorageQuery {
           governance_proposal_record_id
           id
           round
+          timestamp
           vote
           voter_id
           voting_power

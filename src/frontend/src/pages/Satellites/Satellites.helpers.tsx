@@ -18,8 +18,6 @@ export function normalizeSatelliteRecord(
       )
     : 0
 
-  console.log('11111', userVotingHistory)
-
   const proposalVotingHistory = userVotingHistory
     ? userVotingHistory?.governance_proposal_records_votes?.map((vote) => {
         return {
