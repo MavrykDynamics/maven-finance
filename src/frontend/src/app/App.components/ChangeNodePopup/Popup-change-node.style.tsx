@@ -174,7 +174,8 @@ export const PopupContainer = styled.div`
       height: 35px;
       width: 35px;
       color: #8d86eb;
-      top: 15px;
+      transform: unset;
+      top: 5px;
       right: 15px;
       cursor: pointer;
     }
