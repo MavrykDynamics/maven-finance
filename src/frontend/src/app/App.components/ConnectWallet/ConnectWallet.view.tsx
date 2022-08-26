@@ -4,7 +4,6 @@ import { ACTION_PRIMARY, TRANSPARENT } from '../Button/Button.constants'
 import { Button } from '../Button/Button.controller'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import Icon from '../Icon/Icon.view'
-import { toggleSidebarCollapsing } from '../Menu/Menu.actions'
 import { TzAddress } from '../TzAddress/TzAddress.view'
 import {
   ConnectedWalletStyled,
@@ -34,7 +33,7 @@ type ConnectedWalletBlockProps = {
     buyMVKHandler: () => void
     stakeMVKHandler: () => void
   }
-  closeMobileMenu: (e: any) => void
+  closeMobileMenu: (e: React.MouseEvent<HTMLElement>) => void
 }
 
 export const MobileDetailsBlock = ({
@@ -46,7 +45,6 @@ export const MobileDetailsBlock = ({
   handleCloseBtn,
   closeMobileMenu,
 }: ConnectedWalletBlockProps & { handleCloseBtn: () => void }) => {
-  const dispatch = useDispatch()
   return (
     <MobileDetailsStyled>
       <div className="close" onClick={handleCloseBtn}>
@@ -72,7 +70,7 @@ export const MobileDetailsBlock = ({
           buttonText={'Stake MVK'}
           coinAmount={coinsInfo.userMVKStaked}
           coinName={'MVK'}
-          buttonHandler={(e) => {
+          buttonHandler={(e: React.MouseEvent<HTMLElement>) => {
             closeMobileMenu(e)
             handleCloseBtn()
             detailsHandlers.stakeMVKHandler()
@@ -209,7 +207,7 @@ type ConnectedWalletDetailsItemProps = {
   buttonText: string
   coinName: string
   coinAmount: number
-  buttonHandler: (e: any) => void
+  buttonHandler: (e: React.MouseEvent<HTMLElement>) => void
   subtextInfo?: string
   subtextAmount?: number
 }

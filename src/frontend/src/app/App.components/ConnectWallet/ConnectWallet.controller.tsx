@@ -1,4 +1,6 @@
+//@ts-ignore
 import WertWidget from '@wert-io/widget-initializer'
+
 import { useDispatch, useSelector } from 'react-redux'
 import { useMedia } from 'react-use'
 import { useHistory } from 'react-router-dom'
@@ -11,10 +13,12 @@ import { getWertOptions } from './Wert/WertIO.const'
 import { useCallback, useState } from 'react'
 import WertIoPopup from './Wert/WertIoPopup'
 import { toggleSidebarCollapsing } from '../Menu/Menu.actions'
+import { showToaster } from '../Toaster/Toaster.actions'
+import { ERROR } from '../Toaster/Toaster.constants'
 
 type ConnectWalletProps = {
   className?: string
-  closeMobileMenu?: (e: any) => void
+  closeMobileMenu?: (e: React.MouseEvent<HTMLElement>) => void
 }
 
 export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps) => {
@@ -38,8 +42,18 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
     dispatch(disconnect())
   }
 
+  const showWertIoErrorToaster = () => {
+    dispatch(
+      showToaster(
+        ERROR,
+        'Wert io interaction error',
+        'Error while interaction with wert io service happened, try later',
+      ),
+    )
+  }
+
   const mountWertWiget = (commodity: string) => {
-    const wertOptions = getWertOptions(commodity, setShowWertIoPopup)
+    const wertOptions = getWertOptions(commodity, setShowWertIoPopup, showWertIoErrorToaster)
     const wertWidgetInstance = new WertWidget(wertOptions)
     wertWidgetInstance.mount()
   }
@@ -59,7 +73,7 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
     stakeMVKHandler: () => history.push('/'),
   }
 
-  const closeAllForMobileMenu = useCallback((e: any) => {
+  const closeAllForMobileMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
     setShowWertIoPopup(false)
     if (closeMobileMenu) closeMobileMenu(e)
     dispatch(toggleSidebarCollapsing(false))
