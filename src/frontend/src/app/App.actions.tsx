@@ -33,6 +33,7 @@ import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpe
 import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/EmergencyGovernance.helpers'
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
 import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
+import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -59,7 +60,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const breakGlassStorage = normalizeBreakGlass(res[6]?.break_glass[0])
   const councilStorage = noralizeCouncilStorage(res[7]?.council?.[0])
   const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
-  const governanceStorage = storageToTypeConverter('governance', res[9])
+  const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = storageToTypeConverter('oracle', res[10])
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId

@@ -6,6 +6,7 @@ import type {
   Governance_Proposal_Record,
   Governance_Satellite_Snapshot_Record,
 } from '../generated/graphqlTypes'
+import { normalizeGovernanceStorage } from '../../pages/Governance/Governance.helpers'
 
 export enum ProposalStatus {
   EXECUTED = 'EXECUTED',
@@ -125,33 +126,6 @@ export interface SnapshotRecordType {
   currentCycleStartLevel: number // log of current cycle starting block level
   currentCycleEndLevel: number // log of when cycle (proposal + voting) will end
 }
-export interface GovernanceStorage {
-  address: string
-  fee: number
-  config: GovernanceConfig
-  whitelistTokenContracts?: MichelsonMap<string, unknown>
-  proposalLedger: ProposalRecordType[]
-  snapshotLedger: SnapshotRecordType[]
-  activeSatellitesMap: MichelsonMap<string, Date>
-  startLevel: number
-  nextProposalId: number
-  currentRound: string
-  currentRoundStartLevel: number
-  currentRoundEndLevel: number
-  currentCycleEndLevel: number
-  currentRoundProposals?: MichelsonMap<string, ProposalRecordType>
-  currentRoundVotes?: MichelsonMap<string, unknown>
-  currentRoundHighestVotedProposalId?: number
-  timelockProposalId: number
-  snapshotMvkTotalSupply?: number
-  governanceLambdaLedger?: MichelsonMap<string, unknown>
-  financialRequestLedger?: FinancialRequestRecord[]
-  financialRequestSnapshotLedger?: any
-  financialRequestCounter?: number
-  tempFlag: number
-  cycleCounter: number
-  cycleHighestVotedProposalId: number
-}
 
 export interface FinancialRequestRecord {
   id: string
@@ -198,8 +172,9 @@ export type GovernanceFinancialRequestRecordGraphQL = Omit<Governance_Financial_
 export type GovernanceProposalRecordGraphQL = Omit<Governance_Proposal_Record, '__typename'>
 export type GovernanceSatelliteSnapshotRecordGraphQL = Omit<Governance_Satellite_Snapshot_Record, '__typename'>
 export type GovernanceStorageGraphQL = {
-  governance: GovernanceGraphQL
-  governance_financial_request_record: GovernanceFinancialRequestRecordGraphQL
-  governance_proposal_record: GovernanceProposalRecordGraphQL
-  governance_satellite_snapshot_record: GovernanceSatelliteSnapshotRecordGraphQL
+  governance: GovernanceGraphQL[]
+  governance_financial_request_record: GovernanceFinancialRequestRecordGraphQL[]
+  governance_proposal_record: GovernanceProposalRecordGraphQL[]
 }
+
+export type GovernanceStorage = ReturnType<typeof normalizeGovernanceStorage>
