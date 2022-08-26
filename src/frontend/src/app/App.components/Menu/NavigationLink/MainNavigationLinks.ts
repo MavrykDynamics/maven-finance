@@ -51,7 +51,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     subPages: [
       { id: 56179, subTitle: 'Proposals', subPath: 'governance', protectedRoute: false },
       { id: 31471, subTitle: 'Proposal History', subPath: 'proposal-history', protectedRoute: false },
-      { id: 35587, subTitle: 'Break Glass', subPath: 'break-glass', protectedRoute: false },
+      { id: 35587, subTitle: 'Contract Status', subPath: 'break-glass', protectedRoute: false },
       {
         id: 79754,
         subTitle: 'Mavryk Council',

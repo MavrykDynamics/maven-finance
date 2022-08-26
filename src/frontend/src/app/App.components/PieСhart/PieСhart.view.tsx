@@ -12,11 +12,12 @@ export default function PieChartView({ chartData }: { chartData: any }) {
         segmentsTabIndex={1}
         label={(labelProps) => {
           const labelPersent = labelProps.dataEntry.labelPersent
-          const shownPersent = labelPersent
-            ? labelPersent.toFixed(2) < 1
-              ? '< 1%'
-              : `${parseFloat(labelPersent.toFixed(2))}%`
-            : ''
+          const shownPersent =
+            labelPersent !== undefined
+              ? labelPersent.toFixed(2) < 1
+                ? '< 1%'
+                : `${parseFloat(labelPersent.toFixed(2))}%`
+              : ''
           return shownPersent
         }}
         labelPosition={100 - 30 / 2}

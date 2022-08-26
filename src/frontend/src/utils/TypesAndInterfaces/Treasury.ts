@@ -1,17 +1,17 @@
-
-export type TreasuryGQLType =  {
-  address: string,
+export type TreasuryGQLType = {
+  address: string
   name: string
 }
 
 export type TreasuryType = TreasuryGQLType & FetchedTreasuryType
 
 export type FetchedTreasuryType = {
-  balances: Array<TreasuryBalanceType>,
+  balances: Array<TreasuryBalanceType>
   total: number
 }
 
 export type TreasuryBalanceType = {
+  rate: any
   balance: number
   contract: string
   decimals: number
