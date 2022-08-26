@@ -124,10 +124,10 @@ export const GOVERNANCE_STORAGE_QUERY = `
       }
     }
   }
-`;
+`
 
-export const GOVERNANCE_STORAGE_QUERY_NAME = "GetGovernanceStorageQuery";
-export const GOVERNANCE_STORAGE_QUERY_VARIABLE = {};
+export const GOVERNANCE_STORAGE_QUERY_NAME = 'GetGovernanceStorageQuery'
+export const GOVERNANCE_STORAGE_QUERY_VARIABLE = {}
 
 export const CURRENT_ROUND_PROPOSALS_QUERY = `
 query GetCurrentRoundProposalsQuery {
@@ -185,15 +185,12 @@ query GetCurrentRoundProposalsQuery {
         record_internal_id
         title
         to__id
-        token_address
         token_amount
         token_id
-        token_standard
       }
     }
   }
-`;
+`
 
-export const CURRENT_ROUND_PROPOSALS_QUERY_NAME =
-  "GetCurrentRoundProposalsQuery";
-export const CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE = {};
+export const CURRENT_ROUND_PROPOSALS_QUERY_NAME = 'GetCurrentRoundProposalsQuery'
+export const CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE = {}
