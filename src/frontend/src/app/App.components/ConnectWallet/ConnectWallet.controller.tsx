@@ -1,4 +1,3 @@
-//@ts-ignore
 import WertWidget from '@wert-io/widget-initializer'
 
 import { useDispatch, useSelector } from 'react-redux'
