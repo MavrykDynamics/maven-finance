@@ -1,6 +1,14 @@
+import { MichelsonMap } from '@taquito/taquito'
 import { GovernancePhase } from '../../reducers/governance'
-import { ProposalStatus, TokenStandardType, PaymentType } from '../../utils/TypesAndInterfaces/Governance'
-import { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
+import {
+  ProposalStatus,
+  TokenStandardType,
+  PaymentType,
+  GovernanceStorageGraphQL,
+  ProposalRecordType,
+  GovernanceProposalRecordGraphQL,
+} from '../../utils/TypesAndInterfaces/Governance'
+import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
 
 export const getProposalStatusInfo = (
   governancePhase: GovernancePhase,
@@ -193,4 +201,77 @@ export const getShortByte = (
     : []
 
   return shortBype.join('')
+}
+
+function convertGovernanceRound(round: number) {
+  return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : round === 2 ? 'TIME_LOCK' : ''
+}
+
+export const normalizeProposal = (item: GovernanceProposalRecordGraphQL) => {
+  return {
+    id: item.id,
+    proposerId: item.proposer_id,
+    status: item.status,
+    title: item.title,
+    description: item.description,
+    invoice: item.invoice,
+    successReward: item.success_reward,
+    startDateTime: item.start_datetime,
+    executed: item.executed,
+    locked: item.locked,
+    sourceCode: item.source_code,
+    passVoteMvkTotal: calcWithoutPrecision(item.proposal_vote_smvk_total),
+    upvoteMvkTotal: calcWithoutPrecision(item.yay_vote_smvk_total),
+    downvoteMvkTotal: calcWithoutPrecision(item.nay_vote_count),
+    abstainMvkTotal: calcWithoutPrecision(item.pass_vote_smvk_total),
+    //votes: convertGovernanceProposalVoteToInterface(item.votes),
+    minProposalRoundVoteRequirement: item.min_proposal_round_vote_req,
+    minProposalRoundVotePercentage: item.min_proposal_round_vote_pct,
+    minQuorumPercentage: item.min_quorum_percentage,
+    minQuorumMvkTotal: item.min_yay_vote_percentage,
+    quorumMvkTotal: item.quorum_smvk_total,
+    currentRoundProposal: item.current_round_proposal,
+    currentCycleStartLevel: item.current_cycle_start_level,
+    currentCycleEndLevel: item.current_cycle_end_level,
+    cycle: item.cycle,
+    proposalData: item.proposal_data,
+    proposalPayments: item.proposal_payments,
+    governanceId: item.governance_id,
+    paymentProcessed: item.payment_processed,
+  }
+}
+
+export const normalizeGovernanceStorage = (storage: GovernanceStorageGraphQL | null) => {
+  const currentGovernance = storage?.governance?.[0]
+  const proposalLedger = storage?.governance_proposal_record?.length
+    ? storage?.governance_proposal_record.map((item) => normalizeProposal(item))
+    : []
+
+  return {
+    activeSatellitesMap: new MichelsonMap<string, Date>(),
+    address: currentGovernance?.address || '',
+    fee: currentGovernance?.proposal_submission_fee_mutez
+      ? calcWithoutMu(currentGovernance.proposal_submission_fee_mutez)
+      : 0,
+    config: {
+      successReward: calcWithoutPrecision(currentGovernance?.success_reward ?? 0),
+      minQuorumPercentage: currentGovernance?.min_quorum_percentage ?? 0,
+      minQuorumMvkTotal: currentGovernance?.min_yay_vote_percentage ?? 0,
+      blocksPerProposalRound: currentGovernance?.blocks_per_proposal_round ?? 0,
+      blocksPerVotingRound: currentGovernance?.blocks_per_voting_round ?? 0,
+      blocksPerTimelockRound: currentGovernance?.blocks_per_timelock_round,
+    },
+    currentCycleEndLevel: currentGovernance?.current_cycle_end_level ?? 0,
+    currentRound: convertGovernanceRound(currentGovernance?.current_round ?? 0),
+    currentRoundEndLevel: currentGovernance?.current_round_end_level ?? 0,
+    currentRoundProposals: new MichelsonMap<string, ProposalRecordType>(),
+    currentRoundStartLevel: currentGovernance?.current_round_start_level ?? 0,
+    currentRoundVotes: new MichelsonMap<string, Date>(),
+    financialRequestLedger: storage?.governance_financial_request_record,
+    governanceLambdaLedger: new MichelsonMap<string, Date>(),
+    nextProposalId: currentGovernance?.next_proposal_id ?? 0,
+    proposalLedger,
+    timelockProposalId: currentGovernance?.timelock_proposal_id ?? 0,
+    cycleHighestVotedProposalId: currentGovernance?.cycle_highest_voted_proposal_id ?? 0,
+  }
 }

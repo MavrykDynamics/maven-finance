@@ -1,6 +1,6 @@
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
-
+import { normalizeGovernanceStorage } from './Governance.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 
 import {
@@ -13,7 +13,7 @@ import {
 } from '../../gql/queries/getGovernanceStorage'
 import { State } from '../../reducers'
 
-import storageToTypeConverter, { convertCurrentRoundProposalsStorageType } from '../../utils/storageToTypeConverter'
+import { convertCurrentRoundProposalsStorageType } from '../../utils/storageToTypeConverter'
 
 export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
@@ -27,7 +27,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     GOVERNANCE_STORAGE_QUERY_VARIABLE,
   )
 
-  const convertedStorage = storageToTypeConverter('governance', storage)
+  const convertedStorage = normalizeGovernanceStorage(storage)
 
   dispatch({
     type: GET_GOVERNANCE_STORAGE,
