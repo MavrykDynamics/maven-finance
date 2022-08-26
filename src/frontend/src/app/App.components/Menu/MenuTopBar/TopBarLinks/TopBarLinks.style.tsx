@@ -26,9 +26,14 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
       height: 17px;
       margin-left: 8px;
       transform: rotate(-90deg);
-      transition: 0.35s all;
+      transition: 0.6s all;
       display: block;
       stroke: ${silverColor};
+    }
+
+    a {
+      color: ${silverColor};
+      transition: 0.35s all;
     }
 
     &:hover {
@@ -36,6 +41,11 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
 
       svg {
         stroke: ${cyanColor};
+        transform: rotate(90deg);
+      }
+
+      a {
+        color: ${cyanColor};
       }
     }
 
@@ -66,6 +76,13 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
         color: ${cyanColor};
         background: ${darkPurpleColor};
       }
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+    svg {
+      transform: rotate(90deg);
     }
   }
 
@@ -103,6 +120,7 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
 
               svg {
                 stroke: ${cyanColor};
+                transform: rotate(90deg);
               }
             }
           }

@@ -9,7 +9,7 @@ export type ButtonProps = {
   icon?: string
   className?: string
   kind?: ButtonStyle
-  onClick?: () => void
+  onClick?: (e: any) => void
   type?: ButtonTypes
   loading?: boolean
   disabled?: boolean

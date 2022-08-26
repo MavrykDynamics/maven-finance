@@ -91,3 +91,16 @@ export const connect =
     }
     */
   }
+
+export const DISCONNECT = 'DISCONNECT'
+export const disconnect = () => async (dispatch: any) => {
+  try {
+    // clearing wallet data
+    dispatch({ type: DISCONNECT })
+    // set some wallet data, so user can see connect wallet instead of install wallet btn
+    dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
+  } catch (err: any) {
+    dispatch(showToaster(ERROR, 'Failed to disconnect TempleWallet', err.message))
+    console.error(`Failed to disconnect TempleWallet: ${err.message}`)
+  }
+}
