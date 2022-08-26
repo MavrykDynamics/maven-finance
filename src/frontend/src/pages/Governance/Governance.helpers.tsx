@@ -224,7 +224,6 @@ export const normalizeProposal = (item: GovernanceProposalRecordGraphQL) => {
     upvoteMvkTotal: calcWithoutPrecision(item.yay_vote_smvk_total),
     downvoteMvkTotal: calcWithoutPrecision(item.nay_vote_count),
     abstainMvkTotal: calcWithoutPrecision(item.pass_vote_smvk_total),
-    //votes: convertGovernanceProposalVoteToInterface(item.votes),
     minProposalRoundVoteRequirement: item.min_proposal_round_vote_req,
     minProposalRoundVotePercentage: item.min_proposal_round_vote_pct,
     minQuorumPercentage: item.min_quorum_percentage,
@@ -241,11 +240,13 @@ export const normalizeProposal = (item: GovernanceProposalRecordGraphQL) => {
   }
 }
 
+export const normalizeProposals = (proposalsList?: GovernanceProposalRecordGraphQL[]) => {
+  return proposalsList?.length ? proposalsList.map((item) => normalizeProposal(item)) : []
+}
+
 export const normalizeGovernanceStorage = (storage: GovernanceStorageGraphQL | null) => {
   const currentGovernance = storage?.governance?.[0]
-  const proposalLedger = storage?.governance_proposal_record?.length
-    ? storage?.governance_proposal_record.map((item) => normalizeProposal(item))
-    : []
+  const proposalLedger = normalizeProposals(storage?.governance_proposal_record)
 
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),

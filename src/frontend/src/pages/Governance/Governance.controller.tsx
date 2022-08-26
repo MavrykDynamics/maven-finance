@@ -56,12 +56,10 @@ export const Governance = () => {
     dispatch(getDelegationStorage())
   }, [dispatch])
 
-  const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
-
   const isVotingRound = governancePhase === 'VOTING'
   const isTimeLockRound = governancePhase === 'TIME_LOCK'
 
-  const ongoingProposals = currentRoundProposalsList.filter(
+  const ongoingProposals = currentRoundProposals.filter(
     (item) =>
       (isVotingRound || isTimeLockRound) &&
       Boolean(item.currentRoundProposal) &&
@@ -83,7 +81,7 @@ export const Governance = () => {
         accountPkh={accountPkh}
         userIsSatellite={userIsSatellite}
         ongoingProposals={ongoingProposals}
-        nextProposals={currentRoundProposalsList}
+        nextProposals={currentRoundProposals}
         watingProposals={watingProposals}
         waitingForPaymentToBeProcessed={waitingForPaymentToBeProcessed}
         pastProposals={pastProposals}
