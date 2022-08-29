@@ -63,6 +63,8 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = storageToTypeConverter('oracle', res[10])
 
+  console.log('%c ||||| addressesStorage', 'color:yellowgreen', addressesStorage)
+
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
   dispatch({
     type: SET_EMERGENCY_GOVERNANCE_ACTIVE,
@@ -127,14 +129,3 @@ export const onStart = () => async (dispatch: any, getState: any) => {
 }
 
 export const GET_CONTRACT_ADDRESSES = 'GET_CONTRACT_ADDRESSES'
-export const getContractAddresses = () => async (dispatch: any, getState: any) => {
-  const storage = await fetchFromIndexer(
-    CONTRACT_ADDRESSES_QUERY,
-    CONTRACT_ADDRESSES_QUERY_NAME,
-    CONTRACT_ADDRESSES_QUERY_VARIABLE,
-  )
-
-  const convertedStorage = storageToTypeConverter('contractAddress', storage?.mvk_token[0])
-
-  dispatch({ type: GET_CONTRACT_ADDRESSES, addresses: convertedStorage })
-}
