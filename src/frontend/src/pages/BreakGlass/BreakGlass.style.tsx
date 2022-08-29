@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../styles/interfaces'
 
-import { downColor, upColor, skyColor, headerColor, royalPurpleColor } from '../../styles/colors'
+import { downColor, upColor, skyColor, headerColor, royalPurpleColor, cyanColor } from '../../styles/colors'
 
 export const BGStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -28,9 +28,9 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 31%;
+  width: 32%;
   height: 115px;
-  padding: 0 30px;
+  padding: 0 20px;
 
   .status-indicator-wrapper {
     width: 100%;
@@ -39,7 +39,19 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
     font-weight: 600;
     font-size: 16px;
     color: ${headerColor};
-    margin: 12px 0;
+    margin: 6px 0;
+
+    &.whitelist {
+      div {
+        color: ${cyanColor};
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      svg {
+        stroke: ${cyanColor};
+      }
+    }
   }
 
   .color-red {
@@ -71,7 +83,7 @@ export const BGMiddleWrapper = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
-  max-width: 65.5%;
+  max-width: 64.5%;
   max-height: 115px;
   display: flex;
   flex-direction: column;

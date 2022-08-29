@@ -2,13 +2,15 @@ import {
   GET_BREAK_GLASS_STORAGE,
   SET_GLASS_BROKEN,
   GET_BREAK_GLASS_STATUS,
+  GET_WHITELIST_DEV,
 } from '../pages/BreakGlass/BreakGlass.actions'
-import { BreakGlassStorage, BreakGlassStatusStorage } from '../utils/TypesAndInterfaces/BreakGlass'
+import { BreakGlassStorage, BreakGlassStatusStorage, WhitelistDevStorage } from '../utils/TypesAndInterfaces/BreakGlass'
 
 export interface BreakGlassState {
   breakGlassStorage: BreakGlassStorage
   glassBroken: boolean
   breakGlassStatus: BreakGlassStatusStorage
+  whitelistDev: WhitelistDevStorage
 }
 
 const defaultBreakGlassStorage: BreakGlassStorage = {
@@ -30,6 +32,7 @@ const breakGlassDefaultState: BreakGlassState = {
   breakGlassStorage: defaultBreakGlassStorage,
   glassBroken: false,
   breakGlassStatus: [],
+  whitelistDev: '',
 }
 
 export function breakGlass(state = breakGlassDefaultState, action: any): BreakGlassState {
@@ -48,6 +51,11 @@ export function breakGlass(state = breakGlassDefaultState, action: any): BreakGl
       return {
         ...state,
         glassBroken: action.glassBroken,
+      }
+    case GET_WHITELIST_DEV:
+      return {
+        ...state,
+        whitelistDev: action.whitelistDev,
       }
     default:
       return state
