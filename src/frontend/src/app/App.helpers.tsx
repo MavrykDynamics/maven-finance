@@ -1,10 +1,9 @@
 // types
-import type { ContractAddressesState } from "../reducers/contractAddresses";
-import type { AddressesGraphQl } from "../utils/TypesAndInterfaces/Addresses";
+import type { ContractAddressesState } from '../reducers/contractAddresses'
+import type { AddressesGraphQl } from '../utils/TypesAndInterfaces/Addresses'
+import type { VestingGraphQL } from '../utils/TypesAndInterfaces/Vesting'
 
-export function normalizeAddressesStorage(
-  storage: AddressesGraphQl
-): ContractAddressesState {
+export function normalizeAddressesStorage(storage: AddressesGraphQl): ContractAddressesState {
   return {
     farmAddress: { address: storage?.farm?.[0]?.address },
     farmFactoryAddress: { address: storage?.farm_factory?.[0]?.address },
@@ -29,5 +28,12 @@ export function normalizeAddressesStorage(
       address: storage?.aggregator_factory?.[0]?.address,
     },
     aggregatorAddress: { address: storage?.aggregator?.[0]?.address },
-  };
+  }
+}
+
+export function normalizeVestingStorage(storage: VestingGraphQL) {
+  return {
+    address: storage?.address,
+    totalVestedAmount: storage?.total_vested_amount,
+  }
 }

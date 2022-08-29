@@ -8,6 +8,7 @@ import { MenuMobileBurger, MenuTopStyled } from './MenuTopBar.style'
 import { State } from 'reducers'
 import { MobileTopBar } from './TopBarLinks/MobileTopBar.controller'
 import { useCallback, useState } from 'react'
+import { useMedia } from 'react-use'
 
 type MenuTopBarProps = {
   burgerClickHandler: () => void
@@ -35,9 +36,33 @@ export const SocialIcons = () => (
   </div>
 )
 
+export const PRODUCTS_LINKS = [
+  { name: 'Dapp', href: 'https://front-dev.mavryk-dapp.pages.dev/' },
+  { name: 'Liquidity Baking', href: 'mavryk.finance/liquidity-baking' },
+  { name: 'Mavryk Bakery', href: '/' },
+  { name: 'DAO Bakery', href: '/' },
+]
+
+export const ABOUT_LINKS = [
+  { name: 'Who we are', href: 'https://mavryk.finance/' },
+  { name: 'MVK Token', href: '/' },
+  { name: 'Team', href: 'https://mavryk.finance/#team' },
+  { name: 'Roadmap', href: 'https://mavryk.finance/#roadmap' },
+]
+
+export const BLOG_LINKS = []
+
+export const DOCS_LINKS = [
+  { name: 'Litepaper', href: 'https://mavryk.finance/litepaper' },
+  { name: 'DAO docs', href: '/' },
+  { name: 'Security Audits', href: '/' },
+  { name: 'Github', href: 'https://github.com/mavrykfinance/' },
+]
+
 export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodePopupHandler }: MenuTopBarProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
   const [showMobileTopBar, setShowMobileTopBar] = useState(false)
+  const isMobileView = useMedia('(max-width: 870px)')
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
   const logoMobile = '/logo-mobile.svg'
@@ -61,38 +86,15 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
         </Link>
       </div>
       <div className="grouped-links">
-        <TopBarLinks
-          groupName={'Products'}
-          groupLinks={[
-            { name: 'Dapp', href: '/' },
-            { name: 'Liquidity Baking', href: '/' },
-            { name: 'Mavryk Bakery', href: '/' },
-            { name: 'DAO Bakery', href: '/' },
-          ]}
-        />
-        <TopBarLinks
-          groupName={'About'}
-          groupLinks={[
-            { name: 'Who we are', href: 'https://mavryk.finance/' },
-            { name: 'MVK Token', href: '/' },
-            { name: 'Team', href: '/' },
-            { name: 'Roadmap', href: '/' },
-          ]}
-        />
-        <TopBarLinks groupName={'Blog 🔥'} groupLinks={[]} />
-        <TopBarLinks
-          groupName={'Docs'}
-          groupLinks={[
-            { name: 'Litepaper', href: 'https://mavryk.finance/litepaper' },
-            { name: 'DAO docs', href: '/' },
-            { name: 'Security Audits', href: '/' },
-            { name: 'Github', href: 'https://github.com/mavrykfinance/' },
-          ]}
-        />
+        <TopBarLinks groupName={'Products'} groupLinks={PRODUCTS_LINKS} />
+        <TopBarLinks groupName={'About'} groupLinks={ABOUT_LINKS} />
+        <TopBarLinks groupName={'Blog 🔥'} groupLinks={BLOG_LINKS} groupNameLink="https://blogs.mavryk.finance/" />
+        <TopBarLinks groupName={'Docs'} groupLinks={DOCS_LINKS} />
       </div>
       <div className="right-side">
         <SocialIcons />
-        <ConnectWallet />
+        {/* Need this condition cuz of wert io container, technically without it will be 2 containers, and wert will take this container on mobile, not the mobile one */}
+        {!isMobileView ? <ConnectWallet /> : null}
         <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
           <Icon id="gear" />
         </div>
@@ -118,7 +120,7 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
         </div>
       </div>
 
-      <MobileTopBar show={showMobileTopBar} />
+      <MobileTopBar show={showMobileTopBar} closeMobileMenu={burgerClickHandlerWrapped} />
     </MenuTopStyled>
   )
 }

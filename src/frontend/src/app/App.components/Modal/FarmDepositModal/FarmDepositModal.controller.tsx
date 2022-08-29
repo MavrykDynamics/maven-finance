@@ -74,7 +74,7 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
 
         <FarmInputSection onSubmit={handleSubmit}>
           <div className="input-info">
-            <p>Min 1 MVK-tzBTC LP token</p>
+            <div />
             <button>Use Max</button>
           </div>
           <Input

@@ -10,8 +10,6 @@ import { FetchedTreasuryType, TreasuryGQLType } from 'utils/TypesAndInterfaces/T
 
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
-import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
-import { TREASURYS_COLORS } from 'app/App.components/PieСhart/pieChart.const'
 import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './treasury.const'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
@@ -72,35 +70,6 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
   } catch (error) {
     console.log('%c ---- error getTreasuryStorage', 'color:red', error)
   }
-}
-
-export const GET_COUNCIL_STORAGE = 'GET_COUNCIL_STORAGE'
-export const getCouncilStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
-  // if (!accountPkh) {
-  //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-  //   return
-  // }
-  // const contract = accountPkh
-  //   ? await state.wallet.tezos?.wallet.at(councilAddress.address)
-  //   : await new TezosToolkit(
-  //       (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-  //     ).contract.at(councilAddress.address)
-  //
-  // const storage = await (contract as any).storage()
-  // console.log('Printing out Council storage:\n', storage)
-  const storage = await fetchFromIndexer(
-    COUNCIL_STORAGE_QUERY,
-    COUNCIL_STORAGE_QUERY_NAME,
-    COUNCIL_STORAGE_QUERY_VARIABLE,
-  )
-  const convertedStorage = storageToTypeConverter('council', storage?.council[0])
-
-  dispatch({
-    type: GET_COUNCIL_STORAGE,
-    councilStorage: convertedStorage,
-  })
 }
 
 export const GET_VESTING_STORAGE = 'GET_VESTING_STORAGE'
