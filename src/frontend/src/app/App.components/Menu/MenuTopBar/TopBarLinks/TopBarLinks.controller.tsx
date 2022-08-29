@@ -8,6 +8,7 @@ type TopBarLinksProps = {
   useClickOpening?: boolean
   selectedLinksBlock?: null | string
   setSelectedLinksBlock?: () => void
+  groupNameLink?: string
 }
 
 export const TopBarLinks = ({
@@ -16,6 +17,7 @@ export const TopBarLinks = ({
   useClickOpening,
   selectedLinksBlock,
   setSelectedLinksBlock,
+  groupNameLink,
 }: TopBarLinksProps) => {
   return (
     <TopBarLinksStyled useClickOpening={useClickOpening} selected={selectedLinksBlock === groupName}>
@@ -23,13 +25,20 @@ export const TopBarLinks = ({
         className={`group-name ${selectedLinksBlock === groupName ? 'selected' : ''}`}
         onClick={setSelectedLinksBlock}
       >
-        {groupName} {groupLinks.length ? <Icon id="paginationArrowLeft" /> : null}
+        {groupNameLink ? (
+          <a target="_blank" href={groupNameLink} rel="noreferrer">
+            {groupName}
+          </a>
+        ) : (
+          groupName
+        )}
+        {groupLinks.length ? <Icon id="paginationArrowLeft" /> : null}
       </div>
 
       {groupLinks.length ? (
         <div className={`group-links ${selectedLinksBlock === groupName ? 'selected' : ''}`}>
           {groupLinks.map(({ name, href }) => (
-            <a href={href} key={name + href}>
+            <a href={href} key={name + href} target="_blank" rel="noreferrer">
               {name}
             </a>
           ))}

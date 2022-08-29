@@ -1,5 +1,6 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { InputErrorMessage } from 'app/App.components/Input/Input.style'
+import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
+import Icon from 'app/App.components/Icon/Icon.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { Feed } from 'pages/Satellites/helpers/Satellites.types'
@@ -8,12 +9,11 @@ import { Link } from 'react-router-dom'
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
 export const DataFeedCard = ({ feed }: { feed: Feed }) => {
-  const isTrustedAnswer = feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
-
   return (
     <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle>
-        <div className="item">
+        <div className="item with-img">
+          <CoinsLogo assetName={feed.token_1_symbol} />
           <h5>Feed</h5>
           <var>
             {feed.token_1_symbol}/{feed.token_0_symbol}
@@ -22,15 +22,7 @@ export const DataFeedCard = ({ feed }: { feed: Feed }) => {
         <div className="item">
           <h5>Answer</h5>
           <var>
-            {isTrustedAnswer ? (
-              <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
-            ) : (
-              <>
-                <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
-
-                <InputErrorMessage>(Not Trusted)</InputErrorMessage>
-              </>
-            )}
+            <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
           </var>
         </div>
         <div className="item">

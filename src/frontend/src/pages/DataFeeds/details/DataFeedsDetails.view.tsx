@@ -1,34 +1,45 @@
+import moment from 'moment'
+import { useCallback, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+
 // consts, helpers
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
-import { Button } from 'app/App.components/Button/Button.controller'
-import Chart from 'app/App.components/Chart/Chart.view'
-import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import Icon from 'app/App.components/Icon/Icon.view'
-import { InputErrorMessage } from 'app/App.components/Input/Input.style'
+import { usersData } from 'pages/UsersOracles/users.const'
 import { PRIMARY } from 'app/App.components/PageHeader/PageHeader.constants'
-// view
-import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
-import { Timer } from 'app/App.components/Timer/Timer.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import { EmptyContainer } from 'app/App.style'
-import moment from 'moment'
 import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
-import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { INFO_SVG_ENCODED, QUESTION_MARK_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+// view
+import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
+import { Button } from 'app/App.components/Button/Button.controller'
+import Chart from 'app/App.components/Chart/Chart.view'
+import Icon from 'app/App.components/Icon/Icon.view'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { Timer } from 'app/App.components/Timer/Timer.controller'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
-import { usersData } from 'pages/UsersOracles/users.const'
-import React, { useCallback, useMemo, useState } from 'react'
-import { useHistory } from 'react-router'
-import { Link } from 'react-router-dom'
-import { cyanColor, downColor, Page } from 'styles'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
+import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 
 import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 // styles
-import { DataFeedInfoBlock, DataFeedsStyled, DataFeedsTitle, DataFeedSubTitleText, DataFeedValueText, UsersListCardsWrapper, UsersListWrapper, UserSmallCard } from './DataFeedsDetails.style'
+import {
+  DataFeedInfoBlock,
+  DataFeedsStyled,
+  DataFeedsTitle,
+  DataFeedSubTitleText,
+  DataFeedValueText,
+  UsersListCardsWrapper,
+  UsersListWrapper,
+  UserSmallCard,
+} from './DataFeedsDetails.style'
+import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
+import { InputErrorMessage } from 'app/App.components/Input/Input.style'
+import { EmptyContainer } from 'app/App.style'
+import { cyanColor, downColor, Page, upColor } from 'styles'
+import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -55,8 +66,6 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
     [oracles, arrOfOracleRecords],
   )
 
-  const history = useHistory()
-
   const isTrustedAnswer = feed && feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
   const heartbeatUpdateInfo =
     moment(Date.now()).diff(moment(feed?.last_completed_round_price_timestamp), 'minutes') >= 30
@@ -79,40 +88,34 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
           <div className="left-part">
             <div className="top">
               <div className="name-part">
+                <div className="img-wrapper">
+                  <CoinsLogo assetName={feed.token_1_symbol} />
+                </div>
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
                   {feed.token_1_symbol}/{feed.token_0_symbol}
                 </DataFeedsTitle>
 
-                <DataFeedsTitle
-                  svgContent={QUESTION_MARK_SVG_ENCODED}
-                  onClick={() => {
-                    // TODO: add link for question mark icon click ORACLE_SI
-                    // history.push('/somewhere')
-                  }}
-                >
-                  Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
-                </DataFeedsTitle>
+                <a href="https://mavryk.finance/litepaper" target="_blank" rel="noreferrer">
+                  <DataFeedsTitle
+                    svgContent={QUESTION_MARK_SVG_ENCODED}
+                    style={{
+                      textTransform: 'initial',
+                    }}
+                  >
+                    Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
+                  </DataFeedsTitle>
+                </a>
               </div>
               <div className="price-part">
                 <DataFeedValueText fontSize={22} fontWeidth={600}>
-                  {isTrustedAnswer ? (
-                    <>
-                      <svg>
-                        <use xlinkHref="/icons/sprites.svg#trustShield" />
-                      </svg>
-                      <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
-                    </>
-                  ) : (
-                    <>
-                      <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
-                      &nbsp;
-                      <InputErrorMessage>(Not Trusted)</InputErrorMessage>
-                    </>
-                  )}
+                  <Icon id={isTrustedAnswer ? 'trustShield' : 'notTrustedShield'} />
+                  <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
                 </DataFeedValueText>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} className="margin-r">
-                  Trusted answer
-                  <div className="on-svg-hover-info">trusted answer info on hover</div>
+                  {isTrustedAnswer ? 'Trusted answer' : 'Not Trusted'}
+                  <div className="on-svg-hover-info">
+                    Answer is calculated in the smart contract and required a minimum of 60% of oracles to be trusted
+                  </div>
                 </DataFeedsTitle>
               </div>
             </div>
@@ -120,7 +123,10 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
               <DataFeedInfoBlock>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
                   Trigger parameters
-                  <div className="on-svg-hover-info">trigger parameters info on hover</div>
+                  <div className="on-svg-hover-info">
+                    A new trusted answer is written when the off-chain data moves more than the deviation threshold or X
+                    seconds have passed since the last answer was written on-chain
+                  </div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   Deviation threshold
@@ -132,25 +138,35 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
               <DataFeedInfoBlock>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
                   Oracle responses
-                  <div className="on-svg-hover-info">oracle responses info on hover</div>
+                  <div className="on-svg-hover-info">
+                    The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
+                    responses to be able to calculate a trusted answer.
+                  </div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  Minimum of {feed.percent_oracle_threshold}
+                  Minimum of {feed.percent_oracle_threshold}%
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_round_pct_oracle_response}/{feed.percent_oracle_threshold}
+                  {feed.last_completed_round_pct_oracle_response}% / {feed.percent_oracle_threshold}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
                   Last update
-                  <div className="on-svg-hover-info">last update info on hover</div>
+                  <div className="on-svg-hover-info">Time since last answer was written on-chain</div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   {getDate_MDY_Format(feed.last_completed_round_price_timestamp)}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {moment(new Date(feed.last_completed_round_price_timestamp)).fromNow()}
+                  <Timer
+                    options={{
+                      showZeros: false,
+                      negativeColor: downColor,
+                      defaultColor: cyanColor,
+                    }}
+                    timestamp={new Date(feed.last_completed_round_price_timestamp).getTime() + 1000 * 60 * 30}
+                  />
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
@@ -172,11 +188,8 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
               <DataFeedInfoBlock>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
                   Decimals
-                  <div className="on-svg-hover-info">decimals info on hover</div>
+                  <div className="on-svg-hover-info">Countdown until the data is next written on-chain</div>
                 </DataFeedsTitle>
-                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {moment(new Date(feed.last_completed_round_price_timestamp)).fromNow()}
-                </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {''.padEnd(feed.decimals, '0')}
                 </DataFeedValueText>
@@ -210,18 +223,28 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                 </DataFeedsTitle>
               ) : null}
               <div className="info-wrapper">
-                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={14} fontWeidth={600}>
+                <DataFeedsTitle
+                  svgContent={INFO_SVG_ENCODED}
+                  fontSize={14}
+                  fontWeidth={600}
+                  style={{ lineHeight: '100%' }}
+                >
                   Contract address
                 </DataFeedsTitle>
-                <DataFeedValueText fontSize={14} fontWeidth={600}>
+                <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   <TzAddress tzAddress={feed.address} hasIcon={false} />
                 </DataFeedValueText>
               </div>
               <div className="info-wrapper">
-                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={14} fontWeidth={600}>
+                <DataFeedsTitle
+                  svgContent={INFO_SVG_ENCODED}
+                  fontSize={14}
+                  fontWeidth={600}
+                  style={{ lineHeight: '100%' }}
+                >
                   ENS address
                 </DataFeedsTitle>
-                <DataFeedValueText fontSize={14} fontWeidth={600}>
+                <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   eth-usd.data.eth
                 </DataFeedValueText>
               </div>
@@ -254,7 +277,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
           <h1>Users</h1>
         </GovRightContainerTitleArea>
 
-        <Link to="users">
+        <Link to="oracles-users">
           <div className="see-all-link">
             See all users
             <Icon id="arrow-left-stroke" />
@@ -263,10 +286,12 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
 
         <UsersListCardsWrapper>
           {usersData.map((user) => (
-            <UserSmallCard>
-              <div className="img-wrapper">logo</div>
-              {user.name}
-            </UserSmallCard>
+            <Link to={`/satellites/user-details/${user.id}`}>
+              <UserSmallCard>
+                <div className="img-wrapper">logo</div>
+                {user.name}
+              </UserSmallCard>
+            </Link>
           ))}
         </UsersListCardsWrapper>
       </UsersListWrapper>

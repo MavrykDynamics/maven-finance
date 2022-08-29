@@ -76,39 +76,43 @@ const SatellitesView = ({
 
           {oracleSatellitesData.items.length || dataFeedsData.items.length ? (
             <>
-              <div className="oracle-list-wrapper">
-                <Link to="/satellite-nodes">
-                  <div className="see-all-link">
-                    See all Satellites
-                    <Icon id="arrow-left-stroke" />
-                  </div>
-                </Link>
-                <SatelliteList
-                  listTitle={'Top Satellites'}
-                  loading={isLoading}
-                  items={oracleSatellitesData.items}
-                  listType={'satellites'}
-                  name={SATELITES_TOP_LIST_NAME}
-                  additionaldata={oracleSatellitesData}
-                />
-              </div>
+              {oracleSatellitesData.items.length ? (
+                <div className="oracle-list-wrapper">
+                  <Link to="/satellite-nodes">
+                    <div className="see-all-link">
+                      See all Satellites
+                      <Icon id="arrow-left-stroke" />
+                    </div>
+                  </Link>
+                  <SatelliteList
+                    listTitle={'Top Satellites'}
+                    loading={isLoading}
+                    items={oracleSatellitesData.items}
+                    listType={'satellites'}
+                    name={SATELITES_TOP_LIST_NAME}
+                    additionaldata={oracleSatellitesData}
+                  />
+                </div>
+              ) : null}
 
-              <div className="oracle-list-wrapper">
-                <Link to="/data-feeds">
-                  <div className="see-all-link">
-                    See all Data Feeds
-                    <Icon id="arrow-left-stroke" />
-                  </div>
-                </Link>
-                <SatelliteList
-                  listTitle={'Popular Feeds'}
-                  loading={isLoading}
-                  items={dataFeedsData.items}
-                  listType={'feeds'}
-                  name={FEEDS_TOP_LIST_NAME}
-                  onClickHandler={delegateCallback}
-                />
-              </div>
+              {dataFeedsData.items.length ? (
+                <div className="oracle-list-wrapper">
+                  <Link to="/data-feeds">
+                    <div className="see-all-link">
+                      See all Data Feeds
+                      <Icon id="arrow-left-stroke" />
+                    </div>
+                  </Link>
+                  <SatelliteList
+                    listTitle={'Popular Feeds'}
+                    loading={isLoading}
+                    items={dataFeedsData.items}
+                    listType={'feeds'}
+                    name={FEEDS_TOP_LIST_NAME}
+                    onClickHandler={delegateCallback}
+                  />
+                </div>
+              ) : null}
             </>
           ) : (
             <EmptyContainer />

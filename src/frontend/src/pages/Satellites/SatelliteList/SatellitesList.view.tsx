@@ -1,11 +1,7 @@
-import React from 'react'
-
 // view
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { SatelliteListItem } from './ListCards/SateliteCard.view'
 import { DataFeedCard } from './ListCards/DataFeedCard.view'
-
-// consts
 
 // types
 import { SatellitesListProps } from '../helpers/Satellites.types'

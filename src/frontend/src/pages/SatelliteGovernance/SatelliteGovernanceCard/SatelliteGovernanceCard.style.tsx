@@ -16,7 +16,7 @@ export const SatelliteGovernanceCardTitleTextGroup = styled.div<{ theme: MavrykT
     color: ${({ theme }) => theme.headerSkyColor};
   }
 
-  > p {
+  .inner {
     margin-bottom: 0;
     margin-top: 0;
     color: ${({ theme }) => theme.valueColor};

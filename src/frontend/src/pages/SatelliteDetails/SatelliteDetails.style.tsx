@@ -84,7 +84,7 @@ export const SatelliteVotingInfoWrapper = styled.div`
 
   .voting-info-list-wrapper {
     max-height: 84px;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding-right: 10px;
     margin-top: 10px;
   }
@@ -112,6 +112,10 @@ export const SatelliteVotingHistoryListItem = styled.div`
   display: flex;
   justify-content: space-between;
   max-height: 28px;
+
+  p:first-letter {
+    text-transform: uppercase;
+  }
 
   .satellite-voting-history-info {
     flex-shrink: 0;

@@ -1,12 +1,5 @@
-import styled from "styled-components/macro";
-import {
-  Card,
-  royalPurpleColor,
-  containerColor,
-  skyColor,
-  cyanColor,
-  headerColor,
-} from "styles";
+import styled from 'styled-components/macro'
+import { Card, royalPurpleColor, containerColor, skyColor, cyanColor, headerColor } from 'styles'
 
 export const SlidingTabButtonsWrap = styled.div`
   display: flex;
@@ -22,7 +15,7 @@ export const SlidingTabButtonsWrap = styled.div`
   button {
     width: 100%;
   }
-`;
+`
 
 export const SatelliteGovernanceStyled = styled.section`
   .satellite-governance-article {
@@ -81,6 +74,10 @@ export const SatelliteGovernanceStyled = styled.section`
       margin-top: 0;
       margin-bottom: 0;
 
+      p {
+        margin: 0;
+      }
+
       a {
         position: static;
         width: 16px;
@@ -89,7 +86,7 @@ export const SatelliteGovernanceStyled = styled.section`
       }
     }
   }
-`; // SatelliteGovernanceStyled
+` // SatelliteGovernanceStyled
 
 export const AvailableActionsStyle = styled.div`
   padding: 0;
@@ -158,4 +155,4 @@ export const AvailableActionsStyle = styled.div`
       gap: 20px;
     }
   }
-`; // AvailableActionsStyle
+` // AvailableActionsStyle

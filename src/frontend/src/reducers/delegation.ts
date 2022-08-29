@@ -80,6 +80,7 @@ const delegationDefaultState: DelegationState = {
     mvkBalance: 0,
     name: "",
     sMvkBalance: 0,
+    delegatorCount: 0,
     satelliteFee: 0,
     totalDelegatedAmount: 0,
     unregisteredDateTime: new Date(),

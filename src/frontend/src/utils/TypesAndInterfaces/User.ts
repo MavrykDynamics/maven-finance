@@ -7,6 +7,7 @@ export interface UserData {
   participationFeesPerShare: number
   satelliteMvkIsDelegatedTo: string
   myDelegationHistory?: any[]
+  isSatellite: boolean
 }
 
 export type MavrykUserGraphQl = Omit<Mavryk_User, '__typename'>
