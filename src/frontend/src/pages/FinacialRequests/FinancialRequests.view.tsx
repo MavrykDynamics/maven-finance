@@ -164,7 +164,7 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
             <FRList
               listTitle="Ongoing Requests"
               items={ongoing}
-              handleItemSelect={(request: FinancialRequestBody) => handleItemSelect(request)}
+              handleItemSelect={handleItemSelect}
               name={ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST}
               selectedItem={rightSideContent}
             />
@@ -172,7 +172,7 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
               listTitle="Past Requests"
               items={past}
               name={PAST_REQUESTS_FINANCIAL_REQUESTS_LIST}
-              handleItemSelect={(request: FinancialRequestBody) => handleItemSelect(request)}
+              handleItemSelect={handleItemSelect}
               selectedItem={rightSideContent}
             />
           </FinancialRequestsContainer>
