@@ -1,5 +1,9 @@
 // types
-import { BreakGlassGraphQL, BreakGlassStatusGraphQL } from '../../utils/TypesAndInterfaces/BreakGlass'
+import {
+  BreakGlassGraphQL,
+  BreakGlassStatusGraphQL,
+  WhitelistDevGraphQL,
+} from '../../utils/TypesAndInterfaces/BreakGlass'
 
 export const normalizeBreakGlass = (storage: BreakGlassGraphQL) => {
   const actionLedger = storage?.break_glass_action_records?.length
@@ -46,6 +50,10 @@ export const normalizeBreakGlass = (storage: BreakGlassGraphQL) => {
     glassBroken: storage?.glass_broken,
     actionLedger,
   }
+}
+
+export function normalizeWhitelistDev(storage: WhitelistDevGraphQL) {
+  return storage?.developer?.address ?? ''
 }
 
 export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
