@@ -16,9 +16,7 @@ export const moveDown = keyframes`
 export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   max-width: 232px;
   width: 100vw;
-  min-height: 650px;
   transition: 0.6s all;
-  height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
