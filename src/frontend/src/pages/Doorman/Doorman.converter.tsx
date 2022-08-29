@@ -1,16 +1,12 @@
 // type
-import { DoormanGraphQl } from "../../utils/TypesAndInterfaces/Doorman";
-import {
-  MvkTokenStorage,
-  MvkTokenGraphQL,
-} from "../../utils/TypesAndInterfaces/MvkToken";
+import { DoormanGraphQl } from '../../utils/TypesAndInterfaces/Doorman'
+import { MvkTokenGraphQL } from '../../utils/TypesAndInterfaces/MvkToken'
 
 // helpers
-import { calcWithoutPrecision } from "../../utils/calcFunctions";
+import { calcWithoutPrecision } from '../../utils/calcFunctions'
 
 export function normalizeDoormanStorage(storage: DoormanGraphQl) {
-  const totalStakedMvk =
-    storage?.stake_accounts_aggregate?.aggregate?.sum?.smvk_balance ?? 0;
+  const totalStakedMvk = storage?.stake_accounts_aggregate?.aggregate?.sum?.smvk_balance ?? 0
   return {
     unclaimedRewards: calcWithoutPrecision(storage?.unclaimed_rewards ?? 0),
     minMvkAmount: calcWithoutPrecision(storage?.min_mvk_amount ?? 0),
@@ -21,15 +17,13 @@ export function normalizeDoormanStorage(storage: DoormanGraphQl) {
       compoundIsPaused: storage?.compound_paused,
       farmClaimIsPaused: storage?.farm_claimed_paused,
     },
-    accumulatedFeesPerShare: calcWithoutPrecision(
-      storage?.accumulated_fees_per_share
-    ),
-  };
+    accumulatedFeesPerShare: calcWithoutPrecision(storage?.accumulated_fees_per_share),
+  }
 }
 
-export function normalizeMvkToken(storage: MvkTokenGraphQL): MvkTokenStorage {
+export function normalizeMvkToken(storage: MvkTokenGraphQL) {
   return {
     totalSupply: calcWithoutPrecision(storage?.total_supply),
     maximumTotalSupply: calcWithoutPrecision(storage?.maximum_supply),
-  };
+  }
 }

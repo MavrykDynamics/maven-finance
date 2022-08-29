@@ -16,7 +16,7 @@ import {
 } from '../../gql/queries'
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
 import { PRECISION_NUMBER } from '../../utils/constants'
-import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
+import { setItemInStorage } from '../../utils/storage'
 import { UserData } from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { normalizeDoormanStorage, normalizeMvkToken } from './Doorman.converter'
