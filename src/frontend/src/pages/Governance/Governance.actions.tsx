@@ -1,10 +1,7 @@
-import { MichelsonMap, TezosToolkit } from '@taquito/taquito'
-
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
-import governanceAddress from '../../deployments/governanceAddress.json'
+import { normalizeGovernanceStorage, normalizeProposals } from './Governance.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 
 import {
   GOVERNANCE_STORAGE_QUERY,
@@ -15,10 +12,6 @@ import {
   CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE,
 } from '../../gql/queries/getGovernanceStorage'
 import { State } from '../../reducers'
-import { getContractBigmapKeys } from '../../utils/api'
-import storageToTypeConverter, { convertCurrentRoundProposalsStorageType } from '../../utils/storageToTypeConverter'
-import { GovernanceStorage, ProposalRecordType, SnapshotRecordType } from '../../utils/TypesAndInterfaces/Governance'
-import { GET_COUNCIL_STORAGE } from '../Treasury/Treasury.actions'
 
 export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
@@ -32,7 +25,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     GOVERNANCE_STORAGE_QUERY_VARIABLE,
   )
 
-  const convertedStorage = storageToTypeConverter('governance', storage)
+  const convertedStorage = normalizeGovernanceStorage(storage)
 
   dispatch({
     type: GET_GOVERNANCE_STORAGE,
@@ -56,7 +49,7 @@ export const getCurrentRoundProposals = () => async (dispatch: any, getState: an
     CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE,
   )
 
-  const currentRoundProposals = convertCurrentRoundProposalsStorageType(storage)
+  const currentRoundProposals = normalizeProposals(storage.governance_proposal_record)
 
   dispatch({
     type: GET_CURRENT_ROUND_PROPOSALS,

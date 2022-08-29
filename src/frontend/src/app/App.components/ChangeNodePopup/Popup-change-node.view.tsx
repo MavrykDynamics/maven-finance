@@ -26,8 +26,7 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
     const newRPCNodes: Array<RPCNodeType> = [...RPC_NODES, { title: inputData, url: inputData, isUser: true }]
     dispatch(setNewRPCNodes(newRPCNodes))
     setInputData('')
-  }, [])
-
+  }, [inputData, RPC_NODES])
   const confirmNodeSelecting = useCallback(() => dispatch(selectNewRPCNode(selectedNodeByClick)), [])
 
   return (
@@ -38,9 +37,9 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
       <PopupTitle className="change_node">Change RPC Node</PopupTitle>
 
       <ChangeNodeNodesList className="scroll-block">
-        {RPC_NODES.map(({ title, url, nodeLogoUrl, isUser }) => (
+        {RPC_NODES.map(({ title, url, nodeLogoUrl, isUser }, idx) => (
           <ChangeNodeNodesListItem
-            key={title}
+            key={title + idx}
             onClick={() => setSelectedNodeByClick(url)}
             isSelected={selectedNodeByClick === url}
           >

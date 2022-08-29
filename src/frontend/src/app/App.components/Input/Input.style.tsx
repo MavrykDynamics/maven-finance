@@ -98,7 +98,7 @@ const zoomIn = keyframes`
 export const InputStatus = styled.div`
   display: block;
   position: absolute;
-  top: 14px;
+  top: 13px;
   right: 16px;
   z-index: 1;
   line-height: 13px;

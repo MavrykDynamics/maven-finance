@@ -1,5 +1,5 @@
 import * as PropTypes from 'prop-types'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 import { BUTTON, ButtonStyle, ButtonTypes, PRIMARY } from './Button.constants'
 import { ButtonView } from './Button.view'
@@ -9,7 +9,7 @@ export type ButtonProps = {
   icon?: string
   className?: string
   kind?: ButtonStyle
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void
   type?: ButtonTypes
   loading?: boolean
   disabled?: boolean

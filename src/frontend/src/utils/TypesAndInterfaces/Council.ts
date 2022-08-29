@@ -1,3 +1,8 @@
+// type
+import type { Council } from '../generated/graphqlTypes'
+
+import { noralizeCouncilStorage } from '../../pages/Council/Council.helpers'
+
 type CouncilConfig = {
   threshold: number
   actionExpiryDays: number
@@ -21,7 +26,6 @@ export type CouncilActionRecord = {
   signers: CouncilActionSigner[]
 }
 
-
 export type CouncilMember = {
   id: number
   name: string
@@ -30,10 +34,6 @@ export type CouncilMember = {
   website: string
 }
 
-export interface CouncilStorage {
-  address: string
-  config: CouncilConfig
-  councilMembers?: CouncilMember[]
-  councilActionsLedger: CouncilActionRecord[]
-  actionCounter: number
-}
+export type CouncilStorage = ReturnType<typeof noralizeCouncilStorage>
+
+export type CouncilGraphQL = Omit<Council, '__typename'>

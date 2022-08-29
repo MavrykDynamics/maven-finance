@@ -12,7 +12,8 @@ import {
   SET_EMERGENCY_GOVERNANCE_ACTIVE,
 } from '../pages/EmergencyGovernance/EmergencyGovernance.actions'
 import { GET_BREAK_GLASS_STORAGE, SET_GLASS_BROKEN } from '../pages/BreakGlass/BreakGlass.actions'
-import { GET_COUNCIL_STORAGE, GET_VESTING_STORAGE } from '../pages/Treasury/Treasury.actions'
+import { GET_VESTING_STORAGE } from '../pages/Treasury/Treasury.actions'
+import { GET_COUNCIL_STORAGE } from '../pages/Council/Council.actions'
 import {
   GET_GOVERNANCE_STORAGE,
   SET_GOVERNANCE_PHASE,
@@ -25,12 +26,14 @@ import {
 } from '../gql/queries'
 
 // helpers
-import { normalizeAddressesStorage } from './App.helpers'
+import { normalizeAddressesStorage, normalizeVestingStorage } from './App.helpers'
 import { normalizeDoormanStorage, normalizeMvkToken } from '../pages/Doorman/Doorman.converter'
 import { normalizeFarmStorage } from '../pages/Farms/Frams.helpers'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
 import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/EmergencyGovernance.helpers'
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
+import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
+import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -55,12 +58,10 @@ export const onStart = () => async (dispatch: any, getState: any) => {
     res[5]?.emergency_governance[0],
   )
   const breakGlassStorage = normalizeBreakGlass(res[6]?.break_glass[0])
-  const councilStorage = storageToTypeConverter('council', res[7]?.council?.[0])
-  const vestingStorage = storageToTypeConverter('vesting', res[8]?.vesting[0])
-  const governanceStorage = storageToTypeConverter('governance', res[9])
+  const councilStorage = noralizeCouncilStorage(res[7]?.council?.[0])
+  const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
+  const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = storageToTypeConverter('oracle', res[10])
-
-  // if (addressesStorage) updateContractAddresses(addressesStorage)
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
   dispatch({
