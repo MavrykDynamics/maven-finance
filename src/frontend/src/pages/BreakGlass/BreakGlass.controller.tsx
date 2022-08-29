@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import { getBreakGlassStatus, getBreakGlassStorage } from './BreakGlass.actions'
+import { getBreakGlassStatus, getBreakGlassStorage, getWhitelistDevs } from './BreakGlass.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -13,11 +13,11 @@ import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyG
 export const BreakGlass = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
-  const { breakGlassStatus, glassBroken } = useSelector((state: State) => state.breakGlass)
-  console.log(breakGlassStatus)
+  const { breakGlassStatus, glassBroken, whitelistDev } = useSelector((state: State) => state.breakGlass)
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getBreakGlassStorage())
+    dispatch(getWhitelistDevs())
     dispatch(getBreakGlassStatus())
   }, [dispatch])
 
@@ -29,6 +29,7 @@ export const BreakGlass = () => {
         contracts={MOCK_CONTRACTS}
         glassBroken={glassBroken}
         pauseAllActive={glassBroken}
+        whitelistDev={whitelistDev}
       />
     </Page>
   )
