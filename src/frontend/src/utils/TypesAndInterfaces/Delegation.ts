@@ -1,25 +1,17 @@
-import { MichelsonMap } from "@taquito/taquito";
-import { Feed } from "pages/Satellites/helpers/Satellites.types";
-import type { Satellite_Record, Delegation } from "../generated/graphqlTypes";
-import {
-  Governance_Proposal_Record,
-  Maybe,
-  Governance_Financial_Request_Record,
-} from "../generated/graphqlTypes";
+import { MichelsonMap } from '@taquito/taquito'
+import type { Satellite_Record, Delegation } from '../generated/graphqlTypes'
+import { Governance_Proposal_Record, Maybe, Governance_Financial_Request_Record } from '../generated/graphqlTypes'
 
-import {
-  FinancialRequestVote,
-  ProposalStatus,
-  ProposalVote,
-} from "./Governance";
+import { FinancialRequestVote, ProposalVote } from './Governance'
 
 export interface SatelliteProposalVotingHistory extends ProposalVote {
-  requestData: Maybe<Governance_Proposal_Record> | undefined;
+  requestData: Maybe<Governance_Proposal_Record> | undefined
+  voteName?: string
 }
 
-export interface SatelliteFinancialRequestVotingHistory
-  extends FinancialRequestVote {
-  requestData?: Maybe<Governance_Financial_Request_Record> | undefined;
+export interface SatelliteFinancialRequestVotingHistory extends FinancialRequestVote {
+  requestData?: Maybe<Governance_Financial_Request_Record> | undefined
+  voteName?: string
 }
 
 export enum SatelliteStatus {
@@ -30,67 +22,69 @@ export enum SatelliteStatus {
 }
 
 export interface SatelliteRecord {
-  address: string;
-  name: string;
-  image: string;
-  description: string;
-  website: string;
-  participation: number;
-  satelliteFee: number;
-  status: SatelliteStatus;
-  mvkBalance: number;
-  sMvkBalance: number;
-  totalDelegatedAmount: number;
-  unregisteredDateTime: Date | null;
-  proposalVotingHistory?: SatelliteProposalVotingHistory[];
-  financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[];
-  emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[];
-  oracleRecords: Array<any>;
+  address: string
+  name: string
+  image: string
+  description: string
+  website: string
+  participation: number
+  satelliteFee: number
+  delegatorCount: number
+  status: SatelliteStatus
+  mvkBalance: number
+  sMvkBalance: number
+  totalDelegatedAmount: number
+  unregisteredDateTime: Date | null
+  proposalVotingHistory?: SatelliteProposalVotingHistory[]
+  financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
+  emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
+  satelliteActionVotes?: SatelliteFinancialRequestVotingHistory[]
+  oracleRecords: Array<any>
 }
 
 export type DelegationConfig = {
-  maxSatellites: number;
-  delegationRatio: number;
-  minimumStakedMvkBalance: number;
-  satelliteNameMaxLength: number;
-  satelliteDescriptionMaxLength: number;
-  satelliteImageMaxLength: number;
-  satelliteWebsiteMaxLength: number;
-};
+  maxSatellites: number
+  delegationRatio: number
+  minimumStakedMvkBalance: number
+  satelliteNameMaxLength: number
+  satelliteDescriptionMaxLength: number
+  satelliteImageMaxLength: number
+  satelliteWebsiteMaxLength: number
+}
 
 export type ParticipationMetrics = {
-  pollParticipation: number;
-  proposalParticipation: number;
-  communication: number;
-};
+  pollParticipation: number
+  proposalParticipation: number
+  communication: number
+}
 
 export interface DelegationBreakGlassConfigType {
-  delegateToSatelliteIsPaused: boolean;
-  undelegateFromSatelliteIsPaused: boolean;
-  registerAsSatelliteIsPaused: boolean;
-  unregisterAsSatelliteIsPaused: boolean;
-  updateSatelliteRecordIsPaused: boolean;
-  distributeRewardPaused: boolean;
+  delegateToSatelliteIsPaused: boolean
+  undelegateFromSatelliteIsPaused: boolean
+  registerAsSatelliteIsPaused: boolean
+  unregisterAsSatelliteIsPaused: boolean
+  updateSatelliteRecordIsPaused: boolean
+  distributeRewardPaused: boolean
 }
 
 export interface DelegateRecord {
-  satelliteAddress: string;
-  delegatedDateTime: Date | null;
+  satelliteAddress: string
+  delegatedDateTime: Date | null
 }
 
-export type DelegationLedger = MichelsonMap<string, DelegateRecord>;
+export type DelegationLedger = MichelsonMap<string, DelegateRecord>
 
 export interface DelegationStorage {
-  admin?: string;
-  contractAddresses?: MichelsonMap<string, string>;
-  whitelistContracts?: MichelsonMap<string, string>;
-  satelliteLedger: SatelliteRecord[];
-  config: DelegationConfig;
-  delegateLedger: DelegationLedger;
-  breakGlassConfig: DelegationBreakGlassConfigType;
-  numberActiveSatellites: number;
-  totalDelegatedMVK: number;
+  admin?: string
+  contractAddresses?: MichelsonMap<string, string>
+  whitelistContracts?: MichelsonMap<string, string>
+  satelliteLedger: SatelliteRecord[]
+  config: DelegationConfig
+  delegateLedger: DelegationLedger
+  breakGlassConfig: DelegationBreakGlassConfigType
+  numberActiveSatellites: number
+  totalDelegatedMVK: number
 }
 
-export type SatelliteRecordGraphQl = Omit<Satellite_Record, "__typename">;
-export type DelegationGraphQl = Omit<Delegation, "__typename">;
+export type SatelliteRecordGraphQl = Omit<Satellite_Record, '__typename'>
+export type DelegationGraphQl = Omit<Delegation, '__typename'>
