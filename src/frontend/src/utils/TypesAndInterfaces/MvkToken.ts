@@ -1,13 +1,6 @@
-import type {Mvk_Token} from '../generated/graphqlTypes'
-import { MichelsonMap } from '@taquito/taquito'
+import type { Mvk_Token } from '../generated/graphqlTypes'
+import { normalizeMvkToken } from '../../pages/Doorman/Doorman.converter'
 
-export interface MvkTokenStorage {
-  admin?: string
-  tokenId?: number
-  contractAddresses?: MichelsonMap<string, string>
-  whitelistContracts?: MichelsonMap<string, string>
-  totalSupply: number
-  maximumTotalSupply: number
-}
+export type MvkTokenStorage = ReturnType<typeof normalizeMvkToken>
 
 export type MvkTokenGraphQL = Omit<Mvk_Token, '__typename'>
