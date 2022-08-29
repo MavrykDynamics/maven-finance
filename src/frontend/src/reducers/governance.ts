@@ -73,7 +73,7 @@ export function governance(state = governanceDefaultState, action: any): Governa
     case GET_CURRENT_ROUND_PROPOSALS:
       return {
         ...state,
-        currentRoundProposals: action.currentRoundProposals,
+        currentRoundProposals: action.currentRoundProposals || [],
       }
     case GET_GOVERNANCE_STORAGE:
       return {
