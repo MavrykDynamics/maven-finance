@@ -1,5 +1,4 @@
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import {
   GET_TREASURY_DATA,
   TREASURY_SMVK_QUERY,
@@ -9,12 +8,13 @@ import {
   TREASURY_STORAGE_QUERY_VARIABLE,
 } from 'gql/queries/getTreasuryStorage'
 import { getTreasuryDataByAddress } from 'utils/api'
-import { FetchedTreasuryType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
+import { TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
 import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './treasury.const'
 import CoinGecko from 'coingecko-api'
+import { normalizeTreasury } from './Treasury.helpers'
 
 const coinGeckoClient = new CoinGecko()
 
@@ -34,7 +34,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
     )
 
     // Parse gql data to understandable data format
-    const convertedStorage = storageToTypeConverter('treasury', treasuryAddressesStorage)
+    const convertedStorage = normalizeTreasury(treasuryAddressesStorage)
 
     // Get sMVK balances from gql
     const sMVKAmounts = await fetchFromIndexer(
@@ -71,7 +71,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
     )
 
     // Map addresses to api cals with treasury addresses
-    const getTreasuryCallbacks: Array<() => FetchedTreasuryType> = convertedStorage.treasuryAddresses.map(
+    const getTreasuryCallbacks = convertedStorage.treasuryAddresses.map(
       ({ address }: { address: string }) =>
         () =>
           getTreasuryDataByAddress(address),
@@ -82,7 +82,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
 
     // Mapping assets for every treasury, to fetch rates for them
     const arrayOfAssetsSymbols: Set<string> = fetchedTheasuryData.reduce((acc, treasuryData) => {
-      treasuryData.balances.forEach((asset) => acc.add(asset.symbol))
+      treasuryData.balances.forEach((asset: TreasuryBalanceType) => acc.add(asset.symbol))
       return acc
     }, new Set<string>())
 
@@ -97,7 +97,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
     // Map every treasury to combine treasury name, and divide balance by constant
     const treasuryStorage = convertedStorage.treasuryAddresses.map((treasuryData: TreasuryGQLType, idx: number) => {
       const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances
-        .map((token) => ({
+        .map((token: TreasuryBalanceType) => ({
           ...token,
           balance: Number(token.balance) / TREASURY_BALANCE_DIVIDER,
           rate: token.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[token.symbol],
@@ -108,7 +108,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
           ) || [],
         )
         .sort(
-          (asset1, asset2) =>
+          (asset1: TreasuryBalanceType, asset2: TreasuryBalanceType) =>
             asset2.balance * TREASURY_ASSSET_BALANCE_DIVIDER - asset1.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
         )
 

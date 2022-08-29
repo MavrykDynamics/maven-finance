@@ -1,29 +1,14 @@
 import { Feed, InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
 
-import { TreasuryType } from './TypesAndInterfaces/Treasury'
-
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
   switch (contract) {
-    case 'treasury':
-      res = convertToTreasuryAddressType(storage)
-      break
     case 'oracle':
       res = convertToOracleStorageType(storage)
       break
   }
 
   return res
-}
-
-function convertToTreasuryAddressType(storage: any): {
-  treasuryAddresses: Array<TreasuryType>
-  treasuryFactoryAddress: string
-} {
-  return {
-    treasuryAddresses: storage?.treasury,
-    treasuryFactoryAddress: storage?.treasury_factory[0].address,
-  }
 }
 
 function convertToOracleStorageType(storage: any): InitialOracleStorageType {
