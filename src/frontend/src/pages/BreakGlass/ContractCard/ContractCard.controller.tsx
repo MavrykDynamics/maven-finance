@@ -21,21 +21,29 @@ export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleEx
   return (
     <ContractCardWrapper className={isActive ? 'active' : ''} onClick={onClick}>
       <ContractCardTopSection>
-        <div className="card-title">{title}</div>
+        <div className="top-row">
+          <div className="card-title">{title}</div>
 
-        <div className="card-flag-wrapper">
-          <StatusFlag
-            text={isStatusPaused ? 'PAUSED' : 'LIVE'}
-            status={isStatusPaused ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
-          />
+          <div className="card-flag-wrapper">
+            <StatusFlag
+              text={isStatusPaused ? 'PAUSED' : 'LIVE'}
+              status={isStatusPaused ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+            />
+          </div>
         </div>
 
-        <div className="card-hash-wrapper">
+        <div className="card-info-item">
+          Last Update
+          <div>March 19,2020 (static)</div>
+        </div>
+
+        <div className="card-info-item">
+          Contract Address
           <TzAddress tzAddress={address} hasIcon />
         </div>
 
-        <div className="card-hash-wrapper card-admin">
-          Admin:
+        <div className="card-info-item">
+          Contract Admin
           <TzAddress tzAddress={admin} hasIcon />
         </div>
       </ContractCardTopSection>
