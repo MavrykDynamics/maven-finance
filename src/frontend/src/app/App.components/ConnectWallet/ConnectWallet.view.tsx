@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { ACTION_PRIMARY, TRANSPARENT } from '../Button/Button.constants'
 import { Button } from '../Button/Button.controller'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
@@ -27,6 +28,12 @@ type ConnectedWalletBlockProps = {
   changeWalletHandler: () => void
   coinsInfo: CoinsInfoType
   isMobile: boolean
+  detailsHandlers: {
+    buyXTZHandler: () => void
+    buyMVKHandler: () => void
+    stakeMVKHandler: () => void
+  }
+  closeMobileMenu: (e: React.MouseEvent<HTMLElement>) => void
 }
 
 export const MobileDetailsBlock = ({
@@ -34,7 +41,9 @@ export const MobileDetailsBlock = ({
   coinsInfo,
   signOutHandler,
   changeWalletHandler,
+  detailsHandlers,
   handleCloseBtn,
+  closeMobileMenu,
 }: ConnectedWalletBlockProps & { handleCloseBtn: () => void }) => {
   return (
     <MobileDetailsStyled>
@@ -54,21 +63,25 @@ export const MobileDetailsBlock = ({
           buttonText={'Buy MVK'}
           coinAmount={coinsInfo.userMVKBalance}
           coinName={'MVK'}
-          buttonHandler={() => {}}
+          buttonHandler={detailsHandlers.buyMVKHandler}
           subtextAmount={coinsInfo.userMVKBalance * coinsInfo.MVKExchangeRate}
         />
         <ConnectedWalletDetailsItem
           buttonText={'Stake MVK'}
           coinAmount={coinsInfo.userMVKStaked}
           coinName={'MVK'}
-          buttonHandler={() => {}}
+          buttonHandler={(e: React.MouseEvent<HTMLElement>) => {
+            closeMobileMenu(e)
+            handleCloseBtn()
+            detailsHandlers.stakeMVKHandler()
+          }}
           subtextInfo="Total staked MVK"
         />
         <ConnectedWalletDetailsItem
           buttonText={'Buy XTZ'}
           coinAmount={coinsInfo.userXTZBalance}
           coinName={'XTZ'}
-          buttonHandler={() => {}}
+          buttonHandler={detailsHandlers.buyXTZHandler}
           subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
         />
 
@@ -92,7 +105,9 @@ export const ConnectedWalletBlock = ({
   coinsInfo,
   signOutHandler,
   changeWalletHandler,
+  detailsHandlers,
   isMobile,
+  closeMobileMenu,
 }: ConnectedWalletBlockProps) => {
   const [detailsShown, setDetailsShown] = useState(false)
 
@@ -109,6 +124,8 @@ export const ConnectedWalletBlock = ({
         changeWalletHandler={changeWalletHandler}
         isMobile={isMobile}
         handleCloseBtn={closeHandler}
+        detailsHandlers={detailsHandlers}
+        closeMobileMenu={closeMobileMenu}
       />
     )
 
@@ -127,28 +144,28 @@ export const ConnectedWalletBlock = ({
           buttonText={'Buy MVK'}
           coinAmount={coinsInfo.userMVKBalance}
           coinName={'MVK'}
-          buttonHandler={() => {}}
+          buttonHandler={detailsHandlers.buyMVKHandler}
           subtextAmount={coinsInfo.userMVKBalance * coinsInfo.MVKExchangeRate}
         />
         <ConnectedWalletDetailsItem
           buttonText={'Stake MVK'}
           coinAmount={coinsInfo.userMVKStaked}
           coinName={'MVK'}
-          buttonHandler={() => {}}
+          buttonHandler={detailsHandlers.stakeMVKHandler}
           subtextInfo="Total staked MVK"
         />
         <ConnectedWalletDetailsItem
           buttonText={'Buy XTZ'}
           coinAmount={coinsInfo.userXTZBalance}
           coinName={'XTZ'}
-          buttonHandler={() => {}}
+          buttonHandler={detailsHandlers.buyXTZHandler}
           subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
         />
 
         <div className="buttons-wrapper">
           <SignOutButton onClick={signOutHandler}>Sign out</SignOutButton>
           <Button
-            text="Chnage Wallet"
+            text="Change Wallet"
             onClick={changeWalletHandler}
             kind={ACTION_PRIMARY}
             icon="exchange"
@@ -190,7 +207,7 @@ type ConnectedWalletDetailsItemProps = {
   buttonText: string
   coinName: string
   coinAmount: number
-  buttonHandler: () => void
+  buttonHandler: (e: React.MouseEvent<HTMLElement>) => void
   subtextInfo?: string
   subtextAmount?: number
 }
