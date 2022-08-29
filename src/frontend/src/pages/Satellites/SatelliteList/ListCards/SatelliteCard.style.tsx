@@ -16,6 +16,22 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
   }
 
   .item {
+    &.with-img {
+      padding-left: 45px;
+      position: relative;
+
+      img,
+      svg {
+        display: block;
+        position: absolute;
+        max-height: 32px;
+        max-width: 32px;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+      }
+    }
     h5 {
       color: ${skyColor};
       font-weight: 400;
@@ -161,7 +177,6 @@ export const SatelliteCardRow = styled.div<{ theme: MavrykTheme }>`
 export const SatelliteProfileImageContainer = styled.div`
   display: flex;
   justify-content: space-around;
-  align-items: center;
   height: 50px;
   width: 50px;
   margin-right: 10px;
@@ -187,7 +202,7 @@ export const SatelliteTextGroup = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: space-around;
 
   &.voted {
     margin-left: 70px;

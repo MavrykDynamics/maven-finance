@@ -16,7 +16,21 @@ import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 import { SatelliteListItemProps } from '../../helpers/Satellites.types'
-import { SatelliteCard, SatelliteCardButtons, SatelliteCardInner, SatelliteCardRow, SatelliteCardTopRow, SatelliteMainText, SatelliteOracleStatusComponent, SatelliteProfileDetails, SatelliteProfileImage, SatelliteProfileImageContainer, SatelliteSubText, SatelliteTextGroup, SideBySideImageAndText } from './SatelliteCard.style'
+import {
+  SatelliteCard,
+  SatelliteCardButtons,
+  SatelliteCardInner,
+  SatelliteCardRow,
+  SatelliteCardTopRow,
+  SatelliteMainText,
+  SatelliteOracleStatusComponent,
+  SatelliteProfileDetails,
+  SatelliteProfileImage,
+  SatelliteProfileImageContainer,
+  SatelliteSubText,
+  SatelliteTextGroup,
+  SideBySideImageAndText,
+} from './SatelliteCard.style'
 
 export const SatelliteListItem = ({
   satellite,
@@ -37,6 +51,7 @@ export const SatelliteListItem = ({
     governanceStorage: { proposalLedger },
   } = useSelector((state: State) => state.governance)
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
+  const { isSatellite } = useSelector((state: State) => state.user.user)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const isSatelliteOracle = satellite.oracleRecords.length
@@ -49,12 +64,31 @@ export const SatelliteListItem = ({
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
 
-  const signedFeedsCount = React.useMemo(() => feeds.filter((feed) => feed.admin === satellite.address).length, [
-    feeds,
-    satellite.address,
-  ])
+  const signedFeedsCount = React.useMemo(
+    () => feeds.filter((feed) => feed.admin === satellite.address).length,
+    [feeds, satellite.address],
+  )
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
+
+  const showButtons = !isSatellite && satellite.status === 0
+  const buttonToShow = userIsDelegatedToThisSatellite ? (
+    <Button
+      text="Undelegate"
+      icon="man-close"
+      kind={ACTION_SECONDARY}
+      loading={loading}
+      onClick={() => undelegateCallback()}
+    />
+  ) : (
+    <Button
+      text="Delegate"
+      icon="man-check"
+      kind={ACTION_PRIMARY}
+      loading={loading}
+      onClick={() => delegateCallback(satellite.address)}
+    />
+  )
 
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
@@ -77,25 +111,25 @@ export const SatelliteListItem = ({
             <SatelliteTextGroup>
               <SatelliteMainText>Delegated MVK</SatelliteMainText>
               <SatelliteSubText>
-                <CommaNumber value={totalDelegatedMVK} />
+                <CommaNumber value={totalDelegatedMVK + sMvkBalance} />
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {(isExtendedListItem && isSatelliteOracle) || !isSatelliteOracle ? (
+            {isExtendedListItem && !isSatelliteOracle ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Your delegated MVK</SatelliteMainText>
                 <SatelliteSubText>
-                  {userIsDelegatedToThisSatellite ? <CommaNumber value={myDelegatedMVK} /> : <div>0</div>}
+                  <CommaNumber value={userIsDelegatedToThisSatellite ? myDelegatedMVK : 0} />
                 </SatelliteSubText>
               </SatelliteTextGroup>
-            ) : (
-              <SatelliteTextGroup>
-                <SatelliteMainText>Free sMVK Space</SatelliteMainText>
-                <SatelliteSubText>
-                  <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
-                </SatelliteSubText>
-              </SatelliteTextGroup>
-            )}
+            ) : null}
+
+            <SatelliteTextGroup>
+              <SatelliteMainText>Free sMVK Space</SatelliteMainText>
+              <SatelliteSubText>
+                <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
+              </SatelliteSubText>
+            </SatelliteTextGroup>
 
             {isExtendedListItem && isSatelliteOracle ? (
               <SatelliteTextGroup>
@@ -130,7 +164,16 @@ export const SatelliteListItem = ({
               <SatelliteTextGroup>
                 <SatelliteMainText>Fee</SatelliteMainText>
                 <SatelliteSubText>
-                  <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
+                  <CommaNumber value={satellite.satelliteFee} endingText="%" />
+                </SatelliteSubText>
+              </SatelliteTextGroup>
+            ) : null}
+
+            {isExtendedListItem && !isSatelliteOracle ? (
+              <SatelliteTextGroup>
+                <SatelliteMainText>Count of delegators</SatelliteMainText>
+                <SatelliteSubText>
+                  <CommaNumber value={satellite.delegatorCount} />
                 </SatelliteSubText>
               </SatelliteTextGroup>
             ) : null}
@@ -149,45 +192,25 @@ export const SatelliteListItem = ({
         </div>
 
         <SatelliteCardButtons>
-          {userIsDelegatedToThisSatellite ? (
-            <>
-              {satellite.status === 0 ? (
-                <Button
-                  text="Undelegate"
-                  icon="man-close"
-                  kind={ACTION_SECONDARY}
-                  loading={loading}
-                  onClick={() => undelegateCallback()}
-                />
-              ) : null}
-            </>
+          {showButtons ? (
+            buttonToShow
           ) : (
-            <>
-              {satellite.status === 0 ? (
-                <Button
-                  text="Delegate"
-                  icon="man-check"
-                  kind={ACTION_PRIMARY}
-                  loading={loading}
-                  onClick={() => delegateCallback(satellite.address)}
-                />
-              ) : (
-                <div>
-                  <StatusFlag status={DOWN} text={'INACTIVE'} />
-                </div>
-              )}
-            </>
+            <div>
+              <StatusFlag status={DOWN} text={'INACTIVE'} />
+            </div>
           )}
         </SatelliteCardButtons>
       </SatelliteCardInner>
 
-      {children && children}
-
-      {currentlySupportingProposal && !children ? (
+      {children ? (
+        children
+      ) : currentlySupportingProposal ? (
         <SatelliteCardRow>
           Currently supporting Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}
         </SatelliteCardRow>
-      ) : null}
+      ) : (
+        <SatelliteCardRow>Considering</SatelliteCardRow>
+      )}
     </SatelliteCard>
   )
 }
