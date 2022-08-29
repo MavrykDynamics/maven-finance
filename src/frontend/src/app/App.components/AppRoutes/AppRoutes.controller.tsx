@@ -82,7 +82,7 @@ export const AppRoutes = () => {
       <Route exact path="/mavryk-council">
         <Council />
       </Route>
-      <Route exact path="/users">
+      <Route exact path="/oracle-users">
         <Users />
       </Route>
       <Route exact path="/satellites/user-details/:userId">

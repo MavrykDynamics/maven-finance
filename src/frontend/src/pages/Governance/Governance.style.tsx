@@ -240,7 +240,7 @@ export const RightSideSubHeader = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 12px;
   color: ${({ theme }) => theme.headerColor};
 `
-export const RightSideSubContent = styled.p<{ theme: MavrykTheme }>`
+export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
   font-weight: 400;
   font-size: 14px;
   line-height: 21px;

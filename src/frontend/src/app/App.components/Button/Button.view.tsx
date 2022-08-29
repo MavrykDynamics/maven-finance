@@ -9,7 +9,7 @@ type ButtonViewProps = {
   icon?: string
   className?: string
   kind?: ButtonStyle
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void
   clickCallback: () => void
   clicked: boolean
   type?: ButtonTypes
@@ -39,9 +39,9 @@ export const ButtonView = ({
   return (
     <ButtonStyled
       className={`${buttonClasses} ${className}`}
-      onClick={() => {
+      onClick={(e: React.MouseEvent<HTMLElement>) => {
         clickCallback()
-        onClick && onClick()
+        onClick && onClick(e)
       }}
       type={type}
       disabled={disabled}

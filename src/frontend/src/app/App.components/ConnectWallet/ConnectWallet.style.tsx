@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { backgroundTextColor, cyanColor, skyColor } from 'styles'
+import { cyanColor, skyColor } from 'styles'
 import { BUTTON_RADIUS } from 'styles/constants'
 import { MavrykTheme } from 'styles/interfaces'
 
@@ -43,11 +43,12 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: any, isMobileDetails?: boolean) =>
     isMobileDetails
       ? ''
       : ` &:hover {
-    var, .wallet, .end-icon {
-      color: ${cyanColor};
-      stroke: ${cyanColor};
+      var, .wallet, .end-icon {
+        color: ${cyanColor};
+        stroke: ${cyanColor};
+      }
     }
-  }`
+  `
   }
 
   @media screen and (max-width: 870px) {
@@ -98,6 +99,12 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
     css`
       ${VISIBLE_PART_CONNECTED_WALLET(theme)}
     `}
+
+  &:hover {
+    .end-icon {
+      transform: rotate(90deg);
+    }
+  }
 
   .wallet-details {
     position: absolute;
@@ -392,5 +399,25 @@ export const ConnectWalletClose = styled.button<{ theme: MavrykTheme }>`
     stroke: ${({ theme }) => theme.headerColor};
     width: 14px;
     height: 14px;
+  }
+`
+
+export const WertIo = styled.div`
+  width: 100%;
+  background: #160e3f;
+  padding: 30px;
+  border-radius: 10px;
+  border: 1px solid #86d4c9;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+
+  @media (max-width: 550px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 0px;
+    border-radius: 0;
+    border: none;
   }
 `

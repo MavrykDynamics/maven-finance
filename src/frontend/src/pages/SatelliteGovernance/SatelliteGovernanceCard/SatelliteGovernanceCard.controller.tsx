@@ -87,25 +87,25 @@ export const SatelliteGovernanceCard = ({
         <>
           <SatelliteGovernanceCardTitleTextGroup>
             <h3>Date</h3>
-            <p>
+            <p className="inner">
               <Time value={date} format="M d\t\h, Y" />
             </p>
           </SatelliteGovernanceCardTitleTextGroup>
           <SatelliteGovernanceCardTitleTextGroup>
             <h3>Action</h3>
-            <p className="first-big-letter">{getSeparateSnakeCase(governanceType)}</p>
+            <p className="inner first-big-letter">{getSeparateSnakeCase(governanceType)}</p>
           </SatelliteGovernanceCardTitleTextGroup>
           <SatelliteGovernanceCardTitleTextGroup>
             <h3>Satellite</h3>
-            <p>
+            <div className="inner">
               <TzAddress tzAddress={satelliteId} hasIcon={false} />
-            </p>
+            </div>
           </SatelliteGovernanceCardTitleTextGroup>
           <SatelliteGovernanceCardTitleTextGroup>
             <h3>Initiator</h3>
-            <p>
+            <div className="inner">
               <TzAddress tzAddress={initiatorId} hasIcon={false} />
-            </p>
+            </div>
           </SatelliteGovernanceCardTitleTextGroup>
         </>
       }

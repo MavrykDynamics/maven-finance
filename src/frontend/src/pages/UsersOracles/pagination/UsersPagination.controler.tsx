@@ -24,7 +24,7 @@ const UsersPagination = () => {
 
   return (
     <SatellitePaginationStyled>
-      <Link className="pagination-link back" to="/users">
+      <Link className="pagination-link back" to="/oracle-users">
         <Icon id="arrow-left-stroke" />
         Back to users
       </Link>
