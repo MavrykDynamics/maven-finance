@@ -111,3 +111,15 @@ export const BREAK_GLASS_STATUS_QUERY = `
 
 export const BREAK_GLASS_STATUS_QUERY_NAME = 'GetBreakGlassStatusQuery'
 export const BREAK_GLASS_STATUS_QUERY_VARIABLE = {}
+
+export const WHITELIST_DEV_QUERY = `
+query GetWhitelistDevQuery {
+  whitelist_developer {
+    developer {
+      address
+    }
+  }
+}
+`
+export const WHITELIST_DEV_QUERY_NAME = 'GetWhitelistDevQuery'
+export const WHITELIST_DEV_QUERY_VARIABLE = {}

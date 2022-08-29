@@ -13,10 +13,12 @@ import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
 import { ContractCard } from './ContractCard/ContractCard.controller'
 import { ToggleButton } from './ToggleButton/Toggle-button.view'
 import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 type BreakGlassViewProps = {
   contracts: ContractBreakGlass[]
   glassBroken: boolean
+  whitelistDev: string
   pauseAllActive: boolean
   breakGlassStatuses: Record<string, unknown>[]
 }
@@ -24,7 +26,13 @@ type BreakGlassViewProps = {
 const ALL = 'All Contracts'
 const GENERAL = 'General Contracts'
 
-export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGlassStatuses }: BreakGlassViewProps) => {
+export const BreakGlassView = ({
+  contracts,
+  glassBroken,
+  pauseAllActive,
+  breakGlassStatuses,
+  whitelistDev,
+}: BreakGlassViewProps) => {
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
   const [selectedContract, setSelectedContract] = useState<string>(ALL)
@@ -68,6 +76,9 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
           <div className="status-indicator-wrapper">
             Pause All: <span className={pauseAllActive ? 'color-red' : 'color-green'}>{pauseAllStatus}</span>
           </div>
+          <div className="status-indicator-wrapper whitelist">
+            Whitelist Developer: <TzAddress tzAddress={whitelistDev} hasIcon />
+          </div>
         </BGStatusIndicator>
         <BGInfo>
           <p>
@@ -86,6 +97,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
           </FAQLink>
         </BGInfo>
       </BGTop>
+
       <BGMiddleWrapper>
         <BGTitle>Contract Status</BGTitle>
         <SlidingTabButtons className="brake-glass-tabs" tabItems={brakeGlassTabsList} onClick={handleTabChange} />
