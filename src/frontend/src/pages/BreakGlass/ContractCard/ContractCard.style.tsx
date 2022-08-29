@@ -24,7 +24,7 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 28px 16px;
+  grid-template-rows: 28px 16px 16px;
   border-radius: 10px;
   row-gap: 13px;
 
@@ -65,11 +65,23 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     grid-row-end: 3;
     grid-column-start: 1;
     grid-column-end: 3;
-    color: ${cyanColor};
     margin-top: 5px;
+    width: fit-content;
+
+    > div {
+      color: ${cyanColor};
+    }
 
     svg {
       stroke: rgb(134, 212, 201);
     }
+  }
+
+  .card-admin {
+    grid-row-start: 3;
+    grid-row-end: 4;
+    display: flex;
+    column-gap: 15px;
+    color: ${headerColor};
   }
 `
