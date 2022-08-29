@@ -1,8 +1,7 @@
 // types
 import type { EmergencyGovernanceStorage } from '../utils/TypesAndInterfaces/EmergencyGovernance'
 
-import { fetchFromIndexer, getInitialData } from '../gql/fetchGraphQL'
-import storageToTypeConverter from '../utils/storageToTypeConverter'
+import { getInitialData } from '../gql/fetchGraphQL'
 
 import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE } from '../pages/Doorman/Doorman.actions'
 import { GET_DELEGATION_STORAGE, GET_ORACLES_STORAGE } from '../pages/Satellites/Satellites.actions'
@@ -19,14 +18,9 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
-import {
-  CONTRACT_ADDRESSES_QUERY,
-  CONTRACT_ADDRESSES_QUERY_NAME,
-  CONTRACT_ADDRESSES_QUERY_VARIABLE,
-} from '../gql/queries'
 
 // helpers
-import { normalizeAddressesStorage, normalizeVestingStorage } from './App.helpers'
+import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
 import { normalizeDoormanStorage, normalizeMvkToken } from '../pages/Doorman/Doorman.converter'
 import { normalizeFarmStorage } from '../pages/Farms/Frams.helpers'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
@@ -61,9 +55,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const councilStorage = noralizeCouncilStorage(res[7]?.council?.[0])
   const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
   const governanceStorage = normalizeGovernanceStorage(res[9])
-  const oraclesStorage = storageToTypeConverter('oracle', res[10])
-
-  console.log('%c ||||| addressesStorage', 'color:yellowgreen', addressesStorage)
+  const oraclesStorage = normalizeOracle(res[10])
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
   dispatch({
