@@ -60,7 +60,7 @@ export const StakeUnstakeView = ({
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
 
-  const participationFeesPerShare = user.participationFeesPerShare ?? 0
+  const participationFeesPerShare = user?.participationFeesPerShare ?? 0
   const exchangeValue = exchangeRate && inputAmount.amount ? inputAmount.amount * exchangeRate : 0
   const earnedValue = 0
 

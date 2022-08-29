@@ -59,7 +59,7 @@ export const Governance = () => {
   const isVotingRound = governancePhase === 'VOTING'
   const isTimeLockRound = governancePhase === 'TIME_LOCK'
 
-  const ongoingProposals = currentRoundProposals.filter(
+  const ongoingProposals = currentRoundProposals?.filter(
     (item) =>
       (isVotingRound || isTimeLockRound) &&
       Boolean(item.currentRoundProposal) &&
