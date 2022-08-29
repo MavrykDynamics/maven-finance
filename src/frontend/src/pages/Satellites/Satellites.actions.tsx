@@ -4,8 +4,6 @@ import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorma
 import { State } from 'reducers'
 import { DELEGATION_STORAGE_QUERY, DELEGATION_STORAGE_QUERY_NAME, DELEGATION_STORAGE_QUERY_VARIABLE } from 'gql/queries'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
-import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 import { normalizeDelegationStorage } from './Satellites.helpers'
 
