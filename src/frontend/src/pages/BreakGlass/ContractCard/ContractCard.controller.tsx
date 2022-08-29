@@ -1,5 +1,3 @@
-import React, { useState } from 'react'
-
 import { ContractCardTopSection, ContractCardWrapper } from './ContractCard.style'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
@@ -19,7 +17,6 @@ export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleEx
   const admin = contract.admin as string
   const methods = contract.methods as Record<string, boolean>
   const isStatusPaused = methods ? Object.keys(methods).some((method) => methods[method]) : false
-  console.log('contract', contract)
 
   return (
     <ContractCardWrapper className={isActive ? 'active' : ''} onClick={onClick}>
