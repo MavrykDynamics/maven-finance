@@ -3,7 +3,7 @@
 ## Updating the DEV/PROD indexer
 
 1. Build and push a new image of the indexer. The documentation about the deployment is inside de **Indexer** subfolder [here](../../../indexer/README.md).
-2. `kubens mavryk-indexer` to switch to the namespace where the indexer is installed
+2. `kubens mavryk-indexer` to switch to the namespace where the indexer is installed. (you can do a `kubectl get po` to see all dipdup/hasura instances running)
 3. Open the right \*.values.yaml file
    - _PROD_: prod.values.yaml
    - _DEV_: dev.values.yaml
