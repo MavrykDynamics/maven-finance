@@ -1,7 +1,6 @@
 import Icon from 'app/App.components/Icon/Icon.view'
 import { InfoTab } from 'app/App.components/InfoTab/InfoTab.controller'
 // consts
-import { PRIMARY } from 'app/App.components/Modal/Modal.constants'
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { EmptyContainer as EmptyList } from 'app/App.style'
 import { FEEDS_TOP_LIST_NAME, SATELITES_TOP_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
@@ -53,7 +52,7 @@ const SatellitesView = ({
 }: OraclesViewProps) => {
   return (
     <Page>
-      <PageHeader page={'satellites'} kind={PRIMARY} loading={isLoading} />
+      <PageHeader page={'satellites'} />
       <PageContent>
         <div className="left-content-wrapper">
           <InfoBlockWrapper>

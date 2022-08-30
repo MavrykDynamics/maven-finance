@@ -10,7 +10,6 @@ import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../app/App.components/Butto
 // components
 import Icon from '../../app/App.components/Icon/Icon.view'
 import { IPFSUploader } from '../../app/App.components/IPFSUploader/IPFSUploader.controller'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
@@ -190,7 +189,7 @@ export const BecomeSatelliteView = ({
 
   return (
     <Page>
-      <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'satellites'} />
       <PageContent>
         <div>
           {!accountPkh || !balanceOk ? (

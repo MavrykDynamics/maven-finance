@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
-import { PRIMARY } from 'app/App.components/Modal/Modal.constants'
 import { SATELITES_NODES_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
@@ -57,7 +56,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
 
   return (
     <Page>
-      <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'satellites'} />
 
       <SatelliteSearchFilter oracle>
         <Input

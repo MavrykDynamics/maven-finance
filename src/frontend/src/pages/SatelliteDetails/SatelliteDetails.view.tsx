@@ -7,7 +7,6 @@ import { State } from 'reducers'
 import { Page } from 'styles'
 import { Loader } from 'app/App.components/Loader/Loader.view'
 
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
@@ -75,7 +74,7 @@ export const SatelliteDetailsView = ({
 
   return (
     <Page>
-      <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'satellites'} />
       <SatellitePagination />
       {loading || !isSameId ? (
         <Loader />

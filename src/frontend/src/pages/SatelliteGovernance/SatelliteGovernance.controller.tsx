@@ -8,7 +8,6 @@ import { useLocation } from 'react-router'
 import type { GovernanceSatelliteItem } from '../../reducers/governance'
 
 // const
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import {
   calculateSlicePositions,
@@ -176,7 +175,7 @@ export const SatelliteGovernance = () => {
 
   return (
     <Page>
-      <PageHeader page={'satellite-governance'} kind={PRIMARY} />
+      <PageHeader page={'satellite-governance'} />
       <SatelliteGovernanceStyled>
         <article className="satellite-governance-article">
           <div className="satellite-governance-info">
