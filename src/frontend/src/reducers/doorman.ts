@@ -10,6 +10,7 @@ import {
   UNSTAKE_REQUEST,
   UNSTAKE_RESULT,
 } from 'pages/Doorman/Doorman.actions'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { DoormanStorage } from '../utils/TypesAndInterfaces/Doorman'
 
 export const STAKE = 'STAKE'
@@ -45,7 +46,7 @@ const doormanDefaultState: DoormanState = {
   totalStakedMvk: 0,
 }
 
-export function doorman(state = doormanDefaultState, action: any): DoormanState {
+export function doorman(state = doormanDefaultState, action: Action) {
   switch (action.type) {
     case STAKE_REQUEST:
       return {

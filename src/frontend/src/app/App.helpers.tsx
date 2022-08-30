@@ -64,7 +64,7 @@ export function normalizeOracle(storage: {
     })),
     feedsFactory: storage?.aggregator_factory,
     totalOracleNetworks: storage?.aggregator
-      ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0)
+      ? storage.aggregator.reduce((acc, cur) => acc + cur.oracle_records.length, 0)
       : 0,
   }
 }

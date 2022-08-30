@@ -1,4 +1,9 @@
-import { HIDE_EXIT_FEE_MODAL, SET_EXIT_FEE_AMOUNT, SHOW_EXIT_FEE_MODAL } from 'pages/Doorman/ExitFeeModal/ExitFeeModal.actions'
+import {
+  HIDE_EXIT_FEE_MODAL,
+  SET_EXIT_FEE_AMOUNT,
+  SHOW_EXIT_FEE_MODAL,
+} from 'pages/Doorman/ExitFeeModal/ExitFeeModal.actions'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface ExitFeeModalState {
   showing: boolean
@@ -7,10 +12,10 @@ export interface ExitFeeModalState {
 
 const exitFeeModalDefaultState: ExitFeeModalState = {
   showing: false,
-  amount: 0
+  amount: 0,
 }
 
-export function exitFeeModal(state = exitFeeModalDefaultState, action: any): ExitFeeModalState {
+export function exitFeeModal(state = exitFeeModalDefaultState, action: Action) {
   switch (action.type) {
     case SET_EXIT_FEE_AMOUNT: {
       return {
@@ -25,10 +30,10 @@ export function exitFeeModal(state = exitFeeModalDefaultState, action: any): Exi
       }
     }
     case HIDE_EXIT_FEE_MODAL: {
-       return {
-         ...state,
-         showing: false,
-       }
+      return {
+        ...state,
+        showing: false,
+      }
     }
     default:
       return state
