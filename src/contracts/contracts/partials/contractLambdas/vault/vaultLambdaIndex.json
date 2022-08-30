@@ -13,22 +13,22 @@
     },
     {
         "index": 3,
-        "name": "lambdaVaultDelegateTezToBaker"
+        "name": "lambdaDelegateTezToBaker"
     },
     {
         "index": 4,
-        "name": "lambdaVaultDelegateMvkToSat"
+        "name": "lambdaDelegateMvkToSat"
     },
     {
         "index": 5,
-        "name": "lambdaVaultWithdraw"
+        "name": "lambdaWithdraw"
     },
     {
         "index": 6,
-        "name": "lambdaVaultDeposit"
+        "name": "lambdaDeposit"
     },
     {
         "index": 7,
-        "name": "lambdaVaultUpdateDepositor"
+        "name": "lambdaUpdateDepositor"
     }
 ]

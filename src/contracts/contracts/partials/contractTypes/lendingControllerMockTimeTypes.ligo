@@ -41,6 +41,8 @@ type lendingControllerConfigType is [@layout:comb] record [
     maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
 
+    mockLevel                    : nat;         // mock level for time
+
 ]
 
 type lendingControllerBreakGlassConfigType is record [
@@ -188,6 +190,7 @@ type lendingControllerUpdateConfigActionType is
     |   ConfigMinimumLoanFeePercent     of unit
     |   ConfigMinLoanFeeTreasuryShare   of unit
     |   ConfigInterestTreasuryShare     of unit
+    |   ConfigMockLevel                 of unit
 
 type lendingControllerUpdateConfigParamsType is [@layout:comb] record [
     updateConfigNewValue    : lendingControllerUpdateConfigNewValueType;  
@@ -391,6 +394,7 @@ type lendingControllerLambdaActionType is
 type lendingControllerStorageType is [@layout:comb] record [
 
     admin                       : address;
+    tester                      : address;
     metadata                    : metadataType;
     config                      : lendingControllerConfigType;
     breakGlassConfig            : lendingControllerBreakGlassConfigType;
