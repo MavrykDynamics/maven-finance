@@ -10,7 +10,6 @@ import { AppRoutes } from './App.components/AppRoutes/AppRoutes.controller'
 import { setWallet } from './App.components/ConnectWallet/ConnectWallet.actions'
 import { Menu } from './App.components/Menu/Menu.controller'
 import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
-import { ThemeToggle } from './App.components/ThemeToggle/ThemeToggle.controller'
 import { Toaster } from './App.components/Toaster/Toaster.controller'
 import { configureStore } from './App.store'
 import { AppStyled, LoaderStyled } from './App.style'
@@ -58,7 +57,6 @@ const AppContainer = () => {
 
   return (
     <Router>
-      {/* <ThemeToggle /> */}
       <ProgressBar />
       <AppStyled isExpandedMenu={sidebarOpened}>
         {loading ? (
