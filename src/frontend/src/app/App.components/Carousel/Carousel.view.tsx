@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import useEmblaCarousel from 'embla-carousel-react'
+import useEmblaCarousel, { EmblaOptionsType } from 'embla-carousel-react'
 
 import { CarouselStyle, CarouselViewport, CarouselContainer, CarouselButton } from './Carousel.style'
 
@@ -11,7 +11,7 @@ type Props = {
 const Carousel = (props: Props) => {
   const { children, itemLength } = props
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const options: any = { containScroll: 'trimSnaps', dragFree: true }
+  const options: Partial<EmblaOptionsType> = { containScroll: 'trimSnaps', dragFree: true }
   // for scroll 3 items
   // const [viewportRef, embla] = useEmblaCarousel({ loop: false, slidesToScroll: 3, skipSnaps: false })
   // for Variable Widths

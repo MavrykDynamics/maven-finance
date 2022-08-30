@@ -1,11 +1,11 @@
 import { State } from 'reducers'
-
+import type { AppDispatch, GetState } from '../../App.controller'
 export const SHOW_TOASTER = 'SHOW_TOASTER'
 export const HIDE_TOASTER = 'HIDE_TOASTER'
 
 export const showToaster =
   (status: string, title: string, message: string, timeout: number = 4000) =>
-  (dispatch: any, getState: any) => {
+  (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
     if (!state.toaster.showing) {
       dispatch({
@@ -20,7 +20,7 @@ export const showToaster =
     }
   }
 
-export const hideToaster = () => (dispatch: any) => {
+export const hideToaster = () => (dispatch: AppDispatch) => {
   dispatch({
     type: HIDE_TOASTER,
   })

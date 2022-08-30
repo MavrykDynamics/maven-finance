@@ -4,30 +4,13 @@ import { State } from 'reducers'
 import { getUserData } from '../../../pages/Doorman/Doorman.actions'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
+import type { AppDispatch } from '../../App.controller'
 
 // const network = process.env.REACT_APP_API_NETWORK
 const network = 'ghostnet'
 
 export const SET_WALLET = 'SET_WALLET'
-export const setWallet = (wallet: TempleWallet) => (dispatch: any, getState: any) => {
-  /*
-  //TODO: For change to Beacon, don't forget to substitute params wall: TempleWallet to wallet?: any
-  try {
-    const walletOptions = {
-      name: process.env.REACT_APP_NAME || 'MAVRYK',
-      preferredNetwork: (process.env.REACT_APP_NETWORK || 'hangzhounet') as any,
-    }
-    const wallet = new BeaconWallet(walletOptions)
-    console.log('Here in set wallet')
-    dispatch({
-      type: SET_WALLET,
-      wallet,
-    })
-  } catch (err: any) {
-    dispatch(showToaster(ERROR, 'Failed to initiate Wallet', err.message))
-    console.error(`Failed to initiate Wallet: ${err.message}`)
-  }
-  */
+export const setWallet = (wallet: TempleWallet) => (dispatch: AppDispatch) => {
   dispatch({
     type: SET_WALLET,
     wallet,
@@ -37,7 +20,7 @@ export const setWallet = (wallet: TempleWallet) => (dispatch: any, getState: any
 export const CONNECT = 'CONNECT'
 export const connect =
   ({ forcePermission = false }: { forcePermission?: boolean }) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: any) => {
     const state: State = getState()
     try {
       if (!state.wallet) {
