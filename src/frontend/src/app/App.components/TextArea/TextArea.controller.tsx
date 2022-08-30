@@ -1,17 +1,15 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
-
+import React from 'react'
 import { TextAreaView } from './TextArea.view'
 
 export type TextAreaStatusType = 'success' | 'error' | '' | undefined
 type TextAreaProps = {
   icon?: string
-  placeholder: string
+  placeholder?: string
   name?: string
   className?: string
-  value?: string | number
-  onChange: any
-  onBlur: any
+  value: string | number
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  onBlur?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   inputStatus?: TextAreaStatusType
   errorMessage?: string
   disabled?: boolean
@@ -20,7 +18,7 @@ type TextAreaProps = {
 
 export const TextArea = ({
   icon,
-  placeholder,
+  placeholder = '',
   name,
   className,
   value,
@@ -46,26 +44,4 @@ export const TextArea = ({
       required={required}
     />
   )
-}
-
-TextArea.propTypes = {
-  icon: PropTypes.string,
-  placeholder: PropTypes.string,
-  name: PropTypes.string,
-  value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
-  onBlur: PropTypes.func.isRequired,
-  inputStatus: PropTypes.string,
-  type: PropTypes.string,
-  errorMessage: PropTypes.string,
-  disabled: PropTypes.bool,
-}
-
-TextArea.defaultProps = {
-  icon: undefined,
-  placeholder: undefined,
-  name: undefined,
-  value: undefined,
-  inputStatus: undefined,
-  type: 'text',
 }

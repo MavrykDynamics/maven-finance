@@ -1,9 +1,9 @@
 export const BUTTON = 'button'
 export const SUBMIT = 'submit'
 export const RESET = 'reset'
-export type RoutingButtonTypes = 'button' | 'submit' | 'reset' | undefined
+export type RoutingButtonTypes = typeof BUTTON | typeof SUBMIT | typeof RESET | undefined
 
 export const PRIMARY = 'primary'
 export const SECONDARY = 'secondary'
 export const TRANSPARENT = 'transparent'
-export type RoutingButtonStyle = 'primary' | 'secondary' | 'transparent' | undefined
+export type RoutingButtonStyle = typeof PRIMARY | typeof SECONDARY | typeof TRANSPARENT | undefined

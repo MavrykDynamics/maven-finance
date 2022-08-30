@@ -111,7 +111,6 @@ export const StageOneFormView = ({
         <>
           <label>4 - Enter a description</label>
           <TextArea
-            type="text"
             className="description-textarea"
             value={form.description}
             onChange={(e: any) => setForm({ ...form, description: e.target.value })}
