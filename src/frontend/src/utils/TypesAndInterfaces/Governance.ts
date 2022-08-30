@@ -88,7 +88,7 @@ export interface ProposalRecordType {
   startDateTime: Date // log of when the proposal was proposed
   executed: boolean // true / false
   locked: boolean // true / false   For updating of the proposal metadata
-  timelockProposal: any
+  timelockProposal: string
   sourceCode?: string
   passVoteMvkTotal: number // proposal round pass vote total mvk from satellites who voted pass
   upvoteMvkTotal: number // voting round: upvotes MVK total

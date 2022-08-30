@@ -78,7 +78,7 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
       : []
     const councilPendingActions = councilActionRecord.filter((item) => {
       const timeNow = Date.now()
-      const expirationDatetime = new Date(item.expiration_datetime).getTime()
+      const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
       const isEndedVotingTime = expirationDatetime > timeNow
       const isNoSameAccountPkh = accountPkh !== item.initiator_id
       return isEndedVotingTime && isNoSameAccountPkh
