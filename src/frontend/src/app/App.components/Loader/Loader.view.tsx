@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 import { LoaderStyled } from './Loader.style'
 
 export const Loader = () => (
@@ -15,7 +13,3 @@ export const Loader = () => (
     </div>
   </LoaderStyled>
 )
-
-Loader.propTypes = {}
-
-Loader.defaultProps = {}

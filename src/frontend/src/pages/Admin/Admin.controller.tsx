@@ -5,7 +5,6 @@ import { useEffect } from 'react'
 import { adminChangeGovernancePeriod, trackFarm } from './Admin.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { AdminView } from './Admin.view'
 import { getGovernanceStorage } from '../Governance/Governance.actions'
 
@@ -31,7 +30,7 @@ export const Admin = () => {
   }
   return (
     <Page>
-      <PageHeader page={'admin'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'admin'} />
       <AdminView handleChangeGovernancePeriod={handleChangeGovernancePeriod} handleTrackFarm={handleTrackFarm} />
     </Page>
   )

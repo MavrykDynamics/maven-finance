@@ -13,9 +13,6 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import TreasuryView from './Treasury.view'
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
 
-// const
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-
 // styles
 import { Page } from 'styles'
 import { TreasuryActiveStyle, TreasurySelectStyle } from './Treasury.style'
@@ -73,7 +70,7 @@ export const Treasury = () => {
 
   return (
     <Page>
-      <PageHeader page={'treasury'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'treasury'} />
       <TreasuryView treasury={globalTreasuryData} isGlobal factoryAddress={treasuryFactoryAddress} />
       <TreasuryActiveStyle>
         <TreasurySelectStyle isSelectedTreasury={Boolean(chosenDdItem?.value)}>

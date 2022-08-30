@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 // consts, helpers
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { usersData } from 'pages/UsersOracles/users.const'
-import { PRIMARY } from 'app/App.components/PageHeader/PageHeader.constants'
 import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { INFO_SVG_ENCODED, QUESTION_MARK_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
@@ -80,7 +79,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
 
   return feed ? (
     <Page>
-      <PageHeader page={'data-feeds'} kind={PRIMARY} loading={false} />
+      <PageHeader page={'data-feeds'} />
       <DataFeedsPagination />
 
       <DataFeedsStyled>

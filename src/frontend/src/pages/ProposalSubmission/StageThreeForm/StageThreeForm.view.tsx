@@ -5,10 +5,8 @@ import { State } from 'reducers'
 import type { TableListType } from '../../../app/App.components/TableGrid/TableGrid.types'
 
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { GridSheet } from '../../../app/App.components/GridSheet/GridSheet.controller'
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { Input } from '../../../app/App.components/Input/Input.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import TableGrid from '../../../app/App.components/TableGrid/TableGrid.view'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
@@ -106,7 +104,6 @@ export const StageThreeFormView = ({
       <FormTableGrid className={disabled ? 'disabled' : ''}>
         <TableGrid tableData={tableData} setTableData={setTableData} />
       </FormTableGrid>
-      {/* <GridSheet loading={loading} setTableJson={setTableJson} /> */}
       <FormButtonContainer>
         {!locked ? (
           <Button

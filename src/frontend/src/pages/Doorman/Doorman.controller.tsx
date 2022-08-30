@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -6,8 +5,6 @@ import { State } from 'reducers'
 import { Page } from 'styles'
 
 import Chart from '../../app/App.components/Chart/Chart.view'
-// constants
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 // actions
@@ -52,7 +49,7 @@ export const Doorman = () => {
   return (
     <Page>
       <ExitFeeModal />
-      <PageHeader page={'doorman'} kind={PRIMARY} loading={false} />
+      <PageHeader page={'doorman'} />
       <StakeUnstakeView
         myMvkTokenBalance={user?.myMvkTokenBalance}
         userStakeBalance={user?.mySMvkTokenBalance}
