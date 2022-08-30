@@ -1,5 +1,6 @@
 import styled, { css, keyframes } from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
+import { ERROR, INFO, WARNING } from './Toaster.constants'
 
 export const ToasterStyled = styled.div<{ showing: boolean; theme: MavrykTheme }>`
   position: fixed;
@@ -46,11 +47,11 @@ export const ToasterCountdown = styled.div<{ showing: boolean; status?: string; 
   transform: translate3d(470px, 0, 0);
   background-color: ${(props) => {
     switch (props.status) {
-      case 'info':
+      case INFO:
         return ({ theme }) => theme.infoColor
-      case 'warning':
+      case WARNING:
         return ({ theme }) => theme.warningColor
-      case 'error':
+      case ERROR:
         return ({ theme }) => theme.downColor
       default:
         return ({ theme }) => theme.upColor
@@ -86,11 +87,11 @@ export const ToasterIcon = styled.div<{ status?: string; theme: MavrykTheme }>`
     width: 14px;
     stroke: ${(props) => {
       switch (props.status) {
-        case 'info':
+        case INFO:
           return ({ theme }) => theme.infoColor
-        case 'warning':
+        case WARNING:
           return ({ theme }) => theme.warningColor
-        case 'error':
+        case ERROR:
           return ({ theme }) => theme.downColor
         default:
           return ({ theme }) => theme.upColor
