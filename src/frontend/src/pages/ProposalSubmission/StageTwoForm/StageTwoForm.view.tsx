@@ -146,7 +146,6 @@ export const StageTwoFormView = ({
                 <span>{i + 4}b</span> - Enter Proposal Bytes data
               </label>
               <TextArea
-                type="text"
                 className="step-2-textarea"
                 value={item.bytes}
                 onChange={(e: any) => handleChangeData(i, e.target.value)}

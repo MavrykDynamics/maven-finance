@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import styled from 'styled-components'
-import { cyanColor, darkColor } from 'styles'
 
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -15,8 +13,6 @@ import type { TableListType } from './TableGrid.types'
 // style
 import { TableGridWrap } from './TableGrid.style'
 import {
-  DropDownStyled,
-  DropDownMenu,
   DropDownListContainer,
   DropDownList,
   DropDownListItem,

@@ -182,7 +182,6 @@ export const CouncilFormRequestTokens = () => {
       <div className="textarea-group">
         <label>Purpose for Request</label>
         <TextArea
-          type="text"
           required
           value={purpose}
           name="purpose"
