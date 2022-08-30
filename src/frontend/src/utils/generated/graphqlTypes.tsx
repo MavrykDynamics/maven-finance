@@ -12,9 +12,9 @@ export type Scalars = {
   Float: number;
   bigint: number;
   float8: number;
-  jsonb: any;
+  jsonb: unknown;
   smallint: number;
-  timestamptz: any;
+  timestamptz: string | number | Date;
 };
 
 /** Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'. */

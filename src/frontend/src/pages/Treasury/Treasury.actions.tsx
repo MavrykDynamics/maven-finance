@@ -15,13 +15,14 @@ import { TezosToolkit } from '@taquito/taquito'
 import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './treasury.const'
 import CoinGecko from 'coingecko-api'
 import { normalizeTreasury } from './Treasury.helpers'
+import type { AppDispatch, GetState } from '../../app/App.controller'
 
 const coinGeckoClient = new CoinGecko()
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
 
-export const fillTreasuryStorage = () => async (dispatch: any, getState: () => State) => {
+export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     const {
       mvkToken: { exchangeRate: MVK_EXCHANGE_RATE },
@@ -135,17 +136,17 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
 }
 
 export const GET_VESTING_STORAGE = 'GET_VESTING_STORAGE'
-export const getVestingStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getVestingStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     const state: State = getState()
 
     const contract = accountPkh
       ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.vestingAddress?.address)
-      : await new TezosToolkit(
-          (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-        )?.contract?.at(state?.contractAddresses?.vestingAddress?.address)
+      : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/')?.contract?.at(
+          state?.contractAddresses?.vestingAddress?.address,
+        )
 
-    const storage = await (contract as any).storage()
+    const storage = await contract?.storage()
     console.log('Printing out Vesting storage:\n', storage)
 
     dispatch({
