@@ -21,7 +21,7 @@ export const Dashboard = () => {
   return (
     <Page>
       <DashboardStyled>
-        <PageHeader page={'dashboard'} kind={'primary'} loading={loading} />
+        <PageHeader page={'dashboard'} />
         <div>Here on the Dashboard Page</div>
       </DashboardStyled>
     </Page>

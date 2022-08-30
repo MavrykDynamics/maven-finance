@@ -141,7 +141,7 @@ export const Farms = () => {
   }
   return (
     <Page>
-      <PageHeader page={'farms'} kind={'primary'} loading={loading} />
+      <PageHeader page={'farms'} />
       <FarmsStyled>
         <FarmTopBar
           ready={ready}

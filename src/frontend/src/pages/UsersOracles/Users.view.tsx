@@ -1,4 +1,3 @@
-import { PRIMARY } from 'app/App.components/Modal/Modal.constants'
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { DataFeedsTitle, DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
@@ -9,7 +8,7 @@ import { UserCardWrapper, UsersListWrapper, UsersStyled } from './Users.styles'
 const UsersView = ({ users }: { users: any }) => {
   return (
     <Page>
-      <PageHeader page={'data-feeds'} kind={PRIMARY} loading={false} />
+      <PageHeader page={'data-feeds'} />
 
       <UsersStyled>
         <GovRightContainerTitleArea>

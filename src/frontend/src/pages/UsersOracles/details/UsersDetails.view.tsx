@@ -1,39 +1,24 @@
-import React, { useMemo, useState, useCallback } from 'react'
-import moment from 'moment'
-
 // consts, helpers
-import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
-import { PRIMARY } from 'app/App.components/PageHeader/PageHeader.constants'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import {
-  ORACLES_DATA_IN_FEED_LIST_NAME,
-  USER_DATA_FEEDS_LIST_NAME,
-} from 'pages/FinacialRequests/Pagination/pagination.consts'
-import { QUESTION_MARK_SVG_ENCODED, INFO_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
+import { USER_DATA_FEEDS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
-import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 
 // view
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
-import Chart from 'app/App.components/Chart/Chart.view'
-import { Button } from 'app/App.components/Button/Button.controller'
 import UsersPagination from '../pagination/UsersPagination.controler'
 
 // styles
 import { Page } from 'styles'
-import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
 import { DataFeedsTitle, DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
 import { UserDetailsStyled } from './UsersDetails.style'
-import { useSelector } from 'react-redux'
-import { State } from 'reducers'
 import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
+import { useState } from 'react'
 
 const emptyContainer = (
   <EmptyContainer>
@@ -83,7 +68,7 @@ const UserDetailsView = ({
 
   return user ? (
     <Page>
-      <PageHeader page={'data-feeds'} kind={PRIMARY} loading={false} />
+      <PageHeader page={'data-feeds'} />
       <UsersPagination />
 
       <UserDetailsStyled>
@@ -139,11 +124,9 @@ const UserDetailsView = ({
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
-            onChange={handleSelect}
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
-            onBlur={() => {}}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
           />
         </DropdownContainer>

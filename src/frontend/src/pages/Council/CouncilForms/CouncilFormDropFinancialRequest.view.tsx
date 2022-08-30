@@ -106,11 +106,9 @@ export const CouncilFormDropFinancialRequest = () => {
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
-            onChange={handleSelect}
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
-            onBlur={() => {}}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
           />
         </div>

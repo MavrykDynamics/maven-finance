@@ -1,9 +1,7 @@
 import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import { useEffect } from 'react'
 import { VaultsStyled } from './Vaults.style'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { Page } from 'styles'
 
@@ -17,7 +15,7 @@ export const Vaults = () => {
 
   return (
     <Page>
-      <PageHeader page={'vaults'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'vaults'} />
       <VaultsStyled>
         <div>Here on the Vaults Page</div>
       </VaultsStyled>

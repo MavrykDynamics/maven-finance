@@ -10,7 +10,6 @@ import type { ProposalDataType, ProposalPaymentType } from '../../utils/TypesAnd
 import useGovernence from '../Governance/UseGovernance'
 
 // view
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { GovernancePhase } from '../../reducers/governance'
 import { ProposalSubmissionForm } from './ProposalSubmission.style'
@@ -53,7 +52,7 @@ export const ProposalSubmissionView = ({
   const isEditing = governancePhase === 'PROPOSAL' && !watingProposals.length
   return (
     <Page>
-      <PageHeader page={'proposal submission'} kind={PRIMARY} />
+      <PageHeader page={'proposal submission'} />
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       {!isEditing ? (
         <Info
