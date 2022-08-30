@@ -74,20 +74,20 @@ block {
 // Vault Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* vaultDelegateTezToBaker lambda *)
-function lambdaVaultDelegateTezToBaker(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* delegateTezToBaker lambda *)
+function lambdaDelegateTezToBaker(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case vaultLambdaAction of [
-        |   LambdaVaultDelegateTezToBaker(vaultDelegateParams) -> {
+        |   LambdaDelegateTezToBaker(delegateParams) -> {
 
                 // set new delegate only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_TEZ_TO_BAKER) 
                 else skip; 
                 
-                const delegateToTezBakerOperation : operation = Tezos.set_delegate(vaultDelegateParams);
+                const delegateToTezBakerOperation : operation = Tezos.set_delegate(delegateParams);
                 
                 operations := delegateToTezBakerOperation # operations;
                 
@@ -99,14 +99,14 @@ block {
 
 
 
-(* vaultDelegateMvkToSatellite lambda *)
-function lambdaVaultDelegateMvkToSat(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* delegateMvkToSatellite lambda *)
+function lambdaDelegateMvkToSat(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case vaultLambdaAction of [
-        |   LambdaVaultDelegateMvkToSat(satelliteAddress) -> {
+        |   LambdaDelegateMvkToSat(satelliteAddress) -> {
 
                 // set new delegate only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_MVK_TO_SATELLITE) 
@@ -132,18 +132,18 @@ block {
 
 
 
-(* vaultWithdraw lambda *)
-function lambdaVaultWithdraw(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* withdraw lambda *)
+function lambdaWithdraw(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case vaultLambdaAction of [
-        |   LambdaVaultWithdraw(vaultWithdrawParams) -> {
+        |   LambdaWithdraw(withdrawParams) -> {
 
                 // withdraw operation
-                const amount     : nat        = vaultWithdrawParams.amount;
-                const tokenType  : tokenType  = vaultWithdrawParams.token;
+                const amount     : nat        = withdrawParams.amount;
+                const tokenType  : tokenType  = withdrawParams.token;
 
                 // Get Lending Controller Address from the General Contracts map on the Governance Contract
                 const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
@@ -196,18 +196,18 @@ block {
 
 
 
-(* vaultDeposit lambda *)
-function lambdaVaultDeposit(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* deposit lambda *)
+function lambdaDeposit(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case vaultLambdaAction of [
-        |   LambdaVaultDeposit(vaultDepositParams) -> {
+        |   LambdaDeposit(depositParams) -> {
 
                 // init deposit operation params
-                const amount     : nat        = vaultDepositParams.amount;
-                const tokenType  : tokenType  = vaultDepositParams.token;
+                const amount     : nat        = depositParams.amount;
+                const tokenType  : tokenType  = depositParams.token;
 
                 // check if sender is owner
                 var isOwnerCheck : bool := False;
@@ -252,12 +252,12 @@ block {
 
 
 
-(* vaultUpdateDepositor lambda *)
-function lambdaVaultUpdateDepositor(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* updateDepositor lambda *)
+function lambdaUpdateDepositor(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     case vaultLambdaAction of [
-        |   LambdaVaultUpdateDepositor(vaultUpdateDepositorParams) -> {
+        |   LambdaUpdateDepositor(updateDepositorParams) -> {
 
                 // set new depositor only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
@@ -266,7 +266,7 @@ block {
                     // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
                     // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
                     const emptyWhitelistSet : set(address) = set[];
-                    const depositors : depositorsType = case vaultUpdateDepositorParams of [
+                    const depositors : depositorsType = case updateDepositorParams of [
                         | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
                         | AllowAccount(_account) -> block {
                             const updateDepositors : depositorsType = case s.depositors of [

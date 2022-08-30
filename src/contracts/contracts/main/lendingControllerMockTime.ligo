@@ -25,8 +25,8 @@
 // Aggregator Types - for lastCompletedRoundPriceReturnType
 #include "../partials/contractTypes/aggregatorTypes.ligo"
 
-// Lending Controller Types
-#include "../partials/contractTypes/lendingControllerTypes.ligo"
+// Lending Controller Mock Time Types
+#include "../partials/contractTypes/lendingControllerMockTimeTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -160,15 +160,15 @@ const defaultTimestamp  : timestamp = ("2000-01-01T00:00:00Z" : timestamp);
 
 // Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : lendingControllerStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.tester or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 // Allowed Senders: Admin
 function checkSenderIsAdmin(const s : lendingControllerStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
-    else unit
+    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.tester then unit
+    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
 
 
 
@@ -212,7 +212,7 @@ function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get %withdraw entrypoint in a Vault Contract
+// helper function to get %vaultWithdraw entrypoint in a Vault Contract
 function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(withdrawType) is
     case (Tezos.get_entrypoint_opt(
         "%withdraw",
@@ -223,7 +223,7 @@ function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(wit
 
 
 
-// helper function to get %delegateTez entrypoint in a Vault Contract
+// helper function to get %vaultDelegateTez entrypoint in a Vault Contract
 function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(delegateTezToBakerType) is
     case (Tezos.get_entrypoint_opt(
         "%delegateTezToBaker",
@@ -878,7 +878,10 @@ block{
     *
     *)
 
-    const exp : nat = abs(Tezos.get_level() - lastUpdatedBlockLevel); // exponent
+    // mock level for time tests (instead of using Tezos.get_level())
+    const mockLevel                 : nat    = s.config.mockLevel;
+
+    const exp : nat = abs(mockLevel - lastUpdatedBlockLevel); // exponent
     
     const interestRateOverSecondsInYear : nat = ((interestRate * fixedPointAccuracy) / secondsInYear) / fixedPointAccuracy; // 1e27 * 1e27 / const / 1e27 -> 1e27
 
@@ -972,6 +975,9 @@ block{
     var borrowIndex                 : nat := loanTokenRecord.borrowIndex;
     var currentInterestRate         : nat := loanTokenRecord.currentInterestRate;
 
+    // mock level for time tests (instead of using Tezos.get_level())
+    const mockLevel                 : nat    = s.config.mockLevel;
+
     // calculate utilisation rate - total debt borrowed / token pool total
     const utilisationRate : nat = (totalBorrowed * fixedPointAccuracy) / tokenPoolTotal;  // utilisation rate, or ratio of debt to total amount -> (1e6 * 1e27 / 1e6) -> 1e27
 
@@ -1010,7 +1016,7 @@ block{
     } else skip;
     
 
-    if Tezos.get_level() > lastUpdatedBlockLevel then {
+    if mockLevel > lastUpdatedBlockLevel then {
 
         const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel, s); // 1e27 
         borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1e27 x 1e27 / 1e27 -> 1e27
@@ -1020,7 +1026,7 @@ block{
 
     } else skip;
 
-    loanTokenRecord.lastUpdatedBlockLevel   := Tezos.get_level();
+    loanTokenRecord.lastUpdatedBlockLevel   := mockLevel;
     loanTokenRecord.borrowIndex             := borrowIndex;
     loanTokenRecord.utilisationRate         := utilisationRate;
     loanTokenRecord.currentInterestRate     := currentInterestRate;
@@ -1086,7 +1092,7 @@ block {
 // ------------------------------------------------------------------------------
 
 // Vault Controller Lambdas :
-#include "../partials/contractLambdas/lendingController/lendingControllerLambdas.ligo"
+#include "../partials/contractLambdas/lendingControllerMockTime/lendingControllerMockTimeLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 //
