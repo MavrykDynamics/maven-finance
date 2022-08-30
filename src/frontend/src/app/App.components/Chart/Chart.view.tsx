@@ -23,16 +23,18 @@ const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
   return <div className="tooltip">{value} MVK</div>
 }
 
+// TODO: refactor it and make it work, when data will be received
+
 export default function Chart(props: Props) {
   const { list, header } = props
 
-  const data = list?.length
-    ? list.map((uv) => {
-        return {
-          uv,
-        }
-      })
-    : []
+  // const data = list?.length
+  //   ? list.map((uv) => {
+  //       return {
+  //         uv,
+  //       }
+  //     })
+  //   : []
 
   return (
     <ChartStyled>
@@ -40,7 +42,6 @@ export default function Chart(props: Props) {
       <aside>
         <b>Coming Soon</b>
       </aside>
-      {/* TODO after get real data */}
       {/* <AreaChart
         width={573}
         height={280}

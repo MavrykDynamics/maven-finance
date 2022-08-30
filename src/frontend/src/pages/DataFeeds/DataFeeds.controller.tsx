@@ -114,11 +114,9 @@ export const DataFeeds = () => {
           <DropDown
             clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
             placeholder={ddItems[0]}
-            onChange={handleSelect}
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
-            onBlur={() => {}}
             clickOnItem={(e) => {
               const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
               setChosenDdItem(chosenItem)
