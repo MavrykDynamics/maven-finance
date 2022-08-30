@@ -45,4 +45,4 @@ export const CheckboxStyled = styled.div`
       }
     }
   }
-` // CheckboxStyled
+`

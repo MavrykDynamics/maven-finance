@@ -87,11 +87,9 @@ export const FarmTopBar = ({
         <DropDown
           clickOnDropDown={handleClickDropdown}
           placeholder={'Choose order'}
-          onChange={onSort}
           isOpen={ddIsOpen}
           itemSelected={chosenDdItem?.text}
           items={ddItems}
-          onBlur={() => {}}
           clickOnItem={(e) => handleOnClickDropdownItem(e)}
         />
       </DropdownContainer>

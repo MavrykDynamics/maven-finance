@@ -7,7 +7,6 @@ import type { VoteStatistics } from '../Governance/Governance.controller'
 
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { getEmergencyGovernanceStorage } from './EmergencyGovernance.actions'
 import { EmergencyGovernanceView } from './EmergencyGovernance.view'
 import { getBreakGlassStorage } from '../BreakGlass/BreakGlass.actions'
@@ -113,7 +112,7 @@ export const EmergencyGovernance = () => {
   return (
     <Page>
       <EmergencyGovProposalModal />
-      <PageHeader page={'emergency governance'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'emergency governance'} />
       <EmergencyGovernanceView
         ready={ready}
         emergencyGovernanceActive={emergencyGovActive}

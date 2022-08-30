@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 
-import { Card, royalPurpleColor, headerColor } from 'styles'
+import { Card, headerColor } from 'styles'
 
 export const DropDownStyled = styled.div`
   width: 100%;

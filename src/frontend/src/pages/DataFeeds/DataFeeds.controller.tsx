@@ -10,7 +10,6 @@ import { Input } from 'app/App.components/Input/Input.controller'
 import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 
 // const
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { FEEDS_ALL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
@@ -107,18 +106,16 @@ export const DataFeeds = () => {
 
   return (
     <Page>
-      <PageHeader page={'data-feeds'} kind={PRIMARY} loading={false} />
+      <PageHeader page={'data-feeds'} />
       <SatelliteSearchFilter dataFeeds>
         <DropdownContainer className="dropDown">
           <h4>Category:</h4>
           <DropDown
             clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
             placeholder={ddItems[0]}
-            onChange={handleSelect}
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
-            onBlur={() => {}}
             clickOnItem={(e) => {
               const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
               setChosenDdItem(chosenItem)

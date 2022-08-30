@@ -22,6 +22,7 @@ import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
 import { useMedia } from 'react-use'
 
 export const { store, persistor } = configureStore({})
+export type AppDispatch = typeof store.dispatch
 
 const AppContainer = () => {
   const dispatch = useDispatch()

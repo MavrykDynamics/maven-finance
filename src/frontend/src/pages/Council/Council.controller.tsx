@@ -16,7 +16,6 @@ import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialReques
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { CouncilPendingView } from './CouncilPending/CouncilPending.view'
 import { CouncilPendingReviewView } from './CouncilPending/CouncilPendingReview.view'
 import { CouncilMemberView } from './CouncilMember/CouncilMember.view'
@@ -122,7 +121,7 @@ export const Council = () => {
 
   return (
     <Page>
-      <PageHeader page={'council'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'council'} />
       <CouncilStyled>
         {isGoBack ? (
           <button
@@ -174,11 +173,9 @@ export const Council = () => {
                   <DropDown
                     clickOnDropDown={handleClickDropdown}
                     placeholder={ddItems[0]}
-                    onChange={handleSelect}
                     isOpen={ddIsOpen}
                     itemSelected={chosenDdItem?.text}
                     items={ddItems}
-                    onBlur={() => {}}
                     clickOnItem={(e) => handleOnClickDropdownItem(e)}
                   />
                 </DropdownWrap>
