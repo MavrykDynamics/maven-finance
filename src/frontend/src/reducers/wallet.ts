@@ -1,13 +1,14 @@
 import { CONNECT, DISCONNECT, SET_WALLET } from 'app/App.components/ConnectWallet/ConnectWallet.actions'
 import { TempleWallet } from '@temple-wallet/dapp'
 import { TezosToolkit } from '@taquito/taquito'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface WalletState {
-  wallet?: TempleWallet;
-  tezos?: TezosToolkit;
-  accountPkh?: string;
-  ready: boolean;
-  error?: any;
+  wallet?: TempleWallet
+  tezos?: TezosToolkit
+  accountPkh?: string
+  ready: boolean
+  error?: any
 }
 
 const walletDefaultState: WalletState = {
@@ -15,15 +16,15 @@ const walletDefaultState: WalletState = {
   tezos: undefined,
   accountPkh: undefined,
   ready: false,
-};
+}
 
-export function wallet(state = walletDefaultState, action: any): WalletState {
+export function wallet(state = walletDefaultState, action: Action) {
   switch (action.type) {
     case SET_WALLET:
       return {
         ...state,
         wallet: action.wallet,
-      };
+      }
     case CONNECT:
       return {
         ...state,
@@ -37,6 +38,6 @@ export function wallet(state = walletDefaultState, action: any): WalletState {
         ...walletDefaultState,
       }
     default:
-      return state;
+      return state
   }
 }

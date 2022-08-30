@@ -1,6 +1,6 @@
 import { GET_COUNCIL_STORAGE } from '../pages/Council/Council.actions'
 import { CouncilStorage } from '../utils/TypesAndInterfaces/Council'
-
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { GET_COUNCIL_PAST_ACTIONS_STORAGE, GET_COUNCIL_PENDING_ACTIONS_STORAGE } from '../pages/Council/Council.actions'
 
 export interface CouncilPastAction {
@@ -40,7 +40,7 @@ const councilDefaultState: CouncilState = {
   councilPastActions: [],
 }
 
-export function council(state = councilDefaultState, action: any): CouncilState {
+export function council(state = councilDefaultState, action: Action) {
   switch (action.type) {
     case GET_COUNCIL_STORAGE:
       return {

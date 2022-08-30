@@ -1,3 +1,4 @@
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { SHOW_MODAL, HIDE_MODAL } from 'app/App.components/Modal/Modal.actions'
 import { ModalKind } from '../app/App.components/Modal/Modal.constants'
 
@@ -10,7 +11,7 @@ const modalDefaultState: ModalState = {
   showing: false,
 }
 
-export function modal(state = modalDefaultState, action: any): ModalState {
+export function modal(state = modalDefaultState, action: Action) {
   switch (action.type) {
     case SHOW_MODAL: {
       return {

@@ -1,5 +1,6 @@
-import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury';
+import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 import { SET_TREASURY_STORAGE } from '../pages/Treasury/Treasury.actions'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface TreasuryState {
   treasuryStorage: Array<TreasuryType>
@@ -8,16 +9,16 @@ export interface TreasuryState {
 
 const treasuryDefaultState: TreasuryState = {
   treasuryStorage: [],
-  treasuryFactoryAddress: ''
+  treasuryFactoryAddress: '',
 }
 
-export function treasury(state = treasuryDefaultState, action: any): TreasuryState {
+export function treasury(state = treasuryDefaultState, action: Action) {
   switch (action.type) {
-    case SET_TREASURY_STORAGE : 
+    case SET_TREASURY_STORAGE:
       return {
         ...state,
         treasuryStorage: action.treasuryStorage,
-        treasuryFactoryAddress: action.treasuryFactoryAddress
+        treasuryFactoryAddress: action.treasuryFactoryAddress,
       }
     default:
       return state

@@ -16,19 +16,14 @@ import {
   VOTING_ROUND_VOTING_RESULT,
   GET_CURRENT_ROUND_PROPOSALS,
 } from 'pages/Governance/Governance.actions'
-import {
-  GovernanceConfig,
-  GovernanceStorage,
-  ProposalRecordType,
-  CurrentRoundProposalsStorageType,
-} from '../utils/TypesAndInterfaces/Governance'
+import { GovernanceStorage, CurrentRoundProposalsStorageType } from '../utils/TypesAndInterfaces/Governance'
 import {
   PROPOSAL_UPDATE_ERROR,
   SUBMIT_FINANCIAL_DATA_REQUEST,
   PROPOSAL_UPDATE_RESULT,
 } from '../pages/ProposalSubmission/ProposalSubmission.actions'
 import { GET_GOVERNANCE_SATELLITE_STORAGE } from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
-import { MichelsonMap } from '@taquito/taquito'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
 
 const PROPOSAL = 'PROPOSAL',
@@ -63,7 +58,7 @@ const governanceDefaultState: GovernanceState = {
   },
 }
 
-export function governance(state = governanceDefaultState, action: any): GovernanceState {
+export function governance(state = governanceDefaultState, action: Action) {
   switch (action.type) {
     case GET_GOVERNANCE_SATELLITE_STORAGE:
       return {
