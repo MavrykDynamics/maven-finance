@@ -1,10 +1,10 @@
-import styled, { createGlobalStyle } from 'styled-components/macro';
+import styled, { createGlobalStyle } from 'styled-components/macro'
 
 export const GlobalStyle = createGlobalStyle`
   body {
     min-width: unset !important;
   }
-`;
+`
 
 export const MobilePlugBackground = styled.div`
   width: 100vw;
@@ -13,7 +13,7 @@ export const MobilePlugBackground = styled.div`
   background-image: url('./mobile-plug-background.png');
   background-size: cover;
   background-position: center center;
-`;
+`
 
 export const MobilePlugWrapper = styled.div`
   width: 100%;
@@ -39,33 +39,33 @@ export const MobilePlugWrapper = styled.div`
   @media only screen and (min-height: 890px) and (min-width: 650px) {
     justify-content: space-between;
   }
-`;
+`
 
 export const MobilePlugBottomWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
   align-items: center;
-`;
+`
 
 export const MobilePLugLogo = styled.img`
   width: 100%;
   height: 100%;
   object-fit: contain;
-`;
+`
 
 export const MobilePlugLogoWrapper = styled.div`
   width: 70vw;
   max-width: 500px;
   max-height: 120px;
-`;
+`
 
 export const MobilePlugText = styled.div<{
-  textColor: string;
-  textSize: string;
-  topMargin?: string;
-  topMarginMobile?: string;
-  fontWeight?: string;
+  textColor: string
+  textSize: string
+  topMargin?: string
+  topMarginMobile?: string
+  fontWeight?: string
 }>`
   text-align: center;
   font-weight: ${({ fontWeight = 600 }) => fontWeight};
@@ -80,7 +80,7 @@ export const MobilePlugText = styled.div<{
   @media only screen and (max-width: 320px) {
     font-size: 16px;
   }
-`;
+`
 
 export const SocialIconsWrapper = styled.div`
   display: flex;
@@ -92,6 +92,41 @@ export const SocialIconsWrapper = styled.div`
   @media only screen and (max-height: 800px) {
     margin-top: 80px;
   }
-`;
 
-export const SocialIconLink = styled.a``;
+  #twitter {
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  #discord {
+    svg {
+      width: 40px;
+      height: 32px;
+    }
+  }
+
+  #telegram {
+    svg {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  #medium {
+    svg {
+      width: 36px;
+      height: 31px;
+    }
+  }
+
+  #gitHub {
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+`
+
+export const SocialIconLink = styled.a``
