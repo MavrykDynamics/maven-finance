@@ -10,8 +10,8 @@ import {
   MobilePlugBottomWrapper,
 } from './Mobile.style'
 
-import { DiscordIcon, TwitterIcon, TelegramIcon, MediumIcon, GitHubIcon } from './assets/index'
 import { containerColor, darkPurpleColor } from 'styles/colors'
+import Icon from '../Icon/Icon.view'
 
 export default function Mobile() {
   return (
@@ -29,20 +29,20 @@ export default function Mobile() {
         </MobilePlugText>
         <MobilePlugBottomWrapper>
           <SocialIconsWrapper>
-            <SocialIconLink href="https://twitter.com/Mavryk_Finance">
-              <TwitterIcon width="48px" height="48px" id="twitter-icon" />
+            <SocialIconLink href="https://twitter.com/Mavryk_Finance" id="twitter">
+              <Icon id="twitter" />
             </SocialIconLink>
-            <SocialIconLink href="https://discord.com/invite/7VXPR4gkT6">
-              <DiscordIcon width="40px" height="32px" id="discord-icon" />
+            <SocialIconLink href="https://discord.com/invite/7VXPR4gkT6" id="discord">
+              <Icon id="discord" />
             </SocialIconLink>
-            <SocialIconLink href="https://t.me/Mavryk_Finance">
-              <TelegramIcon width="30px" height="30px" id="telegram-icon" />
+            <SocialIconLink href="https://t.me/Mavryk_Finance" id="telegram">
+              <Icon id="telegram" />
             </SocialIconLink>
-            <SocialIconLink href="https://medium.com/@Mavryk_Finance">
-              <MediumIcon width="36px" height="31px" id="medium-icon" />
+            <SocialIconLink href="https://medium.com/@Mavryk_Finance" id="medium">
+              <Icon id="medium" />
             </SocialIconLink>
-            <SocialIconLink href="https://github.com/mavrykfinance/">
-              <GitHubIcon width="32px" height="32px" id="github-icon" />
+            <SocialIconLink href="https://github.com/mavrykfinance/" id="gitHub">
+              <Icon id="gitHub" />
             </SocialIconLink>
           </SocialIconsWrapper>
           <MobilePlugText textSize={'18px'} textColor={darkPurpleColor} topMargin={'60px'} topMarginMobile={'35px'}>
