@@ -57,7 +57,7 @@ const itemsForDropDown = [
 const getOngoingActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
   return list.filter((item: any) => {
     const timeNow = Date.now()
-    const expirationDatetime = new Date(item.expiration_datetime).getTime()
+    const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
     return expirationDatetime > timeNow && item.status !== 1 && !item.executed
   })
 }
@@ -66,7 +66,7 @@ const getPastActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteI
   console.log(list)
   return list.filter((item: any) => {
     const timeNow = Date.now()
-    const expirationDatetime = new Date(item.expiration_datetime).getTime()
+    const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
     return expirationDatetime < timeNow || item.status === 0
   })
 }

@@ -13,7 +13,7 @@ export const removeItemFromStorage = (item: string) => {
   localStorage.removeItem(item)
 }
 
-export const updateItemInStorage = (item: string, updateValue: any) => {
+export const updateItemInStorage = (item: string, updateValue: object) => {
   const itemFromStorage = getItemFromStorage(item)
   const updatedItem = {
     ...itemFromStorage,
