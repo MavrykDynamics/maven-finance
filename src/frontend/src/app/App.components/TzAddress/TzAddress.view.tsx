@@ -1,10 +1,10 @@
-import * as React from 'react'
 import { useDispatch } from 'react-redux'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
 
 import { showToaster } from '../Toaster/Toaster.actions'
+import { SUCCESS } from '../Toaster/Toaster.constants'
 import { TzAddressStyles } from './TzAddress.constants'
 import { TzAddressContainer, TzAddressIcon, TzAddressStyled } from './TzAddress.style'
 
@@ -16,53 +16,30 @@ type TzAddressProps = {
   isBold?: boolean
   shouldCopy?: boolean
 }
-export const TzAddress = ({ tzAddress = '', type, hasIcon, iconToLeft, isBold, shouldCopy = true }: TzAddressProps) => {
-  let addrClasses = type
-  if (isBold) addrClasses += ' bold'
+export const TzAddress = ({ tzAddress, type, hasIcon, iconToLeft, isBold, shouldCopy = true }: TzAddressProps) => {
+  const addrClasses = `${type} ${isBold ? 'bold' : ''}`
   const dispatch = useDispatch()
 
-  const _handleCopyToClipboard = (address: string) => {
+  const handleCopyToClipboard = () => {
     if (shouldCopy) {
-      navigator.clipboard.writeText(address)
-      dispatch(showToaster('SUCCESS', 'Copied to Clipboard', `${address}`))
+      navigator.clipboard.writeText(tzAddress)
+      dispatch(showToaster(SUCCESS, 'Copied to Clipboard', `${tzAddress}`))
     }
   }
 
-  if (!tzAddress) {
-    return null
-  }
-
-  if (hasIcon) {
-    return (
-      <TzAddressContainer
-        className={'tzAddressToClick'}
-        onClick={() => {
-          _handleCopyToClipboard(tzAddress)
-        }}
-      >
-        {iconToLeft && (
-          <TzAddressIcon className={addrClasses}>
-            {' '}
-            <use xlinkHref="/icons/sprites.svg#copyToClipboard" />
-          </TzAddressIcon>
-        )}
-        <TzAddressStyled className={addrClasses}>{getShortTzAddress(tzAddress)}</TzAddressStyled>
-        {!iconToLeft && (
-          <TzAddressIcon className={addrClasses}>
-            <use xlinkHref="/icons/sprites.svg#copyToClipboard" />
-          </TzAddressIcon>
-        )}
-      </TzAddressContainer>
-    )
-  } else
-    return (
-      <TzAddressContainer
-        className={'tzAddressToClick'}
-        onClick={() => {
-          _handleCopyToClipboard(tzAddress)
-        }}
-      >
-        <TzAddressStyled className={addrClasses}>{getShortTzAddress(tzAddress)}</TzAddressStyled>
-      </TzAddressContainer>
-    )
+  return (
+    <TzAddressContainer className={'tzAddressToClick'} onClick={handleCopyToClipboard}>
+      {hasIcon && iconToLeft && (
+        <TzAddressIcon className={addrClasses}>
+          <use xlinkHref="/icons/sprites.svg#copyToClipboard" />
+        </TzAddressIcon>
+      )}
+      <TzAddressStyled className={addrClasses}>{getShortTzAddress(tzAddress)}</TzAddressStyled>
+      {hasIcon && !iconToLeft && (
+        <TzAddressIcon className={addrClasses}>
+          <use xlinkHref="/icons/sprites.svg#copyToClipboard" />
+        </TzAddressIcon>
+      )}
+    </TzAddressContainer>
+  )
 }

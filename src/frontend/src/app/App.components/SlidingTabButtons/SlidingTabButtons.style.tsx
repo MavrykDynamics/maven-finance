@@ -3,6 +3,7 @@ import styled, { keyframes } from 'styled-components/macro'
 import { royalPurpleColor, darkColor, primaryColor } from '../../../styles'
 import { BUTTON_RADIUS } from '../../../styles/constants'
 import { MavrykTheme } from '../../../styles/interfaces'
+import { PRIMARY, SECONDARY, TRANSPARENT } from './SlidingTabButtons.constants'
 
 export const clickWave = keyframes`
   from {
@@ -52,9 +53,6 @@ export const ButtonStyled = styled.button<{ buttonActive: boolean; theme: Mavryk
   user-select: none;
   color: ${({ buttonActive, theme }) => (buttonActive ? theme.containerColor : theme.headerColor)};
   background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.headerColor : 'transparent')};
-  &.clicked {
-    background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.headerColor : 'transparent')};
-  }
 
   &.loading {
     pointer-events: none;
@@ -72,15 +70,15 @@ export const ButtonText = styled.div<{ theme: MavrykTheme }>`
     line-height: 16px;
     vertical-align: top;
   }
-  &.primary {
+  &.${PRIMARY} {
     color: ${({ theme }) => theme.textColor};
   }
 
-  &.secondary {
+  &.${SECONDARY} {
     color: ${({ theme }) => theme.primaryColor};
   }
 
-  &.transparent {
+  &.${TRANSPARENT} {
     color: ${({ theme }) => theme.primaryColor};
   }
 `
@@ -102,15 +100,15 @@ export const ButtonLoadingIcon = styled.svg<{ theme: MavrykTheme }>`
   stroke-dasharray: 47.124;
   animation: ${turn} 1.6s linear infinite forwards;
 
-  &.primary {
+  &.${PRIMARY} {
     stroke: ${({ theme }) => theme.containerColor};
   }
 
-  &.secondary {
+  &.${SECONDARY} {
     stroke: ${({ theme }) => theme.primaryColor};
   }
 
-  &.transparent {
+  &.${TRANSPARENT} {
     stroke: ${({ theme }) => theme.textColor};
   }
 `
