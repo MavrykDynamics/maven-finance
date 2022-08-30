@@ -1,6 +1,6 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
+import type { AppDispatch, GetState } from '../../app/App.controller'
 import { State } from 'reducers'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 
@@ -13,7 +13,7 @@ import {
 
 //getGovernanceSatelliteStorage
 export const GET_GOVERNANCE_SATELLITE_STORAGE = 'GET_GOVERNANCE_SATELLITE_STORAGE'
-export const getGovernanceSatelliteStorage = () => async (dispatch: any, getState: any) => {
+export const getGovernanceSatelliteStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   try {
@@ -27,13 +27,15 @@ export const getGovernanceSatelliteStorage = () => async (dispatch: any, getStat
       type: GET_GOVERNANCE_SATELLITE_STORAGE,
       governanceSatelliteStorage,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: GET_GOVERNANCE_SATELLITE_STORAGE,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: GET_GOVERNANCE_SATELLITE_STORAGE,
+        error,
+      })
+    }
   }
 }
 
@@ -41,55 +43,58 @@ export const getGovernanceSatelliteStorage = () => async (dispatch: any, getStat
 export const SUSPEND_SATELLITE_REQUEST = 'SUSPEND_SATELLITE_REQUEST'
 export const SUSPEND_SATELLITE_RESULT = 'SUSPEND_SATELLITE_RESULT'
 export const SUSPEND_SATELLITE_ERROR = 'SUSPEND_SATELLITE_ERROR'
-export const suspendSatellite = (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const suspendSatellite =
+  (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: SUSPEND_SATELLITE_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.suspendSatellite(satelliteAddress, purpose).send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Suspend Satellite...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Suspend Satellite done', 'All good :)'))
+
+      await dispatch({
+        type: SUSPEND_SATELLITE_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: SUSPEND_SATELLITE_ERROR,
+          error,
+        })
+      }
+    }
   }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    dispatch({
-      type: SUSPEND_SATELLITE_REQUEST,
-    })
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.suspendSatellite(satelliteAddress, purpose).send()
-    console.log('transaction', transaction)
-
-    dispatch(showToaster(INFO, 'Suspend Satellite...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Suspend Satellite done', 'All good :)'))
-
-    await dispatch({
-      type: SUSPEND_SATELLITE_RESULT,
-    })
-
-    await dispatch(getGovernanceSatelliteStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: SUSPEND_SATELLITE_ERROR,
-      error,
-    })
-  }
-}
 
 // Unsuspend Satellite
 export const UNSUSPEND_SATELLITE_REQUEST = 'UNSUSPEND_SATELLITE_REQUEST'
 export const UNSUSPEND_SATELLITE_RESULT = 'UNSUSPEND_SATELLITE_RESULT'
 export const UNSUSPEND_SATELLITE_ERROR = 'UNSUSPEND_SATELLITE_ERROR'
 export const unsuspendSatellite =
-  (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+  (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -122,13 +127,15 @@ export const unsuspendSatellite =
       })
 
       await dispatch(getGovernanceSatelliteStorage())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: UNSUSPEND_SATELLITE_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: UNSUSPEND_SATELLITE_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -136,149 +143,159 @@ export const unsuspendSatellite =
 export const BAN_SATELLITE_REQUEST = 'BAN_SATELLITE_REQUEST'
 export const BAN_SATELLITE_RESULT = 'BAN_SATELLITE_RESULT'
 export const BAN_SATELLITE_ERROR = 'BAN_SATELLITE_ERROR'
-export const banSatellite = (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const banSatellite =
+  (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: BAN_SATELLITE_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.banSatellite(satelliteAddress, purpose).send()
+      console.log('transaction', transaction)
+
+      await dispatch(showToaster(INFO, 'Ban Satellite...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Ban Satellite done', 'All good :)'))
+
+      await dispatch({
+        type: BAN_SATELLITE_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: BAN_SATELLITE_ERROR,
+          error,
+        })
+      }
+    }
   }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    dispatch({
-      type: BAN_SATELLITE_REQUEST,
-    })
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.banSatellite(satelliteAddress, purpose).send()
-    console.log('transaction', transaction)
-
-    await dispatch(showToaster(INFO, 'Ban Satellite...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Ban Satellite done', 'All good :)'))
-
-    await dispatch({
-      type: BAN_SATELLITE_RESULT,
-    })
-
-    await dispatch(getGovernanceSatelliteStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: BAN_SATELLITE_ERROR,
-      error,
-    })
-  }
-}
 
 // Unban Satellite
 export const UNBAN_SATELLITE_REQUEST = 'UNBAN_SATELLITE_REQUEST'
 export const UNBAN_SATELLITE_RESULT = 'UNBAN_SATELLITE_RESULT'
 export const UNBAN_SATELLITE_ERROR = 'UNBAN_SATELLITE_ERROR'
-export const unbanSatellite = (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const unbanSatellite =
+  (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: UNBAN_SATELLITE_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.unbanSatellite(satelliteAddress, purpose).send()
+      console.log('transaction', transaction)
+
+      await dispatch(showToaster(INFO, 'Unban Satellite...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Unban Satellite done', 'All good :)'))
+
+      await dispatch({
+        type: UNBAN_SATELLITE_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: UNBAN_SATELLITE_ERROR,
+          error,
+        })
+      }
+    }
   }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    dispatch({
-      type: UNBAN_SATELLITE_REQUEST,
-    })
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.unbanSatellite(satelliteAddress, purpose).send()
-    console.log('transaction', transaction)
-
-    await dispatch(showToaster(INFO, 'Unban Satellite...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Unban Satellite done', 'All good :)'))
-
-    await dispatch({
-      type: UNBAN_SATELLITE_RESULT,
-    })
-
-    await dispatch(getGovernanceSatelliteStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: UNBAN_SATELLITE_ERROR,
-      error,
-    })
-  }
-}
 
 // Remove all Oracles from Satellite
 export const REMOVE_ORACLES_SATELLITE_REQUEST = 'REMOVE_ORACLES_SATELLITE_REQUEST'
 export const REMOVE_ORACLES_SATELLITE_RESULT = 'REMOVE_ORACLES_SATELLITE_RESULT'
 export const REMOVE_ORACLES_SATELLITE_ERROR = 'REMOVE_ORACLES_SATELLITE_ERROR'
-export const removeOracles = (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const removeOracles =
+  (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: REMOVE_ORACLES_SATELLITE_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.removeAllSatelliteOracles(satelliteAddress, purpose).send()
+      console.log('transaction', transaction)
+
+      await dispatch(showToaster(INFO, 'Remove all Oracles from Satellite...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Remove all Oracles from Satellite done', 'All good :)'))
+
+      await dispatch({
+        type: REMOVE_ORACLES_SATELLITE_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: REMOVE_ORACLES_SATELLITE_ERROR,
+          error,
+        })
+      }
+    }
   }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    dispatch({
-      type: REMOVE_ORACLES_SATELLITE_REQUEST,
-    })
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.removeAllSatelliteOracles(satelliteAddress, purpose).send()
-    console.log('transaction', transaction)
-
-    await dispatch(showToaster(INFO, 'Remove all Oracles from Satellite...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Remove all Oracles from Satellite done', 'All good :)'))
-
-    await dispatch({
-      type: REMOVE_ORACLES_SATELLITE_RESULT,
-    })
-
-    await dispatch(getGovernanceSatelliteStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: REMOVE_ORACLES_SATELLITE_ERROR,
-      error,
-    })
-  }
-}
 
 // Remove from Aggregator
 export const REMOVE_FROM_AGGREGATOR_REQUEST = 'REMOVE_FROM_AGGREGATOR_REQUEST'
 export const REMOVE_FROM_AGGREGATOR_RESULT = 'REMOVE_FROM_AGGREGATOR_RESULT'
 export const REMOVE_FROM_AGGREGATOR_ERROR = 'REMOVE_FROM_AGGREGATOR_ERROR'
 export const removeOracleInAggregator =
-  (oracleAddress: string, satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+  (oracleAddress: string, satelliteAddress: string, purpose: string) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -313,13 +330,15 @@ export const removeOracleInAggregator =
       })
 
       await dispatch(getGovernanceSatelliteStorage())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: REMOVE_FROM_AGGREGATOR_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: REMOVE_FROM_AGGREGATOR_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -328,7 +347,8 @@ export const ADD_FROM_AGGREGATOR_REQUEST = 'ADD_FROM_AGGREGATOR_REQUEST'
 export const ADD_FROM_AGGREGATOR_RESULT = 'ADD_FROM_AGGREGATOR_RESULT'
 export const ADD_FROM_AGGREGATOR_ERROR = 'ADD_FROM_AGGREGATOR_ERROR'
 export const addOracleToAggregator =
-  (oracleAddress: string, satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+  (oracleAddress: string, satelliteAddress: string, purpose: string) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -361,13 +381,15 @@ export const addOracleToAggregator =
       })
 
       await dispatch(getGovernanceSatelliteStorage())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: ADD_FROM_AGGREGATOR_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: ADD_FROM_AGGREGATOR_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -376,7 +398,8 @@ export const SET_AGGREGATOR_MAINTAINER_REQUEST = 'SET_AGGREGATOR_MAINTAINER_REQU
 export const SET_AGGREGATOR_MAINTAINER_RESULT = 'SET_AGGREGATOR_MAINTAINER_RESULT'
 export const SET_AGGREGATOR_MAINTAINER_ERROR = 'SET_AGGREGATOR_MAINTAINER_ERROR'
 export const setAggregatorMaintainer =
-  (oracleAddress: string, satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+  (oracleAddress: string, satelliteAddress: string, purpose: string) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -411,13 +434,15 @@ export const setAggregatorMaintainer =
       })
 
       await dispatch(getGovernanceSatelliteStorage())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: SET_AGGREGATOR_MAINTAINER_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: SET_AGGREGATOR_MAINTAINER_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -425,56 +450,59 @@ export const setAggregatorMaintainer =
 export const DROP_ACTION_REQUEST = 'DROP_ACTION_REQUEST'
 export const DROP_ACTION_RESULT = 'DROP_ACTION_RESULT'
 export const DROP_ACTION_ERROR = 'DROP_ACTION_ERROR'
-export const dropAction = (actionId: number, callback: () => void) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const dropAction =
+  (actionId: number, callback: () => void) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: DROP_ACTION_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.dropAction(actionId).send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Drop Action...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Drop Action done', 'All good :)'))
+
+      await dispatch({
+        type: DROP_ACTION_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+      callback()
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: DROP_ACTION_ERROR,
+          error,
+        })
+      }
+    }
   }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    dispatch({
-      type: DROP_ACTION_REQUEST,
-    })
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.dropAction(actionId).send()
-    console.log('transaction', transaction)
-
-    dispatch(showToaster(INFO, 'Drop Action...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Drop Action done', 'All good :)'))
-
-    await dispatch({
-      type: DROP_ACTION_RESULT,
-    })
-
-    await dispatch(getGovernanceSatelliteStorage())
-    callback()
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: DROP_ACTION_ERROR,
-      error,
-    })
-  }
-}
 
 // Vote YES
 export const VOTE_FOR_ACTION_REQUEST = 'VOTE_FOR_ACTION_REQUEST'
 export const VOTE_FOR_ACTION_RESULT = 'VOTE_FOR_ACTION_RESULT'
 export const VOTE_FOR_ACTION_ERROR = 'VOTE_FOR_ACTION_ERROR'
 export const voteForAction =
-  (actionId: number, voteType: string, callback: () => void) => async (dispatch: any, getState: any) => {
+  (actionId: number, voteType: string, callback: () => void) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -508,13 +536,15 @@ export const voteForAction =
 
       await dispatch(getGovernanceSatelliteStorage())
       callback()
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: VOTE_FOR_ACTION_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: VOTE_FOR_ACTION_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -522,55 +552,58 @@ export const voteForAction =
 export const RESTORE_SATELLITE_REQUEST = 'RESTORE_SATELLITE_REQUEST'
 export const RESTORE_SATELLITE_RESULT = 'RESTORE_SATELLITE_RESULT'
 export const RESTORE_SATELLITE_ERROR = 'RESTORE_SATELLITE_ERROR'
-export const restoreSatellite = (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const restoreSatellite =
+  (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: RESTORE_SATELLITE_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.restoreSatellite(satelliteAddress, purpose).send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Restore Satellite...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Restore Satellite done', 'All good :)'))
+
+      await dispatch({
+        type: RESTORE_SATELLITE_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: RESTORE_SATELLITE_ERROR,
+          error,
+        })
+      }
+    }
   }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    dispatch({
-      type: RESTORE_SATELLITE_REQUEST,
-    })
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.restoreSatellite(satelliteAddress, purpose).send()
-    console.log('transaction', transaction)
-
-    dispatch(showToaster(INFO, 'Restore Satellite...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Restore Satellite done', 'All good :)'))
-
-    await dispatch({
-      type: RESTORE_SATELLITE_RESULT,
-    })
-
-    await dispatch(getGovernanceSatelliteStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: RESTORE_SATELLITE_ERROR,
-      error,
-    })
-  }
-}
 
 // Update Aggregator Status
 export const UPDATE_AGGREGATOR_STATUS_REQUEST = 'UPDATE_AGGREGATOR_STATUS_REQUEST'
 export const UPDATE_AGGREGATOR_STATUS_RESULT = 'UPDATE_AGGREGATOR_STATUS_RESULT'
 export const UPDATE_AGGREGATOR_STATUS_ERROR = 'UPDATE_AGGREGATOR_STATUS_ERROR'
 export const updateAggregatorStatus =
-  (aggregatorAddress: string, status: string, purpose: string) => async (dispatch: any, getState: any) => {
+  (aggregatorAddress: string, status: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -603,12 +636,14 @@ export const updateAggregatorStatus =
       })
 
       await dispatch(getGovernanceSatelliteStorage())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: UPDATE_AGGREGATOR_STATUS_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: UPDATE_AGGREGATOR_STATUS_ERROR,
+          error,
+        })
+      }
     }
   }

@@ -2,7 +2,7 @@ import { validateAddress } from '@taquito/utils'
 import { OpKind } from '@taquito/taquito'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import governanceAddress from 'deployments/governanceAddress.json'
+import type { AppDispatch, GetState } from '../../app/App.controller'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
 import { ProposalUpdateForm, SubmitProposalForm } from '../../utils/TypesAndInterfaces/Forms'
@@ -12,7 +12,8 @@ export const SUBMIT_PROPOSAL_REQUEST = 'SUBMIT_PROPOSAL_REQUEST'
 export const SUBMIT_PROPOSAL_RESULT = 'SUBMIT_PROPOSAL_RESULT'
 export const SUBMIT_PROPOSAL_ERROR = 'SUBMIT_PROPOSAL_ERROR'
 export const submitProposal =
-  (form: SubmitProposalForm, amount: number, callback: () => void) => async (dispatch: any, getState: any) => {
+  (form: SubmitProposalForm, amount: number, callback: () => void) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -59,13 +60,15 @@ export const submitProposal =
       await dispatch(getGovernanceStorage())
       await dispatch(getDelegationStorage())
       await dispatch(getCurrentRoundProposals())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: SUBMIT_PROPOSAL_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: SUBMIT_PROPOSAL_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -74,7 +77,7 @@ export const PROPOSAL_UPDATE_RESULT = 'PROPOSAL_UPDATE_RESULT'
 export const PROPOSAL_UPDATE_ERROR = 'PROPOSAL_UPDATE_ERROR'
 export const updateProposal =
   (form: ProposalUpdateForm, proposalId: number | undefined, callback: () => void) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -123,70 +126,75 @@ export const updateProposal =
       // await dispatch(getGovernanceStorage())
       // await dispatch(getDelegationStorage())
       // await dispatch(getCurrentRoundProposals())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: PROPOSAL_UPDATE_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: PROPOSAL_UPDATE_ERROR,
+          error,
+        })
+      }
     }
   }
 
 export const LOCK_PROPOSAL_REQUEST = 'LOCK_PROPOSAL_REQUEST'
 export const LOCK_PROPOSAL_RESULT = 'LOCK_PROPOSAL_RESULT'
 export const LOCK_PROPOSAL_ERROR = 'LOCK_PROPOSAL_ERROR'
-export const lockProposal = (proposalId: number, accountPkh?: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const lockProposal =
+  (proposalId: number, accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      await dispatch({
+        type: LOCK_PROPOSAL_REQUEST,
+        proposalId: proposalId,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+      console.log('contract', contract)
+
+      const transaction = await contract?.methods.lockProposal(proposalId).send()
+      console.log('transaction', transaction)
+      await dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
+
+      await dispatch({
+        type: LOCK_PROPOSAL_RESULT,
+      })
+      await dispatch(getGovernanceStorage())
+      await dispatch(getDelegationStorage())
+      await dispatch(getCurrentRoundProposals())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: LOCK_PROPOSAL_ERROR,
+          error,
+        })
+      }
+    }
   }
-
-  if (state.loading) {
-    await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    await dispatch({
-      type: LOCK_PROPOSAL_REQUEST,
-      proposalId: proposalId,
-    })
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-    console.log('contract', contract)
-
-    const transaction = await contract?.methods.lockProposal(proposalId).send()
-    console.log('transaction', transaction)
-    await dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
-
-    await dispatch({
-      type: LOCK_PROPOSAL_RESULT,
-    })
-    await dispatch(getGovernanceStorage())
-    await dispatch(getDelegationStorage())
-    await dispatch(getCurrentRoundProposals())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: LOCK_PROPOSAL_ERROR,
-      error,
-    })
-  }
-}
 
 export const SUBMIT_FINANCIAL_DATA_REQUEST = 'SUBMIT_FINANCIAL_DATA_REQUEST'
 export const SUBMIT_FINANCIAL_DATA_RESULT = 'SUBMIT_FINANCIAL_DATA_RESULT'
 export const SUBMIT_FINANCIAL_DATA_ERROR = 'SUBMIT_FINANCIAL_DATA_ERROR'
 export const submitFinancialRequestData =
   (proposalId: number, submitData: string[][], tokenContractAddress?: string) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
     console.log('Got to here in submitFinancialRequestData')
 
@@ -265,20 +273,22 @@ export const submitFinancialRequestData =
       // dispatch(getGovernanceStorage())
       // dispatch(getDelegationStorage())
       // dispatch(getCurrentRoundProposals())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: SUBMIT_FINANCIAL_DATA_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: SUBMIT_FINANCIAL_DATA_ERROR,
+          error,
+        })
+      }
     }
   }
 
 export const DROP_PROPOSAL_REQUEST = 'DROP_PROPOSAL_REQUEST'
 export const DROP_PROPOSAL_RESULT = 'DROP_PROPOSAL_RESULT'
 export const DROP_PROPOSAL_ERROR = 'DROP_PROPOSAL_ERROR'
-export const dropProposal = (proposalId: number) => async (dispatch: any, getState: any) => {
+export const dropProposal = (proposalId: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   await dispatch({
@@ -312,12 +322,14 @@ export const dropProposal = (proposalId: number) => async (dispatch: any, getSta
     await dispatch(getGovernanceStorage())
     await dispatch(getDelegationStorage())
     await dispatch(getCurrentRoundProposals())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: DROP_PROPOSAL_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: DROP_PROPOSAL_ERROR,
+        error,
+      })
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
+import type { AppDispatch, GetState } from '../app/App.controller'
 
 const isIPFS = require('is-ipfs')
 
@@ -53,7 +54,7 @@ export function isValidNumberValue(input: number, minValue?: number, maxValue?: 
 }
 
 export function getFormErrors(form: AllValidFormTypes) {
-  const errors: any[] = []
+  const errors: [string, boolean | undefined][] = []
   let errorMessage = 'Please correct:'
   Object.entries(form).forEach((k) => {
     if (!k[1]) {
@@ -65,7 +66,7 @@ export function getFormErrors(form: AllValidFormTypes) {
   return { errors, errorMessage: errorMessage }
 }
 
-export function validateFormAndThrowErrors(dispatch: any, validForm: AllValidFormTypes): boolean {
+export function validateFormAndThrowErrors(dispatch: AppDispatch, validForm: AllValidFormTypes): boolean {
   const { errors, errorMessage } = getFormErrors(validForm)
   if (errors.length === 0) return true
   else {
