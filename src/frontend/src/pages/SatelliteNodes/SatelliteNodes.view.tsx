@@ -72,11 +72,9 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
-            onChange={handleSelect}
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
-            onBlur={() => {}}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
           />
         </DropdownContainer>
