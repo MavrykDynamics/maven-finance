@@ -1,3 +1,5 @@
+import { Dispatch } from 'redux'
+
 // types
 import type { EmergencyGovernanceStorage } from '../utils/TypesAndInterfaces/EmergencyGovernance'
 
@@ -30,7 +32,7 @@ import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
-export const recaptchaRequest = () => (dispatch: any) => {
+export const recaptchaRequest = () => (dispatch: Dispatch) => {
   dispatch({
     type: RECAPTCHA_REQUEST,
   })
@@ -39,7 +41,7 @@ export const recaptchaRequest = () => (dispatch: any) => {
 /**
  * Function that gets all initial data from the Indexer and adds it to the redux state and localstorage
  */
-export const onStart = () => async (dispatch: any, getState: any) => {
+export const onStart = () => async (dispatch: Dispatch) => {
   const res = await getInitialData()
   console.log('%c res onStart getInitialData()', 'color:gold', res)
 

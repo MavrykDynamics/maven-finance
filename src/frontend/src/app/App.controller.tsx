@@ -1,8 +1,10 @@
 import { TempleWallet } from '@temple-wallet/dapp'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import Lottie from 'react-lottie'
-import { useDispatch, useSelector } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
+import { AnyAction } from 'redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { ThunkDispatch } from 'redux-thunk'
 
 import { State } from '../reducers'
 import { onStart } from './App.actions'
@@ -21,7 +23,8 @@ import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
 import { useMedia } from 'react-use'
 
 export const { store, persistor } = configureStore({})
-export type AppDispatch = typeof store.dispatch
+export type AppDispatch = ThunkDispatch<State, unknown, AnyAction>
+export type GetState = typeof store.getState
 
 const AppContainer = () => {
   const dispatch = useDispatch()
