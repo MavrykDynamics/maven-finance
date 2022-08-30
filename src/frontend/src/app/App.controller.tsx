@@ -24,7 +24,7 @@ import { useMedia } from 'react-use'
 
 export const { store, persistor } = configureStore({})
 export type AppDispatch = ThunkDispatch<State, unknown, AnyAction>
-export type RootState = typeof store.getState
+export type GetState = typeof store.getState
 
 const AppContainer = () => {
   const dispatch = useDispatch()
