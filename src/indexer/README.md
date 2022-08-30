@@ -14,7 +14,7 @@
 
 # Project structure explanation
 
-```s
+```
 .
 ├── mavryk
 │   ├── graphql
@@ -71,8 +71,9 @@
 
 The documentation about the deployment is inside de **Infrastructure** subfolder [here](../infrastructure/helm-charts/mavryk-indexer/README.md).
 
-# Indexer debug and update useful info
+# Debugging / Updating the indexer
 
-- All the Indexer DB Tables are defined in the **sql_model** subfolder and imported in the **models.py** files. If you want to index a new contract, I suggest you create another file in this subfolder to define its classes.
-- Some contracts contain entrypoints that work technically the same (like creating a Governance Satellite or Financial action for example). To simplify the saving process in the indexer a **persister.py** has been created in the `./mavryk/utils/` folder. This folder contains helper functions used in various handlers throughout the project.
+- Understanding how dipdup works: https://dipdup.net/docs/
+- All the Indexer DB Tables are defined in the [**sql_model**](./mavryk/sql_model/) subfolder and imported in the [**models.py**](./mavryk/models.py) files. If you want to index a new contract, I suggest you create another file in this subfolder to define its classes.
+- Some contracts contain entrypoints that work technically the same (like creating a Governance Satellite or Financial action for example). To simplify the saving process in the indexer a [**persister.py**](./mavryk/utils/persisters.py) has been created in the [`./mavryk/utils/`](./mavryk/utils/) folder. This folder contains helper functions used in various handlers throughout the project.
 - Use the `breakpoint()` python function as much as possible when implementing or updating a handler to debug your code easily: https://www.digitalocean.com/community/tutorials/python-breakpoint

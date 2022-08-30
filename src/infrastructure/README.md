@@ -1,5 +1,11 @@
 # Mavryk Infrastructure
 
+## Summary
+
+[1. Connect to the Mavryk Kubernetes Cluster](./helm-charts/README.md)
+[2. Configure a TimescaleDB on DigitalOcean with Ansible](./ansible/do-timescale-db/README.md)
+[3. Deploy/Update the Mavryk Indexer](./helm-charts/mavryk-indexer/README.md)
+
 ## Requirements
 
 _All of the listed tools versions are very important. Please follow them to avoid facing breaking changes._
@@ -39,6 +45,30 @@ $POSTGRES_PASSWORD
 Postgres Password for user dipdup. Used in the configuration of the TimescaleDB through Ansible
 ```
 
-## Summary
+## Retriveve the required environment variables
 
-[1. Deploy/Update the Mavryk Indexer](./helm-charts/mavryk-indexer/README.md)
+- `$DIGITALOCEAN_ACCESS_TOKEN` / `$DO_API_TOKEN`
+
+  _These two variables should have the same value_
+
+  1. Login to DigitalOcean
+  2. Go to the [API](https://cloud.digitalocean.com/account/api/tokens) section
+  3. Generate a new **Personnal access token** and save it because you'll only be able to see it once. You have your variable!
+
+- `$SPACES_ACCESS_KEY_ID` / `$SPACES_SECRET_ACCESS_KEY`
+
+  _These two variables should have the same value_
+
+  `$AWS_ACCESS_KEY_ID` / `$AWS_SECRET_ACCESS_KEY`
+
+  _These two variables should have the same value_
+
+  1. Login to DigitalOcean
+  2. Go to the [API](https://cloud.digitalocean.com/account/api/tokens) section
+  3. Generate new **Spaces access keys** and save them because you'll only be able to see them once. You have your variables!
+
+- `$POSTGRES_PASSWORD`
+
+  1. Go to the **mavryk-indexer** with `kubens mavryk-indexer`
+  2. Retrieve the secret where the credential is stored with `kubectl get secret indexer -o yaml` (`-o yaml` print the result as a yaml format). **BE CAREFUL NOT TO SHARE THE RESULT OF THIS COMMAND BECAUSE IT CONTAINS ALL THE CREDENTIALS TO THE TIMESCALEDB**.
+  3. The _$POSTGRES_PASSWORD_ is in _base64_ format (in fact, all data in the result are). To decode it use the command `echo [RETRIEVED_PASSWORD] | base64 -d`
