@@ -1,7 +1,7 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { State } from 'reducers'
-
+import type { AppDispatch, GetState } from '../../app/App.controller'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import {
   DOORMAN_STORAGE_QUERY,
@@ -22,7 +22,7 @@ import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { normalizeDoormanStorage, normalizeMvkToken } from './Doorman.converter'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
-export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   const storage = await fetchFromIndexer(
     MVK_TOKEN_STORAGE_QUERY,
@@ -42,7 +42,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
 export const STAKE_REQUEST = 'STAKE_REQUEST'
 export const STAKE_RESULT = 'STAKE_RESULT'
 export const STAKE_ERROR = 'STAKE_ERROR'
-export const stake = (amount: number) => async (dispatch: any, getState: any) => {
+export const stake = (amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -113,20 +113,22 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDoormanStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: STAKE_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: STAKE_ERROR,
+        error,
+      })
+    }
   }
 }
 
 export const UNSTAKE_REQUEST = 'UNSTAKE_REQUEST'
 export const UNSTAKE_RESULT = 'UNSTAKE_RESULT'
 export const UNSTAKE_ERROR = 'UNSTAKE_ERROR'
-export const unstake = (amount: number) => async (dispatch: any, getState: any) => {
+export const unstake = (amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -171,20 +173,22 @@ export const unstake = (amount: number) => async (dispatch: any, getState: any) 
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDoormanStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: UNSTAKE_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: UNSTAKE_ERROR,
+        error,
+      })
+    }
   }
 }
 
 export const COMPOUND_REQUEST = 'COMPOUND_REQUEST'
 export const COMPOUND_RESULT = 'COMPOUND_RESULT'
 export const COMPOUND_ERROR = 'COMPOUND_ERROR'
-export const rewardsCompound = (address: string) => async (dispatch: any, getState: any) => {
+export const rewardsCompound = (address: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -219,20 +223,22 @@ export const rewardsCompound = (address: string) => async (dispatch: any, getSta
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDoormanStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: COMPOUND_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: COMPOUND_ERROR,
+        error,
+      })
+    }
   }
 
   dispatch(showToaster(INFO, 'Compound', 'Coming Soon', 3000))
 }
 
 export const GET_DOORMAN_STORAGE = 'GET_DOORMAN_STORAGE'
-export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getDoormanStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   try {
@@ -249,13 +255,15 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
       storage: convertedStorage,
       totalStakedMvkSupply: convertedStorage.totalStakedMvk,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: GET_DOORMAN_STORAGE,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: GET_DOORMAN_STORAGE,
+        error,
+      })
+    }
   }
 }
 
@@ -263,7 +271,7 @@ export const GET_USER_DATA = 'GET_USER_DATA'
 export const GET_USER_DATA_ERROR = 'GET_USER_DATA'
 export const SET_USER_DATA = 'SET_USER_DATA'
 export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
-export const getUserData = (accountPkh: string) => async (dispatch: any, getState: any) => {
+export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   try {
     const userInfoFromIndexer = await fetchFromIndexer(
@@ -295,17 +303,19 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
       type: GET_USER_DATA,
       userData: userInfo,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: GET_USER_DATA_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: GET_USER_DATA_ERROR,
+        error,
+      })
+    }
   }
 }
 
-export const updateUserData = (field: string, value: any) => async (dispatch: any, getState: any) => {
+export const updateUserData = (field: string, value: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   try {
     const userState = state.user
@@ -316,12 +326,14 @@ export const updateUserData = (field: string, value: any) => async (dispatch: an
       userKey: field,
       userValue: value,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: UPDATE_USER_DATA,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: UPDATE_USER_DATA,
+        error,
+      })
+    }
   }
 }

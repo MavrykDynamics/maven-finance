@@ -1,12 +1,13 @@
 import { State } from '../../reducers'
 import councilAddress from '../../deployments/councilAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
+import type { AppDispatch, GetState } from '../../app/App.controller'
 
 /**
  * TODO: Placeholder function until work on the Vault pages starts
  */
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
-export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   // if (!accountPkh) {
@@ -15,11 +16,11 @@ export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: any,
   // }
   const contract = accountPkh
     ? await state.wallet.tezos?.wallet.at(councilAddress.address)
-    : await new TezosToolkit(
-        (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(councilAddress.address)
+    : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/').contract.at(
+        councilAddress.address,
+      )
 
-  const storage = await (contract as any).storage()
+  const storage = await contract?.storage()
   console.log('Printing out Treasury storage:\n', storage)
 
   dispatch({

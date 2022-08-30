@@ -9,7 +9,6 @@ export interface UserState {
 
 const defaultUser: UserData = {
   myAddress: '',
-  myDelegationHistory: [],
   myMvkTokenBalance: 0,
   mySMvkTokenBalance: 0,
   participationFeesPerShare: 0,

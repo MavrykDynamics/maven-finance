@@ -4,7 +4,7 @@ import { BUTTON_RADIUS } from 'styles/constants'
 import { MavrykTheme } from 'styles/interfaces'
 
 // Common style parts START
-const VISIBLE_PART_CONNECTED_WALLET = (theme: any, isMobileDetails?: boolean) => `
+const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boolean) => `
 .top-visible-part {
   display: flex;
   align-items: center;
