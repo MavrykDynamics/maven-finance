@@ -86,6 +86,7 @@ block {
                     |   ConfigMinimumLoanFeePercent (_v)    -> s.config.minimumLoanFeePercent           := updateConfigNewValue
                     |   ConfigMinLoanFeeTreasuryShare (_v)  -> s.config.minimumLoanFeeTreasuryShare     := updateConfigNewValue
                     |   ConfigInterestTreasuryShare (_v)    -> s.config.interestTreasuryShare           := updateConfigNewValue
+                    |   ConfigMockLevel (_v)                -> s.config.mockLevel                       := updateConfigNewValue
                 ];
             }
         |   _ -> skip

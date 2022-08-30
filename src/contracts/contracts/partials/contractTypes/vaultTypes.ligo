@@ -24,17 +24,17 @@ type vaultHandleType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
-type vaultUpdateDepositorType is
+type updateDepositorType is
     |   AllowAny        of bool
     |   AllowAccount    of bool * address
 
 
-type vaultDelegateTezToBakerType is option(key_hash)
+type delegateTezToBakerType is option(key_hash)
 type satelliteAddressType is address
 
-type vaultWithdrawType is transferDestinationType
+type withdrawType is transferDestinationType
 
-type vaultDepositType  is [@layout:comb] record [
+type depositType  is [@layout:comb] record [
     amount          : nat;
     token           : tokenType;
 ]
@@ -52,16 +52,16 @@ type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
 type vaultLambdaActionType is 
         
         // Housekeeping Entrypoints
-    |   LambdaSetAdmin                        of (address)
-    |   LambdaSetGovernance                   of (address)
-    |   LambdaUpdateMetadata                  of updateMetadataType
+    |   LambdaSetAdmin                   of (address)
+    |   LambdaSetGovernance              of (address)
+    |   LambdaUpdateMetadata             of updateMetadataType
 
         // Vault Entrypoints
-    |   LambdaVaultDelegateTezToBaker         of vaultDelegateTezToBakerType
-    |   LambdaVaultDelegateMvkToSat           of satelliteAddressType
-    |   LambdaVaultWithdraw                   of vaultWithdrawType
-    |   LambdaVaultDeposit                    of vaultDepositType 
-    |   LambdaVaultUpdateDepositor            of vaultUpdateDepositorType
+    |   LambdaDelegateTezToBaker         of delegateTezToBakerType
+    |   LambdaDelegateMvkToSat           of satelliteAddressType
+    |   LambdaWithdraw                   of withdrawType
+    |   LambdaDeposit                    of depositType 
+    |   LambdaUpdateDepositor            of updateDepositorType
 
 
 // ------------------------------------------------------------------------------

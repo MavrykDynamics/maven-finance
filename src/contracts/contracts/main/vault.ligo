@@ -37,11 +37,11 @@ type vaultActionType is
     |   UpdateMetadata                  of updateMetadataType
     
         // Vault Entrypoints
-    |   VaultDelegateTezToBaker         of vaultDelegateTezToBakerType
-    |   VaultDelegateMvkToSatellite     of satelliteAddressType
-    |   VaultWithdraw                   of vaultWithdrawType
-    |   VaultDeposit                    of vaultDepositType 
-    |   VaultUpdateDepositor            of vaultUpdateDepositorType
+    |   DelegateTezToBaker              of delegateTezToBakerType
+    |   DelegateMvkToSatellite          of satelliteAddressType
+    |   Withdraw                        of withdrawType
+    |   Deposit                         of depositType 
+    |   UpdateDepositor                 of updateDepositorType
   
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -483,17 +483,17 @@ block {
 // Vault Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(* vaultDelegateTezToBaker entrypoint *)
-function vaultDelegateTezToBaker(const vaultDelegateParams : vaultDelegateTezToBakerType; var s : vaultStorageType) : return is 
+(* delegateTezToBaker entrypoint *)
+function delegateTezToBaker(const delegateParams : delegateTezToBakerType; var s : vaultStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultDelegateTezToBaker"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDelegateTezToBaker"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaVaultDelegateTezToBaker(vaultDelegateParams);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaDelegateTezToBaker(delegateParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
@@ -502,17 +502,17 @@ block {
 
 
 
-(* vaultDelegateMvkToSatellite entrypoint *)
-function vaultDelegateMvkToSatellite(const satelliteAddress : address; var s : vaultStorageType) : return is 
+(* delegateMvkToSatellite entrypoint *)
+function delegateMvkToSatellite(const satelliteAddress : address; var s : vaultStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultDelegateMvkToSat"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDelegateMvkToSat"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaVaultDelegateMvkToSat(satelliteAddress);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaDelegateMvkToSat(satelliteAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
@@ -522,17 +522,17 @@ block {
 
 
 
-(* vaultWithdraw entrypoint *)
-function vaultWithdraw(const vaultWithdrawParams : vaultWithdrawType; var s : vaultStorageType) : return is 
+(* withdraw entrypoint *)
+function withdraw(const withdrawParams : withdrawType; var s : vaultStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultWithdraw"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdraw"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaVaultWithdraw(vaultWithdrawParams);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaWithdraw(withdrawParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
@@ -541,17 +541,17 @@ block {
 
 
 
-(* vaultDeposit entrypoint *)
-function vaultDeposit(const vaultDepositParams : vaultDepositType; var s : vaultStorageType) : return is 
+(* deposit entrypoint *)
+function deposit(const depositParams : depositType; var s : vaultStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultDeposit"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDeposit"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaVaultDeposit(vaultDepositParams);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaDeposit(depositParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
@@ -560,17 +560,17 @@ block {
 
 
 
-(* vaultUpdateDepositor entrypoint *)
-function vaultUpdateDepositor(const vaultUpdateDepositorParams : vaultUpdateDepositorType; var s : vaultStorageType) : return is
+(* updateDepositor entrypoint *)
+function updateDepositor(const updateDepositorParams : updateDepositorType; var s : vaultStorageType) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultUpdateDepositor"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateDepositor"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaVaultUpdateDepositor(vaultUpdateDepositorParams);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateDepositor(updateDepositorParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
@@ -625,11 +625,11 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
         |   UpdateMetadata(parameters)                   -> updateMetadata(parameters, s)
         
             // Vault Entrypoints 
-        |   VaultDelegateTezToBaker(parameters)          -> vaultDelegateTezToBaker(parameters, s)
-        |   VaultDelegateMvkToSatellite(parameters)      -> vaultDelegateMvkToSatellite(parameters, s)
-        |   VaultWithdraw(parameters)                    -> vaultWithdraw(parameters, s)
-        |   VaultDeposit(parameters)                     -> vaultDeposit(parameters, s)
-        |   VaultUpdateDepositor(parameters)             -> vaultUpdateDepositor(parameters, s)
+        |   DelegateTezToBaker(parameters)               -> delegateTezToBaker(parameters, s)
+        |   DelegateMvkToSatellite(parameters)           -> delegateMvkToSatellite(parameters, s)
+        |   Withdraw(parameters)                         -> withdraw(parameters, s)
+        |   Deposit(parameters)                          -> deposit(parameters, s)
+        |   UpdateDepositor(parameters)                  -> updateDepositor(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                        -> setLambda(parameters, s)    
