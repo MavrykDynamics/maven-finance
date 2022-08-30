@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { downColor, headerColor } from 'styles'
 
 import { TimerStyled } from './Timer.style'
@@ -76,7 +75,3 @@ export const TimerView = ({
     </TimerStyled>
   )
 }
-
-TimerView.propTypes = {}
-
-TimerView.defaultProps = {}

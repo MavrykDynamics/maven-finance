@@ -25,11 +25,6 @@ export const RoutingButtonStyled = styled.button<{ theme: MavrykTheme }>`
   width: 100%;
   user-select: none;
 
-  &.clicked {
-    animation: ${clickWave} 1250ms cubic-bezier(0.19, 1, 0.22, 1);
-    animation-fill-mode: forwards;
-  }
-
   &.primary {
     color: ${({ theme }) => theme.containerColor};
     background-color: ${({ theme }) => theme.actionPrimaryBtnColor};

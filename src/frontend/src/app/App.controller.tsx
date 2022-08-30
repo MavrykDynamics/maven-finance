@@ -60,7 +60,6 @@ const AppContainer = () => {
 
   return (
     <Router>
-      {/* <ThemeToggle /> */}
       <ProgressBar />
       <AppStyled isExpandedMenu={sidebarOpened}>
         {loading ? (

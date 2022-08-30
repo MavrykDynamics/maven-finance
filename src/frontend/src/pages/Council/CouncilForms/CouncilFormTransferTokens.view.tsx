@@ -163,7 +163,6 @@ export const CouncilFormTransferTokens = () => {
       <div className="textarea-group">
         <label>Purpose for Transfer</label>
         <TextArea
-          type="text"
           required
           value={purpose}
           name="purpose"

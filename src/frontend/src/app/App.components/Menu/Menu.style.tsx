@@ -161,11 +161,6 @@ export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const ThemeToggleIcon = styled.svg`
-  width: inherit;
-  height: inherit;
-`
-
 export const MenuSpacerDiv = styled.div<{ height: number }>`
   height: ${({ height }) => height}px;
 `

@@ -1,6 +1,4 @@
-import * as React from 'react'
-
-import { PRIMARY, StatusFlagStyle } from './StatusFlag.constants'
+import { StatusFlagStyle } from './StatusFlag.constants'
 import { StatusFlagStyled } from './StatusFlag.style'
 
 type StatusFlagViewProps = {
