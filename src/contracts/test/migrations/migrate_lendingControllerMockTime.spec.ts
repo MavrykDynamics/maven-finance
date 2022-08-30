@@ -34,7 +34,7 @@ import {
     AggregatorFactory,
     setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
 } from '../helpers/aggregatorFactoryHelper'
-import { LendingController, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerHelper"
+import { LendingController, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerMockTimeHelper"
 import { TokenPoolReward } from "../helpers/tokenPoolRewardHelper"
 
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
@@ -60,7 +60,7 @@ import { tokenPoolLpTokenStorage } from "../../storage/tokenPoolLpTokenStorage"
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('Lending Controller Contracts Deployment for Tests', async () => {
+describe('Lending Controller Mock Time Contracts Deployment for Tests', async () => {
   
   var utils: Utils
   
