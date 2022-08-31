@@ -1,26 +1,26 @@
-import { State } from 'reducers'
+import { AppDispatch, GetState } from 'app/App.controller'
 
 import { ProgressBarStatus } from './ProgressBar.constants'
 
 export const SET_PROGRESS_BAR_STATUS = 'SET_PROGRESS_BAR_STATUS'
 
-export const setProgressBarStatus = (status: ProgressBarStatus) => (dispatch: any) => {
+export const setProgressBarStatus = (status: ProgressBarStatus) => (dispatch: AppDispatch) => {
   dispatch({
     type: SET_PROGRESS_BAR_STATUS,
     status,
   })
 }
 
-export const hideProgressBar = () => (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const hideProgressBar = () => (dispatch: AppDispatch, getState: GetState) => {
+  const state = getState()
 
   if (state.progressBar.status === ProgressBarStatus.READY || state.progressBar.status === ProgressBarStatus.MOVING) {
     dispatch(setProgressBarStatus(ProgressBarStatus.NO_DISPLAY))
   }
 }
 
-export const updateProgressBar = () => (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const updateProgressBar = () => (dispatch: AppDispatch, getState: GetState) => {
+  const state = getState()
 
   if (
     state.loading &&

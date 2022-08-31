@@ -1,10 +1,8 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
-import { Ref } from 'react'
+import React, { Ref } from 'react'
 import { useDispatch } from 'react-redux'
 
 // types
-import type { IPFSUploaderStatusType, IPFSUploaderTypeFile } from './IPFSUploader.controller'
+import type { IPFSUploaderTypeFile } from './IPFSUploader.controller'
 
 // actions
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
@@ -28,13 +26,10 @@ type IPFSUploaderViewProps = {
   imageOk: boolean
   disabled?: boolean
   isUploading: boolean
-  isUploaded: boolean
-  inputFile: Ref<any>
-  handleUpload: (e: any) => void
+  inputFile: Ref<HTMLInputElement>
+  handleUpload: (file: File) => void
   handleIconClick: () => void
   onBlur: () => void
-  ipfsUploaderStatus?: IPFSUploaderStatusType
-  errorMessage?: string
   className?: string
 }
 
@@ -46,26 +41,21 @@ export const IPFSUploaderView = ({
   listNumber,
   imageIpfsUrl,
   isUploading,
-  isUploaded,
   inputFile,
   disabled,
   handleUpload,
   handleIconClick,
   onBlur,
-  ipfsUploaderStatus,
-  errorMessage,
   className,
 }: IPFSUploaderViewProps) => {
-  let status = ipfsUploaderStatus !== undefined ? ipfsUploaderStatus : 'none'
   const dispatch = useDispatch()
-
-  const isTypeFileDocument = typeFile === 'document'
   const isTypeFileImage = typeFile === 'image'
 
   const isUploadedDocument = imageIpfsUrl && !isTypeFileImage && !isUploading
-  const isUploadedImage = imageIpfsUrl && isTypeFileImage && !isUploading
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return
+
     const fileSize = e.target?.files?.[0]?.size / 1024 / 1024 // in MiB
     if (fileSize <= IMG_MAX_SIZE) {
       handleUpload(e.target.files[0])
