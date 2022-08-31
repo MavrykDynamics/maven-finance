@@ -27,7 +27,7 @@ type ProposalSubmissionViewProps = {
   governancePhase: GovernancePhase
   isInEmergencyGovernance: boolean
   activeTab: number
-  handleChangeTab: (tabId: number) => void
+  handleChangeTab: (tabId?: number) => void
   locked: boolean
   proposalId: number | undefined
   proposalTitle: string

@@ -13,17 +13,24 @@ import {
 } from '../../ProposalSubmission/ProposalSubmission.style'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+import {
+  EmergencyGovernanceProposalForm,
+  EmergencyGovernanceProposalFormInputStatus,
+} from '../../../utils/TypesAndInterfaces/Forms'
 
 type EmergencyGovProposalModalViewProps = {
   loading: boolean
   showing: boolean
-  submitEmergencyGovProposalCallback: (form: any) => void
+  submitEmergencyGovProposalCallback: (form: EmergencyGovernanceProposalForm | {}) => void
   cancelCallback: () => void
-  form: any
+  form: EmergencyGovernanceProposalForm
   fee: number
-  formInputStatus: any
-  setForm: (form: any) => void
-  handleOnBlur: (e: any, formField: string) => void
+  formInputStatus: EmergencyGovernanceProposalFormInputStatus
+  setForm: (form: EmergencyGovernanceProposalForm) => void
+  handleOnBlur: (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
+    formField: string,
+  ) => void
 }
 
 export const EmergencyGovProposalModalView = ({
@@ -58,8 +65,10 @@ export const EmergencyGovProposalModalView = ({
                       <Input
                         type="text"
                         value={form.title}
-                        onChange={(e: any) => setForm({ ...form, title: e.target.value })}
-                        onBlur={(e: any) => handleOnBlur(e, 'TITLE')}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setForm({ ...form, title: e.target.value })
+                        }
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'TITLE')}
                         inputStatus={formInputStatus.title}
                       />
                     </FormTitleContainer>
@@ -68,10 +77,10 @@ export const EmergencyGovProposalModalView = ({
                       <Input
                         type="number"
                         value={form.amountMVKtoTriggerBreakGlass}
-                        onChange={(e: any) =>
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           setForm({ ...form, amountMVKtoTriggerBreakGlass: Number(e.target.value) })
                         }
-                        onBlur={(e: any) => handleOnBlur(e, 'MVK_TRIGGER_AMOUNT')}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'MVK_TRIGGER_AMOUNT')}
                         inputStatus={formInputStatus.amountMVKtoTriggerBreakGlass}
                       />
                     </div> */}
@@ -84,8 +93,10 @@ export const EmergencyGovProposalModalView = ({
                   <label>3 - Enter your description</label>
                   <TextArea
                     value={form.description}
-                    onChange={(e: any) => setForm({ ...form, description: e.target.value })}
-                    onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
+                    onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(e, 'DESCRIPTION')}
                     inputStatus={formInputStatus.description}
                   />
                   {/* <div className="upload-wrap">

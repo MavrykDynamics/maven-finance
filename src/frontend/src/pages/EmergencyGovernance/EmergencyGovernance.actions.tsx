@@ -44,7 +44,7 @@ export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST = 'SUBMIT_EMERGENCY_GO
 export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT'
 export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR'
 export const submitEmergencyGovernanceProposal =
-  (form: EmergencyGovernanceProposalForm, accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
+  (form: EmergencyGovernanceProposalForm) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {

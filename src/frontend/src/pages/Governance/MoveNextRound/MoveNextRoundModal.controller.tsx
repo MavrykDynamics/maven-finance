@@ -13,9 +13,9 @@ export const MoveNextRoundModal = ({
   handleExecuteProposal,
   handleCloseModal,
 }: {
-  handleMoveNextRound: any
-  handleExecuteProposal: any
-  handleCloseModal: any
+  handleMoveNextRound: () => void
+  handleExecuteProposal: () => void
+  handleCloseModal: () => void
 }) => {
   return (
     <MoveNextRoundModalstyle>
