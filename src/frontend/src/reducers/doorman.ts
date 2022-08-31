@@ -20,7 +20,7 @@ export const COMPOUND = 'COMPOUND'
 export interface DoormanState {
   type?: typeof STAKE | typeof UNSTAKE | typeof GET_DOORMAN_STORAGE | typeof COMPOUND
   amount: number
-  error?: any
+  error?: object
   doormanStorage?: DoormanStorage
   totalStakedMvk?: number
 }

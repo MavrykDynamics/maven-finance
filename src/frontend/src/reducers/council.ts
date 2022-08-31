@@ -19,7 +19,7 @@ export interface CouncilPastAction {
 }
 
 export interface CouncilState {
-  councilStorage: CouncilStorage | any
+  councilStorage: CouncilStorage
   councilPendingActions: CouncilPastAction[]
   councilPastActions: CouncilPastAction[]
 }
