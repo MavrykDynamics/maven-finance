@@ -7,6 +7,7 @@ import {
   BGStyled,
   BGTitle,
   BGTop,
+  BGWhitelist,
 } from './BreakGlass.style'
 import { ContractBreakGlass } from './mockContracts'
 import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
@@ -76,9 +77,6 @@ export const BreakGlassView = ({
           <div className="status-indicator-wrapper">
             Pause All: <span className={pauseAllActive ? 'color-red' : 'color-green'}>{pauseAllStatus}</span>
           </div>
-          <div className="status-indicator-wrapper whitelist">
-            Whitelist Developer: <TzAddress tzAddress={whitelistDev} hasIcon />
-          </div>
         </BGStatusIndicator>
         <BGInfo>
           <p>
@@ -96,6 +94,12 @@ export const BreakGlassView = ({
             </a>
           </FAQLink>
         </BGInfo>
+        <BGWhitelist>
+          <BGTitle>Whitelist Developers</BGTitle>
+          <div className="adress-list">
+            <TzAddress tzAddress={whitelistDev} hasIcon />
+          </div>
+        </BGWhitelist>
       </BGTop>
 
       <BGMiddleWrapper>
