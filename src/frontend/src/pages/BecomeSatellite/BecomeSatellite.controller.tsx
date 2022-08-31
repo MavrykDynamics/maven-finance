@@ -48,7 +48,7 @@ export const BecomeSatellite = () => {
 
   const registerCallback = (form: RegisterAsSatelliteForm) => {
     console.log(typeof form.fee)
-    dispatch(registerAsSatellite(form, accountPkh as any))
+    dispatch(registerAsSatellite(form))
   }
   const updateSatelliteCallback = (form: RegisterAsSatelliteForm) => {
     dispatch(updateSatelliteRecord(form))

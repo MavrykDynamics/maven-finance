@@ -4,6 +4,8 @@ import { Governance_Proposal_Record, Maybe, Governance_Financial_Request_Record 
 
 import { FinancialRequestVote, ProposalVote } from './Governance'
 
+import { normalizeDelegationStorage } from '../../pages/Satellites/Satellites.helpers'
+
 export interface SatelliteProposalVotingHistory extends ProposalVote {
   requestData: Maybe<Governance_Proposal_Record> | undefined
   voteName?: string
@@ -74,17 +76,6 @@ export interface DelegateRecord {
 
 export type DelegationLedger = MichelsonMap<string, DelegateRecord>
 
-export interface DelegationStorage {
-  admin?: string
-  contractAddresses?: MichelsonMap<string, string>
-  whitelistContracts?: MichelsonMap<string, string>
-  satelliteLedger: SatelliteRecord[]
-  config: DelegationConfig
-  delegateLedger: DelegationLedger
-  breakGlassConfig: DelegationBreakGlassConfigType
-  numberActiveSatellites: number
-  totalDelegatedMVK: number
-}
-
+export type DelegationStorage = ReturnType<typeof normalizeDelegationStorage>
 export type SatelliteRecordGraphQl = Omit<Satellite_Record, '__typename'>
 export type DelegationGraphQl = Omit<Delegation, '__typename'>

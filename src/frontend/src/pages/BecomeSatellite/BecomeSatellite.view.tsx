@@ -30,11 +30,12 @@ import {
 } from './BecomeSatellite.style'
 import InputWithPercent from 'app/App.components/InputWithPercent/InputWithPercent'
 import SatellitesSideBar from 'pages/Satellites/SatellitesSideBar/SatellitesSideBar.controller'
+import type { DelegationStorage } from '../../utils/TypesAndInterfaces/Delegation'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
   myTotalStakeBalance: number
-  satelliteConfig: any
+  satelliteConfig: DelegationStorage['config']
   accountPkh?: string
   registerCallback: (form: RegisterAsSatelliteForm) => void
   updateSatelliteCallback: (form: RegisterAsSatelliteForm) => void
