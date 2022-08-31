@@ -92,7 +92,7 @@ export const EmergencyGovProposalModalView = ({
                     <IPFSUploader
                       typeFile="image"
                       imageIpfsUrl={form.screenshots}
-                      setIpfsImageUrl={(e: any) => setForm({ ...form, screenshots: e })}
+                      setIpfsImageUrl={(e: string) => setForm({ ...form, screenshots: e })}
                       title={'Add pdf of screenshots (if relevant)'}
                       listNumber={4}
                     />
