@@ -14,7 +14,7 @@ import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 // view
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // action
 import { removeCouncilMember } from '../Council.actions'
@@ -54,7 +54,7 @@ export const CouncilFormRemoveCouncilMember = () => {
 
   const { memberAddress } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       if (!memberAddress) {
@@ -77,13 +77,13 @@ export const CouncilFormRemoveCouncilMember = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {
+  const handleSelect = (item: DropdownItemType) => {
     setForm((prev) => {
       return { ...prev, memberAddress: item.value }
     })
   }
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)

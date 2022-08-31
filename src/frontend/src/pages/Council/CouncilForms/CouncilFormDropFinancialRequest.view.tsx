@@ -8,7 +8,7 @@ import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 // view
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // action
 import { dropFinancialRequest } from '../Council.actions'
@@ -27,7 +27,7 @@ export const CouncilFormDropFinancialRequest = () => {
       financialRequestLedger?.length
         ? [
             { text: 'Choose Financial Request', value: '' },
-            ...financialRequestLedger.map((item: any, i: number) => {
+            ...financialRequestLedger.map((item, i: number) => {
               return {
                 text: `${i + 1}-${item.request_purpose}`,
                 value: item.id,
@@ -36,11 +36,11 @@ export const CouncilFormDropFinancialRequest = () => {
           ]
         : [{ text: 'Choose Financial Request', value: '' }],
     [financialRequestLedger],
-  )
+  ) as DropdownItemType[]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
   const [form, setForm] = useState({
     financialReqID: '',
@@ -48,7 +48,7 @@ export const CouncilFormDropFinancialRequest = () => {
 
   const { financialReqID } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       if (!financialReqID) {
@@ -71,13 +71,13 @@ export const CouncilFormDropFinancialRequest = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {
+  const handleSelect = (item: DropdownItemType) => {
     setForm((prev) => {
       return { ...prev, financialReqID: item.value }
     })
   }
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)

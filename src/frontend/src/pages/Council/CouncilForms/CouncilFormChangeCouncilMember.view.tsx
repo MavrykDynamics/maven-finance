@@ -17,7 +17,7 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // action
 import { changeCouncilMember } from '../Council.actions'
@@ -49,7 +49,7 @@ export const CouncilFormChangeCouncilMember = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState({
     oldCouncilMemberAddress: '',
@@ -124,13 +124,13 @@ export const CouncilFormChangeCouncilMember = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {
+  const handleSelect = (item: DropdownItemType) => {
     setForm((prev) => {
       return { ...prev, oldCouncilMemberAddress: item.value }
     })
   }
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
