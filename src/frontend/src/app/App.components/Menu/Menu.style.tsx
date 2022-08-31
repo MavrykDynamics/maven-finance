@@ -1,17 +1,8 @@
-import styled, { keyframes } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 import { backdropColor } from 'styles/colors'
 import { MENU_Z_INDEX, Z_INDEX_DEFAULT } from 'styles/constants'
 
 import { MavrykTheme } from '../../../styles/interfaces'
-
-export const moveDown = keyframes`
-  from {
-    transform: translateY(-5rem);
-  }
-  to {
-    transform: translateY(0rem);
-  }
-`
 
 export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   max-width: 232px;

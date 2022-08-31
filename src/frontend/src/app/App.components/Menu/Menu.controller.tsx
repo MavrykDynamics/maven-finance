@@ -4,14 +4,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { toggleRPCNodePopup } from '../ChangeNodePopup/ChangeNode.actions'
 
-import { showToaster } from '../Toaster/Toaster.actions'
 import { getHeadData } from './Menu.actions'
 import { MenuView } from './Menu.view'
 
 export const Menu = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { ready, accountPkh } = useSelector((state: State) => state.wallet)
 
   async function initialDispatches(accountPkh?: string) {
     if (accountPkh) {

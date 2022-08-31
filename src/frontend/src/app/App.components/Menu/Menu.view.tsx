@@ -52,16 +52,14 @@ export const MenuView = ({ accountPkh, ready, openChangeNodePopupHandler }: Menu
       >
         <MenuSidebarContent onClick={(e) => e.stopPropagation()}>
           <MenuGrid>
-            {mainNavigationLinks.map((navigationLink: MainNavigationRoute, index: number) => {
-              const key = `${index}-${navigationLink.path.substring(1)}-${navigationLink.id}`
+            {mainNavigationLinks.map((navigationLink: MainNavigationRoute) => {
               return (
                 <NavigationLink
-                  key={key}
+                  key={navigationLink.id}
                   handleToggle={handleToggle}
                   isExpanded={navigationLink.id === isExpanded}
                   isMobMenuExpanded={sidebarOpened}
                   location={location}
-                  walletReady={ready}
                   accountPkh={accountPkh}
                   {...navigationLink}
                 />
