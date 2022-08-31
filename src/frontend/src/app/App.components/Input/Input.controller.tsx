@@ -2,16 +2,17 @@ import { InputView } from './Input.view'
 
 export type InputStatusType = 'success' | 'error' | '' | undefined
 export type InputKind = 'primary' | 'search'
+export type InputOneChange = React.ChangeEventHandler<HTMLInputElement>
 type InputProps = {
   id?: string
   icon?: string
   placeholder?: string
   name?: string
   value?: string | number
-  onChange: any
-  onBlur?: any
-  onFocus?: any
-  onKeyDown?: any
+  onChange: InputOneChange
+  onBlur?: InputOneChange
+  onFocus?: InputOneChange
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
   inputStatus?: InputStatusType
   type?: string
   errorMessage?: string
