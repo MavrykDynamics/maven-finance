@@ -1,14 +1,12 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import StakeType
 
 ###
 # Doorman Tables
 ###
 
-class Doorman(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class Doorman(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='doormans')
     min_mvk_amount                          = fields.FloatField(default=0)
     unclaimed_rewards                       = fields.FloatField(default=0)

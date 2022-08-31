@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
@@ -58,4 +58,4 @@ class TokenSaleStorage(BaseModel):
     treasuryAddress: str
     whitelistEndTimestamp: str
     whitelistStartTimestamp: str
-    whitelistedAddresses: Dict[str, bool]
+    whitelistedAddresses: Dict[str, Dict[str, Any]]

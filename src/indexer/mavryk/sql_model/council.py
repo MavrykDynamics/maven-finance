@@ -1,14 +1,12 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import ActionStatus
 
 ###
 # Council Tables
 ###
 
-class Council(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class Council(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='councils')
     threshold                               = fields.BigIntField(default=0)
     action_expiry_days                      = fields.BigIntField(default=0)

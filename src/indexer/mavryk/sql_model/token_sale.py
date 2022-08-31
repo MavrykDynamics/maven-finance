@@ -1,12 +1,11 @@
+from mavryk.sql_model.parents import MavrykContract
 from tortoise import Model, fields
 
 ###
 # Token Sale Tables
 ###
 
-class TokenSale(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class TokenSale(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='token_sales')
     vesting_period_duration_sec             = fields.BigIntField(default=0)
     whitelist_start_timestamp               = fields.DatetimeField(null=True)

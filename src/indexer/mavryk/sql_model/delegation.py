@@ -1,14 +1,12 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import SatelliteStatus
 
 ###
 # Delegation Tables
 ###
 
-class Delegation(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class Delegation(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='delegations')
     minimum_smvk_balance                    = fields.FloatField(default=0)
     delegation_ratio                        = fields.SmallIntField(default=0)

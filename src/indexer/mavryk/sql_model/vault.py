@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import ContractLambda
+from mavryk.sql_model.parents import ContractLambda, MavrykContract
 
 ###
 # Vault Tables
 ###
 
-class Vault(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(default="", max_length=36)
+class Vault(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='vaults', null=True)
 
     class Meta:

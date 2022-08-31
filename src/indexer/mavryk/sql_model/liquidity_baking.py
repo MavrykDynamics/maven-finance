@@ -1,3 +1,4 @@
+from mavryk.sql_model.parents import MavrykContract
 from tortoise import Model, fields
 from mavryk.sql_model.enums import DexType
 
@@ -5,8 +6,7 @@ from mavryk.sql_model.enums import DexType
 # Liquidity Baking Tables
 ###
 
-class LiquidityBaking(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
+class LiquidityBaking(MavrykContract, Model):
     token_pool                              = fields.BigIntField(default=0)
     xtz_pool                                = fields.BigIntField(default=0)
     lqt_total                               = fields.BigIntField(default=0)

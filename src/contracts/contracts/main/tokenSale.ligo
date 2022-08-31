@@ -183,7 +183,7 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
 
 
 (* View: check whitelist by address *)
-[@view] function checkWhitelistByAddressOpt(const userAddress: address; var s : tokenSaleStorageType) : option(bool) is
+[@view] function checkWhitelistByAddressOpt(const userAddress: address; var s : tokenSaleStorageType) : option(unit) is
     Big_map.find_opt(userAddress, s.whitelistedAddresses)
 
 
@@ -339,7 +339,7 @@ block {
         |   ConfigTokenXtzPrice             (_buyOptionIndex)   -> case s.config.buyOptions[_buyOptionIndex] of [
                         Some (_buyOption)   -> block{
                                 var buyOptionConfig : tokenSaleOptionType   := _buyOption;
-                                buyOptionConfig.tokenXtzPrice                 := (updateConfigNewValue * 1mutez);
+                                buyOptionConfig.tokenXtzPrice               := (updateConfigNewValue * 1mutez);
                                 s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
                             }
                     |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
@@ -392,7 +392,7 @@ block {
 
     // loop to add user addresses to whitelist
     for newUserAddress in list userAddressList block {
-        s.whitelistedAddresses[newUserAddress] := True;
+        s.whitelistedAddresses[newUserAddress] := Unit;
     }
 
 } with (noOperations, s)
@@ -459,7 +459,7 @@ block {
     // check if tez sent is equal to amount specified
     const amountPaid      : nat = Tezos.get_amount() / 1mutez;
     const tokenXtzPrice   : nat = buyOptionConfig.tokenXtzPrice / 1mutez;
-    const elligibleAmount : nat = (amountPaid / tokenXtzPrice) * fpaMvk;
+    const elligibleAmount : nat = ((amountPaid * fpaMvk) / tokenXtzPrice);
     if elligibleAmount =/= amountBought
     then failwith(error_MVK_PAY_AMOUNT_NOT_MET) 
     else skip;
@@ -519,16 +519,8 @@ block {
 
     // init parameters
     const today                       : timestamp                       = Tezos.get_now();
-    const todayBlocks                 : nat                             = Tezos.get_level();
     const tokenSaleEndTimestamp       : timestamp                       = s.tokenSaleEndTimestamp;
-    const tokenSaleEndBlockLevel      : nat                             = s.tokenSaleEndBlockLevel;
     var operations                    : list(operation)                 := nil;
-    
-    // check if token sale has ended
-    if today < tokenSaleEndTimestamp then failwith(error_TOKEN_SALE_HAS_NOT_ENDED) else skip;
-
-    // calculate number of periods that has passed since token sale has ended
-    const onePeriodBlocks : nat      = s.config.vestingPeriodDurationSec / Tezos.get_min_block_time();
 
     // init MVK token type to be used in transfer params
     const mvkTokenType : tokenType  = Fa2(record [
@@ -554,23 +546,15 @@ block {
         // process claim - skip if fully claimed (periods claimed = vesting periods)  
         if userBuyOption.claimCounter = _buyOptionConfig.vestingPeriods then skip else block {
 
-            // calculate periods passed since last claimed for option one
-            var periodsToClaim : nat := 0n;
-            if userBuyOption.lastClaimLevel = 0n then block {
-                
-                // first claim
-                periodsToClaim := if abs(todayBlocks - tokenSaleEndBlockLevel) / onePeriodBlocks < 1n then 1n else (abs(todayBlocks - tokenSaleEndBlockLevel) / onePeriodBlocks) + 1n;
-                periodsToClaim := if periodsToClaim > _buyOptionConfig.vestingPeriods then _buyOptionConfig.vestingPeriods else periodsToClaim;
+            var periodsToClaim : nat    := 0n;
 
-            } else block {
-                // has claimed before
-                periodsToClaim := abs(todayBlocks - userBuyOption.lastClaimLevel) / onePeriodBlocks;
+            // if first claim, match the lastClaimTimestamp to the token sale end
+            if userBuyOption.lastClaimTimestamp =/= tokenSaleEndTimestamp then userBuyOption.lastClaimTimestamp := tokenSaleEndTimestamp else skip;
 
-                // if total of periods to claim + already claimed periods is greater then vesting period (in periods) then take the remaining periods
-                // e.g. vesting of 2 periods, user claim once on day 0, then claim again for the second time in 6 periods - we calculate periods to claim as 2 - 1 = 1 period
-                if periodsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingPeriods then periodsToClaim := abs(_buyOptionConfig.vestingPeriods - userBuyOption.claimCounter)
-                else periodsToClaim := periodsToClaim;
-            };
+            // calculate periods passed since last claimed
+            periodsToClaim              := if userBuyOption.lastClaimLevel = 0n then 1n else periodsToClaim;
+            periodsToClaim              := periodsToClaim + (abs(today - userBuyOption.lastClaimTimestamp) / s.config.vestingPeriodDurationSec);
+            periodsToClaim              := if periodsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingPeriods then abs(_buyOptionConfig.vestingPeriods - userBuyOption.claimCounter) else periodsToClaim;
 
             // account for case where there is no vesting periods for option one (least restrictive option)
             var tokenAmountSinglePeriod : nat    := if _buyOptionConfig.vestingPeriods = 0n then 

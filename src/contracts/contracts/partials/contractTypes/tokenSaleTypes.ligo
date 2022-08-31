@@ -15,7 +15,7 @@ type tokenSaleConfigType is [@layout:comb] record [
     buyOptions                  : map(nat, tokenSaleOptionType);
 ]
 
-type whitelistedAddressesType is big_map(userAddressType, bool)
+type whitelistedAddressesType is big_map(userAddressType, unit)
 
 type tokenSaleUserOptionType is [@layout:comb] record [
     tokenBought         : nat;

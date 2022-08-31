@@ -61,11 +61,11 @@ async def on_governance_start_next_round(
 
     # Update timelock proposal
     if start_next_round.storage.timelockProposalId in start_next_round.storage.proposalLedger:
-        timelock_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.timelock_proposal_id]
+        timelock_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.timelockProposalId]
         timelock_proposal_record   = await models.GovernanceProposalRecord.get(
             id  = timelock_proposal
         )
-        timelock_proposal_record.execution_ready            = timelock_proposal_storage.executionReady
+        # timelock_proposal_record.execution_ready            = timelock_proposal_storage.executionReady
         await timelock_proposal_record.save()
 
     # Update round proposals

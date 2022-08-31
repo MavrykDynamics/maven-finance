@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Treasury Factory Tables
 ###
 
-class TreasuryFactory(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class TreasuryFactory(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasury_factories')
     treasury_name_max_length                = fields.SmallIntField(default=0)
     create_treasury_paused                  = fields.BooleanField(default=False)

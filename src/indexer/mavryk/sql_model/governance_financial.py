@@ -1,13 +1,12 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import GovernanceRecordStatus, GovernanceVoteType
 
 ###
 # Governance Financial Tables
 ###
 
-class GovernanceFinancial(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
+class GovernanceFinancial(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_financials')
     fin_req_approval_percentage             = fields.SmallIntField(default=0)
     fin_req_duration_in_days                = fields.SmallIntField(default=0)

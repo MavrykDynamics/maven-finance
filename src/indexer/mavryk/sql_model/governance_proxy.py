@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Governance Proxy Tables
 ###
 
-class GovernanceProxy(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class GovernanceProxy(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_proxies')
     
     class Meta:
