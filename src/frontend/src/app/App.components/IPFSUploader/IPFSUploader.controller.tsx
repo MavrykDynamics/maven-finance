@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 
 import { IPFSUploaderView } from './IPFSUploader.view'
-import { create } from 'ipfs-http-client'
+import { create, Options } from 'ipfs-http-client'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 import { useDispatch } from 'react-redux'
@@ -38,17 +38,19 @@ export const IPFSUploader = ({
   const [imageOk, setImageOk] = useState(false)
   const inputFile = useRef<HTMLInputElement>(null)
 
-  async function handleUpload(file: any) {
+  async function handleUpload(file: File) {
     try {
       setIsUploading(true)
       const added = await client.add(file)
       const image = `https://ipfs.infura.io/ipfs/${added.path}`
       setIpfsImageUrl(image)
       setIsUploading(false)
-    } catch (error: any) {
-      dispatch(showToaster(ERROR, error.message, ''))
-      console.error(error)
-      setIsUploading(false)
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch(showToaster(ERROR, error.message, ''))
+        console.error(error)
+        setIsUploading(false)
+      }
     }
   }
 
