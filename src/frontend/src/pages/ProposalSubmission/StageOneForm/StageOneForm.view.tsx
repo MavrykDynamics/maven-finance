@@ -33,7 +33,10 @@ type StageOneFormViewProps = {
   form: SubmitProposalForm
   setForm: (form: SubmitProposalForm) => void
   formInputStatus: SubmitProposalFormInputStatus
-  handleOnBlur: (e: React.ChangeEvent<HTMLInputElement>, formField: string) => void
+  handleOnBlur: (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
+    formField: string,
+  ) => void
   handleSubmitProposal: () => void
   proposalId: number | undefined
   proposalTitle: string
