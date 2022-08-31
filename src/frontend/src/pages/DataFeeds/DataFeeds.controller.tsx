@@ -49,6 +49,7 @@ export const DataFeeds = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
+  const [searchInputValue, setSearchInput] = useState('')
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
   const [allSatellites, setAllSatellites] = useState<Feed[]>(oraclesStorage.feeds)
   const [filteredSatelliteList, setFilteredSatelliteList] = useState<Feed[]>(oraclesStorage.feeds)
@@ -83,7 +84,7 @@ export const DataFeeds = () => {
     }
   }
 
-  const handleSearch = (e: any) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchQuery = e.target.value
     let searchResult: Feed[] = []
     if (searchQuery !== '') {
@@ -96,6 +97,7 @@ export const DataFeeds = () => {
       searchResult = allSatellites
     }
 
+    setSearchInput(e.target.value)
     setFilteredSatelliteList(searchResult)
   }
 
@@ -129,7 +131,7 @@ export const DataFeeds = () => {
           kind={'search'}
           placeholder="Search data feed..."
           onChange={handleSearch}
-          onBlur={() => {}}
+          value={searchInputValue}
         />
 
         <Button

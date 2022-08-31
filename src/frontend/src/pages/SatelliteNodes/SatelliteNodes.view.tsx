@@ -17,8 +17,8 @@ import { Page } from 'styles'
 import { EmptyContainer } from 'app/App.style'
 
 type OracleSatellitesViewProps = {
-  handleSelect: (e: any) => void
-  handleSearch: (e: any) => void
+  handleSelect: (item: { text: string; value: string }) => void
+  handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void
   satellitesList: Array<SatelliteRecord>
 }
 
@@ -41,6 +41,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
+  const [inputSearch, setInputSearch] = useState('')
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
 
   const handleClickDropdown = () => {
@@ -63,8 +64,11 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
           type="text"
           kind={'search'}
           placeholder="Search by address or name..."
-          onChange={handleSearch}
-          onBlur={() => {}}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setInputSearch(e.target.value)
+            handleSearch(e)
+          }}
+          value={inputSearch}
         />
         <DropdownContainer>
           <h4>Order by:</h4>
