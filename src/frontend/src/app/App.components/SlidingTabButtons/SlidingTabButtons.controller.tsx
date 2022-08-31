@@ -14,11 +14,11 @@ type SlidingTabButtonsProps = {
 }
 
 export const SlidingTabButtons = ({ onClick, className = '', tabItems = [] }: SlidingTabButtonsProps) => {
-  const [activeTab, setActiveTab] = useState<number>(tabItems[0].id)
+  const [activeTab, setActiveTab] = useState<number>(tabItems?.[tabItems.findIndex((item) => item.active)]?.id)
 
-  const clickHandler = (tabId?: number) => {
-    setActiveTab(tabId ?? 0)
-    onClick(tabId ?? 0)
+  const clickHandler = (tabId: number) => {
+    setActiveTab(tabId)
+    onClick(tabId)
   }
 
   return (

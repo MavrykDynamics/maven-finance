@@ -1,4 +1,4 @@
-import qs from 'qs'
+import qs, { ParsedQs } from 'qs'
 import moment from 'moment'
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { GovernanceFinancialRequestRecordGraphQL } from '../../utils/TypesAndInterfaces/Governance'
@@ -38,11 +38,11 @@ export const updatePageInUrl = ({
   pathname,
   restQP,
 }: {
-  page: any
+  page: string | ParsedQs | string[] | ParsedQs[]
   newPage: number
   listName: string
   pathname: string
-  restQP: any
+  restQP: object
 }) => {
   const { [listName]: removedEl, ...newPageParams } = page as Record<string, string>
 

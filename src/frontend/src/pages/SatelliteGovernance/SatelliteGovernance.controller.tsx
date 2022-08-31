@@ -101,7 +101,9 @@ export const SatelliteGovernance = () => {
 
   useEffect(() => {
     const filterOngoing = getOngoingActionsList(governanceSatelliteActionRecord)
+
     const filterPast = getPastActionsList(governanceSatelliteActionRecord)
+
     setSeparateRecord(filterOngoing.length ? filterOngoing : filterPast)
     setActiveTab(filterOngoing.length ? 'ongoing' : 'past')
 
@@ -249,7 +251,7 @@ export const SatelliteGovernance = () => {
           </DropdownCard>
         ) : null}
         <SlidingTabButtonsWrap>
-          <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} />
+          {tabsList?.length ? <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
         </SlidingTabButtonsWrap>
       </SatelliteGovernanceStyled>
 

@@ -7,7 +7,7 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
-import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from 'app/App.components/DropDown/DropDown.controller'
 
 // const
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
@@ -54,7 +54,7 @@ export const DataFeeds = () => {
   const [allSatellites, setAllSatellites] = useState<Feed[]>(oraclesStorage.feeds)
   const [filteredSatelliteList, setFilteredSatelliteList] = useState<Feed[]>(oraclesStorage.feeds)
 
-  const handleSelect = (selectedOption: any) => {
+  const handleSelect = (selectedOption: DropdownItemType) => {
     const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
 
@@ -62,7 +62,7 @@ export const DataFeeds = () => {
       setFilteredSatelliteList((data: Feed[]) => {
         const dataToSort = data ? [...data] : []
 
-        dataToSort.sort((a: any, b: any) => {
+        dataToSort.sort((a, b) => {
           let res = 0
           switch (sortLabel) {
             case 'Cryptocurrencies (USD pairs)':
