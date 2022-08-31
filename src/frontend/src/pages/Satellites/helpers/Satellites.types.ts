@@ -1,3 +1,5 @@
+import type { Aggregator } from 'utils/generated/graphqlTypes'
+
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 export type SatellitesListProps = {
@@ -41,9 +43,9 @@ export type Feed = {
   maintainer_id: string
   name: string
   number_blocks_delay: number
-  oracle_records: Array<any>
-  oracle_rewards_smvk: Array<any>
-  oracle_rewards_xtz: Array<any>
+  oracle_records: Aggregator['oracle_records']
+  oracle_rewards_smvk: Aggregator['oracle_rewards_smvk']
+  oracle_rewards_xtz: Aggregator['oracle_rewards_xtz']
   per_thousand_deviation_trigger: number
   percent_oracle_threshold: number
   request_rate_deviation_deposit_fee: number
