@@ -34,7 +34,7 @@ export const CouncilFormRequestTokenMint = () => {
 
   const { treasuryAddress, tokenAmount, purpose } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       await dispatch(requestTokenMint(treasuryAddress, +tokenAmount, purpose))
@@ -49,13 +49,13 @@ export const CouncilFormRequestTokenMint = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -76,11 +76,11 @@ export const CouncilFormRequestTokenMint = () => {
             required
             value={treasuryAddress}
             name="treasuryAddress"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.treasuryAddress}
           />
         </div>
@@ -92,11 +92,11 @@ export const CouncilFormRequestTokenMint = () => {
             required
             value={tokenAmount}
             name="tokenAmount"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.tokenAmount}
             pinnedText={'MVK'}
           />
@@ -108,11 +108,11 @@ export const CouncilFormRequestTokenMint = () => {
           required
           value={purpose}
           name="purpose"
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
             handleChange(e)
             handleBlur(e)
           }}
-          onBlur={(e: any) => handleBlur(e)}
+          onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e)}
           inputStatus={formInputStatus.purpose}
         />
       </div>

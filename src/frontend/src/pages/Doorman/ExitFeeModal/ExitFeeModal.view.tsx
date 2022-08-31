@@ -1,5 +1,4 @@
 import { Button } from 'app/App.components/Button/Button.controller'
-import * as PropTypes from 'prop-types'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -69,7 +68,7 @@ export const ExitFeeModalView = ({
     setStakeUnstakeInputStatus({ amount: validityCheckResult ? 'success' : 'error' })
   }
 
-  const onInputChange = (e: any) => {
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     checkInputIsOk(+value)
 
@@ -81,7 +80,7 @@ export const ExitFeeModalView = ({
     setInputAmount({ amount })
   }, [amount])
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
     if (+value === 0) {
@@ -188,15 +187,4 @@ export const ExitFeeModalView = ({
       )}
     </ModalStyled>
   )
-}
-
-ExitFeeModalView.propTypes = {
-  loading: PropTypes.bool,
-  showing: PropTypes.bool.isRequired,
-  cancelCallback: PropTypes.func.isRequired,
-  unstakeCallback: PropTypes.func.isRequired,
-}
-
-ExitFeeModalView.defaultProps = {
-  loading: false,
 }

@@ -22,7 +22,7 @@ import {
   FarmInputSection,
 } from '../../../../pages/Farms/FarmCard/FarmCard.style'
 
-export const FarmWithdrawModal = ({ loading, cancelCallback }: { loading: boolean; cancelCallback: any }) => {
+export const FarmWithdrawModal = ({ loading, cancelCallback }: { loading: boolean; cancelCallback: Function }) => {
   const dispatch = useDispatch()
   const { selectedFarmAddress } = useSelector((state: State) => state.farm)
   const [amount, setAmount] = useState<number | ''>('')
@@ -34,25 +34,25 @@ export const FarmWithdrawModal = ({ loading, cancelCallback }: { loading: boolea
     setStatus(value ? 'success' : 'error')
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     checkInputIsOk(value)
   }
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (+value === 0) {
       setAmount('')
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     setAmount(+value)
     checkInputIsOk(value)
   }
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!disabled) {

@@ -79,7 +79,7 @@ export const FarmTopBar = ({
         type="text"
         placeholder="Search..."
         value={searchValue}
-        onChange={(e: any) => onSearch(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearch(e.target.value)}
         onBlur={() => {}}
       />
       <DropdownContainer className="order-by">
