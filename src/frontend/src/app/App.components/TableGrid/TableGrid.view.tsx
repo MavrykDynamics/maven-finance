@@ -82,7 +82,7 @@ export default function TableGrid({ tableData, setTableData }: Props) {
                         onFocus={() => setOpenDrop('')}
                         value={colValue}
                         type={j === 2 ? 'number' : 'text'}
-                        onChange={(e: any) => handleChange(e, i, j)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i, j)}
                       />
                     ) : (
                       <div className="table-drop">

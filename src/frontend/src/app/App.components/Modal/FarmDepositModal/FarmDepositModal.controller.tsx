@@ -22,7 +22,7 @@ import {
   FarmInputSection,
 } from '../../../../pages/Farms/FarmCard/FarmCard.style'
 
-export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean; cancelCallback: any }) => {
+export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean; cancelCallback: Function }) => {
   const dispatch = useDispatch()
   const { selectedFarmAddress } = useSelector((state: State) => state.farm)
   const [amount, setAmount] = useState<number | ''>('')
@@ -33,12 +33,12 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
     setStatus(value ? 'success' : 'error')
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     checkInputIsOk(value)
   }
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
     if (+value === 0) {
@@ -46,13 +46,13 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     setAmount(+value)
     checkInputIsOk(value)
   }
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!disabled) {

@@ -27,7 +27,7 @@ export const CouncilFormToggleVesteeLock = () => {
 
   const { vesteeAddress } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       await dispatch(toggleVesteeLock(vesteeAddress))
@@ -42,13 +42,13 @@ export const CouncilFormToggleVesteeLock = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -69,11 +69,11 @@ export const CouncilFormToggleVesteeLock = () => {
             required
             value={vesteeAddress}
             name="vesteeAddress"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.vesteeAddress}
           />
         </div>
