@@ -9,6 +9,11 @@ type DropDownProps = {
   itemSelected: string | undefined
 }
 
+export type DropdownItemType = {
+  text: string
+  value: string
+}
+
 export const DropDown = ({ placeholder, items, isOpen, itemSelected, clickOnItem, clickOnDropDown }: DropDownProps) => {
   return (
     <DropDownView

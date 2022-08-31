@@ -5,7 +5,7 @@ import { Button } from '../../../app/App.components/Button/Button.controller'
 import { CouncilPendingStyled, CouncilPendingReviewStyled } from './CouncilPending.style'
 
 type Props = {
-  onClick: any
+  onClick: () => void
 }
 
 export const CouncilPendingReviewView = ({ onClick }: Props) => {

@@ -20,7 +20,7 @@ import { CouncilPendingView } from './CouncilPending/CouncilPending.view'
 import { CouncilPendingReviewView } from './CouncilPending/CouncilPendingReview.view'
 import { CouncilMemberView } from './CouncilMember/CouncilMember.view'
 import { CouncilPastActionView } from './CouncilPastAction/CouncilPastAction.view'
-import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
 import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCouncilMember.view'
 import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.view'
@@ -83,15 +83,15 @@ export const Council = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {}
+  const handleSelect = (item: DropdownItemType) => {}
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
