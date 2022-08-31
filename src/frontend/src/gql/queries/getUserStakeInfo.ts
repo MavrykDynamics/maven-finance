@@ -11,7 +11,7 @@ query GetUserStakeBalance($_eq: String = "") {
 `
 
 export const USER_STAKE_BALANCE_QUERY_NAME = 'GetUserStakeBalance'
-export function USER_STAKE_BALANCE_QUERY_VARIABLES(address: string): Record<string, any> {
+export function USER_STAKE_BALANCE_QUERY_VARIABLES(address: string) {
   /* prettier-ignore */
   return { _eq: address }
 }

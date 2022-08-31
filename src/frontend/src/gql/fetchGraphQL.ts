@@ -34,7 +34,7 @@ import {
   ORACLE_STORAGE_QUERY_VARIABLE,
 } from './queries'
 
-async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, object>) {
+async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, object | string>) {
   // const result = await fetch(process.env.REACT_APP_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql', {
   //   method: 'POST',
   //   headers: {
@@ -77,7 +77,7 @@ async function fetchGraphQL(operationsDoc: string, operationName: string, variab
 export async function fetchFromIndexer(
   operationsDoc: string,
   operationName: string,
-  variables: Record<string, object>,
+  variables: Record<string, object | string>,
 ) {
   return await fetchGraphQL(operationsDoc, operationName, variables)
     .then((res) => {
@@ -97,7 +97,7 @@ export async function fetchFromIndexer(
 export async function fetchFromIndexerWithPromise(
   operationsDoc: string,
   operationName: string,
-  variables: Record<string, object>,
+  variables: Record<string, object | string>,
 ) {
   return fetchGraphQL(operationsDoc, operationName, variables)
     .then((res) => {

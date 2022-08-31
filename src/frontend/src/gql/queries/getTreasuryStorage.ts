@@ -37,7 +37,7 @@ query GetsMVKBalances ($addresses: [String!]) {
 `
 
 export const TREASURY_SMVK_QUERY_NAME = 'GetsMVKBalances'
-export function TREASURY_SMVK_QUERY_VARIABLES(addresses: Array<string>): Record<string, any> {
+export function TREASURY_SMVK_QUERY_VARIABLES(addresses: Array<string>) {
   /* prettier-ignore */
   return { addresses }
 }
