@@ -15,7 +15,8 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
   const { pathname, search } = useLocation()
   const { page = {}, ...rest } = qs.parse(search, { ignoreQueryPrefix: true })
 
-  const currentPage = (page as any)?.[listName] || 1
+  // @ts-ignore
+  const currentPage = page?.[listName] || 1
   const pagesCount = Math.ceil(itemsCount / LIST_NAMES_MAPPER[listName])
 
   const [inputValue, setInputValue] = useState(currentPage)
