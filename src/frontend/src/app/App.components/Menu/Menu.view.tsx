@@ -59,7 +59,6 @@ export const MenuView = ({ accountPkh, ready, openChangeNodePopupHandler }: Menu
                   handleToggle={handleToggle}
                   isExpanded={navigationLink.id === isExpanded}
                   isMobMenuExpanded={sidebarOpened}
-                  location={location}
                   accountPkh={accountPkh}
                   {...navigationLink}
                 />

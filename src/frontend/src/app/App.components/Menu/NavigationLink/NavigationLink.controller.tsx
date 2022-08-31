@@ -13,6 +13,7 @@ import Icon from 'app/App.components/Icon/Icon.view'
 import useCollapse from 'react-collapsed'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 type NavigationLinkProps = {
   title: string
@@ -20,7 +21,6 @@ type NavigationLinkProps = {
   path: string
   icon?: string
   subPages?: SubNavigationRoute[]
-  location: any
   handleToggle: (id: number) => void
   isExpanded: boolean
   isMobMenuExpanded: boolean
@@ -33,13 +33,14 @@ export const NavigationLink = ({
   path,
   icon,
   subPages,
-  location,
   handleToggle,
   isExpanded,
   isMobMenuExpanded,
   accountPkh,
 }: NavigationLinkProps) => {
   const key = `${path.substring(1)}-${id}`
+
+  const location = useLocation()
 
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
