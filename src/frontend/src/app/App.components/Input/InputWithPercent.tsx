@@ -1,10 +1,11 @@
 import * as React from 'react'
-
-import { Input, InputStatusType } from '../Input/Input.controller'
+import { InputStatusType } from './Input.constants'
+import { Input } from './Input.controller'
 
 type InputProps = {
   placeholder: string
   value: string | number
+  name?: string
   onChange: (arg: number) => void
   onBlur?: React.ChangeEventHandler<HTMLInputElement>
   inputStatus: InputStatusType
@@ -12,10 +13,11 @@ type InputProps = {
   disabled: boolean
 }
 
-const InputWithPercent = ({ disabled, type, placeholder, value, onChange, onBlur, inputStatus }: InputProps) => {
+const InputWithPercent = ({ disabled, type, name, placeholder, value, onChange, onBlur, inputStatus }: InputProps) => {
   return (
     <Input
       type={type}
+      name={name}
       placeholder={placeholder}
       disabled={disabled}
       value={`${value}%`}

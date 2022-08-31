@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
 
-import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -16,6 +13,7 @@ import { addCouncilMember } from '../Council.actions'
 
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
+import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 export const CouncilFormAddCouncilMember = () => {
   const dispatch = useDispatch()
