@@ -4,8 +4,9 @@ import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { Link } from 'react-router-dom'
 import { Page } from 'styles'
 import { UserCardWrapper, UsersListWrapper, UsersStyled } from './Users.styles'
+import { UserType } from '../../utils/TypesAndInterfaces/User'
 
-const UsersView = ({ users }: { users: any }) => {
+const UsersView = ({ users }: { users: UserType[] }) => {
   return (
     <Page>
       <PageHeader page={'data-feeds'} />
@@ -16,7 +17,7 @@ const UsersView = ({ users }: { users: any }) => {
         </GovRightContainerTitleArea>
 
         <UsersListWrapper>
-          {users.map((user: any) => (
+          {users.map((user) => (
             <Link to={`/satellites/user-details/${user.id}`}>
               <UserCardWrapper key={user.id}>
                 <div className="top-wrapper">

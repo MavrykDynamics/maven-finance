@@ -9,4 +9,14 @@ export interface UserData {
   isSatellite: boolean
 }
 
+export type UserType = {
+  id: string
+  name: string
+  descr: string
+  website: string
+  valueLocked: string
+  creationDate: number | string
+  feeds: string[]
+}
+
 export type MavrykUserGraphQl = Omit<Mavryk_User, '__typename'>

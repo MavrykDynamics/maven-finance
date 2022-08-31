@@ -11,7 +11,7 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 
 // view
 import TreasuryView from './Treasury.view'
-import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 
 // styles
 import { Page } from 'styles'
@@ -48,12 +48,12 @@ export const Treasury = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {
+  const handleSelect = (item: DropdownItemType) => {
     const foundTreasury = treasuryStorage.find(({ address }) => item.value === address) || null
     setSelectedTreasury(foundTreasury)
   }
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
