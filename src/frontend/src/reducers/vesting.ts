@@ -2,12 +2,14 @@ import { GET_TREASURY_STORAGE } from '../pages/Treasury/Treasury.actions'
 import { VestingStorage } from '../utils/TypesAndInterfaces/Vesting'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
+import { normalizeVestingStorage } from '../app/App.helpers'
+
 export interface VestingState {
-  vestingStorage: VestingStorage | any
+  vestingStorage: VestingStorage
 }
 
 const VestingDefaultState: VestingState = {
-  vestingStorage: {},
+  vestingStorage: normalizeVestingStorage(null),
 }
 
 export function vesting(state = VestingDefaultState, action: Action) {

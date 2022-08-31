@@ -8,6 +8,10 @@ import { GET_HEAD_DATA, TOGGLE_SIDEBAR } from '../app/App.components/Menu/Menu.a
 import { getItemFromStorage } from '../utils/storage'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
+export type HeadDataType = {
+  knownLevel: number
+}
+
 export type RPCNodeType = {
   url: string
   title: string
@@ -17,7 +21,7 @@ export type RPCNodeType = {
 
 export interface PreferencesState {
   darkThemeEnabled: boolean
-  headData?: any
+  headData?: HeadDataType
   changeNodePopupOpen: boolean
   RPC_NODES: Array<RPCNodeType>
   REACT_APP_RPC_PROVIDER: string

@@ -11,11 +11,9 @@ import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface EmergencyGovernanceState {
   type?: typeof GET_EMERGENCY_GOVERNANCE_STORAGE | typeof SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST
-  emergencyGovernanceStorage: EmergencyGovernanceStorage | any
+  emergencyGovernanceStorage: EmergencyGovernanceStorage
   emergencyGovActive: boolean
   hasAcknowledgeEmergencyGovernance: boolean
-  emergencyGovernanceProposal?: any
-  error?: any
 }
 
 const defaultEmergencyGovernanceStorage: EmergencyGovernanceStorage = {
@@ -57,12 +55,6 @@ export function emergencyGovernance(state = emergencyGovernanceDefaultState, act
       return {
         ...state,
         hasAcknowledgeEmergencyGovernance: action.hasAcknowledgeEmergencyGovernance,
-      }
-    case SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST:
-      return {
-        ...state,
-        type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST,
-        emergencyGovernanceProposal: action.form,
       }
     case SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT:
       return {

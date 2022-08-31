@@ -3,7 +3,7 @@ export const getItemFromStorage = (item: string) => {
   return itemFromStorage ? JSON.parse(itemFromStorage) : null
 }
 
-export const setItemInStorage = (item: string, value: any) => {
+export const setItemInStorage = (item: string, value: object | boolean | string) => {
   localStorage.setItem(item, JSON.stringify(value))
 
   return getItemFromStorage(item)

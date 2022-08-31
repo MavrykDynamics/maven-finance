@@ -36,10 +36,10 @@ export function normalizeAddressesStorage(storage: AddressesGraphQl): ContractAd
   }
 }
 
-export function normalizeVestingStorage(storage: VestingGraphQL) {
+export function normalizeVestingStorage(storage: VestingGraphQL | null) {
   return {
-    address: storage?.address,
-    totalVestedAmount: storage?.total_vested_amount,
+    address: storage?.address || '',
+    totalVestedAmount: storage?.total_vested_amount ?? 0,
   }
 }
 

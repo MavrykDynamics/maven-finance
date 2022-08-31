@@ -2,7 +2,7 @@ import { MichelsonMap } from '@taquito/taquito'
 import { GovernancePhase } from '../../reducers/governance'
 import {
   ProposalStatus,
-  TokenStandardType,
+  TokenGraphQL,
   PaymentType,
   GovernanceStorageGraphQL,
   ProposalRecordType,
@@ -104,7 +104,8 @@ export const getProposalStatusInfo = (
     // Assuming its a proposal that has been executed or defeated. Not one that
     // is waiting to be executed / have its payment processed. STILL need to check
     // for this to show it on the main proposals page
-    if (!proposal?.currentRoundProposal && proposal && proposal?.cycle < cycleCounter) {
+    // if (!proposal?.currentRoundProposal && proposal && proposal?.cycle < cycleCounter) {
+    if (!proposal?.currentRoundProposal && proposal) {
       if (proposal?.executed) {
         statusFlag = ProposalStatus.EXECUTED
       } else {
@@ -181,8 +182,8 @@ export const normalizeProposalStatus = (
   return status
 }
 
-export const normalizeTokenStandart = (standatd: TokenStandardType, address: string, token_id: string): PaymentType => {
-  return standatd === 2 && address && token_id ? 'MVK' : 'XTZ'
+export const normalizeTokenStandart = (token?: TokenGraphQL): PaymentType => {
+  return token?.type === 0 ? 'XTZ' : 'MVK'
 }
 
 const BEFORE_DIGIT = 24
@@ -274,5 +275,6 @@ export const normalizeGovernanceStorage = (storage: GovernanceStorageGraphQL | n
     proposalLedger,
     timelockProposalId: currentGovernance?.timelock_proposal_id ?? 0,
     cycleHighestVotedProposalId: currentGovernance?.cycle_highest_voted_proposal_id ?? 0,
+    cycleCounter: 0,
   }
 }

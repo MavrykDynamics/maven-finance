@@ -90,11 +90,11 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
   useEffect(() => {
     if (proposalPayments?.length) {
       const prepareTablePayments = proposalPayments.map((item) => {
-        const paymentType = normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)
+        const paymentType = normalizeTokenStandart(item.token)
         const amount =
           paymentType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
         return [item.to__id, item.title, `${amount}`, paymentType]
-      })
+      }) as string[][]
       setTableData([INIT_TABLE_HEADERS, ...prepareTablePayments])
     }
   }, [proposalPayments])
