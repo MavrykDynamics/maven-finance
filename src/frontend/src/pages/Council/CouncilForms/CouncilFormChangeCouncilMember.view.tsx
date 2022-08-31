@@ -209,7 +209,7 @@ export const CouncilFormChangeCouncilMember = () => {
         key={uploadKey}
         imageIpfsUrl={newMemberImage}
         className="form-ipfs"
-        setIpfsImageUrl={(e: any) => {
+        setIpfsImageUrl={(e: string) => {
           setForm({ ...form, newMemberImage: e })
           setFormInputStatus({ ...formInputStatus, newMemberImage: Boolean(e) ? 'success' : 'error' })
         }}

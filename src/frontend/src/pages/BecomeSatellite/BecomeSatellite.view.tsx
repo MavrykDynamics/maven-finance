@@ -313,7 +313,7 @@ export const BecomeSatelliteView = ({
               disabled={disabled}
               typeFile="image"
               imageIpfsUrl={form.image}
-              setIpfsImageUrl={(e: any) => {
+              setIpfsImageUrl={(e: string) => {
                 setForm({ ...form, image: e })
                 setValidForm({ ...validForm, image: Boolean(e) })
                 setFormInputStatus({ ...formInputStatus, image: Boolean(e) ? 'success' : 'error' })
