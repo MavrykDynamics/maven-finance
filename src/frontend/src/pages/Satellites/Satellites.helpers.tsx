@@ -13,7 +13,7 @@ export function normalizeSatelliteRecord(
 ): SatelliteRecord {
   const totalDelegatedAmount = satelliteRecord
     ? satelliteRecord.delegation_records.reduce(
-        (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
+        (sum: number, current: { user: { smvk_balance: number } }) => sum + current.user.smvk_balance,
         0,
       )
     : 0
