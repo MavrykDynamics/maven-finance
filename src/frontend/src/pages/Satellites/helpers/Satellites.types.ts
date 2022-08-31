@@ -1,4 +1,4 @@
-import { SatelliteRecord } from "utils/TypesAndInterfaces/Delegation"
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 export type SatellitesListProps = {
   listTitle?: string
@@ -42,8 +42,8 @@ export type Feed = {
   name: string
   number_blocks_delay: number
   oracle_records: Array<any>
-  oracle_rewards_smvk:  Array<any>
-  oracle_rewards_xtz:  Array<any>
+  oracle_rewards_smvk: Array<any>
+  oracle_rewards_xtz: Array<any>
   per_thousand_deviation_trigger: number
   percent_oracle_threshold: number
   request_rate_deviation_deposit_fee: number
@@ -60,14 +60,14 @@ export type Feed = {
   token_1_symbol: string
   withdraw_reward_smvk_paused: boolean
   withdraw_reward_xtz_paused: boolean
-  network?: string,
-  category?: string,
+  network?: string
+  category?: string
 }
 
 export type InitialOracleStorageType = {
-  feeds: Array<Feed>,
-  feedsFactory: Array<FeedFactory>,
-  totalOracleNetworks: number,
+  feeds: Array<Feed>
+  feedsFactory: Array<FeedFactory>
+  totalOracleNetworks: number
 }
 
 export type SatelliteListItemProps = {
@@ -82,4 +82,3 @@ export type SatelliteListItemProps = {
   className?: string
   children?: JSX.Element
 }
-

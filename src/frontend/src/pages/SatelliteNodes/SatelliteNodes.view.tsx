@@ -7,7 +7,7 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { SATELITES_NODES_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
-import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from 'app/App.components/DropDown/DropDown.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
 import SatteliteList from 'pages/Satellites/SatelliteList/SatellitesList.view'
 
@@ -48,7 +48,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)

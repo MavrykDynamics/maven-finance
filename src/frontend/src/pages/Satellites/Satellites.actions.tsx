@@ -100,7 +100,7 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
 export const UNDELEGATE_REQUEST = 'UNSTAKE_REQUEST'
 export const UNDELEGATE_RESULT = 'UNSTAKE_RESULT'
 export const UNDELEGATE_ERROR = 'UNSTAKE_ERROR'
-export const undelegate = () => async (dispatch: AppDispatch, getState: any) => {
+export const undelegate = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -153,7 +153,7 @@ export const GET_ORACLES_STORAGE = 'GET_ORACLES_STORAGE'
 
 export const REGISTER_FEED = 'REGISTER_FEED'
 export const REGISTER_FEED_ERROR = 'REGISTER_FEED_ERROR'
-export const registerFeedAction = () => async (dispatch: AppDispatch, getState: any) => {
+export const registerFeedAction = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {

@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import OracleSatellitesView from './SatelliteNodes.view'
 
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 
 import { State } from 'reducers'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
@@ -23,7 +24,11 @@ const SatelliteNodes = () => {
     setFilteredSatelliteList(satelliteLedger)
   }, [])
 
-  const handleSearch = (e: any) => {
+  const handleSearch = (e: {
+    target: {
+      value: string
+    }
+  }) => {
     const searchQuery = e.target.value
     let searchResult: SatelliteRecord[] = []
 
@@ -40,7 +45,7 @@ const SatelliteNodes = () => {
     setFilteredSatelliteList(searchResult)
   }
 
-  const handleSelect = (selectedOption: any) => {
+  const handleSelect = (selectedOption: DropdownItemType) => {
     const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
 
@@ -48,16 +53,18 @@ const SatelliteNodes = () => {
       setFilteredSatelliteList((data: SatelliteRecord[]) => {
         const dataToSort = data ? [...data] : []
 
-        dataToSort.sort((a: any, b: any) => {
+        dataToSort.sort((a, b) => {
           let res = 0
           switch (sortLabel) {
             case 'Lowest Fee':
+              /* @ts-ignore */
               res = Number(a[sortValue]) - Number(b[sortValue])
               break
             case 'Highest Fee':
             case 'Delegated MVK':
             case 'Participation':
             default:
+              /* @ts-ignore */
               res = Number(b[sortValue]) - Number(a[sortValue])
               break
           }
