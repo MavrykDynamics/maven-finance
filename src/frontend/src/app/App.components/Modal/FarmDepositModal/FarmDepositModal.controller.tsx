@@ -4,7 +4,8 @@ import { State } from 'reducers'
 
 // view
 import { Button } from '../../Button/Button.controller'
-import { Input, InputStatusType } from '../../Input/Input.controller'
+import { Input } from '../../Input/Input.controller'
+import { InputStatusType } from '../../Input/Input.constants'
 import CoinsIcons from '../../Icon/CoinsIcons.view'
 
 // helpers

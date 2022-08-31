@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
+import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 import type { CouncilMember } from '../../../utils/TypesAndInterfaces/Council'
 
 // helpers

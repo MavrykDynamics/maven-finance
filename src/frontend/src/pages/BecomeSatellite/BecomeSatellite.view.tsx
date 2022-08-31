@@ -28,7 +28,7 @@ import {
   BecomeSatelliteFormHorizontal,
   BecomeSatelliteFormTitle,
 } from './BecomeSatellite.style'
-import InputWithPercent from 'app/App.components/InputWithPercent/InputWithPercent'
+import InputWithPercent from 'app/App.components/Input/InputWithPercent'
 import SatellitesSideBar from 'pages/Satellites/SatellitesSideBar/SatellitesSideBar.controller'
 import type { DelegationStorage } from '../../utils/TypesAndInterfaces/Delegation'
 

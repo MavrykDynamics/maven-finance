@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
+import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'

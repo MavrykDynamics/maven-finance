@@ -8,7 +8,7 @@ import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { Button } from '../../app/App.components/Button/Button.controller'
 
 // type
-import type { InputStatusType } from '../../app/App.components/Input/Input.controller'
+import type { InputStatusType } from '../../app/App.components/Input/Input.constants'
 
 // actions
 import {

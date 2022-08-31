@@ -2,21 +2,12 @@ import { useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-// type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
-import type { CouncilMember } from '../../../utils/TypesAndInterfaces/Council'
-
-// helpers
-import { getShortTzAddress } from '../../../utils/tzAdress'
-
 // const
-import { ERROR, INFO, SUCCESS } from '../../../app/App.components/Toaster/Toaster.constants'
+import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 
 // view
-import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // action
