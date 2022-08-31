@@ -40,7 +40,10 @@ type StageThreeFormViewProps = {
   form: ProposalFinancialRequestForm
   setForm: (form: ProposalFinancialRequestForm) => void
   formInputStatus: ProposalFinancialRequestInputStatus
-  handleOnBlur: (e: any, formField: string) => void
+  handleOnBlur: (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
+    formField: string,
+  ) => void
   handleSubmitFinancialRequestData: () => void
   setTableJson: (input: string) => void
   fee: number
@@ -69,7 +72,7 @@ export const StageThreeFormView = ({
   const { accountPkh } = useSelector((state: State) => state.wallet)
 
   const handleLockProposal = () => {
-    if (proposalId) dispatch(lockProposal(proposalId, accountPkh as any))
+    if (proposalId) dispatch(lockProposal(proposalId, accountPkh as string))
   }
 
   const enebleSubmit = tableData.flat().every((item) => Boolean(item))

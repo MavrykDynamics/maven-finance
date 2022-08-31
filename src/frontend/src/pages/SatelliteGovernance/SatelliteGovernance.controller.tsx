@@ -5,7 +5,7 @@ import { State } from 'reducers'
 import { useLocation } from 'react-router'
 
 // types
-import type { GovernanceSatelliteItem } from '../../reducers/governance'
+import type { GovernanceSatelliteActionRecordGraphQL } from '../../utils/TypesAndInterfaces/Governance'
 
 // const
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
@@ -18,11 +18,7 @@ import {
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
-import {
-  ButtonStyled,
-  ButtonText,
-  SlidingTabButtonsStyled,
-} from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.style'
+
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
@@ -54,17 +50,21 @@ const itemsForDropDown = [
   { text: 'Update Aggregator Status', value: 'updateAggregatorStatus' },
 ]
 
-const getOngoingActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
-  return list.filter((item: any) => {
+const getOngoingActionsList = (
+  list: GovernanceSatelliteActionRecordGraphQL[],
+): GovernanceSatelliteActionRecordGraphQL[] => {
+  return list.filter((item) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
     return expirationDatetime > timeNow && item.status !== 1 && !item.executed
   })
 }
 
-const getPastActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
+const getPastActionsList = (
+  list: GovernanceSatelliteActionRecordGraphQL[],
+): GovernanceSatelliteActionRecordGraphQL[] => {
   console.log(list)
-  return list.filter((item: any) => {
+  return list.filter((item) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
     return expirationDatetime < timeNow || item.status === 0
@@ -95,7 +95,7 @@ export const SatelliteGovernance = () => {
 
   const ongoingActionsAmount = getOngoingActionsList(governanceSatelliteActionRecord).length
 
-  const [separateRecord, setSeparateRecord] = useState<Record<string, unknown>[]>([])
+  const [separateRecord, setSeparateRecord] = useState<GovernanceSatelliteActionRecordGraphQL[]>([])
 
   const [tabsList, setTabsList] = useState<TabItem[]>([])
 
@@ -121,13 +121,10 @@ export const SatelliteGovernance = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {}
-
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
-    handleSelect(chosenItem)
   }
 
   const handleChangeTabs = (tabId?: number) => {
@@ -146,7 +143,7 @@ export const SatelliteGovernance = () => {
 
     if (tabId === 3) {
       setActiveTab('my')
-      const filterPast = governanceSatelliteActionRecord.filter((item: any) => {
+      const filterPast = governanceSatelliteActionRecord.filter((item) => {
         return accountPkh === item.initiator_id
       })
       setSeparateRecord(filterPast)
@@ -257,7 +254,7 @@ export const SatelliteGovernance = () => {
       </SatelliteGovernanceStyled>
 
       {paginatedItemsList?.length
-        ? paginatedItemsList.map((item: any) => {
+        ? paginatedItemsList.map((item: GovernanceSatelliteActionRecordGraphQL) => {
             const linkAddress = item.governance_satellite_action_parameters?.[0]?.value || ''
 
             return (
@@ -266,7 +263,7 @@ export const SatelliteGovernance = () => {
                 id={item.id}
                 satelliteId={item.governance_satellite_id}
                 initiatorId={item.initiator_id}
-                date={item.expiration_datetime}
+                date={item.expiration_datetime || ''}
                 executed={item.executed}
                 status={item.status}
                 purpose={item.governance_purpose}
