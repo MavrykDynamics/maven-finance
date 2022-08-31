@@ -4,7 +4,7 @@ import { MavrykTheme } from '../../../styles/interfaces'
 import { headerColor, cyanColor, royalPurpleColor, skyColor } from '../../../styles/colors'
 
 export const ContractCardWrapper = styled.div<{ theme: MavrykTheme }>`
-  width: 31%;
+  width: 48%;
   min-height: 135px;
   height: fit-content;
   border: 1px solid ${royalPurpleColor};
