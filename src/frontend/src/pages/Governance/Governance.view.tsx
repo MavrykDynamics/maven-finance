@@ -42,6 +42,7 @@ import { Proposals } from './Proposals/Proposals.controller'
 import { VotingArea } from './VotingArea/VotingArea.controller'
 import { calcTimeToBlock } from '../../utils/calcFunctions'
 import { Button } from 'app/App.components/Button/Button.controller'
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 
 // styles
 import {
@@ -75,7 +76,7 @@ type GovernanceViewProps = {
   waitingForPaymentToBeProcessed: CurrentRoundProposalsStorageType
   governancePhase: GovernancePhase
   userIsSatellite: boolean
-  handleExecuteProposal: any
+  handleExecuteProposal: (arg: number) => void
   timeLeftInPhase: Date | number
 }
 
