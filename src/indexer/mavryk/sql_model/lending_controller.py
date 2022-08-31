@@ -1,14 +1,12 @@
 from .enums import OracleType
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Lending Controller Tables
 ###
 
-class LendingController(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(default="", max_length=36)
+class LendingController(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='lending_controllers', null=True)
     collateral_ratio                        = fields.SmallIntField(default=0)
     liquidation_ratio                       = fields.SmallIntField(default=0)

@@ -1,14 +1,12 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import ActionStatus
 
 ###
 # Break Glass Tables
 ###
 
-class BreakGlass(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class BreakGlass(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='break_glasses')
     threshold                               = fields.SmallIntField(default=0)
     action_expiry_days                      = fields.SmallIntField(default=0)

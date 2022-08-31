@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Aggregator Factory Tables
 ###
 
-class AggregatorFactory(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class AggregatorFactory(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregator_factories')
     create_aggregator_paused                = fields.BooleanField(default=False)
     track_aggregator_paused                 = fields.BooleanField(default=False)

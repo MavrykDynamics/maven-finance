@@ -568,6 +568,7 @@ block {
                     |   Timelock -> block {
 
                             // Current Round is a Timelock Round 
+                            //  -   Mark the timelock proposal as ready to execute
                             //  -   Execute timelocked proposal if boolean input is True
                             //          - If proposal is too large for execution (e.g. gas cost exceed limits), set boolean to False 
                             //            and execute proposal manually through the %processProposalSingleData entrypoint
@@ -575,7 +576,7 @@ block {
 
                             // Execute timelocked proposal if boolean input is True
                             if s.timelockProposalId =/= 0n then {
-                                // Mark the proposal as ready to execute
+                                // Mark the proposal as ready to execute even if it's not executed during this cycle
                                 var proposalToExecute                           := case Big_map.find_opt(s.timelockProposalId, s.proposalLedger) of [
                                         Some (_proposal)    -> _proposal
                                     |   None                -> failwith(error_PROPOSAL_NOT_FOUND)
@@ -1481,7 +1482,9 @@ function lambdaExecuteProposal(const governanceLambdaAction : governanceLambdaAc
 block {
 
     // Steps Overview:
-    // 1. Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+    // 1. Check the desired proposal to execute can be executed
+    //      -   executionReady set to True
+    //      -   or the current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
     // 2. Check that there is a valid timelock proposal
     // 3. Validation Checks
     //      -   Check that proposal has not been executed
@@ -1721,7 +1724,9 @@ function lambdaProcessProposalSingleData(const governanceLambdaAction : governan
 block {
 
     // Steps Overview:
-    // 1. Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+    // 1. Check the desired proposal to execute can be executed
+    //      -   executionReady set to True
+    //      -   or the current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)    
     // 2. Check that there is a valid timelock proposal
     // 3. Validation Checks
     //      -   Check that proposal has not been executed
