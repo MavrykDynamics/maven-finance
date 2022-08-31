@@ -53,7 +53,7 @@ export const FarmWithdrawModal = () => {
     checkInputIsOk(value)
   }
 
-  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault()
 
     if (!disabled) {

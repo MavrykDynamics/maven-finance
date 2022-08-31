@@ -47,13 +47,13 @@ export const FarmDepositModal = () => {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: any) => {
     const value = mathRoundTwoDigit(e.target.value)
     setAmount(+value)
     checkInputIsOk(value)
   }
 
-  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!disabled) {

@@ -62,12 +62,12 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
     setStatus(value ? 'success' : 'error')
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     checkInputIsOk(value)
   }
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (+value === 0) {
       setAmount('')
@@ -110,7 +110,7 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
             id="input-roi"
             type={'number'}
             placeholder={String(amount)}
-            onChange={(e: any) => handleChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.value)}
             onBlur={handleBlur}
             onFocus={handleFocus}
             value={amount}

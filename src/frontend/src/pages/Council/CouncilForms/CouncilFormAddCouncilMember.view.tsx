@@ -37,7 +37,7 @@ export const CouncilFormAddCouncilMember = () => {
 
   const { newMemberAddress, newMemberName, newMemberWebsite, newMemberImage } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       await dispatch(addCouncilMember(newMemberAddress, newMemberName, newMemberWebsite, newMemberImage))
@@ -60,13 +60,13 @@ export const CouncilFormAddCouncilMember = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -87,11 +87,11 @@ export const CouncilFormAddCouncilMember = () => {
             required
             value={newMemberAddress}
             name="newMemberAddress"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberAddress}
           />
         </div>
@@ -103,11 +103,11 @@ export const CouncilFormAddCouncilMember = () => {
             required
             value={newMemberName}
             name="newMemberName"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -119,11 +119,11 @@ export const CouncilFormAddCouncilMember = () => {
             required
             value={newMemberWebsite}
             name="newMemberWebsite"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>

@@ -69,7 +69,7 @@ export const CouncilFormChangeCouncilMember = () => {
 
   const { oldCouncilMemberAddress, newCouncilMemberAddress, newMemberName, newMemberWebsite, newMemberImage } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       if (!oldCouncilMemberAddress) {
@@ -108,13 +108,13 @@ export const CouncilFormChangeCouncilMember = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -164,11 +164,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newCouncilMemberAddress}
             name="newCouncilMemberAddress"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newCouncilMemberAddress}
           />
         </div>
@@ -179,11 +179,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newMemberName}
             name="newMemberName"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -194,11 +194,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newMemberWebsite}
             name="newMemberWebsite"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>
