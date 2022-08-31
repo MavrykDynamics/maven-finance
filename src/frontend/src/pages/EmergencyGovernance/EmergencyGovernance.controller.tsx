@@ -2,9 +2,6 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 
-// types
-import type { VoteStatistics } from '../Governance/Governance.controller'
-
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { getEmergencyGovernanceStorage } from './EmergencyGovernance.actions'
@@ -13,19 +10,6 @@ import { getBreakGlassStorage } from '../BreakGlass/BreakGlass.actions'
 import { EmergencyGovProposalModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.controller'
 import { showExitFeeModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.actions'
 import { proposalRoundVote, votingRoundVote } from '../Governance/Governance.actions'
-
-export type EmergencyGovernanceLedgerType = {
-  id: number
-  title: string
-  startTimestamp: string
-  executedTimestamp: string
-  proposerId: string
-  description: string
-  dropped: boolean
-  executed: boolean
-  totalsMvkVotes: number
-  sMvkPercentageRequired: number
-}
 
 export const EmergencyGovernance = () => {
   const dispatch = useDispatch()
