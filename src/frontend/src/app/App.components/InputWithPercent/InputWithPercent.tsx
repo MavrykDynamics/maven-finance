@@ -5,8 +5,8 @@ import { Input, InputStatusType } from '../Input/Input.controller'
 type InputProps = {
   placeholder: string
   value: string | number
-  onChange: any
-  onBlur?: any
+  onChange: (arg: number) => void
+  onBlur?: React.ChangeEventHandler<HTMLInputElement>
   inputStatus: InputStatusType
   type: string
   disabled: boolean
@@ -19,17 +19,19 @@ const InputWithPercent = ({ disabled, type, placeholder, value, onChange, onBlur
       placeholder={placeholder}
       disabled={disabled}
       value={`${value}%`}
-      onChange={(e: any) => {
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
         // if adding number just replace '%' and set parsed number
         if (/([%])/g.test(e.target.value)) {
           onChange(Number(e.target.value.replace('%', '')) || 0)
         } else {
           // is removed '%' we need to remove last number
-          onChange(Number(Math.floor(e.target.value / 10)) || 0)
+          onChange(Number(Math.floor(+e.target.value / 10)) || 0)
         }
       }}
       onBlur={onBlur}
-      onKeyDown={(e: any) => !/^\d*\.?\d*$/.test(e.key) && e.key !== 'Backspace' && e.preventDefault()}
+      onKeyDown={(e: React.KeyboardEvent<HTMLElement>) =>
+        !/^\d*\.?\d*$/.test(e.key) && e.key !== 'Backspace' && e.preventDefault()
+      }
       inputStatus={inputStatus}
     />
   )
