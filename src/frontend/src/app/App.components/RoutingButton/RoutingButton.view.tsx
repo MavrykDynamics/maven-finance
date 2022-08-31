@@ -1,7 +1,5 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { BUTTON, RoutingButtonStyle, RoutingButtonTypes, PRIMARY } from './RoutingButton.constants'
+import { RoutingButtonStyle, RoutingButtonTypes } from './RoutingButton.constants'
 import {
   RoutingButtonIcon,
   RoutingButtonLoadingIcon,
@@ -12,42 +10,29 @@ import {
 type RoutingButtonViewProps = {
   text: string
   icon?: string
-  kind?: RoutingButtonStyle
+  kind: RoutingButtonStyle
   onClick?: () => void
-  clickCallback: () => void
-  clicked: boolean
   type?: RoutingButtonTypes
   loading: boolean
   pathName: string
-  pathParams: any
+  pathParams?: Record<string, unknown>
 }
 
 export const RoutingButtonView = ({
   text,
   icon,
-  kind = 'primary',
+  kind,
   onClick,
-  clickCallback,
-  clicked,
   type,
   loading,
   pathName,
   pathParams,
 }: RoutingButtonViewProps) => {
-  let routingButtonClasses = kind
-  if (clicked) routingButtonClasses += ' clicked'
-  if (loading) routingButtonClasses += ' loading'
+  const routingButtonClasses = `${kind} ${loading ? 'loading' : ''}`
 
   return (
     <Link to={{ pathname: pathName, pathParams }}>
-      <RoutingButtonStyled
-        className={routingButtonClasses}
-        onClick={() => {
-          clickCallback()
-          onClick && onClick()
-        }}
-        type={type}
-      >
+      <RoutingButtonStyled className={routingButtonClasses} onClick={onClick} type={type}>
         <RoutingButtonText>
           {loading ? (
             <>
@@ -70,24 +55,4 @@ export const RoutingButtonView = ({
       </RoutingButtonStyled>
     </Link>
   )
-}
-
-RoutingButtonView.propTypes = {
-  text: PropTypes.string.isRequired,
-  icon: PropTypes.string,
-  kind: PropTypes.string,
-  onClick: PropTypes.func,
-  clickCallback: PropTypes.func.isRequired,
-  clicked: PropTypes.bool.isRequired,
-  type: PropTypes.string,
-  loading: PropTypes.bool,
-  glassBroken: PropTypes.bool,
-}
-
-RoutingButtonView.defaultProps = {
-  icon: undefined,
-  kind: PRIMARY,
-  type: BUTTON,
-  loading: false,
-  glassBroken: false,
 }

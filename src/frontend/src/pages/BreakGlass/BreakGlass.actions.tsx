@@ -11,10 +11,11 @@ import {
   WHITELIST_DEV_QUERY_VARIABLE,
 } from '../../gql/queries'
 import { normalizeBreakGlass, normalizeBreakGlassStatus, normalizeWhitelistDev } from './BreakGlass.helpers'
+import type { AppDispatch, GetState } from '../../app/App.controller'
 
 export const GET_BREAK_GLASS_STORAGE = 'GET_BREAK_GLASS_STORAGE'
 export const SET_GLASS_BROKEN = 'SET_GLASS_BROKEN'
-export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const storage = await fetchFromIndexer(
     BREAK_GLASS_STORAGE_QUERY,
     BREAK_GLASS_STORAGE_QUERY_NAME,
@@ -34,7 +35,7 @@ export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: an
 }
 
 export const GET_BREAK_GLASS_STATUS = 'GET_BREAK_GLASS_STATUS'
-export const getBreakGlassStatus = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getBreakGlassStatus = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const storage = await fetchFromIndexer(
     BREAK_GLASS_STATUS_QUERY,
     BREAK_GLASS_STATUS_QUERY_NAME,
@@ -50,7 +51,7 @@ export const getBreakGlassStatus = (accountPkh?: string) => async (dispatch: any
 }
 
 export const GET_WHITELIST_DEV = 'GET_WHITELIST_DEVS'
-export const getWhitelistDevs = () => async (dispatch: any) => {
+export const getWhitelistDevs = () => async (dispatch: AppDispatch) => {
   const storage = await fetchFromIndexer(WHITELIST_DEV_QUERY, WHITELIST_DEV_QUERY_NAME, WHITELIST_DEV_QUERY_VARIABLE)
 
   const whitelistDev = normalizeWhitelistDev(storage?.whitelist_developer[0])

@@ -4,12 +4,13 @@ import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { RegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
+import type { AppDispatch, GetState } from '../../app/App.controller'
 
 export const REGISTER_AS_SATELLITE_REQUEST = 'REGISTER_AS_SATELLITE_REQUEST'
 export const REGISTER_AS_SATELLITE_RESULT = 'REGISTER_AS_SATELLITE_RESULT'
 export const REGISTER_AS_SATELLITE_ERROR = 'REGISTER_AS_SATELLITE_ERROR'
 export const registerAsSatellite =
-  (form: RegisterAsSatelliteForm, accountPkh: string) => async (dispatch: any, getState: any) => {
+  (form: RegisterAsSatelliteForm) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -46,69 +47,72 @@ export const registerAsSatellite =
         type: REGISTER_AS_SATELLITE_RESULT,
       })
       dispatch(getDelegationStorage())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: REGISTER_AS_SATELLITE_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: REGISTER_AS_SATELLITE_ERROR,
+          error,
+        })
+      }
     }
   }
 
 export const UPDATE_AS_SATELLITE_REQUEST = 'UPDATE_AS_SATELLITE_REQUEST'
 export const UPDATE_AS_SATELLITE_RESULT = 'UPDATE_AS_SATELLITE_RESULT'
 export const UPDATE_AS_SATELLITE_ERROR = 'UPDATE_AS_SATELLITE_ERROR'
-export const updateSatelliteRecord = (form: RegisterAsSatelliteForm) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const updateSatelliteRecord =
+  (form: RegisterAsSatelliteForm) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
+      console.log('contract', contract)
+
+      const transaction = await contract?.methods
+        .updateSatelliteRecord(form.name, form.description, form.image, form.website, form.fee * PRECISION_NUMBER)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch({
+        type: UPDATE_AS_SATELLITE_REQUEST,
+        form,
+      })
+      dispatch(showToaster(INFO, 'Registering...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Satellite Registered.', 'All good :)'))
+
+      dispatch({
+        type: UPDATE_AS_SATELLITE_RESULT,
+      })
+      dispatch(getDelegationStorage())
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: UPDATE_AS_SATELLITE_ERROR,
+          error,
+        })
+      }
+    }
   }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    console.log('contract', contract)
-
-    const transaction = await contract?.methods
-      .updateSatelliteRecord(form.name, form.description, form.image, form.website, form.fee * PRECISION_NUMBER)
-      .send()
-    console.log('transaction', transaction)
-
-    dispatch({
-      type: UPDATE_AS_SATELLITE_REQUEST,
-      form,
-    })
-    dispatch(showToaster(INFO, 'Registering...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Satellite Registered.', 'All good :)'))
-
-    dispatch({
-      type: UPDATE_AS_SATELLITE_RESULT,
-    })
-    dispatch(getDelegationStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: UPDATE_AS_SATELLITE_ERROR,
-      error,
-    })
-  }
-}
 
 export const UNREGISTER_AS_SATELLITE_REQUEST = 'UNREGISTER_AS_SATELLITE_REQUEST'
 export const UNREGISTER_AS_SATELLITE_RESULT = 'UNREGISTER_AS_SATELLITE_RESULT'
 export const UNREGISTER_AS_SATELLITE_ERROR = 'UNREGISTER_AS_SATELLITE_ERROR'
-export const unregisterAsSatellite = () => async (dispatch: any, getState: any) => {
+export const unregisterAsSatellite = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -141,12 +145,13 @@ export const unregisterAsSatellite = () => async (dispatch: any, getState: any) 
       type: UNREGISTER_AS_SATELLITE_RESULT,
     })
     dispatch(getDelegationStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: UNREGISTER_AS_SATELLITE_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: UNREGISTER_AS_SATELLITE_ERROR,
+        error,
+      })
+    }
   }
 }

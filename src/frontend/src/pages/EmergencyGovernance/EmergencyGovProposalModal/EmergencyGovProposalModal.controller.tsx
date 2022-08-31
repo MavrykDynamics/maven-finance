@@ -42,7 +42,10 @@ export const EmergencyGovProposalModal = () => {
   const cancelCallback = () => {
     dispatch(hideExitFeeModal())
   }
-  const handleOnBlur = (e: any, formField: string) => {
+  const handleOnBlur = (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
+    formField: string,
+  ) => {
     let updatedState, validityCheckResult
     switch (formField) {
       case 'TITLE':
@@ -62,7 +65,7 @@ export const EmergencyGovProposalModal = () => {
 
   const submitEmergencyGovProposalCallback = () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (formIsValid) dispatch(submitEmergencyGovernanceProposal(form, accountPkh as any))
+    if (formIsValid) dispatch(submitEmergencyGovernanceProposal(form))
   }
 
   return (

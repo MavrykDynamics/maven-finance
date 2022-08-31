@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // view
 import { Button } from '../../Button/Button.controller'
-import { Input, InputStatusType } from '../../Input/Input.controller'
+import { Input } from '../../Input/Input.controller'
+import { InputStatusType } from '../../Input/Input.constants'
 import CoinsIcons from '../../Icon/CoinsIcons.view'
 
 // helpers
@@ -22,7 +23,7 @@ import {
   FarmInputSection,
 } from '../../../../pages/Farms/FarmCard/FarmCard.style'
 
-export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean; cancelCallback: any }) => {
+export const FarmDepositModal = () => {
   const dispatch = useDispatch()
   const { selectedFarmAddress } = useSelector((state: State) => state.farm)
   const [amount, setAmount] = useState<number | ''>('')
@@ -33,12 +34,12 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
     setStatus(value ? 'success' : 'error')
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     checkInputIsOk(value)
   }
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
     if (+value === 0) {
@@ -46,13 +47,13 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     setAmount(+value)
     checkInputIsOk(value)
   }
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!disabled) {
@@ -86,7 +87,6 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
             value={amount}
             pinnedText={'MVK-tzBTC LP'}
             inputStatus={status}
-            errorMessage={''}
           />
           <div className="input-info">
             <p>MVK-tzBTC LP Balance</p>

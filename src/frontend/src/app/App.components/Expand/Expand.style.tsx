@@ -1,4 +1,4 @@
-import styled from 'styled-components/macro'
+import styled, { css } from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import { CardHover, headerColor, royalPurpleColor } from 'styles'
 
@@ -54,11 +54,12 @@ export const ExpandStyled = styled(CardHover)`
   }
 `
 
-export const ExpandArticleStyled = styled.article<{ height: number; theme: MavrykTheme }>`
+export const ExpandArticleStyled = styled.article<{ show?: boolean; theme: MavrykTheme }>`
   width: 100%;
-  height: 0;
+  max-height: 0;
+  height: fit-content;
   cursor: pointer;
-  transition: height 0.3s ease-in-out; /* added */
+  transition: 0.6s all;
   overflow: hidden;
   position: relative;
 
@@ -71,10 +72,10 @@ export const ExpandArticleStyled = styled.article<{ height: number; theme: Mavry
     top: 1px;
   }
 
-  &.show {
-    height: ${({ height }) => height}px;
-  }
-  &.hide {
-    height: 0; /* changed */
-  }
+  ${({ show }) =>
+    show
+      ? css`
+          max-height: 100%;
+        `
+      : ''}
 `

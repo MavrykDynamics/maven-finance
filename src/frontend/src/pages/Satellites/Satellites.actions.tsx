@@ -4,13 +4,11 @@ import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorma
 import { State } from 'reducers'
 import { DELEGATION_STORAGE_QUERY, DELEGATION_STORAGE_QUERY_NAME, DELEGATION_STORAGE_QUERY_VARIABLE } from 'gql/queries'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
-import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
-
+import type { AppDispatch, GetState } from '../../app/App.controller'
 import { normalizeDelegationStorage } from './Satellites.helpers'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
-export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
+export const getDelegationStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     const delegationStorageFromIndexer = await fetchFromIndexerWithPromise(
       DELEGATION_STORAGE_QUERY,
@@ -24,20 +22,22 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
       type: GET_DELEGATION_STORAGE,
       delegationStorage,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: GET_DELEGATION_STORAGE,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: GET_DELEGATION_STORAGE,
+        error,
+      })
+    }
   }
 }
 
 export const DELEGATE_REQUEST = 'DELEGATE_REQUEST'
 export const DELEGATE_RESULT = 'DELEGATE_RESULT'
 export const DELEGATE_ERROR = 'DELEGATE_ERROR'
-export const delegate = (satelliteAddress: string) => async (dispatch: any, getState: any) => {
+export const delegate = (satelliteAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   console.log('Here in delegate action')
@@ -85,20 +85,22 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDelegationStorage())
     dispatch(getDoormanStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: DELEGATE_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: DELEGATE_ERROR,
+        error,
+      })
+    }
   }
 }
 
 export const UNDELEGATE_REQUEST = 'UNSTAKE_REQUEST'
 export const UNDELEGATE_RESULT = 'UNSTAKE_RESULT'
 export const UNDELEGATE_ERROR = 'UNSTAKE_ERROR'
-export const undelegate = () => async (dispatch: any, getState: any) => {
+export const undelegate = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -135,13 +137,15 @@ export const undelegate = () => async (dispatch: any, getState: any) => {
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDelegationStorage())
     dispatch(getDoormanStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: UNDELEGATE_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: UNDELEGATE_ERROR,
+        error,
+      })
+    }
   }
 }
 
@@ -149,7 +153,7 @@ export const GET_ORACLES_STORAGE = 'GET_ORACLES_STORAGE'
 
 export const REGISTER_FEED = 'REGISTER_FEED'
 export const REGISTER_FEED_ERROR = 'REGISTER_FEED_ERROR'
-export const registerFeedAction = () => async (dispatch: any, getState: any) => {
+export const registerFeedAction = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -164,12 +168,14 @@ export const registerFeedAction = () => async (dispatch: any, getState: any) => 
 
   try {
     // TODO: Implement this action ORACLES_SI
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: REGISTER_FEED_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: REGISTER_FEED_ERROR,
+        error,
+      })
+    }
   }
 }

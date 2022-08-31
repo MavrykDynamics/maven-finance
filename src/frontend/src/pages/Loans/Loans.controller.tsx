@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect } from 'react'
 import { Page } from 'styles'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 
 export const Loans = () => {
@@ -14,7 +13,7 @@ export const Loans = () => {
 
   return (
     <Page>
-      <PageHeader page={'loans'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'loans'} />
       <LoansStyled>
         <div>Here on the Loans Page</div>
       </LoansStyled>

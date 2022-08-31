@@ -61,7 +61,7 @@ export const SatelliteListItem = ({
     : null
 
   const currentlySupportingProposal = proposalLedger?.length
-    ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
+    ? proposalLedger.find((proposal) => proposal.id === currentlySupportingProposalId)
     : null
 
   const signedFeedsCount = React.useMemo(

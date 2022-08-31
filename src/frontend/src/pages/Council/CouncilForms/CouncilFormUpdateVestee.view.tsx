@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
+import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -35,7 +35,7 @@ export const CouncilFormUpdateVestee = () => {
 
   const { vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       await dispatch(updateVestee(vesteeAddress, +totalAllocated, +cliffInMonths, +vestingInMonths))
@@ -51,13 +51,13 @@ export const CouncilFormUpdateVestee = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -78,11 +78,11 @@ export const CouncilFormUpdateVestee = () => {
             required
             value={vesteeAddress}
             name="vesteeAddress"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.vesteeAddress}
           />
         </div>
@@ -94,11 +94,11 @@ export const CouncilFormUpdateVestee = () => {
             required
             value={totalAllocated}
             name="totalAllocated"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.totalAllocated}
           />
         </div>
@@ -112,11 +112,11 @@ export const CouncilFormUpdateVestee = () => {
             required
             value={cliffInMonths}
             name="cliffInMonths"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.cliffInMonths}
           />
         </div>
@@ -130,11 +130,11 @@ export const CouncilFormUpdateVestee = () => {
             required
             value={vestingInMonths}
             name="vestingInMonths"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.vestingInMonths}
           />
         </div>

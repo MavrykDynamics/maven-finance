@@ -5,6 +5,7 @@ import {
   GET_WHITELIST_DEV,
 } from '../pages/BreakGlass/BreakGlass.actions'
 import { BreakGlassStorage, BreakGlassStatusStorage, WhitelistDevStorage } from '../utils/TypesAndInterfaces/BreakGlass'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface BreakGlassState {
   breakGlassStorage: BreakGlassStorage
@@ -35,7 +36,7 @@ const breakGlassDefaultState: BreakGlassState = {
   whitelistDev: '',
 }
 
-export function breakGlass(state = breakGlassDefaultState, action: any): BreakGlassState {
+export function breakGlass(state = breakGlassDefaultState, action: Action) {
   switch (action.type) {
     case GET_BREAK_GLASS_STORAGE:
       return {

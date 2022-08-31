@@ -1,7 +1,5 @@
-import * as PropTypes from 'prop-types'
 import * as React from 'react'
-
-import { BUTTON, ButtonStyle, ButtonTypes, PRIMARY } from './Button.constants'
+import { ButtonStyle, ButtonTypes } from './Button.constants'
 import { ButtonIcon, ButtonLoadingIcon, ButtonStyled, ButtonText } from './Button.style'
 
 type ButtonViewProps = {
@@ -10,46 +8,21 @@ type ButtonViewProps = {
   className?: string
   kind?: ButtonStyle
   onClick?: (e: React.MouseEvent<HTMLElement>) => void
-  clickCallback: () => void
-  clicked: boolean
   type?: ButtonTypes
   loading?: boolean
   disabled?: boolean
 }
 
-export const ButtonView = ({
-  text,
-  icon,
-  kind,
-  onClick,
-  clickCallback,
-  clicked,
-  type,
-  loading,
-  disabled,
-  className = '',
-}: ButtonViewProps) => {
-  let buttonClasses = kind
-  if (clicked) buttonClasses += ' clicked'
-  if (loading) buttonClasses += ' loading'
-  if (disabled) {
-    buttonClasses += ' disabled'
-    kind += ' disabled'
-  }
+export const ButtonView = ({ text, icon, kind, onClick, type, loading, disabled, className = '' }: ButtonViewProps) => {
+  const fullKind = `${kind} ${disabled ? 'disabled' : ''}`
+  const buttonClasses = `${fullKind} ${loading ? 'loading' : ''} ${className}`
+
   return (
-    <ButtonStyled
-      className={`${buttonClasses} ${className}`}
-      onClick={(e: React.MouseEvent<HTMLElement>) => {
-        clickCallback()
-        onClick && onClick(e)
-      }}
-      type={type}
-      disabled={disabled}
-    >
+    <ButtonStyled className={`${buttonClasses}`} onClick={onClick} type={type} disabled={disabled}>
       <ButtonText>
         {loading ? (
           <>
-            <ButtonLoadingIcon className={kind}>
+            <ButtonLoadingIcon className={fullKind}>
               <use xlinkHref="/icons/sprites.svg#loading" />
             </ButtonLoadingIcon>
             <div>Loading...</div>
@@ -57,7 +30,7 @@ export const ButtonView = ({
         ) : (
           <>
             {icon && (
-              <ButtonIcon className={kind}>
+              <ButtonIcon className={fullKind}>
                 <use xlinkHref={`/icons/sprites.svg#${icon}`} />
               </ButtonIcon>
             )}
@@ -67,24 +40,4 @@ export const ButtonView = ({
       </ButtonText>
     </ButtonStyled>
   )
-}
-
-ButtonView.propTypes = {
-  text: PropTypes.string.isRequired,
-  icon: PropTypes.string,
-  kind: PropTypes.string,
-  onClick: PropTypes.func,
-  clickCallback: PropTypes.func.isRequired,
-  clicked: PropTypes.bool.isRequired,
-  type: PropTypes.string,
-  loading: PropTypes.bool,
-  glassBroken: PropTypes.bool,
-}
-
-ButtonView.defaultProps = {
-  icon: undefined,
-  kind: PRIMARY,
-  type: BUTTON,
-  loading: false,
-  glassBroken: false,
 }

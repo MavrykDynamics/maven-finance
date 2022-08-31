@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
+import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -42,7 +42,7 @@ export const CouncilFormRequestTokens = () => {
 
   const { treasuryAddress, tokenContractAddress, tokenName, tokenAmount, tokenType, tokenId, purpose } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       await dispatch(
@@ -63,13 +63,13 @@ export const CouncilFormRequestTokens = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -90,11 +90,11 @@ export const CouncilFormRequestTokens = () => {
             required
             value={treasuryAddress}
             name="treasuryAddress"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.treasuryAddress}
           />
         </div>
@@ -106,11 +106,11 @@ export const CouncilFormRequestTokens = () => {
             required
             value={tokenContractAddress}
             name="tokenContractAddress"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.tokenContractAddress}
           />
         </div>
@@ -122,11 +122,11 @@ export const CouncilFormRequestTokens = () => {
             required
             value={tokenName}
             name="tokenName"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.tokenName}
           />
         </div>
@@ -138,11 +138,11 @@ export const CouncilFormRequestTokens = () => {
             required
             value={tokenAmount}
             name="tokenAmount"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.tokenAmount}
           />
         </div>
@@ -154,11 +154,11 @@ export const CouncilFormRequestTokens = () => {
             required
             value={tokenType}
             name="tokenType"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.tokenType}
           />
         </div>
@@ -170,11 +170,11 @@ export const CouncilFormRequestTokens = () => {
             required
             value={tokenId}
             name="tokenId"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.tokenId}
           />
         </div>
@@ -182,15 +182,14 @@ export const CouncilFormRequestTokens = () => {
       <div className="textarea-group">
         <label>Purpose for Request</label>
         <TextArea
-          type="text"
           required
           value={purpose}
           name="purpose"
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
             handleChange(e)
             handleBlur(e)
           }}
-          onBlur={(e: any) => handleBlur(e)}
+          onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e)}
           inputStatus={formInputStatus.purpose}
         />
       </div>

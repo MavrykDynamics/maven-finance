@@ -34,7 +34,7 @@ import {
   ORACLE_STORAGE_QUERY_VARIABLE,
 } from './queries'
 
-async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, any>) {
+async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, object>) {
   // const result = await fetch(process.env.REACT_APP_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql', {
   //   method: 'POST',
   //   headers: {
@@ -56,7 +56,7 @@ async function fetchGraphQL(operationsDoc: string, operationName: string, variab
 
   // console.log('%c ||||| gqlAPINetwork', 'color:yellowgreen', gqlAPINetwork);
 
-  return new Promise<any>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     fetch(gqlAPINetwork, {
       method: 'POST',
       headers: {
@@ -74,15 +74,21 @@ async function fetchGraphQL(operationsDoc: string, operationName: string, variab
   })
 }
 
-export async function fetchFromIndexer(operationsDoc: string, operationName: string, variables: Record<string, any>) {
+export async function fetchFromIndexer(
+  operationsDoc: string,
+  operationName: string,
+  variables: Record<string, object>,
+) {
   return await fetchGraphQL(operationsDoc, operationName, variables)
-    .then(({ data, errors }: any) => {
+    .then((res) => {
+      const { data, errors } = res as { data: Record<string, object>; errors: Record<string, object> }
+
       if (errors) {
         console.error(errors)
       }
       return data
     })
-    .catch((error: any) => {
+    .catch((error) => {
       console.error(error)
       return error
     })
@@ -91,16 +97,17 @@ export async function fetchFromIndexer(operationsDoc: string, operationName: str
 export async function fetchFromIndexerWithPromise(
   operationsDoc: string,
   operationName: string,
-  variables: Record<string, any>,
-): Promise<any> {
+  variables: Record<string, object>,
+) {
   return fetchGraphQL(operationsDoc, operationName, variables)
-    .then(({ data, errors }: any) => {
+    .then((res) => {
+      const { data, errors } = res as { data: Record<string, object>; errors: Record<string, object> }
       if (errors) {
         console.error(errors)
       }
       return data
     })
-    .catch((error: any) => {
+    .catch((error) => {
       console.error(error)
       return error
     })

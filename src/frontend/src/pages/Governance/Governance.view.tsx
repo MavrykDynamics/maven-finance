@@ -42,6 +42,7 @@ import { Proposals } from './Proposals/Proposals.controller'
 import { VotingArea } from './VotingArea/VotingArea.controller'
 import { calcTimeToBlock } from '../../utils/calcFunctions'
 import { Button } from 'app/App.components/Button/Button.controller'
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 
 // styles
 import {
@@ -75,7 +76,7 @@ type GovernanceViewProps = {
   waitingForPaymentToBeProcessed: CurrentRoundProposalsStorageType
   governancePhase: GovernancePhase
   userIsSatellite: boolean
-  handleExecuteProposal: any
+  handleExecuteProposal: (arg: number) => void
   timeLeftInPhase: Date | number
 }
 
@@ -94,7 +95,7 @@ export const GovernanceView = ({
   waitingForPaymentToBeProcessed,
 }: GovernanceViewProps) => {
   const dispatch = useDispatch()
-  const blockRef = useRef<any>(null)
+  const blockRef = useRef(null)
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
   const [votingEnding, setVotingEnding] = useState<string>('')
@@ -426,12 +427,6 @@ export const GovernanceView = ({
             ) : null}
           </div>
           <hr />
-          {rightSideContent.details ? (
-            <article>
-              <RightSideSubHeader>Details</RightSideSubHeader>
-              <RightSideSubContent>{rightSideContent.details}</RightSideSubContent>
-            </article>
-          ) : null}
 
           {rightSideContent.description ? (
             <article>
@@ -503,8 +498,8 @@ export const GovernanceView = ({
                       <td>Amount</td>
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
-                    {rightSideContent.proposalPayments.map((item: ProposalPaymentType, i: number) => {
-                      const paymentType = normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)
+                    {rightSideContent.proposalPayments.map((item, i: number) => {
+                      const paymentType = normalizeTokenStandart(item.token)
 
                       const amount =
                         paymentType === 'MVK'
@@ -514,7 +509,7 @@ export const GovernanceView = ({
                       return (
                         <tr key={item.id}>
                           <td>
-                            <TzAddress tzAddress={item.to__id} hasIcon={false} isBold={true} />
+                            <TzAddress tzAddress={item.to__id || ''} hasIcon={false} isBold={true} />
                           </td>
                           <td>{item.title}</td>
                           <td>{amount}</td>

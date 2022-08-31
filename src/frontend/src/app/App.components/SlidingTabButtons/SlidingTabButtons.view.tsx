@@ -1,44 +1,22 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
-
-import { SlidingTabButtonStyle, PRIMARY } from './SlidingTabButtons.constants'
-import { ButtonLoadingIcon, ButtonStyled, ButtonText, SlidingTabButtonsStyled } from './SlidingTabButtons.style'
-import { Ref, useEffect, useState } from 'react'
+import { ButtonStyled, ButtonText, SlidingTabButtonsStyled } from './SlidingTabButtons.style'
 import { TabItem } from './SlidingTabButtons.controller'
 
 type SlidingTabButtonViewProps = {
-  kind?: SlidingTabButtonStyle
-  onClick?: (val?: any) => void
-  clickCallback: (tabId: number) => void
-  clicked: boolean
+  onClick: (tabId: number) => void
+  activeTab: number
   tabValues: TabItem[]
   className?: string
 }
 
-export const SlidingTabButtonsView = ({
-  kind,
-  onClick,
-  clickCallback,
-  tabValues,
-  className = '',
-}: SlidingTabButtonViewProps) => {
-  let generalClasses = kind ?? ''
-
-  const handleButtonClick = (tabId: number) => {
-    if (onClick) onClick(tabId)
-    clickCallback(tabId)
-  }
+export const SlidingTabButtonsView = ({ onClick, activeTab, tabValues, className = '' }: SlidingTabButtonViewProps) => {
   return (
     <SlidingTabButtonsStyled className={className}>
-      {tabValues.map((tabItem, index) => (
+      {tabValues.map((tabItem) => (
         <TabButton
-          key={index}
-          buttonRef={tabItem.ref}
+          key={tabItem.id}
           text={tabItem.text}
-          buttonId={tabItem.id}
-          onClick={handleButtonClick}
-          generalClasses={generalClasses}
-          buttonActiveStatus={tabItem.active}
+          onClick={() => onClick(tabItem.id)}
+          buttonActiveStatus={activeTab === tabItem.id}
         />
       ))}
     </SlidingTabButtonsStyled>
@@ -46,48 +24,13 @@ export const SlidingTabButtonsView = ({
 }
 
 type TabButtonProps = {
-  buttonRef?: Ref<any>
   text: string
-  kind?: SlidingTabButtonStyle
-  onClick: (tabId: number) => void
-  generalClasses: string
+  onClick: () => void
   buttonActiveStatus: boolean
-  buttonId: number
 }
-const TabButton = ({
-  buttonRef,
-  text,
-  kind,
-  generalClasses,
-  buttonActiveStatus,
-  onClick,
-  buttonId,
-}: TabButtonProps) => {
-  const [buttonClasses, setButtonClasses] = useState(generalClasses)
-
-  useEffect(() => {
-    if ((text === 'Stage 1' || text === 'LIVE') && buttonActiveStatus) {
-      setButtonClasses((buttonClasses) => buttonClasses + ' clicked')
-    }
-  }, [buttonActiveStatus, text])
-
-  if (!buttonActiveStatus && buttonClasses.includes(' clicked')) {
-    let newClasses = buttonClasses.replace(' clicked', '')
-    setButtonClasses(newClasses)
-  }
-  const _onClick = () => {
-    const updatedClasses = buttonClasses + ' clicked'
-    setButtonClasses(updatedClasses)
-    onClick(buttonId)
-  }
+const TabButton = ({ text, buttonActiveStatus, onClick }: TabButtonProps) => {
   return (
-    <ButtonStyled
-      key={buttonId}
-      ref={buttonRef}
-      className={buttonClasses}
-      buttonActive={buttonActiveStatus}
-      onClick={_onClick}
-    >
+    <ButtonStyled buttonActive={buttonActiveStatus} onClick={onClick}>
       <ButtonText>
         <div>{text}</div>
       </ButtonText>

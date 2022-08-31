@@ -13,7 +13,7 @@ export function normalizeSatelliteRecord(
 ): SatelliteRecord {
   const totalDelegatedAmount = satelliteRecord
     ? satelliteRecord.delegation_records.reduce(
-        (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
+        (sum: number, current: { user: { smvk_balance: number } }) => sum + current.user.smvk_balance,
         0,
       )
     : 0
@@ -25,7 +25,7 @@ export function normalizeSatelliteRecord(
           currentRoundVote: vote.current_round_vote,
           proposalId: vote.governance_proposal_record_id || 0,
           round: vote.round,
-          timestamp: new Date(vote.timestamp),
+          timestamp: new Date(vote.timestamp as string),
           vote: vote.vote,
           voterId: vote.voter_id,
           votingPower: calcWithoutPrecision(vote.voting_power),
@@ -40,7 +40,7 @@ export function normalizeSatelliteRecord(
         return {
           id: vote.id,
           proposalId: vote.governance_financial_request_id || 0,
-          timestamp: new Date(vote.timestamp),
+          timestamp: new Date(vote.timestamp as string),
           vote: vote.vote,
           voterId: vote.voter_id,
           requestData: vote.governance_financial_request,
@@ -54,7 +54,7 @@ export function normalizeSatelliteRecord(
         return {
           id: vote.id,
           proposalId: vote.emergency_governance_record_id,
-          timestamp: new Date(vote.timestamp),
+          timestamp: new Date(vote.timestamp as string),
           voterId: vote.voter_id,
           voteName: vote?.emergency_governance_record?.title,
         }
@@ -66,7 +66,7 @@ export function normalizeSatelliteRecord(
         return {
           id: vote.id,
           proposalId: vote.governance_satellite_action_id || 0,
-          timestamp: new Date(vote.timestamp),
+          timestamp: new Date(vote.timestamp as string),
           vote: vote.vote,
           voterId: vote.voter_id,
           voteName: vote?.governance_satellite_action?.governance_type,

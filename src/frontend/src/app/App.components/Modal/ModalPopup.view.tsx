@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -16,11 +16,11 @@ type Props = {
 export default function ModalPopup({ onClose, width = 475, children, className }: Props) {
   const handleEsc = (event: KeyboardEvent): void => {
     // close modal press key Esc
-    const keyCode: number = event.keyCode
     if (event.key === 'Escape') {
       onClose()
     }
   }
+
   useEffect(() => {
     document.addEventListener('keydown', handleEsc, false)
     return () => document.removeEventListener('keydown', handleEsc, false)

@@ -5,7 +5,7 @@ import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 export type ProtectedRouteProps = {
   authenticationPath: string
   redirectPath: string
-  arrayToFilterThrough: any[] | undefined
+  arrayToFilterThrough: SatelliteRecord[] | undefined
   accountPkh: string | undefined
 } & RouteProps
 
@@ -26,7 +26,11 @@ export default function ProtectedRoute({
   }
 }
 
-const isAllowedToRoute = (accountPkh: string | undefined, path: string, arrayToFilterThrough: any[] | undefined) => {
+const isAllowedToRoute = (
+  accountPkh: string | undefined,
+  path: string,
+  arrayToFilterThrough: SatelliteRecord[] | undefined,
+) => {
   let isAllowed
   switch (path) {
     case '/submit-proposal':

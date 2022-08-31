@@ -8,7 +8,7 @@ import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { Button } from '../../app/App.components/Button/Button.controller'
 
 // type
-import type { InputStatusType } from '../../app/App.components/Input/Input.controller'
+import type { InputStatusType } from '../../app/App.components/Input/Input.constants'
 
 // actions
 import {
@@ -137,7 +137,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
     variant === 'setAggregatorMaintainer' ||
     variant === 'updateAggregatorStatus'
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       if (variant === 'suspendSatellite') await dispatch(suspendSatellite(satelliteAddress, purpose))
@@ -170,13 +170,13 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -211,11 +211,11 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
                 value={satelliteAddress}
                 name="satelliteAddress"
                 required
-                onChange={(e: any) => {
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   handleChange(e)
                   handleBlur(e)
                 }}
-                onBlur={(e: any) => handleBlur(e)}
+                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
                 inputStatus={formInputStatus.satelliteAddress}
               />
             </div>
@@ -230,11 +230,11 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
                   value={oracleAddress}
                   name="oracleAddress"
                   required
-                  onChange={(e: any) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     handleChange(e)
                     handleBlur(e)
                   }}
-                  onBlur={(e: any) => handleBlur(e)}
+                  onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
                   inputStatus={formInputStatus.oracleAddress}
                 />
               </div>
@@ -248,11 +248,11 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
               value={purpose}
               name="purpose"
               required
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 handleChange(e)
                 handleBlur(e)
               }}
-              onBlur={(e: any) => handleBlur(e)}
+              onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e)}
               inputStatus={formInputStatus.purpose}
             />
           </div>

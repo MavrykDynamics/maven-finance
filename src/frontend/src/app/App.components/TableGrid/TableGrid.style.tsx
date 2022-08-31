@@ -177,4 +177,4 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
       top: 6px;
     }
   }
-` //TableGridWrap
+`

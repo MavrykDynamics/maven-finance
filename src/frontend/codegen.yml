@@ -1,11 +1,13 @@
 overwrite: true
-schema: "https://api-dev.mavryk.finance/v1/graphql"
+schema: 'https://api-dev.mavryk.finance/v1/graphql'
 generates:
   src/utils/generated/graphqlTypes.tsx:
     plugins:
-      - "typescript"
+      - 'typescript'
 config:
   scalars:
     bigint: number
     float8: number
     smallint: number
+    jsonb: unknown
+    timestamptz: string

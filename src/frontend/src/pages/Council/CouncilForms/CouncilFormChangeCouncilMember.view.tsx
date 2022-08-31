@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
+import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 import type { CouncilMember } from '../../../utils/TypesAndInterfaces/Council'
 
 // helpers
@@ -17,7 +17,7 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // action
 import { changeCouncilMember } from '../Council.actions'
@@ -49,7 +49,7 @@ export const CouncilFormChangeCouncilMember = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState({
     oldCouncilMemberAddress: '',
@@ -69,7 +69,7 @@ export const CouncilFormChangeCouncilMember = () => {
 
   const { oldCouncilMemberAddress, newCouncilMemberAddress, newMemberName, newMemberWebsite, newMemberImage } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       if (!oldCouncilMemberAddress) {
@@ -108,13 +108,13 @@ export const CouncilFormChangeCouncilMember = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -124,13 +124,13 @@ export const CouncilFormChangeCouncilMember = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {
+  const handleSelect = (item: DropdownItemType) => {
     setForm((prev) => {
       return { ...prev, oldCouncilMemberAddress: item.value }
     })
   }
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
@@ -150,11 +150,9 @@ export const CouncilFormChangeCouncilMember = () => {
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
-            onChange={handleSelect}
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
-            onBlur={() => {}}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
           />
         </div>
@@ -166,11 +164,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newCouncilMemberAddress}
             name="newCouncilMemberAddress"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newCouncilMemberAddress}
           />
         </div>
@@ -181,11 +179,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newMemberName}
             name="newMemberName"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -196,11 +194,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newMemberWebsite}
             name="newMemberWebsite"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>
@@ -211,7 +209,7 @@ export const CouncilFormChangeCouncilMember = () => {
         key={uploadKey}
         imageIpfsUrl={newMemberImage}
         className="form-ipfs"
-        setIpfsImageUrl={(e: any) => {
+        setIpfsImageUrl={(e: string) => {
           setForm({ ...form, newMemberImage: e })
           setFormInputStatus({ ...formInputStatus, newMemberImage: Boolean(e) ? 'success' : 'error' })
         }}

@@ -1,24 +1,22 @@
+// types
+import type { MvkTokenStorage } from '../utils/TypesAndInterfaces/MvkToken'
 import { GET_MVK_TOKEN_STORAGE } from 'pages/Doorman/Doorman.actions'
-import { getItemFromStorage } from '../utils/storage'
-import { MvkTokenStorage } from '../utils/TypesAndInterfaces/MvkToken'
+import { normalizeMvkToken } from 'pages/Doorman/Doorman.converter'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface MvkTokenState {
-  mvkTokenStorage: MvkTokenStorage | any
+  mvkTokenStorage: MvkTokenStorage
   myMvkTokenBalance: string
   exchangeRate: number
 }
 
-const defaultMvkTokenStorage: MvkTokenStorage = {
-  totalSupply: 0,
-  maximumTotalSupply: 1000000000,
-}
 const mvkTokenDefaultState: MvkTokenState = {
-  mvkTokenStorage: getItemFromStorage('MvkTokenStorage') ?? defaultMvkTokenStorage,
-  myMvkTokenBalance: getItemFromStorage('UserData')?.myMvkBalance ?? 0,
+  mvkTokenStorage: normalizeMvkToken(null),
+  myMvkTokenBalance: '',
   exchangeRate: 0.25,
 }
 
-export function mvkToken(state = mvkTokenDefaultState, action: any): MvkTokenState {
+export function mvkToken(state = mvkTokenDefaultState, action: Action) {
   switch (action.type) {
     case GET_MVK_TOKEN_STORAGE:
       return {

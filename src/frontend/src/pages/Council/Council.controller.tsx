@@ -16,12 +16,11 @@ import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialReques
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { CouncilPendingView } from './CouncilPending/CouncilPending.view'
 import { CouncilPendingReviewView } from './CouncilPending/CouncilPendingReview.view'
 import { CouncilMemberView } from './CouncilMember/CouncilMember.view'
 import { CouncilPastActionView } from './CouncilPastAction/CouncilPastAction.view'
-import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
 import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCouncilMember.view'
 import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.view'
@@ -84,15 +83,15 @@ export const Council = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {}
+  const handleSelect = (item: DropdownItemType) => {}
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
@@ -122,7 +121,7 @@ export const Council = () => {
 
   return (
     <Page>
-      <PageHeader page={'council'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'council'} />
       <CouncilStyled>
         {isGoBack ? (
           <button
@@ -174,11 +173,9 @@ export const Council = () => {
                   <DropDown
                     clickOnDropDown={handleClickDropdown}
                     placeholder={ddItems[0]}
-                    onChange={handleSelect}
                     isOpen={ddIsOpen}
                     itemSelected={chosenDdItem?.text}
                     items={ddItems}
-                    onBlur={() => {}}
                     clickOnItem={(e) => handleOnClickDropdownItem(e)}
                   />
                 </DropdownWrap>

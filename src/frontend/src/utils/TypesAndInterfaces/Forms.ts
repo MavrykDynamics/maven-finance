@@ -1,6 +1,5 @@
-import { InputStatusType } from '../../app/App.components/Input/Input.controller'
-import type { ProposalDataType, ProposalPaymentType } from '../../utils/TypesAndInterfaces/Governance'
-
+import { InputStatusType } from 'app/App.components/Input/Input.constants'
+import type { ProposalDataType } from '../../utils/TypesAndInterfaces/Governance'
 
 /**
  * Types for forms
@@ -66,8 +65,6 @@ export type ProposalUpdateFormInputStatus = {
 export type ProposalFinancialRequestForm = {
   title: string
   financialData: {
-    rows?: any[]
-    columns?: any[]
     jsonString: string
   }
 }

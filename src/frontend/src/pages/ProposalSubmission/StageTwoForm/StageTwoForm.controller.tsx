@@ -11,9 +11,8 @@ import {
   ProposalUpdateFormInputStatus,
   ValidProposalUpdateForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isHexadecimalByteString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
-import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
-import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
+import { validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+
 import { dropProposal, updateProposal } from '../ProposalSubmission.actions'
 
 type StageTwoFormProps = {
@@ -35,8 +34,8 @@ export const PROPOSAL_BYTE = {
 export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, proposalData }: StageTwoFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
-  const { fee, governancePhase } = governanceStorage
-  const isProposalRound = governancePhase === 'PROPOSAL'
+  const { fee, currentRound } = governanceStorage
+  const isProposalRound = currentRound === 'PROPOSAL'
   const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<ProposalUpdateForm>({
     title: proposalTitle,

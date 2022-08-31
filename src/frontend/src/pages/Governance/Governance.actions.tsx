@@ -2,7 +2,7 @@ import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { normalizeGovernanceStorage, normalizeProposals } from './Governance.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-
+import type { AppDispatch, GetState } from '../../app/App.controller'
 import {
   GOVERNANCE_STORAGE_QUERY,
   GOVERNANCE_STORAGE_QUERY_NAME,
@@ -16,7 +16,7 @@ import { State } from '../../reducers'
 export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
 export const SET_PAST_PROPOSALS = 'SET_PAST_PROPOSALS'
-export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   const storage = await fetchFromIndexer(
@@ -40,7 +40,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
 }
 
 export const GET_CURRENT_ROUND_PROPOSALS = 'GET_CURRENT_ROUND_PROPOSALS'
-export const getCurrentRoundProposals = () => async (dispatch: any, getState: any) => {
+export const getCurrentRoundProposals = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   const storage = await fetchFromIndexer(
@@ -60,7 +60,7 @@ export const getCurrentRoundProposals = () => async (dispatch: any, getState: an
 export const PROPOSAL_ROUND_VOTING_REQUEST = 'PROPOSAL_ROUND_VOTING_REQUEST'
 export const PROPOSAL_ROUND_VOTING_RESULT = 'PROPOSAL_ROUND_VOTING_RESULT'
 export const PROPOSAL_ROUND_VOTING_ERROR = 'PROPOSAL_ROUND_VOTING_ERROR'
-export const proposalRoundVote = (proposalId: number) => async (dispatch: any, getState: any) => {
+export const proposalRoundVote = (proposalId: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   try {
@@ -94,20 +94,22 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: any, g
     })
 
     dispatch(getGovernanceStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: PROPOSAL_ROUND_VOTING_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: PROPOSAL_ROUND_VOTING_ERROR,
+        error,
+      })
+    }
   }
 }
 
 export const VOTING_ROUND_VOTING_REQUEST = 'VOTING_ROUND_VOTING_REQUEST'
 export const VOTING_ROUND_VOTING_RESULT = 'VOTING_ROUND_VOTING_RESULT'
 export const VOTING_ROUND_VOTING_ERROR = 'VOTING_ROUND_VOTING_ERROR'
-export const votingRoundVote = (vote: string) => async (dispatch: any, getState: any) => {
+export const votingRoundVote = (vote: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   try {
@@ -141,20 +143,22 @@ export const votingRoundVote = (vote: string) => async (dispatch: any, getState:
     })
 
     dispatch(getGovernanceStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: VOTING_ROUND_VOTING_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: VOTING_ROUND_VOTING_ERROR,
+        error,
+      })
+    }
   }
 }
 
 export const START_PROPOSAL_ROUND_REQUEST = 'START_PROPOSAL_ROUND_REQUEST'
 export const START_PROPOSAL_ROUND_RESULT = 'VOTING_ROUND_VOTING_RESULT'
 export const START_PROPOSAL_ROUND_ERROR = 'VOTING_ROUND_VOTING_ERROR'
-export const startProposalRound = () => async (dispatch: any, getState: any) => {
+export const startProposalRound = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   try {
@@ -187,20 +191,22 @@ export const startProposalRound = () => async (dispatch: any, getState: any) => 
     })
 
     dispatch(getGovernanceStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: START_PROPOSAL_ROUND_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: START_PROPOSAL_ROUND_ERROR,
+        error,
+      })
+    }
   }
 }
 
 export const START_VOTING_ROUND_REQUEST = 'START_VOTING_ROUND_REQUEST'
 export const START_VOTING_ROUND_RESULT = 'START_VOTING_ROUND_RESULT'
 export const START_VOTING_ROUND_ERROR = 'START_VOTING_ROUND_ERROR'
-export const startVotingRound = () => async (dispatch: any, getState: any) => {
+export const startVotingRound = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   try {
@@ -234,13 +240,15 @@ export const startVotingRound = () => async (dispatch: any, getState: any) => {
     })
 
     dispatch(getGovernanceStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: START_VOTING_ROUND_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: START_VOTING_ROUND_ERROR,
+        error,
+      })
+    }
   }
 }
 
@@ -256,7 +264,7 @@ export const getTimestampByLevel = async (level: number): Promise<string> => {
       })
       const res = await result.json()
       return res.timestamp
-    } catch (error: any) {
+    } catch (error) {
       console.error('getTimestampByLevel', error)
     }
   }
@@ -266,7 +274,7 @@ export const getTimestampByLevel = async (level: number): Promise<string> => {
 export const START_NEXT_ROUND_REQUEST = 'START_NEXT_ROUND_REQUEST'
 export const START_NEXT_ROUND_RESULT = 'START_NEXT_ROUND_RESULT'
 export const START_NEXT_ROUND_ERROR = 'START_NEXT_ROUND_ERROR'
-export const startNextRound = (executePastProposal: boolean) => async (dispatch: any, getState: any) => {
+export const startNextRound = (executePastProposal: boolean) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   try {
     if (!state.wallet.ready) {
@@ -297,20 +305,22 @@ export const startNextRound = (executePastProposal: boolean) => async (dispatch:
     })
     await dispatch(getGovernanceStorage())
     await dispatch(getCurrentRoundProposals())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: START_NEXT_ROUND_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: START_NEXT_ROUND_ERROR,
+        error,
+      })
+    }
   }
 }
 
 export const EXECUTE_PROPOSAL_REQUEST = 'EXECUTE_PROPOSAL_REQUEST'
 export const EXECUTE_PROPOSAL_RESULT = 'EXECUTE_PROPOSAL_RESULT'
 export const EXECUTE_PROPOSAL_ERROR = 'EXECUTE_PROPOSAL_ERROR'
-export const executeProposal = (proposalId: number) => async (dispatch: any, getState: any) => {
+export const executeProposal = (proposalId: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   try {
     await dispatch({
@@ -332,20 +342,22 @@ export const executeProposal = (proposalId: number) => async (dispatch: any, get
     await dispatch({
       type: EXECUTE_PROPOSAL_RESULT,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: EXECUTE_PROPOSAL_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: EXECUTE_PROPOSAL_ERROR,
+        error,
+      })
+    }
   }
 }
 
 export const PROCESS_PAYMENT_REQUEST = 'PROCESS_PAYMENT_REQUEST'
 export const PROCESS_PAYMENT_RESULT = 'PROCESS_PAYMENT_RESULT'
 export const PROCESS_PAYMENT_ERROR = 'PROCESS_PAYMENT_ERROR'
-export const processProposalPayment = (proposalId: number) => async (dispatch: any, getState: any) => {
+export const processProposalPayment = (proposalId: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   try {
     await dispatch({
@@ -367,12 +379,14 @@ export const processProposalPayment = (proposalId: number) => async (dispatch: a
     await dispatch({
       type: PROCESS_PAYMENT_RESULT,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: PROCESS_PAYMENT_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: PROCESS_PAYMENT_ERROR,
+        error,
+      })
+    }
   }
 }

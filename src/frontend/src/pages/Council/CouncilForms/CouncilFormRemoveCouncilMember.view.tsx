@@ -3,21 +3,18 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
 import type { CouncilMember } from '../../../utils/TypesAndInterfaces/Council'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
 
 // const
-import { ERROR, INFO, SUCCESS } from '../../../app/App.components/Toaster/Toaster.constants'
+import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 
 // view
-import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // action
 import { removeCouncilMember } from '../Council.actions'
@@ -57,7 +54,7 @@ export const CouncilFormRemoveCouncilMember = () => {
 
   const { memberAddress } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       if (!memberAddress) {
@@ -80,13 +77,13 @@ export const CouncilFormRemoveCouncilMember = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {
+  const handleSelect = (item: DropdownItemType) => {
     setForm((prev) => {
       return { ...prev, memberAddress: item.value }
     })
   }
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
@@ -106,11 +103,9 @@ export const CouncilFormRemoveCouncilMember = () => {
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
-            onChange={handleSelect}
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
-            onBlur={() => {}}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
           />
         </div>
