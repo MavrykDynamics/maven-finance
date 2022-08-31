@@ -33,7 +33,10 @@ type StageOneFormViewProps = {
   form: SubmitProposalForm
   setForm: (form: SubmitProposalForm) => void
   formInputStatus: SubmitProposalFormInputStatus
-  handleOnBlur: (e: any, formField: string) => void
+  handleOnBlur: (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
+    formField: string,
+  ) => void
   handleSubmitProposal: () => void
   proposalId: number | undefined
   proposalTitle: string
@@ -85,8 +88,8 @@ export const StageOneFormView = ({
               <Input
                 type="text"
                 value={form.title}
-                onChange={(e: any) => setForm({ ...form, title: e.target.value })}
-                onBlur={(e: any) => handleOnBlur(e, 'TITLE')}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, title: e.target.value })}
+                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'TITLE')}
                 inputStatus={formInputStatus.title}
                 disabled={disabled}
               />
@@ -113,8 +116,8 @@ export const StageOneFormView = ({
           <TextArea
             className="description-textarea"
             value={form.description}
-            onChange={(e: any) => setForm({ ...form, description: e.target.value })}
-            onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, description: e.target.value })}
+            onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(e, 'DESCRIPTION')}
             inputStatus={formInputStatus.description}
             disabled={disabled}
           />
@@ -132,8 +135,8 @@ export const StageOneFormView = ({
           <Input
             type="text"
             value={form.sourceCodeLink}
-            onChange={(e: any) => setForm({ ...form, sourceCodeLink: e.target.value })}
-            onBlur={(e: any) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, sourceCodeLink: e.target.value })}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
             inputStatus={formInputStatus.sourceCodeLink}
             disabled={disabled}
           />
