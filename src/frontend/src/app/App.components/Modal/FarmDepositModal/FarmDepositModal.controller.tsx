@@ -47,7 +47,7 @@ export const FarmDepositModal = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     setAmount(+value)
     checkInputIsOk(value)
