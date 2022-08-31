@@ -17,11 +17,7 @@ import {
   GET_CURRENT_ROUND_PROPOSALS,
 } from 'pages/Governance/Governance.actions'
 import { GovernanceStorage, CurrentRoundProposalsStorageType } from '../utils/TypesAndInterfaces/Governance'
-import {
-  PROPOSAL_UPDATE_ERROR,
-  SUBMIT_FINANCIAL_DATA_REQUEST,
-  PROPOSAL_UPDATE_RESULT,
-} from '../pages/ProposalSubmission/ProposalSubmission.actions'
+import { PROPOSAL_UPDATE_ERROR, PROPOSAL_UPDATE_RESULT } from '../pages/ProposalSubmission/ProposalSubmission.actions'
 import { GET_GOVERNANCE_SATELLITE_STORAGE } from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
@@ -37,13 +33,11 @@ export type GovernanceSatellite = {
 export type GovernancePhase = typeof PROPOSAL | typeof VOTING | typeof TIME_LOCK
 export interface GovernanceState {
   currentRoundProposals: CurrentRoundProposalsStorageType
-  governanceStorage: GovernanceStorage | any
+  governanceStorage: GovernanceStorage
   governancePhase: GovernancePhase
-  form?: any
   proposalId?: number
-  pastProposals?: any
+  pastProposals: CurrentRoundProposalsStorageType
   vote?: number
-  error?: any
   governanceSatelliteStorage: GovernanceSatellite
 }
 
@@ -52,6 +46,7 @@ const governanceDefaultState: GovernanceState = {
   governanceStorage: defaultGovernanceStorage,
   governancePhase: 'PROPOSAL',
   currentRoundProposals: [],
+  pastProposals: [],
   governanceSatelliteStorage: {
     governance_satellite: [],
     governance_satellite_action_record: [],
@@ -138,11 +133,6 @@ export function governance(state = governanceDefaultState, action: Action) {
       return {
         ...state,
         error: action.error,
-      }
-    case SUBMIT_FINANCIAL_DATA_REQUEST:
-      return {
-        ...state,
-        form: action.form,
       }
     case PROPOSAL_UPDATE_RESULT:
       return {

@@ -209,15 +209,8 @@ export const submitFinancialRequestData =
     }
 
     try {
-      dispatch({
-        type: SUBMIT_FINANCIAL_DATA_REQUEST,
-        proposalId: proposalId,
-      })
-
-      console.log('%c ||||| submitData', 'color:yellowgreen', submitData)
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       console.log('contract', contract)
-      console.log('%c ||||| tokenContractAddress', 'color:yellowgreen', tokenContractAddress)
 
       const listTransactions = submitData.map((form) => {
         const [receiverAddress, dataName, amount, tokenType] = form

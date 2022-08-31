@@ -33,7 +33,9 @@ export const FinancialRequests = () => {
     <Page>
       <PageHeader page={'financial requests'} />
       <GovernanceTopBar governancePhase={governancePhase} />
-      <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
+      {financialRequestLedger?.length ? (
+        <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
+      ) : null}
     </Page>
   )
 }

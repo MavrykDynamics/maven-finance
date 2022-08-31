@@ -10,4 +10,4 @@ config:
     float8: number
     smallint: number
     jsonb: unknown
-    timestamptz: string | number | Date
+    timestamptz: string
