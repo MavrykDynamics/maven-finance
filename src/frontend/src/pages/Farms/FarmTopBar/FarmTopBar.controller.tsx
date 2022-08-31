@@ -58,7 +58,7 @@ export const FarmTopBar = ({
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)

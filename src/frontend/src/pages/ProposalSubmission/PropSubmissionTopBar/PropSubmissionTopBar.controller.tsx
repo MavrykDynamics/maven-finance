@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux'
 import { State } from '../../../reducers'
 
 export type PropSubmissionTopBarProps = {
-  value?: number | any
-  valueCallback?: (val?: any) => void
+  value?: number
+  valueCallback?: (val?: number) => void
 }
 export const PropSubmissionTopBar = ({ value, valueCallback }: PropSubmissionTopBarProps) => {
   const { governancePhase } = useSelector((state: State) => state.governance)

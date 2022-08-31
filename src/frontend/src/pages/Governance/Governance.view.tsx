@@ -94,7 +94,7 @@ export const GovernanceView = ({
   waitingForPaymentToBeProcessed,
 }: GovernanceViewProps) => {
   const dispatch = useDispatch()
-  const blockRef = useRef<any>(null)
+  const blockRef = useRef(null)
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
   const [votingEnding, setVotingEnding] = useState<string>('')

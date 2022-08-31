@@ -3,7 +3,6 @@ import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { ProposalSubmissionView } from './ProposalSubmission.view'
-import { getGovernanceStorage } from '../Governance/Governance.actions'
 
 export const ProposalSubmission = () => {
   const loading = useSelector((state: State) => state.loading)
@@ -16,8 +15,8 @@ export const ProposalSubmission = () => {
     [accountPkh, currentRoundProposals],
   )
 
-  const handleChangeTab = (tabId: number) => {
-    setActiveTab(tabId)
+  const handleChangeTab = (tabId?: number) => {
+    setActiveTab(tabId ?? 0)
   }
 
   return (
