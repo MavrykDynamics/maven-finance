@@ -8,7 +8,6 @@ export interface WalletState {
   tezos?: TezosToolkit
   accountPkh?: string
   ready: boolean
-  error?: any
 }
 
 const walletDefaultState: WalletState = {

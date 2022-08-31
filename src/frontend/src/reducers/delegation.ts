@@ -39,7 +39,7 @@ export interface DelegationState {
   type?: typeof DELEGATE | typeof UNDELEGATE | typeof SATELLITE_ACTION
   delegationStorage: DelegationStorage
   amount?: number
-  error?: any
+  error?: object
   currentSatellite: SatelliteRecord
   participationMetrics: ParticipationMetrics
 }

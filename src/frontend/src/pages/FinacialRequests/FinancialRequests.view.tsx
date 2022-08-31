@@ -9,6 +9,7 @@ import {
 
 // types
 import { FinancialRequestBody } from './FinancialRequests.types'
+import { GovernanceFinancialRequestRecordGraphQL } from '../../utils/TypesAndInterfaces/Governance'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -34,21 +35,22 @@ import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 type FinancialRequestsViewProps = {
   ready: boolean
   loading: boolean
-  financialRequestsList: Array<FinancialRequestBody>
+  financialRequestsList: GovernanceFinancialRequestRecordGraphQL[]
 }
 
-export const FinancialRequestsView = ({ ready, loading, financialRequestsList }: FinancialRequestsViewProps) => {
-  const [rightSideContent, setRightSideContent] = useState<FinancialRequestBody | undefined>(financialRequestsList[0])
+export const FinancialRequestsView = ({ ready, loading, financialRequestsList = [] }: FinancialRequestsViewProps) => {
+  const [rightSideContent, setRightSideContent] = useState(financialRequestsList[0])
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
 
-  const handleItemSelect = (selectedRequest: FinancialRequestBody | undefined) => {
-    if (selectedRequest) {
-      setRightSideContent(selectedRequest.id !== rightSideContent?.id ? selectedRequest : undefined)
+  const handleItemSelect = (selectedRequest: GovernanceFinancialRequestRecordGraphQL) => {
+    if (selectedRequest.id !== rightSideContent?.id) {
+      setRightSideContent(selectedRequest)
     }
   }
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
+  const tokenName = rightSideContent.token?.type === 0 ? 'XTZ' : 'MVK'
 
   const RightSideBlock = () =>
     rightSideContent ? (
@@ -61,7 +63,7 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
 
         <div className="voting_ending">
           Voting {rightItemStatus !== ProposalStatus.ONGOING ? 'ended' : 'ending'} on{' '}
-          {getDate_MDHMTZ_Format(rightSideContent.expiration_datetime)}
+          {getDate_MDHMTZ_Format(rightSideContent.expiration_datetime as string)}
         </div>
 
         <FRVoting
@@ -100,11 +102,11 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
               <InfoBlockListValue fontColor="#86D4C9">
                 <CommaNumber
                   value={
-                    rightSideContent.token_name === 'MVK'
+                    tokenName === 'MVK'
                       ? calcWithoutPrecision(rightSideContent.token_amount)
                       : calcWithoutMu(rightSideContent.token_amount)
                   }
-                  endingText={rightSideContent.token_name}
+                  endingText={tokenName}
                 />
               </InfoBlockListValue>
             </div>
@@ -118,14 +120,14 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
 
             <div className="list_item">
               <InfoBlockListValue fontColor="#77A4F2">Type</InfoBlockListValue>
-              <InfoBlockListValue fontColor="#86D4C9">{rightSideContent.token_type}</InfoBlockListValue>
+              <InfoBlockListValue fontColor="#86D4C9">{tokenName}</InfoBlockListValue>
             </div>
           </div>
         </div>
 
         <div className="info_section">
           <InfoBlockTitle>Date Requested</InfoBlockTitle>
-          <InfoBlockDescr>{getDate_MDHMTZ_Format(rightSideContent.requested_datetime)}</InfoBlockDescr>
+          <InfoBlockDescr>{getDate_MDHMTZ_Format(rightSideContent.requested_datetime as string)}</InfoBlockDescr>
         </div>
 
         <div className="info_section">
