@@ -30,11 +30,12 @@ import {
 } from './BecomeSatellite.style'
 import InputWithPercent from 'app/App.components/InputWithPercent/InputWithPercent'
 import SatellitesSideBar from 'pages/Satellites/SatellitesSideBar/SatellitesSideBar.controller'
+import type { DelegationStorage } from '../../utils/TypesAndInterfaces/Delegation'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
   myTotalStakeBalance: number
-  satelliteConfig: any
+  satelliteConfig: DelegationStorage['config']
   accountPkh?: string
   registerCallback: (form: RegisterAsSatelliteForm) => void
   updateSatelliteCallback: (form: RegisterAsSatelliteForm) => void
@@ -248,11 +249,11 @@ export const BecomeSatelliteView = ({
                   required
                   disabled={disabled}
                   value={form.name}
-                  onChange={(e: any) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setForm({ ...form, name: e.target.value })
                     handleValidate('NAME')
                   }}
-                  onBlur={(e: any) => handleValidate('NAME')}
+                  onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleValidate('NAME')}
                   inputStatus={formInputStatus.name}
                 />
               </article>
@@ -267,11 +268,11 @@ export const BecomeSatelliteView = ({
                   placeholder="Website"
                   disabled={disabled}
                   value={form.website}
-                  onChange={(e: any) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setForm({ ...form, website: e.target.value })
                     handleValidate('WEBSITE')
                   }}
-                  onBlur={(e: any) => handleValidate('WEBSITE')}
+                  onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleValidate('WEBSITE')}
                   inputStatus={formInputStatus.website}
                 />
               </article>
@@ -285,11 +286,11 @@ export const BecomeSatelliteView = ({
               placeholder="Your description here..."
               value={form.description}
               disabled={disabled}
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 setForm({ ...form, description: e.target.value })
                 handleValidate('DESCRIPTION')
               }}
-              onBlur={(e: any) => handleValidate('DESCRIPTION')}
+              onBlur={() => handleValidate('DESCRIPTION')}
               inputStatus={formInputStatus.description}
             />
             {updateSatellite ? (
@@ -303,7 +304,7 @@ export const BecomeSatelliteView = ({
                 placeholder="Fee"
                 disabled={disabled}
                 value={form.fee}
-                onBlur={(e: any) => handleValidate('FEE')}
+                onBlur={() => handleValidate('FEE')}
                 inputStatus={disabled ? '' : formInputStatus.fee}
                 onChange={(feeNumber: number) => setForm({ ...form, fee: feeNumber })}
               />

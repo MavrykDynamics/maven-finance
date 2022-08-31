@@ -1,6 +1,5 @@
-import { InputKind, InputStatusType } from './Input.controller'
+import { InputKind, InputStatusType, InputOneChange } from './Input.controller'
 import {
-  InputComponent,
   InputComponentContainer,
   InputErrorMessage,
   InputIcon,
@@ -15,10 +14,10 @@ type InputViewProps = {
   placeholder?: string
   name?: string
   value?: string | number
-  onChange: any
-  onBlur?: any
-  onKeyDown: any
-  onFocus: any
+  onChange: InputOneChange
+  onBlur?: InputOneChange
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
+  onFocus?: InputOneChange
   inputStatus?: InputStatusType
   type?: string
   errorMessage?: string
@@ -57,7 +56,7 @@ export const InputView = ({
         </InputIcon>
       )}
       <InputComponentContainer>
-        <InputComponent
+        <input
           id={id}
           type={type}
           name={name}

@@ -10,59 +10,59 @@ export const InputStyled = styled.div`
 export const InputComponentContainer = styled.div<{ theme: MavrykTheme }>`
   display: block;
   position: relative;
-`
 
-export const InputComponent = styled.input<{ theme: MavrykTheme }>`
-  width: 100%;
-  height: 40px;
-  background-color: ${({ theme }) => theme.backgroundColor};
-  font-weight: 500;
-  border: 1px solid ${({ theme }) => theme.cardBorderColor};
-  margin: 0;
-  color: ${({ theme }) => theme.headerColor};
-  -webkit-appearance: none;
-  appearance: none;
-  display: block;
-  position: relative;
-  padding: 13px 45px 13px 20px;
-  border-radius: 10px;
-  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  will-change: border-color, box-shadow;
-  font-size: 14px;
-
-  &.search {
+  input {
+    width: 100%;
+    height: 40px;
+    background-color: ${({ theme }) => theme.backgroundColor};
+    font-weight: 500;
+    border: 1px solid ${({ theme }) => theme.cardBorderColor};
+    margin: 0;
     color: ${({ theme }) => theme.headerColor};
-  }
-  &::placeholder:not(.search) {
-    color: ${({ theme }) => theme.inputPlaceholder};
-  }
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    position: relative;
+    padding: 13px 45px 13px 20px;
+    border-radius: 10px;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    will-change: border-color, box-shadow;
+    font-size: 14px;
 
-  &:disabled {
-    opacity: 0.4;
-  }
-
-  &:hover:not(:disabled) {
-    background-color: ${({ theme }) => theme.containerColor};
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 2px ${({ theme }) => theme.primaryColor}19;
-    border-color: ${({ theme }) => theme.primaryColor}7F;
-  }
-
-  &.error {
-    border-color: ${({ theme }) => theme.downColor};
-    color: ${({ theme }) => theme.downColor};
-    &:focus {
-      box-shadow: 0 0 0 2px ${({ theme }) => theme.downColor}7F;
+    &.search {
+      color: ${({ theme }) => theme.headerColor};
     }
-  }
+    &::placeholder:not(.search) {
+      color: ${({ theme }) => theme.inputPlaceholder};
+    }
 
-  &.success {
-    border: 1px solid ${({ theme }) => theme.upColor};
-    color: ${({ theme }) => theme.upColor};
+    &:disabled {
+      opacity: 0.4;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: ${({ theme }) => theme.containerColor};
+    }
+
     &:focus {
-      box-shadow: 0 0 0 2px ${({ theme }) => theme.upColor}7F;
+      box-shadow: 0 0 0 2px ${({ theme }) => theme.primaryColor}19;
+      border-color: ${({ theme }) => theme.primaryColor}7F;
+    }
+
+    &.error {
+      border-color: ${({ theme }) => theme.downColor};
+      color: ${({ theme }) => theme.downColor};
+      &:focus {
+        box-shadow: 0 0 0 2px ${({ theme }) => theme.downColor}7F;
+      }
+    }
+
+    &.success {
+      border: 1px solid ${({ theme }) => theme.upColor};
+      color: ${({ theme }) => theme.upColor};
+      &:focus {
+        box-shadow: 0 0 0 2px ${({ theme }) => theme.upColor}7F;
+      }
     }
   }
 `
