@@ -1,14 +1,12 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import GovernanceVoteType, GovernanceRecordStatus
 
 ###
 # Governance Satellite Tables
 ###
 
-class GovernanceSatellite(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36, default='')
+class GovernanceSatellite(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellites')
     gov_sat_approval_percentage             = fields.SmallIntField(default=0)
     gov_sat_duration_in_days                = fields.SmallIntField(default=0)

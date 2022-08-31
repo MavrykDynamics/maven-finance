@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Aggregator Tables
 ###
 
-class Aggregator(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36, default='')
+class Aggregator(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregators', null=True)
     aggregator_factory                      = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
     deviation_trigger_oracle                = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_deviation_trigger_oracles', index=True, null=True)

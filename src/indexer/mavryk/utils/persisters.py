@@ -481,6 +481,8 @@ async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
     contract                = await contract_class.get(
         address     = contract_address
     )
+    contract.last_updated_at            = timestamp
+    await contract.save()
     contract_lambda, _      = await lambda_contract_class.get_or_create(
         contract        = contract,
         lambda_name     = lambda_name,
@@ -501,6 +503,8 @@ async def persist_proxy_lambda(contract_class, proxy_lambda_contract_class, set_
     contract                = await contract_class.get(
         address     = contract_address
     )
+    contract.last_updated_at            = timestamp
+    await contract.save()
     contract_lambda, _      = await proxy_lambda_contract_class.get_or_create(
         contract        = contract,
         lambda_name     = lambda_name

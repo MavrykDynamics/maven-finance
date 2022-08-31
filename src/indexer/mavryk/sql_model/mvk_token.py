@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract
+from mavryk.sql_model.parents import LinkedContract, MavrykContract
 
 ###
 # MVK Token Tables
 ###
 
-class MVKToken(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class MVKToken(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='mvk_token')
     maximum_supply                          = fields.FloatField(default=0)
     total_supply                            = fields.FloatField(default=0)

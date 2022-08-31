@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.9.0
+    tag: v0.10.0
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -69,19 +69,17 @@ dipdup:
         address: KT1XM4PejJY5CnVSML9S9SwjtJcu7jSZYc1j
         typename: treasury_factory
       token_sale:
-        address: KT1JnwFdmJs43bT61XZXCCcGvDam7s4MCLjQ
+        address: KT1NtNC12Fm5Kj8TKfmvRjAnEmgvcHYyncG2
         typename: token_sale
-
-    datasources:
-      tzkt_testnet:
-        kind: tzkt
-        url: ${TZKT_TESTNET_URL:-changeme}
-      tzkt_mainnet:
-        kind: tzkt
-        url: ${TZKT_MAINNET_URL:-changeme}
+      # lending_controller:
+      #   address:
+      #   typename: lending_controller
+      # vault:
+      #   address:
+      #   typename: vault
 
     templates:
-      # Template for Farm Factory
+      # Template for Farm
       farm_template:
         kind: operation
         datasource: tzkt_testnet
@@ -143,7 +141,7 @@ dipdup:
             pattern:
               - destination: <farm_contract>
                 entrypoint: claim
-      # Template for treasury Factory
+      # Template for Treasury
       treasury_template:
         kind: operation
         datasource: tzkt_testnet
@@ -189,7 +187,7 @@ dipdup:
             pattern:
               - destination: <treasury_contract>
                 entrypoint: transfer
-      # Template for aggregator factory
+      # Template for Aggregator
       aggregator_template:
         kind: operation
         datasource: tzkt_testnet
@@ -267,6 +265,36 @@ dipdup:
             pattern:
               - destination: <aggregator_contract>
                 entrypoint: withdrawRewardStakedMvk
+      # # Template for Vault
+      # vault:
+      #   kind: operation
+      #   datasource: tzkt_testnet
+      #   types:
+      #     - origination
+      #     - transaction
+      #   contracts:
+      #     - <vault_contract>
+      #   handlers:
+      #     - callback: on_vault_origination
+      #       pattern:
+      #         - type: origination
+      #           originated_contract: <vault_contract>
+      #     - callback: on_vault_set_admin
+      #       pattern:
+      #         - destination: <vault_contract>
+      #           entrypoint: setAdmin
+      #     - callback: on_vault_set_governance
+      #       pattern:
+      #         - destination: <vault_contract>
+      #           entrypoint: setGovernance
+      #     - callback: on_vault_update_depositor
+      #       pattern:
+      #         - destination: <vault_contract>
+      #           entrypoint: updateDepositor
+      #     - callback: on_vault_set_lambda
+      #       pattern:
+      #         - destination: <vault_contract>
+      #           entrypoint: setLambda
 
     indexes:
       # BIGMAP INDEXES
@@ -1564,6 +1592,146 @@ dipdup:
             pattern:
               - destination: token_sale
                 entrypoint: claimTokens
+      # # Vault contract indexes
+      # vault:
+      #   kind: operation
+      #   datasource: tzkt_testnet
+      #   types:
+      #     - origination
+      #     - transaction
+      #   contracts:
+      #     - vault
+      #   handlers:
+      #     - callback: on_vault_origination
+      #       pattern:
+      #         - type: origination
+      #           originated_contract: vault
+      #     - callback: on_vault_set_admin
+      #       pattern:
+      #         - destination: vault
+      #           entrypoint: setAdmin
+      #     - callback: on_vault_set_governance
+      #       pattern:
+      #         - destination: vault
+      #           entrypoint: setGovernance
+      #     - callback: on_vault_update_depositor
+      #       pattern:
+      #         - destination: vault
+      #           entrypoint: updateDepositor
+      #     - callback: on_vault_set_lambda
+      #       pattern:
+      #         - destination: vault
+      #           entrypoint: setLambda
+      # # Lending Controller contract indexes
+      # lending_controller:
+      #   kind: operation
+      #   datasource: tzkt_testnet
+      #   types:
+      #     - origination
+      #     - transaction
+      #   contracts:
+      #     - lending_controller
+      #   handlers:
+      #     - callback: on_lending_controller_origination
+      #       pattern:
+      #         - type: origination
+      #           originated_contract: lending_controller
+      #     - callback: on_lending_controller_set_admin
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: setAdmin
+      #     - callback: on_lending_controller_set_governance
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: setGovernance
+      #     - callback: on_lending_controller_update_config
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: updateConfig
+      #     - callback: on_lending_controller_update_config
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: updateConfig
+      #     - callback: on_lending_controller_update_whitelist_contracts
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: updateWhitelistContracts
+      #     - callback: on_lending_controller_update_general_contracts
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: updateGeneralContracts
+      #     - callback: on_lending_controller_update_whitelist_token_contracts
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: updateWhitelistTokenContracts
+      #     - callback: on_lending_controller_pause_all
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: pauseAll
+      #     - callback: on_lending_controller_unpause_all
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: unpauseAll
+      #     - callback: on_lending_controller_toggle_pause_entrypoint
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: togglePauseEntrypoint
+      #     - callback: on_lending_controller_set_loan_token
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: setLoanToken
+      #     - callback: on_lending_controller_add_liquidity
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: addLiquidity
+      #     - callback: on_lending_controller_remove_liquidity
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: removeLiquidity
+      #     - callback: on_lending_controller_update_collateral_token
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: updateCollateralToken
+      #     - callback: on_lending_controller_create_vault
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: createVault
+      #     - callback: on_lending_controller_close_vault
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: closeVault
+      #     - callback: on_lending_controller_register_deposit
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: registerDeposit
+      #     - callback: on_lending_controller_register_withdrawal
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: registerWithdrawal
+      #     - callback: on_lending_controller_mark_for_liquidation
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: markForLiquidation
+      #     - callback: on_lending_controller_borrow
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: borrow
+      #     - callback: on_lending_controller_vault_deposit_staked_mvk
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: vaultDepositStakedMvk
+      #     - callback: on_lending_controller_vault_liquidate_staked_mvk
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: vaultLiquidateStakedMvk
+      #     - callback: on_lending_controller_set_lambda
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: setLambda
+      #     - callback: on_lending_controller_set_product_lambda
+      #       pattern:
+      #         - destination: lending_controller
+      #           entrypoint: setProductLambda
 
 hasura:
   ingress:

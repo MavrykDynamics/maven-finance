@@ -193,7 +193,7 @@ block {
             (* BreakGlass Configs *)
         |   PauseAllContractEntrypoint (_v)        -> 12n
         |   UnpauseAllContractEntrypoint (_v)      -> 13n
-        |   ToggleContractEntrypoint(_v)           -> 14n
+        |   ToggleContractEntrypoint (_v)          -> 14n
 
             (* Governance Control *)
         |   UpdateWhitelistDevelopersSet (_v)      -> 15n

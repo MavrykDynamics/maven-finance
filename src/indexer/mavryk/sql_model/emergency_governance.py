@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Emergency Governance Tables
 ###
 
-class EmergencyGovernance(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class EmergencyGovernance(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='emergency_governances')
     decimals                                = fields.SmallIntField(default=0)
     min_smvk_required_to_trigger            = fields.FloatField(default=0)

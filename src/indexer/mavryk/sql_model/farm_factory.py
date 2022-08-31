@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Farm Factory Tables
 ###
 
-class FarmFactory(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36)
+class FarmFactory(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farm_factories')
     farm_name_max_length                    = fields.SmallIntField(default=0)
     create_farm_paused                      = fields.BooleanField(default=False)

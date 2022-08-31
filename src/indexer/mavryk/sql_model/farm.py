@@ -1,13 +1,11 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
 # Farm Tables
 ###
 
-class Farm(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    admin                                   = fields.CharField(max_length=36, default='')
+class Farm(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farms', null=True)
     farm_factory                            = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
     lp_token                                = fields.ForeignKeyField('models.Token', related_name='farm_lp_tokens', null=True)

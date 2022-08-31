@@ -1,14 +1,12 @@
 from tortoise import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda
+from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import GovernanceRoundType, GovernanceRecordStatus, GovernanceVoteType
 
 ###
 # Governance Tables
 ###
 
-class Governance(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    active                                  = fields.BooleanField(default=False)
+class Governance(MavrykContract, Model):
     governance_proxy_address                = fields.CharField(max_length=36, default="")
     success_reward                          = fields.FloatField(default=0)
     cycle_voters_reward                     = fields.FloatField(default=0)
