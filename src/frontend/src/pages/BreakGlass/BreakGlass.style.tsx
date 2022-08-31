@@ -6,15 +6,23 @@ import { downColor, upColor, skyColor, headerColor, royalPurpleColor, cyanColor 
 export const BGStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   width: 100%;
-  flex-direction: column;
+  flex-direction: row;
   font-family: 'Metropolis';
+  display: grid;
+  column-gap: calc((100% - (31.5% * 3)) / 2);
+  row-gap: 25px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 65px auto;
 `
 
 export const BGTop = styled.div<{ theme: MavrykTheme }>`
-  width: 100%;
   display: flex;
+  flex-direction: column;
+  row-gap: 25px;
+  height: fit-content;
   padding-top: 30px;
-  justify-content: space-between;
+  grid-column-start: 3;
+  grid-column-end: 4;
 `
 
 const BGBlockBaseStyles = styled.div<{ theme: MavrykTheme }>`
@@ -28,9 +36,8 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 32%;
-  height: 115px;
-  padding: 0 20px;
+  width: 100%;
+  padding: 15px 20px;
 
   .status-indicator-wrapper {
     width: 100%;
@@ -40,18 +47,6 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
     font-size: 16px;
     color: ${headerColor};
     margin: 6px 0;
-
-    &.whitelist {
-      div {
-        color: ${cyanColor};
-        font-weight: 700;
-        font-size: 14px;
-      }
-
-      svg {
-        stroke: ${cyanColor};
-      }
-    }
   }
 
   .color-red {
@@ -72,24 +67,27 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
 export const BGMiddleWrapper = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
-  margin-top: 45px;
+  margin-top: 30px;
+  height: 40px;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row-start: 1;
+  grid-row-end: 2;
 
   .brake-glass-tabs {
     button {
       height: 100%;
-      width: 177px;
+      width: fit-content;
     }
   }
 `
 
 export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
-  max-width: 64.5%;
-  max-height: 115px;
   display: flex;
+  height: fit-content;
   flex-direction: column;
   justify-content: center;
-  padding: 0 22px;
-  padding-top: 21px;
+  padding: 20px 22px;
 
   p {
     margin: 0;
@@ -106,9 +104,30 @@ export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
 export const BGCardsWrapper = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-wrap: wrap;
-  column-gap: calc((100% - (31% * 3)) / 2);
+  column-gap: 4%;
   row-gap: 25px;
   margin-top: 23px;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row-start: 2;
+`
+
+export const BGWhitelist = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
+  padding: 20px;
+
+  .adress-list {
+    margin-top: 10px;
+
+    div {
+      color: ${cyanColor};
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    svg {
+      stroke: ${cyanColor};
+    }
+  }
 `
 
 export const BGTitle = styled.h1<{ theme: MavrykTheme }>`
