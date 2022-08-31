@@ -102,7 +102,7 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
   const handleSubmitFinancialRequestData = () => {
     const submitData = tableData.filter((_, i) => i !== 0)
     if (proposalId) {
-      dispatch(submitFinancialRequestData(proposalId, submitData, accountPkh as any))
+      dispatch(submitFinancialRequestData(proposalId, submitData, accountPkh as string))
     }
   }
 

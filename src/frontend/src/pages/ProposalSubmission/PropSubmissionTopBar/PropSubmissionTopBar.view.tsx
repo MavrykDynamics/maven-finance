@@ -21,7 +21,7 @@ import {
 export type PropSubmissionTopBarViewProps = {
   governancePhase: GovernancePhase
   isInEmergencyGovernance: boolean
-  handleTabChange: (val?: any) => void
+  handleTabChange: (val?: number) => void
 }
 const GOV_PROPOSAL_SUBMISSION_ITEMS = [
   { text: 'Stage 1', id: 1, active: true },

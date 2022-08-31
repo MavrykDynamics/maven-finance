@@ -6,6 +6,10 @@ import { useParams } from 'react-router-dom'
 import { State } from 'reducers'
 import { Page } from 'styles'
 import { Loader } from 'app/App.components/Loader/Loader.view'
+import type {
+  SatelliteProposalVotingHistory,
+  SatelliteFinancialRequestVotingHistory,
+} from '../../utils/TypesAndInterfaces/Delegation'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
@@ -32,10 +36,10 @@ type SatelliteDetailsViewProps = {
   userStakedBalanceInSatellite: number
 }
 
-const renderVotingHistoryItem = (item: any) => {
+const renderVotingHistoryItem = (item: SatelliteProposalVotingHistory | SatelliteFinancialRequestVotingHistory) => {
   return (
     <SatelliteVotingHistoryListItem key={item.id}>
-      <p>{item?.voteName.split('_').join(' ').toLowerCase()}</p>
+      <p>{item?.voteName?.split('_').join(' ').toLowerCase()}</p>
       <span className="satellite-voting-history-info">
         Voted{' '}
         {item.vote === 1 ? (

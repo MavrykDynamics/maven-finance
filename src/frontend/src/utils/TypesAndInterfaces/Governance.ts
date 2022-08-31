@@ -7,6 +7,8 @@ import type {
   Token,
   Maybe,
   Governance_Proposal_Record_Payment,
+  Governance_Satellite_Action_Record,
+  Governance_Satellite,
 } from '../generated/graphqlTypes'
 import { normalizeGovernanceStorage, normalizeProposal } from '../../pages/Governance/Governance.helpers'
 
@@ -15,6 +17,8 @@ export type GovernanceGraphQL = Omit<Governance, '__typename'>
 export type GovernanceFinancialRequestRecordGraphQL = Omit<Governance_Financial_Request_Record, '__typename'>
 export type GovernanceProposalRecordGraphQL = Omit<Governance_Proposal_Record, '__typename'>
 export type GovernanceSatelliteSnapshotRecordGraphQL = Omit<Governance_Satellite_Snapshot_Record, '__typename'>
+export type GovernanceSatelliteActionRecordGraphQL = Omit<Governance_Satellite_Action_Record, '__typename'>
+export type GovernanceSatelliteGraphQL = Omit<Governance_Satellite, '__typename'>
 export type GovernanceStorageGraphQL = {
   governance: GovernanceGraphQL[]
   governance_financial_request_record: GovernanceFinancialRequestRecordGraphQL[]

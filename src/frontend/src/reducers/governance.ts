@@ -20,15 +20,19 @@ import { GovernanceStorage, CurrentRoundProposalsStorageType } from '../utils/Ty
 import { PROPOSAL_UPDATE_ERROR, PROPOSAL_UPDATE_RESULT } from '../pages/ProposalSubmission/ProposalSubmission.actions'
 import { GET_GOVERNANCE_SATELLITE_STORAGE } from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
+import type {
+  GovernanceSatelliteActionRecordGraphQL,
+  GovernanceSatelliteGraphQL,
+} from '../utils/TypesAndInterfaces/Governance'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
 
 const PROPOSAL = 'PROPOSAL',
   VOTING = 'VOTING',
   TIME_LOCK = 'TIME_LOCK'
-export type GovernanceSatelliteItem = Record<string, unknown>[]
+
 export type GovernanceSatellite = {
-  governance_satellite: GovernanceSatelliteItem
-  governance_satellite_action_record: GovernanceSatelliteItem
+  governance_satellite: GovernanceSatelliteGraphQL[]
+  governance_satellite_action_record: GovernanceSatelliteActionRecordGraphQL[]
 }
 export type GovernancePhase = typeof PROPOSAL | typeof VOTING | typeof TIME_LOCK
 export interface GovernanceState {

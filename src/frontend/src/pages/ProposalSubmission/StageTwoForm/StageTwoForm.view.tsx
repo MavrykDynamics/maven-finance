@@ -38,7 +38,7 @@ type StageTwoFormViewProps = {
   successReward: number
   setForm: (form: ProposalUpdateForm) => void
   formInputStatus: ProposalUpdateFormInputStatus
-  handleOnBlur: any
+  handleOnBlur: (index: number, text: string, type: string) => void
   handleUpdateProposal: () => void
   handleDeleteProposal: () => void
   handleAddProposal: () => void
@@ -134,8 +134,8 @@ export const StageTwoFormView = ({
                 <Input
                   type="text"
                   value={item.title}
-                  onChange={(e: any) => handleChangeTitle(i, e.target.value)}
-                  onBlur={(e: any) => handleOnBlur(i, e.target.value, 'title')}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChangeTitle(i, e.target.value)}
+                  onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(i, e.target.value, 'title')}
                   inputStatus={''}
                   // inputStatus={isEdit ? '' : formInputStatus.title}
                   disabled={disabled}
@@ -148,8 +148,8 @@ export const StageTwoFormView = ({
               <TextArea
                 className="step-2-textarea"
                 value={item.bytes}
-                onChange={(e: any) => handleChangeData(i, e.target.value)}
-                onBlur={(e: any) => handleOnBlur(i, e.target.value, 'data')}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChangeData(i, e.target.value)}
+                onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(i, e.target.value, 'data')}
                 inputStatus={''}
                 // inputStatus={isEdit ? '' : formInputStatus.title}
                 disabled={disabled}
