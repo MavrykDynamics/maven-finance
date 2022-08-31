@@ -11,7 +11,7 @@ query GetUsersSatelliteDelegatedBalance ($_eq: String = "") {
 `
 
 export const USERS_SATELLITE_DELEGATION_QUERY_NAME = 'GetUsersSatelliteDelegatedBalance'
-export function USERS_SATELLITE_DELEGATION_QUERY_VARIABLES(address: string): Record<string, any> {
+export function USERS_SATELLITE_DELEGATION_QUERY_VARIABLES(address: string) {
   /* prettier-ignore */
   return { _eq: address }
 }

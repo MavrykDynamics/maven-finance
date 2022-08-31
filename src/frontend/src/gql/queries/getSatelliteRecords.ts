@@ -105,7 +105,7 @@ export const SATELLITE_RECORDS_QUERY = `
 
 export const SATELLITE_RECORDS_QUERY_NAME = 'GetSatelliteRecord'
 
-export function SATELLITE_RECORDS_QUERY_VARIABLES(address: string): Record<string, any> {
+export function SATELLITE_RECORDS_QUERY_VARIABLES(address: string) {
   /* prettier-ignore */
   return { _eq: address }
 }
@@ -165,7 +165,7 @@ export const USER_VOTING_HYSTORY_QUERY = `
 
 export const USER_VOTING_HYSTORY_NAME = 'UserVotingHistory'
 
-export function USER_VOTING_HYSTORY_VARIABLES(address: string): Record<string, any> {
+export function USER_VOTING_HYSTORY_VARIABLES(address: string) {
   /* prettier-ignore */
   return { _eq: address }
 }
