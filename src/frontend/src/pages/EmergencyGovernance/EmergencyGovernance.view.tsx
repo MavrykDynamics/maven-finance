@@ -10,7 +10,7 @@ import {
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
-import type { EmergencyGovernanceLedgerType } from './EmergencyGovernance.controller'
+import type { EmergencyGovernanceStorage } from '../../utils/TypesAndInterfaces/EmergencyGovernance'
 
 // components
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -37,9 +37,9 @@ import { useLocation } from 'react-router'
 type Props = {
   ready: boolean
   loading: boolean
-  accountPkh?: any
+  accountPkh?: string
   handleTriggerEmergencyProposal: () => void
-  emergencyGovernanceLedger: EmergencyGovernanceLedgerType[]
+  emergencyGovernanceLedger: EmergencyGovernanceStorage['emergencyGovernanceLedger']
 }
 
 export const EmergencyGovernanceView = ({
