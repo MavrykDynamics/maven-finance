@@ -10,7 +10,7 @@ export const REGISTER_AS_SATELLITE_REQUEST = 'REGISTER_AS_SATELLITE_REQUEST'
 export const REGISTER_AS_SATELLITE_RESULT = 'REGISTER_AS_SATELLITE_RESULT'
 export const REGISTER_AS_SATELLITE_ERROR = 'REGISTER_AS_SATELLITE_ERROR'
 export const registerAsSatellite =
-  (form: RegisterAsSatelliteForm, accountPkh: string) => async (dispatch: AppDispatch, getState: GetState) => {
+  (form: RegisterAsSatelliteForm) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
