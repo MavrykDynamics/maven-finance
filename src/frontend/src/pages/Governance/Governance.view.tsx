@@ -426,12 +426,6 @@ export const GovernanceView = ({
             ) : null}
           </div>
           <hr />
-          {rightSideContent.details ? (
-            <article>
-              <RightSideSubHeader>Details</RightSideSubHeader>
-              <RightSideSubContent>{rightSideContent.details}</RightSideSubContent>
-            </article>
-          ) : null}
 
           {rightSideContent.description ? (
             <article>
@@ -503,8 +497,8 @@ export const GovernanceView = ({
                       <td>Amount</td>
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
-                    {rightSideContent.proposalPayments.map((item: ProposalPaymentType, i: number) => {
-                      const paymentType = normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)
+                    {rightSideContent.proposalPayments.map((item, i: number) => {
+                      const paymentType = normalizeTokenStandart(item.token)
 
                       const amount =
                         paymentType === 'MVK'
@@ -514,7 +508,7 @@ export const GovernanceView = ({
                       return (
                         <tr key={item.id}>
                           <td>
-                            <TzAddress tzAddress={item.to__id} hasIcon={false} isBold={true} />
+                            <TzAddress tzAddress={item.to__id || ''} hasIcon={false} isBold={true} />
                           </td>
                           <td>{item.title}</td>
                           <td>{amount}</td>

@@ -34,8 +34,8 @@ export const StageOneForm = ({
 }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage } = useSelector((state: State) => state.governance)
-  const { fee, governancePhase } = governanceStorage
-  const isProposalRound = governancePhase === 'PROPOSAL'
+  const { fee, currentRound } = governanceStorage
+  const isProposalRound = currentRound === 'PROPOSAL'
   const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<SubmitProposalForm>({
     title: '',

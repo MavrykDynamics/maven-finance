@@ -34,7 +34,7 @@ type ProposalSubmissionViewProps = {
   proposalDescription: string
   proposalSourceCode: string
   proposalData: ProposalDataType[] | undefined
-  proposalPayments: ProposalPaymentType[] | undefined
+  proposalPayments: ProposalPaymentType[]
 }
 export const ProposalSubmissionView = ({
   locked,
