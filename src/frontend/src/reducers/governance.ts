@@ -16,39 +16,32 @@ import {
   VOTING_ROUND_VOTING_RESULT,
   GET_CURRENT_ROUND_PROPOSALS,
 } from 'pages/Governance/Governance.actions'
-import {
-  GovernanceConfig,
-  GovernanceStorage,
-  ProposalRecordType,
-  CurrentRoundProposalsStorageType,
-} from '../utils/TypesAndInterfaces/Governance'
-import {
-  PROPOSAL_UPDATE_ERROR,
-  SUBMIT_FINANCIAL_DATA_REQUEST,
-  PROPOSAL_UPDATE_RESULT,
-} from '../pages/ProposalSubmission/ProposalSubmission.actions'
+import { GovernanceStorage, CurrentRoundProposalsStorageType } from '../utils/TypesAndInterfaces/Governance'
+import { PROPOSAL_UPDATE_ERROR, PROPOSAL_UPDATE_RESULT } from '../pages/ProposalSubmission/ProposalSubmission.actions'
 import { GET_GOVERNANCE_SATELLITE_STORAGE } from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
-import { MichelsonMap } from '@taquito/taquito'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
+import type {
+  GovernanceSatelliteActionRecordGraphQL,
+  GovernanceSatelliteGraphQL,
+} from '../utils/TypesAndInterfaces/Governance'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
 
 const PROPOSAL = 'PROPOSAL',
   VOTING = 'VOTING',
   TIME_LOCK = 'TIME_LOCK'
-export type GovernanceSatelliteItem = Record<string, unknown>[]
+
 export type GovernanceSatellite = {
-  governance_satellite: GovernanceSatelliteItem
-  governance_satellite_action_record: GovernanceSatelliteItem
+  governance_satellite: GovernanceSatelliteGraphQL[]
+  governance_satellite_action_record: GovernanceSatelliteActionRecordGraphQL[]
 }
 export type GovernancePhase = typeof PROPOSAL | typeof VOTING | typeof TIME_LOCK
 export interface GovernanceState {
   currentRoundProposals: CurrentRoundProposalsStorageType
-  governanceStorage: GovernanceStorage | any
+  governanceStorage: GovernanceStorage
   governancePhase: GovernancePhase
-  form?: any
   proposalId?: number
-  pastProposals?: any
+  pastProposals: CurrentRoundProposalsStorageType
   vote?: number
-  error?: any
   governanceSatelliteStorage: GovernanceSatellite
 }
 
@@ -57,13 +50,14 @@ const governanceDefaultState: GovernanceState = {
   governanceStorage: defaultGovernanceStorage,
   governancePhase: 'PROPOSAL',
   currentRoundProposals: [],
+  pastProposals: [],
   governanceSatelliteStorage: {
     governance_satellite: [],
     governance_satellite_action_record: [],
   },
 }
 
-export function governance(state = governanceDefaultState, action: any): GovernanceState {
+export function governance(state = governanceDefaultState, action: Action) {
   switch (action.type) {
     case GET_GOVERNANCE_SATELLITE_STORAGE:
       return {
@@ -73,7 +67,7 @@ export function governance(state = governanceDefaultState, action: any): Governa
     case GET_CURRENT_ROUND_PROPOSALS:
       return {
         ...state,
-        currentRoundProposals: action.currentRoundProposals,
+        currentRoundProposals: action.currentRoundProposals || [],
       }
     case GET_GOVERNANCE_STORAGE:
       return {
@@ -143,11 +137,6 @@ export function governance(state = governanceDefaultState, action: any): Governa
       return {
         ...state,
         error: action.error,
-      }
-    case SUBMIT_FINANCIAL_DATA_REQUEST:
-      return {
-        ...state,
-        form: action.form,
       }
     case PROPOSAL_UPDATE_RESULT:
       return {

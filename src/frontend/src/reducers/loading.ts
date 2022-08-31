@@ -1,8 +1,7 @@
 export type LoadingState = boolean
+const loadingInitialState: LoadingState = false
 
-const loadingInitialState: LoadingState =  false
-
-export function loading(state = loadingInitialState, action: any): LoadingState {
+export function loading(state = loadingInitialState, action: { type: string }): LoadingState {
   switch (true) {
     case /_REQUEST/.test(action.type): {
       return true

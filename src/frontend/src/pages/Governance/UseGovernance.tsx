@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
+import type { GovernanceProposalRecordGraphQL, ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 
 export default function useGovernence(): {
   watingProposals: ProposalRecordType[]
@@ -13,20 +13,20 @@ export default function useGovernence(): {
   )
   const proposalLedger = governanceStorage.proposalLedger
   const isProposalRound = governancePhase === 'PROPOSAL'
-  const proposalLedgerList = proposalLedger?.values ? Array.from(proposalLedger.values()) : []
+  const proposalLedgerList = proposalLedger
 
   const watingProposals = proposalLedgerList.filter(
-    (item: any) => isProposalRound && governanceStorage.timelockProposalId === item.id && !item?.executed,
-  ) as ProposalRecordType[]
+    (item) => isProposalRound && governanceStorage.timelockProposalId === item.id && !item?.executed,
+  )
 
   const waitingForPaymentToBeProcessed = proposalLedgerList.filter(
-    (item: any) =>
+    (item) =>
       isProposalRound &&
       governanceStorage.timelockProposalId === item.id &&
       item?.executed &&
       !item.paymentProcessed &&
       item?.proposalPayments?.length > 0,
-  ) as ProposalRecordType[]
+  )
 
   return { watingProposals, waitingForPaymentToBeProcessed }
 }

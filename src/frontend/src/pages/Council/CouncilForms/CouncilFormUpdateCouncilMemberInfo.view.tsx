@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // type
-import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
+import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 
 import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
@@ -38,7 +38,7 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
 
   const { newMemberName, newMemberWebsite, newMemberImage } = form
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       await dispatch(updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage))
@@ -59,13 +59,13 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => {
       return { ...prev, [e.target.name]: e.target.value }
     })
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormInputStatus((prev) => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
@@ -93,11 +93,11 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
             required
             value={newMemberName}
             name="newMemberName"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -109,11 +109,11 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
             required
             value={newMemberWebsite}
             name="newMemberWebsite"
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e: any) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>
@@ -124,7 +124,7 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
         typeFile="image"
         imageIpfsUrl={newMemberImage}
         className="form-ipfs"
-        setIpfsImageUrl={(e: any) => {
+        setIpfsImageUrl={(e: string) => {
           setForm({ ...form, newMemberImage: e })
           setFormInputStatus({ ...formInputStatus, newMemberImage: Boolean(e) ? 'success' : 'error' })
         }}

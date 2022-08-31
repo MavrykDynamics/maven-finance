@@ -1,8 +1,10 @@
 import { TempleWallet } from '@temple-wallet/dapp'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import Lottie from 'react-lottie'
-import { useDispatch, useSelector } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
+import { AnyAction } from 'redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { ThunkDispatch } from 'redux-thunk'
 
 import { State } from '../reducers'
 import { onStart } from './App.actions'
@@ -10,7 +12,6 @@ import { AppRoutes } from './App.components/AppRoutes/AppRoutes.controller'
 import { setWallet } from './App.components/ConnectWallet/ConnectWallet.actions'
 import { Menu } from './App.components/Menu/Menu.controller'
 import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
-import { ThemeToggle } from './App.components/ThemeToggle/ThemeToggle.controller'
 import { Toaster } from './App.components/Toaster/Toaster.controller'
 import { configureStore } from './App.store'
 import { AppStyled, LoaderStyled } from './App.style'
@@ -22,6 +23,8 @@ import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
 import { useMedia } from 'react-use'
 
 export const { store, persistor } = configureStore({})
+export type AppDispatch = ThunkDispatch<State, unknown, AnyAction>
+export type GetState = typeof store.getState
 
 const AppContainer = () => {
   const dispatch = useDispatch()
@@ -57,7 +60,6 @@ const AppContainer = () => {
 
   return (
     <Router>
-      {/* <ThemeToggle /> */}
       <ProgressBar />
       <AppStyled isExpandedMenu={sidebarOpened}>
         {loading ? (

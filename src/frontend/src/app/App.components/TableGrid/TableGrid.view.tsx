@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import styled from 'styled-components'
-import { cyanColor, darkColor } from 'styles'
 
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -15,8 +13,6 @@ import type { TableListType } from './TableGrid.types'
 // style
 import { TableGridWrap } from './TableGrid.style'
 import {
-  DropDownStyled,
-  DropDownMenu,
   DropDownListContainer,
   DropDownList,
   DropDownListItem,
@@ -86,7 +82,7 @@ export default function TableGrid({ tableData, setTableData }: Props) {
                         onFocus={() => setOpenDrop('')}
                         value={colValue}
                         type={j === 2 ? 'number' : 'text'}
-                        onChange={(e: any) => handleChange(e, i, j)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i, j)}
                       />
                     ) : (
                       <div className="table-drop">

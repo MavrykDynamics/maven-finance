@@ -3,7 +3,6 @@ import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { ProposalSubmissionView } from './ProposalSubmission.view'
-import { getGovernanceStorage } from '../Governance/Governance.actions'
 
 export const ProposalSubmission = () => {
   const loading = useSelector((state: State) => state.loading)
@@ -11,17 +10,13 @@ export const ProposalSubmission = () => {
   const { governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
   const [activeTab, setActiveTab] = useState<number>(1)
 
-  const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
-
   const findUserCurrentRoundProposal = useMemo(
-    () => (accountPkh ? currentRoundProposalsList.find((item) => item.proposerId === accountPkh) : null),
-    [accountPkh, currentRoundProposalsList],
+    () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
+    [accountPkh, currentRoundProposals],
   )
 
-  console.log('%c ||||| findUserCurrentRoundProposal', 'color:yellowgreen', findUserCurrentRoundProposal)
-
-  const handleChangeTab = (tabId: number) => {
-    setActiveTab(tabId)
+  const handleChangeTab = (tabId?: number) => {
+    setActiveTab(tabId ?? 0)
   }
 
   return (
@@ -38,7 +33,7 @@ export const ProposalSubmission = () => {
       proposalDescription={findUserCurrentRoundProposal?.description || ''}
       proposalSourceCode={findUserCurrentRoundProposal?.sourceCode || ''}
       proposalData={findUserCurrentRoundProposal?.proposalData}
-      proposalPayments={findUserCurrentRoundProposal?.proposalPayments}
+      proposalPayments={findUserCurrentRoundProposal?.proposalPayments || []}
     />
   )
 }

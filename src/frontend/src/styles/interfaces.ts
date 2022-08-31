@@ -13,4 +13,5 @@ export interface MavrykTheme {
   warningColor: string
   infoColor: string
   selectedColor: string
+  headerSkyColor: string
 }

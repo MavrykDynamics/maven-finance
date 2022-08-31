@@ -3,7 +3,7 @@ export const getItemFromStorage = (item: string) => {
   return itemFromStorage ? JSON.parse(itemFromStorage) : null
 }
 
-export const setItemInStorage = (item: string, value: any) => {
+export const setItemInStorage = (item: string, value: object | boolean | string) => {
   localStorage.setItem(item, JSON.stringify(value))
 
   return getItemFromStorage(item)
@@ -13,7 +13,7 @@ export const removeItemFromStorage = (item: string) => {
   localStorage.removeItem(item)
 }
 
-export const updateItemInStorage = (item: string, updateValue: any) => {
+export const updateItemInStorage = (item: string, updateValue: object) => {
   const itemFromStorage = getItemFromStorage(item)
   const updatedItem = {
     ...itemFromStorage,

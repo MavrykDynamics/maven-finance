@@ -1,9 +1,9 @@
 import { InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
 import { GET_ORACLES_STORAGE } from 'pages/Satellites/Satellites.actions'
+import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface OraclesState {
-  oraclesStorage: {
-  } & InitialOracleStorageType
+  oraclesStorage: {} & InitialOracleStorageType
 }
 
 const oraclesDefaultState: OraclesState = {
@@ -12,16 +12,16 @@ const oraclesDefaultState: OraclesState = {
     feedsFactory: [],
     totalOracleNetworks: 0,
   },
-} 
+}
 
-export function oracles(state = oraclesDefaultState, action: any): OraclesState {
+export function oracles(state = oraclesDefaultState, action: Action) {
   switch (action.type) {
     case GET_ORACLES_STORAGE:
       return {
         ...state,
         oraclesStorage: {
           ...state.oraclesStorage,
-          ...action.oraclesStorage,
+          ...(action.oraclesStorage as object),
         },
       }
     default:

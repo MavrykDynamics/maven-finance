@@ -58,7 +58,7 @@ export const FarmTopBar = ({
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
@@ -79,7 +79,7 @@ export const FarmTopBar = ({
         type="text"
         placeholder="Search..."
         value={searchValue}
-        onChange={(e: any) => onSearch(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearch(e.target.value)}
         onBlur={() => {}}
       />
       <DropdownContainer className="order-by">
@@ -87,11 +87,9 @@ export const FarmTopBar = ({
         <DropDown
           clickOnDropDown={handleClickDropdown}
           placeholder={'Choose order'}
-          onChange={onSort}
           isOpen={ddIsOpen}
           itemSelected={chosenDdItem?.text}
           items={ddItems}
-          onBlur={() => {}}
           clickOnItem={(e) => handleOnClickDropdownItem(e)}
         />
       </DropdownContainer>

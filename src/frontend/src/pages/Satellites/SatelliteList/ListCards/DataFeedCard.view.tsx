@@ -11,7 +11,7 @@ import { SatelliteItemStyle } from './SatelliteCard.style'
 export const DataFeedCard = ({ feed }: { feed: Feed }) => {
   return (
     <Link to={`/satellites/feed-details/${feed.address}`}>
-      <SatelliteItemStyle>
+      <SatelliteItemStyle className="feed">
         <div className="item with-img">
           <CoinsLogo assetName={feed.token_1_symbol} />
           <h5>Feed</h5>

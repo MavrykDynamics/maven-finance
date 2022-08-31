@@ -1,7 +1,7 @@
 import { State } from '../../reducers'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
-import { getGovernanceStorage } from '../Governance/Governance.actions'
+import type { AppDispatch, GetState } from '../../app/App.controller'
 import farmFactoryAddress from '../../deployments/farmFactoryAddress.json'
 
 import { SET_GOVERNANCE_PHASE, GET_GOVERNANCE_STORAGE } from '../Governance/Governance.actions'
@@ -10,7 +10,7 @@ export const ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_REQUEST = 'ADMIN_ACTION_CHANG
 export const ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_RESULT = 'ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_RESULT'
 export const ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR = 'ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR'
 export const adminChangeGovernancePeriod =
-  (chosenPeriod: string, accountPkh?: string) => async (dispatch: any, getState: any) => {
+  (chosenPeriod: string, accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     const { governance } = state
@@ -71,17 +71,18 @@ export const adminChangeGovernancePeriod =
       // })
 
       // dispatch(getGovernanceStorage())
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR,
+          error,
+        })
+      }
     }
   }
 
-export const trackFarm = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const trackFarm = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -98,12 +99,13 @@ export const trackFarm = (accountPkh?: string) => async (dispatch: any, getState
     const done = await transaction?.confirmation()
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Tracking Farm done...', 'All good :)'))
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR,
+        error,
+      })
+    }
   }
 }

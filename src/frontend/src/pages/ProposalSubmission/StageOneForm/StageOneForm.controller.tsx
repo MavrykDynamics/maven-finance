@@ -34,8 +34,8 @@ export const StageOneForm = ({
 }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage } = useSelector((state: State) => state.governance)
-  const { fee, governancePhase } = governanceStorage
-  const isProposalRound = governancePhase === 'PROPOSAL'
+  const { fee, currentRound } = governanceStorage
+  const isProposalRound = currentRound === 'PROPOSAL'
   const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<SubmitProposalForm>({
     title: '',
@@ -62,7 +62,10 @@ export const StageOneForm = ({
     sourceCodeLink: '',
   })
 
-  const handleOnBlur = (e: any, formField: string) => {
+  const handleOnBlur = (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
+    formField: string,
+  ) => {
     let updatedState, validityCheckResult
     switch (formField) {
       case 'TITLE':

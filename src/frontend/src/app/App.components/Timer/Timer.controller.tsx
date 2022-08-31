@@ -1,5 +1,3 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
 import { useEffect, useState } from 'react'
 
 import { TimerView } from './Timer.view'
@@ -14,12 +12,12 @@ type TimerProps = {
   }
 }
 
-export const Timer = ({ deadline, timestamp, options }: TimerProps) => {
-  const toSecond = 1000,
-    toMinute = toSecond * 60,
-    toHour = toMinute * 60,
-    toDay = toHour * 24
+const toSecond = 1000,
+  toMinute = toSecond * 60,
+  toHour = toMinute * 60,
+  toDay = toHour * 24
 
+export const Timer = ({ deadline, timestamp, options }: TimerProps) => {
   const [strings, setStrings] = useState({
     days: 0,
     hours: 0,
@@ -53,12 +51,4 @@ export const Timer = ({ deadline, timestamp, options }: TimerProps) => {
       options={options || {}}
     />
   )
-}
-
-Timer.propTypes = {
-  deadline: PropTypes.string.isRequired,
-}
-
-Timer.defaultProps = {
-  deadline: undefined,
 }

@@ -1,17 +1,16 @@
-import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { State } from "reducers";
+import { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 /* @ts-ignore */
-import Time from "react-pure-time";
+import Time from 'react-pure-time'
 
-// types
-import { EmergencyGovernanceLedgerType } from "../EmergencyGovernance.controller";
+import type { EmergencyGovernanceStorage } from '../../../utils/TypesAndInterfaces/EmergencyGovernance'
 
 // view
-import { StatusFlag } from "../../../app/App.components/StatusFlag/StatusFlag.controller";
-import { TzAddress } from "../../../app/App.components/TzAddress/TzAddress.view";
-import { EGovVoting } from "./EGovVoting.view";
-import { ProposalStatus } from "../../../utils/TypesAndInterfaces/Governance";
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { EGovVoting } from './EGovVoting.view'
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 import {
   EGovHistoryArrowButton,
@@ -19,45 +18,34 @@ import {
   EGovHistoryCardStyled,
   EGovHistoryCardTitleTextGroup,
   EGovHistoryCardTopSection,
-} from "./EGovHistoryCard.style";
+} from './EGovHistoryCard.style'
 
 type EGovHistoryCardProps = {
-  emergencyGovernance: EmergencyGovernanceLedgerType;
-};
-export const EGovHistoryCard = ({
-  emergencyGovernance,
-}: EGovHistoryCardProps) => {
-  const { totalStakedMvk } = useSelector((state: State) => state.doorman);
-  const [expanded, setExpanded] = useState(false);
-  const [accordionHeight, setAccordionHeight] = useState(0);
-  const ref = useRef(null);
+  emergencyGovernance: EmergencyGovernanceStorage['emergencyGovernanceLedger'][0]
+}
+export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) => {
+  const { totalStakedMvk } = useSelector((state: State) => state.doorman)
+  const [expanded, setExpanded] = useState(false)
+  const [accordionHeight, setAccordionHeight] = useState(0)
+  const ref = useRef(null)
 
-  const open = () => setExpanded(!expanded);
+  const open = () => setExpanded(!expanded)
 
   useEffect(() => {
     // @ts-ignore
-    const getHeight = ref.current.scrollHeight;
-    setAccordionHeight(getHeight);
-  }, [expanded]);
+    const getHeight = ref.current.scrollHeight
+    setAccordionHeight(getHeight)
+  }, [expanded])
 
-  const status = emergencyGovernance.executed
-    ? ProposalStatus.EXECUTED
-    : ProposalStatus.DROPPED;
+  const status = emergencyGovernance.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
 
   const currentData = emergencyGovernance.executed
     ? emergencyGovernance.executedTimestamp
-    : emergencyGovernance.startTimestamp;
+    : emergencyGovernance.startTimestamp
 
   return (
-    <EGovHistoryCardStyled
-      key={String(emergencyGovernance.title + emergencyGovernance.id)}
-      onClick={open}
-    >
-      <EGovHistoryCardTopSection
-        className={expanded ? "show" : "hide"}
-        height={accordionHeight}
-        ref={ref}
-      >
+    <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
+      <EGovHistoryCardTopSection className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <EGovHistoryCardTitleTextGroup>
           <h3>Title</h3>
           <p className="group-data">{emergencyGovernance.title}</p>
@@ -71,10 +59,7 @@ export const EGovHistoryCard = ({
         <EGovHistoryCardTitleTextGroup>
           <h3>Proposer</h3>
           <div className="group-data">
-            <TzAddress
-              tzAddress={emergencyGovernance.proposerId}
-              hasIcon={false}
-            />
+            <TzAddress tzAddress={emergencyGovernance.proposerId} hasIcon={false} />
           </div>
         </EGovHistoryCardTitleTextGroup>
         <EGovHistoryArrowButton>
@@ -88,18 +73,13 @@ export const EGovHistoryCard = ({
             </svg>
           )}
         </EGovHistoryArrowButton>
-        <EGovHistoryCardTitleTextGroup className={"statusFlag"}>
+        <EGovHistoryCardTitleTextGroup className={'statusFlag'}>
           <StatusFlag status={status} text={status} />
         </EGovHistoryCardTitleTextGroup>
       </EGovHistoryCardTopSection>
 
-      <EGovHistoryCardDropDown
-        onClick={open}
-        className={expanded ? "show" : "hide"}
-        height={accordionHeight}
-        ref={ref}
-      >
-        <div className={"accordion " + `${expanded}`} ref={ref}>
+      <EGovHistoryCardDropDown onClick={open} className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
+        <div className={'accordion ' + `${expanded}`} ref={ref}>
           <div>
             <h3>Description</h3>
             <p>{emergencyGovernance.description}</p>
@@ -108,13 +88,11 @@ export const EGovHistoryCard = ({
             <EGovVoting
               totalStakedMvk={totalStakedMvk ?? 0}
               totalsMvkVotes={emergencyGovernance.totalsMvkVotes}
-              sMvkPercentageRequired={
-                emergencyGovernance?.sMvkPercentageRequired ?? 0
-              }
+              sMvkPercentageRequired={emergencyGovernance?.sMvkPercentageRequired ?? 0}
             />
           </div>
         </div>
       </EGovHistoryCardDropDown>
     </EGovHistoryCardStyled>
-  );
-};
+  )
+}

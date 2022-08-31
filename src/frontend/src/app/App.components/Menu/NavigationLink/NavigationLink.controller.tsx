@@ -1,7 +1,6 @@
 import { State } from '../../../../reducers'
 import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
 import { SubNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
-import { NavigationLinkStyle } from './NavigationLink.constants'
 import {
   NavigationLinkContainer,
   NavigationLinkIcon,
@@ -11,10 +10,10 @@ import {
   SubNavLink,
 } from './NavigationLink.style'
 import Icon from 'app/App.components/Icon/Icon.view'
-import * as React from 'react'
 import useCollapse from 'react-collapsed'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 type NavigationLinkProps = {
   title: string
@@ -22,12 +21,9 @@ type NavigationLinkProps = {
   path: string
   icon?: string
   subPages?: SubNavigationRoute[]
-  kind?: NavigationLinkStyle
-  location: any
   handleToggle: (id: number) => void
   isExpanded: boolean
   isMobMenuExpanded: boolean
-  walletReady: any
   accountPkh: string | undefined
 }
 
@@ -37,15 +33,14 @@ export const NavigationLink = ({
   path,
   icon,
   subPages,
-  kind,
-  location,
   handleToggle,
   isExpanded,
   isMobMenuExpanded,
-  walletReady,
   accountPkh,
 }: NavigationLinkProps) => {
   const key = `${path.substring(1)}-${id}`
+
+  const location = useLocation()
 
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
@@ -57,9 +52,8 @@ export const NavigationLink = ({
 
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded })
 
-  const handleClick = () => {
-    handleToggle(id)
-  }
+  const handleClick = () => handleToggle(id)
+
   return (
     <>
       {subPages ? (

@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom'
 
 // types
 import { State } from 'reducers'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
+import { UserType } from '../../../utils/TypesAndInterfaces/User'
 
 // view
 import UserDetailsView from './UsersDetails.view'
@@ -17,9 +19,10 @@ const UserDetails = () => {
 
   let { userId } = useParams<{ userId: string }>()
 
-  let [selectedUser, setSelectedUser] = useState<null | any>(null)
+  let [selectedUser, setSelectedUser] = useState<null | UserType>(null)
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const feedsForUser = useCallback(
+    //@ts-ignore
     () => feeds.filter(({ address }) => !selectedUser?.feeds.contains(address)),
     [selectedUser, feeds],
   )
@@ -30,7 +33,7 @@ const UserDetails = () => {
     setFilteredFeedsList(feeds)
   }, [feeds])
 
-  const handleSelect = (selectedOption: any) => {
+  const handleSelect = (selectedOption: DropdownItemType) => {
     const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
 
@@ -38,16 +41,18 @@ const UserDetails = () => {
       setFilteredFeedsList((data: Feed[]) => {
         const dataToSort = data ? [...data] : []
 
-        dataToSort.sort((a: any, b: any) => {
+        dataToSort.sort((a, b) => {
           let res = 0
           switch (sortLabel) {
             case 'Lowest Fee':
+              //@ts-ignore
               res = Number(a[sortValue]) - Number(b[sortValue])
               break
             case 'Highest Fee':
             case 'Delegated MVK':
             case 'Participation':
             default:
+              //@ts-ignore
               res = Number(b[sortValue]) - Number(a[sortValue])
               break
           }
@@ -59,7 +64,7 @@ const UserDetails = () => {
   }
 
   useEffect(() => {
-    setSelectedUser(usersData.find((user) => user.id === userId) || null)
+    if (userId) setSelectedUser(usersData.find((user) => user.id === userId) || null)
   }, [dispatch, userId])
 
   return (

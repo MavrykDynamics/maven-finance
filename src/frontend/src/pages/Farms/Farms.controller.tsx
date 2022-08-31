@@ -120,8 +120,8 @@ export const Farms = () => {
     }
   }, [farmStorage, liveFinished, searchValue, toggleChecked, sortBy])
 
-  const handleToggleStakedFarmsOnly = (e?: any) => {
-    setToggleChecked(e?.target?.checked)
+  const handleToggleStakedFarmsOnly = (e?: { target: { checked: boolean } }) => {
+    setToggleChecked(Boolean(e?.target?.checked))
   }
 
   const handleSetFarmsViewVariant = (variant: FarmsViewVariantType) => {
@@ -136,12 +136,12 @@ export const Farms = () => {
     setSearchValue(text)
   }
 
-  const handleOnSort = (sortValue: any) => {
+  const handleOnSort = (sortValue: string) => {
     setSortBy(sortValue)
   }
   return (
     <Page>
-      <PageHeader page={'farms'} kind={'primary'} loading={loading} />
+      <PageHeader page={'farms'} />
       <FarmsStyled>
         <FarmTopBar
           ready={ready}

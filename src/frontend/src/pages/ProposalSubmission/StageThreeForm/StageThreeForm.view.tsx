@@ -5,10 +5,8 @@ import { State } from 'reducers'
 import type { TableListType } from '../../../app/App.components/TableGrid/TableGrid.types'
 
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { GridSheet } from '../../../app/App.components/GridSheet/GridSheet.controller'
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { Input } from '../../../app/App.components/Input/Input.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import TableGrid from '../../../app/App.components/TableGrid/TableGrid.view'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
@@ -42,7 +40,10 @@ type StageThreeFormViewProps = {
   form: ProposalFinancialRequestForm
   setForm: (form: ProposalFinancialRequestForm) => void
   formInputStatus: ProposalFinancialRequestInputStatus
-  handleOnBlur: (e: any, formField: string) => void
+  handleOnBlur: (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
+    formField: string,
+  ) => void
   handleSubmitFinancialRequestData: () => void
   setTableJson: (input: string) => void
   fee: number
@@ -71,7 +72,7 @@ export const StageThreeFormView = ({
   const { accountPkh } = useSelector((state: State) => state.wallet)
 
   const handleLockProposal = () => {
-    if (proposalId) dispatch(lockProposal(proposalId, accountPkh as any))
+    if (proposalId) dispatch(lockProposal(proposalId, accountPkh as string))
   }
 
   const enebleSubmit = tableData.flat().every((item) => Boolean(item))
@@ -106,7 +107,6 @@ export const StageThreeFormView = ({
       <FormTableGrid className={disabled ? 'disabled' : ''}>
         <TableGrid tableData={tableData} setTableData={setTableData} />
       </FormTableGrid>
-      {/* <GridSheet loading={loading} setTableJson={setTableJson} /> */}
       <FormButtonContainer>
         {!locked ? (
           <Button

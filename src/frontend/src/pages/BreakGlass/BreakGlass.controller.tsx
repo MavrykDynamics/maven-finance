@@ -5,7 +5,6 @@ import { State } from '../../reducers'
 import { getBreakGlassStatus, getBreakGlassStorage, getWhitelistDevs } from './BreakGlass.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { BreakGlassView } from './BreakGlass.view'
 import { MOCK_CONTRACTS } from './mockContracts'
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
@@ -23,7 +22,7 @@ export const BreakGlass = () => {
 
   return (
     <Page>
-      <PageHeader page={'break glass'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'break glass'} />
       <BreakGlassView
         breakGlassStatuses={breakGlassStatus}
         contracts={MOCK_CONTRACTS}

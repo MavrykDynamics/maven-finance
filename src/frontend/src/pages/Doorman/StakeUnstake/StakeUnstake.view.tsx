@@ -60,7 +60,7 @@ export const StakeUnstakeView = ({
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
 
-  const participationFeesPerShare = user.participationFeesPerShare ?? 0
+  const participationFeesPerShare = user?.participationFeesPerShare ?? 0
   const exchangeValue = exchangeRate && inputAmount.amount ? inputAmount.amount * exchangeRate : 0
   const earnedValue = 0
 
@@ -96,7 +96,7 @@ export const StakeUnstakeView = ({
     setStakeUnstakeInputStatus({ amount: status })
   }
 
-  const onInputChange = (e: any) => {
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
 
     checkInputIsOk(Number(value))
@@ -177,7 +177,7 @@ export const StakeUnstakeView = ({
     dispatch(rewardsCompound(user.myAddress))
   }
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
     if (+value === 0) {
@@ -185,7 +185,7 @@ export const StakeUnstakeView = ({
     }
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
     if (+value === 0) {

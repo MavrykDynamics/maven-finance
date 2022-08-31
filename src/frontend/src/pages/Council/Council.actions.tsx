@@ -2,6 +2,8 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { State } from 'reducers'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
+import type { AppDispatch, GetState } from '../../app/App.controller'
+import type { CouncilActionRecordhQL } from '../../utils/TypesAndInterfaces/Council'
 
 import {
   COUNCIL_PAST_ACTIONS_QUERY,
@@ -17,7 +19,7 @@ import {
 import { noralizeCouncilStorage } from './Council.helpers'
 
 export const GET_COUNCIL_STORAGE = 'GET_COUNCIL_STORAGE'
-export const getCouncilStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getCouncilStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   const storage = await fetchFromIndexerWithPromise(
@@ -34,7 +36,7 @@ export const getCouncilStorage = (accountPkh?: string) => async (dispatch: any, 
 }
 
 export const GET_COUNCIL_PAST_ACTIONS_STORAGE = 'GET_COUNCIL_PAST_ACTIONS_STORAGE'
-export const getCouncilPastActionsStorage = () => async (dispatch: any, getState: any) => {
+export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   try {
@@ -48,18 +50,19 @@ export const getCouncilPastActionsStorage = () => async (dispatch: any, getState
       type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
       councilPastActions: storage.council_action_record,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
+        error,
+      })
+    }
   }
 }
 
 export const GET_COUNCIL_PENDING_ACTIONS_STORAGE = 'GET_COUNCIL_PENDING_ACTIONS_STORAGE'
-export const getCouncilPendingActionsStorage = () => async (dispatch: any, getState: any) => {
+export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   const accountPkh = state.wallet.accountPkh
@@ -70,15 +73,16 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
       COUNCIL_PENDING_ACTIONS_NAME,
       COUNCIL_PENDING_ACTIONS_VARIABLE,
     )
-    const councilPendingActions = storage?.council_action_record?.length
-      ? storage?.council_action_record.filter((item: any) => {
-          const timeNow = Date.now()
-          const expirationDatetime = new Date(item.expiration_datetime).getTime()
-          const isEndedVotingTime = expirationDatetime > timeNow
-          const isNoSameAccountPkh = accountPkh !== item.initiator_id
-          return isEndedVotingTime && isNoSameAccountPkh
-        })
+    const councilActionRecord: CouncilActionRecordhQL[] = storage?.council_action_record?.length
+      ? storage?.council_action_record
       : []
+    const councilPendingActions = councilActionRecord.filter((item) => {
+      const timeNow = Date.now()
+      const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
+      const isEndedVotingTime = expirationDatetime > timeNow
+      const isNoSameAccountPkh = accountPkh !== item.initiator_id
+      return isEndedVotingTime && isNoSameAccountPkh
+    })
 
     //const councilPendingActions = storage?.council_action_record
 
@@ -86,13 +90,14 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
       councilPendingActions,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
+        error,
+      })
+    }
   }
 }
 
@@ -100,7 +105,7 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
 export const SIGN_REQUEST = 'SIGN_REQUEST'
 export const SIGN_RESULT = 'SIGN_RESULT'
 export const SIGN_ERROR = 'SIGN_ERROR'
-export const sign = (actionID: number) => async (dispatch: any, getState: any) => {
+export const sign = (actionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -133,13 +138,14 @@ export const sign = (actionID: number) => async (dispatch: any, getState: any) =
     })
     dispatch(getCouncilPastActionsStorage())
     dispatch(getCouncilPendingActionsStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: SIGN_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: SIGN_ERROR,
+        error,
+      })
+    }
   }
 }
 
@@ -149,7 +155,7 @@ export const ADD_VESTEE_RESULT = 'ADD_VESTEE_RESULT'
 export const ADD_VESTEE_ERROR = 'ADD_VESTEE_ERROR'
 export const addVestee =
   (vesteeAddress: string, totalAllocated: number, cliffInMonths: number, vestingInMonths: number) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -184,13 +190,14 @@ export const addVestee =
       dispatch({
         type: ADD_VESTEE_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: ADD_VESTEE_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: ADD_VESTEE_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -200,7 +207,7 @@ export const ADD_MEMBER_RESULT = 'ADD_MEMBER_RESULT'
 export const ADD_MEMBER_ERROR = 'ADD_MEMBER_ERROR'
 export const addCouncilMember =
   (newMemberAddress: string, newMemberName: string, newMemberWebsite: string, newMemberImage: string) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -236,13 +243,14 @@ export const addCouncilMember =
       dispatch({
         type: ADD_MEMBER_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: ADD_MEMBER_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: ADD_MEMBER_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -252,7 +260,7 @@ export const UPDATE_VESTEE_RESULT = 'UPDATE_VESTEE_RESULT'
 export const UPDATE_VESTEE_ERROR = 'UPDATE_VESTEE_ERROR'
 export const updateVestee =
   (vesteeAddress: string, totalAllocated: number, cliffInMonths: number, vestingInMonths: number) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -287,13 +295,15 @@ export const updateVestee =
       dispatch({
         type: UPDATE_VESTEE_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: UPDATE_VESTEE_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: UPDATE_VESTEE_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -301,7 +311,7 @@ export const updateVestee =
 export const TOGGLE_VESTEE_LOCK_REQUEST = 'TOGGLE_VESTEE_LOCK_REQUEST'
 export const TOGGLE_VESTEE_LOCK_RESULT = 'TOGGLE_VESTEE_LOCK_RESULT'
 export const TOGGLE_VESTEE_LOCK_ERROR = 'TOGGLE_VESTEE_LOCK_ERROR'
-export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: any, getState: any) => {
+export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -334,13 +344,15 @@ export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: any,
     dispatch({
       type: TOGGLE_VESTEE_LOCK_RESULT,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: TOGGLE_VESTEE_LOCK_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: TOGGLE_VESTEE_LOCK_ERROR,
+        error,
+      })
+    }
   }
 }
 
@@ -356,7 +368,7 @@ export const changeCouncilMember =
     newMemberWebsite: string,
     newMemberImage: string,
   ) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -398,13 +410,15 @@ export const changeCouncilMember =
       dispatch({
         type: CHANGE_MEMBER_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: CHANGE_MEMBER_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: CHANGE_MEMBER_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -412,7 +426,7 @@ export const changeCouncilMember =
 export const REMOVE_MEMBER_REQUEST = 'REMOVE_MEMBER_REQUEST'
 export const REMOVE_MEMBER_RESULT = 'REMOVE_MEMBER_RESULT'
 export const REMOVE_MEMBER_ERROR = 'REMOVE_MEMBER_ERROR'
-export const removeCouncilMember = (memberAddress: string) => async (dispatch: any, getState: any) => {
+export const removeCouncilMember = (memberAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -446,13 +460,15 @@ export const removeCouncilMember = (memberAddress: string) => async (dispatch: a
     dispatch({
       type: REMOVE_MEMBER_RESULT,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: REMOVE_MEMBER_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: REMOVE_MEMBER_ERROR,
+        error,
+      })
+    }
   }
 }
 
@@ -461,7 +477,8 @@ export const UPDATE_INFO_MEMBER_REQUEST = 'UPDATE_INFO_MEMBER_REQUEST'
 export const UPDATE_INFO_MEMBER_RESULT = 'UPDATE_INFO_MEMBER_RESULT'
 export const UPDATE_INFO_MEMBER_ERROR = 'UPDATE_INFO_MEMBER_ERROR'
 export const updateCouncilMemberInfo =
-  (newMemberName: string, newMemberWebsite: string, newMemberImage: string) => async (dispatch: any, getState: any) => {
+  (newMemberName: string, newMemberWebsite: string, newMemberImage: string) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -497,13 +514,15 @@ export const updateCouncilMemberInfo =
       dispatch({
         type: UPDATE_INFO_MEMBER_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: UPDATE_INFO_MEMBER_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: UPDATE_INFO_MEMBER_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -520,7 +539,7 @@ export const transferTokens =
     tokenId: number,
     purpose: string,
   ) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -556,13 +575,15 @@ export const transferTokens =
       dispatch({
         type: TRANSFER_TOKENS_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: TRANSFER_TOKENS_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: TRANSFER_TOKENS_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -580,7 +601,7 @@ export const requestTokens =
     tokenId: number,
     purpose: string,
   ) =>
-  async (dispatch: any, getState: any) => {
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -624,13 +645,15 @@ export const requestTokens =
       dispatch({
         type: REQUEST_TOKENS_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: REQUEST_TOKENS_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: REQUEST_TOKENS_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -639,7 +662,8 @@ export const REQUEST_TOKEN_MINT_REQUEST = 'REQUEST_TOKEN_MINT_REQUEST'
 export const REQUEST_TOKEN_MINT_RESULT = 'REQUEST_TOKEN_MINT_RESULT'
 export const REQUEST_TOKEN_MINT_ERROR = 'REQUEST_TOKEN_MINT_ERROR'
 export const requestTokenMint =
-  (treasuryAddress: string, tokenAmount: number, purpose: string) => async (dispatch: any, getState: any) => {
+  (treasuryAddress: string, tokenAmount: number, purpose: string) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -673,13 +697,15 @@ export const requestTokenMint =
       dispatch({
         type: REQUEST_TOKEN_MINT_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: REQUEST_TOKEN_MINT_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: REQUEST_TOKEN_MINT_ERROR,
+          error,
+        })
+      }
     }
   }
 
@@ -687,7 +713,7 @@ export const requestTokenMint =
 export const DROP_FINANCICAL_REQUEST = 'DROP_FINANCICAL_REQUEST'
 export const DROP_FINANCICAL_RESULT = 'DROP_FINANCICAL_RESULT'
 export const DROP_FINANCICAL_ERROR = 'DROP_FINANCICAL_ERROR'
-export const dropFinancialRequest = (financialReqID: number) => async (dispatch: any, getState: any) => {
+export const dropFinancialRequest = (financialReqID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -721,13 +747,15 @@ export const dropFinancialRequest = (financialReqID: number) => async (dispatch:
     dispatch({
       type: DROP_FINANCICAL_RESULT,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: DROP_FINANCICAL_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: DROP_FINANCICAL_ERROR,
+        error,
+      })
+    }
   }
 }
 
@@ -735,7 +763,7 @@ export const dropFinancialRequest = (financialReqID: number) => async (dispatch:
 export const REMOVE_VESTEE_REQUEST = 'REMOVE_VESTEE_REQUEST'
 export const REMOVE_VESTEE_RESULT = 'REMOVE_VESTEE_RESULT'
 export const REMOVE_VESTEE_ERROR = 'REMOVE_VESTEE_ERROR'
-export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: any, getState: any) => {
+export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -769,13 +797,15 @@ export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: a
     dispatch({
       type: REMOVE_VESTEE_RESULT,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: REMOVE_VESTEE_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: REMOVE_VESTEE_ERROR,
+        error,
+      })
+    }
   }
 }
 
@@ -783,7 +813,7 @@ export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: a
 export const SET_BAKER_REQUEST = 'SET_BAKER_REQUEST'
 export const SET_BAKER_RESULT = 'SET_BAKER_RESULT'
 export const SET_BAKER_ERROR = 'SET_BAKER_ERROR'
-export const setBakerRequest = (bakerHash: string) => async (dispatch: any, getState: any) => {
+export const setBakerRequest = (bakerHash: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -817,13 +847,15 @@ export const setBakerRequest = (bakerHash: string) => async (dispatch: any, getS
     dispatch({
       type: SET_BAKER_RESULT,
     })
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: SET_BAKER_ERROR,
-      error,
-    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: SET_BAKER_ERROR,
+        error,
+      })
+    }
   }
 }
 
@@ -832,7 +864,7 @@ export const SET_CONTRACT_BAKER_REQUEST = 'SET_CONTRACT_BAKER_REQUEST'
 export const SET_CONTRACT_BAKER_RESULT = 'SET_CONTRACT_BAKER_RESULT'
 export const SET_CONTRACT_BAKER_ERROR = 'SET_CONTRACT_BAKER_ERROR'
 export const setContractBakerRequest =
-  (targetContractAddress: string, keyHash: string) => async (dispatch: any, getState: any) => {
+  (targetContractAddress: string, keyHash: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -866,12 +898,14 @@ export const setContractBakerRequest =
       dispatch({
         type: SET_CONTRACT_BAKER_RESULT,
       })
-    } catch (error: any) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: SET_CONTRACT_BAKER_ERROR,
-        error,
-      })
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: SET_CONTRACT_BAKER_ERROR,
+          error,
+        })
+      }
     }
   }

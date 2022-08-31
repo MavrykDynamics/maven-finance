@@ -15,6 +15,12 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
     padding: 25px 40px;
   }
 
+  &.feed {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 50px;
+  }
+
   .item {
     &.with-img {
       padding-left: 45px;

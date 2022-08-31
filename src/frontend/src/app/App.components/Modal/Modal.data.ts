@@ -1,4 +1,6 @@
-export const MODAL_DATA = new Map<string, any>([
+import type { ModalDataType } from './EmergencyGovernanceActiveModal/EmergencyGovernanceActive.controller'
+
+export const MODAL_DATA = new Map<string, ModalDataType>([
   [
     'emergency-governance',
     {

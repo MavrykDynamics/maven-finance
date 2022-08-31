@@ -7,9 +7,6 @@ import { State } from '../../reducers'
 //  actions
 import { getGovernanceStorage } from '../Governance/Governance.actions'
 
-// consts
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { GovernanceTopBar } from 'pages/Governance/GovernanceTopBar/GovernanceTopBar.controller'
@@ -34,9 +31,11 @@ export const FinancialRequests = () => {
 
   return (
     <Page>
-      <PageHeader page={'financial requests'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'financial requests'} />
       <GovernanceTopBar governancePhase={governancePhase} />
-      <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
+      {financialRequestLedger?.length ? (
+        <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
+      ) : null}
     </Page>
   )
 }

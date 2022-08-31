@@ -5,7 +5,8 @@ import { State } from 'reducers'
 //view
 import ModalPopup from '../../../app/App.components/Modal/ModalPopup.view'
 import CoinsIcons from '../../../app/App.components/Icon/CoinsIcons.view'
-import { Input, InputStatusType } from '../../../app/App.components/Input/Input.controller'
+import { Input } from '../../../app/App.components/Input/Input.controller'
+import { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import Checkbox from '../../../app/App.components/Checkbox/Checkbox.view'
@@ -61,12 +62,12 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
     setStatus(value ? 'success' : 'error')
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     checkInputIsOk(value)
   }
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (+value === 0) {
       setAmount('')
@@ -109,7 +110,7 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
             id="input-roi"
             type={'number'}
             placeholder={String(amount)}
-            onChange={(e: any) => handleChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.value)}
             onBlur={handleBlur}
             onFocus={handleFocus}
             value={amount}

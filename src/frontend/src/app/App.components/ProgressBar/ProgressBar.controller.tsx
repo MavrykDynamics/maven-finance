@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
@@ -15,12 +14,11 @@ export const ProgressBar = () => {
 
   useEffect(() => {
     dispatch(updateProgressBar())
-  }, [loading, dispatch])
+  }, [loading])
 
   useEffect(() => {
     dispatch(hideProgressBar())
-  }, [pathname, dispatch])
+  }, [pathname])
 
   return <ProgressBarView status={status} />
-  // return <>{status !== ProgressBarStatus.NO_DISPLAY && <ProgressBarView status={status} />}</>
 }

@@ -1,5 +1,4 @@
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import {
   GET_TREASURY_DATA,
   TREASURY_SMVK_QUERY,
@@ -9,19 +8,21 @@ import {
   TREASURY_STORAGE_QUERY_VARIABLE,
 } from 'gql/queries/getTreasuryStorage'
 import { getTreasuryDataByAddress } from 'utils/api'
-import { FetchedTreasuryType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
+import { TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
 import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './treasury.const'
 import CoinGecko from 'coingecko-api'
+import { normalizeTreasury } from './Treasury.helpers'
+import type { AppDispatch, GetState } from '../../app/App.controller'
 
 const coinGeckoClient = new CoinGecko()
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
 
-export const fillTreasuryStorage = () => async (dispatch: any, getState: () => State) => {
+export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     const {
       mvkToken: { exchangeRate: MVK_EXCHANGE_RATE },
@@ -34,7 +35,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
     )
 
     // Parse gql data to understandable data format
-    const convertedStorage = storageToTypeConverter('treasury', treasuryAddressesStorage)
+    const convertedStorage = normalizeTreasury(treasuryAddressesStorage)
 
     // Get sMVK balances from gql
     const sMVKAmounts = await fetchFromIndexer(
@@ -71,7 +72,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
     )
 
     // Map addresses to api cals with treasury addresses
-    const getTreasuryCallbacks: Array<() => FetchedTreasuryType> = convertedStorage.treasuryAddresses.map(
+    const getTreasuryCallbacks = convertedStorage.treasuryAddresses.map(
       ({ address }: { address: string }) =>
         () =>
           getTreasuryDataByAddress(address),
@@ -82,7 +83,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
 
     // Mapping assets for every treasury, to fetch rates for them
     const arrayOfAssetsSymbols: Set<string> = fetchedTheasuryData.reduce((acc, treasuryData) => {
-      treasuryData.balances.forEach((asset) => acc.add(asset.symbol))
+      treasuryData.balances.forEach((asset: TreasuryBalanceType) => acc.add(asset.symbol))
       return acc
     }, new Set<string>())
 
@@ -97,7 +98,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
     // Map every treasury to combine treasury name, and divide balance by constant
     const treasuryStorage = convertedStorage.treasuryAddresses.map((treasuryData: TreasuryGQLType, idx: number) => {
       const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances
-        .map((token) => ({
+        .map((token: TreasuryBalanceType) => ({
           ...token,
           balance: Number(token.balance) / TREASURY_BALANCE_DIVIDER,
           rate: token.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[token.symbol],
@@ -108,7 +109,7 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
           ) || [],
         )
         .sort(
-          (asset1, asset2) =>
+          (asset1: TreasuryBalanceType, asset2: TreasuryBalanceType) =>
             asset2.balance * TREASURY_ASSSET_BALANCE_DIVIDER - asset1.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
         )
 
@@ -135,17 +136,17 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: () => S
 }
 
 export const GET_VESTING_STORAGE = 'GET_VESTING_STORAGE'
-export const getVestingStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const getVestingStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     const state: State = getState()
 
     const contract = accountPkh
       ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.vestingAddress?.address)
-      : await new TezosToolkit(
-          (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-        )?.contract?.at(state?.contractAddresses?.vestingAddress?.address)
+      : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/')?.contract?.at(
+          state?.contractAddresses?.vestingAddress?.address,
+        )
 
-    const storage = await (contract as any).storage()
+    const storage = await contract?.storage()
     console.log('Printing out Vesting storage:\n', storage)
 
     dispatch({

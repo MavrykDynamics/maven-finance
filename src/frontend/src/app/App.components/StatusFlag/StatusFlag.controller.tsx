@@ -1,16 +1,14 @@
-import * as React from 'react'
-
 import { StatusFlagStyle, UP, DOWN, PRIMARY, INFO, WAITING } from './StatusFlag.constants'
 
 import { StatusFlagView } from './StatusFlag.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 type StatusFlagProps = {
-  text: string
+  text?: string
   status: ProposalStatus | StatusFlagStyle | undefined
 }
 
-export const StatusFlag = ({ text, status }: StatusFlagProps) => {
+export const StatusFlag = ({ text = '', status }: StatusFlagProps) => {
   let kind: StatusFlagStyle
   switch (status) {
     case ProposalStatus.EXECUTED:
@@ -39,8 +37,4 @@ export const StatusFlag = ({ text, status }: StatusFlagProps) => {
   }
 
   return <StatusFlagView kind={kind} text={text} />
-}
-StatusFlag.defaultProps = {
-  text: 'DISCOVERY',
-  status: ProposalStatus.DISCOVERY,
 }

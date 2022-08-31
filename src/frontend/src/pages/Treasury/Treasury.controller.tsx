@@ -11,10 +11,7 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 
 // view
 import TreasuryView from './Treasury.view'
-import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
-
-// const
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 
 // styles
 import { Page } from 'styles'
@@ -51,12 +48,12 @@ export const Treasury = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {
+  const handleSelect = (item: DropdownItemType) => {
     const foundTreasury = treasuryStorage.find(({ address }) => item.value === address) || null
     setSelectedTreasury(foundTreasury)
   }
 
-  const handleOnClickDropdownItem = (e: any) => {
+  const handleOnClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
@@ -73,7 +70,7 @@ export const Treasury = () => {
 
   return (
     <Page>
-      <PageHeader page={'treasury'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'treasury'} />
       <TreasuryView treasury={globalTreasuryData} isGlobal factoryAddress={treasuryFactoryAddress} />
       <TreasuryActiveStyle>
         <TreasurySelectStyle isSelectedTreasury={Boolean(chosenDdItem?.value)}>
@@ -81,11 +78,9 @@ export const Treasury = () => {
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
-            onChange={handleSelect}
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
-            onBlur={() => {}}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
           />
         </TreasurySelectStyle>

@@ -76,7 +76,10 @@ export default function TableGrid({ tableData, setTableData }: Props) {
                     onMouseEnter={() => setActieTd(j)}
                     className={row.length > 1 && j === activeTd ? 'active-td' : ''}
                   >
-                    <input value={colValue} onChange={(e: any) => handleChange(e, i, j)} />
+                    <input
+                      value={colValue}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i, j)}
+                    />
                     {isLastRow ? (
                       <div className="delete-button-wrap">
                         <StyledTooltip placement="top" title="Delete column">

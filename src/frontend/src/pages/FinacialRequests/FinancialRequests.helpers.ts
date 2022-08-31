@@ -1,20 +1,20 @@
 import qs from 'qs'
 import moment from 'moment'
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
-import { FinancialRequestBody } from './FinancialRequests.types'
+import { GovernanceFinancialRequestRecordGraphQL } from '../../utils/TypesAndInterfaces/Governance'
 
 export const distinctRequestsByExecuting = (
-  mixedUpRequests: Array<FinancialRequestBody>,
+  mixedUpRequests: GovernanceFinancialRequestRecordGraphQL[],
 ): {
-  ongoing: Array<FinancialRequestBody>
-  past: Array<FinancialRequestBody>
+  ongoing: GovernanceFinancialRequestRecordGraphQL[]
+  past: GovernanceFinancialRequestRecordGraphQL[]
 } => {
-  const ongoing: Array<FinancialRequestBody> = [],
-    past: Array<FinancialRequestBody> = []
+  const ongoing: GovernanceFinancialRequestRecordGraphQL[] = [],
+    past: GovernanceFinancialRequestRecordGraphQL[] = []
   if (!mixedUpRequests) return { ongoing, past }
 
   mixedUpRequests.forEach((request) => {
-    if (request.executed || new Date(request.expiration_datetime).getTime() < +Date.now()) {
+    if (request.executed || new Date(request.expiration_datetime as string).getTime() < +Date.now()) {
       past.push(request)
     } else {
       ongoing.push(request)
@@ -57,9 +57,9 @@ export const updatePageInUrl = ({
   return pathname + qs.stringify(newQueryParams, { addQueryPrefix: true })
 }
 
-export const getRequestStatus = (request: FinancialRequestBody) => {
+export const getRequestStatus = (request: GovernanceFinancialRequestRecordGraphQL) => {
   if (!request.executed) {
-    if (new Date(request.expiration_datetime).getTime() < +Date.now()) {
+    if (new Date(request.expiration_datetime as string).getTime() < +Date.now()) {
       return ProposalStatus.DEFEATED
     } else {
       return ProposalStatus.ONGOING
@@ -69,6 +69,7 @@ export const getRequestStatus = (request: FinancialRequestBody) => {
   }
 }
 
-export const getDate_MDHMTZ_Format = (time: string) => moment(new Date(time)).format("MMMM Do hh:mm Z")
-export const getDate_MDY_Format = (time: string) => moment(new Date(time)).format("MMM Do, Y")
-export const getDate_MDHMS_Format = ({time, timestamp} : {time?: string, timestamp?: number}) => moment(time ? new Date(time) : timestamp || Date.now() ).format("MMM Do, HH:MM:SS")
+export const getDate_MDHMTZ_Format = (time: string) => moment(new Date(time)).format('MMMM Do hh:mm Z')
+export const getDate_MDY_Format = (time: string) => moment(new Date(time)).format('MMM Do, Y')
+export const getDate_MDHMS_Format = ({ time, timestamp }: { time?: string; timestamp?: number }) =>
+  moment(time ? new Date(time) : timestamp || Date.now()).format('MMM Do, HH:MM:SS')

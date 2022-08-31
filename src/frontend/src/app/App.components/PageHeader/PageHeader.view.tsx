@@ -1,11 +1,5 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
-
 // view
 import ConnectWalletInfo from '../../../app/App.components/ConnectWallet/ConnectWalletInfo.view'
-
-// const
-import { PageHeaderStyle, PRIMARY } from './PageHeader.constants'
 
 // style
 import {
@@ -21,8 +15,6 @@ type PageHeaderViewProps = {
   subText: string
   backgroundImageSrc?: string
   foregroundImageSrc?: string
-  kind?: PageHeaderStyle
-  loading: boolean
 }
 
 export const PageHeaderView = ({
@@ -31,8 +23,6 @@ export const PageHeaderView = ({
   subText,
   foregroundImageSrc,
   backgroundImageSrc,
-  kind,
-  loading,
 }: PageHeaderViewProps) => {
   return (
     <>
@@ -48,22 +38,4 @@ export const PageHeaderView = ({
       <ConnectWalletInfo />
     </>
   )
-}
-
-PageHeaderView.propTypes = {
-  title: PropTypes.string.isRequired,
-  subText: PropTypes.string.isRequired,
-  foregroundImageSrc: PropTypes.string,
-  backgroundImageSrc: PropTypes.string,
-  kind: PropTypes.string,
-  loading: PropTypes.bool,
-}
-
-PageHeaderView.defaultProps = {
-  title: 'Dashboard',
-  subText: '',
-  foregroundImageSrc: undefined,
-  backgroundImageSrc: undefined,
-  kind: PRIMARY,
-  loading: false,
 }

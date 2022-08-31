@@ -10,7 +10,6 @@ import { getCurrentRoundProposals, executeProposal } from './Governance.actions'
 import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
 
 // view
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
@@ -59,7 +58,7 @@ export const Governance = () => {
   const isVotingRound = governancePhase === 'VOTING'
   const isTimeLockRound = governancePhase === 'TIME_LOCK'
 
-  const ongoingProposals = currentRoundProposals.filter(
+  const ongoingProposals = currentRoundProposals?.filter(
     (item) =>
       (isVotingRound || isTimeLockRound) &&
       Boolean(item.currentRoundProposal) &&
@@ -72,7 +71,7 @@ export const Governance = () => {
 
   return (
     <Page>
-      <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'governance'} />
       <GovernanceTopBar governancePhase={governancePhase} />
       <GovernanceView
         handleExecuteProposal={handleExecuteProposal}

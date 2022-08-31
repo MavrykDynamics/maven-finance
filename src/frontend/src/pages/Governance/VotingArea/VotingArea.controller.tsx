@@ -12,8 +12,6 @@ import { VotingBar } from './VotingBar/VotingBar.controller'
 import { State } from '../../../reducers'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from '../Governance.controller'
-import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
-import { calcWithoutPrecision } from '../../../utils/calcFunctions'
 
 type VotingAreaProps = {
   ready: boolean
@@ -48,7 +46,7 @@ export const VotingArea = ({
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const satelliteLedger = delegationStorage?.satelliteLedger
   const accountPkhIsSatellite =
-    satelliteLedger?.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0] !== undefined
+    satelliteLedger?.filter((satellite) => satellite.address === accountPkh)[0] !== undefined
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
   const handleConnect = () => {

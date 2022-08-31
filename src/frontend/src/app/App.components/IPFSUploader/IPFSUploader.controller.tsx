@@ -1,14 +1,12 @@
-import * as React from 'react'
 import { useRef, useState } from 'react'
 
 import { IPFSUploaderView } from './IPFSUploader.view'
-import { create } from 'ipfs-http-client'
+import { create, Options } from 'ipfs-http-client'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 import { useDispatch } from 'react-redux'
 import { isHexadecimalByteString } from '../../../utils/validatorFunctions'
 
-export type IPFSUploaderStatusType = 'success' | 'error' | '' | undefined
 export type IPFSUploaderTypeFile = 'document' | 'image'
 type IPFSUploaderProps = {
   className?: string
@@ -18,8 +16,8 @@ type IPFSUploaderProps = {
   disabled?: boolean
   imageIpfsUrl: string
   setIpfsImageUrl: (imageUrl: string) => void
-  formInputStatus?: any
-  setFormInputStatus?: (obj: any) => void
+  formInputStatus?: Record<string, unknown>
+  setFormInputStatus?: (obj: Record<string, unknown>) => void
 }
 
 const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' })
@@ -37,27 +35,25 @@ export const IPFSUploader = ({
 }: IPFSUploaderProps) => {
   const dispatch = useDispatch()
   const [isUploading, setIsUploading] = useState(false)
-  const [isUploaded, setIsUploaded] = useState(false)
   const [imageOk, setImageOk] = useState(false)
   const inputFile = useRef<HTMLInputElement>(null)
-  let ipfsUploaderStatus: IPFSUploaderStatusType = 'success',
-    errorMessage = ''
 
-  async function handleUpload(file: any) {
+  async function handleUpload(file: File) {
     try {
       setIsUploading(true)
       const added = await client.add(file)
       const image = `https://ipfs.infura.io/ipfs/${added.path}`
       setIpfsImageUrl(image)
       setIsUploading(false)
-      setIsUploaded(!isUploading)
-    } catch (error: any) {
-      dispatch(showToaster(ERROR, error.message, ''))
-      console.error(error)
-      setIsUploading(false)
-      setIsUploaded(false)
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch(showToaster(ERROR, error.message, ''))
+        console.error(error)
+        setIsUploading(false)
+      }
     }
   }
+
   const handleOnBlur = () => {
     const validityCheckResult = isHexadecimalByteString(imageIpfsUrl)
     setImageOk(validityCheckResult)
@@ -65,9 +61,11 @@ export const IPFSUploader = ({
       setFormInputStatus({ ...formInputStatus, image: validityCheckResult ? 'success' : 'error' })
     }
   }
+
   const handleIconClick = () => {
     inputFile?.current?.click()
   }
+
   return (
     <IPFSUploaderView
       typeFile={typeFile}
@@ -77,14 +75,11 @@ export const IPFSUploader = ({
       listNumber={listNumber}
       imageIpfsUrl={imageIpfsUrl}
       imageOk={imageOk}
-      isUploaded={isUploaded}
       isUploading={isUploading}
       inputFile={inputFile}
       handleUpload={handleUpload}
       handleIconClick={handleIconClick}
       onBlur={handleOnBlur}
-      ipfsUploaderStatus={ipfsUploaderStatus}
-      errorMessage={errorMessage}
     />
   )
 }
