@@ -65,7 +65,7 @@
     "compile-treasury-contract": "yarn pre-compile treasury && ts-node scripts/cli.ts compile -f json -o build -c treasury && yarn compile-treasury-lambdas",
     "compile-treasuryFactory-contract": "yarn pre-compile treasuryFactory && ts-node scripts/cli.ts compile -f json -o build -c treasuryFactory && yarn compile-treasuryFactory-lambdas",
     "compile-emergencyGovernance-contract": "yarn pre-compile emergencyGovernance && ts-node scripts/cli.ts compile -f json -o build -c emergencyGovernance && yarn compile-emergencyGovernance-lambdas",
-
+    "compile-tokenSale-contract": "yarn pre-compile tokenSale && ts-node scripts/cli.ts compile -f json -o build -c tokenSale",
     "compile-cfmm-contract": "yarn pre-compile cfmm && ts-node scripts/cli.ts compile -f json -o build -c cfmm",
     "compile-tokenController-contract": "yarn pre-compile tokenController && ts-node scripts/cli.ts compile -f json -o build -c tokenController",
     "compile-vault-contract": "yarn pre-compile u_vault && ts-node scripts/cli.ts compile -f json -o build -c u_vault",

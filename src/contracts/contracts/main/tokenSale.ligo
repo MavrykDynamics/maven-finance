@@ -27,23 +27,38 @@
 type tokenSaleAction is 
 
     // Default Entrypoint to Receive Tez
-  | Default                     of unit
+    |   Default                     of unit
     
     // Housekeeping Entrypoints
-  | SetAdmin                    of address
-  | UpdateMetadata              of updateMetadataType
-  | UpdateConfig                of tokenSaleUpdateConfigActionType
+    |   SetAdmin                    of address
+    |   SetGovernance               of address
+    |   UpdateMetadata              of updateMetadataType
+    |   UpdateConfig                of tokenSaleUpdateConfigParamsType
 
+    // Admin Token Sale Entrypoints
+    |   SetWhitelistTimestamp       of setWhitelistTimestampActionType
+    |   AddToWhitelist              of list(address)
+    |   RemoveFromWhitelist         of list(address)
+    |   StartSale                   of unit
+    |   CloseSale                   of unit
+    |   PauseSale                   of unit
+  
     // Token Sale Entrypoints
-  | AddToWhitelist              of list(address)
-  | RemoveFromWhitelist         of list(address)
-  | BuyTokens                   of nat
+    |   BuyTokens                   of buyTokensType
+    |   ClaimTokens                 of address
   
   
 const noOperations : list (operation) = nil;
 type return is list (operation) * tokenSaleStorageType
 
 
+const oneDayInSeconds : int = 86_400;
+const onePeriodInSeconds : int = 2_592_000;
+
+const fpa10e24 : nat = 1_000_000_000_000_000_000_000_000n;       // 10^24
+const fpa10e18 : nat = 1_000_000_000_000_000_000n;               // 10^18
+const fpa10e15 : nat = 1_000_000_000_000_000n;                   // 10^15
+const fpaMvk   : nat = 1_000_000_000n;                           // 10^9
 
 // ------------------------------------------------------------------------------
 //
@@ -79,6 +94,30 @@ function checkTokenSaleHasStarted(var s : tokenSaleStorageType) : unit is
 
 
 
+function checkTokenSaleHasEnded(var s : tokenSaleStorageType) : unit is
+    if (s.tokenSaleHasEnded = True) then unit
+    else failwith(error_TOKEN_SALE_HAS_NOT_ENDED);
+
+
+
+function checkTokenSaleHasNotEnded(var s : tokenSaleStorageType) : unit is
+    if (s.tokenSaleHasEnded = True) then failwith(error_TOKEN_SALE_HAS_ENDED)
+    else unit;
+
+
+
+function checkTokenSaleIsPaused(var s : tokenSaleStorageType) : unit is
+    if (s.tokenSalePaused = True) then unit
+    else failwith(error_TOKEN_SALE_IS_NOT_PAUSED);
+
+
+
+function checkTokenSaleIsNotPaused(var s : tokenSaleStorageType) : unit is
+    if (s.tokenSalePaused = True) then failwith(error_TOKEN_SALE_IS_PAUSED)
+    else unit;
+
+
+
 function checkInWhitelistAddresses(const userWalletAddress : address; var s : tokenSaleStorageType) : bool is 
 block {
 
@@ -89,19 +128,28 @@ block {
 
 
 
-function addToWhitelist (const newUserAddress : address; var whitelistedAddresses : whitelistedAddressesType) : whitelistedAddressesType is {
-  whitelistedAddresses [newUserAddress] := True 
-} with whitelistedAddresses
-
-
-
 function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
 function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
-
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to send transfer operation to treasury
+function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%transfer",
+        contractAddress) : option(contract(transferActionType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
+        ];
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
@@ -117,50 +165,74 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : tokenSaleStorageType) : address is
-  s.admin
+[@view] function getAdmin(const _ : unit; var s : tokenSaleStorageType) : address is
+    s.admin
 
 
 
 (* View: get config *)
 [@view] function getConfig(const _: unit; var s : tokenSaleStorageType) : tokenSaleConfigType is
-  s.config
+    s.config
 
 
 
 (* View: get treasury address *)
 [@view] function getTreasuryAddress(const _: unit; var s : tokenSaleStorageType) : address is
-  s.treasuryAddress
+    s.treasuryAddress
 
 
 
-(* View: get treasury address *)
-[@view] function getWhitelistedAddressOpt(const userAddress: address; var s : tokenSaleStorageType) : option(bool) is
-  Big_map.find_opt(userAddress, s.whitelistedAddresses)
+(* View: check whitelist by address *)
+[@view] function checkWhitelistByAddressOpt(const userAddress: address; var s : tokenSaleStorageType) : option(unit) is
+    Big_map.find_opt(userAddress, s.whitelistedAddresses)
 
 
 
 (* View: get token sale record *)
 [@view] function getTokenSaleRecordOpt(const userAddress: address; var s : tokenSaleStorageType) : option(tokenSaleRecordType) is
-  Big_map.find_opt(userAddress, s.tokenSaleLedger)
+    Big_map.find_opt(userAddress, s.tokenSaleLedger)
 
 
 
-(* View: tokenSaleHasStarted *)
+(* View: getWhitelistStartTimestamp *)
+[@view] function getWhitelistStartTimestamp(const _: unit; var s : tokenSaleStorageType) : timestamp is
+    s.whitelistStartTimestamp
+
+
+
+(* View: getWhitelistEndTimestamp *)
+[@view] function getWhitelistEndTimestamp(const _: unit; var s : tokenSaleStorageType) : timestamp is
+    s.whitelistEndTimestamp
+
+
+
+(* View: getTokenSaleHasStarted *)
 [@view] function getTokenSaleHasStarted(const _: unit; var s : tokenSaleStorageType) : bool is
-  s.tokenSaleHasStarted
+    s.tokenSaleHasStarted
 
 
 
-(* View: whitelistAmountTotal *)
-[@view] function getWhitelistAmountTotal(const _: unit; var s : tokenSaleStorageType) : nat is
-  s.whitelistAmountTotal
+(* View: getTokenSaleHasEnded *)
+[@view] function getTokenSaleHasEnded(const _: unit; var s : tokenSaleStorageType) : bool is
+    s.tokenSaleHasEnded
 
 
 
-(* View: overallAmountTotal *)
-[@view] function getOverallAmountTotal(const _: unit; var s : tokenSaleStorageType) : nat is
-  s.overallAmountTotal
+(* View: getTokenSalePaused *)
+[@view] function getTokenSalePaused(const _: unit; var s : tokenSaleStorageType) : bool is
+    s.tokenSalePaused
+
+
+
+(* View: getTokenSaleEndTimestamp *)
+[@view] function getTokenSaleEndTimestamp(const _: unit; var s : tokenSaleStorageType) : timestamp is
+    s.tokenSaleEndTimestamp
+
+
+
+(* View: getTokenSaleEndBlockLevel *)
+[@view] function getTokenSaleEndBlockLevel(const _: unit; var s : tokenSaleStorageType) : nat is
+    s.tokenSaleEndBlockLevel
 
 // ------------------------------------------------------------------------------
 //
@@ -190,6 +262,18 @@ block {
 
 
 
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : tokenSaleStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.governanceAddress := newGovernanceAddress;
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata entrypoint - update the metadata at a given key *)
 function updateMetadata(const updateMetadataParams : updateMetadataType; var s : tokenSaleStorageType) : return is
 block {
@@ -207,22 +291,69 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : tokenSaleUpdateConfigActionType; var s : tokenSaleStorageType) : return is 
+function updateConfig(const updateConfigParams : tokenSaleUpdateConfigParamsType; var s : tokenSaleStorageType) : return is 
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin
+    // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);
 
-  case updateConfigParams of [
-        ConfigMaxWhitelistCount (_v)          -> s.config.maxWhitelistCount              := _v
-      | ConfigMaxAmountPerWhitelist (_v)      -> s.config.maxAmountPerWhitelistWallet    := _v  
-      | ConfigMaxAmountPerWalletTotal (_v)    -> s.config.maxAmountPerWalletTotal        := _v
-      | ConfigWhitelistStartTimestamp (_v)    -> s.config.whitelistStartTimestamp        := _v  
-      | ConfigWhitelistEndTimestamp (_v)      -> s.config.whitelistEndTimestamp          := _v  
-      | ConfigWhitelistMaxAmountCap (_v)      -> s.config.whitelistMaxAmountCap          := _v  
-      | ConfigOverallMaxAmountCap (_v)        -> s.config.overallMaxAmountCap            := _v  
-  ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
 
+    const updateConfigAction    : tokenSaleUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+    const updateConfigNewValue  : tokenSaleUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+    case updateConfigAction of [
+            ConfigMaxAmountPerWalletTotal   (_buyOptionIndex)    -> case s.config.buyOptions[_buyOptionIndex] of [
+                        Some (_buyOption)   -> block{
+                                var buyOptionConfig : tokenSaleOptionType   := _buyOption;
+                                buyOptionConfig.maxAmountPerWalletTotal     := updateConfigNewValue;
+                                s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
+                            }
+                    |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
+                ]
+        |   ConfigWhitelistMaxAmountTotal   (_buyOptionIndex)    -> case s.config.buyOptions[_buyOptionIndex] of [
+                        Some (_buyOption)   -> block{
+                                var buyOptionConfig : tokenSaleOptionType   := _buyOption;
+                                buyOptionConfig.whitelistMaxAmountTotal     := updateConfigNewValue;
+                                s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
+                            }
+                    |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
+                ]
+        |   ConfigMaxAmountCap              (_buyOptionIndex)    -> case s.config.buyOptions[_buyOptionIndex] of [
+                        Some (_buyOption)   -> block{
+                                var buyOptionConfig : tokenSaleOptionType   := _buyOption;
+                                buyOptionConfig.maxAmountCap                := updateConfigNewValue;
+                                s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
+                            }
+                    |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
+                ]
+        |   ConfigVestingPeriods            (_buyOptionIndex)   -> case s.config.buyOptions[_buyOptionIndex] of [
+                        Some (_buyOption)   -> block{
+                                var buyOptionConfig : tokenSaleOptionType   := _buyOption;
+                                buyOptionConfig.vestingPeriods              := updateConfigNewValue;
+                                s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
+                            }
+                    |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
+                ]
+        |   ConfigTokenXtzPrice             (_buyOptionIndex)   -> case s.config.buyOptions[_buyOptionIndex] of [
+                        Some (_buyOption)   -> block{
+                                var buyOptionConfig : tokenSaleOptionType   := _buyOption;
+                                buyOptionConfig.tokenXtzPrice               := (updateConfigNewValue * 1mutez);
+                                s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
+                            }
+                    |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
+                ]
+        |   ConfigMinMvkAmount              (_buyOptionIndex)   -> case s.config.buyOptions[_buyOptionIndex] of [
+                        Some (_buyOption)   -> block{
+                                var buyOptionConfig : tokenSaleOptionType   := _buyOption;
+                                buyOptionConfig.minMvkAmount                := updateConfigNewValue;
+                                s.config.buyOptions[_buyOptionIndex]        := buyOptionConfig;
+                            }
+                    |   None                -> failwith(error_BUY_OPTION_NOT_FOUND)
+                ]
+        |   ConfigVestingPeriodDurationSec  (_v)                ->  s.config.vestingPeriodDurationSec   := updateConfigNewValue
+    ]
 } with (noOperations, s)
 
 // ------------------------------------------------------------------------------
@@ -234,17 +365,35 @@ block {
 // Token Sale Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(*  setWhitelistTimestamp entrypoint *)
+function setWhitelistTimestamp(const setWhitelistTimestampParams : setWhitelistTimestampActionType; var s : tokenSaleStorageType) : return is
+block {
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    // init params
+    const whitelistStartTimestamp  : timestamp  = setWhitelistTimestampParams.whitelistStartTimestamp;
+    const whitelistEndTimestamp    : timestamp  = setWhitelistTimestampParams.whitelistEndTimestamp;
+
+    // update whitelist dates
+    s.whitelistStartTimestamp  := whitelistStartTimestamp;
+    s.whitelistEndTimestamp    := whitelistEndTimestamp;
+
+} with (noOperations, s)
+
+
 (*  addToWhitelist entrypoint *)
 function addToWhitelist(const userAddressList : list(address); var s : tokenSaleStorageType) : return is
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin
 
-  // loop to add user addresses to whitelist
-  for newUserAddress in list userAddressList block {
-    s.whitelistedAddresses[newUserAddress] := True;
-  }
+    // loop to add user addresses to whitelist
+    for newUserAddress in list userAddressList block {
+        s.whitelistedAddresses[newUserAddress] := Unit;
+    }
 
 } with (noOperations, s)
 
@@ -254,92 +403,260 @@ block {
 function removeFromWhitelist(const userAddressList : list(address); var s : tokenSaleStorageType) : return is
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin
 
-  // loop to remove user addresses from whitelist
-  for removeUserAddress in list userAddressList block {
-    remove (removeUserAddress : address) from map s.whitelistedAddresses;
-  }
+    // loop to remove user addresses from whitelist
+    for removeUserAddress in list userAddressList block {
+        remove (removeUserAddress : address) from map s.whitelistedAddresses;
+    }
 
 } with (noOperations, s)
 
 
 
 (*  buyTokens entrypoint *)
-function buyTokens(const amountInTez : nat; var s : tokenSaleStorageType) : return is
+function buyTokens(const buyTokensParams : buyTokensType; var s : tokenSaleStorageType) : return is
 block {
     
-      // check if sale has started
-      checkTokenSaleHasStarted(s);
+    // check if sale has started
+    checkTokenSaleHasStarted(s);
 
-      // check if tez sent is equal to amount specified
-      if Tezos.get_amount() =/= naturalToMutez(amountInTez)
-      then failwith(error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ) 
-      else skip;
+    // check that token sale is not paused
+    checkTokenSaleIsNotPaused(s);
 
-      // init operations
-      var operations : list(operation) := nil;
+    // check that token sale has not ended
+    checkTokenSaleHasNotEnded(s);
 
-      // check if whitelist sale has started
-      if Tezos.get_now() < s.config.whitelistStartTimestamp then failwith(error_WHITELIST_SALE_HAS_NOT_STARTED) else skip;
+    // init params
+    const amountBought  : nat       = buyTokensParams.amount;
+    const buyOption     : nat       = buyTokensParams.buyOption;
 
-      // check if whitelist sale has ended -> proceed to public sale
-      if Tezos.get_now() > s.config.whitelistEndTimestamp then skip 
-      
-      // whitelist sale has started
-      else if Tezos.get_now() > s.config.whitelistStartTimestamp then block {
+    // empty record for future use
+    const emptyBuyOptionRecord : tokenSaleUserOptionType        = record [
+        tokenBought         = 0n;
+        tokenClaimed        = 0n;
+        claimCounter        = 0n;
+        lastClaimTimestamp  = Tezos.get_now();
+        lastClaimLevel      = 0n;
+    ];
 
-          // check if user is whitelisted
-          if checkInWhitelistAddresses(Tezos.get_sender(), s) then skip else failwith(error_USER_IS_NOT_WHITELISTED);
+    // get buy option configuration
+    var buyOptionConfig : tokenSaleOptionType   := case Map.find_opt(buyOption, s.config.buyOptions) of [
+            Some (_option)  -> _option
+        |   None            -> failwith(error_BUY_OPTION_NOT_FOUND)
+    ];
 
-          // find or create whitelist user token sale record
-          var whitelistUserTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.get_sender()] of [
-              Some(_record) -> _record
-            | None           -> record [
-                amount     = 0n;
-                lastBought = Tezos.get_now();
-              ]
-          ];
+    // find or create user token sale record
+    var userTokenSaleOptionRecord : tokenSaleUserOptionType := case s.tokenSaleLedger[Tezos.get_sender()] of [
+            Some(_record)   -> case _record[buyOption] of [
+                    Some (_buyOption)   -> _buyOption
+                |   None                -> emptyBuyOptionRecord
+            ]
+        |   None            -> emptyBuyOptionRecord
+    ];
 
-          // check if max amount per whitelist wallet has been exceeded
-          if whitelistUserTokenSaleRecord.amount + amountInTez > s.config.maxAmountPerWhitelistWallet then failwith(error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED) else skip;
+    // check if tez sent is equal to amount specified
+    const amountPaid      : nat = Tezos.get_amount() / 1mutez;
+    const tokenXtzPrice   : nat = buyOptionConfig.tokenXtzPrice / 1mutez;
+    const elligibleAmount : nat = ((amountPaid * fpaMvk) / tokenXtzPrice);
+    if elligibleAmount =/= amountBought
+    then failwith(error_MVK_PAY_AMOUNT_NOT_MET) 
+    else skip;
 
-          // check if whitelist max amount cap has been exceeded
-          const newWhitelistAmountTotal : nat = s.whitelistAmountTotal + amountInTez;
-          if newWhitelistAmountTotal > s.config.whitelistMaxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else s.whitelistAmountTotal := newWhitelistAmountTotal;
-      } 
+    // init operations
+    var operations : list(operation) := nil;
 
-      // public sale has started      
-      else skip;
+    // check if whitelist sale has started
+    if Tezos.get_now() < s.whitelistStartTimestamp
+    then failwith(error_WHITELIST_SALE_HAS_NOT_STARTED) 
+    else if Tezos.get_now() < s.whitelistEndTimestamp then {
+        // whitelist sale has started
+        // check if user is whitelisted
+        if checkInWhitelistAddresses(Tezos.get_sender(), s) then skip else failwith(error_USER_IS_NOT_WHITELISTED);
 
-      // find or create user token sale record
-      var userTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.get_sender()] of [
-          Some(_record) -> _record
-        | None           -> record [
-            amount     = 0n;
-            lastBought = Tezos.get_now();
-          ]
-      ];
+        // check if max amount per whitelist wallet has been exceeded for current option
+        if userTokenSaleOptionRecord.tokenBought + amountBought > buyOptionConfig.whitelistMaxAmountTotal then failwith(error_MAX_AMOUNT_WHITELIST_WALLET_EXCEEDED) else skip;
+    } else skip;
 
-      // check if max amount per wallet total has been exceeded
-      if userTokenSaleRecord.amount + amountInTez > s.config.maxAmountPerWalletTotal then failwith(error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED) else skip;
+    // check if minimum amount has been bought
+    if userTokenSaleOptionRecord.tokenBought + amountBought < buyOptionConfig.minMvkAmount then failwith(error_MIN_MVK_AMOUNT_NOT_REACHED) else skip;
 
-      // check if overall max amount cap has been exceeded
-      const newOverallAmountTotal : nat = s.overallAmountTotal + amountInTez;
-      if newOverallAmountTotal > s.config.overallMaxAmountCap then failwith(error_OVERALL_MAX_AMOUNT_CAP_REACHED) else s.overallAmountTotal := newOverallAmountTotal;
+    // check if max amount per wallet has been exceeded
+    if userTokenSaleOptionRecord.tokenBought + amountBought > buyOptionConfig.maxAmountPerWalletTotal then failwith(error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED) else skip;
 
-      // send amount to treasury
-      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Contract not found at given address");
-      const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
-      operations := transferAmountToTreasuryOperation # operations;
+    // check if current option whitelist max amount cap has been exceeded
+    const newBoughtAmountTotal : nat = buyOptionConfig.totalBought + amountBought;
+    if newBoughtAmountTotal > buyOptionConfig.maxAmountCap then failwith(error_MAX_AMOUNT_CAP_EXCEEDED) else buyOptionConfig.totalBought := newBoughtAmountTotal;
 
-      // update token sale ledger
-      userTokenSaleRecord.amount      := userTokenSaleRecord.amount + amountInTez;
-      userTokenSaleRecord.lastBought  := Tezos.get_now();
-      s.tokenSaleLedger[Tezos.get_sender()] := userTokenSaleRecord;
+    // update user token sale record
+    userTokenSaleOptionRecord.tokenBought         := userTokenSaleOptionRecord.tokenBought + amountBought;
+
+    // send amount to treasury
+    const treasuryContract: contract(unit)              = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Contract not found at given address");
+    const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
+    operations                                          := transferAmountToTreasuryOperation # operations;
+
+    // update token sale ledger with updated record
+    s.tokenSaleLedger[Tezos.get_sender()]   := case s.tokenSaleLedger[Tezos.get_sender()] of [
+            Some (_userRecord)  -> Map.update(buyOption, Some (userTokenSaleOptionRecord), _userRecord)
+        |   None                -> map [
+                buyOption   ->     userTokenSaleOptionRecord
+            ]
+    ];
+    s.config.buyOptions[buyOption]          := buyOptionConfig;
 
 } with (operations, s)
+
+
+
+(*  claimTokens entrypoint *)
+function claimTokens(const user : address; var s : tokenSaleStorageType) : return is
+block {
+    
+    // check if sale has ended
+    checkTokenSaleHasEnded(s);
+
+    // init parameters
+    const today                       : timestamp                       = Tezos.get_now();
+    const tokenSaleEndTimestamp       : timestamp                       = s.tokenSaleEndTimestamp;
+    var operations                    : list(operation)                 := nil;
+
+    // init MVK token type to be used in transfer params
+    const mvkTokenType : tokenType  = Fa2(record [
+        tokenContractAddress  = s.mvkTokenAddress;
+        tokenId               = 0n;
+    ]);
+
+    // get the user buy record
+    var userBuyOptions      := case s.tokenSaleLedger[user] of [
+            Some (_userRecord)  ->_userRecord
+        |   None                -> failwith(error_USER_TOKEN_SALE_RECORD_NOT_FOUND)
+    ];
+
+    // register claim
+    for buyOptionIndex -> userBuyOption in map userBuyOptions {
+
+        // get buy option config
+        const _buyOptionConfig : tokenSaleOptionType        = case Map.find_opt(buyOptionIndex, s.config.buyOptions) of [
+                Some (_option)  -> _option
+            |   None            -> failwith(error_BUY_OPTION_NOT_FOUND)
+        ];
+
+        // process claim - skip if fully claimed (periods claimed = vesting periods)  
+        if userBuyOption.claimCounter = _buyOptionConfig.vestingPeriods then skip else block {
+
+            // if first claim, match the lastClaimTimestamp to the token sale end
+            if userBuyOption.lastClaimTimestamp =/= tokenSaleEndTimestamp then userBuyOption.lastClaimTimestamp := tokenSaleEndTimestamp else skip;
+
+            // calculate periods passed since last claimed
+            var periodsToClaim : nat    := if userBuyOption.lastClaimLevel = 0n then 1n else 0n;
+            periodsToClaim              := periodsToClaim + (abs(today - userBuyOption.lastClaimTimestamp) / s.config.vestingPeriodDurationSec);
+            periodsToClaim              := if periodsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingPeriods then abs(_buyOptionConfig.vestingPeriods - userBuyOption.claimCounter) else periodsToClaim;
+
+            // account for case where there is no vesting periods for option one (least restrictive option)
+            var tokenAmountSinglePeriod : nat    := if _buyOptionConfig.vestingPeriods = 0n then 
+                userBuyOption.tokenBought
+            else 
+                userBuyOption.tokenBought / _buyOptionConfig.vestingPeriods;
+
+            // check that user's max tokens claimable is not exceeded
+            const maxTokenAmount : nat  = userBuyOption.tokenBought;
+            if userBuyOption.tokenClaimed + tokenAmountSinglePeriod > maxTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED) else skip;
+
+            // calculate final value token amount to be claimed
+            var tokenAmount : nat       := tokenAmountSinglePeriod * periodsToClaim;
+
+            // claim the dust if it is the last period
+            const finalClaimCounter : nat       = userBuyOption.claimCounter + periodsToClaim;
+            const estimatedTokenClaimed : nat   = userBuyOption.tokenClaimed + tokenAmount;
+            if finalClaimCounter = _buyOptionConfig.vestingPeriods and estimatedTokenClaimed < userBuyOption.tokenBought 
+            then tokenAmount    := tokenAmount + abs(userBuyOption.tokenBought - estimatedTokenClaimed)
+            else skip;
+
+            // create transfer params and transfer operation
+            const transferTokenParams : transferActionType = list[
+                record [
+                    to_        = user;
+                    token      = mvkTokenType;
+                    amount     = tokenAmount; 
+                ]
+            ];
+
+            const sendMvkTokensToBuyerOperation : operation = Tezos.transaction(
+                transferTokenParams,
+                0mutez,
+                sendTransferOperationToTreasury(s.treasuryAddress)
+            );
+
+            operations := sendMvkTokensToBuyerOperation # operations;
+
+            // update user token sale record
+            userBuyOption.claimCounter              := finalClaimCounter;
+            userBuyOption.tokenClaimed              := userBuyOption.tokenClaimed + tokenAmount;
+            userBuyOption.lastClaimTimestamp        := Tezos.get_now();
+            userBuyOption.lastClaimLevel            := Tezos.get_level();
+            userBuyOptions[buyOptionIndex]          := userBuyOption;
+        }
+    };
+
+    // Save the buy option in the storage
+    s.tokenSaleLedger[user] := userBuyOptions;
+
+} with (operations, s)
+
+
+
+(*  startSale entrypoint *)
+function startSale(var s : tokenSaleStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    // check for close
+    if s.tokenSaleHasEnded then failwith(error_TOKEN_SALE_HAS_ENDED) else skip;
+    
+    s.tokenSaleHasStarted     := True;
+    s.tokenSaleHasEnded       := False;
+    
+} with (noOperations, s)
+
+
+
+(*  closeSale entrypoint *)
+function closeSale(var s : tokenSaleStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    // check for start
+    if not s.tokenSaleHasStarted then failwith(error_TOKEN_SALE_HAS_NOT_STARTED) else skip;
+
+    s.tokenSaleHasEnded       := True;
+    s.tokenSaleEndTimestamp   := Tezos.get_now();
+    s.tokenSaleEndBlockLevel  := Tezos.get_level();
+
+} with (noOperations, s)
+
+
+
+(*  pauseSale entrypoint *)
+function pauseSale(var s : tokenSaleStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    // check for close
+    if s.tokenSaleHasEnded then failwith(error_TOKEN_SALE_HAS_ENDED) else skip;
+
+    // if sale is paused, then unpause sale, and vice versa
+    s.tokenSalePaused   := not s.tokenSalePaused;
+    
+} with (noOperations, s)
+
 
 // ------------------------------------------------------------------------------
 // Token Sale Entrypoints End
@@ -358,17 +675,25 @@ function main (const action : tokenSaleAction; const s : tokenSaleStorageType) :
 
     case action of [
 
-          // Default Entrypoint to Receive Tez
-        | Default(_params)                        -> ((nil : list(operation)), s)
+            // Default Entrypoint to Receive Tez
+        |   Default(_params)                        -> ((nil : list(operation)), s)
 
-          // Housekeeping Entrypoints
-        | SetAdmin(parameters)                    -> setAdmin(parameters, s)
-        | UpdateMetadata(parameters)              -> updateMetadata(parameters, s)  
-        | UpdateConfig(parameters)                -> updateConfig(parameters, s)
+            // Housekeeping Entrypoints
+        |   SetAdmin(parameters)                    -> setAdmin(parameters, s)
+        |   SetGovernance(parameters)               -> setGovernance(parameters, s)
+        |   UpdateMetadata(parameters)              -> updateMetadata(parameters, s)  
+        |   UpdateConfig(parameters)                -> updateConfig(parameters, s)
 
-          // Token Sale Entrypoints
-        | AddToWhitelist(parameters)              -> addToWhitelist(parameters, s)
-        | RemoveFromWhitelist(parameters)         -> removeFromWhitelist(parameters, s)
-        | BuyTokens(parameters)                   -> buyTokens(parameters, s)
+            // Admin Token Sale Entrypoints
+        |   SetWhitelistTimestamp(parameters)       -> setWhitelistTimestamp(parameters, s)
+        |   AddToWhitelist(parameters)              -> addToWhitelist(parameters, s)
+        |   RemoveFromWhitelist(parameters)         -> removeFromWhitelist(parameters, s)
+        |   StartSale(_parameters)                  -> startSale(s)
+        |   CloseSale(_parameters)                  -> closeSale(s)
+        |   PauseSale(_parameters)                  -> pauseSale(s)
+
+            // Token Sale Entrypoints
+        |   BuyTokens(parameters)                   -> buyTokens(parameters, s)
+        |   ClaimTokens(parameters)                 -> claimTokens(parameters, s)
         
     ]

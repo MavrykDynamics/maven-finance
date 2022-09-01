@@ -51,7 +51,9 @@ import {
 import { MvkToken } from '../helpers/mvkHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
+import { TokenSale } from '../helpers/tokenSaleHelper'
 import { LPToken } from "../helpers/testLPHelper"
+
 
 
 // ------------------------------------------------------------------------------
@@ -83,7 +85,9 @@ import { aggregatorFactoryStorage } from '../../storage/aggregatorFactoryStorage
 import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
+import { tokenSaleStorage } from '../../storage/tokenSaleStorage'
 import { lpStorage } from "../../storage/testLPTokenStorage";
+
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -114,6 +118,7 @@ describe('Contracts Deployment for Tests', async () => {
   var lpToken: LPToken;
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
+  var tokenSale: TokenSale
   var tezos
   
 
@@ -363,6 +368,19 @@ describe('Contracts Deployment for Tests', async () => {
   
       await saveContractAddress('governanceSatelliteAddress', governanceSatellite.contract.address)
       console.log('Governance Satellite Contract deployed at:', governanceSatellite.contract.address)
+
+
+      tokenSaleStorage.governanceAddress = governance.contract.address;
+      tokenSaleStorage.treasuryAddress   = treasury.contract.address;
+      tokenSaleStorage.mvkTokenAddress   = mvkToken.contract.address;
+      tokenSale = await TokenSale.originate(
+        utils.tezos,
+        tokenSaleStorage
+      )
+
+      await saveContractAddress('tokenSaleAddress', tokenSale.contract.address)
+      console.log('Token Sale Contract deployed at:', tokenSale.contract.address)
+
   
   
       /* ---- ---- ---- ---- ---- */
@@ -655,6 +673,7 @@ describe('Contracts Deployment for Tests', async () => {
       // whitelist contracts
       .withContractCall(treasury.contract.methods.updateWhitelistContracts('governanceProxy', governanceProxy.contract.address))
       .withContractCall(treasury.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+      .withContractCall(treasury.contract.methods.updateWhitelistContracts("tokenSale", tokenSale.contract.address))
   
       // whitelist token contracts
       .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))

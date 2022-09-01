@@ -11,6 +11,7 @@ async def on_governance_origination(
 
     # Get operation values
     address                                 = governance_origination.data.originated_contract_address
+    admin                                   = governance_origination.storage.admin
     governance_proxy_address                = governance_origination.storage.governanceProxyAddress
     success_reward                          = float(governance_origination.storage.config.successReward)
     cycle_voters_reward                     = float(governance_origination.storage.config.cycleVotersReward)
@@ -53,6 +54,7 @@ async def on_governance_origination(
     # Create record
     governance, _  = await models.Governance.get_or_create(address = address)
     governance.active                                  = True
+    governance.admin                                   = admin
     governance.address                                 = address
     governance.governance_proxy_address                = governance_proxy_address
     governance.success_reward                          = success_reward

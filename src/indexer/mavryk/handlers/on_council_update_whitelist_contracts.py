@@ -1,9 +1,10 @@
 
-from mavryk.utils.persisters import persist_whitelist_contract
+from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.council.parameter.update_whitelist_contracts import UpdateWhitelistContractsParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.council.storage import CouncilStorage
+import mavryk.models as models
 
 async def on_council_update_whitelist_contracts(
     ctx: HandlerContext,
@@ -11,4 +12,4 @@ async def on_council_update_whitelist_contracts(
 ) -> None:
 
     # Persist whitelist contract
-    await persist_whitelist_contract(update_whitelist_contracts)
+    await persist_linked_contract(models.Council, models.CouncilWhitelistContract, update_whitelist_contracts)

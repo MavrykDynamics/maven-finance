@@ -11,7 +11,7 @@ dependency "indexer-timescaledb-droplet" {
 }
 
 terraform {
-  source = "../../modules/firewall"
+  source = "../../modules//firewall"
 }
 
 inputs = {
