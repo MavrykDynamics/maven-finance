@@ -294,8 +294,6 @@ export const GovernanceView = ({
     dispatch(showToaster('SUCCESS', 'Copied to Clipboard', `${getShortByte(text, 16, 16)}`))
   }
 
-  // console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
-
   return (
     <GovernanceStyled>
       {someVisible ? (

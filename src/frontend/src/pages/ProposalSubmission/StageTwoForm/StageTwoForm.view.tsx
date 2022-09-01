@@ -86,7 +86,7 @@ export const StageTwoFormView = ({
 
   const handleChangeTitle = (index: number, text: string) => {
     const cloneProposalBytes = [...form.proposalBytes]
-    console.log('%c ||||| cloneProposalBytes', 'color:yellowgreen', cloneProposalBytes)
+
     cloneProposalBytes[index].title = text
     setForm({ ...form, proposalBytes: cloneProposalBytes })
   }

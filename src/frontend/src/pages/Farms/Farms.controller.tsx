@@ -35,8 +35,6 @@ export const Farms = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
 
-  console.log('%c ||||| farmStorage', 'color:yellowgreen', farmStorage)
-  // farmStorage = MOCK_FARMS
   const [farmsList, setFarmsList] = useState(farmStorage)
   const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage>([])
   const [toggleChecked, setToggleChecked] = useState(false)
@@ -113,7 +111,7 @@ export const Farms = () => {
         }
         return res
       })
-      console.log('%c ||||| dataToSort', 'color:yellowgreen', dataToSort)
+
       setFarmsList(dataToSort)
     } else {
       setFarmsList(filteredSearch)
