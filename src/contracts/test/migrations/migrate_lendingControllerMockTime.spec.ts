@@ -34,7 +34,7 @@ import {
     AggregatorFactory,
     setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
 } from '../helpers/aggregatorFactoryHelper'
-import { LendingController, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerMockTimeHelper"
+import { LendingControllerMockTime, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerMockTimeHelper"
 import { TokenPoolReward } from "../helpers/tokenPoolRewardHelper"
 
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
@@ -49,7 +49,7 @@ import { aggregatorStorage } from '../../storage/aggregatorStorage'
 import { lpStorage } from "../../storage/testLPTokenStorage"
 
 import { vaultStorage } from "../../storage/vaultStorage"
-import { lendingControllerStorage } from "../../storage/lendingControllerStorage"
+import { lendingControllerMockTimeStorage } from "../../storage/lendingControllerMockTimeStorage"
 import { tokenPoolRewardStorage } from "../../storage/tokenPoolRewardStorage"
 
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
@@ -76,7 +76,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
   var lpTokenPoolMockFa2Token : TokenPoolLpToken;
   var lpTokenPoolXtz : TokenPoolLpToken;
 
-  var lendingController : LendingController
+  var lendingControllerMockTime : LendingControllerMockTime
   var tokenPoolReward : TokenPoolReward
   
   var tezos
@@ -98,12 +98,12 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
         // Originate and deploy contracts
         //----------------------------
 
-        lendingControllerStorage.mvkTokenAddress     = mvkTokenAddress.address
-        lendingControllerStorage.governanceAddress   = governanceAddress.address
-        lendingController = await LendingController.originate(utils.tezos,lendingControllerStorage);
+        lendingControllerMockTimeStorage.mvkTokenAddress     = mvkTokenAddress.address
+        lendingControllerMockTimeStorage.governanceAddress   = governanceAddress.address
+        lendingControllerMockTime = await LendingControllerMockTime.originate(utils.tezos,lendingControllerMockTimeStorage);
 
-        await saveContractAddress('lendingControllerAddress', lendingController.contract.address)
-        console.log('Lending Controller Contract deployed at:', lendingController.contract.address)
+        await saveContractAddress('lendingControllerMockTimeAddress', lendingControllerMockTime.contract.address)
+        console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTime.contract.address)
 
 
         //----------------------------
@@ -134,7 +134,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
         // LP Token: Mock FA12 Token in Lending Controller Token Pool 
         //----------------------------
         tokenPoolLpTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
-            "lendingController"     : lendingController.contract.address
+            "lendingController"     : lendingControllerMockTime.contract.address
         })
         lpTokenPoolMockFa12Token = await TokenPoolLpToken.originate(
             utils.tezos,
@@ -244,7 +244,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
     
         /* ---- ---- ---- ---- ---- */
   
-        tezos = lendingController.tezos
+        tezos = lendingControllerMockTime.tezos
         await signerFactory(bob.sk);
 
         console.log('====== set lambdas ======')
@@ -254,12 +254,12 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
         //----------------------------
 
         // Lending Controller Lambdas
-        await setLendingControllerLambdas(tezos, lendingController.contract);
+        await setLendingControllerLambdas(tezos, lendingControllerMockTime.contract);
         console.log("Lending Controller Lambdas Setup")
 
 
         // Lending Controller Setup Vault Lambdas
-        await setLendingControllerProductLambdas(tezos, lendingController.contract)
+        await setLendingControllerProductLambdas(tezos, lendingControllerMockTime.contract)
         console.log("Lending Controller Vault Lambdas Setup")
     
     
@@ -271,7 +271,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
         .batch()
     
         // general contracts
-        .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingController.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTime.contract.address))
             //   .withContractCall(governance.contract.methods.updateGeneralContracts('tokenPoolReward', tokenPoolReward.contract.address))
     
         const governanceContractsBatchOperation = await governanceContractsBatch.send()
@@ -289,7 +289,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
   it(`test all contract deployments`, async () => {
     try {
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --') 
-        console.log('Test: Lending Controller contracts deployed')
+        console.log('Test: Lending Controller Mock Time contracts deployed')
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
     } catch (e) {
         console.log('error')

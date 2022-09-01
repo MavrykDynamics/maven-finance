@@ -879,9 +879,10 @@ block{
     *)
 
     // mock level for time tests (instead of using Tezos.get_level())
-    const mockLevel                 : nat    = s.config.mockLevel;
+    const mockLevel : nat    = s.config.mockLevel;
 
-    const exp : nat = abs(mockLevel - lastUpdatedBlockLevel); // exponent
+    var exp : nat := abs(mockLevel - lastUpdatedBlockLevel); // exponent
+    exp := exp * Tezos.get_min_block_time(); // number of seconds
     
     const interestRateOverSecondsInYear : nat = ((interestRate * fixedPointAccuracy) / secondsInYear) / fixedPointAccuracy; // 1e27 * 1e27 / const / 1e27 -> 1e27
 

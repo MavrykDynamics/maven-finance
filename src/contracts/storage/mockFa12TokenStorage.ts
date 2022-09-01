@@ -10,8 +10,8 @@ import { zeroAddress } from "../test/helpers/Utils";
 
 import { mockFa12TokenStorageType } from "../test/types/mockFa12TokenStorageType";
 
-const totalSupply   = 2000000000;
-const initialSupply = new BigNumber(totalSupply); // 2,000 MOCK FA12 Tokens in mu (10^6)
+const totalSupply   = 20000000000;
+const initialSupply = new BigNumber(totalSupply); // 20,000 MOCK FA12 Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4);
 
 const metadata = MichelsonMap.fromLiteral({

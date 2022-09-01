@@ -12,7 +12,7 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { lendingControllerStorageType } from "../types/lendingControllerStorageType";
+import { lendingControllerMockTimeStorageType } from "../types/lendingControllerMockTimeStorageType";
 
 import lendingControllerMockTimeLambdaIndex
     from '../../../contracts/contracts/partials/contractLambdas/lendingControllerMockTime/lendingControllerMockTimeLambdaIndex.json';
@@ -25,7 +25,7 @@ import vaultLambdas from "../../build/lambdas/vaultLambdas.json";
 
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
-type LendingControllerContractMethods<T extends ContractProvider | Wallet> = {
+type LendingControllerMockTimeContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
     setProductLambda: (number, string) => ContractMethod<T>;
     updateWhitelistContracts: (
@@ -38,24 +38,24 @@ type LendingControllerContractMethods<T extends ContractProvider | Wallet> = {
     ) => ContractMethod<T>;  
 };
 
-type LendingControllerContractMethodObject<T extends ContractProvider | Wallet> =
+type LendingControllerMockTimeContractMethodObject<T extends ContractProvider | Wallet> =
     Record<string, (...args: any[]) => ContractMethodObject<T>>;
 
-type LendingControllerViews = Record<string, (...args: any[]) => ContractView>;
+type LendingControllerMockTimeViews = Record<string, (...args: any[]) => ContractView>;
 
-type LendingControllerOnChainViews = {
+type LendingControllerMockTimeOnChainViews = {
     decimals: () => OnChainView;
 };
 
-type LendingControllerContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
-    LendingControllerContractMethods<T>,
-    LendingControllerContractMethodObject<T>,
-    LendingControllerViews,
-    LendingControllerOnChainViews,
-    lendingControllerStorageType>;
+type LendingControllerMockTimeContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+    LendingControllerMockTimeContractMethods<T>,
+    LendingControllerMockTimeContractMethodObject<T>,
+    LendingControllerMockTimeViews,
+    LendingControllerMockTimeOnChainViews,
+    lendingControllerMockTimeStorageType>;
 
 
-export const setLendingControllerLambdas = async (tezosToolkit: TezosToolkit, contract: LendingControllerContractAbstraction) => {
+export const setLendingControllerLambdas = async (tezosToolkit: TezosToolkit, contract: LendingControllerMockTimeContractAbstraction) => {
 
     const lambdasPerBatch = 8;
 
@@ -81,7 +81,7 @@ export const setLendingControllerLambdas = async (tezosToolkit: TezosToolkit, co
 };
 
 
-export const setLendingControllerProductLambdas = async (tezosToolkit: TezosToolkit, contract: LendingControllerContractAbstraction) => {
+export const setLendingControllerProductLambdas = async (tezosToolkit: TezosToolkit, contract: LendingControllerMockTimeContractAbstraction) => {
     const batch = tezosToolkit.wallet
         .batch();
 
@@ -95,33 +95,33 @@ export const setLendingControllerProductLambdas = async (tezosToolkit: TezosTool
 
 
 
-export class LendingController {
-    contract: LendingControllerContractAbstraction;
-    storage: lendingControllerStorageType;
+export class LendingControllerMockTime {
+    contract: LendingControllerMockTimeContractAbstraction;
+    storage: lendingControllerMockTimeStorageType;
     tezos: TezosToolkit;
   
-    constructor(contract: LendingControllerContractAbstraction, tezos: TezosToolkit) {
+    constructor(contract: LendingControllerMockTimeContractAbstraction, tezos: TezosToolkit) {
         this.contract = contract;
         this.tezos = tezos;
     }
   
     static async init(
-        lendingControllerContractAddress: string,
+        lendingControllerMockTimeContractAddress: string,
         tezos: TezosToolkit
-    ): Promise<LendingController> {
-        return new LendingController(
-            await tezos.contract.at(lendingControllerContractAddress),
+    ): Promise<LendingControllerMockTime> {
+        return new LendingControllerMockTime(
+            await tezos.contract.at(lendingControllerMockTimeContractAddress),
             tezos
         );
     }
 
     static async originate(
         tezos: TezosToolkit,
-        storage: lendingControllerStorageType
-    ): Promise<LendingController> {       
+        storage: lendingControllerMockTimeStorageType
+    ): Promise<LendingControllerMockTime> {       
 
         const artifacts: any = JSON.parse(
-            fs.readFileSync(`${env.buildDir}/lendingController.json`).toString()
+            fs.readFileSync(`${env.buildDir}/lendingControllerMockTime.json`).toString()
         );
         const operation: OriginationOperation = await tezos.contract
             .originate({
@@ -136,7 +136,7 @@ export class LendingController {
     
         await confirmOperation(tezos, operation.hash);
     
-        return new LendingController(
+        return new LendingControllerMockTime(
             await tezos.contract.at(operation.contractAddress),
             tezos
         );
