@@ -1,0 +1,19 @@
+
+from dipdup.context import HandlerContext
+from mavryk.utils.persisters import persist_governance
+from mavryk.types.governance_proxy.parameter.set_governance import SetGovernanceParameter
+from dipdup.models import Transaction
+from mavryk.types.governance_proxy.storage import GovernanceProxyStorage
+import mavryk.models as models
+
+async def on_governance_proxy_set_governance(
+    ctx: HandlerContext,
+    set_governance: Transaction[SetGovernanceParameter, GovernanceProxyStorage],
+) -> None:
+    
+    # Get operation info
+    target_contract = set_governance.data.target_address
+    contract        = await models.GovernanceProxy.get(address = target_contract)
+
+    # Persist new admin
+    await persist_governance(set_governance, contract)

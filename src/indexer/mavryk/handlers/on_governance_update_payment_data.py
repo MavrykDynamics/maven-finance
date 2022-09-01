@@ -40,6 +40,12 @@ async def on_governance_update_payment_data(
     user, _         = await models.MavrykUser.get_or_create(address = receiver_address)
     await user.save()
     governance      = await models.Governance.get(address   = governance_address)
+    token, _        = await models.Token.get_or_create(
+        address     = token_address,
+        token_id    = token_id,
+        type        = token_standard
+    )
+    await token.save()
     proposal        = await models.GovernanceProposalRecord.get(
         id                  = proposal_id,
         governance          = governance
@@ -48,10 +54,7 @@ async def on_governance_update_payment_data(
         governance_proposal_record  = proposal,
         title                       = title,
         to_                         = user,
-        token_address               = token_address,
-        token_id                    = token_id,
-        token_standard              = token_standard,
-        token_amount                = amount,
+        token                       = token
     )
     # Delete record if it already exists, else update or add it
     if payment_record:
@@ -68,8 +71,6 @@ async def on_governance_update_payment_data(
             title                       = title
         )
         payment_record.to_                         = user
-        payment_record.token_address               = token_address
-        payment_record.token_id                    = token_id
-        payment_record.token_standard              = token_standard
+        payment_record.token                       = token
         payment_record.token_amount                = amount
         await payment_record.save()

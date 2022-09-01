@@ -36,6 +36,13 @@ async def on_treasury_transfer(
         elif type(token) == tez:
             token_type              = models.TokenType.XTZ
 
+        token, _        = await models.Token.get_or_create(
+            address     = token_contract_address,
+            token_id    = token_id,
+            type        = token_type
+        )
+        await token.save()
+
         receiver, _             = await models.MavrykUser.get_or_create(address = receiver_address)
         await receiver.save()
 
@@ -43,9 +50,7 @@ async def on_treasury_transfer(
             timestamp                       = timestamp,
             treasury                        = treasury,
             to_                             = receiver,
-            type                            = token_type,
-            token_contract_address          = token_contract_address,
-            token_id                        = token_id,
+            token                           = token,
             amount                          = amount
         )
         await treasury_transfer_data.save()

@@ -45,6 +45,12 @@ async def on_farm_origination(
         address = governance_address
     )
     await governance.save()
+    lp_token, _        = await models.Token.get_or_create(
+        address     = lp_token_address,
+        token_id    = lp_token_id,
+        type        = lp_token_standard_type
+    )
+    await lp_token.save()
     farm, _         = await models.Farm.get_or_create(
         address     = farm_address,
         admin       = admin,
@@ -54,9 +60,7 @@ async def on_farm_origination(
     farm.name                            = name 
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite
-    farm.lp_token_address                = lp_token_address
-    farm.lp_token_id                     = lp_token_id
-    farm.lp_token_standard               = lp_token_standard_type
+    farm.lp_token                        = lp_token
     farm.lp_token_balance                = lp_token_balance
     farm.total_blocks                    = total_blocks
     farm.current_reward_per_block        = current_reward_per_block
