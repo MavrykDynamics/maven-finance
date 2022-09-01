@@ -1,12 +1,13 @@
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
+
+// TODO: IDK how to type additional data, maybe revrite logic in future
 export type SatellitesListProps = {
   listTitle?: string
-  items: Array<any>
+  items: Array<Feed> | Array<SatelliteRecord>
   listType: 'satellites' | 'feeds' | 'oracles' | 'userFeeds'
   name: string
-  onClickHandler?: (arg0: any) => void
-  selectedItem?: any
+  onClickHandler?: (arg0: string) => void
   loading: boolean
   additionaldata?: Record<string, any>
 }
@@ -41,9 +42,9 @@ export type Feed = {
   maintainer_id: string
   name: string
   number_blocks_delay: number
-  oracle_records: Array<any>
-  oracle_rewards_smvk: Array<any>
-  oracle_rewards_xtz: Array<any>
+  oracle_records: Array<{ active: boolean; aggregator_id: string; id: number; oracle_id: string }>
+  oracle_rewards_smvk: Array<{ oracle_id: string; smvk: number; id: number }>
+  oracle_rewards_xtz: Array<{ oracle_id: string; xtz: number; id: number }>
   per_thousand_deviation_trigger: number
   percent_oracle_threshold: number
   request_rate_deviation_deposit_fee: number
