@@ -2,7 +2,7 @@ import { getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { toggleRPCNodePopup } from '../ChangeNodePopup/ChangeNode.actions'
+import { toggleRPCNodePopup } from '../SettingsPopup/SettingsPopup.actions'
 
 import { getHeadData } from './Menu.actions'
 import { MenuView } from './Menu.view'

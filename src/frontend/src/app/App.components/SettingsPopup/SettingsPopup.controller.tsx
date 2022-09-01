@@ -1,7 +1,7 @@
-import { PopupChangeNodeView } from './Popup-change-node.view'
+import { PopupChangeNodeView } from './SettingsPopup.view'
 import { CSSTransition } from 'react-transition-group'
 
-import { PopupContainer, PopupStyled } from './Popup-change-node.style'
+import { PopupContainer, PopupStyled } from './SettingsPopup.style'
 import { useLockBodyScroll } from 'react-use'
 
 export const PopupChangeNode = ({ isModalOpened, closeModal }: { isModalOpened: boolean; closeModal: () => void }) => {

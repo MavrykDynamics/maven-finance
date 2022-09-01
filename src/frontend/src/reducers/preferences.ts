@@ -2,8 +2,8 @@ import {
   TOGGLE_RPC_NODE_POPUP,
   SELECT_NEW_RPC_APP_NODE,
   SET_RPC_NODES,
-} from 'app/App.components/ChangeNodePopup/ChangeNode.actions'
-import { TOGGLE_DARK_THEME } from '../app/App.components/DarkThemeProvider/DarkThemeProvider.actions'
+} from 'app/App.components/SettingsPopup/SettingsPopup.actions'
+import { ThemeType, TOGGLE_DARK_THEME } from '../app/App.components/DarkThemeProvider/DarkThemeProvider.actions'
 import { GET_HEAD_DATA, TOGGLE_SIDEBAR } from '../app/App.components/Menu/Menu.actions'
 import { getItemFromStorage } from '../utils/storage'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
@@ -20,7 +20,7 @@ export type RPCNodeType = {
 }
 
 export interface PreferencesState {
-  darkThemeEnabled: boolean
+  themeSelected: ThemeType
   headData?: HeadDataType
   changeNodePopupOpen: boolean
   RPC_NODES: Array<RPCNodeType>
@@ -29,7 +29,7 @@ export interface PreferencesState {
 }
 
 const preferencesDefaultState: PreferencesState = {
-  darkThemeEnabled: getItemFromStorage('theme') || true,
+  themeSelected: getItemFromStorage('theme') || 'dark',
   changeNodePopupOpen: false,
   sidebarOpened: false,
   RPC_NODES: [
@@ -42,7 +42,7 @@ const preferencesDefaultState: PreferencesState = {
 export function preferences(state = preferencesDefaultState, action: Action) {
   switch (action.type) {
     case TOGGLE_DARK_THEME:
-      return { ...state, darkThemeEnabled: !state.darkThemeEnabled }
+      return { ...state, themeSelected: action.newThemeSelected }
     case GET_HEAD_DATA:
       return { ...state, headData: action.headData }
     case TOGGLE_RPC_NODE_POPUP:

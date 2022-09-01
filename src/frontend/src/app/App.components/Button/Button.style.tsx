@@ -111,6 +111,21 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     }
   }
 
+  &.theme-btn {
+    height: 38px;
+    width: 31%;
+    border: 1px solid ${({ theme }) => theme.cardBorderColor};
+    color: ${({ theme }) => theme.headerColor};
+    border-radius: 8px;
+    transition: 0.4s all;
+
+    &:hover,
+    &.selected {
+      border: 1px solid ${({ theme }) => theme.navLinkSubTitleActive};
+      color: ${({ theme }) => theme.navLinkSubTitleActive};
+    }
+  }
+
   &.change-wallet {
     width: 185px;
 
