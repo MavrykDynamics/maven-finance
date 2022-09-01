@@ -577,6 +577,7 @@ block {
                 // init loan token name
                 const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
                 const vaultOwner : address = Tezos.get_sender();
+                const mockLevel  : nat     = s.config.mockLevel;                
 
                 // Get loan token type
                 const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
@@ -641,7 +642,8 @@ block {
                     collateralBalanceLedgerMap,     // collateral balance ledger
                     loanTokenRecord.tokenName,      // loan token name
                     loanTokenRecord.tokenDecimals,  // loan token decimals
-                    tokenBorrowIndex                // token borrow index
+                    tokenBorrowIndex,               // token borrow index
+                    mockLevel                       // mock level
                 );
                 
                 // update controller storage with new vault
@@ -839,6 +841,7 @@ block {
                 const amount            : nat       = liquidateVaultParams.amount;
                 const liquidator        : address   = Tezos.get_sender();
                 const currentTimestamp  : timestamp = Tezos.get_now();
+                const mockLevel         : nat       = s.config.mockLevel;
 
                 // config variables
                 const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
@@ -1163,7 +1166,7 @@ block {
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
                 vault.borrowIndex               := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel     := Tezos.get_level();
+                vault.lastUpdatedBlockLevel     := mockLevel + Tezos.get_level();
                 vault.lastUpdatedTimestamp      := Tezos.get_now();
                 s.vaults[vaultHandle]           := vault;                
 
@@ -1188,6 +1191,7 @@ block {
                 const vaultHandle         : vaultHandleType   = registerWithdrawalParams.handle;
                 const withdrawalAmount    : nat               = registerWithdrawalParams.amount;
                 const tokenName           : string            = registerWithdrawalParams.tokenName;
+                const mockLevel           : nat               = s.config.mockLevel;
                 const initiator           : address           = Tezos.get_sender(); // vault address that initiated withdrawal
 
                 // get vault
@@ -1272,7 +1276,7 @@ block {
                 vault.loanPrincipalTotal                  := newLoanPrincipalTotal;
                 vault.loanInterestTotal                   := newLoanInterestTotal;
                 vault.borrowIndex                         := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel               := Tezos.get_level();
+                vault.lastUpdatedBlockLevel               := mockLevel + Tezos.get_level();
                 vault.lastUpdatedTimestamp                := Tezos.get_now();
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
 
@@ -1299,6 +1303,7 @@ block {
                 const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
                 const depositAmount   : nat               = registerDepositParams.amount;
                 const tokenName       : string            = registerDepositParams.tokenName;
+                const mockLevel       : nat               = s.config.mockLevel;
                 const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
                 // get vault
@@ -1377,7 +1382,7 @@ block {
                 vault.loanPrincipalTotal                  := newLoanPrincipalTotal;
                 vault.loanInterestTotal                   := newLoanInterestTotal;
                 vault.borrowIndex                         := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel               := Tezos.get_level();
+                vault.lastUpdatedBlockLevel               := mockLevel + Tezos.get_level();
                 vault.lastUpdatedTimestamp                := Tezos.get_now();
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
 
@@ -1405,6 +1410,7 @@ block {
                 const vaultId            : nat                     = borrowParams.vaultId; 
                 const initialLoanAmount  : nat                     = borrowParams.quantity;
                 const initiator          : initiatorAddressType    = Tezos.get_sender();
+                const mockLevel          : nat                     = s.config.mockLevel;
                 var finalLoanAmount      : nat                    := initialLoanAmount;
 
                 // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
@@ -1559,7 +1565,7 @@ block {
                 vault.loanPrincipalTotal               := newLoanPrincipalTotal;
                 vault.loanInterestTotal                := newLoanInterestTotal;
                 vault.borrowIndex                      := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel            := Tezos.get_level();
+                vault.lastUpdatedBlockLevel            := mockLevel + Tezos.get_level();
                 vault.lastUpdatedTimestamp             := Tezos.get_now();
 
                 // update vault
@@ -1591,6 +1597,7 @@ block {
                 const vaultId                   : nat                     = repayParams.vaultId; 
                 const initialRepaymentAmount    : nat                     = repayParams.quantity;
                 const initiator                 : initiatorAddressType    = Tezos.get_sender();
+                const mockLevel                 : nat                     = s.config.mockLevel;
                 var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
 
                 // Get Treasury Address and Token Pool Reward Address  from the General Contracts map on the Governance Contract
@@ -1775,7 +1782,7 @@ block {
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
                 vault.borrowIndex               := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel     := Tezos.get_level();
+                vault.lastUpdatedBlockLevel     := mockLevel + Tezos.get_level();
                 vault.lastUpdatedTimestamp      := Tezos.get_now();
 
                 // update vault

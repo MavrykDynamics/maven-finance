@@ -484,7 +484,7 @@ block {
 
     var vault : vaultRecordType := case s.vaults[vaultHandle] of [
             Some(_vault) -> _vault
-        |   None -> failwith("Error. Vault not found.")
+        |   None -> failwith(error_VAULT_CONTRACT_NOT_FOUND)
     ];
 
 } with vault
@@ -496,7 +496,7 @@ function getVaultByHandle(const handle : vaultHandleType; const s : lendingContr
 block {
     var vault : vaultRecordType := case s.vaults[handle] of [
             Some(_vault) -> _vault
-        |   None -> failwith("Error. Vault not found.")
+        |   None -> failwith(error_VAULT_CONTRACT_NOT_FOUND)
     ];
 } with vault
 
