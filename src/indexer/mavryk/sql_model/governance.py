@@ -7,6 +7,7 @@ from mavryk.sql_model.enums import GovernanceRoundType, GovernanceRecordStatus, 
 ###
 
 class Governance(MavrykContract, Model):
+    active                                  = fields.BooleanField(default=False)
     governance_proxy_address                = fields.CharField(max_length=36, default="")
     success_reward                          = fields.FloatField(default=0)
     cycle_voters_reward                     = fields.FloatField(default=0)

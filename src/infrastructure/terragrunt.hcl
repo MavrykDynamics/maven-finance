@@ -35,4 +35,3 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
 }
-

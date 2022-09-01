@@ -2,7 +2,7 @@
 
 # Requirements
 
-- [Python 3.10.4](https://www.python.org/downloads/): required to install Ansible.
+- [Python 3.10.4](https://www.python.org/downloads/): required to install dipdup.
 - [Poetry 1.1.13](https://python-poetry.org/): NPM/Yarn equivalent for Python
 - [Docker](https://www.docker.com/get-started/): Container manager
 

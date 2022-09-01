@@ -3,7 +3,9 @@
 ## Summary
 
 [1. Connect to the Mavryk Kubernetes Cluster](./helm-charts/README.md)
+
 [2. Configure a TimescaleDB on DigitalOcean with Ansible](./ansible/do-timescale-db/README.md)
+
 [3. Deploy/Update the Mavryk Indexer](./helm-charts/mavryk-indexer/README.md)
 
 ## Requirements
