@@ -47,6 +47,22 @@ export const PopupContainerWrapper = styled.div`
       }
     }
   }
+
+  @media (max-width: 500px) {
+    &.settings {
+      .theme-switcher-block {
+        display: flex;
+        flex-direction: column;
+        row-gap: 15px;
+        margin-top: 20px;
+
+        .buttons-wrapper {
+          display: flex;
+          justify-content: space-between;
+        }
+      }
+    }
+  }
 `
 
 export const ChangeNodeNodesList = styled.div`
@@ -73,11 +89,13 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
   border: ${({ isSelected }) => (isSelected ? `1px solid ${cyanColor}` : `1px solid ${royalPurpleColor};`)};
 
   &.add_node {
+    width: calc(100% - 10px);
     margin-top: 25px;
     justify-content: space-between;
     cursor: default;
 
     .add-new-node-handler {
+      width: 100%;
       font-weight: 600;
       font-size: 18px;
       line-height: 18px;
@@ -125,6 +143,13 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
     img {
       height: 100%;
       object-fit: contain;
+    }
+  }
+
+  @media (max-width: 500px) {
+    padding: 15px 20px;
+    &.add_node {
+      margin-top: 15px;
     }
   }
 `
