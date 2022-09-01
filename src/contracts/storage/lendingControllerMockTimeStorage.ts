@@ -28,7 +28,7 @@ const config = {
     maxVaultLiquidationPercent  : 500,
     liquidationDelayInMins      : 120,
 
-    mockLevel                   : 1
+    mockLevel                   : 0
 }
 
 const breakGlassConfig = {
