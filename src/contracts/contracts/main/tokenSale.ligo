@@ -546,13 +546,11 @@ block {
         // process claim - skip if fully claimed (periods claimed = vesting periods)  
         if userBuyOption.claimCounter = _buyOptionConfig.vestingPeriods then skip else block {
 
-            var periodsToClaim : nat    := 0n;
-
             // if first claim, match the lastClaimTimestamp to the token sale end
             if userBuyOption.lastClaimTimestamp =/= tokenSaleEndTimestamp then userBuyOption.lastClaimTimestamp := tokenSaleEndTimestamp else skip;
 
             // calculate periods passed since last claimed
-            periodsToClaim              := if userBuyOption.lastClaimLevel = 0n then 1n else periodsToClaim;
+            var periodsToClaim : nat    := if userBuyOption.lastClaimLevel = 0n then 1n else 0n;
             periodsToClaim              := periodsToClaim + (abs(today - userBuyOption.lastClaimTimestamp) / s.config.vestingPeriodDurationSec);
             periodsToClaim              := if periodsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingPeriods then abs(_buyOptionConfig.vestingPeriods - userBuyOption.claimCounter) else periodsToClaim;
 
