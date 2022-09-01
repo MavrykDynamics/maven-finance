@@ -61,8 +61,6 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
     financialData: '',
   })
 
-  console.log('%c ||||| proposalPayments', 'color:red', proposalPayments)
-
   const handleOnBlur = () => {
     const validityCheckResult = isJsonString(form.financialData?.jsonString ?? '')
     setValidForm({ ...validForm, financialData: validityCheckResult })

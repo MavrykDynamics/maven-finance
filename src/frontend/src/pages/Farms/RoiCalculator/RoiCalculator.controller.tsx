@@ -27,8 +27,7 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
   const { selectedFarmAddress, farmContracts } = useSelector((state: State) => state.farm)
   const [amount, setAmount] = useState<number | ''>('')
   const [status, setStatus] = useState<InputStatusType>('')
-  console.log('%c ||||| farmContracts', 'color:yellowgreen', farmContracts)
-  console.log('%c ||||| selectedFarmAddress', 'color:yellowgreen', selectedFarmAddress)
+
   const currentContract = useMemo(
     () => farmContracts.find((item) => item.address === lpTokenAddress),
     [selectedFarmAddress, farmContracts],
@@ -80,13 +79,9 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
     checkInputIsOk(value)
   }
 
-  const handleChangeStaked = (tabId?: number) => {
-    console.log('%c ||||| handleChangeStaked tabId', 'color:yellowgreen', tabId)
-  }
+  const handleChangeStaked = (tabId?: number) => {}
 
-  const handleChangeCompounding = (tabId?: number) => {
-    console.log('%c ||||| handleChangeCompounding tabId', 'color:yellowgreen', tabId)
-  }
+  const handleChangeCompounding = (tabId?: number) => {}
 
   const handleChangeValues = (tabId?: number) => {
     const balance = currentContract?.balance ?? 0

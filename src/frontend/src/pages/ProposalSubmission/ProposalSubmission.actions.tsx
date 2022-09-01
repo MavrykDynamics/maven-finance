@@ -104,8 +104,6 @@ export const updateProposal =
         }
       })
 
-      console.log('%c ||||| listTransactions', 'color:pink', listTransactions)
-
       const batch =
         // @ts-ignore
         contract && listTransactions.length ? await state.wallet.tezos?.wallet.batch(listTransactions) : null
@@ -116,16 +114,15 @@ export const updateProposal =
       const done = await batchOp?.confirmation()
       console.log('done', done)
 
-      //callback?.()
       await dispatch(showToaster(SUCCESS, 'Proposal updated.', 'All good :)'))
 
       await dispatch({
         type: PROPOSAL_UPDATE_RESULT,
       })
 
-      // await dispatch(getGovernanceStorage())
-      // await dispatch(getDelegationStorage())
-      // await dispatch(getCurrentRoundProposals())
+      await dispatch(getGovernanceStorage())
+      await dispatch(getDelegationStorage())
+      await dispatch(getCurrentRoundProposals())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
@@ -263,9 +260,9 @@ export const submitFinancialRequestData =
       await dispatch({
         type: SUBMIT_FINANCIAL_DATA_RESULT,
       })
-      // dispatch(getGovernanceStorage())
-      // dispatch(getDelegationStorage())
-      // dispatch(getCurrentRoundProposals())
+      dispatch(getGovernanceStorage())
+      dispatch(getDelegationStorage())
+      dispatch(getCurrentRoundProposals())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
