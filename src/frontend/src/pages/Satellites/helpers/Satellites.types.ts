@@ -2,6 +2,8 @@ import type { Aggregator } from 'utils/generated/graphqlTypes'
 
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
+type callbackFunction = (arg0: string) => void
+
 // TODO: IDK how to type additional data, maybe revrite logic in future
 export type SatellitesListProps = {
   listTitle?: string
@@ -10,7 +12,7 @@ export type SatellitesListProps = {
   name: string
   onClickHandler?: (arg0: string) => void
   loading: boolean
-  additionaldata?: Record<string, any>
+  additionaldata?: Record<string, boolean | number | callbackFunction | string | object>
 }
 
 export type FeedFactory = {

@@ -32,11 +32,11 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
                 satellite={item as SatelliteRecord}
                 key={item.address}
                 loading={loading}
-                delegateCallback={additionaldata?.delegateCallback}
-                undelegateCallback={additionaldata?.undelegateCallback}
-                userStakedBalance={additionaldata?.userStakedBalance || 0}
-                satelliteUserIsDelegatedTo={additionaldata?.satelliteUserIsDelegatedTo || ''}
-                isExtendedListItem={additionaldata?.isAllOracles}
+                delegateCallback={additionaldata?.delegateCallback as (arg0: string) => void}
+                undelegateCallback={additionaldata?.undelegateCallback as () => void}
+                userStakedBalance={(additionaldata?.userStakedBalance as number) || 0}
+                satelliteUserIsDelegatedTo={(additionaldata?.satelliteUserIsDelegatedTo as string) || ''}
+                isExtendedListItem={additionaldata?.isAllOracles as boolean}
               />
             )
           case 'feeds':
@@ -50,7 +50,11 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
         }
       })}
 
-      <Pagination itemsCount={additionaldata?.fullItemsCount || 0} side={PAGINATION_SIDE_RIGHT} listName={name} />
+      <Pagination
+        itemsCount={(additionaldata?.fullItemsCount as number) || 0}
+        side={PAGINATION_SIDE_RIGHT}
+        listName={name}
+      />
     </FRListWrapper>
   ) : null
 }
