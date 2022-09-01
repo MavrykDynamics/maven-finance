@@ -1,9 +1,10 @@
 
-from mavryk.utils.persisters import persist_general_contract
+from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.governance_financial.parameter.update_general_contracts import UpdateGeneralContractsParameter
+import mavryk.models as models
 
 async def on_governance_financial_update_general_contracts(
     ctx: HandlerContext,
@@ -11,4 +12,4 @@ async def on_governance_financial_update_general_contracts(
 ) -> None:
 
     # Perists general contract
-    await persist_general_contract(update_general_contracts)
+    await persist_linked_contract(models.GovernanceFinancial, models.GovernanceFinancialGeneralContract, update_general_contracts)

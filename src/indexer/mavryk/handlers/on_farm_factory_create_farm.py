@@ -68,6 +68,12 @@ async def on_farm_factory_create_farm(
     governance      = await models.Governance.get(
         address = governance_address
     )
+    lp_token, _     = await models.Token.get_or_create(
+        address     = lp_token_address,
+        token_id    = lp_token_id,
+        type        = lp_token_standard_type
+    )
+    await lp_token.save()
     farm, _         = await models.Farm.get_or_create(
         address     = farm_address
     )
@@ -78,9 +84,7 @@ async def on_farm_factory_create_farm(
     farm.farm_factory                    = farm_factory
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite
-    farm.lp_token_address                = lp_token_address
-    farm.lp_token_id                     = lp_token_id
-    farm.lp_token_standard               = lp_token_standard_type
+    farm.lp_token                        = lp_token
     farm.lp_token_balance                = lp_token_balance
     farm.total_blocks                    = total_blocks
     farm.current_reward_per_block        = current_reward_per_block
