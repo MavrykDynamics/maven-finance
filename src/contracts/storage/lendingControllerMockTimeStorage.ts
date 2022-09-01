@@ -6,7 +6,7 @@ const { alice, bob } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from "../test/helpers/Utils"
 
-import { lendingControllerStorageType } from "../test/types/lendingControllerMockTimeStorageType"
+import { lendingControllerMockTimeStorageType } from "../test/types/lendingControllerMockTimeStorageType"
 
 const config = {
 
@@ -106,7 +106,7 @@ const loanTokenLedger = MichelsonMap.fromLiteral({
 })
 
 
-export const lendingControllerStorage : lendingControllerStorageType = {
+export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorageType = {
   
     admin                           : bob.pkh,
     tester                          : bob.pkh,

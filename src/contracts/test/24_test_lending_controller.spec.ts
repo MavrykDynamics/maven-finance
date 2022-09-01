@@ -1044,7 +1044,7 @@
 //     // 
 //     // Test: Deposit tez into vault
 //     //
-//     describe('%vaultDeposit test: deposit tez into vault', function () {
+//     describe('%deposit test: deposit tez into vault', function () {
     
 //         it('user (eve) can deposit tez into her vault (depositors: any)', async () => {
             
@@ -1068,7 +1068,7 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 //             const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-//             const eveDepositTezOperation  = await eveVaultInstance.methods.vaultDeposit(
+//             const eveDepositTezOperation  = await eveVaultInstance.methods.deposit(
 //                 depositAmountMutez,                   // amt
 //                 "tez"                                 // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
@@ -1111,7 +1111,7 @@
 //             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 //             const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-//             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.vaultDeposit(
+//             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.deposit(
 //                 depositAmountMutez,                   // amt
 //                 "tez"                                 // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
@@ -1149,7 +1149,7 @@
 //             const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
 //             const vaultInstanceStorage     = await vaultInstance.storage();
     
-//             const malloryDepositTezOperation  = await vaultInstance.methods.vaultDeposit(
+//             const malloryDepositTezOperation  = await vaultInstance.methods.deposit(
 //                 depositAmountMutez,                   // amt
 //                 "tez"                                 // token
 //             ).send({ mutez : true, amount : depositAmountMutez });
@@ -1191,7 +1191,7 @@
 //             const vaultInstance             = await utils.tezos.contract.at(vaultAddress);
 //             const vaultInstanceStorage      = await vaultInstance.storage();
     
-//             const failEveDepositTezIntoMalloryVaultOperation  = await vaultInstance.methods.vaultDeposit(
+//             const failEveDepositTezIntoMalloryVaultOperation  = await vaultInstance.methods.deposit(
 //                 depositAmountMutez,                   // amt
 //                 "tez"                                 // token
 //             );
@@ -1206,7 +1206,7 @@
 //     // 
 //     // Test: Deposit Mock FA12 Tokens into vault
 //     //
-//     describe('%vaultDeposit test: deposit mock FA12 tokens into vault', function () {
+//     describe('%deposit test: deposit mock FA12 tokens into vault', function () {
     
 //         it('user (eve) can deposit mock FA12 tokens into her vault (depositors: any)', async () => {
     
@@ -1260,7 +1260,7 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // eve deposits mock FA12 tokens into vault
-//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token type 
 //                 mockFa12TokenAddress.address           // mockFa12 Token address 
@@ -1338,7 +1338,7 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // mallory deposits mock FA12 tokens into eve's vault
-//             const malloryDepositMockFa12TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const malloryDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                                // token
 //                 mockFa12TokenAddress.address           // mock FA12 Token address 
@@ -1406,7 +1406,7 @@
 //             await setNewTokenAllowance.confirmation();
     
 //             // eve fails to deposit tez and mock FA12 tokens into vault
-//             const failEveDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const failEveDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
 //                 mockFa12TokenAddress.address           // mock FA12 Token address 
@@ -1469,7 +1469,7 @@
 //             await setNewTokenAllowance.confirmation();
 
 //             // mallory deposits mock FA12 tokens into her vault
-//             const malloryDepositMockFa12TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const malloryDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
 //                 mockFa12TokenAddress.address           // mock FA12 Token address 
@@ -1535,7 +1535,7 @@
 //             await setNewTokenAllowance.confirmation();
     
 //             // eve fails to deposit tez and mock FA12 tokens into vault
-//             const failDepositMockFa12TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const failDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                                // token
 //                 mockFa12TokenAddress.address           // mock FA12 Token address 
@@ -1585,7 +1585,7 @@
 //             await setNewTokenAllowance.confirmation();
     
 //             // mallory fails to deposit tez and mock FA12 tokens into vault
-//             const failDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const failDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
 //                 mockFa12TokenAddress.address           // mock FA12 Token address 
@@ -1602,7 +1602,7 @@
 //     // 
 //     // Test: Deposit Mock FA2 Tokens into vault
 //     //
-//     describe('%vaultDeposit test: deposit mock FA2 tokens into vault', function () {
+//     describe('%deposit test: deposit mock FA2 tokens into vault', function () {
     
 //         it('user (eve) can deposit mock FA2 tokens into her vault (depositors: any)', async () => {
     
@@ -1657,10 +1657,10 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // eve deposits mock FA2 tokens into vault
-//             const eveDepositTokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
-//                 mockFa2TokenAddress.address,           // mock FA12 Token address 
+//                 mockFa2TokenAddress.address,           // mock FA2 Token address 
 //                 tokenId
 //             ).send();
 //             await eveDepositTokenOperation.confirmation();
@@ -1737,7 +1737,7 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // mallory deposits mock FA2 tokens into vault
-//             const malloryDepositTokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const malloryDepositTokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
 //                 mockFa2TokenAddress.address,           // mock FA12 Token address 
@@ -1802,7 +1802,7 @@
 //             await updateOperatorsOperation.confirmation();
     
 //             // eve fails to deposit tez and mock FA2 tokens into vault at the same time
-//             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
 //                 mockFa2TokenAddress.address,           // mock FA2 Token address 
@@ -1866,7 +1866,7 @@
 //             await updateOperatorsOperation.confirmation();
 
 //             // mallory deposits mock FA2 tokens into vault
-//             const malloryDepositTokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const malloryDepositTokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
 //                 mockFa2TokenAddress.address,           // mock FA12 Token address 
@@ -1932,7 +1932,7 @@
 //             await updateOperatorsOperation.confirmation();
     
 //             // eve fails to deposit tez and mock FA2 tokens into vault at the same time
-//             const failDepositMockFa2TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const failDepositMockFa2TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
 //                 mockFa2TokenAddress.address,           // mock FA2 Token address 
@@ -1983,7 +1983,7 @@
 //             await updateOperatorsOperation.confirmation();
     
 //             // eve fails to deposit tez and mock FA2 tokens into vault at the same time
-//             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.vaultDeposit(
+//             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.deposit(
 //                 depositAmount,                         // amt
 //                 tokenType,                             // token
 //                 mockFa2TokenAddress.address,           // mock FA2 Token address 
@@ -2528,14 +2528,14 @@
 
 //             // get updated storage
 //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//             const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//             const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 //             const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
 //             const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
 //             const updatedEveMockFa12Balance       = parseInt(updatedEveMockFa12Ledger.balance);
 
-//             const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-//             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-//             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+//             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
+//             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
+//             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
 //             // check vault loan records
 //             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal + borrowAmount);
@@ -2581,11 +2581,11 @@
 
 //             // get updated storage
 //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//             const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//             const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
-//             const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-//             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-//             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+//             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
+//             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
+//             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
 //             const updatedMockFa2TokenStorage      = await mockFa2TokenInstance.storage();
 //             const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
@@ -2635,11 +2635,11 @@
 
 //             // get updated storage
 //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//             const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//             const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
-//             const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-//             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-//             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+//             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
+//             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
+//             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
 //             // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
 //             const updatedEveXtzBalance = await utils.tezos.tz.getBalance(eve.pkh);
@@ -2687,14 +2687,14 @@
 
 //             // get updated storage
 //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//             const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//             const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 //             const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
 //             const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
 //             const updatedEveMockFa12Balance       = parseInt(updatedEveMockFa12Ledger.balance);
 
-//             const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-//             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-//             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+//             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
+//             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
+//             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
 //             // check vault loan records
 //             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal + borrowAmount);
@@ -2846,14 +2846,14 @@
 
 //             // get updated storage
 //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//             const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//             const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 //             const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
 //             const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
 //             const updatedEveMockFa12Balance       = parseInt(updatedEveMockFa12Ledger.balance);
 
-//             const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-//             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-//             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+//             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
+//             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
+//             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
 //             // check vault loan records
 //             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal + borrowAmount);
@@ -2948,14 +2948,14 @@
 
 //             // get updated storage
 //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//             const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//             const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 //             const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
 //             const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
 //             const updatedEveMockFa12TokenBalance       = parseInt(updatedEveMockFa12Ledger.balance);
 
-//             const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-//             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-//             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+//             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
+//             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
+//             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
 //             // NB: interest too little to make a difference within a few blocks
 //             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal - repayAmount);
@@ -3010,15 +3010,15 @@
 
 //             // get updated storage
 //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//             const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//             const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             
 //             const updatedMockFa2TokenStorage      = await mockFa2TokenInstance.storage();
 //             const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
 //             const updatedEveMockFa2TokenBalance   = parseInt(updatedEveMockFa2Ledger);
 
-//             const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-//             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-//             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+//             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
+//             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
+//             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
 //             // NB: interest too little to make a difference within a few blocks
 //             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal - repayAmount);
@@ -3059,15 +3059,15 @@
 
 //             // get updated storage
 //             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-//             const updatedvaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+//             const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             
 //             // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
 //             const updatedEveXtzLedger = await utils.tezos.tz.getBalance(eve.pkh);
 //             const updatedEveXtzBalance  = updatedEveXtzLedger.toNumber();
 
-//             const updatedLoanOutstandingTotal     = updatedvaultRecord.loanOutstandingTotal;
-//             const updatedLoanPrincipalTotal       = updatedvaultRecord.loanPrincipalTotal;
-//             const updatedLoanInterestTotal        = updatedvaultRecord.loanInterestTotal;
+//             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
+//             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
+//             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
 //             // NB: interest too little to make a difference within a few blocks
 //             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal - repayAmount);
