@@ -4,7 +4,7 @@ import { SatelliteListItem } from './ListCards/SateliteCard.view'
 import { DataFeedCard } from './ListCards/DataFeedCard.view'
 
 // types
-import { SatellitesListProps } from '../helpers/Satellites.types'
+import { Feed, SatellitesListProps } from '../helpers/Satellites.types'
 
 // styles
 import { FRListWrapper } from 'pages/FinacialRequests/FRList/FRList.styles'
@@ -12,6 +12,7 @@ import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { OracleCard } from './ListCards/DataFeedOracleCard.view'
 import { UserDataFeedCard } from './ListCards/UsersFeedCard.view'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 function SatteliteListView({ listTitle, items, name, listType, additionaldata, loading }: SatellitesListProps) {
   return items.length ? (
@@ -28,7 +29,7 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
             return (
               <SatelliteListItem
                 className={additionalClassName}
-                satellite={item}
+                satellite={item as SatelliteRecord}
                 key={item.address}
                 loading={loading}
                 delegateCallback={additionaldata?.delegateCallback}
@@ -39,11 +40,11 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
               />
             )
           case 'feeds':
-            return <DataFeedCard feed={item} key={item.address} />
+            return <DataFeedCard feed={item as Feed} key={item.address} />
           case 'userFeeds':
-            return <UserDataFeedCard feed={item} key={item.address} />
+            return <UserDataFeedCard feed={item as Feed} key={item.address} />
           case 'oracles':
-            return <OracleCard oracle={item} key={item.address} />
+            return <OracleCard oracle={item as SatelliteRecord} key={item.address} />
           default:
             return null
         }

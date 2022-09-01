@@ -2,13 +2,13 @@ import type { Aggregator } from 'utils/generated/graphqlTypes'
 
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
+// TODO: IDK how to type additional data, maybe revrite logic in future
 export type SatellitesListProps = {
   listTitle?: string
-  items: Array<any>
+  items: Array<Feed> | Array<SatelliteRecord>
   listType: 'satellites' | 'feeds' | 'oracles' | 'userFeeds'
   name: string
-  onClickHandler?: (arg0: any) => void
-  selectedItem?: any
+  onClickHandler?: (arg0: string) => void
   loading: boolean
   additionaldata?: Record<string, any>
 }
