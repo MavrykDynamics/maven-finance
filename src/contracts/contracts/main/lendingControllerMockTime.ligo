@@ -434,7 +434,7 @@ block {
 
 
 // helper function to create new vault record
-function createVaultRecord(const vaultAddress : address; const collateralBalanceLedger : collateralBalanceLedgerType; const loanTokenName : string; const decimals : nat; const tokenBorrowIndex : nat) : vaultRecordType is 
+function createVaultRecord(const vaultAddress : address; const collateralBalanceLedger : collateralBalanceLedgerType; const loanTokenName : string; const decimals : nat; const tokenBorrowIndex : nat; const mockLevel : nat) : vaultRecordType is 
 block {
 
     const vaultRecord : vaultRecordType = record [
@@ -449,7 +449,7 @@ block {
         loanDecimals                = decimals;
         borrowIndex                 = tokenBorrowIndex;
 
-        lastUpdatedBlockLevel       = Tezos.get_level();
+        lastUpdatedBlockLevel       = mockLevel + Tezos.get_level();
         lastUpdatedTimestamp        = Tezos.get_now();
 
         markedForLiquidationTimestamp = defaultTimestamp;
@@ -484,7 +484,7 @@ block {
 
     var vault : vaultRecordType := case s.vaults[vaultHandle] of [
             Some(_vault) -> _vault
-        |   None -> failwith("Error. Vault not found.")
+        |   None -> failwith(error_VAULT_CONTRACT_NOT_FOUND)
     ];
 
 } with vault
@@ -496,7 +496,7 @@ function getVaultByHandle(const handle : vaultHandleType; const s : lendingContr
 block {
     var vault : vaultRecordType := case s.vaults[handle] of [
             Some(_vault) -> _vault
-        |   None -> failwith("Error. Vault not found.")
+        |   None -> failwith(error_VAULT_CONTRACT_NOT_FOUND)
     ];
 } with vault
 
@@ -1027,7 +1027,7 @@ block{
 
     } else skip;
 
-    loanTokenRecord.lastUpdatedBlockLevel   := mockLevel;
+    loanTokenRecord.lastUpdatedBlockLevel   := mockLevel + Tezos.get_level();
     loanTokenRecord.borrowIndex             := borrowIndex;
     loanTokenRecord.utilisationRate         := utilisationRate;
     loanTokenRecord.currentInterestRate     := currentInterestRate;
