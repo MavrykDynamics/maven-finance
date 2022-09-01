@@ -44,6 +44,7 @@ export const FAQLink = styled.div<{ theme: MavrykTheme }>`
   margin: 14px 0;
 
   &.BG-faq-link {
+    margin: 0;
     margin-top: 10px;
   }
 
