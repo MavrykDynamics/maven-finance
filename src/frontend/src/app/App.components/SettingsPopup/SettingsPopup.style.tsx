@@ -33,6 +33,20 @@ export const PopupContainerWrapper = styled.div`
     right: 15px;
     cursor: pointer;
   }
+
+  &.settings {
+    .theme-switcher-block {
+      display: flex;
+      flex-direction: column;
+      row-gap: 30px;
+      margin-top: 40px;
+
+      .buttons-wrapper {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
 `
 
 export const ChangeNodeNodesList = styled.div`
