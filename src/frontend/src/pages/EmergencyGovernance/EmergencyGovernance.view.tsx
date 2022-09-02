@@ -99,7 +99,7 @@ export const EmergencyGovernanceView = ({
           <CardContentRightSide>
             {accountPkh ? (
               <Button
-                text={'Trigger Vote'}
+                text={'Initiate'}
                 kind={ACTION_PRIMARY}
                 icon={'auction'}
                 onClick={handleTriggerEmergencyProposal}
