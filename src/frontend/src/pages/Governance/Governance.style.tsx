@@ -191,6 +191,17 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     word-break: break-all;
     color: ${skyColor};
   }
+
+  .drop-proposal {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    button {
+      width: 194px;
+    }
+  }
 ` //GovernanceRightContainer
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
