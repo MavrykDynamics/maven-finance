@@ -1102,6 +1102,19 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
+            const initialVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
+            const initialLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+
+            console.log("--- ----- initial - before borrow ----- ---");
+            console.log("--- vaultRecordView ---");
+            console.log(initialVaultRecordView);
+
+            console.log("--- loanTokenRecordView ---");
+            console.log(initialLoanTokenRecordView);
+
+
+
+
             const borrowAmount = 50000000;   // 50 Mock FA12 Tokens
 
             // borrow operation
@@ -1110,27 +1123,48 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             console.log('   - borrowed from vault');
 
+            console.log('   - after first borrow from vault');
 
-            const touchBorrowAmount = 1000000;   // 1 Mock FA12 Tokens
+            const firstBorrowVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
+            const firstBorrowLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            const firstBorrowStorage = await lendingControllerInstance.storage();
 
-            // touch borrow operation
-            const eveTouchBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, touchBorrowAmount).send();
-            await eveTouchBorrowOperation.confirmation();
-
-            console.log('   - touch borrow from vault');
-
-            const beforeVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-            const beforeLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
-
-            console.log("--- ----- before time change ----- ---");
+            console.log("    ");
+            console.log("    ");
+            console.log("--- ----- first borrow ----- ---");
             console.log("--- vaultRecordView ---");
-            console.log(beforeVaultRecordView);
+            console.log(firstBorrowVaultRecordView);
 
             console.log("--- loanTokenRecordView ---");
-            console.log(beforeLoanTokenRecordView);
+            console.log(firstBorrowLoanTokenRecordView);
+
+            console.log("--- tempMap ---");
+            console.log(firstBorrowStorage.tempMap);
+
+            console.log("    ");
+            console.log("    ");
+                
+
+            // const touchBorrowAmount = 1000000;   // 1 Mock FA12 Tokens
+
+            // // touch borrow operation
+            // const eveTouchBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, touchBorrowAmount).send();
+            // await eveTouchBorrowOperation.confirmation();
+
+            // console.log('   - touch borrow from vault');
+
+            // const beforeVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
+            // const beforeLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+
+            // console.log("--- ----- before time change ----- ---");
+            // console.log("--- vaultRecordView ---");
+            // console.log(beforeVaultRecordView);
+
+            // console.log("--- loanTokenRecordView ---");
+            // console.log(beforeLoanTokenRecordView);
 
             // ----------------------------------------------------------------------------------------------
-            // Set Block Levels For Mock Time Test - 1 Year
+            // Set Block Levels For Mock Time Test - 1 month
             // ----------------------------------------------------------------------------------------------
 
             await signerFactory(bob.sk); // tester / admin
@@ -1150,6 +1184,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             assert.equal(updatedMockLevel, newBlockLevel);
 
             console.log('   - time set to 1 month ahead');
+            console.log("newBlockLevel: " + newBlockLevel)
 
             // ----------------------------------------------------------------------------------------------
             // Repay partial debt 
@@ -1166,7 +1201,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // console.log('   - touch borrow from vault');
 
 
-            const repayAmount = 10000000; // 10 Mock FA12 Tokens
+            const repayAmount = 500000; // 0.5 Mock FA12 Tokens
 
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
             // reset token allowance
@@ -1185,6 +1220,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             const vaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const loanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
             console.log("--- ----- before repayment ----- ---");
             console.log("--- vaultRecordView ---");
@@ -1192,6 +1228,14 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             console.log("--- loanTokenRecordView ---");
             console.log(loanTokenRecordView);
+
+            console.log("--- tempMap ---");
+            console.log(beforeRepaymentStorage.tempMap);
+            
+
+
+
+            console.log("--- ----- after repayment ----- ---");
 
             // repay operation
             const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
@@ -1215,13 +1259,16 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             const updatedVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            const afterRepaymentStorage = await lendingControllerInstance.storage();
 
-            console.log("--- ----- after repayment ----- ---");
             console.log("--- vaultRecordView ---");
             console.log(updatedVaultRecordView);
 
             console.log("--- loanTokenRecordView ---");
             console.log(updatedLoanTokenRecordView);
+
+            console.log("--- tempMap ---");
+            console.log(afterRepaymentStorage.tempMap);
 
             // NB: interest too little to make a difference within a few blocks
             // assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal - repayAmount);

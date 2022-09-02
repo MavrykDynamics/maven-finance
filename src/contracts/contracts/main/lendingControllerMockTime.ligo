@@ -434,7 +434,7 @@ block {
 
 
 // helper function to create new vault record
-function createVaultRecord(const vaultAddress : address; const collateralBalanceLedger : collateralBalanceLedgerType; const loanTokenName : string; const decimals : nat; const tokenBorrowIndex : nat; const mockLevel : nat) : vaultRecordType is 
+function createVaultRecord(const vaultAddress : address; const collateralBalanceLedger : collateralBalanceLedgerType; const loanTokenName : string; const decimals : nat; const tokenBorrowIndex : nat) : vaultRecordType is 
 block {
 
     const vaultRecord : vaultRecordType = record [
@@ -449,7 +449,7 @@ block {
         loanDecimals                = decimals;
         borrowIndex                 = tokenBorrowIndex;
 
-        lastUpdatedBlockLevel       = mockLevel + Tezos.get_level();
+        lastUpdatedBlockLevel       = Tezos.get_level();
         lastUpdatedTimestamp        = Tezos.get_now();
 
         markedForLiquidationTimestamp = defaultTimestamp;
@@ -961,7 +961,7 @@ block{
 
 // helper function to update token state
 // - updates last updated block level and borrow index
-function updateLoanTokenState(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : loanTokenRecordType is
+function updateLoanTokenState(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : (loanTokenRecordType * lendingControllerStorageType) is
 block{
     
     const tokenPoolTotal            : nat    = loanTokenRecord.tokenPoolTotal;             // 1e6
@@ -1017,7 +1017,7 @@ block{
     } else skip;
     
 
-    if mockLevel > lastUpdatedBlockLevel then {
+    if mockLevel > lastUpdatedBlockLevel or Tezos.get_level() > lastUpdatedBlockLevel then {
 
         const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel, s); // 1e27 
         borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1e27 x 1e27 / 1e27 -> 1e27
@@ -1027,12 +1027,12 @@ block{
 
     } else skip;
 
-    loanTokenRecord.lastUpdatedBlockLevel   := mockLevel + Tezos.get_level();
+    loanTokenRecord.lastUpdatedBlockLevel   := Tezos.get_level();
     loanTokenRecord.borrowIndex             := borrowIndex;
     loanTokenRecord.utilisationRate         := utilisationRate;
     loanTokenRecord.currentInterestRate     := currentInterestRate;
 
-} with loanTokenRecord
+} with (loanTokenRecord, s)
 
 
 
