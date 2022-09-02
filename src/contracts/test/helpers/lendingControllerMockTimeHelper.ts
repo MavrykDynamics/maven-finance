@@ -57,7 +57,7 @@ type LendingControllerMockTimeContractAbstraction<T extends ContractProvider | W
 
 export const setLendingControllerLambdas = async (tezosToolkit: TezosToolkit, contract: LendingControllerMockTimeContractAbstraction) => {
 
-    const lambdasPerBatch = 8;
+    const lambdasPerBatch = 5;
 
     const lambdasCount = lendingControllerMockTimeLambdas.length;
     const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
