@@ -118,7 +118,7 @@ export const EmergencyGovProposalModalView = ({
                     onClick={cancelCallback}
                   />
                   <Button
-                    text="Trigger Vote"
+                    text="Initiate"
                     kind="actionPrimary"
                     icon="auction"
                     loading={loading}
