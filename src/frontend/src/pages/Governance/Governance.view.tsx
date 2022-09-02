@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 /* @ts-ignore */
 import Time from 'react-pure-time'
@@ -64,6 +64,7 @@ import {
   NEXT_PROPOSALS_LIST_NAME,
   HISTORY_PROPOSALS_LIST_NAME,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { dropProposal } from '../ProposalSubmission/ProposalSubmission.actions'
 
 type GovernanceViewProps = {
   ready: boolean
@@ -101,7 +102,12 @@ export const GovernanceView = ({
   const [votingEnding, setVotingEnding] = useState<string>('')
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
+
+  const findUserCurrentRoundProposal = useMemo(
+    () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
+    [accountPkh, currentRoundProposals],
+  )
 
   const isProposalRound = governancePhase === 'PROPOSAL'
   const isVotingRound = governancePhase === 'VOTING'
@@ -292,6 +298,10 @@ export const GovernanceView = ({
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     dispatch(showToaster('SUCCESS', 'Copied to Clipboard', `${getShortByte(text, 16, 16)}`))
+  }
+
+  const handleDeleteProposal = async () => {
+    if (findUserCurrentRoundProposal?.id) await dispatch(dropProposal(findUserCurrentRoundProposal?.id))
   }
 
   return (
@@ -541,13 +551,17 @@ export const GovernanceView = ({
               </div>
             </article>
           ) : null}
-
-          {/* <article>
-            <a target="_blank" rel="noopener noreferrer" href={rightSideContent.invoice}>
-              <p>Invoice</p>
-            </a>
-          </article> */}
-          {/*<Table tableData={selectedProposal.invoiceTable} />*/}
+          {userIsSatellite && !isVisibleHistoryProposal ? (
+            <div className="drop-proposal">
+              <Button
+                icon="close-stroke"
+                className="close"
+                text="Drop Proposal"
+                kind="actionSecondary"
+                onClick={handleDeleteProposal}
+              />
+            </div>
+          ) : null}
         </GovernanceRightContainer>
       ) : null}
     </GovernanceStyled>

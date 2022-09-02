@@ -89,6 +89,12 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.actionPrimaryBtnColor};
     background-color: transparent;
     border: 2px solid ${({ theme }) => theme.actionPrimaryBtnColor};
+
+    &.close {
+      svg {
+        stroke: ${({ theme }) => theme.downColor};
+      }
+    }
   }
 
   &.button-circle {
