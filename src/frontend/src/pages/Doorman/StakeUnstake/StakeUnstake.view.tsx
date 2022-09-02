@@ -7,6 +7,7 @@ import { State } from 'reducers'
 
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../app/App.components/Button/Button.constants'
 import { Input } from '../../../app/App.components/Input/Input.controller'
+import Icon from '../../../app/App.components/Icon/Icon.view'
 import {
   StakeUnstakeForm,
   StakeUnstakeFormInputStatus,
@@ -61,6 +62,8 @@ export const StakeUnstakeView = ({
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
 
   const participationFeesPerShare = user?.participationFeesPerShare ?? 0
+  // for test
+  // const participationFeesPerShare = true
   const exchangeValue = exchangeRate && inputAmount.amount ? inputAmount.amount * exchangeRate : 0
   const earnedValue = 0
 
@@ -124,44 +127,12 @@ export const StakeUnstakeView = ({
     switch (actionType) {
       case 'STAKE':
         handleStakeAction()
-        // stakeCallback(inputAmount.amount)
         break
       case 'UNSTAKE':
       default:
         handleUnstakeAction()
-        // unstakeCallback(inputAmount.amount)
         break
     }
-    // if (!Number(inputAmount)) {
-    //   setStakeUnstakeInputStatus('error')
-    //   setStakeUnstakeValueError('Stake/Unstake value is not a valid number')
-    //   setStakeUnstakeValueOK(false)
-    // } else if (inputAmount < 1) {
-    //   setStakeUnstakeInputStatus('error')
-    //   setStakeUnstakeValueError('Stake/Unstake value must be 1 or more')
-    //   setStakeUnstakeValueOK(false)
-    // } else if (accountPkh && inputAmount > Number(myMvkTokenBalance) && actionType === 'STAKE') {
-    //   setStakeUnstakeInputStatus('error')
-    //   setStakeUnstakeValueError('Stake value cannot exceed your MVK balance')
-    //   setStakeUnstakeValueOK(false)
-    // } else if (accountPkh && inputAmount > Number(userStakeBalance) && actionType === 'UNSTAKE') {
-    //   setStakeUnstakeInputStatus('error')
-    //   setStakeUnstakeValueError('Unstake value cannot exceed your Total MVK Staked')
-    //   setStakeUnstakeValueOK(false)
-    // } else {
-    //   setStakeUnstakeInputStatus('success')
-    //   switch (actionType) {
-    //     case 'STAKE':
-    //       handleStakeAction()
-    //       // stakeCallback(inputAmount.amount)
-    //       break
-    //     case 'UNSTAKE':
-    //     default:
-    //       handleUnstakeAction()
-    //       // unstakeCallback(inputAmount.amount)
-    //       break
-    //   }
-    // }
   }
 
   const handleStakeAction = () => {
@@ -231,22 +202,26 @@ export const StakeUnstakeView = ({
             </StakeUnstakeRate>
           </StakeUnstakeInputColumn>
         </StakeUnstakeInputGrid>
-        <StakeUnstakeButtonGrid>
-          <Button
-            text="Stake"
-            kind={ACTION_PRIMARY}
-            icon="in"
-            loading={loading}
-            onClick={() => handleStakeUnstakeClick('STAKE')}
-          />
+        <StakeUnstakeButtonGrid className={`${participationFeesPerShare ? 'compound' : ''}`}>
+          {participationFeesPerShare ? (
+            <Button text="Compound" className="fill" kind={ACTION_PRIMARY} icon="compound" onClick={handleCompound} />
+          ) : null}
           <Button
             text="Unstake"
             icon="out"
             kind={ACTION_SECONDARY}
-            loading={loading}
             onClick={() => handleStakeUnstakeClick('UNSTAKE')}
           />
+          <Button text="Stake" kind={ACTION_PRIMARY} icon="in" onClick={() => handleStakeUnstakeClick('STAKE')} />
         </StakeUnstakeButtonGrid>
+        {participationFeesPerShare ? (
+          <p className="compound-info">
+            Compounds the satellite rewards along with the exit fee{' '}
+            <a className="info-link" href="https://mavryk.finance/litepaper#abstract" target="_blank" rel="noreferrer">
+              <Icon id="question" />
+            </a>
+          </p>
+        ) : null}
       </StakeUnstakeActionCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
@@ -266,17 +241,8 @@ export const StakeUnstakeView = ({
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>Total MVK Earned</h3>
-          {participationFeesPerShare ? (
-            <StakeCompound onClick={handleCompound}>
-              <span>Rewards Available COMPOUND!</span>
-              <img src="/images/coins-stack.svg" alt="Compound" />
-            </StakeCompound>
-          ) : (
-            <>
-              <img src="/images/coin-bronze.svg" alt="coin" />
-              <CommaNumber value={earnedValue} loading={loading} endingText={'MVK'} />
-            </>
-          )}
+          <img src="/images/coin-bronze.svg" alt="coin" />
+          <CommaNumber value={earnedValue} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
     </StakeUnstakeStyled>

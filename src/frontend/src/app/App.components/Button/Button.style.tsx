@@ -76,6 +76,13 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   &.actionPrimary {
     color: ${({ theme }) => theme.containerColor};
     background-color: ${({ theme }) => theme.actionPrimaryBtnColor};
+
+    &.fill {
+      svg {
+        fill: ${({ theme }) => theme.containerColor};
+        stroke: none;
+      }
+    }
   }
 
   &.actionSecondary {
@@ -162,7 +169,7 @@ export const ButtonIcon = styled.svg<{ theme: MavrykTheme }>`
   height: 24px;
   display: inline-block;
   vertical-align: sub;
-  margin-right: 15px;
+  margin-right: 11px;
 
   &.primary {
     stroke: ${({ theme }) => theme.containerColor};
