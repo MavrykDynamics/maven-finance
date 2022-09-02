@@ -11,7 +11,7 @@ variable "region" {
 variable "k8s_version" {
     type        = string
     description = "Kubernetes version to use"
-    default     = "1.22.7-do.0"
+    default     = "1.24.4-do.0"
 }
 
 variable "vpc_id" {
@@ -34,6 +34,12 @@ variable "tags" {
 variable "default_node_pool_name" {
     type        = string
     description = "Default node pool name"
+}
+
+variable "default_node_pool_auto_scale" {
+    type        = bool
+    description = "Enable/disable the autoscaling for the default node pool"
+    default     = true
 }
 
 variable "default_node_pool_size" {

@@ -1,0 +1,6 @@
+name: tezos-chain-mavryk
+version: 0.0.1
+dependencies:
+  - name: tezos-chain
+    version: 6.8.2
+    repository: https://oxheadalpha.github.io/tezos-helm-charts/
