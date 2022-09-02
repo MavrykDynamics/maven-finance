@@ -413,7 +413,9 @@ block {
                 operations := mintLpTokensTokensOperation # operations;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
+                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                loanTokenRecord := loanTokenRecordUpdated.0;
+                s := loanTokenRecordUpdated.1;
 
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
@@ -493,7 +495,9 @@ block {
                 loanTokenRecord.totalRemaining   := newTotalRemaining;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
+                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                loanTokenRecord := loanTokenRecordUpdated.0;
+                s := loanTokenRecordUpdated.1;
 
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
@@ -577,7 +581,6 @@ block {
                 // init loan token name
                 const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
                 const vaultOwner : address = Tezos.get_sender();
-                const mockLevel  : nat     = s.config.mockLevel;                
 
                 // Get loan token type
                 const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
@@ -642,8 +645,7 @@ block {
                     collateralBalanceLedgerMap,     // collateral balance ledger
                     loanTokenRecord.tokenName,      // loan token name
                     loanTokenRecord.tokenDecimals,  // loan token decimals
-                    tokenBorrowIndex,               // token borrow index
-                    mockLevel                       // mock level
+                    tokenBorrowIndex                // token borrow index
                 );
                 
                 // update controller storage with new vault
@@ -841,7 +843,6 @@ block {
                 const amount            : nat       = liquidateVaultParams.amount;
                 const liquidator        : address   = Tezos.get_sender();
                 const currentTimestamp  : timestamp = Tezos.get_now();
-                const mockLevel         : nat       = s.config.mockLevel;
 
                 // config variables
                 const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
@@ -901,9 +902,6 @@ block {
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
-                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
-                
                 // ------------------------------------------------------------------
                 // Update Vault interest
                 // ------------------------------------------------------------------
@@ -1159,6 +1157,12 @@ block {
                 loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed           := newTotalBorrowed;
                 loanTokenRecord.totalRemaining          := newTotalRemaining;
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                loanTokenRecord := loanTokenRecordUpdated.0;
+                s := loanTokenRecordUpdated.1;
+                
                 s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
 
                 // update vault storage
@@ -1166,7 +1170,7 @@ block {
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
                 vault.borrowIndex               := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel     := mockLevel + Tezos.get_level();
+                vault.lastUpdatedBlockLevel     := Tezos.get_level();
                 vault.lastUpdatedTimestamp      := Tezos.get_now();
                 s.vaults[vaultHandle]           := vault;                
 
@@ -1191,7 +1195,6 @@ block {
                 const vaultHandle         : vaultHandleType   = registerWithdrawalParams.handle;
                 const withdrawalAmount    : nat               = registerWithdrawalParams.amount;
                 const tokenName           : string            = registerWithdrawalParams.tokenName;
-                const mockLevel           : nat               = s.config.mockLevel;
                 const initiator           : address           = Tezos.get_sender(); // vault address that initiated withdrawal
 
                 // get vault
@@ -1213,11 +1216,6 @@ block {
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
-
-                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                if loanTokenRecord.tokenPoolTotal > 0n then {
-                    loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
-                } else skip;
 
                 // Get loan token parameters
                 const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
@@ -1276,11 +1274,18 @@ block {
                 vault.loanPrincipalTotal                  := newLoanPrincipalTotal;
                 vault.loanInterestTotal                   := newLoanInterestTotal;
                 vault.borrowIndex                         := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel               := mockLevel + Tezos.get_level();
+                vault.lastUpdatedBlockLevel               := Tezos.get_level();
                 vault.lastUpdatedTimestamp                := Tezos.get_now();
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-
                 s.vaults[vaultHandle]                     := vault;
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                if loanTokenRecord.tokenPoolTotal > 0n then {
+
+                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                    loanTokenRecord := loanTokenRecordUpdated.0;
+                    s := loanTokenRecordUpdated.1;
+                } else skip;
                 s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
                 
             }
@@ -1303,7 +1308,6 @@ block {
                 const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
                 const depositAmount   : nat               = registerDepositParams.amount;
                 const tokenName       : string            = registerDepositParams.tokenName;
-                const mockLevel       : nat               = s.config.mockLevel;
                 const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
                 // get vault
@@ -1325,11 +1329,6 @@ block {
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
-
-                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                if loanTokenRecord.tokenPoolTotal > 0n then {
-                    loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
-                } else skip;
 
                 // Get loan token parameters
                 const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
@@ -1382,11 +1381,17 @@ block {
                 vault.loanPrincipalTotal                  := newLoanPrincipalTotal;
                 vault.loanInterestTotal                   := newLoanInterestTotal;
                 vault.borrowIndex                         := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel               := mockLevel + Tezos.get_level();
+                vault.lastUpdatedBlockLevel               := Tezos.get_level();
                 vault.lastUpdatedTimestamp                := Tezos.get_now();
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-
                 s.vaults[vaultHandle]                     := vault;
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                if loanTokenRecord.tokenPoolTotal > 0n then {
+                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                    loanTokenRecord := loanTokenRecordUpdated.0;
+                    s := loanTokenRecordUpdated.1;
+                } else skip;
                 s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
 
             }
@@ -1410,8 +1415,6 @@ block {
                 const vaultId            : nat                     = borrowParams.vaultId; 
                 const initialLoanAmount  : nat                     = borrowParams.quantity;
                 const initiator          : initiatorAddressType    = Tezos.get_sender();
-                const mockLevel          : nat                     = s.config.mockLevel;
-                var finalLoanAmount      : nat                    := initialLoanAmount;
 
                 // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
                 const treasuryAddress: address        = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
@@ -1434,7 +1437,9 @@ block {
                 ];
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
+                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                loanTokenRecord := loanTokenRecordUpdated.0;
+                s := loanTokenRecordUpdated.1;
 
                 // Get loan token parameters
                 const reserveRatio      : nat         = loanTokenRecord.reserveRatio;
@@ -1491,6 +1496,8 @@ block {
                 // ------------------------------------------------------------------
                 // Calculate Final Borrow Amount
                 // ------------------------------------------------------------------
+
+                var finalLoanAmount : nat := initialLoanAmount;
 
                 // reduce finalLoanAmount by minimum loan fee
                 if minimumLoanFee > finalLoanAmount then failwith(error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
@@ -1558,6 +1565,12 @@ block {
                 loanTokenRecord.tokenPoolTotal         := newTotalBorrowed + newTotalRemaining;
                 loanTokenRecord.totalBorrowed          := newTotalBorrowed;
                 loanTokenRecord.totalRemaining         := newTotalRemaining;
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                loanTokenRecord := loanTokenRecordUpdated.0;
+                s := loanTokenRecordUpdated.1;
+
                 s.loanTokenLedger[vaultLoanTokenName]  := loanTokenRecord;
 
                 // update vault storage
@@ -1565,7 +1578,7 @@ block {
                 vault.loanPrincipalTotal               := newLoanPrincipalTotal;
                 vault.loanInterestTotal                := newLoanInterestTotal;
                 vault.borrowIndex                      := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel            := mockLevel + Tezos.get_level();
+                vault.lastUpdatedBlockLevel            := Tezos.get_level();
                 vault.lastUpdatedTimestamp             := Tezos.get_now();
 
                 // update vault
@@ -1597,7 +1610,6 @@ block {
                 const vaultId                   : nat                     = repayParams.vaultId; 
                 const initialRepaymentAmount    : nat                     = repayParams.quantity;
                 const initiator                 : initiatorAddressType    = Tezos.get_sender();
-                const mockLevel                 : nat                     = s.config.mockLevel;
                 var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
 
                 // Get Treasury Address and Token Pool Reward Address  from the General Contracts map on the Governance Contract
@@ -1621,10 +1633,11 @@ block {
                 ];
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
+                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                loanTokenRecord := loanTokenRecordUpdated.0;
+                s := loanTokenRecordUpdated.1;
 
                 // Get loan token parameters
-                // const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
                 const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
                 const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
                 const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
@@ -1742,6 +1755,7 @@ block {
                 // Process Repayment
                 // ------------------------------------------------------------------            
 
+                // todo: fix
                 var newTokenPoolTotal   : nat  := 0n;
                 var newTotalBorrowed    : nat  := 0n;
                 var newTotalRemaining   : nat  := 0n;
@@ -1775,6 +1789,12 @@ block {
                 loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed           := newTotalBorrowed;
                 loanTokenRecord.totalRemaining          := newTotalRemaining;
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                loanTokenRecord := loanTokenRecordUpdated.0;
+                s := loanTokenRecordUpdated.1;
+
                 s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
 
                 // update vault storage
@@ -1782,7 +1802,7 @@ block {
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
                 vault.borrowIndex               := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel     := mockLevel + Tezos.get_level();
+                vault.lastUpdatedBlockLevel     := Tezos.get_level();
                 vault.lastUpdatedTimestamp      := Tezos.get_now();
 
                 // update vault
