@@ -384,17 +384,15 @@ block{
 
     // Steps Overview:
     // 1. Standard checks
-    //    - Check that %setObservationCommit entrypoint is not paused (e.g. glass broken)
+    //    - Check that %updatePrice entrypoint is not paused (e.g. glass broken)
     //    - Check that entrypoint should not receive any tez amount   
     //    - Check that sender is oracle
-    //    - Check if it is the correct time to commit
-    //    - Check if it is the correct round
-    //    - Check if oracle has already answered commit
     //    - Check that satellite is not suspended or banned
-    // 2. Update Observation Commits map with new observation from oracle
-    // 3. Calculate percent threshold of oracles that have answered vs total oracles
-    // 4. Update switchBlock from zero if threshold is reached and sufficient oracles have committed 
-    // 5. Update storage with observation commits and switch block
+    // 2. Verify the observations and signatures maps sizes
+    // 3. Verify the observations informations + get epoch and round
+    // 4. Verify the signatures
+    // 5. update rewards
+    // 6. Update storage with lastCompletedPrice
 
     // Check that %updatePrice entrypoint is not paused (e.g. glass broken)
     checkUpdatePriceIsNotPaused(s); 
