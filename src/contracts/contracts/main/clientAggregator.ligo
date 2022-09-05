@@ -1,4 +1,4 @@
-type lastCompletedRoundPriceReturnType is  [@layout:comb] record [
+type lastCompletedPriceReturnType is  [@layout:comb] record [
     round: nat;
     price: nat;
     percentOracleResponse: nat;
@@ -9,11 +9,11 @@ type lastCompletedRoundPriceReturnType is  [@layout:comb] record [
 
 const noOperations : list (operation) = nil;
 type storage is record [
-  lastprices: lastCompletedRoundPriceReturnType;
+  lastprices: lastCompletedPriceReturnType;
 ]
 type return is list (operation) * storage
 
-type parameter is contract(lastCompletedRoundPriceReturnType)
+type parameter is contract(lastCompletedPriceReturnType)
 
 type action is
   | GetPrice of address
@@ -22,11 +22,11 @@ type action is
 
 function getPrice(const aggregatorAddress: address; const store: storage): return is
 block {
-  const price : option(lastCompletedRoundPriceReturnType) = Tezos.call_view ("lastCompletedRoundPrice", unit, aggregatorAddress);
+  const price : option(lastCompletedPriceReturnType) = Tezos.call_view ("lastCompletedRoundPrice", unit, aggregatorAddress);
 
   const unpacked = case price of [
       Some (p) -> p
-    | None -> (failwith ("Oh no") : lastCompletedRoundPriceReturnType)
+    | None -> (failwith ("Oh no") : lastCompletedPriceReturnType)
   ]
 
 } with (noOperations, store with record[lastprices=unpacked])

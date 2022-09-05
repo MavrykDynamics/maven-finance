@@ -220,7 +220,6 @@ block {
         |   CreateAggregator (_v)                  -> 30n
         |   TrackAggregator (_v)                   -> 31n
         |   UntrackAggregator (_v)                 -> 32n
-        |   SetAggregatorMaintainer (_v)           -> 33n
 
             (* MVK Token Control *)
         |   UpdateMvkInflationRate (_v)            -> 34n
@@ -1439,46 +1438,6 @@ block {
                 );
 
                 operations := untrackAggregatorOperation # operations;
-
-            }
-        |   _ -> skip
-    ]
-
-} with (operations, s)
-
-
-
-function setAggregatorMaintainer(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
-block {
-
-    checkSenderIsAdminOrGovernance(s); // check that sender is admin or the Governance Contract address   
-
-    var operations : list(operation) := nil;
-
-    case executeAction of [
-      
-        |   SetAggregatorMaintainer(setAggregatorMaintainerParams) -> {
-
-                // assign params to constants for better code readability
-                const aggregatorAddress     : address = setAggregatorMaintainerParams.aggregatorAddress;
-                const newMaintainerAddress  : address = setAggregatorMaintainerParams.maintainerAddress;
-
-                // Find and get setAggregatorMaintainer entrypoint of aggregator contract
-                const setMaintainerEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "%setMaintainer",
-                    aggregatorAddress) : option(contract(address))) of [
-                            Some(contr) -> contr
-                        |   None        -> (failwith(error_SET_MAINTAINER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
-                    ];
-
-                // Create operation to set new aggregator maintainer
-                const setAggregatorMaintainerOperation : operation = Tezos.transaction(
-                    (newMaintainerAddress),
-                    0tez, 
-                    setMaintainerEntrypoint
-                );
-
-                operations := setAggregatorMaintainerOperation # operations;
 
             }
         |   _ -> skip
