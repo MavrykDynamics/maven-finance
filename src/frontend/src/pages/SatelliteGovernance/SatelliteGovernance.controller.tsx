@@ -48,6 +48,8 @@ const itemsForDropDown = [
   { text: 'Restore Satellite', value: 'restoreSatellite' },
   { text: 'Set Aggregator Maintainer', value: 'setAggregatorMaintainer' },
   { text: 'Update Aggregator Status', value: 'updateAggregatorStatus' },
+  { text: 'Register Aggregator', value: 'registerAggregator' },
+  { text: 'Fix Mistaken Transfer', value: 'fixMistakenTransfer' },
 ]
 
 const getOngoingActionsList = (

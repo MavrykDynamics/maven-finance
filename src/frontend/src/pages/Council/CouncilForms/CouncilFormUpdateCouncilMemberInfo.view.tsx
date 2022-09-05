@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -21,6 +21,12 @@ import { CouncilFormStyled } from './CouncilForms.style'
 export const CouncilFormUpdateCouncilMemberInfo = () => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
+  const { councilMembers } = councilStorage
+  const myInfo = councilMembers.find((item) => item.user_id === accountPkh)
+
+  console.log('%c ||||| myInfo', 'color:yellowgreen', myInfo)
+
   const [form, setForm] = useState({
     newMemberName: '',
     newMemberWebsite: '',
@@ -33,6 +39,23 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
     newMemberWebsite: '',
     newMemberImage: '',
   })
+
+  useEffect(() => {
+    if (myInfo) {
+      setForm({
+        newMemberName: myInfo.name,
+        newMemberWebsite: myInfo.website,
+        newMemberImage: myInfo.image,
+      })
+
+      setFormInputStatus({
+        newMemberName: 'success',
+        newMemberWebsite: 'success',
+        newMemberImage: 'success',
+      })
+      setUploadKey(uploadKey + 1)
+    }
+  }, [myInfo])
 
   const disabled = false
 
@@ -72,7 +95,7 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
   }
 
   return (
-    <CouncilFormStyled onSubmit={handleSubmit}>
+    <CouncilFormStyled className="update-council-member-info" onSubmit={handleSubmit}>
       <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
         <Icon id="question" />
       </a>
@@ -132,7 +155,7 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
       />
       <div className="btn-group">
         <Button
-          text="Add Council Member"
+          text="Update Council Member Info"
           className="plus-btn fill"
           kind={'actionPrimary'}
           icon="upload"

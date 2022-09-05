@@ -11,6 +11,8 @@ import {
   GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries/getGovernanceSatelliteStorage'
 
+import { SatelliteGovernanceTransfer } from '../../utils/TypesAndInterfaces/Delegation'
+
 //getGovernanceSatelliteStorage
 export const GET_GOVERNANCE_SATELLITE_STORAGE = 'GET_GOVERNANCE_SATELLITE_STORAGE'
 export const getGovernanceSatelliteStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -642,6 +644,109 @@ export const updateAggregatorStatus =
         dispatch(showToaster(ERROR, 'Error', error.message))
         dispatch({
           type: UPDATE_AGGREGATOR_STATUS_ERROR,
+          error,
+        })
+      }
+    }
+  }
+
+// Register Aggregator
+export const REGISTER_AGGREGATOR_REQUEST = 'REGISTER_AGGREGATOR_REQUEST'
+export const REGISTER_AGGREGATOR_RESULT = 'REGISTER_AGGREGATOR_RESULT'
+export const REGISTER_AGGREGATOR_ERROR = 'REGISTER_AGGREGATOR_ERROR'
+export const registerAggregator =
+  (aggregatorPair: string, aggregatorAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: REGISTER_AGGREGATOR_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.registerAggregator(aggregatorPair, aggregatorAddress).send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Register Aggregator...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Register Aggregator done', 'All good :)'))
+
+      await dispatch({
+        type: REGISTER_AGGREGATOR_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: REGISTER_AGGREGATOR_ERROR,
+          error,
+        })
+      }
+    }
+  }
+
+// Fix Mistaken Transfer
+export const FIX_TRANSFER_REQUEST = 'FIX_TRANSFER_REQUEST'
+export const FIX_TRANSFER_RESULT = 'FIX_TRANSFER_RESULT'
+export const FIX_TRANSFER_ERROR = 'FIX_TRANSFER_ERROR'
+export const fixMistakenTransfer =
+  (targetContractAddress: string, purpose: string, transferList: SatelliteGovernanceTransfer[]) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: FIX_TRANSFER_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .fixMistakenTransfer(targetContractAddress, purpose, transferList)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Fix Mistaken Transfer...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Fix Mistaken Transfer done', 'All good :)'))
+
+      await dispatch({
+        type: FIX_TRANSFER_RESULT,
+      })
+
+      await dispatch(getGovernanceSatelliteStorage())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+        dispatch({
+          type: FIX_TRANSFER_ERROR,
           error,
         })
       }

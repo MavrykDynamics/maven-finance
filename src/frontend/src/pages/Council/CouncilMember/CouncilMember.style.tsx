@@ -4,7 +4,8 @@ import { CardHover, cyanColor, downColor, upColor, skyColor, headerColor, royalP
 export const CouncilMemberStyled = styled(CardHover)`
   margin: 0;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 12px 28px;
   margin-bottom: 9px;
 
@@ -44,4 +45,22 @@ export const CouncilMemberStyled = styled(CardHover)`
       border-radius: 50%;
     }
   }
-`
+
+  &.is-me {
+    &:hover {
+      box-shadow: none;
+      border-color: ${royalPurpleColor};
+      cursor: default;
+    }
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+
+    & + button {
+      margin-bottom: 16px;
+      margin-top: 16px;
+    }
+  }
+` //CouncilMemberStyled
