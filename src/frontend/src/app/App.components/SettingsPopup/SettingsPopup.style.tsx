@@ -100,8 +100,6 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       font-size: 18px;
       line-height: 18px;
       color: #8d86eb;
-      cursor: pointer;
-      transition: 0.5s all;
       white-space: nowrap;
       margin-right: 10px;
 
@@ -120,6 +118,12 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+    }
+
+    &.expanded {
+      .add-new-node-handler {
+        display: none;
+      }
     }
   }
 
