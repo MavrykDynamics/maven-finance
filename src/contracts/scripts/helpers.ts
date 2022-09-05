@@ -176,7 +176,9 @@ export const migrate = async (tezos: TezosToolkit, contract: string, storage: an
     artifacts.networks[env.network] = { [contract]: operation.contractAddress }
 
     if (!fs.existsSync(env.buildDir)) {
-      fs.mkdirSync(env.buildDir)
+      fs.mkdirSync(env.buildDir, {
+        recursive: true
+      })
     }
 
     fs.writeFileSync(`${env.buildDir}/${contract}.json`, JSON.stringify(artifacts, null, 2))
