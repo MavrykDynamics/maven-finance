@@ -1,5 +1,5 @@
 import { useLockBodyScroll } from 'react-use'
-import { PopupContainer, PopupStyled } from '../../ChangeNodePopup/Popup-change-node.style'
+import { PopupContainer, PopupStyled } from '../../SettingsPopup/SettingsPopup.style'
 import { WertIo } from '../ConnectWallet.style'
 
 const WertIoPopup = ({ closePopup, isOpened }: { closePopup: () => void; isOpened: boolean }) => {
