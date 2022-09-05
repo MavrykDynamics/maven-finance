@@ -59,7 +59,6 @@ type governanceSatelliteAction is
     |   RemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
         // Aggregator Governance
-    |   SetAggregatorMaintainer       of setAggregatorMaintainerActionType    
     |   RegisterAggregator            of registerAggregatorActionType
     |   UpdateAggregatorStatus        of updateAggregatorStatusActionType
 
@@ -185,15 +184,6 @@ function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : 
             |   None        -> (failwith(error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteStatusParamsType))
         ];
 
-
-// helper function to get setMaintainer entrypoint in aggregator contract
-function getSetMaintainerInAggregatorEntrypoint(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
-        "%setMaintainer",
-        contractAddress) : option(contract(address))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_SET_MAINTAINER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
-        ];
 
 
 
@@ -697,34 +687,6 @@ block {
 
 
 
-// helper function to trigger the set aggregator maintainer action during the vote
-function triggerSetAggregatorMaintainerSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation)) : list(operation) is
-block {
-
-    // Get aggregator address from governance satellite action record address map
-    const aggregatorAddress : address = case actionRecord.addressMap["aggregatorAddress"] of [
-            Some(_address) -> _address
-        |   None           -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
-    ];
-
-    // Get maintainer address from governance satellite action record address map
-    const newMaintainerAddress : address = case actionRecord.addressMap["maintainerAddress"] of [
-            Some(_address) -> _address
-        |   None           -> failwith(error_MAINTAINER_ADDRESS_NOT_FOUND)
-    ];
-
-    // Create operation to set aggregator new maintainer
-    const setNewMaintainerOperation : operation = Tezos.transaction(
-        newMaintainerAddress,
-        0tez,
-        getSetMaintainerInAggregatorEntrypoint(aggregatorAddress)
-    );
-
-    operations := setNewMaintainerOperation # operations;
-
-} with (operations)
-
-
 
 // helper function to trigger the update aggregator status action during the vote
 function triggerUpdateAggregatorStatusSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); var s : governanceSatelliteStorageType) : return is
@@ -839,9 +801,6 @@ block {
         s           := removeAllSatelliteOraclesActionTrigger.1;
         operations  := removeAllSatelliteOraclesActionTrigger.0;
     } else skip;
-
-    // Governance: Set new Aggregator Maintainer
-    if actionRecord.governanceType = "SET_AGGREGATOR_MAINTAINER" then operations     := triggerSetAggregatorMaintainerSatelliteAction(actionRecord, operations);
 
     // Governance: Update Aggregator Status
     if actionRecord.governanceType = "UPDATE_AGGREGATOR_STATUS" then block {
@@ -1288,23 +1247,6 @@ block {
 // Aggregator Governance Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  setAggregatorMaintainer entrypoint  *)
-function setAggregatorMaintainer(const setAggregatorMaintainerParams : setAggregatorMaintainerActionType; var s : governanceSatelliteStorageType) : return is 
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAggregatorMaintainer"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetAggregatorMaintainer(setAggregatorMaintainerParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
-
-} with response
-
 
 
 (*  registerAggregator entrypoint  *)
@@ -1484,7 +1426,6 @@ block{
         |   RemoveOracleInAggregator(parameters)      -> removeOracleInAggregator(parameters, s)
 
             // Aggregator Governance
-        |   SetAggregatorMaintainer(parameters)       -> setAggregatorMaintainer(parameters, s)
         |   RegisterAggregator(parameters)            -> registerAggregator(parameters, s)
         |   UpdateAggregatorStatus(parameters)        -> updateAggregatorStatus(parameters, s)
 
