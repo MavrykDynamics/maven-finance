@@ -2980,11 +2980,11 @@ describe("Testnet interactions helper", async () => {
 
                 const executeSingleDataBatch = await utils.tezos.wallet
                 .batch()
-                .withContractCall(governanceInstance.methods.processProposalSingleData())
-                .withContractCall(governanceInstance.methods.processProposalSingleData())
-                .withContractCall(governanceInstance.methods.processProposalSingleData())
-                .withContractCall(governanceInstance.methods.processProposalSingleData())
-                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+                .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+                .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+                .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+                .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
                 const processProposalSingleDataBatchOperation = await executeSingleDataBatch.send()
                 await processProposalSingleDataBatchOperation.confirmation()
             } catch(e){

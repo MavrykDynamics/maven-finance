@@ -21,11 +21,13 @@ async def on_farm_update_config(
     total_rewards                   = float(update_config.storage.config.plannedRewards.totalRewards)
     total_blocks                    = int(update_config.storage.config.plannedRewards.totalBlocks)
     min_block_time_snapshot         = int(update_config.storage.minBlockTimeSnapshot)
+    timestamp                       = update_config.data.timestamp
 
     # Update contract
     farm = await models.Farm.get(
         address = farm_address
     )
+    farm.last_updated_at                = timestamp
     farm.force_rewards_from_transfer    = force_rewards_from_transfer
     farm.last_block_update              = last_block_update
     farm.open                           = open
