@@ -65,16 +65,16 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
     e.preventDefault()
     try {
       await dispatch(updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage))
-      setForm({
-        newMemberName: '',
-        newMemberWebsite: '',
-        newMemberImage: '',
-      })
-      setFormInputStatus({
-        newMemberName: '',
-        newMemberWebsite: '',
-        newMemberImage: '',
-      })
+      // setForm({
+      //   newMemberName: '',
+      //   newMemberWebsite: '',
+      //   newMemberImage: '',
+      // })
+      // setFormInputStatus({
+      //   newMemberName: '',
+      //   newMemberWebsite: '',
+      //   newMemberImage: '',
+      // })
       setUploadKey(uploadKey + 1)
     } catch (error) {
       console.error(error)
