@@ -52,10 +52,6 @@
         "name": "lambdaRemoveOracleInAggregator"
     },
     {
-        "index": 13,
-        "name": "lambdaSetAggregatorMaintainer"
-    },
-    {
         "index": 14,
         "name": "lambdaRegisterAggregator"
     },

@@ -494,56 +494,6 @@ block {
 // Aggregator Governance Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  setAggregatorMaintainer lambda *)
-function lambdaSetAggregatorMaintainer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
-block {
-
-    // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
-    // 2. Get necessary contracts and config info
-    //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
-    //      -   Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-    // 3. Get / Check Satellite Records
-    //      -   Get satellite record for initiator
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
-    // 6. Create new governance satellite action record - "SET_AGGREGATOR_MAINTAINER"
-    // 6. Update storage with new records 
-    
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    
-    case governanceSatelliteLambdaAction of [
-        |   LambdaSetAggregatorMaintainer(setAggregatorMaintainerParams) -> {
-
-                // init params
-                const aggregatorAddress    : address  = setAggregatorMaintainerParams.aggregatorAddress;
-                const maintainerAddress    : address  = setAggregatorMaintainerParams.maintainerAddress;
-                const purpose              : string   = setAggregatorMaintainerParams.purpose;
-
-                // init maps
-                const addressMap        : addressMapType     = map [
-                    ("aggregatorAddress" : string)   -> aggregatorAddress;
-                    ("maintainerAddress" : string)   -> maintainerAddress;
-                ];
-
-                // create action
-                s   := createGovernanceSatelliteAction(
-                    "SET_AGGREGATOR_MAINTAINER",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    emptyTransferList,
-                    purpose,
-                    s
-                );
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
 
 
 (*  registerAggregator lambda *)
