@@ -1483,12 +1483,17 @@ block {
                 // Calculate fees on past loan outstanding
                 // ------------------------------------------------------------------
 
+                s.tempMap["repay-vaultBorrowIndex"] := vaultBorrowIndex;
+                s.tempMap["repay-tokenBorrowIndex"] := tokenBorrowIndex;
+
                 // calculate interest
                 newLoanOutstandingTotal := accrueInterestToVault(
                     currentLoanOutstandingTotal,
                     vaultBorrowIndex,
                     tokenBorrowIndex
                 );
+
+                s.tempMap["borrow-newLoanOutstandingTotalAfterAccruedInterest"] := newLoanOutstandingTotal;
 
                 if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
                 newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
@@ -1611,6 +1616,7 @@ block {
                 const initialRepaymentAmount    : nat                     = repayParams.quantity;
                 const initiator                 : initiatorAddressType    = Tezos.get_sender();
                 var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
+                const mockLevel                 : nat                     = s.config.mockLevel;
 
                 // Get Treasury Address and Token Pool Reward Address  from the General Contracts map on the Governance Contract
                 const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
@@ -1663,15 +1669,21 @@ block {
                 // Calculate fees on past loan outstanding
                 // ------------------------------------------------------------------
 
+                s.tempMap["repay-vaultBorrowIndex"] := vaultBorrowIndex;
+                s.tempMap["repay-tokenBorrowIndex"] := tokenBorrowIndex;
+
                 newLoanOutstandingTotal := accrueInterestToVault(
                     currentLoanOutstandingTotal,
                     vaultBorrowIndex,
                     tokenBorrowIndex
                 );
 
+                s.tempMap["repay-newLoanOutstandingTotalAfterAccruedInterest"] := newLoanOutstandingTotal;
+
                 if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
                 newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
 
+                s.tempMap["repay-newLoanInterestTotal"] := newLoanInterestTotal;
 
                 // ------------------------------------------------------------------
                 // Calculate Principal / Interest Repayments
@@ -1802,7 +1814,7 @@ block {
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
                 vault.borrowIndex               := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel     := Tezos.get_level();
+                vault.lastUpdatedBlockLevel     := mockLevel + Tezos.get_level();
                 vault.lastUpdatedTimestamp      := Tezos.get_now();
 
                 // update vault
