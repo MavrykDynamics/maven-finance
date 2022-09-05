@@ -10,12 +10,13 @@ export type aggregatorStorageType = {
     
     config                    : {
         decimals                            : BigNumber;
-        numberBlocksDelay                   : BigNumber;
+        alphaPercentPerThousand             : BigNumber;
 
         deviationTriggerBanDuration         : BigNumber;
         perThousandDeviationTrigger         : BigNumber;
         percentOracleThreshold              : BigNumber;
-        
+        heartBeatSeconds                    : BigNumber;
+
         requestRateDeviationDepositFee      : BigNumber;
         
         deviationRewardStakedMvk            : BigNumber;    
@@ -25,10 +26,7 @@ export type aggregatorStorageType = {
     };
 
     breakGlassConfig          : {
-        requestRateUpdateIsPaused           : boolean;
-        requestRateUpdateDeviationIsPaused  : boolean;
-        setObservationCommitIsPaused        : boolean;
-        setObservationRevealIsPaused        : boolean;
+        updatePriceIsPaused                 : boolean;
         withdrawRewardXtzIsPaused           : boolean;
         withdrawRewardStakedMvkIsPaused     : boolean;
     };
@@ -36,14 +34,9 @@ export type aggregatorStorageType = {
     mvkTokenAddress           : string;
     governanceAddress         : string;
 
-    maintainer                : string;
     whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
     generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 
-    round                     : BigNumber;
-    roundStart                : string;
-    switchBlock               : BigNumber;
-    
     oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
     
     deviationTriggerInfos: {
@@ -51,15 +44,14 @@ export type aggregatorStorageType = {
         roundPrice      : BigNumber;
     };
 
-    lastCompletedRoundPrice: {
+    lastCompletedPrice: {
         round                 : BigNumber;
+        epoch                 : BigNumber;
         price                 : BigNumber;
         percentOracleResponse : BigNumber;
         priceDateTime         : string;
     };
 
-    observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
-    observationReveals        : MichelsonMap<MichelsonMapKey, unknown>;
     deviationTriggerBan       : MichelsonMap<MichelsonMapKey, unknown>;
 
     oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;

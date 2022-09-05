@@ -10,10 +10,7 @@ import governanceAddress from '../deployments/governanceAddress.json';
 import { string } from 'yargs';
 
 const breakGlassConfig = {
-    requestRateUpdateIsPaused           : false,
-    requestRateUpdateDeviationIsPaused  : false,
-    setObservationCommitIsPaused        : false,
-    setObservationRevealIsPaused        : false,
+    updatePriceIsPaused                 : false,
     withdrawRewardXtzIsPaused           : false,
     withdrawRewardStakedMvkIsPaused     : false
 }
@@ -21,11 +18,12 @@ const breakGlassConfig = {
 const config = {
     nameMaxLength                       : new BigNumber(200),
     decimals                            : new BigNumber(8),
-    numberBlocksDelay                   : new BigNumber(2),
+    alphaPercentPerThousand             : new BigNumber(2),
     
     deviationTriggerBanDuration         : new BigNumber(86400), // one day
     perThousandDeviationTrigger         : new BigNumber(2),
     percentOracleThreshold              : new BigNumber(49),
+    heartBeatSeconds                    : new BigNumber(3),
 
     requestRateDeviationDepositFee      : new BigNumber(0),
     
@@ -61,8 +59,9 @@ const deviationTriggerInfos = {
     roundPrice      : new BigNumber(0),
 }
 
-const lastCompletedRoundPrice = {
+const lastCompletedPrice = {
     round                   : new BigNumber(0),
+    epoch                   : new BigNumber(0),
     price                   : new BigNumber(0),
     percentOracleResponse   : new BigNumber(0),
     priceDateTime           : '1'
@@ -76,24 +75,17 @@ export const aggregatorStorage: aggregatorStorageType = {
     config                    : config,
     breakGlassConfig          : breakGlassConfig,
     
-    maintainer                : oracleMaintainer.pkh,
     mvkTokenAddress           : mvkTokenAddress.address,
     governanceAddress         : governanceAddress.address,
 
     whitelistContracts        : MichelsonMap.fromLiteral({}),
     generalContracts          : MichelsonMap.fromLiteral({}),
 
-    round                     : new BigNumber(0),
-    roundStart                : '1',
-    switchBlock               : new BigNumber(0),
-
     oracleAddresses           : oracleAddresses,
     
     deviationTriggerInfos     : deviationTriggerInfos,
-    lastCompletedRoundPrice   : lastCompletedRoundPrice,
+    lastCompletedPrice        : lastCompletedPrice,
     
-    observationCommits        : MichelsonMap.fromLiteral({}),
-    observationReveals        : MichelsonMap.fromLiteral({}),
     deviationTriggerBan       : MichelsonMap.fromLiteral({}),
 
     oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
