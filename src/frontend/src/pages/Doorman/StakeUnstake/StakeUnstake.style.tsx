@@ -37,8 +37,8 @@ export const StakeUnstakeActionCard = styled(Card)<{ theme: MavrykTheme }>`
   font-weight: 600;
   color: ${({ theme }) => theme.subTextColor};
   margin: 0;
-  padding-top: 30px;
-  padding-bottom: 30px;
+  padding-top: 34px;
+  padding-bottom: 34px;
   padding-left: 30px;
   padding-right: 30px;
 
