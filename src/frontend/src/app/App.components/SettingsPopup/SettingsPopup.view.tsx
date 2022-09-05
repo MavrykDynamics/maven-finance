@@ -27,15 +27,21 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
   const { RPC_NODES, REACT_APP_RPC_PROVIDER, themeSelected } = useSelector((state: State) => state.preferences)
 
   const [inputData, setInputData] = useState('')
+  const [expandedInput, setExpandedInput] = useState(false)
   const [selectedNodeByClick, setSelectedNodeByClick] = useState(REACT_APP_RPC_PROVIDER)
 
-  const addNodeHandler = useCallback(() => {
-    const newRPCNodes: Array<RPCNodeType> = [...RPC_NODES, { title: inputData, url: inputData, isUser: true }]
-    dispatch(setNewRPCNodes(newRPCNodes))
-    setInputData('')
-  }, [inputData, RPC_NODES])
+  const confirmHandler = useCallback(() => {
+    if (inputData) {
+      const newRPCNodes: Array<RPCNodeType> = [...RPC_NODES, { title: inputData, url: inputData, isUser: true }]
+      dispatch(setNewRPCNodes(newRPCNodes))
+      dispatch(selectNewRPCNode(inputData))
+      setSelectedNodeByClick(inputData)
+      setInputData('')
+    } else {
+      dispatch(selectNewRPCNode(selectedNodeByClick))
+    }
+  }, [inputData, RPC_NODES, selectedNodeByClick])
 
-  const confirmNodeSelecting = useCallback(() => dispatch(selectNewRPCNode(selectedNodeByClick)), [])
   const setNewThemeHandler = useCallback((newTheme: ThemeType) => dispatch(themeSetterAction(newTheme)), [])
 
   return (
@@ -63,15 +69,15 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
           ))}
         </ChangeNodeNodesList>
 
-        <ChangeNodeNodesListItem className="add_node">
-          <div className="add-new-node-handler" onClick={addNodeHandler}>
-            Add New Node
-          </div>
+        <ChangeNodeNodesListItem className={`add_node ${expandedInput ? 'expanded' : ''}`}>
+          <div className="add-new-node-handler">Add New Node</div>
           <Input
             placeholder="https://..."
             name="add_new_node_input"
             value={inputData}
             type="text"
+            onFocus={() => setExpandedInput(true)}
+            onBlur={() => setExpandedInput(false)}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputData(e.target.value)}
           />
         </ChangeNodeNodesListItem>
@@ -81,7 +87,7 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
         </DescrText>
 
         <Button
-          onClick={confirmNodeSelecting}
+          onClick={confirmHandler}
           className="popup_btn default_svg start_verification"
           text="Confirm"
           icon="okIcon"
@@ -90,7 +96,7 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
       </div>
 
       <div className="theme-switcher-block">
-        <PopupTitle className="change_node">Choose The Theme</PopupTitle>
+        <PopupTitle className="change_node">Choose the theme</PopupTitle>
 
         <div className="buttons-wrapper">
           <Button
