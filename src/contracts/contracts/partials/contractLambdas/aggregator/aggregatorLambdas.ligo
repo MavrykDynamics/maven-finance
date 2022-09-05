@@ -425,6 +425,7 @@ block{
                     priceDateTime         = Tezos.get_now();
                 ];
                 
+                // jacktodo: do rewards
                 // -----------------------------------------
                 // Set rewards for oracle
                 // -----------------------------------------
