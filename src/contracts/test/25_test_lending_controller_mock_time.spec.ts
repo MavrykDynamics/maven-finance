@@ -1129,6 +1129,10 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const firstBorrowLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
             const firstBorrowStorage = await lendingControllerInstance.storage();
 
+            const afterFirstBorrowNewLoanOutstandingTotal = await firstBorrowStorage.tempMap.get("repay-newLoanOutstandingTotalAfterAccruedInterest");
+            const afterFirstBorrowVaultBorrowIndex = await firstBorrowStorage.tempMap.get("repay-vaultBorrowIndex");
+            const afterFirstBorrowTokenBorrowIndex = await firstBorrowStorage.tempMap.get("repay-tokenBorrowIndex");
+
             console.log("    ");
             console.log("    ");
             console.log("--- ----- first borrow ----- ---");
@@ -1139,7 +1143,10 @@ describe("Lending Controller (Mock Time) tests", async () => {
             console.log(firstBorrowLoanTokenRecordView);
 
             console.log("--- tempMap ---");
-            console.log(firstBorrowStorage.tempMap);
+            console.log('afterFirstBorrowNewLoanOutstandingTotal: ' + afterFirstBorrowNewLoanOutstandingTotal);
+            console.log('afterFirstBorrowVaultBorrowIndex: ' + afterFirstBorrowVaultBorrowIndex);
+            console.log('afterFirstBorrowTokenBorrowIndex: ' + afterFirstBorrowTokenBorrowIndex);
+            // console.log(firstBorrowStorage.tempMap);
 
             console.log("    ");
             console.log("    ");
@@ -1222,6 +1229,13 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const loanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
+            const beforeRepaymentBorrowNewLoanOutstandingTotal = await beforeRepaymentStorage.tempMap.get("borrow-newLoanOutstandingTotalAfterAccruedInterest");
+            const beforeRepaymentRepayNewLoanOutstandingTotal = await beforeRepaymentStorage.tempMap.get("repay-newLoanOutstandingTotalAfterAccruedInterest");
+            const beforeRepaymentVaultBorrowIndex = await beforeRepaymentStorage.tempMap.get("repay-vaultBorrowIndex");
+            const beforeRepaymentTokenBorrowIndex = await beforeRepaymentStorage.tempMap.get("repay-tokenBorrowIndex");
+
+
+
             console.log("--- ----- before repayment ----- ---");
             console.log("--- vaultRecordView ---");
             console.log(vaultRecordView);
@@ -1230,12 +1244,19 @@ describe("Lending Controller (Mock Time) tests", async () => {
             console.log(loanTokenRecordView);
 
             console.log("--- tempMap ---");
-            console.log(beforeRepaymentStorage.tempMap);
-            
-
+            console.log('beforeRepaymentBorrowNewLoanOutstandingTotal: ' + beforeRepaymentBorrowNewLoanOutstandingTotal);
+            console.log('beforeRepaymentRepayNewLoanOutstandingTotal: ' + beforeRepaymentRepayNewLoanOutstandingTotal);
+            console.log('beforeRepaymentVaultBorrowIndex: ' + beforeRepaymentVaultBorrowIndex);
+            console.log('beforeRepaymentTokenBorrowIndex: ' + beforeRepaymentTokenBorrowIndex);
+            // console.log(beforeRepaymentStorage.tempMap);
+        
 
 
             console.log("--- ----- after repayment ----- ---");
+
+            const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
+            const estimate              = await utils.tezos.estimate.transfer(repayOpParam);
+            console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
             const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
@@ -1261,6 +1282,14 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
             const afterRepaymentStorage = await lendingControllerInstance.storage();
 
+            const afterRepaymentBorrowNewLoanOutstandingTotal = await afterRepaymentStorage.tempMap.get("borrow-newLoanOutstandingTotalAfterAccruedInterest");
+            const afterRepaymentRepayNewLoanOutstandingTotal = await afterRepaymentStorage.tempMap.get("repay-newLoanOutstandingTotalAfterAccruedInterest");
+            const afterRepaymentRepayNewLoanInterestTotal = await afterRepaymentStorage.tempMap.get("repay-newLoanInterestTotal");
+            const afterRepaymentVaultBorrowIndex = await afterRepaymentStorage.tempMap.get("repay-vaultBorrowIndex");
+            const afterRepaymentTokenBorrowIndex = await afterRepaymentStorage.tempMap.get("repay-tokenBorrowIndex");
+
+            
+
             console.log("--- vaultRecordView ---");
             console.log(updatedVaultRecordView);
 
@@ -1268,7 +1297,12 @@ describe("Lending Controller (Mock Time) tests", async () => {
             console.log(updatedLoanTokenRecordView);
 
             console.log("--- tempMap ---");
-            console.log(afterRepaymentStorage.tempMap);
+            console.log('afterRepaymentBorrowNewLoanOutstandingTotal: ' + afterRepaymentBorrowNewLoanOutstandingTotal);
+            console.log('afterRepaymentRepayNewLoanOutstandingTotal: ' + afterRepaymentRepayNewLoanOutstandingTotal);
+            console.log('afterRepaymentRepayNewLoanInterestTotal: ' + afterRepaymentRepayNewLoanInterestTotal);
+            console.log('afterRepaymentVaultBorrowIndex: ' + afterRepaymentVaultBorrowIndex);
+            console.log('afterRepaymentTokenBorrowIndex: ' + afterRepaymentTokenBorrowIndex);
+            // console.log(afterRepaymentStorage.tempMap);
 
             // NB: interest too little to make a difference within a few blocks
             // assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal - repayAmount);
