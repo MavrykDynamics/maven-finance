@@ -97,4 +97,13 @@ export const CouncilFormStyled = styled.form`
       top: 14px;
     }
   }
-`
+
+  &.update-council-member-info {
+    padding: 0;
+    border: none;
+
+    .plus-btn {
+      width: 280px;
+    }
+  }
+` //CouncilFormStyled

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useLocation } from 'react-router'
@@ -36,6 +36,7 @@ import { CouncilFormRemoveVestee } from './CouncilForms/CouncilFormRemoveVestee.
 import { CouncilFormSetBaker } from './CouncilForms/CouncilFormSetBaker.view'
 import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContractBaker.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
 
 // styles
 import { Page } from 'styles'
@@ -50,6 +51,7 @@ export const Council = () => {
   const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(false)
+  const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
@@ -72,7 +74,6 @@ export const Council = () => {
     { text: 'Remove Vestee', value: 'removeVestee' },
     { text: 'Change Council Member', value: 'changeCouncilMember' },
     { text: 'Remove Council Member', value: 'removeCouncilMember' },
-    { text: 'Update Council Member Info', value: 'updateCouncilMemberInfo' },
     { text: 'Transfer Tokens', value: 'transferTokens' },
     { text: 'Request Tokens', value: 'requestTokens' },
     { text: 'Request Token Mint', value: 'requestTokenMint' },
@@ -110,6 +111,10 @@ export const Council = () => {
   useEffect(() => {
     setIsPendingSignature(Boolean(isUserInCouncilMembers))
   }, [isUserInCouncilMembers])
+
+  const handleOpenleModal = () => {
+    setIsUpdateCouncilMemberInfo(true)
+  }
 
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, COUNCIL_LIST_NAME)
@@ -186,7 +191,6 @@ export const Council = () => {
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
                 {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember /> : null}
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
-                {chosenDdItem?.value === 'updateCouncilMemberInfo' ? <CouncilFormUpdateCouncilMemberInfo /> : null}
                 {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
                 {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens /> : null}
                 {chosenDdItem?.value === 'requestTokenMint' ? <CouncilFormRequestTokenMint /> : null}
@@ -240,6 +244,7 @@ export const Council = () => {
                     name={item.name}
                     user_id={item.user_id}
                     website={item.website}
+                    openModal={handleOpenleModal}
                   />
                 ))}
               </div>
@@ -247,6 +252,11 @@ export const Council = () => {
           </aside>
         </article>
       </CouncilStyled>
+      {isUpdateCouncilMemberInfo ? (
+        <ModalPopup width={750} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
+          <CouncilFormUpdateCouncilMemberInfo />
+        </ModalPopup>
+      ) : null}
     </Page>
   )
 }

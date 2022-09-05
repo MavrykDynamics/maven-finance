@@ -80,7 +80,7 @@ export const IPFSUploaderView = ({
               type="file"
               disabled={disabled || isUploading}
               accept={isTypeFileImage ? 'image/*' : '*'}
-              required
+              // required
               ref={inputFile}
               onChange={handleChange}
               onBlur={onBlur}
