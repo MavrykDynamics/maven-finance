@@ -160,10 +160,6 @@
         "name": "untrackAggregator"
     },
     {
-        "index": 40,
-        "name": "setAggregatorMaintainer"
-    },
-    {
         "index": 41,
         "name": "updateMvkInflationRate"
     },

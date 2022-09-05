@@ -316,22 +316,18 @@ block {
                 checkSenderIsAdmin(s); // check that sender is admin
 
                 // createAggregator parameters declaration
-                const observationCommits   : observationCommitsType   = map[];
-                const observationReveals   : observationRevealsType   = map[];
                 const deviationTriggerBan  : deviationTriggerBanType  = map[];
                 
-                const lastCompletedRoundPrice = record[
+                const lastCompletedPrice = record[
                       round                 = 0n;
+                      epoch                 = 0n;
                       price                 = 0n;
                       percentOracleResponse = 0n;
                       priceDateTime         = Tezos.get_now();
                   ];
                 const oracleRewardXtz        : oracleRewardXtzType        = map[];
                 const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
-                const deviationTriggerInfos  : deviationTriggerInfosType  = record[
-                  oracleAddress             = Tezos.get_sender();
-                  roundPrice                = 0n;
-                ];
+
 
                 // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
                 const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
@@ -347,10 +343,7 @@ block {
                 const aggregatorLambdaLedger : lambdaLedgerType = s.aggregatorLambdaLedger;
 
                 const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
-                    requestRateUpdateIsPaused           = False;
-                    requestRateUpdateDeviationIsPaused  = False;
-                    setObservationCommitIsPaused        = False;
-                    setObservationRevealIsPaused        = False;
+                    updatePriceIsPaused                 = False;
                     withdrawRewardXtzIsPaused           = False;
                     withdrawRewardStakedMvkIsPaused     = False;
                 ];
@@ -374,24 +367,16 @@ block {
                     config                    = createAggregatorParams.2.aggregatorConfig;
                     breakGlassConfig          = aggregatorBreakGlassConfig;
 
-                    maintainer                = createAggregatorParams.2.maintainer;
                     mvkTokenAddress           = s.mvkTokenAddress;
                     governanceAddress         = s.governanceAddress;
 
                     whitelistContracts        = aggregatorWhitelistContracts;      
                     generalContracts          = aggregatorGeneralContracts;
 
-                    round                     = 0n;
-                    roundStart                = Tezos.get_now();
-                    switchBlock               = 0n;
-
                     oracleAddresses           = createAggregatorParams.2.oracleAddresses;
                     
-                    deviationTriggerInfos     = deviationTriggerInfos;
-                    lastCompletedRoundPrice   = lastCompletedRoundPrice;
+                    lastCompletedPrice        = lastCompletedPrice;
                     
-                    observationCommits        = observationCommits;
-                    observationReveals        = observationReveals;
                     deviationTriggerBan       = deviationTriggerBan;
                     
                     oracleRewardXtz           = oracleRewardXtz;

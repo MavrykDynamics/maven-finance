@@ -46,7 +46,6 @@ type aggregatorAction is
         // Housekeeping Entrypoints
     |   SetAdmin                             of (address)
     |   SetGovernance                        of (address)
-    |   SetMaintainer                        of (address)
     |   SetName                              of (string)
     |   UpdateMetadata                       of updateMetadataType
     |   UpdateConfig                         of aggregatorUpdateConfigParamsType
@@ -63,13 +62,8 @@ type aggregatorAction is
     |   UnpauseAll                           of (unit)
     |   TogglePauseEntrypoint                of aggregatorTogglePauseEntrypointType
 
-        // Maintainer Entrypoints
-    |   RequestRateUpdate                    of requestRateUpdateType
-
         // Oracle Entrypoints
-    |   RequestRateUpdateDeviation           of requestRateUpdateDeviationType
-    |   SetObservationCommit                 of setObservationCommitType
-    |   SetObservationReveal                 of setObservationRevealType
+    |   UpdatePrice                   of updatePriceType
     
         // Reward Entrypoints
     |   WithdrawRewardXtz                    of withdrawRewardXtzType
@@ -202,14 +196,6 @@ block {
 } with(unit)
 
 
-
-// Allowed Senders : Maintainer address
-function checkMaintainership(const s : aggregatorStorageType) : unit is
-    if Tezos.get_sender() =/= s.maintainer then failwith(error_ONLY_MAINTAINER_ALLOWED)
-    else unit
-
-
-
 // Allowed Senders : Oracle address
 function checkSenderIsOracle(const s : aggregatorStorageType) : unit is
     if not Map.mem(Tezos.get_sender(), s.oracleAddresses) then failwith(error_ONLY_AUTHORIZED_ORACLES_ALLOWED)
@@ -247,40 +233,15 @@ function checkOracleIsNotBannedForDeviationTrigger(const s : aggregatorStorageTy
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to check that the %requestRateUpdate entrypoint is not paused
-function checkRequestRateUpdateIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.requestRateUpdateIsPaused then failwith(error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
+// helper function to check that the %updatePrice entrypoint is not paused
+function checkUpdatePriceIsNotPaused(var s : aggregatorStorageType) : unit is
+    if s.breakGlassConfig.updatePriceIsPaused then failwith(error_UPDATE_PRICE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
-
-
-
-// helper function to check that the %requestRateUpdateDeviation entrypoint is not paused
-function checkRequestRateUpdateDeviationIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then failwith(error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %setObservationCommit entrypoint is not paused
-function checkSetObservationCommitIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.setObservationCommitIsPaused then failwith(error_SET_OBSERVATION_COMMIT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
-    else unit;
-
-
-
-// helper function to check that the %setObservationReveal entrypoint is not paused
-function checkSetObservationRevealIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.setObservationRevealIsPaused then failwith(error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
-    else unit;
-
-
 
 // helper function to check that the %withdrawRewardXtz entrypoint is not paused
 function checkWithdrawRewardXtzIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.withdrawRewardXtzIsPaused then failwith(error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
-
-
 
 // helper function to check that the %withdrawRewardStakedMvk entrypoint is not paused
 function checkWithdrawRewardStakedMvkIsNotPaused(var s : aggregatorStorageType) : unit is
@@ -328,65 +289,11 @@ function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress :
 // ------------------------------------------------------------------------------
 
 // helper function to check that address belongs to an oracle
-function isOracleAddress(const contractAddress : address; const oracleAddresses : oracleAddressesType) : bool is
-    Map.mem(contractAddress, oracleAddresses)
-
-
-
-// helper function to check that round sent is equal to current round
-function checkIfCorrectRound(const round: nat; const s : aggregatorStorageType) : unit is
-    if round =/= s.round then failwith(error_WRONG_ROUND_NUMBER)
-    else unit
-
-
-
-// helper function to check that last round has been completed
-function checkIfLastRoundCompleted(const s : aggregatorStorageType) : unit is
-    if s.lastCompletedRoundPrice.round =/= s.round then failwith(error_LAST_ROUND_IS_NOT_COMPLETE)
-    else unit
-
-
-
-// helper function to check if oracle is able to set an observation commit now
-function checkIfTimeToCommit(const s : aggregatorStorageType) : unit is
-    if (s.switchBlock =/= 0n and Tezos.get_level() > s.switchBlock) then failwith(error_YOU_CANNOT_COMMIT_NOW)
-    else unit
-
-
-
-// helper function to check if oracle is able to set an observation reveal now
-function checkIfTimeToReveal(const s : aggregatorStorageType) : unit is
-    if (s.switchBlock = 0n or Tezos.get_level() <= s.switchBlock) then failwith(error_YOU_CANNOT_REVEAL_NOW)
-    else unit
-
-
-
-// helper function to check if oracle has already set an observation commit
-function checkIfOracleAlreadyAnsweredCommit(const s : aggregatorStorageType) : unit is
-    if (Map.mem(Tezos.get_sender(), s.observationCommits)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT)
-    else unit
-
-
-
-// helper function to check if oracle has already set an observation reveal
-function checkIfOracleAlreadyAnsweredReveal(const s : aggregatorStorageType) : unit is
-    if (Map.mem(Tezos.get_sender(), s.observationReveals)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL)
-    else unit
-
-
+function isOracleAddress(const address : address; const oracleAddresses : oracleAddressesType) : bool is
+    Map.mem(address, oracleAddresses)
 
 // helper function to hash bytes input
 function hasherman (const s : bytes) : bytes is Crypto.sha256 (s)
-
-
-
-// helper function to get an oracle's observation commit 
-function getObservationCommit(const addressKey : address; const observationCommits : observationCommitsType) : bytes is
-    case Map.find_opt(addressKey, observationCommits) of [
-            Some (v) -> (v)
-        |   None -> failwith(error_ORACLE_DID_NOT_ANSWER)
-    ]
-
 
 // helper function to get observations price utils
 function getObservationsPriceUtils(const price : nat; const myMap : pivotedObservationsType) : nat is
@@ -395,19 +302,66 @@ function getObservationsPriceUtils(const price : nat; const myMap : pivotedObser
         |   None -> 1n
     ]
 
+// helper function to get the oracle public key from oracle address
+function getOraclePublicKey(const addressKey: address; const oracleAddresses: oracleAddressesType) : key is
+  case Map.find_opt(addressKey, oracleAddresses) of [
+      Some (v) -> (v.oraclePublicKey)
+    | None -> failwith("fail to get oracle public key")
+  ]
 
+// helper function to check if the signature is correct
+function check_signature
+    (const pk     : key;
+     const signed : signature;
+     const msg    : bytes) : bool
+  is Crypto.check (pk, signed, msg)
 
-// helper function to get observations price 
-function getObservationsPrice(const addressKey : address; const observationReveals : observationRevealsType) : nat is
-    case Map.find_opt(addressKey, observationReveals) of [
-            Some (v) -> (v)
-        |   None -> 0n
-    ]
+// helper function to verify all the responses from oracles signatures
+function verifyAllResponsesSignature(const oracleAddress: address; const oracleSignatures: signature; const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorageType): unit is
+  if (not check_signature(
+      getOraclePublicKey(oracleAddress, store.oracleAddresses),
+      oracleSignatures,
+      Bytes.pack(oracleObservations)))
+      then failwith("wrong signature on observation signatures")
+  else unit
 
+// helper function to verify signatures and oracleObservations maps sizes
+function verifyMapsSizes(const leaderReponse : updatePriceType; const s: aggregatorStorageType): unit is block {
+  const f: int = (Map.size(s.oracleAddresses) - 1) / 3n;
 
+  if (int(Map.size(leaderReponse.signatures)) < f)
+      then failwith("map signatures should have at least f size")
+  else skip;
+  if (int(Map.size(leaderReponse.oracleObservations)) <= (2 * f))
+      then failwith("map oracleObservations should have at least 2f + 1 size")
+  else skip
+} with unit;
+
+// helper function to verify informations from the observations
+function verifyInfosFromObservations(const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorageType): (nat * nat) is block {
+  var epoch: nat := 0n;
+  var round: nat := 0n;
+
+  for key -> value in map oracleObservations block {
+      if (not (Tezos.get_self_address() = value.aggregatorAddress)) then failwith("wrong aggregator address in the observations");
+      if isOracleAddress(key, store.oracleAddresses) then failwith ("observation made by a wrong oracle");
+      if (epoch = 0n) then epoch:= value.epoch;
+      if (not (epoch = value.epoch)) then failwith("different epoch in the observations");
+
+      if (round = 0n) then round:= value.round;
+      if (not (round = value.round)) then failwith("different round in the observations");
+  };
+
+  if (epoch < store.lastCompletedPrice.epoch) then failwith("epoch should be greater than previous result")
+  else if (epoch = store.lastCompletedPrice.epoch) then {
+    if (round <= store.lastCompletedPrice.round) then failwith("round should be greater than previous result")
+    else skip;
+  }
+  else skip;
+} with (epoch, round)
 
 // helper function to pivot observations for calculation of median later
-function pivotObservationMap (var m : observationRevealsType) : pivotedObservationsType is block {
+function pivotObservationMap (var m : map (address, oracleObservationType)) : pivotedObservationsType is block {
   (*
     Build a map of form:
       observationValue -> observationCount
@@ -418,8 +372,8 @@ function pivotObservationMap (var m : observationRevealsType) : pivotedObservati
   *)
     var empty : pivotedObservationsType := map [];
     for _key -> value in map m block {
-        var temp: nat := getObservationsPriceUtils(value, empty);
-        empty := Map.update(value, Some (temp), empty);
+        var temp: nat := getObservationsPriceUtils(value.price, empty);
+        empty := Map.update(value.price, Some (temp), empty);
     }
 } with (empty)
 
@@ -524,7 +478,7 @@ function getRewardAmountXtz(const oracleAddress : address; const s : aggregatorS
 
 
 // helper function to update specified oracle's staked MVK rewards
-function updateRewardsStakedMvk (const senderAddress : address; var s : aggregatorStorageType) : aggregatorStorageType is block {
+function updateRewardsStakedMvk (const senderAddress : address; const oracleObservations : map (address, oracleObservationType); var s : aggregatorStorageType) : aggregatorStorageType is block {
 
   // init params
   var tempSatellitesMap : map(address, nat) := map [];
@@ -543,7 +497,7 @@ function updateRewardsStakedMvk (const senderAddress : address; var s : aggregat
   // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
   // and store each satellite respective share in tempSatellitesMap
   // N.B.: may result in slight discrepancies if some oracles do not reveal their price feed data
-  for oracleAddress -> _value in map s.observationCommits block {
+  for oracleAddress -> _value in map oracleObservations block {
 
     // View call getSatelliteOpt to delegation contract
     const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
@@ -682,33 +636,9 @@ block {
 
 
 
-(* View: get Maintainer address *)
-[@view] function getMaintainerAddress(const _ : unit; var s : aggregatorStorageType) : address is
-    s.maintainer
-
-
-
 (* View: get oracle addresses *)
 [@view] function getOracleAddresses(const _ : unit; var s : aggregatorStorageType) : oracleAddressesType is
     s.oracleAddresses
-
-
-
-(* View: get observation commits *)
-[@view] function getObservationCommits(const _ : unit; var s : aggregatorStorageType) : observationCommitsType is
-    s.observationCommits
-
-
-
-(* View: get observation reveals *)
-[@view] function getObservationReveals(const _ : unit; var s : aggregatorStorageType) : observationRevealsType is
-    s.observationReveals
-
-
-
-(* View: get deviation trigger infos *)
-[@view] function getDeviationTriggerInfos(const _ : unit; var s : aggregatorStorageType) : deviationTriggerInfosType is
-    s.deviationTriggerInfos
 
 
 
@@ -730,14 +660,15 @@ block {
 
 
 
-(* View: get last completed round price *)
-[@view] function getLastCompletedRoundPrice (const _ : unit ; const s : aggregatorStorageType) : lastCompletedRoundPriceReturnType is block {
-    const withDecimal : lastCompletedRoundPriceReturnType = record [
-        price                 = s.lastCompletedRoundPrice.price;
-        percentOracleResponse = s.lastCompletedRoundPrice.percentOracleResponse;
-        round                 = s.lastCompletedRoundPrice.round;
+(* View: get last completed price *)
+[@view] function getLastCompletedRPrice (const _ : unit ; const s : aggregatorStorageType) : lastCompletedPriceReturnType is block {
+    const withDecimal : lastCompletedPriceReturnType = record [
+        price                 = s.lastCompletedPrice.price;
+        percentOracleResponse = s.lastCompletedPrice.percentOracleResponse;
+        round                 = s.lastCompletedPrice.round;
+        epoch                 = s.lastCompletedPrice.epoch;
         decimals              = s.config.decimals;
-        priceDateTime         = s.lastCompletedRoundPrice.priceDateTime;
+        priceDateTime         = s.lastCompletedPrice.priceDateTime;
     ]
 } with (withDecimal)
 
@@ -745,21 +676,6 @@ block {
 
 (* View: get decimals *)
 [@view] function getDecimals (const _ : unit ; const s : aggregatorStorageType) : nat is s.config.decimals;
-
-
-
-(* View: get round *)
-[@view] function getRound (const _ : unit ; const s : aggregatorStorageType) : nat is s.round;
-
-
-
-(* View: get round start *)
-[@view] function getRoundStart (const _ : unit ; const s : aggregatorStorageType) : timestamp is s.roundStart;
-
-
-
-(* View: get switchblock *)
-[@view] function getSwitchBlock (const _ : unit ; const s : aggregatorStorageType) : nat is s.switchBlock;
 
 
 
@@ -834,25 +750,6 @@ block {
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  setMaintainer entrypoint *)
-function setMaintainer(const newMaintainerAddress : address; var s : aggregatorStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetMaintainer"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetMaintainer(newMaintainerAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -983,7 +880,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addOracle entrypoint  *)
-function addOracle(const oracleAddress : address; const s : aggregatorStorageType) : return is
+function addOracle(const addOracleParams : addOracleType; const s : aggregatorStorageType) : return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddOracle"] of [
@@ -992,7 +889,7 @@ block{
     ];
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaAddOracle(oracleAddress);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaAddOracle(addOracleParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -1095,74 +992,17 @@ block{
 // Oracle Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  requestRateUpdate entrypoint  *)
-function requestRateUpdate(const s : aggregatorStorageType) : return is
+(*  updatePrice entrypoint  *)
+function updatePrice(const params : updatePriceType; const s : aggregatorStorageType) : return is
 block{
   
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdate"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdatePrice"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaRequestRateUpdate(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  requestRateUpdateDeviation entrypoint  *)
-function requestRateUpdateDeviation(const params : setObservationCommitType; const s : aggregatorStorageType) : return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdateDeviation"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaRequestRateUpdDeviation(params);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  setObservationCommit entrypoint  *)
-function setObservationCommit(const params : setObservationCommitType; const s : aggregatorStorageType) : return is
-block{
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationCommit"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetObservationCommit(params);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  setObservationReveal entrypoint  *)
-function setObservationReveal(const params : setObservationRevealType; const s : aggregatorStorageType) : return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationReveal"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetObservationReveal(params);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdatePrice(params);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -1243,33 +1083,6 @@ block{
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
-// Reward Entrypoints End
-// ------------------------------------------------------------------------------
-
-
-// ------------------------------------------------------------------------------
-// Lambda Entrypoints Begin
-// ------------------------------------------------------------------------------
-
-(* setLambda entrypoint *)
-function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorStorageType) : return is
-block{
-    
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-    
-    // assign params to constants for better code readability
-    const lambdaName    = setLambdaParams.name;
-    const lambdaBytes   = setLambdaParams.func_bytes;
-    s.lambdaLedger[lambdaName] := lambdaBytes;
-
-} with (noOperations, s)
-
-// ------------------------------------------------------------------------------
-// Lambda Entrypoints End
-// ------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------
 //
 // Entrypoints End
 //
@@ -1287,7 +1100,6 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
             // Housekeeping Entrypoints
         |   SetAdmin (parameters)                           -> setAdmin(parameters, s)
         |   SetGovernance (parameters)                      -> setGovernance(parameters, s) 
-        |   SetMaintainer (parameters)                      -> setMaintainer(parameters, s) 
         |   SetName (parameters)                            -> setName(parameters, s) 
         |   UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
         |   UpdateConfig (parameters)                       -> updateConfig(parameters, s)
@@ -1305,10 +1117,7 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
         |   TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
 
             // Oracle Entrypoints
-        |   RequestRateUpdate (_parameters)                 -> requestRateUpdate(s)
-        |   RequestRateUpdateDeviation (parameters)         -> requestRateUpdateDeviation(parameters, s)
-        |   SetObservationCommit (parameters)               -> setObservationCommit(parameters, s)
-        |   SetObservationReveal (parameters)               -> setObservationReveal(parameters, s)
+        |   UpdatePrice (parameters)                       -> updatePrice(parameters, s)
 
             // Reward Entrypoints
         |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
