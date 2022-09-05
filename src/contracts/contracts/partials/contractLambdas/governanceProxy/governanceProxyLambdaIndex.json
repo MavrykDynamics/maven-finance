@@ -160,27 +160,27 @@
         "name": "untrackAggregator"
     },
     {
-        "index": 41,
+        "index": 40,
         "name": "updateMvkInflationRate"
     },
     {
-        "index": 42,
+        "index": 41,
         "name": "triggerMvkInflation"
     },
     {
-        "index": 43,
+        "index": 42,
         "name": "addVestee"
     },
     {
-        "index": 44,
+        "index": 43,
         "name": "removeVestee"
     },
     {
-        "index": 45,
+        "index": 44,
         "name": "updateVestee"
     },
     {
-        "index": 46,
+        "index": 45,
         "name": "toggleVesteeLock"
     }
 ]
