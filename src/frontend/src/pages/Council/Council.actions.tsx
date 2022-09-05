@@ -27,6 +27,7 @@ export const getCouncilStorage = (accountPkh?: string) => async (dispatch: AppDi
     COUNCIL_STORAGE_QUERY_NAME,
     COUNCIL_STORAGE_QUERY_VARIABLE,
   )
+
   const convertedStorage = noralizeCouncilStorage(storage?.council[0])
 
   dispatch({
@@ -502,16 +503,16 @@ export const updateCouncilMemberInfo =
         .send()
       console.log('transaction', transaction)
 
-      dispatch(showToaster(INFO, 'Update Council Member Info...', 'Please wait 30s'))
+      await dispatch(showToaster(INFO, 'Update Council Member Info...', 'Please wait 30s'))
 
       const done = await transaction?.confirmation()
       console.log('done', done)
-      dispatch(showToaster(SUCCESS, 'Update Council Member Info done', 'All good :)'))
+      await dispatch(showToaster(SUCCESS, 'Update Council Member Info done', 'All good :)'))
 
-      dispatch(getCouncilStorage())
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch({
+      await dispatch(getCouncilStorage())
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch({
         type: UPDATE_INFO_MEMBER_RESULT,
       })
     } catch (error) {
@@ -569,10 +570,10 @@ export const transferTokens =
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Transfer Tokens done', 'All good :)'))
 
-      dispatch(getCouncilStorage())
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch({
+      await dispatch(getCouncilStorage())
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch({
         type: TRANSFER_TOKENS_RESULT,
       })
     } catch (error) {
@@ -639,10 +640,10 @@ export const requestTokens =
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Request Tokens done', 'All good :)'))
 
-      dispatch(getCouncilStorage())
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch({
+      await dispatch(getCouncilStorage())
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch({
         type: REQUEST_TOKENS_RESULT,
       })
     } catch (error) {
@@ -691,10 +692,10 @@ export const requestTokenMint =
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Request Tokens done', 'All good :)'))
 
-      dispatch(getCouncilStorage())
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch({
+      await dispatch(getCouncilStorage())
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch({
         type: REQUEST_TOKEN_MINT_RESULT,
       })
     } catch (error) {
@@ -741,10 +742,10 @@ export const dropFinancialRequest = (financialReqID: number) => async (dispatch:
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Drop Financial Request done', 'All good :)'))
 
-    dispatch(getCouncilStorage())
-    dispatch(getCouncilPastActionsStorage())
-    dispatch(getCouncilPendingActionsStorage())
-    dispatch({
+    await dispatch(getCouncilStorage())
+    await dispatch(getCouncilPastActionsStorage())
+    await dispatch(getCouncilPendingActionsStorage())
+    await dispatch({
       type: DROP_FINANCICAL_RESULT,
     })
   } catch (error) {
@@ -791,10 +792,10 @@ export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: A
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Remove Vestee Request done', 'All good :)'))
 
-    dispatch(getCouncilStorage())
-    dispatch(getCouncilPastActionsStorage())
-    dispatch(getCouncilPendingActionsStorage())
-    dispatch({
+    await dispatch(getCouncilStorage())
+    await dispatch(getCouncilPastActionsStorage())
+    await dispatch(getCouncilPendingActionsStorage())
+    await dispatch({
       type: REMOVE_VESTEE_RESULT,
     })
   } catch (error) {
@@ -841,10 +842,10 @@ export const setBakerRequest = (bakerHash: string) => async (dispatch: AppDispat
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Set Baker Request done', 'All good :)'))
 
-    dispatch(getCouncilStorage())
-    dispatch(getCouncilPastActionsStorage())
-    dispatch(getCouncilPendingActionsStorage())
-    dispatch({
+    await dispatch(getCouncilStorage())
+    await dispatch(getCouncilPastActionsStorage())
+    await dispatch(getCouncilPendingActionsStorage())
+    await dispatch({
       type: SET_BAKER_RESULT,
     })
   } catch (error) {
@@ -892,10 +893,10 @@ export const setContractBakerRequest =
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Set Contract Baker Request done', 'All good :)'))
 
-      dispatch(getCouncilStorage())
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch({
+      await dispatch(getCouncilStorage())
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch({
         type: SET_CONTRACT_BAKER_RESULT,
       })
     } catch (error) {

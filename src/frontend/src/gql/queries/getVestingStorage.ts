@@ -3,7 +3,7 @@ export const VESTING_STORAGE_QUERY = `
     vesting {
       address
       total_vested_amount
-      vesting_vestee_records_aggregate {
+      vestee_records_aggregate {
         aggregate {
           sum {
             total_claimed

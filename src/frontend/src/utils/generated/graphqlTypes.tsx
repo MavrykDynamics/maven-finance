@@ -10722,6 +10722,192 @@ export type Dipdup_Index_Variance_Fields = {
   level?: Maybe<Scalars['Float']>;
 };
 
+/** Model update created within versioned transactions */
+export type Dipdup_Model_Update = {
+  __typename?: 'dipdup_model_update';
+  /** INSERT: INSERT\nUPDATE: UPDATE\nDELETE: DELETE */
+  action: Scalars['String'];
+  created_at: Scalars['timestamptz'];
+  data?: Maybe<Scalars['jsonb']>;
+  id: Scalars['Int'];
+  index: Scalars['String'];
+  level: Scalars['Int'];
+  model_name: Scalars['String'];
+  model_pk: Scalars['String'];
+  updated_at: Scalars['timestamptz'];
+};
+
+
+/** Model update created within versioned transactions */
+export type Dipdup_Model_UpdateDataArgs = {
+  path?: InputMaybe<Scalars['String']>;
+};
+
+/** aggregated selection of "dipdup_model_update" */
+export type Dipdup_Model_Update_Aggregate = {
+  __typename?: 'dipdup_model_update_aggregate';
+  aggregate?: Maybe<Dipdup_Model_Update_Aggregate_Fields>;
+  nodes: Array<Dipdup_Model_Update>;
+};
+
+/** aggregate fields of "dipdup_model_update" */
+export type Dipdup_Model_Update_Aggregate_Fields = {
+  __typename?: 'dipdup_model_update_aggregate_fields';
+  avg?: Maybe<Dipdup_Model_Update_Avg_Fields>;
+  count: Scalars['Int'];
+  max?: Maybe<Dipdup_Model_Update_Max_Fields>;
+  min?: Maybe<Dipdup_Model_Update_Min_Fields>;
+  stddev?: Maybe<Dipdup_Model_Update_Stddev_Fields>;
+  stddev_pop?: Maybe<Dipdup_Model_Update_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Dipdup_Model_Update_Stddev_Samp_Fields>;
+  sum?: Maybe<Dipdup_Model_Update_Sum_Fields>;
+  var_pop?: Maybe<Dipdup_Model_Update_Var_Pop_Fields>;
+  var_samp?: Maybe<Dipdup_Model_Update_Var_Samp_Fields>;
+  variance?: Maybe<Dipdup_Model_Update_Variance_Fields>;
+};
+
+
+/** aggregate fields of "dipdup_model_update" */
+export type Dipdup_Model_Update_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Dipdup_Model_Update_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** aggregate avg on columns */
+export type Dipdup_Model_Update_Avg_Fields = {
+  __typename?: 'dipdup_model_update_avg_fields';
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+};
+
+/** Boolean expression to filter rows from the table "dipdup_model_update". All fields are combined with a logical 'AND'. */
+export type Dipdup_Model_Update_Bool_Exp = {
+  _and?: InputMaybe<Array<Dipdup_Model_Update_Bool_Exp>>;
+  _not?: InputMaybe<Dipdup_Model_Update_Bool_Exp>;
+  _or?: InputMaybe<Array<Dipdup_Model_Update_Bool_Exp>>;
+  action?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  data?: InputMaybe<Jsonb_Comparison_Exp>;
+  id?: InputMaybe<Int_Comparison_Exp>;
+  index?: InputMaybe<String_Comparison_Exp>;
+  level?: InputMaybe<Int_Comparison_Exp>;
+  model_name?: InputMaybe<String_Comparison_Exp>;
+  model_pk?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** aggregate max on columns */
+export type Dipdup_Model_Update_Max_Fields = {
+  __typename?: 'dipdup_model_update_max_fields';
+  /** INSERT: INSERT\nUPDATE: UPDATE\nDELETE: DELETE */
+  action?: Maybe<Scalars['String']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
+  id?: Maybe<Scalars['Int']>;
+  index?: Maybe<Scalars['String']>;
+  level?: Maybe<Scalars['Int']>;
+  model_name?: Maybe<Scalars['String']>;
+  model_pk?: Maybe<Scalars['String']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
+};
+
+/** aggregate min on columns */
+export type Dipdup_Model_Update_Min_Fields = {
+  __typename?: 'dipdup_model_update_min_fields';
+  /** INSERT: INSERT\nUPDATE: UPDATE\nDELETE: DELETE */
+  action?: Maybe<Scalars['String']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
+  id?: Maybe<Scalars['Int']>;
+  index?: Maybe<Scalars['String']>;
+  level?: Maybe<Scalars['Int']>;
+  model_name?: Maybe<Scalars['String']>;
+  model_pk?: Maybe<Scalars['String']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
+};
+
+/** Ordering options when selecting data from "dipdup_model_update". */
+export type Dipdup_Model_Update_Order_By = {
+  action?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  data?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  index?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  model_name?: InputMaybe<Order_By>;
+  model_pk?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** select columns of table "dipdup_model_update" */
+export enum Dipdup_Model_Update_Select_Column {
+  /** column name */
+  Action = 'action',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Data = 'data',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Index = 'index',
+  /** column name */
+  Level = 'level',
+  /** column name */
+  ModelName = 'model_name',
+  /** column name */
+  ModelPk = 'model_pk',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+/** aggregate stddev on columns */
+export type Dipdup_Model_Update_Stddev_Fields = {
+  __typename?: 'dipdup_model_update_stddev_fields';
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Dipdup_Model_Update_Stddev_Pop_Fields = {
+  __typename?: 'dipdup_model_update_stddev_pop_fields';
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Dipdup_Model_Update_Stddev_Samp_Fields = {
+  __typename?: 'dipdup_model_update_stddev_samp_fields';
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+};
+
+/** aggregate sum on columns */
+export type Dipdup_Model_Update_Sum_Fields = {
+  __typename?: 'dipdup_model_update_sum_fields';
+  id?: Maybe<Scalars['Int']>;
+  level?: Maybe<Scalars['Int']>;
+};
+
+/** aggregate var_pop on columns */
+export type Dipdup_Model_Update_Var_Pop_Fields = {
+  __typename?: 'dipdup_model_update_var_pop_fields';
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+};
+
+/** aggregate var_samp on columns */
+export type Dipdup_Model_Update_Var_Samp_Fields = {
+  __typename?: 'dipdup_model_update_var_samp_fields';
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+};
+
+/** aggregate variance on columns */
+export type Dipdup_Model_Update_Variance_Fields = {
+  __typename?: 'dipdup_model_update_variance_fields';
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+};
+
 /** columns and relationships of "dipdup_schema" */
 export type Dipdup_Schema = {
   __typename?: 'dipdup_schema';
@@ -11010,13 +11196,13 @@ export type Doorman = {
   last_updated_at?: Maybe<Scalars['timestamptz']>;
   min_mvk_amount: Scalars['float8'];
   /** An array relationship */
-  smvk_history_data: Array<Smvk_History_Data>;
-  /** An aggregate relationship */
-  smvk_history_data_aggregate: Smvk_History_Data_Aggregate;
-  /** An array relationship */
   stake_accounts: Array<Doorman_Stake_Account>;
   /** An aggregate relationship */
   stake_accounts_aggregate: Doorman_Stake_Account_Aggregate;
+  /** An array relationship */
+  stake_mvk_history_data: Array<Smvk_History_Data>;
+  /** An aggregate relationship */
+  stake_mvk_history_data_aggregate: Smvk_History_Data_Aggregate;
   stake_paused: Scalars['Boolean'];
   /** An array relationship */
   stake_records: Array<Stake_History_Data>;
@@ -11072,26 +11258,6 @@ export type DoormanLambdas_AggregateArgs = {
 
 
 /** columns and relationships of "doorman" */
-export type DoormanSmvk_History_DataArgs = {
-  distinct_on?: InputMaybe<Array<Smvk_History_Data_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']>;
-  offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Smvk_History_Data_Order_By>>;
-  where?: InputMaybe<Smvk_History_Data_Bool_Exp>;
-};
-
-
-/** columns and relationships of "doorman" */
-export type DoormanSmvk_History_Data_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Smvk_History_Data_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']>;
-  offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Smvk_History_Data_Order_By>>;
-  where?: InputMaybe<Smvk_History_Data_Bool_Exp>;
-};
-
-
-/** columns and relationships of "doorman" */
 export type DoormanStake_AccountsArgs = {
   distinct_on?: InputMaybe<Array<Doorman_Stake_Account_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -11108,6 +11274,26 @@ export type DoormanStake_Accounts_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']>;
   order_by?: InputMaybe<Array<Doorman_Stake_Account_Order_By>>;
   where?: InputMaybe<Doorman_Stake_Account_Bool_Exp>;
+};
+
+
+/** columns and relationships of "doorman" */
+export type DoormanStake_Mvk_History_DataArgs = {
+  distinct_on?: InputMaybe<Array<Smvk_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Smvk_History_Data_Order_By>>;
+  where?: InputMaybe<Smvk_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "doorman" */
+export type DoormanStake_Mvk_History_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Smvk_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Smvk_History_Data_Order_By>>;
+  where?: InputMaybe<Smvk_History_Data_Bool_Exp>;
 };
 
 
@@ -11226,8 +11412,8 @@ export type Doorman_Bool_Exp = {
   lambdas?: InputMaybe<Doorman_Lambda_Bool_Exp>;
   last_updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   min_mvk_amount?: InputMaybe<Float8_Comparison_Exp>;
-  smvk_history_data?: InputMaybe<Smvk_History_Data_Bool_Exp>;
   stake_accounts?: InputMaybe<Doorman_Stake_Account_Bool_Exp>;
+  stake_mvk_history_data?: InputMaybe<Smvk_History_Data_Bool_Exp>;
   stake_paused?: InputMaybe<Boolean_Comparison_Exp>;
   stake_records?: InputMaybe<Stake_History_Data_Bool_Exp>;
   unclaimed_rewards?: InputMaybe<Float8_Comparison_Exp>;
@@ -11725,8 +11911,8 @@ export type Doorman_Order_By = {
   lambdas_aggregate?: InputMaybe<Doorman_Lambda_Aggregate_Order_By>;
   last_updated_at?: InputMaybe<Order_By>;
   min_mvk_amount?: InputMaybe<Order_By>;
-  smvk_history_data_aggregate?: InputMaybe<Smvk_History_Data_Aggregate_Order_By>;
   stake_accounts_aggregate?: InputMaybe<Doorman_Stake_Account_Aggregate_Order_By>;
+  stake_mvk_history_data_aggregate?: InputMaybe<Smvk_History_Data_Aggregate_Order_By>;
   stake_paused?: InputMaybe<Order_By>;
   stake_records_aggregate?: InputMaybe<Stake_History_Data_Aggregate_Order_By>;
   unclaimed_rewards?: InputMaybe<Order_By>;
@@ -17102,9 +17288,9 @@ export type Governance = {
   min_quorum_percentage: Scalars['smallint'];
   min_yay_vote_percentage: Scalars['smallint'];
   /** An array relationship */
-  mvk_token: Array<Mvk_Token>;
+  mvk_tokens: Array<Mvk_Token>;
   /** An aggregate relationship */
-  mvk_token_aggregate: Mvk_Token_Aggregate;
+  mvk_tokens_aggregate: Mvk_Token_Aggregate;
   next_proposal_id: Scalars['bigint'];
   proposal_description_max_length: Scalars['bigint'];
   proposal_invoice_max_length: Scalars['bigint'];
@@ -17488,7 +17674,7 @@ export type GovernanceLending_Controllers_AggregateArgs = {
 
 
 /** columns and relationships of "governance" */
-export type GovernanceMvk_TokenArgs = {
+export type GovernanceMvk_TokensArgs = {
   distinct_on?: InputMaybe<Array<Mvk_Token_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -17498,7 +17684,7 @@ export type GovernanceMvk_TokenArgs = {
 
 
 /** columns and relationships of "governance" */
-export type GovernanceMvk_Token_AggregateArgs = {
+export type GovernanceMvk_Tokens_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Mvk_Token_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -17754,7 +17940,7 @@ export type Governance_Bool_Exp = {
   max_proposal_per_satellite?: InputMaybe<Smallint_Comparison_Exp>;
   min_quorum_percentage?: InputMaybe<Smallint_Comparison_Exp>;
   min_yay_vote_percentage?: InputMaybe<Smallint_Comparison_Exp>;
-  mvk_token?: InputMaybe<Mvk_Token_Bool_Exp>;
+  mvk_tokens?: InputMaybe<Mvk_Token_Bool_Exp>;
   next_proposal_id?: InputMaybe<Bigint_Comparison_Exp>;
   proposal_description_max_length?: InputMaybe<Bigint_Comparison_Exp>;
   proposal_invoice_max_length?: InputMaybe<Bigint_Comparison_Exp>;
@@ -20411,7 +20597,7 @@ export type Governance_Order_By = {
   max_proposal_per_satellite?: InputMaybe<Order_By>;
   min_quorum_percentage?: InputMaybe<Order_By>;
   min_yay_vote_percentage?: InputMaybe<Order_By>;
-  mvk_token_aggregate?: InputMaybe<Mvk_Token_Aggregate_Order_By>;
+  mvk_tokens_aggregate?: InputMaybe<Mvk_Token_Aggregate_Order_By>;
   next_proposal_id?: InputMaybe<Order_By>;
   proposal_description_max_length?: InputMaybe<Order_By>;
   proposal_invoice_max_length?: InputMaybe<Order_By>;
@@ -32458,9 +32644,9 @@ export type Mavryk_User = {
   /** An aggregate relationship */
   break_glass_actions_signer_aggregate: Break_Glass_Action_Record_Signer_Aggregate;
   /** An array relationship */
-  break_glass_council_member: Array<Break_Glass_Council_Member>;
+  break_glass_council_members: Array<Break_Glass_Council_Member>;
   /** An aggregate relationship */
-  break_glass_council_member_aggregate: Break_Glass_Council_Member_Aggregate;
+  break_glass_council_members_aggregate: Break_Glass_Council_Member_Aggregate;
   /** An array relationship */
   council_actions_initiator: Array<Council_Action_Record>;
   /** An aggregate relationship */
@@ -32470,17 +32656,17 @@ export type Mavryk_User = {
   /** An aggregate relationship */
   council_actions_signer_aggregate: Council_Action_Record_Signer_Aggregate;
   /** An array relationship */
-  council_council_member: Array<Council_Council_Member>;
+  council_council_members: Array<Council_Council_Member>;
   /** An aggregate relationship */
-  council_council_member_aggregate: Council_Council_Member_Aggregate;
+  council_council_members_aggregate: Council_Council_Member_Aggregate;
   /** An array relationship */
   delegation_records: Array<Delegation_Record>;
   /** An aggregate relationship */
   delegation_records_aggregate: Delegation_Record_Aggregate;
   /** An array relationship */
-  doorman_stake_account: Array<Doorman_Stake_Account>;
+  doorman_stake_accounts: Array<Doorman_Stake_Account>;
   /** An aggregate relationship */
-  doorman_stake_account_aggregate: Doorman_Stake_Account_Aggregate;
+  doorman_stake_accounts_aggregate: Doorman_Stake_Account_Aggregate;
   /** An array relationship */
   emergency_governance_proposer: Array<Emergency_Governance_Record>;
   /** An aggregate relationship */
@@ -32550,9 +32736,9 @@ export type Mavryk_User = {
   /** An aggregate relationship */
   lending_controller_vault_owners_aggregate: Lending_Controller_Vault_Handle_Aggregate;
   /** An array relationship */
-  mint_history_data: Array<Mint_History_Data>;
+  mint_history_data: Array<Mvk_Mint_History_Data>;
   /** An aggregate relationship */
-  mint_history_data_aggregate: Mint_History_Data_Aggregate;
+  mint_history_data_aggregate: Mvk_Mint_History_Data_Aggregate;
   mvk_balance: Scalars['float8'];
   /** An array relationship */
   mvk_transfer_receiver: Array<Mvk_Transfer_History_Data>;
@@ -32563,9 +32749,9 @@ export type Mavryk_User = {
   /** An aggregate relationship */
   mvk_transfer_sender_aggregate: Mvk_Transfer_History_Data_Aggregate;
   /** An array relationship */
-  satellite_record: Array<Satellite_Record>;
+  satellite_records: Array<Satellite_Record>;
   /** An aggregate relationship */
-  satellite_record_aggregate: Satellite_Record_Aggregate;
+  satellite_records_aggregate: Satellite_Record_Aggregate;
   /** An array relationship */
   satellite_rewards_records: Array<Satellite_Rewards_Record>;
   /** An aggregate relationship */
@@ -32600,9 +32786,9 @@ export type Mavryk_User = {
   /** An aggregate relationship */
   vault_depositor_records_aggregate: Vault_Depositor_Record_Aggregate;
   /** An array relationship */
-  vesting_vestee_record: Array<Vesting_Vestee_Record>;
+  vesting_vestee_records: Array<Vesting_Vestee_Record>;
   /** An aggregate relationship */
-  vesting_vestee_record_aggregate: Vesting_Vestee_Record_Aggregate;
+  vesting_vestee_records_aggregate: Vesting_Vestee_Record_Aggregate;
   /** An array relationship */
   whitelist_developers: Array<Whitelist_Developer>;
   /** An aggregate relationship */
@@ -32811,7 +32997,7 @@ export type Mavryk_UserBreak_Glass_Actions_Signer_AggregateArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserBreak_Glass_Council_MemberArgs = {
+export type Mavryk_UserBreak_Glass_Council_MembersArgs = {
   distinct_on?: InputMaybe<Array<Break_Glass_Council_Member_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -32821,7 +33007,7 @@ export type Mavryk_UserBreak_Glass_Council_MemberArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserBreak_Glass_Council_Member_AggregateArgs = {
+export type Mavryk_UserBreak_Glass_Council_Members_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Break_Glass_Council_Member_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -32871,7 +33057,7 @@ export type Mavryk_UserCouncil_Actions_Signer_AggregateArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserCouncil_Council_MemberArgs = {
+export type Mavryk_UserCouncil_Council_MembersArgs = {
   distinct_on?: InputMaybe<Array<Council_Council_Member_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -32881,7 +33067,7 @@ export type Mavryk_UserCouncil_Council_MemberArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserCouncil_Council_Member_AggregateArgs = {
+export type Mavryk_UserCouncil_Council_Members_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Council_Council_Member_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -32911,7 +33097,7 @@ export type Mavryk_UserDelegation_Records_AggregateArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserDoorman_Stake_AccountArgs = {
+export type Mavryk_UserDoorman_Stake_AccountsArgs = {
   distinct_on?: InputMaybe<Array<Doorman_Stake_Account_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -32921,7 +33107,7 @@ export type Mavryk_UserDoorman_Stake_AccountArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserDoorman_Stake_Account_AggregateArgs = {
+export type Mavryk_UserDoorman_Stake_Accounts_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Doorman_Stake_Account_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -33272,21 +33458,21 @@ export type Mavryk_UserLending_Controller_Vault_Owners_AggregateArgs = {
 
 /** columns and relationships of "mavryk_user" */
 export type Mavryk_UserMint_History_DataArgs = {
-  distinct_on?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+  distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Mint_History_Data_Order_By>>;
-  where?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  order_by?: InputMaybe<Array<Mvk_Mint_History_Data_Order_By>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
 /** columns and relationships of "mavryk_user" */
 export type Mavryk_UserMint_History_Data_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+  distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Mint_History_Data_Order_By>>;
-  where?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  order_by?: InputMaybe<Array<Mvk_Mint_History_Data_Order_By>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
@@ -33331,7 +33517,7 @@ export type Mavryk_UserMvk_Transfer_Sender_AggregateArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserSatellite_RecordArgs = {
+export type Mavryk_UserSatellite_RecordsArgs = {
   distinct_on?: InputMaybe<Array<Satellite_Record_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -33341,7 +33527,7 @@ export type Mavryk_UserSatellite_RecordArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserSatellite_Record_AggregateArgs = {
+export type Mavryk_UserSatellite_Records_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Satellite_Record_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -33511,7 +33697,7 @@ export type Mavryk_UserVault_Depositor_Records_AggregateArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserVesting_Vestee_RecordArgs = {
+export type Mavryk_UserVesting_Vestee_RecordsArgs = {
   distinct_on?: InputMaybe<Array<Vesting_Vestee_Record_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -33521,7 +33707,7 @@ export type Mavryk_UserVesting_Vestee_RecordArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
-export type Mavryk_UserVesting_Vestee_Record_AggregateArgs = {
+export type Mavryk_UserVesting_Vestee_Records_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Vesting_Vestee_Record_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -33602,12 +33788,12 @@ export type Mavryk_User_Bool_Exp = {
   aggregator_oracle_rewards_xtz?: InputMaybe<Aggregator_Observation_Reward_Xtz_Bool_Exp>;
   break_glass_actions_initiator?: InputMaybe<Break_Glass_Action_Record_Bool_Exp>;
   break_glass_actions_signer?: InputMaybe<Break_Glass_Action_Record_Signer_Bool_Exp>;
-  break_glass_council_member?: InputMaybe<Break_Glass_Council_Member_Bool_Exp>;
+  break_glass_council_members?: InputMaybe<Break_Glass_Council_Member_Bool_Exp>;
   council_actions_initiator?: InputMaybe<Council_Action_Record_Bool_Exp>;
   council_actions_signer?: InputMaybe<Council_Action_Record_Signer_Bool_Exp>;
-  council_council_member?: InputMaybe<Council_Council_Member_Bool_Exp>;
+  council_council_members?: InputMaybe<Council_Council_Member_Bool_Exp>;
   delegation_records?: InputMaybe<Delegation_Record_Bool_Exp>;
-  doorman_stake_account?: InputMaybe<Doorman_Stake_Account_Bool_Exp>;
+  doorman_stake_accounts?: InputMaybe<Doorman_Stake_Account_Bool_Exp>;
   emergency_governance_proposer?: InputMaybe<Emergency_Governance_Record_Bool_Exp>;
   emergency_governance_votes?: InputMaybe<Emergency_Governance_Vote_Bool_Exp>;
   farm_accounts?: InputMaybe<Farm_Account_Bool_Exp>;
@@ -33625,11 +33811,11 @@ export type Mavryk_User_Bool_Exp = {
   governance_satellite_snapshot_records_votes?: InputMaybe<Governance_Satellite_Snapshot_Record_Bool_Exp>;
   lending_controller_depositor_records?: InputMaybe<Lending_Controller_Depositor_Record_Bool_Exp>;
   lending_controller_vault_owners?: InputMaybe<Lending_Controller_Vault_Handle_Bool_Exp>;
-  mint_history_data?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  mint_history_data?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
   mvk_balance?: InputMaybe<Float8_Comparison_Exp>;
   mvk_transfer_receiver?: InputMaybe<Mvk_Transfer_History_Data_Bool_Exp>;
   mvk_transfer_sender?: InputMaybe<Mvk_Transfer_History_Data_Bool_Exp>;
-  satellite_record?: InputMaybe<Satellite_Record_Bool_Exp>;
+  satellite_records?: InputMaybe<Satellite_Record_Bool_Exp>;
   satellite_rewards_records?: InputMaybe<Satellite_Rewards_Record_Bool_Exp>;
   smvk_balance?: InputMaybe<Float8_Comparison_Exp>;
   stake_records?: InputMaybe<Stake_History_Data_Bool_Exp>;
@@ -33639,7 +33825,7 @@ export type Mavryk_User_Bool_Exp = {
   user_operators?: InputMaybe<Mavryk_User_Operator_Bool_Exp>;
   users_owner?: InputMaybe<Mavryk_User_Operator_Bool_Exp>;
   vault_depositor_records?: InputMaybe<Vault_Depositor_Record_Bool_Exp>;
-  vesting_vestee_record?: InputMaybe<Vesting_Vestee_Record_Bool_Exp>;
+  vesting_vestee_records?: InputMaybe<Vesting_Vestee_Record_Bool_Exp>;
   whitelist_developers?: InputMaybe<Whitelist_Developer_Bool_Exp>;
 };
 
@@ -33878,12 +34064,12 @@ export type Mavryk_User_Order_By = {
   aggregator_oracle_rewards_xtz_aggregate?: InputMaybe<Aggregator_Observation_Reward_Xtz_Aggregate_Order_By>;
   break_glass_actions_initiator_aggregate?: InputMaybe<Break_Glass_Action_Record_Aggregate_Order_By>;
   break_glass_actions_signer_aggregate?: InputMaybe<Break_Glass_Action_Record_Signer_Aggregate_Order_By>;
-  break_glass_council_member_aggregate?: InputMaybe<Break_Glass_Council_Member_Aggregate_Order_By>;
+  break_glass_council_members_aggregate?: InputMaybe<Break_Glass_Council_Member_Aggregate_Order_By>;
   council_actions_initiator_aggregate?: InputMaybe<Council_Action_Record_Aggregate_Order_By>;
   council_actions_signer_aggregate?: InputMaybe<Council_Action_Record_Signer_Aggregate_Order_By>;
-  council_council_member_aggregate?: InputMaybe<Council_Council_Member_Aggregate_Order_By>;
+  council_council_members_aggregate?: InputMaybe<Council_Council_Member_Aggregate_Order_By>;
   delegation_records_aggregate?: InputMaybe<Delegation_Record_Aggregate_Order_By>;
-  doorman_stake_account_aggregate?: InputMaybe<Doorman_Stake_Account_Aggregate_Order_By>;
+  doorman_stake_accounts_aggregate?: InputMaybe<Doorman_Stake_Account_Aggregate_Order_By>;
   emergency_governance_proposer_aggregate?: InputMaybe<Emergency_Governance_Record_Aggregate_Order_By>;
   emergency_governance_votes_aggregate?: InputMaybe<Emergency_Governance_Vote_Aggregate_Order_By>;
   farm_accounts_aggregate?: InputMaybe<Farm_Account_Aggregate_Order_By>;
@@ -33901,11 +34087,11 @@ export type Mavryk_User_Order_By = {
   governance_satellite_snapshot_records_votes_aggregate?: InputMaybe<Governance_Satellite_Snapshot_Record_Aggregate_Order_By>;
   lending_controller_depositor_records_aggregate?: InputMaybe<Lending_Controller_Depositor_Record_Aggregate_Order_By>;
   lending_controller_vault_owners_aggregate?: InputMaybe<Lending_Controller_Vault_Handle_Aggregate_Order_By>;
-  mint_history_data_aggregate?: InputMaybe<Mint_History_Data_Aggregate_Order_By>;
+  mint_history_data_aggregate?: InputMaybe<Mvk_Mint_History_Data_Aggregate_Order_By>;
   mvk_balance?: InputMaybe<Order_By>;
   mvk_transfer_receiver_aggregate?: InputMaybe<Mvk_Transfer_History_Data_Aggregate_Order_By>;
   mvk_transfer_sender_aggregate?: InputMaybe<Mvk_Transfer_History_Data_Aggregate_Order_By>;
-  satellite_record_aggregate?: InputMaybe<Satellite_Record_Aggregate_Order_By>;
+  satellite_records_aggregate?: InputMaybe<Satellite_Record_Aggregate_Order_By>;
   satellite_rewards_records_aggregate?: InputMaybe<Satellite_Rewards_Record_Aggregate_Order_By>;
   smvk_balance?: InputMaybe<Order_By>;
   stake_records_aggregate?: InputMaybe<Stake_History_Data_Aggregate_Order_By>;
@@ -33915,7 +34101,7 @@ export type Mavryk_User_Order_By = {
   user_operators_aggregate?: InputMaybe<Mavryk_User_Operator_Aggregate_Order_By>;
   users_owner_aggregate?: InputMaybe<Mavryk_User_Operator_Aggregate_Order_By>;
   vault_depositor_records_aggregate?: InputMaybe<Vault_Depositor_Record_Aggregate_Order_By>;
-  vesting_vestee_record_aggregate?: InputMaybe<Vesting_Vestee_Record_Aggregate_Order_By>;
+  vesting_vestee_records_aggregate?: InputMaybe<Vesting_Vestee_Record_Aggregate_Order_By>;
   whitelist_developers_aggregate?: InputMaybe<Whitelist_Developer_Aggregate_Order_By>;
 };
 
@@ -33978,9 +34164,9 @@ export type Mavryk_User_Variance_Fields = {
   smvk_balance?: Maybe<Scalars['Float']>;
 };
 
-/** columns and relationships of "mint_history_data" */
-export type Mint_History_Data = {
-  __typename?: 'mint_history_data';
+/** columns and relationships of "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data = {
+  __typename?: 'mvk_mint_history_data';
   id: Scalars['bigint'];
   minted_amount: Scalars['float8'];
   /** An object relationship */
@@ -33993,71 +34179,71 @@ export type Mint_History_Data = {
   user_id: Scalars['String'];
 };
 
-/** aggregated selection of "mint_history_data" */
-export type Mint_History_Data_Aggregate = {
-  __typename?: 'mint_history_data_aggregate';
-  aggregate?: Maybe<Mint_History_Data_Aggregate_Fields>;
-  nodes: Array<Mint_History_Data>;
+/** aggregated selection of "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Aggregate = {
+  __typename?: 'mvk_mint_history_data_aggregate';
+  aggregate?: Maybe<Mvk_Mint_History_Data_Aggregate_Fields>;
+  nodes: Array<Mvk_Mint_History_Data>;
 };
 
-/** aggregate fields of "mint_history_data" */
-export type Mint_History_Data_Aggregate_Fields = {
-  __typename?: 'mint_history_data_aggregate_fields';
-  avg?: Maybe<Mint_History_Data_Avg_Fields>;
+/** aggregate fields of "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Aggregate_Fields = {
+  __typename?: 'mvk_mint_history_data_aggregate_fields';
+  avg?: Maybe<Mvk_Mint_History_Data_Avg_Fields>;
   count: Scalars['Int'];
-  max?: Maybe<Mint_History_Data_Max_Fields>;
-  min?: Maybe<Mint_History_Data_Min_Fields>;
-  stddev?: Maybe<Mint_History_Data_Stddev_Fields>;
-  stddev_pop?: Maybe<Mint_History_Data_Stddev_Pop_Fields>;
-  stddev_samp?: Maybe<Mint_History_Data_Stddev_Samp_Fields>;
-  sum?: Maybe<Mint_History_Data_Sum_Fields>;
-  var_pop?: Maybe<Mint_History_Data_Var_Pop_Fields>;
-  var_samp?: Maybe<Mint_History_Data_Var_Samp_Fields>;
-  variance?: Maybe<Mint_History_Data_Variance_Fields>;
+  max?: Maybe<Mvk_Mint_History_Data_Max_Fields>;
+  min?: Maybe<Mvk_Mint_History_Data_Min_Fields>;
+  stddev?: Maybe<Mvk_Mint_History_Data_Stddev_Fields>;
+  stddev_pop?: Maybe<Mvk_Mint_History_Data_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Mvk_Mint_History_Data_Stddev_Samp_Fields>;
+  sum?: Maybe<Mvk_Mint_History_Data_Sum_Fields>;
+  var_pop?: Maybe<Mvk_Mint_History_Data_Var_Pop_Fields>;
+  var_samp?: Maybe<Mvk_Mint_History_Data_Var_Samp_Fields>;
+  variance?: Maybe<Mvk_Mint_History_Data_Variance_Fields>;
 };
 
 
-/** aggregate fields of "mint_history_data" */
-export type Mint_History_Data_Aggregate_FieldsCountArgs = {
-  columns?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+/** aggregate fields of "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   distinct?: InputMaybe<Scalars['Boolean']>;
 };
 
-/** order by aggregate values of table "mint_history_data" */
-export type Mint_History_Data_Aggregate_Order_By = {
-  avg?: InputMaybe<Mint_History_Data_Avg_Order_By>;
+/** order by aggregate values of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Aggregate_Order_By = {
+  avg?: InputMaybe<Mvk_Mint_History_Data_Avg_Order_By>;
   count?: InputMaybe<Order_By>;
-  max?: InputMaybe<Mint_History_Data_Max_Order_By>;
-  min?: InputMaybe<Mint_History_Data_Min_Order_By>;
-  stddev?: InputMaybe<Mint_History_Data_Stddev_Order_By>;
-  stddev_pop?: InputMaybe<Mint_History_Data_Stddev_Pop_Order_By>;
-  stddev_samp?: InputMaybe<Mint_History_Data_Stddev_Samp_Order_By>;
-  sum?: InputMaybe<Mint_History_Data_Sum_Order_By>;
-  var_pop?: InputMaybe<Mint_History_Data_Var_Pop_Order_By>;
-  var_samp?: InputMaybe<Mint_History_Data_Var_Samp_Order_By>;
-  variance?: InputMaybe<Mint_History_Data_Variance_Order_By>;
+  max?: InputMaybe<Mvk_Mint_History_Data_Max_Order_By>;
+  min?: InputMaybe<Mvk_Mint_History_Data_Min_Order_By>;
+  stddev?: InputMaybe<Mvk_Mint_History_Data_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Mvk_Mint_History_Data_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Mvk_Mint_History_Data_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Mvk_Mint_History_Data_Sum_Order_By>;
+  var_pop?: InputMaybe<Mvk_Mint_History_Data_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Mvk_Mint_History_Data_Var_Samp_Order_By>;
+  variance?: InputMaybe<Mvk_Mint_History_Data_Variance_Order_By>;
 };
 
 /** aggregate avg on columns */
-export type Mint_History_Data_Avg_Fields = {
-  __typename?: 'mint_history_data_avg_fields';
+export type Mvk_Mint_History_Data_Avg_Fields = {
+  __typename?: 'mvk_mint_history_data_avg_fields';
   id?: Maybe<Scalars['Float']>;
   minted_amount?: Maybe<Scalars['Float']>;
   mvk_total_supply?: Maybe<Scalars['Float']>;
 };
 
-/** order by avg() on columns of table "mint_history_data" */
-export type Mint_History_Data_Avg_Order_By = {
+/** order by avg() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Avg_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
 };
 
-/** Boolean expression to filter rows from the table "mint_history_data". All fields are combined with a logical 'AND'. */
-export type Mint_History_Data_Bool_Exp = {
-  _and?: InputMaybe<Array<Mint_History_Data_Bool_Exp>>;
-  _not?: InputMaybe<Mint_History_Data_Bool_Exp>;
-  _or?: InputMaybe<Array<Mint_History_Data_Bool_Exp>>;
+/** Boolean expression to filter rows from the table "mvk_mint_history_data". All fields are combined with a logical 'AND'. */
+export type Mvk_Mint_History_Data_Bool_Exp = {
+  _and?: InputMaybe<Array<Mvk_Mint_History_Data_Bool_Exp>>;
+  _not?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
+  _or?: InputMaybe<Array<Mvk_Mint_History_Data_Bool_Exp>>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
   minted_amount?: InputMaybe<Float8_Comparison_Exp>;
   mvk_token?: InputMaybe<Mvk_Token_Bool_Exp>;
@@ -34069,8 +34255,8 @@ export type Mint_History_Data_Bool_Exp = {
 };
 
 /** aggregate max on columns */
-export type Mint_History_Data_Max_Fields = {
-  __typename?: 'mint_history_data_max_fields';
+export type Mvk_Mint_History_Data_Max_Fields = {
+  __typename?: 'mvk_mint_history_data_max_fields';
   id?: Maybe<Scalars['bigint']>;
   minted_amount?: Maybe<Scalars['float8']>;
   mvk_token_id?: Maybe<Scalars['String']>;
@@ -34079,8 +34265,8 @@ export type Mint_History_Data_Max_Fields = {
   user_id?: Maybe<Scalars['String']>;
 };
 
-/** order by max() on columns of table "mint_history_data" */
-export type Mint_History_Data_Max_Order_By = {
+/** order by max() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Max_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_token_id?: InputMaybe<Order_By>;
@@ -34090,8 +34276,8 @@ export type Mint_History_Data_Max_Order_By = {
 };
 
 /** aggregate min on columns */
-export type Mint_History_Data_Min_Fields = {
-  __typename?: 'mint_history_data_min_fields';
+export type Mvk_Mint_History_Data_Min_Fields = {
+  __typename?: 'mvk_mint_history_data_min_fields';
   id?: Maybe<Scalars['bigint']>;
   minted_amount?: Maybe<Scalars['float8']>;
   mvk_token_id?: Maybe<Scalars['String']>;
@@ -34100,8 +34286,8 @@ export type Mint_History_Data_Min_Fields = {
   user_id?: Maybe<Scalars['String']>;
 };
 
-/** order by min() on columns of table "mint_history_data" */
-export type Mint_History_Data_Min_Order_By = {
+/** order by min() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Min_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_token_id?: InputMaybe<Order_By>;
@@ -34110,8 +34296,8 @@ export type Mint_History_Data_Min_Order_By = {
   user_id?: InputMaybe<Order_By>;
 };
 
-/** Ordering options when selecting data from "mint_history_data". */
-export type Mint_History_Data_Order_By = {
+/** Ordering options when selecting data from "mvk_mint_history_data". */
+export type Mvk_Mint_History_Data_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_token?: InputMaybe<Mvk_Token_Order_By>;
@@ -34122,8 +34308,8 @@ export type Mint_History_Data_Order_By = {
   user_id?: InputMaybe<Order_By>;
 };
 
-/** select columns of table "mint_history_data" */
-export enum Mint_History_Data_Select_Column {
+/** select columns of table "mvk_mint_history_data" */
+export enum Mvk_Mint_History_Data_Select_Column {
   /** column name */
   Id = 'id',
   /** column name */
@@ -34139,105 +34325,105 @@ export enum Mint_History_Data_Select_Column {
 }
 
 /** aggregate stddev on columns */
-export type Mint_History_Data_Stddev_Fields = {
-  __typename?: 'mint_history_data_stddev_fields';
+export type Mvk_Mint_History_Data_Stddev_Fields = {
+  __typename?: 'mvk_mint_history_data_stddev_fields';
   id?: Maybe<Scalars['Float']>;
   minted_amount?: Maybe<Scalars['Float']>;
   mvk_total_supply?: Maybe<Scalars['Float']>;
 };
 
-/** order by stddev() on columns of table "mint_history_data" */
-export type Mint_History_Data_Stddev_Order_By = {
+/** order by stddev() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Stddev_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_pop on columns */
-export type Mint_History_Data_Stddev_Pop_Fields = {
-  __typename?: 'mint_history_data_stddev_pop_fields';
+export type Mvk_Mint_History_Data_Stddev_Pop_Fields = {
+  __typename?: 'mvk_mint_history_data_stddev_pop_fields';
   id?: Maybe<Scalars['Float']>;
   minted_amount?: Maybe<Scalars['Float']>;
   mvk_total_supply?: Maybe<Scalars['Float']>;
 };
 
-/** order by stddev_pop() on columns of table "mint_history_data" */
-export type Mint_History_Data_Stddev_Pop_Order_By = {
+/** order by stddev_pop() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Stddev_Pop_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_samp on columns */
-export type Mint_History_Data_Stddev_Samp_Fields = {
-  __typename?: 'mint_history_data_stddev_samp_fields';
+export type Mvk_Mint_History_Data_Stddev_Samp_Fields = {
+  __typename?: 'mvk_mint_history_data_stddev_samp_fields';
   id?: Maybe<Scalars['Float']>;
   minted_amount?: Maybe<Scalars['Float']>;
   mvk_total_supply?: Maybe<Scalars['Float']>;
 };
 
-/** order by stddev_samp() on columns of table "mint_history_data" */
-export type Mint_History_Data_Stddev_Samp_Order_By = {
+/** order by stddev_samp() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
 };
 
 /** aggregate sum on columns */
-export type Mint_History_Data_Sum_Fields = {
-  __typename?: 'mint_history_data_sum_fields';
+export type Mvk_Mint_History_Data_Sum_Fields = {
+  __typename?: 'mvk_mint_history_data_sum_fields';
   id?: Maybe<Scalars['bigint']>;
   minted_amount?: Maybe<Scalars['float8']>;
   mvk_total_supply?: Maybe<Scalars['float8']>;
 };
 
-/** order by sum() on columns of table "mint_history_data" */
-export type Mint_History_Data_Sum_Order_By = {
+/** order by sum() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Sum_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
 };
 
 /** aggregate var_pop on columns */
-export type Mint_History_Data_Var_Pop_Fields = {
-  __typename?: 'mint_history_data_var_pop_fields';
+export type Mvk_Mint_History_Data_Var_Pop_Fields = {
+  __typename?: 'mvk_mint_history_data_var_pop_fields';
   id?: Maybe<Scalars['Float']>;
   minted_amount?: Maybe<Scalars['Float']>;
   mvk_total_supply?: Maybe<Scalars['Float']>;
 };
 
-/** order by var_pop() on columns of table "mint_history_data" */
-export type Mint_History_Data_Var_Pop_Order_By = {
+/** order by var_pop() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Var_Pop_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
 };
 
 /** aggregate var_samp on columns */
-export type Mint_History_Data_Var_Samp_Fields = {
-  __typename?: 'mint_history_data_var_samp_fields';
+export type Mvk_Mint_History_Data_Var_Samp_Fields = {
+  __typename?: 'mvk_mint_history_data_var_samp_fields';
   id?: Maybe<Scalars['Float']>;
   minted_amount?: Maybe<Scalars['Float']>;
   mvk_total_supply?: Maybe<Scalars['Float']>;
 };
 
-/** order by var_samp() on columns of table "mint_history_data" */
-export type Mint_History_Data_Var_Samp_Order_By = {
+/** order by var_samp() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Var_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
 };
 
 /** aggregate variance on columns */
-export type Mint_History_Data_Variance_Fields = {
-  __typename?: 'mint_history_data_variance_fields';
+export type Mvk_Mint_History_Data_Variance_Fields = {
+  __typename?: 'mvk_mint_history_data_variance_fields';
   id?: Maybe<Scalars['Float']>;
   minted_amount?: Maybe<Scalars['Float']>;
   mvk_total_supply?: Maybe<Scalars['Float']>;
 };
 
-/** order by variance() on columns of table "mint_history_data" */
-export type Mint_History_Data_Variance_Order_By = {
+/** order by variance() on columns of table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Variance_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
@@ -34259,15 +34445,15 @@ export type Mvk_Token = {
   last_updated_at?: Maybe<Scalars['timestamptz']>;
   maximum_supply: Scalars['float8'];
   /** An array relationship */
-  mint_history_data: Array<Mint_History_Data>;
+  mint_history_data: Array<Mvk_Mint_History_Data>;
   /** An aggregate relationship */
-  mint_history_data_aggregate: Mint_History_Data_Aggregate;
-  /** An array relationship */
-  mvk_transfer_history_data: Array<Mvk_Transfer_History_Data>;
-  /** An aggregate relationship */
-  mvk_transfer_history_data_aggregate: Mvk_Transfer_History_Data_Aggregate;
+  mint_history_data_aggregate: Mvk_Mint_History_Data_Aggregate;
   next_inflation_timestamp?: Maybe<Scalars['timestamptz']>;
   total_supply: Scalars['float8'];
+  /** An array relationship */
+  transfer_history_data: Array<Mvk_Transfer_History_Data>;
+  /** An aggregate relationship */
+  transfer_history_data_aggregate: Mvk_Transfer_History_Data_Aggregate;
   /** An array relationship */
   whitelist_contracts: Array<Mvk_Token_Whitelist_Contract>;
   /** An aggregate relationship */
@@ -34297,26 +34483,26 @@ export type Mvk_TokenGeneral_Contracts_AggregateArgs = {
 
 /** columns and relationships of "mvk_token" */
 export type Mvk_TokenMint_History_DataArgs = {
-  distinct_on?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+  distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Mint_History_Data_Order_By>>;
-  where?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  order_by?: InputMaybe<Array<Mvk_Mint_History_Data_Order_By>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
 /** columns and relationships of "mvk_token" */
 export type Mvk_TokenMint_History_Data_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+  distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Mint_History_Data_Order_By>>;
-  where?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  order_by?: InputMaybe<Array<Mvk_Mint_History_Data_Order_By>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
 /** columns and relationships of "mvk_token" */
-export type Mvk_TokenMvk_Transfer_History_DataArgs = {
+export type Mvk_TokenTransfer_History_DataArgs = {
   distinct_on?: InputMaybe<Array<Mvk_Transfer_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -34326,7 +34512,7 @@ export type Mvk_TokenMvk_Transfer_History_DataArgs = {
 
 
 /** columns and relationships of "mvk_token" */
-export type Mvk_TokenMvk_Transfer_History_Data_AggregateArgs = {
+export type Mvk_TokenTransfer_History_Data_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Mvk_Transfer_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -34427,10 +34613,10 @@ export type Mvk_Token_Bool_Exp = {
   inflation_rate?: InputMaybe<Smallint_Comparison_Exp>;
   last_updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   maximum_supply?: InputMaybe<Float8_Comparison_Exp>;
-  mint_history_data?: InputMaybe<Mint_History_Data_Bool_Exp>;
-  mvk_transfer_history_data?: InputMaybe<Mvk_Transfer_History_Data_Bool_Exp>;
+  mint_history_data?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
   next_inflation_timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
   total_supply?: InputMaybe<Float8_Comparison_Exp>;
+  transfer_history_data?: InputMaybe<Mvk_Transfer_History_Data_Bool_Exp>;
   whitelist_contracts?: InputMaybe<Mvk_Token_Whitelist_Contract_Bool_Exp>;
 };
 
@@ -34705,10 +34891,10 @@ export type Mvk_Token_Order_By = {
   inflation_rate?: InputMaybe<Order_By>;
   last_updated_at?: InputMaybe<Order_By>;
   maximum_supply?: InputMaybe<Order_By>;
-  mint_history_data_aggregate?: InputMaybe<Mint_History_Data_Aggregate_Order_By>;
-  mvk_transfer_history_data_aggregate?: InputMaybe<Mvk_Transfer_History_Data_Aggregate_Order_By>;
+  mint_history_data_aggregate?: InputMaybe<Mvk_Mint_History_Data_Aggregate_Order_By>;
   next_inflation_timestamp?: InputMaybe<Order_By>;
   total_supply?: InputMaybe<Order_By>;
+  transfer_history_data_aggregate?: InputMaybe<Mvk_Transfer_History_Data_Aggregate_Order_By>;
   whitelist_contracts_aggregate?: InputMaybe<Mvk_Token_Whitelist_Contract_Aggregate_Order_By>;
 };
 
@@ -35433,9 +35619,9 @@ export type Query_Root = {
   break_glass_aggregate: Break_Glass_Aggregate;
   /** fetch data from the table: "break_glass" using primary key columns */
   break_glass_by_pk?: Maybe<Break_Glass>;
-  /** An array relationship */
+  /** fetch data from the table: "break_glass_council_member" */
   break_glass_council_member: Array<Break_Glass_Council_Member>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "break_glass_council_member" */
   break_glass_council_member_aggregate: Break_Glass_Council_Member_Aggregate;
   /** fetch data from the table: "break_glass_council_member" using primary key columns */
   break_glass_council_member_by_pk?: Maybe<Break_Glass_Council_Member>;
@@ -35481,9 +35667,9 @@ export type Query_Root = {
   council_aggregate: Council_Aggregate;
   /** fetch data from the table: "council" using primary key columns */
   council_by_pk?: Maybe<Council>;
-  /** An array relationship */
+  /** fetch data from the table: "council_council_member" */
   council_council_member: Array<Council_Council_Member>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "council_council_member" */
   council_council_member_aggregate: Council_Council_Member_Aggregate;
   /** fetch data from the table: "council_council_member" using primary key columns */
   council_council_member_by_pk?: Maybe<Council_Council_Member>;
@@ -35563,6 +35749,12 @@ export type Query_Root = {
   dipdup_index_aggregate: Dipdup_Index_Aggregate;
   /** fetch data from the table: "dipdup_index" using primary key columns */
   dipdup_index_by_pk?: Maybe<Dipdup_Index>;
+  /** fetch data from the table: "dipdup_model_update" */
+  dipdup_model_update: Array<Dipdup_Model_Update>;
+  /** fetch aggregated fields from the table: "dipdup_model_update" */
+  dipdup_model_update_aggregate: Dipdup_Model_Update_Aggregate;
+  /** fetch data from the table: "dipdup_model_update" using primary key columns */
+  dipdup_model_update_by_pk?: Maybe<Dipdup_Model_Update>;
   /** fetch data from the table: "dipdup_schema" */
   dipdup_schema: Array<Dipdup_Schema>;
   /** fetch aggregated fields from the table: "dipdup_schema" */
@@ -35593,9 +35785,9 @@ export type Query_Root = {
   doorman_lambda_aggregate: Doorman_Lambda_Aggregate;
   /** fetch data from the table: "doorman_lambda" using primary key columns */
   doorman_lambda_by_pk?: Maybe<Doorman_Lambda>;
-  /** An array relationship */
+  /** fetch data from the table: "doorman_stake_account" */
   doorman_stake_account: Array<Doorman_Stake_Account>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "doorman_stake_account" */
   doorman_stake_account_aggregate: Doorman_Stake_Account_Aggregate;
   /** fetch data from the table: "doorman_stake_account" using primary key columns */
   doorman_stake_account_by_pk?: Maybe<Doorman_Stake_Account>;
@@ -36001,15 +36193,15 @@ export type Query_Root = {
   mavryk_user_operator_aggregate: Mavryk_User_Operator_Aggregate;
   /** fetch data from the table: "mavryk_user_operator" using primary key columns */
   mavryk_user_operator_by_pk?: Maybe<Mavryk_User_Operator>;
-  /** An array relationship */
-  mint_history_data: Array<Mint_History_Data>;
-  /** An aggregate relationship */
-  mint_history_data_aggregate: Mint_History_Data_Aggregate;
-  /** fetch data from the table: "mint_history_data" using primary key columns */
-  mint_history_data_by_pk?: Maybe<Mint_History_Data>;
-  /** An array relationship */
+  /** fetch data from the table: "mvk_mint_history_data" */
+  mvk_mint_history_data: Array<Mvk_Mint_History_Data>;
+  /** fetch aggregated fields from the table: "mvk_mint_history_data" */
+  mvk_mint_history_data_aggregate: Mvk_Mint_History_Data_Aggregate;
+  /** fetch data from the table: "mvk_mint_history_data" using primary key columns */
+  mvk_mint_history_data_by_pk?: Maybe<Mvk_Mint_History_Data>;
+  /** fetch data from the table: "mvk_token" */
   mvk_token: Array<Mvk_Token>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "mvk_token" */
   mvk_token_aggregate: Mvk_Token_Aggregate;
   /** fetch data from the table: "mvk_token" using primary key columns */
   mvk_token_by_pk?: Maybe<Mvk_Token>;
@@ -36025,15 +36217,15 @@ export type Query_Root = {
   mvk_token_whitelist_contract_aggregate: Mvk_Token_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "mvk_token_whitelist_contract" using primary key columns */
   mvk_token_whitelist_contract_by_pk?: Maybe<Mvk_Token_Whitelist_Contract>;
-  /** An array relationship */
+  /** fetch data from the table: "mvk_transfer_history_data" */
   mvk_transfer_history_data: Array<Mvk_Transfer_History_Data>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "mvk_transfer_history_data" */
   mvk_transfer_history_data_aggregate: Mvk_Transfer_History_Data_Aggregate;
   /** fetch data from the table: "mvk_transfer_history_data" using primary key columns */
   mvk_transfer_history_data_by_pk?: Maybe<Mvk_Transfer_History_Data>;
-  /** An array relationship */
+  /** fetch data from the table: "satellite_record" */
   satellite_record: Array<Satellite_Record>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "satellite_record" */
   satellite_record_aggregate: Satellite_Record_Aggregate;
   /** fetch data from the table: "satellite_record" using primary key columns */
   satellite_record_by_pk?: Maybe<Satellite_Record>;
@@ -36043,9 +36235,9 @@ export type Query_Root = {
   satellite_rewards_record_aggregate: Satellite_Rewards_Record_Aggregate;
   /** fetch data from the table: "satellite_rewards_record" using primary key columns */
   satellite_rewards_record_by_pk?: Maybe<Satellite_Rewards_Record>;
-  /** An array relationship */
+  /** fetch data from the table: "smvk_history_data" */
   smvk_history_data: Array<Smvk_History_Data>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "smvk_history_data" */
   smvk_history_data_aggregate: Smvk_History_Data_Aggregate;
   /** fetch data from the table: "smvk_history_data" using primary key columns */
   smvk_history_data_by_pk?: Maybe<Smvk_History_Data>;
@@ -36145,9 +36337,9 @@ export type Query_Root = {
   treasury_lambda_aggregate: Treasury_Lambda_Aggregate;
   /** fetch data from the table: "treasury_lambda" using primary key columns */
   treasury_lambda_by_pk?: Maybe<Treasury_Lambda>;
-  /** An array relationship */
+  /** fetch data from the table: "treasury_transfer_history_data" */
   treasury_transfer_history_data: Array<Treasury_Transfer_History_Data>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "treasury_transfer_history_data" */
   treasury_transfer_history_data_aggregate: Treasury_Transfer_History_Data_Aggregate;
   /** fetch data from the table: "treasury_transfer_history_data" using primary key columns */
   treasury_transfer_history_data_by_pk?: Maybe<Treasury_Transfer_History_Data>;
@@ -36199,9 +36391,9 @@ export type Query_Root = {
   vesting_lambda_aggregate: Vesting_Lambda_Aggregate;
   /** fetch data from the table: "vesting_lambda" using primary key columns */
   vesting_lambda_by_pk?: Maybe<Vesting_Lambda>;
-  /** An array relationship */
+  /** fetch data from the table: "vesting_vestee_record" */
   vesting_vestee_record: Array<Vesting_Vestee_Record>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "vesting_vestee_record" */
   vesting_vestee_record_aggregate: Vesting_Vestee_Record_Aggregate;
   /** fetch data from the table: "vesting_vestee_record" using primary key columns */
   vesting_vestee_record_by_pk?: Maybe<Vesting_Vestee_Record>;
@@ -37155,6 +37347,29 @@ export type Query_RootDipdup_Index_AggregateArgs = {
 
 export type Query_RootDipdup_Index_By_PkArgs = {
   name: Scalars['String'];
+};
+
+
+export type Query_RootDipdup_Model_UpdateArgs = {
+  distinct_on?: InputMaybe<Array<Dipdup_Model_Update_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Dipdup_Model_Update_Order_By>>;
+  where?: InputMaybe<Dipdup_Model_Update_Bool_Exp>;
+};
+
+
+export type Query_RootDipdup_Model_Update_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Dipdup_Model_Update_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Dipdup_Model_Update_Order_By>>;
+  where?: InputMaybe<Dipdup_Model_Update_Bool_Exp>;
+};
+
+
+export type Query_RootDipdup_Model_Update_By_PkArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -38837,25 +39052,25 @@ export type Query_RootMavryk_User_Operator_By_PkArgs = {
 };
 
 
-export type Query_RootMint_History_DataArgs = {
-  distinct_on?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+export type Query_RootMvk_Mint_History_DataArgs = {
+  distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Mint_History_Data_Order_By>>;
-  where?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  order_by?: InputMaybe<Array<Mvk_Mint_History_Data_Order_By>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
-export type Query_RootMint_History_Data_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+export type Query_RootMvk_Mint_History_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Mint_History_Data_Order_By>>;
-  where?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  order_by?: InputMaybe<Array<Mvk_Mint_History_Data_Order_By>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
-export type Query_RootMint_History_Data_By_PkArgs = {
+export type Query_RootMvk_Mint_History_Data_By_PkArgs = {
   id: Scalars['bigint'];
 };
 
@@ -41086,9 +41301,9 @@ export type Subscription_Root = {
   break_glass_aggregate: Break_Glass_Aggregate;
   /** fetch data from the table: "break_glass" using primary key columns */
   break_glass_by_pk?: Maybe<Break_Glass>;
-  /** An array relationship */
+  /** fetch data from the table: "break_glass_council_member" */
   break_glass_council_member: Array<Break_Glass_Council_Member>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "break_glass_council_member" */
   break_glass_council_member_aggregate: Break_Glass_Council_Member_Aggregate;
   /** fetch data from the table: "break_glass_council_member" using primary key columns */
   break_glass_council_member_by_pk?: Maybe<Break_Glass_Council_Member>;
@@ -41134,9 +41349,9 @@ export type Subscription_Root = {
   council_aggregate: Council_Aggregate;
   /** fetch data from the table: "council" using primary key columns */
   council_by_pk?: Maybe<Council>;
-  /** An array relationship */
+  /** fetch data from the table: "council_council_member" */
   council_council_member: Array<Council_Council_Member>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "council_council_member" */
   council_council_member_aggregate: Council_Council_Member_Aggregate;
   /** fetch data from the table: "council_council_member" using primary key columns */
   council_council_member_by_pk?: Maybe<Council_Council_Member>;
@@ -41216,6 +41431,12 @@ export type Subscription_Root = {
   dipdup_index_aggregate: Dipdup_Index_Aggregate;
   /** fetch data from the table: "dipdup_index" using primary key columns */
   dipdup_index_by_pk?: Maybe<Dipdup_Index>;
+  /** fetch data from the table: "dipdup_model_update" */
+  dipdup_model_update: Array<Dipdup_Model_Update>;
+  /** fetch aggregated fields from the table: "dipdup_model_update" */
+  dipdup_model_update_aggregate: Dipdup_Model_Update_Aggregate;
+  /** fetch data from the table: "dipdup_model_update" using primary key columns */
+  dipdup_model_update_by_pk?: Maybe<Dipdup_Model_Update>;
   /** fetch data from the table: "dipdup_schema" */
   dipdup_schema: Array<Dipdup_Schema>;
   /** fetch aggregated fields from the table: "dipdup_schema" */
@@ -41246,9 +41467,9 @@ export type Subscription_Root = {
   doorman_lambda_aggregate: Doorman_Lambda_Aggregate;
   /** fetch data from the table: "doorman_lambda" using primary key columns */
   doorman_lambda_by_pk?: Maybe<Doorman_Lambda>;
-  /** An array relationship */
+  /** fetch data from the table: "doorman_stake_account" */
   doorman_stake_account: Array<Doorman_Stake_Account>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "doorman_stake_account" */
   doorman_stake_account_aggregate: Doorman_Stake_Account_Aggregate;
   /** fetch data from the table: "doorman_stake_account" using primary key columns */
   doorman_stake_account_by_pk?: Maybe<Doorman_Stake_Account>;
@@ -41654,15 +41875,15 @@ export type Subscription_Root = {
   mavryk_user_operator_aggregate: Mavryk_User_Operator_Aggregate;
   /** fetch data from the table: "mavryk_user_operator" using primary key columns */
   mavryk_user_operator_by_pk?: Maybe<Mavryk_User_Operator>;
-  /** An array relationship */
-  mint_history_data: Array<Mint_History_Data>;
-  /** An aggregate relationship */
-  mint_history_data_aggregate: Mint_History_Data_Aggregate;
-  /** fetch data from the table: "mint_history_data" using primary key columns */
-  mint_history_data_by_pk?: Maybe<Mint_History_Data>;
-  /** An array relationship */
+  /** fetch data from the table: "mvk_mint_history_data" */
+  mvk_mint_history_data: Array<Mvk_Mint_History_Data>;
+  /** fetch aggregated fields from the table: "mvk_mint_history_data" */
+  mvk_mint_history_data_aggregate: Mvk_Mint_History_Data_Aggregate;
+  /** fetch data from the table: "mvk_mint_history_data" using primary key columns */
+  mvk_mint_history_data_by_pk?: Maybe<Mvk_Mint_History_Data>;
+  /** fetch data from the table: "mvk_token" */
   mvk_token: Array<Mvk_Token>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "mvk_token" */
   mvk_token_aggregate: Mvk_Token_Aggregate;
   /** fetch data from the table: "mvk_token" using primary key columns */
   mvk_token_by_pk?: Maybe<Mvk_Token>;
@@ -41678,15 +41899,15 @@ export type Subscription_Root = {
   mvk_token_whitelist_contract_aggregate: Mvk_Token_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "mvk_token_whitelist_contract" using primary key columns */
   mvk_token_whitelist_contract_by_pk?: Maybe<Mvk_Token_Whitelist_Contract>;
-  /** An array relationship */
+  /** fetch data from the table: "mvk_transfer_history_data" */
   mvk_transfer_history_data: Array<Mvk_Transfer_History_Data>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "mvk_transfer_history_data" */
   mvk_transfer_history_data_aggregate: Mvk_Transfer_History_Data_Aggregate;
   /** fetch data from the table: "mvk_transfer_history_data" using primary key columns */
   mvk_transfer_history_data_by_pk?: Maybe<Mvk_Transfer_History_Data>;
-  /** An array relationship */
+  /** fetch data from the table: "satellite_record" */
   satellite_record: Array<Satellite_Record>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "satellite_record" */
   satellite_record_aggregate: Satellite_Record_Aggregate;
   /** fetch data from the table: "satellite_record" using primary key columns */
   satellite_record_by_pk?: Maybe<Satellite_Record>;
@@ -41696,9 +41917,9 @@ export type Subscription_Root = {
   satellite_rewards_record_aggregate: Satellite_Rewards_Record_Aggregate;
   /** fetch data from the table: "satellite_rewards_record" using primary key columns */
   satellite_rewards_record_by_pk?: Maybe<Satellite_Rewards_Record>;
-  /** An array relationship */
+  /** fetch data from the table: "smvk_history_data" */
   smvk_history_data: Array<Smvk_History_Data>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "smvk_history_data" */
   smvk_history_data_aggregate: Smvk_History_Data_Aggregate;
   /** fetch data from the table: "smvk_history_data" using primary key columns */
   smvk_history_data_by_pk?: Maybe<Smvk_History_Data>;
@@ -41798,9 +42019,9 @@ export type Subscription_Root = {
   treasury_lambda_aggregate: Treasury_Lambda_Aggregate;
   /** fetch data from the table: "treasury_lambda" using primary key columns */
   treasury_lambda_by_pk?: Maybe<Treasury_Lambda>;
-  /** An array relationship */
+  /** fetch data from the table: "treasury_transfer_history_data" */
   treasury_transfer_history_data: Array<Treasury_Transfer_History_Data>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "treasury_transfer_history_data" */
   treasury_transfer_history_data_aggregate: Treasury_Transfer_History_Data_Aggregate;
   /** fetch data from the table: "treasury_transfer_history_data" using primary key columns */
   treasury_transfer_history_data_by_pk?: Maybe<Treasury_Transfer_History_Data>;
@@ -41852,9 +42073,9 @@ export type Subscription_Root = {
   vesting_lambda_aggregate: Vesting_Lambda_Aggregate;
   /** fetch data from the table: "vesting_lambda" using primary key columns */
   vesting_lambda_by_pk?: Maybe<Vesting_Lambda>;
-  /** An array relationship */
+  /** fetch data from the table: "vesting_vestee_record" */
   vesting_vestee_record: Array<Vesting_Vestee_Record>;
-  /** An aggregate relationship */
+  /** fetch aggregated fields from the table: "vesting_vestee_record" */
   vesting_vestee_record_aggregate: Vesting_Vestee_Record_Aggregate;
   /** fetch data from the table: "vesting_vestee_record" using primary key columns */
   vesting_vestee_record_by_pk?: Maybe<Vesting_Vestee_Record>;
@@ -42808,6 +43029,29 @@ export type Subscription_RootDipdup_Index_AggregateArgs = {
 
 export type Subscription_RootDipdup_Index_By_PkArgs = {
   name: Scalars['String'];
+};
+
+
+export type Subscription_RootDipdup_Model_UpdateArgs = {
+  distinct_on?: InputMaybe<Array<Dipdup_Model_Update_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Dipdup_Model_Update_Order_By>>;
+  where?: InputMaybe<Dipdup_Model_Update_Bool_Exp>;
+};
+
+
+export type Subscription_RootDipdup_Model_Update_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Dipdup_Model_Update_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Dipdup_Model_Update_Order_By>>;
+  where?: InputMaybe<Dipdup_Model_Update_Bool_Exp>;
+};
+
+
+export type Subscription_RootDipdup_Model_Update_By_PkArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -44490,25 +44734,25 @@ export type Subscription_RootMavryk_User_Operator_By_PkArgs = {
 };
 
 
-export type Subscription_RootMint_History_DataArgs = {
-  distinct_on?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+export type Subscription_RootMvk_Mint_History_DataArgs = {
+  distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Mint_History_Data_Order_By>>;
-  where?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  order_by?: InputMaybe<Array<Mvk_Mint_History_Data_Order_By>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
-export type Subscription_RootMint_History_Data_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Mint_History_Data_Select_Column>>;
+export type Subscription_RootMvk_Mint_History_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Mint_History_Data_Order_By>>;
-  where?: InputMaybe<Mint_History_Data_Bool_Exp>;
+  order_by?: InputMaybe<Array<Mvk_Mint_History_Data_Order_By>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
-export type Subscription_RootMint_History_Data_By_PkArgs = {
+export type Subscription_RootMvk_Mint_History_Data_By_PkArgs = {
   id: Scalars['bigint'];
 };
 
@@ -47302,14 +47546,14 @@ export type Treasury = {
   mint_mvk_and_transfer_paused: Scalars['Boolean'];
   name: Scalars['String'];
   stake_mvk_paused: Scalars['Boolean'];
+  /** An array relationship */
+  transfer_history_data: Array<Treasury_Transfer_History_Data>;
+  /** An aggregate relationship */
+  transfer_history_data_aggregate: Treasury_Transfer_History_Data_Aggregate;
   transfer_paused: Scalars['Boolean'];
   /** An object relationship */
   treasury_factory?: Maybe<Treasury_Factory>;
   treasury_factory_id?: Maybe<Scalars['String']>;
-  /** An array relationship */
-  treasury_transfer_history_data: Array<Treasury_Transfer_History_Data>;
-  /** An aggregate relationship */
-  treasury_transfer_history_data_aggregate: Treasury_Transfer_History_Data_Aggregate;
   unstake_mvk_paused: Scalars['Boolean'];
   /** An array relationship */
   whitelist_contracts: Array<Treasury_Whitelist_Contract>;
@@ -47383,7 +47627,7 @@ export type TreasuryLambdas_AggregateArgs = {
 
 
 /** columns and relationships of "treasury" */
-export type TreasuryTreasury_Transfer_History_DataArgs = {
+export type TreasuryTransfer_History_DataArgs = {
   distinct_on?: InputMaybe<Array<Treasury_Transfer_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -47393,7 +47637,7 @@ export type TreasuryTreasury_Transfer_History_DataArgs = {
 
 
 /** columns and relationships of "treasury" */
-export type TreasuryTreasury_Transfer_History_Data_AggregateArgs = {
+export type TreasuryTransfer_History_Data_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Treasury_Transfer_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -47487,10 +47731,10 @@ export type Treasury_Bool_Exp = {
   mint_mvk_and_transfer_paused?: InputMaybe<Boolean_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
   stake_mvk_paused?: InputMaybe<Boolean_Comparison_Exp>;
+  transfer_history_data?: InputMaybe<Treasury_Transfer_History_Data_Bool_Exp>;
   transfer_paused?: InputMaybe<Boolean_Comparison_Exp>;
   treasury_factory?: InputMaybe<Treasury_Factory_Bool_Exp>;
   treasury_factory_id?: InputMaybe<String_Comparison_Exp>;
-  treasury_transfer_history_data?: InputMaybe<Treasury_Transfer_History_Data_Bool_Exp>;
   unstake_mvk_paused?: InputMaybe<Boolean_Comparison_Exp>;
   whitelist_contracts?: InputMaybe<Treasury_Whitelist_Contract_Bool_Exp>;
   whitelist_token_contracts?: InputMaybe<Treasury_Whitelist_Token_Contract_Bool_Exp>;
@@ -49451,10 +49695,10 @@ export type Treasury_Order_By = {
   mint_mvk_and_transfer_paused?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
   stake_mvk_paused?: InputMaybe<Order_By>;
+  transfer_history_data_aggregate?: InputMaybe<Treasury_Transfer_History_Data_Aggregate_Order_By>;
   transfer_paused?: InputMaybe<Order_By>;
   treasury_factory?: InputMaybe<Treasury_Factory_Order_By>;
   treasury_factory_id?: InputMaybe<Order_By>;
-  treasury_transfer_history_data_aggregate?: InputMaybe<Treasury_Transfer_History_Data_Aggregate_Order_By>;
   unstake_mvk_paused?: InputMaybe<Order_By>;
   whitelist_contracts_aggregate?: InputMaybe<Treasury_Whitelist_Contract_Aggregate_Order_By>;
   whitelist_token_contracts_aggregate?: InputMaybe<Treasury_Whitelist_Token_Contract_Aggregate_Order_By>;
@@ -50791,9 +51035,9 @@ export type Vesting = {
   last_updated_at?: Maybe<Scalars['timestamptz']>;
   total_vested_amount: Scalars['bigint'];
   /** An array relationship */
-  vesting_vestee_records: Array<Vesting_Vestee_Record>;
+  vestee_records: Array<Vesting_Vestee_Record>;
   /** An aggregate relationship */
-  vesting_vestee_records_aggregate: Vesting_Vestee_Record_Aggregate;
+  vestee_records_aggregate: Vesting_Vestee_Record_Aggregate;
   /** An array relationship */
   whitelist_contracts: Array<Vesting_Whitelist_Contract>;
   /** An aggregate relationship */
@@ -50842,7 +51086,7 @@ export type VestingLambdas_AggregateArgs = {
 
 
 /** columns and relationships of "vesting" */
-export type VestingVesting_Vestee_RecordsArgs = {
+export type VestingVestee_RecordsArgs = {
   distinct_on?: InputMaybe<Array<Vesting_Vestee_Record_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -50852,7 +51096,7 @@ export type VestingVesting_Vestee_RecordsArgs = {
 
 
 /** columns and relationships of "vesting" */
-export type VestingVesting_Vestee_Records_AggregateArgs = {
+export type VestingVestee_Records_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Vesting_Vestee_Record_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -50949,7 +51193,7 @@ export type Vesting_Bool_Exp = {
   lambdas?: InputMaybe<Vesting_Lambda_Bool_Exp>;
   last_updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   total_vested_amount?: InputMaybe<Bigint_Comparison_Exp>;
-  vesting_vestee_records?: InputMaybe<Vesting_Vestee_Record_Bool_Exp>;
+  vestee_records?: InputMaybe<Vesting_Vestee_Record_Bool_Exp>;
   whitelist_contracts?: InputMaybe<Vesting_Whitelist_Contract_Bool_Exp>;
 };
 
@@ -51432,7 +51676,7 @@ export type Vesting_Order_By = {
   lambdas_aggregate?: InputMaybe<Vesting_Lambda_Aggregate_Order_By>;
   last_updated_at?: InputMaybe<Order_By>;
   total_vested_amount?: InputMaybe<Order_By>;
-  vesting_vestee_records_aggregate?: InputMaybe<Vesting_Vestee_Record_Aggregate_Order_By>;
+  vestee_records_aggregate?: InputMaybe<Vesting_Vestee_Record_Aggregate_Order_By>;
   whitelist_contracts_aggregate?: InputMaybe<Vesting_Whitelist_Contract_Aggregate_Order_By>;
 };
 
