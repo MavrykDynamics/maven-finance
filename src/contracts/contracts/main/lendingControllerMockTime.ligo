@@ -1027,7 +1027,7 @@ block{
 
     } else skip;
 
-    loanTokenRecord.lastUpdatedBlockLevel   := Tezos.get_level();
+    loanTokenRecord.lastUpdatedBlockLevel   := mockLevel + Tezos.get_level();
     loanTokenRecord.borrowIndex             := borrowIndex;
     loanTokenRecord.utilisationRate         := utilisationRate;
     loanTokenRecord.currentInterestRate     := currentInterestRate;
