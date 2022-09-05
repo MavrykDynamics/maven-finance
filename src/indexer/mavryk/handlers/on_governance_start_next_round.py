@@ -65,7 +65,7 @@ async def on_governance_start_next_round(
         timelock_proposal_record   = await models.GovernanceProposalRecord.get(
             id  = timelock_proposal
         )
-        # timelock_proposal_record.execution_ready            = timelock_proposal_storage.executionReady
+        timelock_proposal_record.execution_ready            = timelock_proposal_storage.executionReady
         await timelock_proposal_record.save()
 
     # Update round proposals
