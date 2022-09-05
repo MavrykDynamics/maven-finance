@@ -14,11 +14,13 @@ async def on_doorman_update_config(
     doorman_address         = update_config.data.target_address
     updated_value           = int(update_config.parameter.updateConfigNewValue)
     update_config_action    = type(update_config.parameter.updateConfigAction)
+    timestamp               = update_config.data.timestamp
 
     # Update contract
     doorman                 = await models.Doorman.get(
         address = doorman_address
     )
+    doorman.last_updated_at = timestamp
     if update_config_action == configMinMvkAmount:
         doorman.min_mvk_amount  = updated_value
     

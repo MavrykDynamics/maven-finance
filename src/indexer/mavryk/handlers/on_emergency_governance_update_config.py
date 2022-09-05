@@ -14,11 +14,13 @@ async def on_emergency_governance_update_config(
     emergency_address       = update_config.data.target_address
     updated_value           = update_config.parameter.updateConfigNewValue
     update_config_action    = type(update_config.parameter.updateConfigAction)
+    timestamp               = update_config.data.timestamp
 
     # Update contract
     emergency = await models.EmergencyGovernance.get(
         address = emergency_address
     )
+    emergency.last_updated_at   = timestamp 
     if update_config_action == configMinStakedMvkForTrigger:
         emergency.min_smvk_required_to_trigger      = float(updated_value)
     elif update_config_action == configMinStakedMvkForVoting:

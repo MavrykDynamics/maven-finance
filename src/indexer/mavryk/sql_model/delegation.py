@@ -1,4 +1,4 @@
-from tortoise import Model, fields
+from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import SatelliteStatus
 
@@ -58,7 +58,7 @@ class SatelliteRewardsRecord(Model):
 
 class SatelliteRecord(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_record')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_records')
     delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellite_records')
     status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE)
     fee                                     = fields.SmallIntField(default=0)
