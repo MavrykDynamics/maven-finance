@@ -1,4 +1,4 @@
-from tortoise import Model, fields
+from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import ActionStatus
 
@@ -39,7 +39,7 @@ class BreakGlassWhitelistContract(LinkedContract, Model):
 
 class BreakGlassCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_council_member')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_council_members')
     break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='break_glass_council_members')
     name                                    = fields.TextField(default="")
     website                                 = fields.TextField(default="")

@@ -14,11 +14,13 @@ async def on_token_sale_update_config(
     token_sale_address          = update_config.data.target_address
     updated_value               = update_config.parameter.updateConfigNewValue
     update_config_action        = type(update_config.parameter.updateConfigAction)
+    timestamp                   = update_config.data.timestamp
 
     # Update contract
     token_sale                  = await models.TokenSale.get(
         address = token_sale_address
     )
+    token_sale.last_updated_at  = timestamp
 
     if update_config_action == configVestingPeriodDurationSec:
         token_sale.vesting_period_duration_sec  = int(updated_value)

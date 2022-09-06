@@ -1,4 +1,4 @@
-from tortoise import Model, fields
+from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, MavrykContract
 
 ###
@@ -6,7 +6,7 @@ from mavryk.sql_model.parents import LinkedContract, MavrykContract
 ###
 
 class MVKToken(MavrykContract, Model):
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='mvk_token')
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='mvk_tokens')
     maximum_supply                          = fields.FloatField(default=0)
     total_supply                            = fields.FloatField(default=0)
     inflation_rate                          = fields.SmallIntField(default=0)
@@ -38,7 +38,7 @@ class MavrykUserOperator(Model):
 class MVKTransferHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     timestamp                               = fields.DatetimeField()
-    mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='mvk_transfer_history_data')
+    mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='transfer_history_data')
     from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_transfer_sender')
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_transfer_receiver')
     amount                                  = fields.BigIntField(default=0)
@@ -46,7 +46,7 @@ class MVKTransferHistoryData(Model):
     class Meta:
         table = 'mvk_transfer_history_data'
 
-class MintHistoryData(Model):
+class MVKMintHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='mint_history_data')
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='mint_history_data')
@@ -55,4 +55,4 @@ class MintHistoryData(Model):
     mvk_total_supply                        = fields.FloatField(default=0.0)
 
     class Meta:
-        table = 'mint_history_data'
+        table = 'mvk_mint_history_data'

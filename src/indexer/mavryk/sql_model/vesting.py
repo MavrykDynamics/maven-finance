@@ -1,4 +1,4 @@
-from tortoise import Model, fields
+from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
@@ -32,8 +32,8 @@ class VestingWhitelistContract(LinkedContract, Model):
 
 class VestingVesteeRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    vesting                                 = fields.ForeignKeyField('models.Vesting', related_name='vesting_vestee_records')
-    vestee                                  = fields.ForeignKeyField('models.MavrykUser', related_name='vesting_vestee_record')
+    vesting                                 = fields.ForeignKeyField('models.Vesting', related_name='vestee_records')
+    vestee                                  = fields.ForeignKeyField('models.MavrykUser', related_name='vesting_vestee_records')
     total_allocated_amount                  = fields.FloatField(default=0)
     claim_amount_per_month                  = fields.FloatField(default=0)
     start_timestamp                         = fields.DatetimeField(null=True)
