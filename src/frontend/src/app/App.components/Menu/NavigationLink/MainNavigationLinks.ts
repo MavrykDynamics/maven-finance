@@ -70,7 +70,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
       },
       {
         id: 47293,
-        subTitle: 'Emergency Governance',
+        subTitle: 'Emergency Gov.',
         subPath: 'emergency-governance',
         protectedRoute: true,
       },

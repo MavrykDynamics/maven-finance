@@ -17,26 +17,6 @@ type MenuTopBarProps = {
   isExpandedMenu: boolean
 }
 
-export const SocialIcons = () => (
-  <div className="social-wrapper">
-    <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialTwitter" />
-    </a>
-    <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
-      <Icon id="socialDiscord" />
-    </a>
-    <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialTelegram" />
-    </a>
-    <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialMedium" />
-    </a>
-    <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
-      <Icon id="socialGitHub" />
-    </a>
-  </div>
-)
-
 export const PRODUCTS_LINKS = [
   { name: 'Dapp', href: 'https://front-dev.mavryk-dapp.pages.dev/' },
   { name: 'Liquidity Baking', href: 'mavryk.finance/liquidity-baking' },
@@ -93,7 +73,6 @@ export const MenuTopBar = ({ burgerClickHandler, isExpandedMenu, openChangeNodeP
         <TopBarLinks groupName={'Docs'} groupLinks={DOCS_LINKS} />
       </div>
       <div className="right-side">
-        <SocialIcons />
         {/* Need this condition cuz of wert io container, technically without it will be 2 containers, and wert will take this container on mobile, not the mobile one */}
         {!isMobileView ? <ConnectWallet /> : null}
         <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
