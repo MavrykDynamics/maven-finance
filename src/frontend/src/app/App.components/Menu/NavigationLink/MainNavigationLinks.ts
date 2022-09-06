@@ -4,11 +4,11 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
   {
     title: 'Dashboard',
     id: 1,
-    path: 'dashboard',
+    path: 'dashboard?tab=lending',
     icon: 'menu-compass',
     protectedRoute: false,
     subPages: [
-      { id: 57483, subTitle: 'Overview', subPath: 'dashboard', protectedRoute: false },
+      { id: 57483, subTitle: 'Overview', subPath: 'dashboard?tab=lending', protectedRoute: false },
       { id: 84425, subTitle: 'Personal', subPath: 'dashboard-personal', protectedRoute: false },
       {
         id: 59526,

@@ -1,10 +1,19 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
-import React from 'react'
-import { mvkStatsType } from './Dashboard.controller'
+import { Link } from 'react-router-dom'
+import { mvkStatsType, TabId } from './Dashboard.controller'
 import { DashboardStyled } from './Dashboard.style'
+import { DashboardTab } from './TabScreens/DashboardTab.controller'
 
-export const DashboardView = ({ tvl, mvkStatsBlock }: { tvl: number; mvkStatsBlock: mvkStatsType }) => {
+export const DashboardView = ({
+  tvl,
+  mvkStatsBlock,
+  activeTab,
+}: {
+  tvl: number
+  mvkStatsBlock: mvkStatsType
+  activeTab: TabId
+}) => {
   return (
     <DashboardStyled>
       <div className="top">
@@ -33,9 +42,9 @@ export const DashboardView = ({ tvl, mvkStatsBlock }: { tvl: number; mvkStatsBlo
             <div className="stat">
               <div className="name">Live Price</div>
               <div className="value">
-                <CommaNumber value={mvkStatsBlock.livePrice} />
+                <CommaNumber beginningText="$" value={mvkStatsBlock.livePrice} />
                 <div className={`impact ${mvkStatsBlock.livePrice >= mvkStatsBlock.prevPrice ? 'up' : 'down'}`}>
-                  27%
+                  {mvkStatsBlock.livePrice >= mvkStatsBlock.prevPrice ? '+' : '-'} 27%
                 </div>
               </div>
             </div>
@@ -56,6 +65,29 @@ export const DashboardView = ({ tvl, mvkStatsBlock }: { tvl: number; mvkStatsBlo
           </div>
         </div>
       </div>
+
+      <div className="dashboard-navigation">
+        <Link to={'/dashboard?tab=lending'} className={activeTab === 'lending' ? 'selected' : ''}>
+          Lending
+        </Link>
+        <Link to={'/dashboard?tab=vaults'} className={activeTab === 'vaults' ? 'selected' : ''}>
+          Vaults
+        </Link>
+        <Link to={'/dashboard?tab=satellites'} className={activeTab === 'satellites' ? 'selected' : ''}>
+          Satellites
+        </Link>
+        <Link to={'/dashboard?tab=treasury'} className={activeTab === 'treasury' ? 'selected' : ''}>
+          Treasury
+        </Link>
+        <Link to={'/dashboard?tab=farms'} className={activeTab === 'farms' ? 'selected' : ''}>
+          Farms
+        </Link>
+        <Link to={'/dashboard?tab=oracles'} className={activeTab === 'oracles' ? 'selected' : ''}>
+          Oracles
+        </Link>
+      </div>
+
+      <DashboardTab activeTab={activeTab} />
     </DashboardStyled>
   )
 }
