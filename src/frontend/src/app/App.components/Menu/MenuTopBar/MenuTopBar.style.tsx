@@ -50,21 +50,6 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
         }
       }
     }
-
-    .social-wrapper {
-      display: flex;
-      column-gap: 8px;
-      margin-right: 20px;
-
-      @media screen and (max-width: 1110px) {
-        display: none;
-      }
-
-      svg {
-        width: 30px;
-        height: 30px;
-      }
-    }
   }
 
   .grouped-links {

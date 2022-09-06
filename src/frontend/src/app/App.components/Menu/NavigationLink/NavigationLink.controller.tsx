@@ -103,24 +103,18 @@ export const NavigationLink = ({
                     return (
                       <SubNavLink key={key}>
                         <Link to={`/${subNavLink.subPath}`}>
-                          <div />
-                          <SubLinkText className="navLinkSubTitle" selected={selectedSubLink}>
-                            {subNavLink.subTitle}
-                          </SubLinkText>
+                          <SubLinkText selected={selectedSubLink}>{subNavLink.subTitle}</SubLinkText>
                         </Link>
                       </SubNavLink>
                     )
-                  } else {
-                    return <div key={key} />
                   }
+
+                  return null
                 } else {
                   return (
                     <SubNavLink key={key}>
                       <Link to={`/${subNavLink.subPath}`}>
-                        <div />
-                        <SubLinkText className="navLinkSubTitle" selected={selectedSubLink}>
-                          {subNavLink.subTitle}
-                        </SubLinkText>
+                        <SubLinkText selected={selectedSubLink}>{subNavLink.subTitle}</SubLinkText>
                       </Link>
                     </SubNavLink>
                   )
