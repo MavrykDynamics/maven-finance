@@ -171,7 +171,6 @@ describe('Aggregator Tests', async () => {
         new BigNumber(10000000),      // rewardAmountStakedMvk ~ 0.01 MVK 
         new BigNumber(1000000),       // rewardAmountXtz - 1 tez for testing (usual should be around ~ 0.0013 tez)
          
-        oracleMaintainer.pkh,         // maintainer
         aggregatorMetadataBase        // metadata bytes
 
     ).send();
