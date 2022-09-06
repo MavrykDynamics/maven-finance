@@ -720,6 +720,7 @@ export const fixMistakenTransfer =
     }
 
     try {
+      console.log('%c ||||| transferList', 'color:yellowgreen', transferList)
       dispatch({
         type: FIX_TRANSFER_REQUEST,
       })

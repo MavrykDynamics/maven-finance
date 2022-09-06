@@ -18,7 +18,7 @@ import {
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
-
+import { FixMistakenTransferForm } from './FixMistakenTransfer.form'
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
@@ -249,7 +249,11 @@ export const SatelliteGovernance = () => {
                 clickOnItem={(e) => handleOnClickDropdownItem(e)}
               />
             </DropdownWrap>
-            <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
+            {chosenDdItem?.value === 'fixMistakenTransfer' ? (
+              <FixMistakenTransferForm />
+            ) : (
+              <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
+            )}
           </DropdownCard>
         ) : null}
         <SlidingTabButtonsWrap>
