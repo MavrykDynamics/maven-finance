@@ -82,14 +82,14 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
       },
       {
         id: 47294,
-        subTitle: 'Satellite Governance',
+        subTitle: 'Satellite Gov.',
         subPath: 'satellite-governance',
         protectedRoute: true,
       },
     ],
   },
   {
-    title: 'Loans',
+    title: 'Lend/Borrow',
     id: 7,
     path: 'loans',
     icon: 'coin-loan',
