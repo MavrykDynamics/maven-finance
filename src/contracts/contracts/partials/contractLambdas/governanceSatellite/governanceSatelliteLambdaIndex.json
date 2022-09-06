@@ -52,23 +52,23 @@
         "name": "lambdaRemoveOracleInAggregator"
     },
     {
-        "index": 14,
+        "index": 13,
         "name": "lambdaRegisterAggregator"
     },
     {
-        "index": 15,
+        "index": 14,
         "name": "lambdaUpdateAggregatorStatus"
     },
     {
-        "index": 16,
+        "index": 15,
         "name": "lambdaFixMistakenTransfer"
     },
     {
-        "index": 17,
+        "index": 16,
         "name": "lambdaDropAction"
     },
     {
-        "index": 18,
+        "index": 17,
         "name": "lambdaVoteForAction"
   }
 ]
