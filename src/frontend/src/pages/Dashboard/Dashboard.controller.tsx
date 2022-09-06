@@ -6,13 +6,10 @@ import { DashboardStyled } from './Dashboard.style'
 import { getVestingStorage } from '../Treasury/Treasury.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { DashboardView } from './Dashboard.view'
 
 export const Dashboard = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { councilStorage } = useSelector((state: State) => state.council)
-  const { vestingStorage } = useSelector((state: State) => state.vesting)
 
   useEffect(() => {
     dispatch(getVestingStorage())
@@ -20,10 +17,8 @@ export const Dashboard = () => {
 
   return (
     <Page>
-      <DashboardStyled>
-        <PageHeader page={'dashboard'} />
-        <div>Here on the Dashboard Page</div>
-      </DashboardStyled>
+      <PageHeader page={'dashboard'} />
+      <DashboardView tvl={38545844} />
     </Page>
   )
 }
