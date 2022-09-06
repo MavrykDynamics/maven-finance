@@ -30,7 +30,7 @@ async def on_mvk_mint(
     mvk_token.total_supply  = total_supply
     await mvk_token.save()
     
-    mint_history_data       = models.MintHistoryData(
+    mint_history_data       = models.MVKMintHistoryData(
         mvk_token           = mvk_token,
         timestamp           = timestamp,
         user                = user,

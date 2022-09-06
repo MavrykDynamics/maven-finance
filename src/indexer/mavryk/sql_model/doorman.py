@@ -1,4 +1,4 @@
-from tortoise import Model, fields
+from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import StakeType
 
@@ -39,7 +39,7 @@ class DoormanWhitelistContract(LinkedContract, Model):
 
 class DoormanStakeAccount(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='doorman_stake_account', index=True)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='doorman_stake_accounts', index=True)
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
     participation_fees_per_share            = fields.FloatField(default=0)
     smvk_balance                            = fields.FloatField(default=0)
@@ -62,7 +62,7 @@ class StakeHistoryData(Model):
 
 class SMVKHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='smvk_history_data')
+    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_mvk_history_data')
     timestamp                               = fields.DatetimeField()
     smvk_total_supply                       = fields.FloatField(default=0.0)
     avg_smvk_by_user                        = fields.FloatField(default=0.0)

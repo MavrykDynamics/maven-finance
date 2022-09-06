@@ -103,6 +103,7 @@ class ProposalLedger(BaseModel):
     paymentProcessed: bool
     locked: bool
     rewardClaimReady: bool
+    executionReady: bool
     proposalVoteCount: str
     proposalVoteStakedMvkTotal: str
     minProposalRoundVotePercentage: str
