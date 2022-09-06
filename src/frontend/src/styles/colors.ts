@@ -54,6 +54,7 @@ export const dark = {
   primaryColor: '#7068AA',
   secondaryColor: '#73d7c3',
   dataColor: '#77a4f2',
+  blockNameTitleColor: silverColor,
   upColor,
   downColor,
   warningColor,
@@ -85,6 +86,7 @@ export const light = {
   dataColor: '#77a4f2',
   subTextColor: '#7E8794',
   backgroundTextColor: '#F7F9FD',
+  blockNameTitleColor: silverColor,
   placeholderColor: '#F7F9FD',
   primaryColor: '#7068AA',
   secondaryColor: '#73d7c3',
@@ -117,6 +119,7 @@ export const space = {
 
   borderColor: '#4F457C',
   textColor: '#29264C',
+  blockNameTitleColor: silverColor,
   subTextColor: '#7E8794',
   dataColor: '#77a4f2',
   backgroundTextColor: '#F7F9FD',
