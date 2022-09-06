@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.10.1
+    tag: v0.11.0
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -18,58 +18,58 @@ dipdup:
         address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
         typename: liquidity_baking
       mvk:
-        address: KT1K2CngdTLXdYag8ECeJmJPE1oFgbJkxrbW
+        address: KT1WESG5zjPWpTJvupm1HbaGSZG1YpNNHrk9
         typename: mvk
       governance_proxy:
-        address: KT18hMV34JrgtJoEgPBy5GKb4BQypkEpvg3X
+        address: KT1QBMFDBpJYknJffETnodXQDmUivbrDY6BQ
         typename: governance_proxy
       governance:
-        address: KT1V1zv1d68G3T6yQykqR55es9ssGd2fRx5F
+        address: KT1UhppqfnxScFsTaEvwLVjbCjrTA8B9Twt3
         typename: governance
       doorman:
-        address: KT1Kkaa2XiftmhwU378Cby4DtP2MKn2NAfVK
+        address: KT1Jx3ntKnxfouejfFVdjMDyw2Evu6KriqDq
         typename: doorman
       farm:
-        address: KT1GKTA4cuQTu2vknx5j5CrKpqHWrMkXjvSf #KT1CbLGSBeeHES4eXjjp6teh5pbrgkDi2qto
+        address: KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH #KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH
         typename: farm
       farm_factory:
-        address: KT1MKsFwqBGqNj24yubKeTdHQuXsBwJ1V6xr
+        address: KT1XLw5Wvr145MKhUqXNSeAQRrKzCFL7pa3C
         typename: farm_factory
       delegation:
-        address: KT1SmyvR6hHSeStgfdgGccS8EZaUF6qXZiym
+        address: KT1F9GLKRNH3Bvz91BMoKqm7DcUagbZNmvLE
         typename: delegation
       vesting:
-        address: KT1QwYBbwALCggrTccK6VQ6sC713JgDk5h7y
+        address: KT1BFKLJZswWw6R6JTvxwqR4717NyrbB4XcK
         typename: vesting
       emergency_governance:
-        address: KT1CugfMnbk34vz3A1QvaiWRhwadMSWHKZgo
+        address: KT1VX35UiMQtK4bX1tsbF26eRWiDvDiPXeLW
         typename: emergency_governance
       council:
-        address: KT1Ga4XaM5BEMMkYej9ufU7z21N2HLbem4Um
+        address: KT1ANuhVbRuBq6njgSU4kRA2AeSE3sXgPTSA
         typename: council
       break_glass:
-        address: KT1RJWUotA6Qbkb2ZH1L2y6gaR6hjsh836BR
+        address: KT1DNkJukJDLdzeabZRFsCcbUh7JJmrDcvBj
         typename: break_glass
       governance_financial:
-        address: KT1BtLeCqtmSorKtstgj6i7fFAtW3DweCL8U
+        address: KT1W4SNraUVbSrKCiCoVppffGRiaw6B5vdfz
         typename: governance_financial
       governance_satellite:
-        address: KT1LXmZbTqrjPAZ1UTgNJuFdo5PLFnQJxWzz
+        address: KT1Kb6ddSqcuUUc5vhbCEBWTCYnYVvWQz6B8
         typename: governance_satellite
       aggregator:
-        address: KT1S7YY5hM6vu8SuK5oyTnmhWweEn5N3zQCT
+        address: KT1UyiRss5ypVwrttUyU9JfvtLwdRZPnZnY5
         typename: aggregator
       aggregator_factory:
-        address: KT1CWipi4oUSFozmSAuxhZTEA1dNqDu7gZYM
+        address: KT1Renbm7aVR6JAvEWvkxwsAuFkUQEbb3SqN
         typename: aggregator_factory
       treasury:
-        address: KT1Bhm9PszKDNuPoA5B71q2bhV27dk9Q52H6
+        address: KT1RahUBbjVuhS8BsLjcMRMmfijZMABmf5Ws
         typename: treasury
       treasury_factory:
-        address: KT1XM4PejJY5CnVSML9S9SwjtJcu7jSZYc1j
+        address: KT197SwRzhE3zkmWxKYyV5r3FuYrbwVB7kM9
         typename: treasury_factory
       token_sale:
-        address: KT1NtNC12Fm5Kj8TKfmvRjAnEmgvcHYyncG2
+        address: KT1DM3EjTwYWrwZeLjQXMPcNDXdzrTVviq4H
         typename: token_sale
       # lending_controller:
       #   address:

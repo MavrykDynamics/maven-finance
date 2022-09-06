@@ -1,4 +1,4 @@
-from tortoise import Model, fields
+from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
 ###
@@ -45,7 +45,7 @@ class TreasuryWhitelistTokenContract(LinkedContract, Model):
 class TreasuryTransferHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     timestamp                               = fields.DatetimeField()
-    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='treasury_transfer_history_data')
+    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='transfer_history_data')
     token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_transfer_token')
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='treasury_transfer_receiver', null=True)
     amount                                  = fields.BigIntField(default=0)

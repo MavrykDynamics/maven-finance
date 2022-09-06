@@ -1,4 +1,4 @@
-from tortoise import Model, fields
+from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 from mavryk.sql_model.enums import GovernanceRoundType, GovernanceRecordStatus, GovernanceVoteType
 
