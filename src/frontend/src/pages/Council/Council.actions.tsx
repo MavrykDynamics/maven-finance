@@ -85,8 +85,6 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
       return isEndedVotingTime && isNoSameAccountPkh
     })
 
-    //const councilPendingActions = storage?.council_action_record
-
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
       councilPendingActions,

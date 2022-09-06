@@ -99,12 +99,12 @@ export const AvailableActionsStyle = styled.div`
 
   .inputs-block {
     padding-top: 40px;
-    padding-left: 19px;
-    padding-right: 19px;
+    padding-left: 26px;
+    padding-right: 26px;
     padding-bottom: 23px;
     position: relative;
 
-    button {
+    button:not(.btn-add-row, .table-drop-btn-cur, .delete-button) {
       width: 260px;
       margin-left: 64px;
       margin-bottom: 16px;
@@ -154,5 +154,9 @@ export const AvailableActionsStyle = styled.div`
       grid-template-columns: 0.5fr 0.5fr;
       gap: 20px;
     }
+  }
+
+  .table-wrap {
+    position: relative;
   }
 ` // AvailableActionsStyle
