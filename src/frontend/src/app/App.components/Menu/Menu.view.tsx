@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { State } from 'reducers'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
+import Icon from '../Icon/Icon.view'
 import { toggleSidebarCollapsing } from './Menu.actions'
 import { MenuFooter, MenuGrid, MenuSidebarContent, MenuSidebarStyled } from './Menu.style'
 import { MenuTopBar } from './MenuTopBar/MenuTopBar.controller'
@@ -17,8 +18,27 @@ type MenuViewProps = {
   openChangeNodePopupHandler: () => void
 }
 
-export const MenuView = ({ accountPkh, ready, openChangeNodePopupHandler }: MenuViewProps) => {
-  const location = useLocation()
+export const SocialIcons = () => (
+  <div className="social-wrapper">
+    <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
+      <Icon id="socialTwitter" />
+    </a>
+    <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
+      <Icon id="socialDiscord" />
+    </a>
+    <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
+      <Icon id="socialTelegram" />
+    </a>
+    <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
+      <Icon id="socialMedium" />
+    </a>
+    <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
+      <Icon id="socialGitHub" />
+    </a>
+  </div>
+)
+
+export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewProps) => {
   const dispatch = useDispatch()
   const [isExpanded, setExpanded] = useState<number>(0)
   const { sidebarOpened } = useSelector((state: State) => state.preferences)
@@ -66,6 +86,7 @@ export const MenuView = ({ accountPkh, ready, openChangeNodePopupHandler }: Menu
             })}
           </MenuGrid>
           <MenuFooter>
+            <SocialIcons />
             MAVRYK App <p>v1.0</p>
           </MenuFooter>
         </MenuSidebarContent>
