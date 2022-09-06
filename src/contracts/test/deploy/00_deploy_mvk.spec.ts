@@ -1,4 +1,3 @@
-const { InMemorySigner } = require("@taquito/signer");
 import { Utils } from "../helpers/Utils";
 const saveContractAddress = require("../../helpers/saveContractAddress")
 const saveMVKDecimals = require('../../helpers/saveMVKDecimals')

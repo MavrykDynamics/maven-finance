@@ -16,7 +16,6 @@ import { bob } from '../../scripts/sandbox/accounts'
 import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 import governanceAddress from '../../deployments/governanceAddress.json';
 
-
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
