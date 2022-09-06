@@ -38,13 +38,14 @@ export const NavigationLink = ({
   isMobMenuExpanded,
   accountPkh,
 }: NavigationLinkProps) => {
-  const key = `${path.substring(1)}-${id}`
+  const parsedPathForSelecting = path.split(/[?#]/)[0]
+  const key = `${parsedPathForSelecting.substring(1)}-${id}`
 
   const location = useLocation()
 
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
-  const mainPagePaths = [path].concat(subPages ? subPages.map(({ subPath }) => subPath) : [])
+  const mainPagePaths = [parsedPathForSelecting].concat(subPages ? subPages.map(({ subPath }) => subPath) : [])
 
   const splittedPathname = location.pathname.split('/').slice(1)
 
@@ -82,7 +83,7 @@ export const NavigationLink = ({
             <NavigationSubLinks className="content">
               {subPages.map((subNavLink: SubNavigationRoute) => {
                 const key = String(subNavLink.id)
-                const selectedSubLink = location.pathname === `/${subNavLink.subPath}`
+                const selectedSubLink = location.pathname === `/${subNavLink.subPath.split(/[?#]/)[0]}`
                 if (subNavLink.requires) {
                   const { isSatellite, isVestee } = subNavLink.requires
                   let accountIsAuthorized = false

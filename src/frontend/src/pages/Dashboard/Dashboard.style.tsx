@@ -91,4 +91,34 @@ export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
       }
     }
   }
+
+  .dashboard-navigation {
+    display: flex;
+    margin: 30px 0 10px 0;
+    column-gap: 15px;
+
+    > a {
+      font-size: 14px;
+      line-height: 17px;
+      font-weight: 500;
+      position: relative;
+      transition: 0.3s all;
+      color: ${({ theme }) => theme.navTitleColor};
+
+      &.selected {
+        &:before {
+          position: absolute;
+          bottom: -1px;
+          left: 50%;
+          transform: translateX(-50%);
+          transition: 0.3s all;
+          content: '';
+          width: 30px;
+          height: 1px;
+          background-color: ${({ theme }) => theme.navLinkSubTitleActive};
+        }
+        color: ${({ theme }) => theme.navLinkSubTitleActive};
+      }
+    }
+  }
 `
