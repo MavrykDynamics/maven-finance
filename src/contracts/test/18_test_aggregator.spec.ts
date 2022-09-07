@@ -479,80 +479,33 @@ describe('Aggregator Tests', async () => {
     );
   });
 
-  describe('RequestRateUpdate', () => {
-    it(
-      'should fail if called by random address',
-      async () => {
-        await signerFactory(david.sk);
 
+  describe('UpdatePrice', () => {
 
-        const op = aggregator.methods.requestRateUpdate();
-
-        // await chai.expect(op.send()).rejects.toThrow(
-        //   'Only maintainer can do this action'
-        // );
-        await chai.expect(op.send()).to.be.rejectedWith();
+    const observations = [
+      {
+         "oracle": bob.pkh,
+         "price": new BigNumber(10142857143)
       },
-
-    );
+      {
+          "oracle": eve.pkh,
+          "price": new BigNumber(10142853322)
+       },
+       {
+          "oracle": mallory.pkh,
+          "price": new BigNumber(10142857900)
+       },
+       {
+          "oracle": oracleMaintainer.pkh,
+          "price": new BigNumber(10144537815)
+       },
+   ];
+   const epoch: number = 1;
+   const round: number = 1;
 
     it(
-      'should increment round',
-      async () => {
-        await signerFactory(oracleMaintainer.sk);
-
-        const previousStorage: aggregatorStorageType = await aggregator.storage();
-        const previousRound = previousStorage.round;
-
-        const op = aggregator.methods.requestRateUpdate();
-        const tx = await op.send();
-        await tx.confirmation();
-
-        const storage: aggregatorStorageType = await aggregator.storage();
-
-        assert.deepEqual(storage.round,previousRound.plus(1));
-        assert.deepEqual(storage.switchBlock,new BigNumber(0));
-        assert.deepEqual(storage.deviationTriggerInfos.roundPrice,
-          new BigNumber(0)
-        );
-        assert.deepEqual(storage.observationCommits.size,0);
-        assert.deepEqual(storage.observationReveals.size,0);
-        assert.deepEqual(storage.switchBlock,new BigNumber(0));
-      },
-
-    );
-  });
-
-
-
-  describe('SetObservationCommit', () => {
-
-    it.only(
-        'TEST JACK',
+        'UpdatePrice should works',
         async () => {
-          await signerFactory(david.sk);
-
-          const observations = [
-            {
-               "oracle": bob.pkh,
-               "price": new BigNumber(10142857143)
-            },
-            {
-                "oracle": eve.pkh,
-                "price": new BigNumber(10142853322)
-             },
-             {
-                "oracle": mallory.pkh,
-                "price": new BigNumber(10142857900)
-             },
-             {
-                "oracle": oracleMaintainer.pkh,
-                "price": new BigNumber(10144537815)
-             },
-         ];
-         const epoch: number = 1;
-         const round: number = 1;
-         const aggregatorAddress= "de";
 
 
          const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
@@ -561,7 +514,7 @@ describe('Aggregator Tests', async () => {
                 price,
                 epoch,
                 round,
-                aggregatorAddress
+                aggregatorAddress: aggregatorAddress.address
               });
          };
 
@@ -595,556 +548,55 @@ describe('Aggregator Tests', async () => {
   
       );
 
-
     it(
       'should fail if called by random address',
       async () => {
-        await signerFactory(david.sk);
-
-        const hash = createHash('sha256')
-            .update('1234', 'hex')
-            .digest('hex');
-        const op = aggregator.methods.setObservationCommit(
-          new BigNumber(10),
-          hash
-        );
-
-        // await chai.expect(op.send()).rejects.toThrow(
-        //   'Only authorized oracle contract can do this action'
-        // );
-        await chai.expect(op.send()).to.be.rejectedWith();
-      },
-
-    );
-
-    it(
-      'should set observation commit as bob',
-      async () => {
-        await signerFactory(bob.sk);
-
-        const beforeStorage: aggregatorStorageType = await aggregator.storage();
-        const round = beforeStorage.round;
-        const price = new BigNumber(123);
-        const data: MichelsonData = {
-          prim: 'Pair',
-          args: [
-            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-            { string: bob.pkh },
-          ],
-        };
-        const type: MichelsonType = {
-          prim: 'pair',
-          args: [
-            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-            { prim: 'address' },
-          ],
-        };
-        const priceCodec = packDataBytes(data, type);
-
-        const hash = createHash('sha256')
-            .update(priceCodec.bytes, 'hex')
-            .digest('hex');
-        const op = aggregator.methods.setObservationCommit(round, hash);
-
-        const tx = await op.send();
-        await tx.confirmation();
-
-        const storage: aggregatorStorageType = await aggregator.storage();
-        assert.deepEqual(storage.observationCommits?.has(bob.pkh),true);
-        assert.deepEqual(storage.observationCommits?.get(bob.pkh),hash);
-        assert.deepEqual(storage.switchBlock,new BigNumber(0));
-        // The round should not be considered as completed yet (only 1/3 oracle sent an observation)
-        assert.notDeepEqual(storage.lastCompletedRoundPrice.round,round);
-      },
-
-    );
-
-    it(
-      'should set observation commit as eve',
-      async () => {
-        await signerFactory(eve.sk);
-
-        const beforeStorage: aggregatorStorageType = await aggregator.storage();
-        const round = beforeStorage.round;
-        const price = new BigNumber(123);
-        const data: MichelsonData = {
-          prim: 'Pair',
-          args: [
-            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-            { string: eve.pkh },
-          ],
-        };
-        const type: MichelsonType = {
-          prim: 'pair',
-          args: [
-            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-            { prim: 'address' },
-          ],
-        };
-        const priceCodec = packDataBytes(data, type);
-        const hash = createHash('sha256')
-            .update(priceCodec.bytes, 'hex')
-            .digest('hex');
-        const op = aggregator.methods.setObservationCommit(round, hash);
-
-        const tx = await op.send();
-        await tx.confirmation();
-
-        const storage: aggregatorStorageType = await aggregator.storage();
-        assert.deepEqual(storage.observationCommits?.has(eve.pkh),true);
-        assert.deepEqual(storage.observationCommits?.get(eve.pkh),hash);
-        assert.notDeepEqual(storage.switchBlock,new BigNumber(0));
-      },
-
-    );
-
-    it(
-      'should set observation commit as mallory',
-      async () => {
-        await signerFactory(mallory.sk);
-
-
-        const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
-        const round = beforeStorage.round;
-        const price = new BigNumber(123);
-        const data: MichelsonData = {
-          prim: 'Pair',
-          args: [
-            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-            { string: mallory.pkh },
-          ],
-        };
-        const type: MichelsonType = {
-          prim: 'pair',
-          args: [
-            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-            { prim: 'address' },
-          ],
-        };
-        const priceCodec = packDataBytes(data, type);
-        const hash = createHash('sha256')
-            .update(priceCodec.bytes, 'hex')
-            .digest('hex');
-        const op = aggregator.methods.setObservationCommit(round, hash);
-
-        const tx = await op.send();
-        await tx.confirmation();
-
-        const storage: aggregatorStorageType = await aggregator.storage();
-        assert.deepEqual(storage.observationCommits?.has(mallory.pkh),true);
-        assert.deepEqual(storage.observationCommits?.get(mallory.pkh),hash);
-        assert.notDeepEqual(storage.switchBlock,new BigNumber(0));
-      },
-
-    );
-
-    it(
-      'should fail if bob try to reveal too soon',
-      async () => {
-        await signerFactory(bob.sk);
-
-        const beforeStorage: aggregatorStorageType = await aggregator.storage();
-        const round = beforeStorage.round;
-        const op = aggregator.methods.setObservationReveal(
-          round,
-          new BigNumber(123),
-          salt,
-          bob.pkh
-        );
-
-        // await chai.expect(op.send()).rejects.toThrow('You cannot reveal now');
-        await chai.expect(op.send()).to.be.rejectedWith();
-
-      },
-
-    );
-  });
-
-//   describe('SetObservationReveal', () => {
-//     before("Waiting",async () => {
-//       console.log('Waiting for 2 blocks (1min)');
-//       await wait(2 * 60 * 1000);
-//       console.log('Waiting Finished');
-//     });
-
-//     it(
-//       'should fail if someone commit too late',
-//       async () => {
-//         await signerFactory(bob.sk);
-
-//         const hash = createHash('sha256')
-//             .update('1234', 'hex')
-//             .digest('hex');
-//         const op = aggregator.methods.setObservationCommit(
-//           new BigNumber(10),
-//           hash
-//         );
-
-//         // await chai.expect(op.send()).rejects.toThrow('You cannot commit now');
-//         await chai.expect(op.send()).to.be.rejectedWith();
-//       },
-
-//     );
-
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
-
-//         const op = aggregator.methods.setObservationReveal(
-//           new BigNumber(10),      // roundId
-//           new BigNumber(123),     // priceSalted.0 -> price
-//           salt,                    // priceSalted.1 -> salt
-//           david.pkh
-//         );
-
-//         // await chai.expect(op.send()).rejects.toThrow(
-//         //   'Only authorized oracle contract can do this action'
-//         // );
-//         await chai.expect(op.send()).to.be.rejectedWith();
-
-//       },
-
-//     );
-
-//     it(
-//       'should fail if with wrong round number',
-//       async () => {
-//         await signerFactory(bob.sk);
-
-//         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-//         const round = beforeStorage.round;
-
-//         const op = aggregator.methods.setObservationReveal(
-//           round.minus(1),
-//           new BigNumber(123),
-//           salt,
-//           bob.pkh
-//         );
-
-//         // await chai.expect(op.send()).rejects.toThrow('Wrong round number');
-//         await chai.expect(op.send()).to.be.rejectedWith();
-
-//       },
-
-//     );
-
-//     it(
-//       'should set observation reveal as bob',
-//       async () => {
-//         await signerFactory(bob.sk);
-
-//         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
-//         const round = beforeStorage.round;
-//         const price = new BigNumber(123);
-
-//         const op = aggregator.methods.setObservationReveal(round, price, salt, bob.pkh);
-
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-//         assert.deepEqual(storage.observationReveals?.has(bob.pkh),true);
-//         assert.deepEqual(storage.observationReveals?.get(bob.pkh),price);
-//         // The round should not be considered as completed yet (only 1/3 oracle sent an observation)
-//         assert.notDeepEqual(storage.lastCompletedRoundPrice.round,round);
-//       },
-
-//     );
-
-//     it(
-//       'should fail if reveal already done',
-//       async () => {
-//         await signerFactory(bob.sk);
-
-//         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-//         const round = beforeStorage.round;
-
-//         const op = aggregator.methods.setObservationReveal(
-//           new BigNumber(123),
-//           round,
-//           salt,
-//           bob.pkh
-//         );
-
-//         // await chai.expect(op.send()).rejects.toThrow(
-//         //   'Oracle already answer a reveal'
-//         // );
-//         await chai.expect(op.send()).to.be.rejectedWith();
-//       },
-
-//     );
-
-//     it(
-//       'should set observation reveal as eve',
-//       async () => {
-//         await signerFactory(eve.sk);
-
-
-//         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
-//         const round = beforeStorage.round;
-//         const price = new BigNumber(123);
-
-//         const op = aggregator.methods.setObservationReveal(round, price, salt,eve.pkh);
-
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-//         assert.deepEqual(storage.observationReveals?.has(eve.pkh),true);
-//         assert.deepEqual(storage.observationReveals?.get(eve.pkh),price);
-//       },
-
-//     );
-
-//     it(
-//       'should set observation reveal as mallory',
-//       async () => {
-//         await signerFactory(mallory.sk);
-
-//         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
-//         const round = beforeStorage.round;
-//         const price = new BigNumber(123);
-
-//         const op = aggregator.methods.setObservationReveal(round, price, salt,mallory.pkh);
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-//         assert.deepEqual(storage.observationReveals?.has(mallory.pkh),true);
-//         assert.deepEqual(storage.observationReveals?.get(mallory.pkh),price);
-//         // The round should be considered as completed (3/3 oracle sent an observation)
-//         assert.notDeepEqual(storage.switchBlock,new BigNumber(0));
-//         assert.deepEqual(storage.lastCompletedRoundPrice.round,storage.round);
-//         assert.deepEqual(storage.lastCompletedRoundPrice.price,price);
-
-//       },
-
-//     );
-//   });
-
-//   describe('requestRateUpdateDeviation without deposit fee', () => {
-
-//     it(
-//       'should trigger a new requestRateUpdateDeviation as mallory',
-//       async () => {
-//         await signerFactory(mallory.sk);
-
-//         const previousStorage: aggregatorStorageType = await aggregator.storage();
-//         const roundId = previousStorage.round;
-//         const price = new BigNumber(200);
-//         const data: MichelsonData = {
-//           prim: 'Pair',
-//           args: [
-//             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-//             { string: mallory.pkh },
-//           ],
-//         };
-//         const type: MichelsonType = {
-//           prim: 'pair',
-//           args: [
-//             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-//             { prim: 'address' },
-//           ],
-//         };
-//         const priceCodec = packDataBytes(data, type);
-//         const hash = createHash('sha256')
-//             .update(priceCodec.bytes, 'hex')
-//             .digest('hex');
-//         const op = aggregator.methods.requestRateUpdateDeviation(
-//           roundId.plus(1),
-//           hash
-//         );
-//           const tx = await op.send();
-//           await tx.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-//         assert.deepEqual(storage.round,roundId.plus(1));
-//         assert.deepEqual(storage.observationCommits?.has(mallory.pkh),true);
-//         assert.deepEqual(storage.observationCommits?.get(mallory.pkh),hash);
-//       },
-
-//     );
-
-//     it(
-//       'should fail because requestRateUpdateDeviation already requested',
-//       async () => {
-//         await signerFactory(eve.sk);
-
-//         const previousStorage: aggregatorStorageType = await aggregator.storage();
-//         const roundId = new BigNumber(previousStorage.round);
-//         const price = 2000;
-//         const data: MichelsonData = {
-//           prim: 'Pair',
-//           args: [
-//             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-//             { string: eve.pkh },
-//           ],
-//         };
-//         const type: MichelsonType = {
-//           prim: 'pair',
-//           args: [
-//             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-//             { prim: 'address' },
-//           ],
-//         };
-//         const priceCodec = packDataBytes(data, type);
-//         const hash = createHash('sha256')
-//             .update(priceCodec.bytes, 'hex')
-//             .digest('hex');
-//         const op = aggregator.methods.requestRateUpdateDeviation(
-//           new BigNumber(roundId).plus(1),
-//           hash
-//         );
-
-//         // await chai.expect(op.send({ amount: 1 })).rejects.toThrow(
-//         //   'Last round is not completed'
-//         // );
-//         await chai.expect(op.send()).to.be.rejectedWith();
-
-//       },
-
-//     );
-
-//     it(
-//       'should set observation commit as eve',
-//       async () => {
-//         await signerFactory(eve.sk);
-
-//         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-//         const round = beforeStorage.round;
-//         const price = new BigNumber(200);
-//         const data: MichelsonData = {
-//           prim: 'Pair',
-//           args: [
-//             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-//             { string: eve.pkh },
-//           ],
-//         };
-//         const type: MichelsonType = {
-//           prim: 'pair',
-//           args: [
-//             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-//             { prim: 'address' },
-//           ],
-//         };
-//         const priceCodec = packDataBytes(data, type);
-//         const hash = createHash('sha256')
-//             .update(priceCodec.bytes, 'hex')
-//             .digest('hex');
-//         const op = aggregator.methods.setObservationCommit(round, hash);
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-//         assert.deepEqual(storage.observationCommits?.has(eve.pkh),true);
-//         assert.deepEqual(storage.observationCommits?.get(eve.pkh),hash);
-//       },
-
-//     );
-
-//     it(
-//       'should wait 2min',
-//       async () => {
-//         await wait(2 * 60 * 1000);
-//       },
-//     );
-
-//     it(
-//       'should set observation reveal as eve',
-//       async () => {
-//         await signerFactory(eve.sk);
-
-//         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
-//         const round = beforeStorage.round;
-//         const price = new BigNumber(200);
-
-//         const op = aggregator.methods.setObservationReveal(round, price, salt,eve.pkh);
-
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-//         assert.deepEqual(storage.observationReveals?.has(eve.pkh),true);
-//         assert.deepEqual(storage.observationReveals?.get(eve.pkh),price);
-//       },
-
-//     );
-
-//     it(
-//       'should set observation reveal as mallory',
-//       async () => {
-//         await signerFactory(mallory.sk);
-
-//         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
-//         const round = beforeStorage.round;
-//         const price = new BigNumber(200);
-
-//         const op = aggregator.methods.setObservationReveal(round, price, salt,mallory.pkh);
-
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-//         assert.deepEqual(storage.observationReveals?.has(mallory.pkh),true);
-//         assert.deepEqual(storage.observationReveals?.get(mallory.pkh),price);
-//       },
-
-//     );
-//   });
-
-//   describe('requestRateUpdateDeviation should fail', () => {
-//     it(
-//       'should trigger a new requestRateUpdateDeviation as david',
-//       async () => {
-//         await signerFactory(david.sk);
-
-//         const previousBalanceMallory = await utils.tezos.tz.getBalance(
-//           mallory.pkh
-//         );
-//         const previousBalanceEve = await utils.tezos.tz.getBalance(
-//             eve.pkh
-//           );
-//         const previousStorage: aggregatorStorageType = await aggregator.storage();
-//         const roundId = previousStorage.round;
-//         const price = new BigNumber(200);
-//         const data: MichelsonData = {
-//           prim: 'Pair',
-//           args: [
-//             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-//             { string: david.pkh },
-//           ],
-//         };
-//         const type: MichelsonType = {
-//           prim: 'pair',
-//           args: [
-//             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-//             { prim: 'address' },
-//           ],
-//         };
-//         const priceCodec = packDataBytes(data, type);
-//         const hash = createHash('sha256')
-//             .update(priceCodec.bytes, 'hex')
-//             .digest('hex');
-
-//         const op = aggregator.methods['requestRateUpdateDeviation'](
-//           roundId.plus(1),
-//           hash
-//         );
         
-//         await chai.expect(op.send()).to.be.rejectedWith();
 
-//       },
+      },
+    );
 
-//     );
+    it(
+      'should fail if wrong aggragator address',
+      async () => {
+        
 
-//   });
+      },
+    );
+
+    it(
+      'should fail if to small obervations in obeservations map',
+      async () => {
+        
+
+      },
+    );
+
+    it(
+      'should fail if same epoch/round in observations maps',
+      async () => {
+        
+
+      },
+    );
+
+    it(
+      'should fail if wrong oracle address in obervations map',
+      async () => {
+        
+
+      },
+    );
+
+    it(
+      'should fail if wrong oracle signature in signatures map',
+      async () => {
+        
+
+      },
+    );
+
+  });
 
 
   describe('withdrawRewardXtz', () => {
@@ -1317,104 +769,6 @@ describe('Aggregator Tests', async () => {
 
   });
 
-
-//   describe('requestRateUpdateDeviation with deposit fee required', () => {
-//     it(
-//       'should fail because no tezos sent',
-//       async () => {
-        
-//         await signerFactory(bob.sk);
-//         const requestRateDevDepositFee = 1000000;
-//         const test_update_config_requestRateDevDepositFee_op = await aggregator.methods.updateConfig(
-//           requestRateDevDepositFee, "configRequestRateDevDepositFee"
-//         ).send();
-//         await test_update_config_requestRateDevDepositFee_op.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-
-//         assert.equal(storage.config.requestRateDeviationDepositFee,  requestRateDevDepositFee);
-
-//         await signerFactory(eve.sk);
-
-//         const previousStorage: aggregatorStorageType = await aggregator.storage();
-//         const roundId = new BigNumber(previousStorage.round);
-//         const price = new BigNumber(200);
-//         const data: MichelsonData = {
-//           prim: 'Pair',
-//           args: [
-//             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-//             { string: eve.pkh },
-//           ],
-//         };
-//         const type: MichelsonType = {
-//           prim: 'pair',
-//           args: [
-//             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-//             { prim: 'address' },
-//           ],
-//         };
-//         const priceCodec = packDataBytes(data, type);
-//         const hash = createHash('sha256')
-//             .update(priceCodec.bytes, 'hex')
-//             .digest('hex');
-//         const op = aggregator.methods.requestRateUpdateDeviation(
-//           new BigNumber(roundId).plus(1),
-//           hash
-//         );
-
-//         // await chai.expect(op.send()).rejects.toThrow(
-//         //   'You should send XTZ to call this entrypoint'
-//         // );
-//         await chai.expect(op.send()).to.be.rejectedWith();
-
-//       },
-
-//     );
-
-//     it(
-//       'should trigger a new requestRateUpdateDeviation as mallory (with deposit fee required)',
-//       async () => {
-//         await signerFactory(mallory.sk);
-
-//         const previousStorage: aggregatorStorageType = await aggregator.storage();
-//         const requestRateDevDepositFee = previousStorage.config.requestRateDeviationDepositFee;
-
-//         const roundId = previousStorage.round;
-//         const price = new BigNumber(200);
-//         const data: MichelsonData = {
-//           prim: 'Pair',
-//           args: [
-//             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-//             { string: mallory.pkh },
-//           ],
-//         };
-//         const type: MichelsonType = {
-//           prim: 'pair',
-//           args: [
-//             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-//             { prim: 'address' },
-//           ],
-//         };
-//         const priceCodec = packDataBytes(data, type);
-//         const hash = createHash('sha256')
-//             .update(priceCodec.bytes, 'hex')
-//             .digest('hex');
-//         const op = aggregator.methods.requestRateUpdateDeviation(
-//           roundId.plus(1),
-//           hash
-//         );
-//           const tx = await op.send({ mutez: true, amount: requestRateDevDepositFee });
-//           await tx.confirmation();
-
-//         const storage: aggregatorStorageType = await aggregator.storage();
-//         assert.deepEqual(storage.round,roundId.plus(1));
-//         assert.deepEqual(storage.observationCommits?.has(mallory.pkh),true);
-//         assert.deepEqual(storage.observationCommits?.get(mallory.pkh),hash);
-//       },
-
-//     );
-
-//   });
 
 
   describe('updateConfig', () => {
