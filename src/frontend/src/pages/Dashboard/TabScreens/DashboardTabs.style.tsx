@@ -108,3 +108,13 @@ export const LendingContentStyled = styled.div<{ theme: MavrykTheme }>`
     }
   }
 `
+
+export const SatellitesContentStyled = styled.div<{ theme: MavrykTheme }>`
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  flex-direction: column;
+  margin-top: 42px;
+  row-gap: 20px;
+  column-gap: 50px;
+  max-width: 600px;
+`

@@ -1,8 +1,10 @@
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import React from 'react'
-import { TabWrapperStyled } from './DashboardTabs.style'
+import { StatBlock } from '../Dashboard.style'
+import { SatellitesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 
 export const SatellitesTab = () => {
   return (
@@ -11,6 +13,50 @@ export const SatellitesTab = () => {
         <BGTitle>Satellites</BGTitle>
         <Button text="Satellite" icon="satellite" kind={ACTION_PRIMARY} className="noStroke" />
       </div>
+
+      <SatellitesContentStyled>
+        <StatBlock>
+          <div className="name">Active Satellites</div>
+          <div className="value">
+            <CommaNumber value={88} />
+          </div>
+        </StatBlock>
+
+        <StatBlock>
+          <div className="name">Avg. Delegated sMVK</div>
+          <div className="value">
+            <CommaNumber endingText="sMVK" value={1043242} />
+          </div>
+        </StatBlock>
+
+        <StatBlock>
+          <div className="name">Avg Free sMVK Space</div>
+          <div className="value">
+            <CommaNumber endingText="sMVK" value={1043242} />
+          </div>
+        </StatBlock>
+
+        <StatBlock>
+          <div className="name">Avg Delegation Fee</div>
+          <div className="value">
+            <CommaNumber endingText="%" value={7} />
+          </div>
+        </StatBlock>
+
+        <StatBlock>
+          <div className="name">Avg. MVK Staked</div>
+          <div className="value">
+            <CommaNumber endingText="sMVK" value={1043242} />
+          </div>
+        </StatBlock>
+
+        <StatBlock>
+          <div className="name">Participation Rate</div>
+          <div className="value">
+            <CommaNumber endingText="%" value={87} />
+          </div>
+        </StatBlock>
+      </SatellitesContentStyled>
 
       <div className="descr">
         <div className="title">What are Satellites?</div>
