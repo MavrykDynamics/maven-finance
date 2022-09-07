@@ -3,7 +3,7 @@ import { silverColor } from 'styles'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
-  .top {
+  > .top {
     margin-top: 32px;
     display: flex;
     justify-content: space-between;
@@ -18,16 +18,16 @@ export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
       border-radius: 10px;
 
       h1 {
-        color: ${({ theme }) => theme.blockNameTitleColor};
+        color: ${({ theme }) => theme.dashboardTextColor};
 
         &:after {
-          background-color: ${({ theme }) => theme.blockNameTitleColor};
+          background-color: ${({ theme }) => theme.dashboardTextColor};
         }
       }
     }
 
     .tvlBlock {
-      background: url('images/dashboardTVLbg.png'), ${({ theme }) => theme.dashboardTvlGradient};
+      background: url('images/dashboard/dashboardTVLbg.png'), ${({ theme }) => theme.dashboardTvlGradient};
       background-size: cover;
       background-repeat: no-repeat;
 
@@ -48,53 +48,13 @@ export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
         grid-template-columns: repeat(3, auto);
         column-gap: 30px;
         row-gap: 20px;
-
-        .stat {
-          display: flex;
-          flex-direction: column;
-          row-gap: 4px;
-
-          .name {
-            font-weight: 600;
-            font-size: 14px;
-            color: ${({ theme }) => theme.blockNameTitleColor};
-          }
-
-          .value {
-            display: flex;
-            color: ${({ theme }) => theme.dataColor};
-            font-weight: 600;
-            font-size: 16px;
-            column-gap: 4px;
-            height: 36px;
-            align-items: center;
-
-            .impact {
-              border-radius: 5px;
-              font-weight: 400;
-              font-size: 12px;
-              padding: 2px 3px;
-              height: fit-content;
-
-              &.up {
-                color: #4bcf83;
-                background: rgba(39, 174, 96, 0.4);
-              }
-
-              &.down {
-                color: '#FF4343';
-                background: rgba(174, 48, 39, 0.4);
-              }
-            }
-          }
-        }
       }
     }
   }
 
   .dashboard-navigation {
     display: flex;
-    margin: 30px 0 10px 0;
+    margin: 30px 0 15px 0;
     column-gap: 15px;
 
     > a {
@@ -118,6 +78,68 @@ export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
           background-color: ${({ theme }) => theme.navLinkSubTitleActive};
         }
         color: ${({ theme }) => theme.navLinkSubTitleActive};
+      }
+    }
+  }
+`
+
+export const StatBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 4px;
+
+  .name {
+    font-weight: 600;
+    font-size: 14px;
+    color: ${({ theme }) => theme.dashboardTextColor};
+  }
+
+  .value {
+    display: flex;
+    color: ${({ theme }) => theme.dataColor};
+    font-weight: 600;
+    font-size: 16px;
+    column-gap: 4px;
+    height: 36px;
+    align-items: center;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      margin-right: 7px;
+    }
+
+    .impact {
+      border-radius: 5px;
+      font-weight: 400;
+      font-size: 12px;
+      padding: 2px 3px;
+      height: fit-content;
+
+      &.up {
+        color: #4bcf83;
+        background: rgba(39, 174, 96, 0.4);
+      }
+
+      &.down {
+        color: #ff4343;
+        background: rgba(174, 48, 39, 0.4);
+      }
+    }
+  }
+
+  &.large {
+    .name {
+      font-size: 18px;
+    }
+
+    .value {
+      font-weight: 700;
+      font-size: 24px;
+      .impact {
+        font-size: 20px;
+        padding: 2px 3px;
+        margin-left: 5px;
       }
     }
   }

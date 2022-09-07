@@ -2,7 +2,7 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { Link } from 'react-router-dom'
 import { mvkStatsType, TabId } from './Dashboard.controller'
-import { DashboardStyled } from './Dashboard.style'
+import { DashboardStyled, StatBlock } from './Dashboard.style'
 import { DashboardTab } from './TabScreens/DashboardTab.controller'
 
 export const DashboardView = ({
@@ -25,21 +25,21 @@ export const DashboardView = ({
         <div className="mvkStats">
           <BGTitle>MVK</BGTitle>
           <div className="statsWrapper">
-            <div className="stat">
+            <StatBlock>
               <div className="name">Market Cap</div>
               <div className="value">
                 <CommaNumber value={mvkStatsBlock.marketCap} endingText="USD" />
               </div>
-            </div>
+            </StatBlock>
 
-            <div className="stat">
+            <StatBlock>
               <div className="name">Staked MVK</div>
               <div className="value">
                 <CommaNumber value={mvkStatsBlock.stakedMvk} endingText="MVK" />
               </div>
-            </div>
+            </StatBlock>
 
-            <div className="stat">
+            <StatBlock>
               <div className="name">Live Price</div>
               <div className="value">
                 <CommaNumber beginningText="$" value={mvkStatsBlock.livePrice} />
@@ -47,21 +47,21 @@ export const DashboardView = ({
                   {mvkStatsBlock.livePrice >= mvkStatsBlock.prevPrice ? '+' : '-'} 27%
                 </div>
               </div>
-            </div>
+            </StatBlock>
 
-            <div className="stat">
+            <StatBlock>
               <div className="name">Circulating Supply</div>
               <div className="value">
                 <CommaNumber value={mvkStatsBlock.circuatingSupply} endingText="MVK" />
               </div>
-            </div>
+            </StatBlock>
 
-            <div className="stat">
+            <StatBlock>
               <div className="name">Max Supply</div>
               <div className="value">
                 <CommaNumber value={mvkStatsBlock.maxSupply} endingText="MVK" />
               </div>
-            </div>
+            </StatBlock>
           </div>
         </div>
       </div>
