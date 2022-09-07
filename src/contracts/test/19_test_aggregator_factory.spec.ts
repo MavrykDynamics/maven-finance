@@ -23,9 +23,6 @@ import { InMemorySigner } from '@taquito/signer';
 
 describe('AggregatorFactory', () => {
 
-  const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
-
-  let satelliteAddress: string;
   var utils: Utils;
 
   let aggregatorInstance
