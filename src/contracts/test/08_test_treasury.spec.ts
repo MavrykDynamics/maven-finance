@@ -17,8 +17,8 @@
 // import doormanAddress from '../deployments/doormanAddress.json';
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 // import governanceAddress from '../deployments/governanceAddress.json';
-// import mockFa12TokenAddress  from '../deployments/mockFa12TokenAddress.json';
-// import mockFa2TokenAddress   from '../deployments/mockFa2TokenAddress.json';
+// import mavrykFa12TokenAddress  from '../deployments/mavrykFa12TokenAddress.json';
+// import mavrykFa2TokenAddress   from '../deployments/mavrykFa2TokenAddress.json';
 // import delegationAddress   from '../deployments/delegationAddress.json';
 
 // describe("Treasury tests", async () => {
@@ -28,15 +28,15 @@
 //     let doormanInstance;    
 //     let mvkTokenInstance;
 //     let governanceInstance;
-//     let mockFa12TokenInstance;
-//     let mockFa2TokenInstance;
+//     let mavrykFa12TokenInstance;
+//     let mavrykFa2TokenInstance;
 
 //     let treasuryStorage;
 //     let doormanStorage;
 //     let mvkTokenStorage;
 //     let governanceStorage;
-//     let mockFa12TokenStorage;
-//     let mockFa2TokenStorage;
+//     let mavrykFa12TokenStorage;
+//     let mavrykFa2TokenStorage;
     
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -55,23 +55,23 @@
 //         doormanInstance        = await utils.tezos.contract.at(doormanAddress.address);
 //         mvkTokenInstance       = await utils.tezos.contract.at(mvkTokenAddress.address);
 //         governanceInstance     = await utils.tezos.contract.at(governanceAddress.address);
-//         mockFa12TokenInstance  = await utils.tezos.contract.at(mockFa12TokenAddress.address);
-//         mockFa2TokenInstance   = await utils.tezos.contract.at(mockFa2TokenAddress.address);
+//         mavrykFa12TokenInstance  = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
+//         mavrykFa2TokenInstance   = await utils.tezos.contract.at(mavrykFa2TokenAddress.address);
             
 //         treasuryStorage        = await treasuryInstance.storage();
 //         doormanStorage         = await doormanInstance.storage();
 //         mvkTokenStorage        = await mvkTokenInstance.storage();
 //         governanceStorage      = await governanceInstance.storage();
-//         mockFa12TokenStorage   = await mockFa12TokenInstance.storage();
-//         mockFa2TokenStorage    = await mockFa2TokenInstance.storage();
+//         mavrykFa12TokenStorage   = await mavrykFa12TokenInstance.storage();
+//         mavrykFa2TokenStorage    = await mavrykFa2TokenInstance.storage();
 
 //         console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
 //         console.log('Treasury Contract deployed at:', treasuryInstance.address);
 //         console.log('Doorman Contract deployed at:', doormanInstance.address);
 //         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
 //         console.log('Governance Contract deployed at:', governanceInstance.address);
-//         console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
-//         console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
+//         console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+//         console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
 //         console.log('Bob address: ' + bob.pkh);
 //         console.log('Alice address: ' + alice.pkh);
 //         console.log('Eve address: ' + eve.pkh);
@@ -136,38 +136,38 @@
 //             } 
 //         });
 
-//         it('test: any user (alice) can deposit mock FA12 Tokens into treasury', async () => {
+//         it('test: any user (alice) can deposit mavryk FA12 Tokens into treasury', async () => {
 //             try{        
                 
-//                 // Alice transfers 80 Mock FA12 Tokens to Treasury
+//                 // Alice transfers 80 Mavryk FA12 Tokens to Treasury
 //                 const depositAmount = 80000000;
         
 //                 await signerFactory(alice.sk)
-//                 const aliceTransferMockFa12ToTreasuryOperation = await mockFa12TokenInstance.methods.transfer(
+//                 const aliceTransferMavrykFa12ToTreasuryOperation = await mavrykFa12TokenInstance.methods.transfer(
 //                     alice.pkh, 
 //                     treasuryAddress.address, 
 //                     depositAmount
 //                     ).send();
-//                 await aliceTransferMockFa12ToTreasuryOperation.confirmation();
+//                 await aliceTransferMavrykFa12ToTreasuryOperation.confirmation();
 
-//                 const updatedMockFa12TokenStorage       = await mockFa12TokenInstance.storage();
-//                 const treasuryMockFa12TokenBalance      = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);
+//                 const updatedMavrykFa12TokenStorage       = await mavrykFa12TokenInstance.storage();
+//                 const treasuryMavrykFa12TokenBalance      = await updatedMavrykFa12TokenStorage.ledger.get(treasuryAddress.address);
 
-//                 assert.equal(treasuryMockFa12TokenBalance.balance, depositAmount);
+//                 assert.equal(treasuryMavrykFa12TokenBalance.balance, depositAmount);
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
-//         it('test: any user (alice) can deposit mock FA2 Tokens into treasury', async () => {
+//         it('test: any user (alice) can deposit mavryk FA2 Tokens into treasury', async () => {
 //             try{        
                 
-//                 // Alice transfers 80 Mock FA2 Tokens to Treasury
+//                 // Alice transfers 80 Mavryk FA2 Tokens to Treasury
 //                 const depositAmount = 80000000;
         
 //                 await signerFactory(alice.sk)
-//                 const aliceTransferMockFa2ToTreasuryOperation = await mockFa2TokenInstance.methods.transfer([
+//                 const aliceTransferMavrykFa2ToTreasuryOperation = await mavrykFa2TokenInstance.methods.transfer([
 //                         {
 //                             from_: alice.pkh,
 //                             txs: [
@@ -179,12 +179,12 @@
 //                             ]
 //                         }
 //                     ]).send();
-//                 await aliceTransferMockFa2ToTreasuryOperation.confirmation();
+//                 await aliceTransferMavrykFa2ToTreasuryOperation.confirmation();
 
-//                 const updatedMockFa2TokenStorage       = await mockFa2TokenInstance.storage();
-//                 const treasuryMockFa2TokenBalance      = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);
+//                 const updatedMavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+//                 const treasuryMavrykFa2TokenBalance      = await updatedMavrykFa2TokenStorage.ledger.get(treasuryAddress.address);
 
-//                 assert.equal(treasuryMockFa2TokenBalance, depositAmount);
+//                 assert.equal(treasuryMavrykFa2TokenBalance, depositAmount);
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -201,7 +201,7 @@
 //                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress.address);
 
 //                 await signerFactory(alice.sk)
-//                 const aliceTransferMockFa2ToTreasuryOperation = await mvkTokenInstance.methods.transfer([
+//                 const aliceTransferMavrykFa2ToTreasuryOperation = await mvkTokenInstance.methods.transfer([
 //                         {
 //                             from_: alice.pkh,
 //                             txs: [
@@ -213,7 +213,7 @@
 //                             ]
 //                         }
 //                     ]).send();
-//                 await aliceTransferMockFa2ToTreasuryOperation.confirmation();
+//                 await aliceTransferMavrykFa2ToTreasuryOperation.confirmation();
 
 //                 mvkTokenStorage       = await mvkTokenInstance.storage();
 //                 const finalTreasuryMvkTokenBalance      = await mvkTokenStorage.ledger.get(treasuryAddress.address);
@@ -276,10 +276,10 @@
                 
 //                 const to_                   = bob.pkh;
 //                 const amount                = 10000000;
-//                 const tokenContractAddress  = mockFa12TokenAddress.address;
+//                 const tokenContractAddress  = mavrykFa12TokenAddress.address;
 
 //                 await signerFactory(bob.sk);
-//                 const adminTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
+//                 const adminTransferMavrykFa12TokenOperation = await treasuryInstance.methods.transfer(
 //                     [
 //                         {
 //                             "to_"    : to_,
@@ -290,13 +290,13 @@
 //                         }
 //                     ]
 //                 ).send();
-//                 await adminTransferMockFa12TokenOperation.confirmation();
+//                 await adminTransferMavrykFa12TokenOperation.confirmation();
 
-//                 const finalMockFa12TokenBalance      = 70000000;
-//                 const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
-//                 const treasuryMockFa12TokenBalance   = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);
+//                 const finalMavrykFa12TokenBalance      = 70000000;
+//                 const updatedMavrykFa12TokenStorage    = await mavrykFa12TokenInstance.storage();
+//                 const treasuryMavrykFa12TokenBalance   = await updatedMavrykFa12TokenStorage.ledger.get(treasuryAddress.address);
 
-//                 assert.equal(treasuryMockFa12TokenBalance.balance, finalMockFa12TokenBalance);
+//                 assert.equal(treasuryMavrykFa12TokenBalance.balance, finalMavrykFa12TokenBalance);
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -308,11 +308,11 @@
 
 //                 const to_                    = bob.pkh;
 //                 const amount                 = 10000000;
-//                 const tokenContractAddress   = mockFa2TokenAddress.address;
+//                 const tokenContractAddress   = mavrykFa2TokenAddress.address;
 //                 const tokenId                = 0;
 
 //                 await signerFactory(bob.sk);
-//                 const adminTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
+//                 const adminTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
 //                     [
 //                         {
 //                             "to_"    : to_,
@@ -326,13 +326,13 @@
 //                         }
 //                     ]
 //                 ).send();
-//                 await adminTransferMockFa2TokenOperation.confirmation();
+//                 await adminTransferMavrykFa2TokenOperation.confirmation();
 
-//                 const finalMockFa2TokenBalance      = 70000000;
-//                 const updatedMockFa2TokenStorage    = await mockFa2TokenInstance.storage();
-//                 const treasuryMockFa2TokenBalance   = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);
+//                 const finalMavrykFa2TokenBalance      = 70000000;
+//                 const updatedMavrykFa2TokenStorage    = await mavrykFa2TokenInstance.storage();
+//                 const treasuryMavrykFa2TokenBalance   = await updatedMavrykFa2TokenStorage.ledger.get(treasuryAddress.address);
 
-//                 assert.equal(treasuryMockFa2TokenBalance, finalMockFa2TokenBalance);
+//                 assert.equal(treasuryMavrykFa2TokenBalance, finalMavrykFa2TokenBalance);
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -352,7 +352,7 @@
 //                 const initUserMvkTokenBalance       = await mvkTokenStorage.ledger.get(to_);
 
 //                 await signerFactory(bob.sk);
-//                 const adminTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
+//                 const adminTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
 //                     [
 //                         {
 //                             "to_"    : to_,
@@ -366,7 +366,7 @@
 //                         }
 //                     ]
 //                 ).send();
-//                 await adminTransferMockFa2TokenOperation.confirmation();
+//                 await adminTransferMavrykFa2TokenOperation.confirmation();
 
 //                 mvkTokenStorage                         = await mvkTokenInstance.storage();
 //                 const finalTreasuryMvkTokenBalance      = await mvkTokenStorage.ledger.get(treasuryAddress.address);
@@ -470,7 +470,7 @@
 //             try{        
                 
 //                 const tokenType             = "fa12";
-//                 const tokenContractAddress  = mockFa12TokenAddress.address;
+//                 const tokenContractAddress  = mavrykFa12TokenAddress.address;
 
 //                 const recipient_one   = mallory.pkh;
 //                 const amount_one      = 2000000;
@@ -481,10 +481,10 @@
 //                 const recipient_three = trudy.pkh;
 //                 const amount_three    = 5000000;
 
-//                 const mockFa12TokenStorage           = await mockFa12TokenInstance.storage();
-//                 const initialRecipientOneAccount     = await mockFa12TokenStorage.ledger.get(recipient_one);
-//                 const initialRecipientTwoAccount     = await mockFa12TokenStorage.ledger.get(recipient_two);
-//                 const initialRecipientThreeAccount   = await mockFa12TokenStorage.ledger.get(recipient_three);
+//                 const mavrykFa12TokenStorage           = await mavrykFa12TokenInstance.storage();
+//                 const initialRecipientOneAccount     = await mavrykFa12TokenStorage.ledger.get(recipient_one);
+//                 const initialRecipientTwoAccount     = await mavrykFa12TokenStorage.ledger.get(recipient_two);
+//                 const initialRecipientThreeAccount   = await mavrykFa12TokenStorage.ledger.get(recipient_three);
 
 //                 const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount.balance);
 //                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.balance);
@@ -518,10 +518,10 @@
 //                 ).send();
 //                 await adminBatchTransferOperation.confirmation();
 
-//                 const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
-//                 const finalRecipientOneBalance       = await updatedMockFa12TokenStorage.ledger.get(recipient_one);
-//                 const finalRecipientTwoBalance       = await updatedMockFa12TokenStorage.ledger.get(recipient_two);
-//                 const finalRecipientThreeBalance     = await updatedMockFa12TokenStorage.ledger.get(recipient_three);
+//                 const updatedMavrykFa12TokenStorage    = await mavrykFa12TokenInstance.storage();
+//                 const finalRecipientOneBalance       = await updatedMavrykFa12TokenStorage.ledger.get(recipient_one);
+//                 const finalRecipientTwoBalance       = await updatedMavrykFa12TokenStorage.ledger.get(recipient_two);
+//                 const finalRecipientThreeBalance     = await updatedMavrykFa12TokenStorage.ledger.get(recipient_three);
 
 //                 assert.equal(parseInt(finalRecipientOneBalance.balance),   initialRecipientOneBalance   + amount_one);
 //                 assert.equal(parseInt(finalRecipientTwoBalance.balance),   initialRecipientTwoBalance   + amount_two);
@@ -536,7 +536,7 @@
 //             try{        
                 
 //                 const tokenType             = "fa2";
-//                 const tokenContractAddress  = mockFa2TokenAddress.address;
+//                 const tokenContractAddress  = mavrykFa2TokenAddress.address;
 //                 const tokenId               = 0;
 
 //                 const recipient_one   = mallory.pkh;
@@ -548,10 +548,10 @@
 //                 const recipient_three = trudy.pkh;
 //                 const amount_three    = 5000000;
 
-//                 const mockFa2TokenStorage            = await mockFa2TokenInstance.storage();
-//                 const initialRecipientOneAccount     = await mockFa2TokenStorage.ledger.get(recipient_one);
-//                 const initialRecipientTwoAccount     = await mockFa2TokenStorage.ledger.get(recipient_two);
-//                 const initialRecipientThreeAccount   = await mockFa2TokenStorage.ledger.get(recipient_three);
+//                 const mavrykFa2TokenStorage            = await mavrykFa2TokenInstance.storage();
+//                 const initialRecipientOneAccount     = await mavrykFa2TokenStorage.ledger.get(recipient_one);
+//                 const initialRecipientTwoAccount     = await mavrykFa2TokenStorage.ledger.get(recipient_two);
+//                 const initialRecipientThreeAccount   = await mavrykFa2TokenStorage.ledger.get(recipient_three);
 
 //                 const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount);
 //                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount);
@@ -594,10 +594,10 @@
 //                 ).send();
 //                 await adminBatchTransferOperation.confirmation();
 
-//                 const updatedMockFa2TokenStorage     = await mockFa2TokenInstance.storage();
-//                 const finalRecipientOneBalance       = await updatedMockFa2TokenStorage.ledger.get(recipient_one);
-//                 const finalRecipientTwoBalance       = await updatedMockFa2TokenStorage.ledger.get(recipient_two);
-//                 const finalRecipientThreeBalance     = await updatedMockFa2TokenStorage.ledger.get(recipient_three);
+//                 const updatedMavrykFa2TokenStorage     = await mavrykFa2TokenInstance.storage();
+//                 const finalRecipientOneBalance       = await updatedMavrykFa2TokenStorage.ledger.get(recipient_one);
+//                 const finalRecipientTwoBalance       = await updatedMavrykFa2TokenStorage.ledger.get(recipient_two);
+//                 const finalRecipientThreeBalance     = await updatedMavrykFa2TokenStorage.ledger.get(recipient_three);
 
 //                 assert.equal(parseInt(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one);
 //                 assert.equal(parseInt(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two);
@@ -686,10 +686,10 @@
 
 //         it('Whitelist contract should be able to call this entrypoint and transfer batch of FA12, FA2, MVK and XTZ', async () => {
 //             try{
-//                 const mockFa12TokenContractAddress  = mockFa12TokenAddress.address;
+//                 const mavrykFa12TokenContractAddress  = mavrykFa12TokenAddress.address;
 
-//                 const mockFa2TokenContractAddress   = mockFa2TokenAddress.address;
-//                 const mockFa2TokenId                = 0;
+//                 const mavrykFa2TokenContractAddress   = mavrykFa2TokenAddress.address;
+//                 const mavrykFa2TokenId                = 0;
                 
 //                 const mvkTokenContractAddress       = mvkTokenAddress.address;
 //                 const mvkTokenId                    = 0;
@@ -698,11 +698,11 @@
 //                 const recipient_one   = isaac.pkh;
 //                 const amount_one      = 2000000;
 
-//                 // receive mock FA12 tokens
+//                 // receive mavryk FA12 tokens
 //                 const recipient_two   = oscar.pkh;
 //                 const amount_two      = 3000000;
 
-//                 // receive mock FA2 tokens
+//                 // receive mavryk FA2 tokens
 //                 const recipient_three = trudy.pkh;
 //                 const amount_three    = 5000000;
 
@@ -711,12 +711,12 @@
 //                 const amount_four     = 5000000;
 
 //                 const mvkTokenStorage                = await mvkTokenInstance.storage();
-//                 const mockFa12TokenStorage           = await mockFa12TokenInstance.storage();
-//                 const mockFa2TokenStorage            = await mockFa2TokenInstance.storage();
+//                 const mavrykFa12TokenStorage           = await mavrykFa12TokenInstance.storage();
+//                 const mavrykFa2TokenStorage            = await mavrykFa2TokenInstance.storage();
 
 //                 const initRecipientOneTezBalance     = await utils.tezos.tz.getBalance(recipient_one);
-//                 const initialRecipientTwoAccount     = await mockFa12TokenStorage.ledger.get(recipient_two);
-//                 const initialRecipientThreeAccount   = await mockFa2TokenStorage.ledger.get(recipient_three);
+//                 const initialRecipientTwoAccount     = await mavrykFa12TokenStorage.ledger.get(recipient_two);
+//                 const initialRecipientThreeAccount   = await mavrykFa2TokenStorage.ledger.get(recipient_three);
 //                 const initialRecipientFourAccount    = await mvkTokenStorage.ledger.get(recipient_four);
 
 //                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount    === undefined ? 0 : initialRecipientTwoAccount.balance);
@@ -736,7 +736,7 @@
 //                     {
 //                         "to_"    : recipient_two,
 //                         "token"  : {
-//                             "fa12" : mockFa12TokenContractAddress
+//                             "fa12" : mavrykFa12TokenContractAddress
 //                         },
 //                         "amount" : amount_two
 //                     },
@@ -744,8 +744,8 @@
 //                         "to_"    : recipient_three,
 //                         "token"  : {
 //                             "fa2" : {
-//                                 "tokenContractAddress" : mockFa2TokenContractAddress,
-//                                 "tokenId" : mockFa2TokenId
+//                                 "tokenContractAddress" : mavrykFa2TokenContractAddress,
+//                                 "tokenId" : mavrykFa2TokenId
 //                             }
 //                         },
 //                         "amount" : amount_three
@@ -765,17 +765,17 @@
 //                 await adminBatchTransferOperation.confirmation();
 
 //                 const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
-//                 const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
-//                 const updatedMockFa2TokenStorage     = await mockFa2TokenInstance.storage();
+//                 const updatedMavrykFa12TokenStorage    = await mavrykFa12TokenInstance.storage();
+//                 const updatedMavrykFa2TokenStorage     = await mavrykFa2TokenInstance.storage();
 
 //                 const finalRecipientOneTezBalance             = await utils.tezos.tz.getBalance(recipient_one);
-//                 const finalRecipientTwoMockFa12TokenBalance   = await updatedMockFa12TokenStorage.ledger.get(recipient_two);
-//                 const finalRecipientThreeMockFa2TokenBalance  = await updatedMockFa2TokenStorage.ledger.get(recipient_three);
+//                 const finalRecipientTwoMavrykFa12TokenBalance   = await updatedMavrykFa12TokenStorage.ledger.get(recipient_two);
+//                 const finalRecipientThreeMavrykFa2TokenBalance  = await updatedMavrykFa2TokenStorage.ledger.get(recipient_three);
 //                 const finalRecipientThreeMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(recipient_four);
 
 //                 assert.equal(finalRecipientOneTezBalance,   initRecipientOneTezBalance.toNumber()    + amount_one);
-//                 assert.equal(parseInt(finalRecipientTwoMockFa12TokenBalance.balance.toNumber()),  initialRecipientTwoBalance    + amount_two);
-//                 assert.equal(parseInt(finalRecipientThreeMockFa2TokenBalance.toNumber()),         initialRecipientThreeBalance  + amount_three);
+//                 assert.equal(parseInt(finalRecipientTwoMavrykFa12TokenBalance.balance.toNumber()),  initialRecipientTwoBalance    + amount_two);
+//                 assert.equal(parseInt(finalRecipientThreeMavrykFa2TokenBalance.toNumber()),         initialRecipientThreeBalance  + amount_three);
 //                 assert.equal(parseInt(finalRecipientThreeMvkTokenBalance.toNumber()),             initialRecipientFourBalance   + amount_four);
 
 //             } catch(e){
@@ -787,10 +787,10 @@
 //             try{
 //                 const to_                   = alice.pkh;
 //                 const amount                = 10000000;
-//                 const tokenContractAddress  = mockFa12TokenAddress.address;
+//                 const tokenContractAddress  = mavrykFa12TokenAddress.address;
 
 //                 await signerFactory(alice.sk);
-//                 const failTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
+//                 const failTransferMavrykFa12TokenOperation = await treasuryInstance.methods.transfer(
 //                     [
 //                         {
 //                             "to_"    : to_,
@@ -801,7 +801,7 @@
 //                         }
 //                     ]
 //                 );
-//                 await chai.expect(failTransferMockFa12TokenOperation.send()).to.be.eventually.rejected;
+//                 await chai.expect(failTransferMavrykFa12TokenOperation.send()).to.be.eventually.rejected;
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -812,11 +812,11 @@
 //             try{
 //                 const to_        = alice.pkh;
 //                 const amount     = 10000000;
-//                 const tokenContractAddress      = mockFa12TokenAddress.address;
+//                 const tokenContractAddress      = mavrykFa12TokenAddress.address;
 //                 const tokenId    = 0;
 
 //                 await signerFactory(alice.sk);
-//                 const failTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
+//                 const failTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
 //                     [
 //                         {
 //                             "to_"    : to_,
@@ -830,7 +830,7 @@
 //                         }
 //                     ]
 //                 );
-//                 await chai.expect(failTransferMockFa2TokenOperation.send()).to.be.eventually.rejected;
+//                 await chai.expect(failTransferMavrykFa2TokenOperation.send()).to.be.eventually.rejected;
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});

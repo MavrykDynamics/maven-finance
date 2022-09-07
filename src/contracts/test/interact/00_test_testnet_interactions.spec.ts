@@ -26,7 +26,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import lpTokenAddress from '../../deployments/lpTokenAddress.json';
+import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
 import treasuryAddress from '../../deployments/treasuryAddress.json';
 import vestingAddress from '../../deployments/vestingAddress.json';
 import governanceFinancialAddress from '../../deployments/governanceFinancialAddress.json';
@@ -157,7 +157,7 @@ describe("Testnet interactions helper", async () => {
             treasuryFactoryInstance         = await utils.tezos.contract.at(treasuryFactoryAddress.address);
             treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
             farmInstance                    = await utils.tezos.contract.at(farmAddress.address);
-            lpTokenInstance                 = await utils.tezos.contract.at(lpTokenAddress.address);
+            lpTokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
             governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress.address);
             aggregatorInstance              = await utils.tezos.contract.at(aggregatorAddress.address);
             aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
@@ -1752,7 +1752,7 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase,
-                    lpTokenAddress.address,
+                    mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
                 ).send();
@@ -2814,7 +2814,7 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase,
-                    lpTokenAddress.address,
+                    mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
                 ).toTransferParams();
@@ -2913,7 +2913,7 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase,
-                    lpTokenAddress.address,
+                    mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
                 ).toTransferParams();
@@ -3034,7 +3034,7 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase,
-                    lpTokenAddress.address,
+                    mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
                 ).toTransferParams();

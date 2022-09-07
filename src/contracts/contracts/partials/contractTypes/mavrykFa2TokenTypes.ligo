@@ -2,7 +2,6 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-
 type tokenMetadataInfoType is record [
     token_id          : tokenIdType;
     token_info        : map(string, bytes);
@@ -11,20 +10,22 @@ type ledgerType is big_map(address, tokenBalanceType);
 
 type tokenMetadataType is big_map(tokenIdType, tokenMetadataInfoType);
 
-
 // ------------------------------------------------------------------------------
 // Action Types
 // ------------------------------------------------------------------------------
 
-(* Mint entrypoint inputs *)
-type mintType is (ownerType * tokenBalanceType)
+(* MintOrBurn entrypoint inputs *)
+type mintOrBurnTypes is [@layout:comb] record [
+    target    : address;
+    tokenId   : tokenIdType;
+    quantity  : int;
+]
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
 
-
-type mvkTokenStorageType is record [
+type mavrykFa2TokenStorageType is [@layout:comb] record [
     admin                   : address;
     metadata                : metadataType;
 
@@ -35,9 +36,6 @@ type mvkTokenStorageType is record [
     
     token_metadata          : tokenMetadataType;
     totalSupply             : tokenBalanceType;
-    maximumSupply           : tokenBalanceType;
-    inflationRate           : nat;                      // Percentage
-    nextInflationTimestamp  : timestamp;
     ledger                  : ledgerType;
     operators               : operatorsType;
 ]

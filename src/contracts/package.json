@@ -17,8 +17,8 @@
     "rimraf": "^3.0.2"
   },
   "scripts": {
-    "start-sandbox": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20220510 jakartabox start && bash ./sandbox-init.sh",
-    "start-sandbox-m1": "docker run --rm --platform=linux/arm64/v8 --name mavryk-sandbox -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20220510 jakartabox start && bash ./sandbox-init.sh",
+    "start-sandbox": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20220715 jakartabox start && bash ./sandbox-init.sh",
+    "start-sandbox-m1": "docker run --rm --platform=linux/arm64/v8 --name mavryk-sandbox -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20220715 jakartabox start && bash ./sandbox-init.sh",
     "generate-error-codes": "bash ./generate-error-codes.sh",
     "pre-compile": "ts-node scripts/cli.ts compile -o contracts/compiled -c",
     "pre-compile-m1": "ts-node scripts/cli.ts compile -o contracts/compiled -m true -c",
@@ -32,7 +32,7 @@
     "compile-all-lambdas-1": "yarn compile-contract-lambdas governanceProxy,governance,governanceFinancial,governanceSatellite && yarn compile-contract-lambdas doorman,delegation,breakGlass,council,emergencyGovernance,vesting",
     "compile-all-lambdas-2": "yarn compile-contract-lambdas farm,farmFactory,treasury,treasuryFactory,aggregator,aggregatorFactory",
     "compile-all-lambdas-3": "yarn compile-contract-lambdas vault,lendingController",
-    "compile-all-contracts-no-lambdas": " yarn compile-contract-no-lambdas mvkToken,mockFa12Token,mockFa2Token,tokenPoolLpToken",
+    "compile-all-contracts-no-lambdas": " yarn compile-contract-no-lambdas mvkToken,mavrykFa12Token,mavrykFa2Token,tokenPoolLpToken",
     
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2 && yarn compile-all-lambdas-3",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",

@@ -31,7 +31,7 @@
 // import aggregatorFactoryAddress         from '../deployments/aggregatorFactoryAddress.json';
 // import governanceProxyAddress           from '../deployments/governanceProxyAddress.json';
 // import farmFactoryAddress               from '../deployments/farmFactoryAddress.json';
-// import lpTokenAddress                   from '../deployments/lpTokenAddress.json';
+// import mavrykFa12TokenAddress                   from '../deployments/mavrykFa12TokenAddress.json';
 // import farmAddress                      from '../deployments/farmAddress.json';
 
 // import { config } from "yargs";
@@ -95,7 +95,7 @@
 //             governanceProxyInstance         = await utils.tezos.contract.at(governanceProxyAddress.address);
 //             farmFactoryInstance             = await utils.tezos.contract.at(farmFactoryAddress.address);
 //             farmInstance                    = await utils.tezos.contract.at(farmAddress.address);
-//             lpTokenInstance                 = await utils.tezos.contract.at(lpTokenAddress.address);
+//             lpTokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
     
 //             doormanStorage                  = await doormanInstance.storage();
 //             delegationStorage               = await delegationInstance.storage();
@@ -652,7 +652,7 @@
 //     //                 12000,
 //     //                 100,
 //     //                 farmMetadataBase,
-//     //                 lpTokenAddress.address,
+//     //                 mavrykFa12TokenAddress.address,
 //     //                 0,
 //     //                 "fa12",
 //     //             ).toTransferParams();
@@ -848,7 +848,7 @@
 //     //                 const approveParams     = await lpTokenInstance.methods.approve(farmAddress.address, approvals).toTransferParams({})
 //     //                 const depositParams     = await farmInstance.methods.deposit(amountToDeposit).toTransferParams({})
 //     //                 const batchOpEstimate   = await utils.tezos.estimate.batch([
-//     //                     { kind: OpKind.TRANSACTION, to: lpTokenAddress.address, parameter: approveParams.parameter, amount: 0},
+//     //                     { kind: OpKind.TRANSACTION, to: mavrykFa12TokenAddress.address, parameter: approveParams.parameter, amount: 0},
 //     //                     { kind: OpKind.TRANSACTION, to: farmAddress.address, parameter: depositParams.parameter, amount: 0},
 //     //                 ])
 
