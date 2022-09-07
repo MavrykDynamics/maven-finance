@@ -55,6 +55,7 @@ export const dark = {
   secondaryColor: '#73d7c3',
   dataColor: '#77a4f2',
   blockNameTitleColor: silverColor,
+  dashboardTextColor: '#D0CFD9',
   upColor,
   downColor,
   warningColor,

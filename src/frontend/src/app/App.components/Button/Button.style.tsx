@@ -83,6 +83,12 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
         stroke: none;
       }
     }
+
+    &.noStroke {
+      svg {
+        stroke: none;
+      }
+    }
   }
 
   &.actionSecondary {
