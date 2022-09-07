@@ -672,6 +672,7 @@ export const registerAggregator =
       dispatch({
         type: REGISTER_AGGREGATOR_REQUEST,
       })
+
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
       console.log('contract', contract)
       const transaction = await contract?.methods.registerAggregator(aggregatorPair, aggregatorAddress).send()
