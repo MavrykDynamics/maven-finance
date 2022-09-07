@@ -77,7 +77,10 @@ type lendingControllerAction is
         // Vault Staked MVK Entrypoints   
     |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
     |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+    // |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+
+        // Rewards Entrypoints
+    // |   ClaimRewards                    of claimRewardsType
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -130,10 +133,10 @@ const fpa10e5 : nat = 1_000_00n;                                // 10^5
 const fpa10e4 : nat = 1_000_0n;                                 // 10^4
 const fpa10e3 : nat = 1_000n;                                   // 10^3
 
-const minBlockTime              : nat   = Tezos.get_min_block_time();
-const blocksPerMinute           : nat   = 60n / minBlockTime;
-const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
-const blocksPerYear             : nat   = blocksPerDay * 365n;
+// const minBlockTime              : nat   = Tezos.get_min_block_time();
+// const blocksPerMinute           : nat   = 60n / minBlockTime;
+// const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
+// const blocksPerYear             : nat   = blocksPerDay * 365n;
 
 const secondsInYear             : nat   = 31_536_000n;  // 365 days
 
@@ -205,6 +208,136 @@ function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
 // ------------------------------------------------------------------------------
 // Misc Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// -----------------------------------------
+// Lending Controller Token Pool Entrypoints
+// -----------------------------------------
+
+// helper function to check that the %setLoanToken entrypoint is not paused
+function checkSetLoanTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.setLoanTokenIsPaused then failwith(error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %addLiquidity entrypoint is not paused
+function checkAddLiquidityIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.addLiquidityIsPaused then failwith(error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %removeLiquidity entrypoint is not paused
+function checkRemoveLiquidityIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.removeLiquidityIsPaused then failwith(error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+// -----------------------------------------
+// Lending Controller Vault Entrypoints
+// -----------------------------------------
+
+// helper function to check that the %updateCollateralToken entrypoint is not paused
+function checkUpdateCollateralTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.updateCollateralTokenIsPaused then failwith(error_UPDATE_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %createVault entrypoint is not paused
+function checkCreateVaultIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.createVaultIsPaused then failwith(error_CREATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %closeVault entrypoint is not paused
+function checkCloseVaultIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.closeVaultIsPaused then failwith(error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %registerDeposit entrypoint is not paused
+function checkRegisterDepositIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.registerDepositIsPaused then failwith(error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %registerWithdrawal entrypoint is not paused
+function checkRegisterWithdrawalIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.registerWithdrawalIsPaused then failwith(error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %markForLiquidation entrypoint is not paused
+function checkMarkForLiquidationIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.markForLiquidationIsPaused then failwith(error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %liquidateVault entrypoint is not paused
+function checkLiquidateVaultIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.liquidateVaultIsPaused then failwith(error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %borrow entrypoint is not paused
+function checkBorrowIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.borrowIsPaused then failwith(error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %repay entrypoint is not paused
+function checkRepayIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.repayIsPaused then failwith(error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+// -----------------------------------------
+// Lending Controller Vault Staked MVK Entrypoints
+// -----------------------------------------
+
+// helper function to check that the %vaultDepositStakedMvk entrypoint is not paused
+function checkVaultDepositStakedMvkIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then failwith(error_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %vaultWithdrawStakedMvk entrypoint is not paused
+function checkVaultWithdrawStakedMvkIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then failwith(error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %vaultLiquidateStakedMvk entrypoint is not paused
+function checkVaultLiquidateStakedMvkIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then failwith(error_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+// -----------------------------------------
+// Lending Controller Reward Entrypoints
+// -----------------------------------------
+
+// helper function to check that the %claimRewards entrypoint is not paused
+function checkClaimRewardsIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.claimRewardsIsPaused then failwith(error_CLAIM_REWARDS_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
+
 
 
 
@@ -802,53 +935,64 @@ block {
 // Rewards Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to update rewards
-function updateRewards(const userAddress : address; const tokenName : string; var s : lendingControllerStorageType) : lendingControllerStorageType is
+// helper function to create or update user rewards
+function createOrUpdateUserRewards(const userAddress : address; const loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : lendingControllerStorageType is
 block{
 
-        // Steps Overview:
+    // Steps Overview:
+    // 1. Make big map key - (userAddress, loanTokenName)
+    // 2. Get loan token accumulated rewards per share
+    // 3. Get or create user's rewards record
+    // 4. Get user depositor balance for token (i.e. liquidity provided for token)
+    // 5. Calculate new unclaimed rewards
+    //      - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
+    //      - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
+    // 6. Update user's rewards record 
+    //      - set rewardsPerShare to token's accumulatedRewardsPerShare
+    //      - increment user's unpaid rewards by the calculated rewards
 
-        // Check if user is recorded in the Rewards Ledger
-        if Big_map.mem((userAddress, tokenName), s.rewardsLedger) then {
+    // Make big map key - (userAddress, loanTokenName)
+    const userAddressLoanTokenKey : (address * string) = (userAddress, loanTokenRecord.tokenName);
 
-            // Get user's rewards record
-            var userRewardsRecord : rewardsRecordType := case Big_map.find_opt((userAddress, tokenName), s.rewardsLedger) of [
-                    Some (_record) -> _record
-                |   None           -> failwith(error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND)
-            ];
-            var userRewardsPerShare : nat := userRewardsRecord.rewardsPerShare;            
+    // Get loan token accumulated rewards per share
+    const loanTokenAccumulatedRewardsPerShare : nat = loanTokenRecord.accumulatedRewardsPerShare;            
 
-            // Get user depositor record for token (i.e. liquidity provided for token)
-            const depositorKey : (address * string) = (userAddress, tokenName);
-            var depositorAmount : nat := case Big_map.find_opt(depositorKey, s.depositorLedger) of [
-                    Some(_record) -> _record
-                |   None          -> failwith(error_DEPOSITOR_RECORD_NOT_FOUND)
-            ];
+    // Get or create user's rewards record
+    var userRewardsRecord : rewardsRecordType := case Big_map.find_opt(userAddressLoanTokenKey, s.rewardsLedger) of [
+            Some (_record) -> _record
+        |   None           -> record [
+                unpaid          = 0n;
+                paid            = 0n;
+                rewardsPerShare = loanTokenAccumulatedRewardsPerShare;
+            ]
+    ];
+    const userRewardsPerShare : nat = userRewardsRecord.rewardsPerShare;            
 
-            // Get token record
-            const tokenRecord : loanTokenRecordType  = case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
-                    Some (_tokenRecord) -> _tokenRecord
-                |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-            ];
+    // Get user depositor balance for token (i.e. liquidity provided for token)
+    var tokenPoolDepositorBalance : nat := case Big_map.find_opt(userAddressLoanTokenKey, s.tokenPoolDepositorLedger) of [
+            Some(_record) -> _record
+        |   None          -> 0n
+    ];
 
-            const tokenAccumulatedRewardsPerShare : nat = tokenRecord.accumulatedRewardsPerShare;            
+    // Calculate new unclaimed rewards
+    // - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
+    // - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
 
-            // Calculate new unclaimed rewards
-            // - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
-            // - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
-            
-            const rewardsRatioDifference : nat  = abs(tokenAccumulatedRewardsPerShare - userRewardsPerShare);
-            const newRewards : nat              = (depositorAmount * rewardsRatioDifference) / fixedPointAccuracy;
+    var accruedRewards : nat := 0n;
+    if userRewardsPerShare < loanTokenAccumulatedRewardsPerShare then {
+        
+        const rewardsRatioDifference : nat = abs(loanTokenAccumulatedRewardsPerShare - userRewardsPerShare);
+        accruedRewards := (tokenPoolDepositorBalance * rewardsRatioDifference) / fixedPointAccuracy;
 
-            // Update user's rewards record 
-            // - set rewardsPerShare to token's accumulatedRewardsPerShare
-            // - increment user's unpaid rewards by the calculated rewards
+    } else skip;
 
-            userRewardsRecord.rewardsPerShare       := tokenAccumulatedRewardsPerShare;
-            userRewardsRecord.unpaid                := userRewardsRecord.unpaid + newRewards;
-            s.rewardsLedger[(userAddress, tokenName)]            := userRewardsRecord;
+    // Update user's rewards record 
+    // - set rewardsPerShare to token's accumulatedRewardsPerShare
+    // - increment user's unpaid rewards by the calculated rewards
 
-        } else skip;
+    userRewardsRecord.rewardsPerShare          := loanTokenAccumulatedRewardsPerShare;
+    userRewardsRecord.unpaid                   := userRewardsRecord.unpaid + accruedRewards;
+    s.rewardsLedger[userAddressLoanTokenKey]   := userRewardsRecord;
 
 } with (s)
 
@@ -926,7 +1070,7 @@ block{
 //     **)
 
 //     // Get token record
-//     var tokenRecord : loanTokenRecordType := case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
+//     var tokenRecord : loanTokenRecordType := case Map.find_opt(tokenName, s.loanTokenLedger) of [
 //             Some (_tokenRecord) -> _tokenRecord
 //         |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
 //     ];
@@ -1126,7 +1270,7 @@ block {
 
 (* View: get loan token *)
 [@view] function getLoanTokenRecord(const tokenName : string; const s : lendingControllerStorageType) : option(loanTokenRecordType) is
-    Big_map.find_opt(tokenName, s.loanTokenLedger)
+    Map.find_opt(tokenName, s.loanTokenLedger)
 
 
 
@@ -1656,28 +1800,55 @@ block {
 
 
 
-(* vaultLiquidateStakedMvk entrypoint *)
-function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// (* vaultLiquidateStakedMvk entrypoint *)
+// function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Entrypoints End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Rewards Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* claimRewards entrypoint *)
+// function claimRewards(const claimRewardsParams : claimRewardsType; var s : lendingControllerStorageType) : return is 
+// block {
+
+
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaimRewards"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
+
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaClaimRewards(claimRewardsParams);
+
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+// } with response
+
+// ------------------------------------------------------------------------------
+// Rewards Entrypoints End
+// ------------------------------------------------------------------------------
 
 
 // ------------------------------------------------------------------------------
@@ -1765,7 +1936,10 @@ function main (const action : lendingControllerAction; const s : lendingControll
             // Vault Staked MVK Entrypoints   
         |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
         |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
-        |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
+        // |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
+
+            // Rewards Entrypoints
+        // |   ClaimRewards(parameters)                      -> claimRewards(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    
