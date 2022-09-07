@@ -45,8 +45,6 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
 
   .byte,
   .hide {
-    display: none;
-
     svg {
       width: 16px;
       height: 16px;
@@ -57,7 +55,6 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     }
 
     button {
-      color: inherit;
       margin: 0;
       padding: 0;
       text-align: left;
@@ -71,16 +68,6 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     position: absolute;
     width: 1px;
     height: 1px;
-
-    &:checked {
-      & ~ .short-byte {
-        display: none;
-      }
-
-      & ~ .byte {
-        display: block;
-      }
-    }
   }
 
   .execute-proposal {
@@ -168,14 +155,13 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     li {
       margin-bottom: 6px;
     }
-
-    label {
-      text-decoration: underline;
-      color: ${headerColor};
-      cursor: pointer;
-      position: relative;
-      top: -1px;
-    }
+  }
+  .visible-button {
+    text-decoration: underline;
+    color: ${headerColor};
+    cursor: pointer;
+    position: relative;
+    top: -1px;
   }
 
   .proposal-list-title {
