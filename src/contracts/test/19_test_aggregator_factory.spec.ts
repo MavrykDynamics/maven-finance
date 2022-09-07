@@ -372,12 +372,50 @@ describe('AggregatorFactory', () => {
             await chai.expect(aggregatorFactory.methods.trackAggregator("USD", "test", aggregatorInstance.address).send()).to.be.rejected;
 
             // init params for aggregator test entrypoints
-            // const round = updatedAggregatorStorage.round;
-            // const roundId = new BigNumber(updatedAggregatorStorage.round);
-            const price = 2000;
+            const observations = [
+              {
+                 "oracle": bob.pkh,
+                 "price": new BigNumber(10142857143)
+              },
+              {
+                  "oracle": eve.pkh,
+                  "price": new BigNumber(10142853322)
+               },
+               {
+                  "oracle": mallory.pkh,
+                  "price": new BigNumber(10142857900)
+               },
+               {
+                  "oracle": oracleMaintainer.pkh,
+                  "price": new BigNumber(10144537815)
+               },
+           ];
+           const epoch: number = 1;
+           const round: number = 1;
+           const oracleObservations = new MichelsonMap<string, any>();
+           for (const { oracle, price } of observations) {
+              oracleObservations.set(oracle, {
+                  price,
+                  epoch,
+                  round,
+                  aggregatorAddress: aggregatorAddress.address
+                });
+           };
+  
+           const signatures = new MichelsonMap<string, string>();
+  
+           await signerFactory(bob.sk);
+           signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+           await signerFactory(eve.sk);
+           signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+           await signerFactory(mallory.sk);
+           signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+           await signerFactory(oracleMaintainer.sk);
+           signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+  
             
 
-            // TODO await chai.expect(aggregatorInstance.methods.updatePrice().send()).to.be.rejected;
+            await chai.expect(aggregatorInstance.methods.updatePrice(oracleObservations, signatures).send()).to.be.rejected;
             await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send()).to.be.rejected;
             await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvk(bob.pkh).send()).to.be.rejected;
 
