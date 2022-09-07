@@ -25,6 +25,7 @@ import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.co
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
 import { SlidingTabButtons, TabItem } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { RegisterAggregatorForm } from './RegisterAggregator.form'
 
 // actions
 import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
@@ -249,7 +250,9 @@ export const SatelliteGovernance = () => {
                 clickOnItem={(e) => handleOnClickDropdownItem(e)}
               />
             </DropdownWrap>
-            {chosenDdItem?.value === 'fixMistakenTransfer' ? (
+            {chosenDdItem?.value === 'registerAggregator' ? (
+              <RegisterAggregatorForm />
+            ) : chosenDdItem?.value === 'fixMistakenTransfer' ? (
               <FixMistakenTransferForm />
             ) : (
               <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
