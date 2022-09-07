@@ -118,3 +118,41 @@ export const SatellitesContentStyled = styled.div<{ theme: MavrykTheme }>`
   column-gap: 50px;
   max-width: 600px;
 `
+
+export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  flex-direction: column;
+
+  .top {
+    width: fit-content;
+    column-gap: 50px;
+
+    .value {
+      height: 25px;
+    }
+  }
+
+  .block-name {
+    margin-top: 30px;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 18px;
+    color: ${({ theme }) => theme.dashboardTextColor};
+  }
+
+  .feeds-grid {
+    margin-top: 20px;
+    max-width: 650px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+    .row {
+      display: grid;
+      grid-template-columns: repeat(4, auto);
+
+      .value {
+        height: 25px;
+      }
+    }
+  }
+`

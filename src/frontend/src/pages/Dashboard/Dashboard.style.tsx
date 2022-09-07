@@ -87,6 +87,19 @@ export const StatBlock = styled.div`
   display: flex;
   flex-direction: column;
   row-gap: 4px;
+  position: relative;
+
+  > svg {
+    height: 45px;
+    width: 45px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  &.icon-first {
+    padding-left: 50px;
+  }
 
   .name {
     font-weight: 600;
@@ -102,6 +115,10 @@ export const StatBlock = styled.div`
     column-gap: 4px;
     height: 36px;
     align-items: center;
+
+    p {
+      margin: 0;
+    }
 
     svg {
       width: 24px;
