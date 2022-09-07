@@ -16,6 +16,7 @@ import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
 import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
+import treasuryAddress from '../deployments/treasuryAddress.json';
 import governanceAddress from '../deployments/governanceAddress.json';
 import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
 import mockFa12TokenAddress from '../deployments/mockFa12TokenAddress.json';
@@ -46,6 +47,9 @@ describe("Lending Controller (Mock Time) tests", async () => {
     const oneDayLevelBlocks = 4320
     const oneMonthLevelBlocks = 129600
     const oneYearLevelBlocks = 1576800
+
+    const secondsInYears = 31536000
+    const fixedPointAccuracy = 10**27
     
     let doormanInstance
     let delegationInstance
@@ -77,6 +81,15 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     let lendingControllerStorage
 
+    let tokenOracles : {name : string, price : number}[] = [
+        {"name" : "mockFa12", "price" : 1500000},
+        {"name" : "mockFa2", "price" : 3500000},
+        {"name" : "xtz", "price" : 1800000},
+    ];
+    
+    // Begin Helper Functions
+
+
     const almostEqual = (actual, expected, delta) => {
         let greaterLimit  = expected + expected * delta
         let lowerLimit    = expected - expected * delta
@@ -85,6 +98,111 @@ describe("Lending Controller (Mock Time) tests", async () => {
         // console.log("STUDIED: ", actual)
         return actual <= greaterLimit && actual >= lowerLimit
     }
+
+
+    const calculateCompoundedInterest = (interestRate, lastUpdatedBlockLevel, blockLevel) => {
+
+        let interestRateOverSecondsInYear = Math.floor(interestRate / secondsInYears)
+        let exp = blockLevel - lastUpdatedBlockLevel
+
+        let expMinusOne = exp - 1
+        let expMinusTwo = exp - 2
+
+        let basePowerTwo = Math.floor((interestRateOverSecondsInYear ** 2) / (secondsInYears ** 2))
+        let basePowerThree = Math.floor((interestRateOverSecondsInYear ** 3) / (secondsInYears ** 3))
+
+        let firstTerm  = Math.floor(exp * interestRateOverSecondsInYear)
+        let secondTerm = Math.floor((exp * expMinusOne * basePowerTwo) / 2)
+        let thirdTerm  = Math.floor((exp * expMinusOne * expMinusTwo * basePowerThree) / 6)
+
+        let compoundedInterest = fixedPointAccuracy + firstTerm + secondTerm + thirdTerm
+
+        return compoundedInterest
+
+    }
+
+
+    const calculateUtilisationRate = (tokenPoolTotal, totalBorrowed) => {
+
+        let utilisationRate = Math.floor(totalBorrowed / tokenPoolTotal)
+        return utilisationRate
+
+    }
+    
+
+    const calculateCurrentInterestRate = (utilisationRate, optimalUtilisationRate, baseInterestRate, interestRateBelowOptimalUtilisation, interestRateAboveOptimalUtilisation) => {
+
+        let currentInterestRate
+        let firstTerm = baseInterestRate
+
+        if(utilisationRate > optimalUtilisationRate){
+
+            let secondTerm = interestRateBelowOptimalUtilisation
+
+            let utilisationRateLessOptimalRate = utilisationRate - optimalUtilisationRate
+            let coefficientDenominator = fixedPointAccuracy - optimalUtilisationRate
+
+            let thirdTerm = Math.floor((utilisationRateLessOptimalRate / coefficientDenominator) * interestRateAboveOptimalUtilisation)
+
+            currentInterestRate = firstTerm + secondTerm + thirdTerm
+
+        } else {
+
+            let secondTermCoefficient = Math.floor(utilisationRate / optimalUtilisationRate)
+            let secondTerm = Math.floor(secondTermCoefficient * interestRateBelowOptimalUtilisation)
+
+            currentInterestRate = firstTerm + secondTerm
+        }
+
+        return currentInterestRate
+    }
+
+
+    const calculateBorrowIndex = (compoundedInterest, currentBorrowIndex) => {
+        return Math.floor((currentBorrowIndex * compoundedInterest) / fixedPointAccuracy)
+    }
+
+
+    const calculateAccruedInterest = (currentLoanOutstandingTotal, vaultBorrowIndex, tokenBorrowIndex) => {
+
+        let newLoanOutstandingTotal = 0
+        
+        if(currentLoanOutstandingTotal > 0){
+            if(vaultBorrowIndex > 0){
+                newLoanOutstandingTotal = Math.floor((currentLoanOutstandingTotal * tokenBorrowIndex) / vaultBorrowIndex)
+            }
+        }
+
+        return newLoanOutstandingTotal
+    }
+
+    const calculateInterestTreasuryShare = (interestTreasuryShare, totalInterestPaid) => {
+        let interestSentToTreasury = Math.floor((totalInterestPaid * interestTreasuryShare) / 10000);
+        return interestSentToTreasury
+    }
+
+
+    const calculateVaultCollateralValue = (collateralBalanceLedger) => {
+
+
+
+    }
+
+
+    const isUnderCollaterized = (loanOutstandingTotal, collateralRatio) => {
+        
+
+    }
+
+
+    const isLiquidatable = (liquidationRatio) => {
+        
+
+    }
+
+
+    // End Helper Functions
+
     
     const signerFactory = async (pk) => {
         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -980,9 +1098,15 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //
     describe('%repay mockFA12 Tokens - mock time tests', function () {
 
-        it('user (eve) can repay 1 Mock FA12 Token  - mock one year - below utilisation rate', async () => {
+        it('user (eve) can repay debt - Mock FA12 Token  - mock one month - interest rate below optimal utilisation rate - repayment greater than interest', async () => {
 
-            // Summary:
+            // Conditions: 
+            // - vault loan token: mock FA12 tokens
+            // - mock time: 1 month
+            // - token pool interest rate: below optimal utilisation rate
+            // - repay amount: greater than interest amount
+
+            // Summary of steps:
             // 1. Create Vault
             // 2. Deposit collateral into vault (100 Mock FA12 Tokens, 100 Mock FA2 Tokens)
             // 3. Borrow from vault (50 Mock FA12 Tokens)
@@ -1028,9 +1152,6 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
-
-            const vaultOriginatedContract = await utils.tezos.contract.at(vaultAddress);
-            const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
             console.log('   - vault originated: ' + vaultAddress);
 
@@ -1112,14 +1233,16 @@ describe("Lending Controller (Mock Time) tests", async () => {
             console.log("--- loanTokenRecordView ---");
             console.log(initialLoanTokenRecordView);
 
-
-
-
-            const borrowAmount = 50000000;   // 50 Mock FA12 Tokens
+            // borrow amount - 50 Mock FA12 Tokens
+            const borrowAmount = 50000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
             await eveBorrowOperation.confirmation();
+
+            // get initial eve's Mock FA12 Token balance
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : parseInt(eveMockFa12Ledger.balance);
 
             console.log('   - borrowed from vault');
 
@@ -1135,6 +1258,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             console.log("    ");
             console.log("    ");
+
             console.log("--- ----- first borrow ----- ---");
             console.log("--- vaultRecordView ---");
             console.log(firstBorrowVaultRecordView);
@@ -1146,35 +1270,15 @@ describe("Lending Controller (Mock Time) tests", async () => {
             console.log('afterFirstBorrowNewLoanOutstandingTotal: ' + afterFirstBorrowNewLoanOutstandingTotal);
             console.log('afterFirstBorrowVaultBorrowIndex: ' + afterFirstBorrowVaultBorrowIndex);
             console.log('afterFirstBorrowTokenBorrowIndex: ' + afterFirstBorrowTokenBorrowIndex);
-            // console.log(firstBorrowStorage.tempMap);
 
             console.log("    ");
             console.log("    ");
-                
-
-            // const touchBorrowAmount = 1000000;   // 1 Mock FA12 Tokens
-
-            // // touch borrow operation
-            // const eveTouchBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, touchBorrowAmount).send();
-            // await eveTouchBorrowOperation.confirmation();
-
-            // console.log('   - touch borrow from vault');
-
-            // const beforeVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-            // const beforeLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
-
-            // console.log("--- ----- before time change ----- ---");
-            // console.log("--- vaultRecordView ---");
-            // console.log(beforeVaultRecordView);
-
-            // console.log("--- loanTokenRecordView ---");
-            // console.log(beforeLoanTokenRecordView);
 
             // ----------------------------------------------------------------------------------------------
             // Set Block Levels For Mock Time Test - 1 month
             // ----------------------------------------------------------------------------------------------
 
-            await signerFactory(bob.sk); // tester / admin
+            await signerFactory(bob.sk); // temporarily set to tester to increase block levels
 
             const updatedLendingControllerStorage   = await lendingControllerInstance.storage();
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
@@ -1197,17 +1301,13 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // Repay partial debt 
             // ----------------------------------------------------------------------------------------------
 
-            await signerFactory(eve.sk);  // set back to user
+            // set back to user
+            await signerFactory(eve.sk);  
 
-            // const touchBorrowAmount = 1000000;   // 1 Mock FA12 Tokens
+            // treasury share of interest repaid
+            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
 
-            // // touch borrow operation
-            // const eveTouchBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, touchBorrowAmount).send();
-            // await eveTouchBorrowOperation.confirmation();
-
-            // console.log('   - touch borrow from vault');
-
-
+            // repayment amount
             const repayAmount = 500000; // 0.5 Mock FA12 Tokens
 
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -1225,16 +1325,26 @@ describe("Lending Controller (Mock Time) tests", async () => {
             ).send();
             await setNewTokenAllowance.confirmation();
 
-            const vaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-            const loanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            // get vault and loan token views, and storage
+            const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
+            const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
+
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
 
             const beforeRepaymentBorrowNewLoanOutstandingTotal = await beforeRepaymentStorage.tempMap.get("borrow-newLoanOutstandingTotalAfterAccruedInterest");
             const beforeRepaymentRepayNewLoanOutstandingTotal = await beforeRepaymentStorage.tempMap.get("repay-newLoanOutstandingTotalAfterAccruedInterest");
-            const beforeRepaymentVaultBorrowIndex = await beforeRepaymentStorage.tempMap.get("repay-vaultBorrowIndex");
-            const beforeRepaymentTokenBorrowIndex = await beforeRepaymentStorage.tempMap.get("repay-tokenBorrowIndex");
+            
+            const tempBeforeRepaymentVaultBorrowIndex = await beforeRepaymentStorage.tempMap.get("borrow-vaultBorrowIndex");
+            const tempBeforeRepaymentTokenBorrowIndex = await beforeRepaymentStorage.tempMap.get("borrow-tokenBorrowIndex");
 
 
+            console.log("    ");
+            console.log("    ");
+            
 
             console.log("--- ----- before repayment ----- ---");
             console.log("--- vaultRecordView ---");
@@ -1249,8 +1359,16 @@ describe("Lending Controller (Mock Time) tests", async () => {
             console.log('beforeRepaymentVaultBorrowIndex: ' + beforeRepaymentVaultBorrowIndex);
             console.log('beforeRepaymentTokenBorrowIndex: ' + beforeRepaymentTokenBorrowIndex);
             // console.log(beforeRepaymentStorage.tempMap);
-        
 
+            // calculations
+            console.log('vaultBorrowIndex: '+ beforeRepaymentVaultBorrowIndex)
+            console.log('tokenBorrowIndex: '+ beforeRepaymentTokenBorrowIndex)
+            console.log('vaultLoanOutstandingTotal: '+ initialVaultLoanOutstandingTotal)
+
+            console.log(vaultRecordView.collateralBalanceLedger)
+        
+            console.log("    ");
+            console.log("    ");
 
             console.log("--- ----- after repayment ----- ---");
 
@@ -1282,12 +1400,21 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
             const afterRepaymentStorage = await lendingControllerInstance.storage();
 
+            const afterRepaymentVaultLoanOutstandingTotal = updatedVaultRecordView.loanOutstandingTotal;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            
+            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const totalInterestPaid                       = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal)
+            const finalOutstandingLoanTotal               = loanOutstandingWithAccruedInterest - repayAmount;
+            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestRewardPool                      = totalInterestPaid - interestTreasuryShare;
+
             const afterRepaymentBorrowNewLoanOutstandingTotal = await afterRepaymentStorage.tempMap.get("borrow-newLoanOutstandingTotalAfterAccruedInterest");
             const afterRepaymentRepayNewLoanOutstandingTotal = await afterRepaymentStorage.tempMap.get("repay-newLoanOutstandingTotalAfterAccruedInterest");
             const afterRepaymentRepayNewLoanInterestTotal = await afterRepaymentStorage.tempMap.get("repay-newLoanInterestTotal");
-            const afterRepaymentVaultBorrowIndex = await afterRepaymentStorage.tempMap.get("repay-vaultBorrowIndex");
-            const afterRepaymentTokenBorrowIndex = await afterRepaymentStorage.tempMap.get("repay-tokenBorrowIndex");
-
+            const tempAfterRepaymentVaultBorrowIndex = await afterRepaymentStorage.tempMap.get("repay-vaultBorrowIndex");
+            const tempAfterRepaymentTokenBorrowIndex = await afterRepaymentStorage.tempMap.get("repay-tokenBorrowIndex");
             
 
             console.log("--- vaultRecordView ---");
@@ -1300,14 +1427,27 @@ describe("Lending Controller (Mock Time) tests", async () => {
             console.log('afterRepaymentBorrowNewLoanOutstandingTotal: ' + afterRepaymentBorrowNewLoanOutstandingTotal);
             console.log('afterRepaymentRepayNewLoanOutstandingTotal: ' + afterRepaymentRepayNewLoanOutstandingTotal);
             console.log('afterRepaymentRepayNewLoanInterestTotal: ' + afterRepaymentRepayNewLoanInterestTotal);
-            console.log('afterRepaymentVaultBorrowIndex: ' + afterRepaymentVaultBorrowIndex);
-            console.log('afterRepaymentTokenBorrowIndex: ' + afterRepaymentTokenBorrowIndex);
+
+            console.log('loanOutstandingWithAccruedInterest: ' + loanOutstandingWithAccruedInterest);
+            console.log('finalOutstandingLoanTotal: ' + finalOutstandingLoanTotal);
+            console.log('totalInterestPaid: ' + totalInterestPaid);
+            console.log('interestTreasuryShare: ' + interestTreasuryShare);
+            console.log('interestRewardPool: ' + interestRewardPool);
+
+            console.log('eveInitialMockFa12TokenBalance: ' + eveInitialMockFa12TokenBalance);
+            console.log('updatedEveMockFa12TokenBalance: ' + updatedEveMockFa12TokenBalance);
+
+            console.log('tempAfterRepaymentVaultBorrowIndex: ' + tempAfterRepaymentVaultBorrowIndex);
+            console.log('tempAfterRepaymentTokenBorrowIndex: ' + tempAfterRepaymentTokenBorrowIndex);
             // console.log(afterRepaymentStorage.tempMap);
 
-            // NB: interest too little to make a difference within a few blocks
-            // assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal - repayAmount);
-            // assert.equal(updatedLoanPrincipalTotal, initialLoanPrincipalTotal - repayAmount);
-            // assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
+            console.log('afterRepaymentVaultBorrowIndex: ' + afterRepaymentVaultBorrowIndex)
+            console.log('afterRepaymentTokenBorrowIndex: ' + afterRepaymentTokenBorrowIndex)
+
+            assert.equal(parseInt(updatedLoanOutstandingTotal), loanOutstandingWithAccruedInterest - repayAmount);
+            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(updatedLoanOutstandingTotal));
+            assert.equal(parseInt(updatedLoanInterestTotal), 0);
+            assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
 
         })
 

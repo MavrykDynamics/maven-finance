@@ -168,18 +168,34 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
                 
+                // Lending Controller Token Pool Entrypoints
+                if s.breakGlassConfig.setLoanTokenIsPaused then skip
+                else s.breakGlassConfig.setLoanTokenIsPaused := True;
+
+                if s.breakGlassConfig.addLiquidityIsPaused then skip
+                else s.breakGlassConfig.addLiquidityIsPaused := True;
+
+                if s.breakGlassConfig.removeLiquidityIsPaused then skip
+                else s.breakGlassConfig.removeLiquidityIsPaused := True;
+
                 // Lending Controller Vault Entrypoints
+                if s.breakGlassConfig.updateCollateralTokenIsPaused then skip
+                else s.breakGlassConfig.updateCollateralTokenIsPaused := True;
+
                 if s.breakGlassConfig.createVaultIsPaused then skip
                 else s.breakGlassConfig.createVaultIsPaused := True;
 
                 if s.breakGlassConfig.closeVaultIsPaused then skip
                 else s.breakGlassConfig.closeVaultIsPaused := True;
 
+                if s.breakGlassConfig.registerDepositIsPaused then skip
+                else s.breakGlassConfig.registerDepositIsPaused := True;
+
                 if s.breakGlassConfig.registerWithdrawalIsPaused then skip
                 else s.breakGlassConfig.registerWithdrawalIsPaused := True;
 
-                if s.breakGlassConfig.registerDepositIsPaused then skip
-                else s.breakGlassConfig.registerDepositIsPaused := True;
+                if s.breakGlassConfig.markForLiquidationIsPaused then skip
+                else s.breakGlassConfig.markForLiquidationIsPaused := True;
 
                 if s.breakGlassConfig.liquidateVaultIsPaused then skip
                 else s.breakGlassConfig.liquidateVaultIsPaused := True;
@@ -189,16 +205,6 @@ block {
 
                 if s.breakGlassConfig.repayIsPaused then skip
                 else s.breakGlassConfig.repayIsPaused := True;
-
-                // Vault Staked MVK Entrypoints
-                if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then skip
-                else s.breakGlassConfig.vaultDepositStakedMvkIsPaused := True;
-
-                if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then skip
-                else s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused := True;
-
-                if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then skip
-                else s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused := True;
 
                 // Vault Entrypoints
                 if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then skip
@@ -215,6 +221,20 @@ block {
 
                 if s.breakGlassConfig.vaultEditDepositorIsPaused then skip
                 else s.breakGlassConfig.vaultEditDepositorIsPaused := True;
+
+                // Vault Staked MVK Entrypoints
+                if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then skip
+                else s.breakGlassConfig.vaultDepositStakedMvkIsPaused := True;
+
+                if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then skip
+                else s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused := True;
+
+                if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then skip
+                else s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused := True;
+
+                // Reward Entrypoints
+                if s.breakGlassConfig.claimRewardsIsPaused then skip
+                else s.breakGlassConfig.claimRewardsIsPaused := True;
 
             }
         |   _ -> skip
@@ -238,17 +258,33 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
             
+                // Lending Controller Token Pool Entrypoints
+                if s.breakGlassConfig.setLoanTokenIsPaused then s.breakGlassConfig.setLoanTokenIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.addLiquidityIsPaused then s.breakGlassConfig.addLiquidityIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.removeLiquidityIsPaused then s.breakGlassConfig.removeLiquidityIsPaused := False
+                else skip;
+                
                 // Lending Controller Vault Entrypoints
+                if s.breakGlassConfig.updateCollateralTokenIsPaused then s.breakGlassConfig.updateCollateralTokenIsPaused := False
+                else skip;
+
                 if s.breakGlassConfig.createVaultIsPaused then s.breakGlassConfig.createVaultIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.closeVaultIsPaused then s.breakGlassConfig.closeVaultIsPaused := False
                 else skip;
 
+                if s.breakGlassConfig.registerDepositIsPaused then s.breakGlassConfig.registerDepositIsPaused := False
+                else skip;
+
                 if s.breakGlassConfig.registerWithdrawalIsPaused then s.breakGlassConfig.registerWithdrawalIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.registerDepositIsPaused then s.breakGlassConfig.registerDepositIsPaused := False
+                if s.breakGlassConfig.markForLiquidationIsPaused then s.breakGlassConfig.markForLiquidationIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.liquidateVaultIsPaused then s.breakGlassConfig.liquidateVaultIsPaused := False
@@ -258,16 +294,6 @@ block {
                 else skip;
 
                 if s.breakGlassConfig.repayIsPaused then s.breakGlassConfig.repayIsPaused := False
-                else skip;
-
-                // Vault Staked MVK Entrypoints
-                if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then s.breakGlassConfig.vaultDepositStakedMvkIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused := False
                 else skip;
 
                 // Vault Entrypoints
@@ -285,6 +311,21 @@ block {
             
                 if s.breakGlassConfig.vaultEditDepositorIsPaused then s.breakGlassConfig.vaultEditDepositorIsPaused := False
                 else skip;
+
+                // Vault Staked MVK Entrypoints
+                if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then s.breakGlassConfig.vaultDepositStakedMvkIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused := False
+                else skip;
+
+                // Reward Entrypoints
+                if s.breakGlassConfig.claimRewardsIsPaused then s.breakGlassConfig.claimRewardsIsPaused := False
+                else skip;
+
             
             }
         |   _ -> skip
@@ -309,19 +350,21 @@ block {
 
                 case params.targetEntrypoint of [
 
-                        // Lending Controller Vault Entrypoints
-                        CreateVault (_v)                -> s.breakGlassConfig.createVaultIsPaused              := _v
-                    |   CloseVault (_v)                 -> s.breakGlassConfig.closeVaultIsPaused               := _v
-                    |   RegisterDeposit (_v)            -> s.breakGlassConfig.registerDepositIsPaused          := _v
-                    |   RegisterWithdrawal (_v)         -> s.breakGlassConfig.registerWithdrawalIsPaused       := _v
-                    |   LiquidateVault (_v)             -> s.breakGlassConfig.liquidateVaultIsPaused           := _v
-                    |   Borrow (_v)                     -> s.breakGlassConfig.borrowIsPaused                   := _v
-                    |   Repay (_v)                      -> s.breakGlassConfig.repayIsPaused                    := _v
+                            // Lending Controller Token Pool Entrypoints
+                    |   SetLoanToken (_v)                    -> s.breakGlassConfig.setLoanTokenIsPaused                  := _v
+                    |   AddLiquidity (_v)                    -> s.breakGlassConfig.addLiquidityIsPaused                  := _v
+                    |   RemoveLiquidity (_v)                 -> s.breakGlassConfig.removeLiquidityIsPaused               := _v
 
-                        // Vault Staked MVK Entrypoints
-                    |   VaultDepositStakedMvk (_v)      -> s.breakGlassConfig.vaultDepositStakedMvkIsPaused    := _v
-                    |   VaultWithdrawStakedMvk (_v)     -> s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused   := _v
-                    |   VaultLiquidateStakedMvk (_v)    -> s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused  := _v
+                        // Lending Controller Vault Entrypoints
+                    |   UpdateCollateralToken (_v)           -> s.breakGlassConfig.updateCollateralTokenIsPaused         := _v
+                    |   CreateVault (_v)                     -> s.breakGlassConfig.createVaultIsPaused                   := _v
+                    |   CloseVault (_v)                      -> s.breakGlassConfig.closeVaultIsPaused                    := _v
+                    |   RegisterDeposit (_v)                 -> s.breakGlassConfig.registerDepositIsPaused               := _v
+                    |   RegisterWithdrawal (_v)              -> s.breakGlassConfig.registerWithdrawalIsPaused            := _v
+                    |   MarkForLiquidation (_v)              -> s.breakGlassConfig.markForLiquidationIsPaused            := _v
+                    |   LiquidateVault (_v)                  -> s.breakGlassConfig.liquidateVaultIsPaused                := _v
+                    |   Borrow (_v)                          -> s.breakGlassConfig.borrowIsPaused                        := _v
+                    |   Repay (_v)                           -> s.breakGlassConfig.repayIsPaused                         := _v
 
                         // Vault Entrypoints
                     |   VaultDelegateTezToBaker (_v)         -> s.breakGlassConfig.vaultDelegateTezToBakerIsPaused       := _v
@@ -329,6 +372,14 @@ block {
                     |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
                     |   VaultDeposit (_v)                    -> s.breakGlassConfig.vaultDepositIsPaused                  := _v
                     |   VaultEditDepositor (_v)              -> s.breakGlassConfig.vaultEditDepositorIsPaused            := _v
+
+                        // Vault Staked MVK Entrypoints
+                    |   VaultDepositStakedMvk (_v)           -> s.breakGlassConfig.vaultDepositStakedMvkIsPaused         := _v
+                    |   VaultWithdrawStakedMvk (_v)          -> s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused        := _v
+                    |   VaultLiquidateStakedMvk (_v)         -> s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused       := _v
+
+                        // Reward Entrypoints
+                    |   ClaimRewards (_v)                    -> s.breakGlassConfig.claimRewardsIsPaused                  := _v
 
                 ]
                 
@@ -353,14 +404,15 @@ block {
 function lambdaSetLoanToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    checkNoAmount(Unit);                // entrypoint should not receive any tez amount  
+    checkSenderIsAllowed(s);            // check that sender is admin or the Governance Contract address
+    checkSetLoanTokenIsNotPaused(s);    // check that %setLoanToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaSetLoanToken(setLoanTokenParams) -> {
                 
                 // check if loan token already exists
-                if Big_map.mem(setLoanTokenParams.tokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
+                if Map.mem(setLoanTokenParams.tokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
                 
                 // update loan token ledger
                 s.loanTokenLedger[setLoanTokenParams.tokenName] := createLoanTokenRecord(setLoanTokenParams);
@@ -379,6 +431,8 @@ block {
 
     // init operations
     var operations : list(operation) := nil;
+
+    checkAddLiquidityIsNotPaused(s);    // check that %addLiquidity entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaAddLiquidity(addLiquidityParams) -> {
@@ -420,6 +474,41 @@ block {
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
 
+                // init loan token accumulated rewards per share
+                const loanTokenAccumulatedRewardsPerShare : nat = loanTokenRecord.accumulatedRewardsPerShare;
+
+                // Update user's token pool depositor balance
+                const userAddressTokenNameKey : (address * string) = (initiator, loanTokenRecord.tokenName);
+                const tokenPoolDepositorBalance : nat = case s.tokenPoolDepositorLedger[userAddressTokenNameKey] of [
+                        Some (_balance) -> _balance
+                    |   None            -> 0n
+                ];
+                
+                // Get or create user rewards record
+                var userRewardsRecord : rewardsRecordType := case s.rewardsLedger[userAddressTokenNameKey] of [
+                        Some (_record) -> _record
+                    |   None           -> record [
+                            unpaid          = 0n;
+                            paid            = 0n;
+                            rewardsPerShare = loanTokenAccumulatedRewardsPerShare;
+                        ]
+                ];
+
+                // calculate rewards
+                if userRewardsRecord.rewardsPerShare < loanTokenAccumulatedRewardsPerShare then {
+
+                    const rewardsRatio    : nat  = abs(loanTokenAccumulatedRewardsPerShare - userRewardsRecord.rewardsPerShare);
+                    const accruedRewards  : nat  = (tokenPoolDepositorBalance * rewardsRatio) / fixedPointAccuracy;
+                    
+                    userRewardsRecord.unpaid            := userRewardsRecord.unpaid + accruedRewards;
+                    userRewardsRecord.rewardsPerShare   := loanTokenAccumulatedRewardsPerShare;
+
+                } else skip;
+
+                // Update storages
+                s.tokenPoolDepositorLedger[tokenPoolDepositorLedgerKey] := tokenPoolDepositorBalance + amount;
+                s.rewardsLedger[userAddressTokenNameKey] := userRewardsRecord;
+
 
             }
         |   _ -> skip
@@ -433,7 +522,8 @@ block {
 function lambdaRemoveLiquidity(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
+    checkNoAmount(Unit);                   // entrypoint should not receive any tez amount  
+    checkRemoveLiquidityIsNotPaused(s);    // check that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
 
     // init operations
     var operations : list(operation) := nil;
@@ -522,7 +612,8 @@ block {
 function lambdaUpdateCollateralToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin 
+    checkSenderIsAdmin(s);                       // check that sender is admin 
+    checkUpdateCollateralTokenIsNotPaused(s);    // check that %updateCollateralToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaUpdateCollateralToken(updateCollateralTokenParams) -> {
@@ -574,6 +665,8 @@ function lambdaCreateVault(const lendingControllerLambdaAction : lendingControll
 block {
     
     var operations : list(operation) := nil;
+
+    checkCreateVaultIsNotPaused(s);    // check that %createVault entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaCreateVault(createVaultParams) -> {
@@ -675,6 +768,8 @@ function lambdaCloseVault(const lendingControllerLambdaAction : lendingControlle
 block {
     
     var operations : list(operation) := nil;
+
+    checkCloseVaultIsNotPaused(s);    // check that %closeVault entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaCloseVault(closeVaultParams) -> {
@@ -780,7 +875,9 @@ block {
 function lambdaMarkForLiquidation(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
 
-var operations : list(operation) := nil;
+    var operations : list(operation) := nil;
+
+    checkMarkForLiquidationIsNotPaused(s);    // check that %markForLiquidation entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaMarkForLiquidation(markForLiquidationParams) -> {
@@ -833,6 +930,7 @@ function lambdaLiquidateVault(const lendingControllerLambdaAction : lendingContr
 block {
     
     var operations : list(operation) := nil;
+    checkLiquidateVaultIsNotPaused(s);    // check that %liquidateVault entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaLiquidateVault(liquidateVaultParams) -> {
@@ -1182,11 +1280,118 @@ block {
 
 
 
+(* registerDeposit lambda *)
+function lambdaRegisterDeposit(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+    
+    checkRegisterDepositIsNotPaused(s);    // check that %registerDeposit entrypoint is not paused (e.g. if glass broken)
+
+    case lendingControllerLambdaAction of [
+        |   LambdaRegisterDeposit(registerDepositParams) -> {
+                
+                // init variables for convenience
+                const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
+                const depositAmount   : nat               = registerDepositParams.amount;
+                const tokenName       : string            = registerDepositParams.tokenName;
+                const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
+
+                // get vault
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+
+                // check if initiator matches vault address
+                if vault.address =/= initiator then failwith(error_SENDER_MUST_BE_VAULT_ADDRESS) else skip;
+
+                // ------------------------------------------------------------------
+                // Update Loan Token state and get token borrow index
+                // ------------------------------------------------------------------
+
+                // Get current vault borrow index, and vault loan token name
+                var vaultBorrowIndex      : nat := vault.borrowIndex;
+                const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
+
+                // Get loan token type
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                ];
+
+                // Get loan token parameters
+                const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
+
+                // ------------------------------------------------------------------
+                // Accrue interest to vault oustanding
+                // ------------------------------------------------------------------
+
+                // Get current user loan outstanding and init new total variables
+                const currentLoanOutstandingTotal  : nat = vault.loanOutstandingTotal;
+                const initialLoanPrincipalTotal    : nat = vault.loanPrincipalTotal;
+
+                var newLoanOutstandingTotal        : nat := currentLoanOutstandingTotal;
+                var newLoanPrincipalTotal          : nat := vault.loanPrincipalTotal;
+                var newLoanInterestTotal           : nat := vault.loanInterestTotal;
+
+                // calculate interest
+                newLoanOutstandingTotal := accrueInterestToVault(
+                    currentLoanOutstandingTotal,
+                    vaultBorrowIndex,
+                    tokenBorrowIndex
+                );
+
+                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+
+                // ------------------------------------------------------------------
+                // Register token deposit in vault collateral balance ledger
+                // ------------------------------------------------------------------
+                
+                // check if token is tez or exists in collateral token ledger
+                if tokenName = "tez" then skip else {
+                    checkCollateralTokenExists(tokenName, s)    
+                };
+
+                // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
+                var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
+                        Some(_balance) -> _balance
+                    |   None           -> 0n
+                ];
+
+                // calculate new collateral balance
+                const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
+
+                // ------------------------------------------------------------------
+                // Update storage
+                // ------------------------------------------------------------------
+
+                vault.loanOutstandingTotal                := newLoanOutstandingTotal;
+                vault.loanPrincipalTotal                  := newLoanPrincipalTotal;
+                vault.loanInterestTotal                   := newLoanInterestTotal;
+                vault.borrowIndex                         := tokenBorrowIndex;
+                vault.lastUpdatedBlockLevel               := Tezos.get_level();
+                vault.lastUpdatedTimestamp                := Tezos.get_now();
+                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+                s.vaults[vaultHandle]                     := vault;
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                if loanTokenRecord.tokenPoolTotal > 0n then {
+                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                    loanTokenRecord := loanTokenRecordUpdated.0;
+                    s := loanTokenRecordUpdated.1;
+                } else skip;
+                s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (* registerWithdrawal lambda *)
 function lambdaRegisterWithdrawal(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    var operations               : list(operation)  := nil;
+    checkRegisterWithdrawalIsNotPaused(s);    // check that %registerWithdrawal entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaRegisterWithdrawal(registerWithdrawalParams) -> {
@@ -1292,112 +1497,6 @@ block {
         |   _ -> skip
     ];
 
-} with (operations, s)
-
-
-
-(* registerDeposit lambda *)
-function lambdaRegisterDeposit(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
-    
-
-    case lendingControllerLambdaAction of [
-        |   LambdaRegisterDeposit(registerDepositParams) -> {
-                
-                // init variables for convenience
-                const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
-                const depositAmount   : nat               = registerDepositParams.amount;
-                const tokenName       : string            = registerDepositParams.tokenName;
-                const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
-
-                // get vault
-                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-
-                // check if initiator matches vault address
-                if vault.address =/= initiator then failwith(error_SENDER_MUST_BE_VAULT_ADDRESS) else skip;
-
-                // ------------------------------------------------------------------
-                // Update Loan Token state and get token borrow index
-                // ------------------------------------------------------------------
-
-                // Get current vault borrow index, and vault loan token name
-                var vaultBorrowIndex      : nat := vault.borrowIndex;
-                const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
-
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
-
-                // Get loan token parameters
-                const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
-
-                // ------------------------------------------------------------------
-                // Accrue interest to vault oustanding
-                // ------------------------------------------------------------------
-
-                // Get current user loan outstanding and init new total variables
-                const currentLoanOutstandingTotal  : nat = vault.loanOutstandingTotal;
-                const initialLoanPrincipalTotal    : nat = vault.loanPrincipalTotal;
-
-                var newLoanOutstandingTotal        : nat := currentLoanOutstandingTotal;
-                var newLoanPrincipalTotal          : nat := vault.loanPrincipalTotal;
-                var newLoanInterestTotal           : nat := vault.loanInterestTotal;
-
-                // calculate interest
-                newLoanOutstandingTotal := accrueInterestToVault(
-                    currentLoanOutstandingTotal,
-                    vaultBorrowIndex,
-                    tokenBorrowIndex
-                );
-
-                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
-                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
-
-                // ------------------------------------------------------------------
-                // Register token deposit in vault collateral balance ledger
-                // ------------------------------------------------------------------
-                
-                // check if token is tez or exists in collateral token ledger
-                if tokenName = "tez" then skip else {
-                    checkCollateralTokenExists(tokenName, s)    
-                };
-
-                // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
-                var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
-                        Some(_balance) -> _balance
-                    |   None           -> 0n
-                ];
-
-                // calculate new collateral balance
-                const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
-
-                // ------------------------------------------------------------------
-                // Update storage
-                // ------------------------------------------------------------------
-
-                vault.loanOutstandingTotal                := newLoanOutstandingTotal;
-                vault.loanPrincipalTotal                  := newLoanPrincipalTotal;
-                vault.loanInterestTotal                   := newLoanInterestTotal;
-                vault.borrowIndex                         := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel               := Tezos.get_level();
-                vault.lastUpdatedTimestamp                := Tezos.get_now();
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
-
-                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                if loanTokenRecord.tokenPoolTotal > 0n then {
-                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                    loanTokenRecord := loanTokenRecordUpdated.0;
-                    s := loanTokenRecordUpdated.1;
-                } else skip;
-                s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
-
-            }
-        |   _ -> skip
-    ];
-
 } with (noOperations, s)
 
 
@@ -1407,6 +1506,7 @@ function lambdaBorrow(const lendingControllerLambdaAction : lendingControllerLam
 block {
     
     var operations : list(operation):= nil;
+    checkBorrowIsNotPaused(s);    // check that %borrow entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaBorrow(borrowParams) -> {
@@ -1415,6 +1515,7 @@ block {
                 const vaultId            : nat                     = borrowParams.vaultId; 
                 const initialLoanAmount  : nat                     = borrowParams.quantity;
                 const initiator          : initiatorAddressType    = Tezos.get_sender();
+                const mockLevel          : nat                     = s.config.mockLevel;
 
                 // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
                 const treasuryAddress: address        = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
@@ -1483,8 +1584,8 @@ block {
                 // Calculate fees on past loan outstanding
                 // ------------------------------------------------------------------
 
-                s.tempMap["repay-vaultBorrowIndex"] := vaultBorrowIndex;
-                s.tempMap["repay-tokenBorrowIndex"] := tokenBorrowIndex;
+                s.tempMap["borrow-vaultBorrowIndex"] := vaultBorrowIndex;
+                s.tempMap["borrow-tokenBorrowIndex"] := tokenBorrowIndex;
 
                 // calculate interest
                 newLoanOutstandingTotal := accrueInterestToVault(
@@ -1583,7 +1684,7 @@ block {
                 vault.loanPrincipalTotal               := newLoanPrincipalTotal;
                 vault.loanInterestTotal                := newLoanInterestTotal;
                 vault.borrowIndex                      := tokenBorrowIndex;
-                vault.lastUpdatedBlockLevel            := Tezos.get_level();
+                vault.lastUpdatedBlockLevel            := mockLevel + Tezos.get_level();
                 vault.lastUpdatedTimestamp             := Tezos.get_now();
 
                 // update vault
@@ -1607,6 +1708,7 @@ function lambdaRepay(const lendingControllerLambdaAction : lendingControllerLamb
 block {
     
     var operations : list(operation) := nil;
+    checkRepayIsNotPaused(s);    // check that %repay entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaRepay(repayParams) -> {
@@ -1744,7 +1846,7 @@ block {
 
                 // Send interest payment to treasury
                 const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),    // from_
+                    initiator,                   // from_
                     treasuryAddress,             // to_
                     interestTreasuryShare,       // amount
                     loanTokenType                // token type
@@ -1752,7 +1854,7 @@ block {
 
                 // Send interest as rewards to Token Pool Rewards Contract
                 const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),    // from_   
+                    initiator,                   // from_   
                     tokenPoolRewardAddress,      // to_
                     interestRewardPool,          // amount
                     loanTokenType                // token type
@@ -1841,6 +1943,7 @@ function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendi
 block {
     
     var operations : list(operation) := nil;
+    checkVaultDepositStakedMvkIsNotPaused(s);    // check that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams) -> {
@@ -1902,7 +2005,8 @@ block {
 function lambdaVaultWithdrawStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    var operations        : list(operation)  := nil;
+    var operations : list(operation)  := nil;
+    checkVaultWithdrawStakedMvkIsNotPaused(s);    // check that %vaultWithdrawStakedMvk entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams) -> {
@@ -1969,6 +2073,7 @@ block {
     checkSenderIsSelf(unit);
 
     var operations : list(operation) := nil;
+    checkVaultLiquidateStakedMvkIsNotPaused(s);    // check that %vaultLiquidateStakedMvk entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams) -> {
@@ -2027,9 +2132,37 @@ block {
 
 } with (operations, s)
 
-
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Lambdas End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Rewards Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(* claimRewards lambda *)
+function lambdaClaimRewards(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+
+    var operations : list(operation) := nil;
+    checkClaimRewardsIsNotPaused(s);    // check that %claimRewards entrypoint is not paused (e.g. if glass broken)
+
+    case lendingControllerLambdaAction of [
+        |   LambdaClaimRewards(claimRewardsParams) -> {
+                
+                // init variables for convenience
+                const userAddress : address = claimRewardsParams; 
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+// ------------------------------------------------------------------------------
+// Rewards Lambdas End
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
