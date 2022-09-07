@@ -4343,8 +4343,8 @@ export type Break_Glass_Action_Record = {
   break_glass_action_record_parameters_aggregate: Break_Glass_Action_Record_Parameter_Aggregate;
   break_glass_id: Scalars['String'];
   executed: Scalars['Boolean'];
-  executed_datetime?: Maybe<Scalars['timestamptz']>;
-  executed_level: Scalars['bigint'];
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level: Scalars['bigint'];
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   id: Scalars['bigint'];
   /** An object relationship */
@@ -4448,7 +4448,7 @@ export type Break_Glass_Action_Record_Aggregate_Order_By = {
 /** aggregate avg on columns */
 export type Break_Glass_Action_Record_Avg_Fields = {
   __typename?: 'break_glass_action_record_avg_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -4457,7 +4457,7 @@ export type Break_Glass_Action_Record_Avg_Fields = {
 
 /** order by avg() on columns of table "break_glass_action_record" */
 export type Break_Glass_Action_Record_Avg_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -4474,8 +4474,8 @@ export type Break_Glass_Action_Record_Bool_Exp = {
   break_glass_action_record_parameters?: InputMaybe<Break_Glass_Action_Record_Parameter_Bool_Exp>;
   break_glass_id?: InputMaybe<String_Comparison_Exp>;
   executed?: InputMaybe<Boolean_Comparison_Exp>;
-  executed_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
-  executed_level?: InputMaybe<Bigint_Comparison_Exp>;
+  execution_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
+  execution_level?: InputMaybe<Bigint_Comparison_Exp>;
   expiration_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
   initiator?: InputMaybe<Mavryk_User_Bool_Exp>;
@@ -4491,8 +4491,8 @@ export type Break_Glass_Action_Record_Max_Fields = {
   __typename?: 'break_glass_action_record_max_fields';
   action_type?: Maybe<Scalars['String']>;
   break_glass_id?: Maybe<Scalars['String']>;
-  executed_datetime?: Maybe<Scalars['timestamptz']>;
-  executed_level?: Maybe<Scalars['bigint']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['bigint']>;
   initiator_id?: Maybe<Scalars['String']>;
@@ -4506,8 +4506,8 @@ export type Break_Glass_Action_Record_Max_Fields = {
 export type Break_Glass_Action_Record_Max_Order_By = {
   action_type?: InputMaybe<Order_By>;
   break_glass_id?: InputMaybe<Order_By>;
-  executed_datetime?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   initiator_id?: InputMaybe<Order_By>;
@@ -4522,8 +4522,8 @@ export type Break_Glass_Action_Record_Min_Fields = {
   __typename?: 'break_glass_action_record_min_fields';
   action_type?: Maybe<Scalars['String']>;
   break_glass_id?: Maybe<Scalars['String']>;
-  executed_datetime?: Maybe<Scalars['timestamptz']>;
-  executed_level?: Maybe<Scalars['bigint']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['bigint']>;
   initiator_id?: Maybe<Scalars['String']>;
@@ -4537,8 +4537,8 @@ export type Break_Glass_Action_Record_Min_Fields = {
 export type Break_Glass_Action_Record_Min_Order_By = {
   action_type?: InputMaybe<Order_By>;
   break_glass_id?: InputMaybe<Order_By>;
-  executed_datetime?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   initiator_id?: InputMaybe<Order_By>;
@@ -4555,8 +4555,8 @@ export type Break_Glass_Action_Record_Order_By = {
   break_glass_action_record_parameters_aggregate?: InputMaybe<Break_Glass_Action_Record_Parameter_Aggregate_Order_By>;
   break_glass_id?: InputMaybe<Order_By>;
   executed?: InputMaybe<Order_By>;
-  executed_datetime?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   initiator?: InputMaybe<Mavryk_User_Order_By>;
@@ -4803,9 +4803,9 @@ export enum Break_Glass_Action_Record_Select_Column {
   /** column name */
   Executed = 'executed',
   /** column name */
-  ExecutedDatetime = 'executed_datetime',
+  ExecutionDatetime = 'execution_datetime',
   /** column name */
-  ExecutedLevel = 'executed_level',
+  ExecutionLevel = 'execution_level',
   /** column name */
   ExpirationDatetime = 'expiration_datetime',
   /** column name */
@@ -5045,7 +5045,7 @@ export type Break_Glass_Action_Record_Signer_Variance_Order_By = {
 /** aggregate stddev on columns */
 export type Break_Glass_Action_Record_Stddev_Fields = {
   __typename?: 'break_glass_action_record_stddev_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5054,7 +5054,7 @@ export type Break_Glass_Action_Record_Stddev_Fields = {
 
 /** order by stddev() on columns of table "break_glass_action_record" */
 export type Break_Glass_Action_Record_Stddev_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5064,7 +5064,7 @@ export type Break_Glass_Action_Record_Stddev_Order_By = {
 /** aggregate stddev_pop on columns */
 export type Break_Glass_Action_Record_Stddev_Pop_Fields = {
   __typename?: 'break_glass_action_record_stddev_pop_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5073,7 +5073,7 @@ export type Break_Glass_Action_Record_Stddev_Pop_Fields = {
 
 /** order by stddev_pop() on columns of table "break_glass_action_record" */
 export type Break_Glass_Action_Record_Stddev_Pop_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5083,7 +5083,7 @@ export type Break_Glass_Action_Record_Stddev_Pop_Order_By = {
 /** aggregate stddev_samp on columns */
 export type Break_Glass_Action_Record_Stddev_Samp_Fields = {
   __typename?: 'break_glass_action_record_stddev_samp_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5092,7 +5092,7 @@ export type Break_Glass_Action_Record_Stddev_Samp_Fields = {
 
 /** order by stddev_samp() on columns of table "break_glass_action_record" */
 export type Break_Glass_Action_Record_Stddev_Samp_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5102,7 +5102,7 @@ export type Break_Glass_Action_Record_Stddev_Samp_Order_By = {
 /** aggregate sum on columns */
 export type Break_Glass_Action_Record_Sum_Fields = {
   __typename?: 'break_glass_action_record_sum_fields';
-  executed_level?: Maybe<Scalars['bigint']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   id?: Maybe<Scalars['bigint']>;
   signers_count?: Maybe<Scalars['smallint']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5111,7 +5111,7 @@ export type Break_Glass_Action_Record_Sum_Fields = {
 
 /** order by sum() on columns of table "break_glass_action_record" */
 export type Break_Glass_Action_Record_Sum_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5121,7 +5121,7 @@ export type Break_Glass_Action_Record_Sum_Order_By = {
 /** aggregate var_pop on columns */
 export type Break_Glass_Action_Record_Var_Pop_Fields = {
   __typename?: 'break_glass_action_record_var_pop_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5130,7 +5130,7 @@ export type Break_Glass_Action_Record_Var_Pop_Fields = {
 
 /** order by var_pop() on columns of table "break_glass_action_record" */
 export type Break_Glass_Action_Record_Var_Pop_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5140,7 +5140,7 @@ export type Break_Glass_Action_Record_Var_Pop_Order_By = {
 /** aggregate var_samp on columns */
 export type Break_Glass_Action_Record_Var_Samp_Fields = {
   __typename?: 'break_glass_action_record_var_samp_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5149,7 +5149,7 @@ export type Break_Glass_Action_Record_Var_Samp_Fields = {
 
 /** order by var_samp() on columns of table "break_glass_action_record" */
 export type Break_Glass_Action_Record_Var_Samp_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5159,7 +5159,7 @@ export type Break_Glass_Action_Record_Var_Samp_Order_By = {
 /** aggregate variance on columns */
 export type Break_Glass_Action_Record_Variance_Fields = {
   __typename?: 'break_glass_action_record_variance_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -5168,7 +5168,7 @@ export type Break_Glass_Action_Record_Variance_Fields = {
 
 /** order by variance() on columns of table "break_glass_action_record" */
 export type Break_Glass_Action_Record_Variance_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -6543,8 +6543,8 @@ export type Council_Action_Record = {
   council_action_record_parameters_aggregate: Council_Action_Record_Parameter_Aggregate;
   council_id: Scalars['String'];
   executed: Scalars['Boolean'];
-  executed_datetime?: Maybe<Scalars['timestamptz']>;
-  executed_level: Scalars['bigint'];
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level: Scalars['bigint'];
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   id: Scalars['bigint'];
   /** An object relationship */
@@ -6648,7 +6648,7 @@ export type Council_Action_Record_Aggregate_Order_By = {
 /** aggregate avg on columns */
 export type Council_Action_Record_Avg_Fields = {
   __typename?: 'council_action_record_avg_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -6657,7 +6657,7 @@ export type Council_Action_Record_Avg_Fields = {
 
 /** order by avg() on columns of table "council_action_record" */
 export type Council_Action_Record_Avg_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -6674,8 +6674,8 @@ export type Council_Action_Record_Bool_Exp = {
   council_action_record_parameters?: InputMaybe<Council_Action_Record_Parameter_Bool_Exp>;
   council_id?: InputMaybe<String_Comparison_Exp>;
   executed?: InputMaybe<Boolean_Comparison_Exp>;
-  executed_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
-  executed_level?: InputMaybe<Bigint_Comparison_Exp>;
+  execution_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
+  execution_level?: InputMaybe<Bigint_Comparison_Exp>;
   expiration_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
   initiator?: InputMaybe<Mavryk_User_Bool_Exp>;
@@ -6691,8 +6691,8 @@ export type Council_Action_Record_Max_Fields = {
   __typename?: 'council_action_record_max_fields';
   action_type?: Maybe<Scalars['String']>;
   council_id?: Maybe<Scalars['String']>;
-  executed_datetime?: Maybe<Scalars['timestamptz']>;
-  executed_level?: Maybe<Scalars['bigint']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['bigint']>;
   initiator_id?: Maybe<Scalars['String']>;
@@ -6706,8 +6706,8 @@ export type Council_Action_Record_Max_Fields = {
 export type Council_Action_Record_Max_Order_By = {
   action_type?: InputMaybe<Order_By>;
   council_id?: InputMaybe<Order_By>;
-  executed_datetime?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   initiator_id?: InputMaybe<Order_By>;
@@ -6722,8 +6722,8 @@ export type Council_Action_Record_Min_Fields = {
   __typename?: 'council_action_record_min_fields';
   action_type?: Maybe<Scalars['String']>;
   council_id?: Maybe<Scalars['String']>;
-  executed_datetime?: Maybe<Scalars['timestamptz']>;
-  executed_level?: Maybe<Scalars['bigint']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['bigint']>;
   initiator_id?: Maybe<Scalars['String']>;
@@ -6737,8 +6737,8 @@ export type Council_Action_Record_Min_Fields = {
 export type Council_Action_Record_Min_Order_By = {
   action_type?: InputMaybe<Order_By>;
   council_id?: InputMaybe<Order_By>;
-  executed_datetime?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   initiator_id?: InputMaybe<Order_By>;
@@ -6755,8 +6755,8 @@ export type Council_Action_Record_Order_By = {
   council_action_record_parameters_aggregate?: InputMaybe<Council_Action_Record_Parameter_Aggregate_Order_By>;
   council_id?: InputMaybe<Order_By>;
   executed?: InputMaybe<Order_By>;
-  executed_datetime?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   initiator?: InputMaybe<Mavryk_User_Order_By>;
@@ -7003,9 +7003,9 @@ export enum Council_Action_Record_Select_Column {
   /** column name */
   Executed = 'executed',
   /** column name */
-  ExecutedDatetime = 'executed_datetime',
+  ExecutionDatetime = 'execution_datetime',
   /** column name */
-  ExecutedLevel = 'executed_level',
+  ExecutionLevel = 'execution_level',
   /** column name */
   ExpirationDatetime = 'expiration_datetime',
   /** column name */
@@ -7245,7 +7245,7 @@ export type Council_Action_Record_Signer_Variance_Order_By = {
 /** aggregate stddev on columns */
 export type Council_Action_Record_Stddev_Fields = {
   __typename?: 'council_action_record_stddev_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7254,7 +7254,7 @@ export type Council_Action_Record_Stddev_Fields = {
 
 /** order by stddev() on columns of table "council_action_record" */
 export type Council_Action_Record_Stddev_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7264,7 +7264,7 @@ export type Council_Action_Record_Stddev_Order_By = {
 /** aggregate stddev_pop on columns */
 export type Council_Action_Record_Stddev_Pop_Fields = {
   __typename?: 'council_action_record_stddev_pop_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7273,7 +7273,7 @@ export type Council_Action_Record_Stddev_Pop_Fields = {
 
 /** order by stddev_pop() on columns of table "council_action_record" */
 export type Council_Action_Record_Stddev_Pop_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7283,7 +7283,7 @@ export type Council_Action_Record_Stddev_Pop_Order_By = {
 /** aggregate stddev_samp on columns */
 export type Council_Action_Record_Stddev_Samp_Fields = {
   __typename?: 'council_action_record_stddev_samp_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7292,7 +7292,7 @@ export type Council_Action_Record_Stddev_Samp_Fields = {
 
 /** order by stddev_samp() on columns of table "council_action_record" */
 export type Council_Action_Record_Stddev_Samp_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7302,7 +7302,7 @@ export type Council_Action_Record_Stddev_Samp_Order_By = {
 /** aggregate sum on columns */
 export type Council_Action_Record_Sum_Fields = {
   __typename?: 'council_action_record_sum_fields';
-  executed_level?: Maybe<Scalars['bigint']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   id?: Maybe<Scalars['bigint']>;
   signers_count?: Maybe<Scalars['smallint']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7311,7 +7311,7 @@ export type Council_Action_Record_Sum_Fields = {
 
 /** order by sum() on columns of table "council_action_record" */
 export type Council_Action_Record_Sum_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7321,7 +7321,7 @@ export type Council_Action_Record_Sum_Order_By = {
 /** aggregate var_pop on columns */
 export type Council_Action_Record_Var_Pop_Fields = {
   __typename?: 'council_action_record_var_pop_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7330,7 +7330,7 @@ export type Council_Action_Record_Var_Pop_Fields = {
 
 /** order by var_pop() on columns of table "council_action_record" */
 export type Council_Action_Record_Var_Pop_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7340,7 +7340,7 @@ export type Council_Action_Record_Var_Pop_Order_By = {
 /** aggregate var_samp on columns */
 export type Council_Action_Record_Var_Samp_Fields = {
   __typename?: 'council_action_record_var_samp_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7349,7 +7349,7 @@ export type Council_Action_Record_Var_Samp_Fields = {
 
 /** order by var_samp() on columns of table "council_action_record" */
 export type Council_Action_Record_Var_Samp_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7359,7 +7359,7 @@ export type Council_Action_Record_Var_Samp_Order_By = {
 /** aggregate variance on columns */
 export type Council_Action_Record_Variance_Fields = {
   __typename?: 'council_action_record_variance_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   signers_count?: Maybe<Scalars['Float']>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -7368,7 +7368,7 @@ export type Council_Action_Record_Variance_Fields = {
 
 /** order by variance() on columns of table "council_action_record" */
 export type Council_Action_Record_Variance_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
@@ -13272,8 +13272,8 @@ export type Emergency_Governance_Record = {
   emergency_governance: Emergency_Governance;
   emergency_governance_id: Scalars['String'];
   executed: Scalars['Boolean'];
-  executed_level: Scalars['bigint'];
-  executed_timestamp?: Maybe<Scalars['timestamptz']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level: Scalars['bigint'];
   expiration_timestamp?: Maybe<Scalars['timestamptz']>;
   id: Scalars['bigint'];
   /** An object relationship */
@@ -13359,7 +13359,7 @@ export type Emergency_Governance_Record_Aggregate_Order_By = {
 /** aggregate avg on columns */
 export type Emergency_Governance_Record_Avg_Fields = {
   __typename?: 'emergency_governance_record_avg_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   smvk_percentage_required?: Maybe<Scalars['Float']>;
   smvk_required_for_trigger?: Maybe<Scalars['Float']>;
@@ -13369,7 +13369,7 @@ export type Emergency_Governance_Record_Avg_Fields = {
 
 /** order by avg() on columns of table "emergency_governance_record" */
 export type Emergency_Governance_Record_Avg_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   smvk_required_for_trigger?: InputMaybe<Order_By>;
@@ -13387,8 +13387,8 @@ export type Emergency_Governance_Record_Bool_Exp = {
   emergency_governance?: InputMaybe<Emergency_Governance_Bool_Exp>;
   emergency_governance_id?: InputMaybe<String_Comparison_Exp>;
   executed?: InputMaybe<Boolean_Comparison_Exp>;
-  executed_level?: InputMaybe<Bigint_Comparison_Exp>;
-  executed_timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
+  execution_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
+  execution_level?: InputMaybe<Bigint_Comparison_Exp>;
   expiration_timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
   proposer?: InputMaybe<Mavryk_User_Bool_Exp>;
@@ -13407,8 +13407,8 @@ export type Emergency_Governance_Record_Max_Fields = {
   __typename?: 'emergency_governance_record_max_fields';
   description?: Maybe<Scalars['String']>;
   emergency_governance_id?: Maybe<Scalars['String']>;
-  executed_level?: Maybe<Scalars['bigint']>;
-  executed_timestamp?: Maybe<Scalars['timestamptz']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   expiration_timestamp?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['bigint']>;
   proposer_id?: Maybe<Scalars['String']>;
@@ -13424,8 +13424,8 @@ export type Emergency_Governance_Record_Max_Fields = {
 export type Emergency_Governance_Record_Max_Order_By = {
   description?: InputMaybe<Order_By>;
   emergency_governance_id?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
-  executed_timestamp?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_timestamp?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   proposer_id?: InputMaybe<Order_By>;
@@ -13442,8 +13442,8 @@ export type Emergency_Governance_Record_Min_Fields = {
   __typename?: 'emergency_governance_record_min_fields';
   description?: Maybe<Scalars['String']>;
   emergency_governance_id?: Maybe<Scalars['String']>;
-  executed_level?: Maybe<Scalars['bigint']>;
-  executed_timestamp?: Maybe<Scalars['timestamptz']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   expiration_timestamp?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['bigint']>;
   proposer_id?: Maybe<Scalars['String']>;
@@ -13459,8 +13459,8 @@ export type Emergency_Governance_Record_Min_Fields = {
 export type Emergency_Governance_Record_Min_Order_By = {
   description?: InputMaybe<Order_By>;
   emergency_governance_id?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
-  executed_timestamp?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_timestamp?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   proposer_id?: InputMaybe<Order_By>;
@@ -13479,8 +13479,8 @@ export type Emergency_Governance_Record_Order_By = {
   emergency_governance?: InputMaybe<Emergency_Governance_Order_By>;
   emergency_governance_id?: InputMaybe<Order_By>;
   executed?: InputMaybe<Order_By>;
-  executed_level?: InputMaybe<Order_By>;
-  executed_timestamp?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   expiration_timestamp?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   proposer?: InputMaybe<Mavryk_User_Order_By>;
@@ -13505,9 +13505,9 @@ export enum Emergency_Governance_Record_Select_Column {
   /** column name */
   Executed = 'executed',
   /** column name */
-  ExecutedLevel = 'executed_level',
+  ExecutionDatetime = 'execution_datetime',
   /** column name */
-  ExecutedTimestamp = 'executed_timestamp',
+  ExecutionLevel = 'execution_level',
   /** column name */
   ExpirationTimestamp = 'expiration_timestamp',
   /** column name */
@@ -13531,7 +13531,7 @@ export enum Emergency_Governance_Record_Select_Column {
 /** aggregate stddev on columns */
 export type Emergency_Governance_Record_Stddev_Fields = {
   __typename?: 'emergency_governance_record_stddev_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   smvk_percentage_required?: Maybe<Scalars['Float']>;
   smvk_required_for_trigger?: Maybe<Scalars['Float']>;
@@ -13541,7 +13541,7 @@ export type Emergency_Governance_Record_Stddev_Fields = {
 
 /** order by stddev() on columns of table "emergency_governance_record" */
 export type Emergency_Governance_Record_Stddev_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   smvk_required_for_trigger?: InputMaybe<Order_By>;
@@ -13552,7 +13552,7 @@ export type Emergency_Governance_Record_Stddev_Order_By = {
 /** aggregate stddev_pop on columns */
 export type Emergency_Governance_Record_Stddev_Pop_Fields = {
   __typename?: 'emergency_governance_record_stddev_pop_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   smvk_percentage_required?: Maybe<Scalars['Float']>;
   smvk_required_for_trigger?: Maybe<Scalars['Float']>;
@@ -13562,7 +13562,7 @@ export type Emergency_Governance_Record_Stddev_Pop_Fields = {
 
 /** order by stddev_pop() on columns of table "emergency_governance_record" */
 export type Emergency_Governance_Record_Stddev_Pop_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   smvk_required_for_trigger?: InputMaybe<Order_By>;
@@ -13573,7 +13573,7 @@ export type Emergency_Governance_Record_Stddev_Pop_Order_By = {
 /** aggregate stddev_samp on columns */
 export type Emergency_Governance_Record_Stddev_Samp_Fields = {
   __typename?: 'emergency_governance_record_stddev_samp_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   smvk_percentage_required?: Maybe<Scalars['Float']>;
   smvk_required_for_trigger?: Maybe<Scalars['Float']>;
@@ -13583,7 +13583,7 @@ export type Emergency_Governance_Record_Stddev_Samp_Fields = {
 
 /** order by stddev_samp() on columns of table "emergency_governance_record" */
 export type Emergency_Governance_Record_Stddev_Samp_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   smvk_required_for_trigger?: InputMaybe<Order_By>;
@@ -13594,7 +13594,7 @@ export type Emergency_Governance_Record_Stddev_Samp_Order_By = {
 /** aggregate sum on columns */
 export type Emergency_Governance_Record_Sum_Fields = {
   __typename?: 'emergency_governance_record_sum_fields';
-  executed_level?: Maybe<Scalars['bigint']>;
+  execution_level?: Maybe<Scalars['bigint']>;
   id?: Maybe<Scalars['bigint']>;
   smvk_percentage_required?: Maybe<Scalars['float8']>;
   smvk_required_for_trigger?: Maybe<Scalars['float8']>;
@@ -13604,7 +13604,7 @@ export type Emergency_Governance_Record_Sum_Fields = {
 
 /** order by sum() on columns of table "emergency_governance_record" */
 export type Emergency_Governance_Record_Sum_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   smvk_required_for_trigger?: InputMaybe<Order_By>;
@@ -13615,7 +13615,7 @@ export type Emergency_Governance_Record_Sum_Order_By = {
 /** aggregate var_pop on columns */
 export type Emergency_Governance_Record_Var_Pop_Fields = {
   __typename?: 'emergency_governance_record_var_pop_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   smvk_percentage_required?: Maybe<Scalars['Float']>;
   smvk_required_for_trigger?: Maybe<Scalars['Float']>;
@@ -13625,7 +13625,7 @@ export type Emergency_Governance_Record_Var_Pop_Fields = {
 
 /** order by var_pop() on columns of table "emergency_governance_record" */
 export type Emergency_Governance_Record_Var_Pop_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   smvk_required_for_trigger?: InputMaybe<Order_By>;
@@ -13636,7 +13636,7 @@ export type Emergency_Governance_Record_Var_Pop_Order_By = {
 /** aggregate var_samp on columns */
 export type Emergency_Governance_Record_Var_Samp_Fields = {
   __typename?: 'emergency_governance_record_var_samp_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   smvk_percentage_required?: Maybe<Scalars['Float']>;
   smvk_required_for_trigger?: Maybe<Scalars['Float']>;
@@ -13646,7 +13646,7 @@ export type Emergency_Governance_Record_Var_Samp_Fields = {
 
 /** order by var_samp() on columns of table "emergency_governance_record" */
 export type Emergency_Governance_Record_Var_Samp_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   smvk_required_for_trigger?: InputMaybe<Order_By>;
@@ -13657,7 +13657,7 @@ export type Emergency_Governance_Record_Var_Samp_Order_By = {
 /** aggregate variance on columns */
 export type Emergency_Governance_Record_Variance_Fields = {
   __typename?: 'emergency_governance_record_variance_fields';
-  executed_level?: Maybe<Scalars['Float']>;
+  execution_level?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   smvk_percentage_required?: Maybe<Scalars['Float']>;
   smvk_required_for_trigger?: Maybe<Scalars['Float']>;
@@ -13667,7 +13667,7 @@ export type Emergency_Governance_Record_Variance_Fields = {
 
 /** order by variance() on columns of table "emergency_governance_record" */
 export type Emergency_Governance_Record_Variance_Order_By = {
-  executed_level?: InputMaybe<Order_By>;
+  execution_level?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   smvk_required_for_trigger?: InputMaybe<Order_By>;
@@ -18673,6 +18673,7 @@ export type Governance_Financial_Order_By = {
 export type Governance_Financial_Request_Record = {
   __typename?: 'governance_financial_request_record';
   executed: Scalars['Boolean'];
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   /** An object relationship */
   governance_financial: Governance_Financial;
@@ -18806,6 +18807,7 @@ export type Governance_Financial_Request_Record_Bool_Exp = {
   _not?: InputMaybe<Governance_Financial_Request_Record_Bool_Exp>;
   _or?: InputMaybe<Array<Governance_Financial_Request_Record_Bool_Exp>>;
   executed?: InputMaybe<Boolean_Comparison_Exp>;
+  execution_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
   expiration_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
   governance_financial?: InputMaybe<Governance_Financial_Bool_Exp>;
   governance_financial_id?: InputMaybe<String_Comparison_Exp>;
@@ -18834,6 +18836,7 @@ export type Governance_Financial_Request_Record_Bool_Exp = {
 /** aggregate max on columns */
 export type Governance_Financial_Request_Record_Max_Fields = {
   __typename?: 'governance_financial_request_record_max_fields';
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   governance_financial_id?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
@@ -18857,6 +18860,7 @@ export type Governance_Financial_Request_Record_Max_Fields = {
 
 /** order by max() on columns of table "governance_financial_request_record" */
 export type Governance_Financial_Request_Record_Max_Order_By = {
+  execution_datetime?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   governance_financial_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
@@ -18881,6 +18885,7 @@ export type Governance_Financial_Request_Record_Max_Order_By = {
 /** aggregate min on columns */
 export type Governance_Financial_Request_Record_Min_Fields = {
   __typename?: 'governance_financial_request_record_min_fields';
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   governance_financial_id?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
@@ -18904,6 +18909,7 @@ export type Governance_Financial_Request_Record_Min_Fields = {
 
 /** order by min() on columns of table "governance_financial_request_record" */
 export type Governance_Financial_Request_Record_Min_Order_By = {
+  execution_datetime?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   governance_financial_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
@@ -18928,6 +18934,7 @@ export type Governance_Financial_Request_Record_Min_Order_By = {
 /** Ordering options when selecting data from "governance_financial_request_record". */
 export type Governance_Financial_Request_Record_Order_By = {
   executed?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   governance_financial?: InputMaybe<Governance_Financial_Order_By>;
   governance_financial_id?: InputMaybe<Order_By>;
@@ -18957,6 +18964,8 @@ export type Governance_Financial_Request_Record_Order_By = {
 export enum Governance_Financial_Request_Record_Select_Column {
   /** column name */
   Executed = 'executed',
+  /** column name */
+  ExecutionDatetime = 'execution_datetime',
   /** column name */
   ExpirationDatetime = 'expiration_datetime',
   /** column name */
@@ -20628,6 +20637,7 @@ export type Governance_Proposal_Record = {
   description: Scalars['String'];
   executed: Scalars['Boolean'];
   execution_counter: Scalars['smallint'];
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   execution_ready: Scalars['Boolean'];
   /** An object relationship */
   governance: Governance;
@@ -20847,6 +20857,7 @@ export type Governance_Proposal_Record_Bool_Exp = {
   description?: InputMaybe<String_Comparison_Exp>;
   executed?: InputMaybe<Boolean_Comparison_Exp>;
   execution_counter?: InputMaybe<Smallint_Comparison_Exp>;
+  execution_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
   execution_ready?: InputMaybe<Boolean_Comparison_Exp>;
   governance?: InputMaybe<Governance_Bool_Exp>;
   governance_id?: InputMaybe<String_Comparison_Exp>;
@@ -21142,6 +21153,7 @@ export type Governance_Proposal_Record_Max_Fields = {
   cycle?: Maybe<Scalars['bigint']>;
   description?: Maybe<Scalars['String']>;
   execution_counter?: Maybe<Scalars['smallint']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   governance_id?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
   invoice?: Maybe<Scalars['String']>;
@@ -21176,6 +21188,7 @@ export type Governance_Proposal_Record_Max_Order_By = {
   cycle?: InputMaybe<Order_By>;
   description?: InputMaybe<Order_By>;
   execution_counter?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
   governance_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invoice?: InputMaybe<Order_By>;
@@ -21211,6 +21224,7 @@ export type Governance_Proposal_Record_Min_Fields = {
   cycle?: Maybe<Scalars['bigint']>;
   description?: Maybe<Scalars['String']>;
   execution_counter?: Maybe<Scalars['smallint']>;
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   governance_id?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
   invoice?: Maybe<Scalars['String']>;
@@ -21245,6 +21259,7 @@ export type Governance_Proposal_Record_Min_Order_By = {
   cycle?: InputMaybe<Order_By>;
   description?: InputMaybe<Order_By>;
   execution_counter?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
   governance_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invoice?: InputMaybe<Order_By>;
@@ -21281,6 +21296,7 @@ export type Governance_Proposal_Record_Order_By = {
   description?: InputMaybe<Order_By>;
   executed?: InputMaybe<Order_By>;
   execution_counter?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
   execution_ready?: InputMaybe<Order_By>;
   governance?: InputMaybe<Governance_Order_By>;
   governance_id?: InputMaybe<Order_By>;
@@ -21626,6 +21642,8 @@ export enum Governance_Proposal_Record_Select_Column {
   Executed = 'executed',
   /** column name */
   ExecutionCounter = 'execution_counter',
+  /** column name */
+  ExecutionDatetime = 'execution_datetime',
   /** column name */
   ExecutionReady = 'execution_ready',
   /** column name */
@@ -23896,6 +23914,7 @@ export type Governance_SatelliteWhitelist_Contracts_AggregateArgs = {
 export type Governance_Satellite_Action_Record = {
   __typename?: 'governance_satellite_action_record';
   executed: Scalars['Boolean'];
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   governance_purpose: Scalars['String'];
   /** An object relationship */
@@ -24067,6 +24086,7 @@ export type Governance_Satellite_Action_Record_Bool_Exp = {
   _not?: InputMaybe<Governance_Satellite_Action_Record_Bool_Exp>;
   _or?: InputMaybe<Array<Governance_Satellite_Action_Record_Bool_Exp>>;
   executed?: InputMaybe<Boolean_Comparison_Exp>;
+  execution_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
   expiration_datetime?: InputMaybe<Timestamptz_Comparison_Exp>;
   governance_purpose?: InputMaybe<String_Comparison_Exp>;
   governance_satellite?: InputMaybe<Governance_Satellite_Bool_Exp>;
@@ -24091,6 +24111,7 @@ export type Governance_Satellite_Action_Record_Bool_Exp = {
 /** aggregate max on columns */
 export type Governance_Satellite_Action_Record_Max_Fields = {
   __typename?: 'governance_satellite_action_record_max_fields';
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   governance_purpose?: Maybe<Scalars['String']>;
   governance_satellite_id?: Maybe<Scalars['String']>;
@@ -24110,6 +24131,7 @@ export type Governance_Satellite_Action_Record_Max_Fields = {
 
 /** order by max() on columns of table "governance_satellite_action_record" */
 export type Governance_Satellite_Action_Record_Max_Order_By = {
+  execution_datetime?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   governance_purpose?: InputMaybe<Order_By>;
   governance_satellite_id?: InputMaybe<Order_By>;
@@ -24130,6 +24152,7 @@ export type Governance_Satellite_Action_Record_Max_Order_By = {
 /** aggregate min on columns */
 export type Governance_Satellite_Action_Record_Min_Fields = {
   __typename?: 'governance_satellite_action_record_min_fields';
+  execution_datetime?: Maybe<Scalars['timestamptz']>;
   expiration_datetime?: Maybe<Scalars['timestamptz']>;
   governance_purpose?: Maybe<Scalars['String']>;
   governance_satellite_id?: Maybe<Scalars['String']>;
@@ -24149,6 +24172,7 @@ export type Governance_Satellite_Action_Record_Min_Fields = {
 
 /** order by min() on columns of table "governance_satellite_action_record" */
 export type Governance_Satellite_Action_Record_Min_Order_By = {
+  execution_datetime?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   governance_purpose?: InputMaybe<Order_By>;
   governance_satellite_id?: InputMaybe<Order_By>;
@@ -24169,6 +24193,7 @@ export type Governance_Satellite_Action_Record_Min_Order_By = {
 /** Ordering options when selecting data from "governance_satellite_action_record". */
 export type Governance_Satellite_Action_Record_Order_By = {
   executed?: InputMaybe<Order_By>;
+  execution_datetime?: InputMaybe<Order_By>;
   expiration_datetime?: InputMaybe<Order_By>;
   governance_purpose?: InputMaybe<Order_By>;
   governance_satellite?: InputMaybe<Governance_Satellite_Order_By>;
@@ -24421,6 +24446,8 @@ export type Governance_Satellite_Action_Record_Parameter_Variance_Order_By = {
 export enum Governance_Satellite_Action_Record_Select_Column {
   /** column name */
   Executed = 'executed',
+  /** column name */
+  ExecutionDatetime = 'execution_datetime',
   /** column name */
   ExpirationDatetime = 'expiration_datetime',
   /** column name */

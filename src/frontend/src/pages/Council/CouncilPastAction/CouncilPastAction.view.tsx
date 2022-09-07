@@ -11,7 +11,7 @@ import { getSeparateCamelCase } from '../../../utils/parse'
 import { CouncilPastActionStyled } from './CouncilPastAction.style'
 
 type Props = {
-  executed_datetime: string
+  execution_datetime: string
   action_type: string
   signers_count: number
   num_council_members: number
@@ -19,13 +19,13 @@ type Props = {
 }
 
 export const CouncilPastActionView = (props: Props) => {
-  const { executed_datetime, action_type, signers_count, num_council_members, council_id } = props
+  const { execution_datetime, action_type, signers_count, num_council_members, council_id } = props
   return (
     <CouncilPastActionStyled>
       <div>
         <p>Date</p>
         <h4>
-          <Time value={executed_datetime} format="M d\t\h, Y" />
+          <Time value={execution_datetime} format="M d\t\h, Y" />
         </h4>
       </div>
       <div>

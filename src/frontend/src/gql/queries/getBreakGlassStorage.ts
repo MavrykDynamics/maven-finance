@@ -10,7 +10,7 @@ export const BREAK_GLASS_STORAGE_QUERY = `
         action_type
         break_glass_id
         executed
-        executed_datetime
+        execution_datetime
         expiration_datetime
         id
         initiator_id
@@ -21,7 +21,7 @@ export const BREAK_GLASS_STORAGE_QUERY = `
           id
           break_glass_action_record_id
         }
-        executed_level
+        execution_level
         signers_count
       }
       council_member_image_max_length

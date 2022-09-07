@@ -15,8 +15,8 @@ export const COUNCIL_STORAGE_QUERY = `
         action_type
         council_id
         executed
-        executed_datetime
-        executed_level
+        execution_datetime
+        execution_level
         expiration_datetime
         id
         status
@@ -45,8 +45,8 @@ export const COUNCIL_STORAGE_QUERY_VARIABLE = {}
 const COUNCIL_ACTIONS_PARAMS = `
   council_id
   executed
-  executed_datetime
-  executed_level
+  execution_datetime
+  execution_level
   expiration_datetime
   id
   initiator_id
@@ -71,7 +71,6 @@ export const COUNCIL_PAST_ACTIONS_QUERY = `
 export const COUNCIL_PAST_ACTIONS_NAME = 'GetPastCouncilActions'
 export const COUNCIL_PAST_ACTIONS_VARIABLE = {}
 
-
 export const COUNCIL_PENDING_ACTIONS_QUERY = `
   query GetPandingCouncilActions {
     council_action_record(where: {status: {_eq: "0"}}) {
@@ -81,5 +80,3 @@ export const COUNCIL_PENDING_ACTIONS_QUERY = `
 `
 export const COUNCIL_PENDING_ACTIONS_NAME = 'GetPandingCouncilActions'
 export const COUNCIL_PENDING_ACTIONS_VARIABLE = {}
-
-
