@@ -56,7 +56,7 @@ export const Council = () => {
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
   const isPendingList = councilPendingActions.length && isUserInCouncilMembers
-
+  console.log('%c ||||| councilPastActions', 'color:yellowgreen', councilPastActions)
   const currentCouncilPastActions = useMemo(
     () =>
       isPendingSignature
@@ -121,7 +121,7 @@ export const Council = () => {
 
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, COUNCIL_LIST_NAME)
-    return currentCouncilPastActions.slice(from, to)
+    return currentCouncilPastActions?.slice(from, to)
   }, [currentPage, currentCouncilPastActions])
 
   return (
@@ -155,7 +155,7 @@ export const Council = () => {
                     <Carousel itemLength={councilPendingActions?.length} key={sliderKey}>
                       {councilPendingActions.map((item) => (
                         <CouncilPendingView
-                          executed_datetime={item.executed_datetime}
+                          execution_datetime={item.execution_datetime}
                           key={item.id}
                           id={item.id}
                           action_type={item.action_type}
@@ -207,7 +207,7 @@ export const Council = () => {
                 </h1>
                 {paginatedItemsList.map((item: CouncilPastAction) => (
                   <CouncilPastActionView
-                    executed_datetime={item.executed_datetime}
+                    execution_datetime={item.execution_datetime}
                     key={item.id}
                     action_type={item.action_type}
                     signers_count={item.signers_count}
