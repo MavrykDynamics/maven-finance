@@ -480,7 +480,7 @@ describe('Aggregator Tests', async () => {
   });
 
 
-  describe('UpdatePrice', () => {
+  describe.only('UpdatePrice', () => {
 
     const observations = [
       {
@@ -503,7 +503,7 @@ describe('Aggregator Tests', async () => {
    const epoch: number = 1;
    const round: number = 1;
 
-    it(
+    it.only(
         'UpdatePrice should works',
         async () => {
 
@@ -557,7 +557,7 @@ describe('Aggregator Tests', async () => {
     );
 
     it(
-      'should fail if wrong aggragator address',
+      'should fail if not many observations in observations map',
       async () => {
         
 
@@ -565,7 +565,7 @@ describe('Aggregator Tests', async () => {
     );
 
     it(
-      'should fail if to small obervations in obeservations map',
+      'should fail if not many signatures in signatures map',
       async () => {
         
 
@@ -573,7 +573,39 @@ describe('Aggregator Tests', async () => {
     );
 
     it(
-      'should fail if same epoch/round in observations maps',
+      'should fail if wrong oracle address in obervations map',
+      async () => {
+        
+
+      },
+    );
+
+    it(
+      'should fail if one of the oracle in obervations map id not authorized',
+      async () => {
+        
+
+      },
+    );
+
+    it(
+      'should fail if different epoch in signatures map',
+      async () => {
+        
+
+      },
+    );
+
+    it(
+      'should fail if epoch in observations maps is not greather than previous one',
+      async () => {
+        
+
+      },
+    );
+
+    it(
+      'should fail if round in observations maps is not greather than previous one with same epoch',
       async () => {
         
 
