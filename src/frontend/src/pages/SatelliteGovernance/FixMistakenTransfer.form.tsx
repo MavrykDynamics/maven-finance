@@ -51,14 +51,14 @@ export const FixMistakenTransferForm = () => {
 
       console.log('%c ||||| noralizeTableData', 'color:yellowgreen', noralizeTableData)
       dispatch(fixMistakenTransfer(targetContractAddress, purpose, noralizeTableData))
-      setForm({
-        targetContractAddress: '',
-        purpose: '',
-      })
-      setFormInputStatus({
-        targetContractAddress: '',
-        purpose: '',
-      })
+      // setForm({
+      //   targetContractAddress: '',
+      //   purpose: '',
+      // })
+      // setFormInputStatus({
+      //   targetContractAddress: '',
+      //   purpose: '',
+      // })
     } catch (error) {
       console.error(error)
     }

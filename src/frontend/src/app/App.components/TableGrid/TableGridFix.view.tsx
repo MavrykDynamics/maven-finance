@@ -81,13 +81,14 @@ export default function TableGridFix({ tableData, setTableData }: Props) {
                     ) : !isLastColumn ? (
                       <input
                         onFocus={() => setOpenDrop('')}
+                        required
                         value={colValue}
                         type={j === 1 ? 'number' : 'text'}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i, j)}
                       />
                     ) : (
                       <div className="table-drop">
-                        <button onClick={() => handleToggleDrop(i, j)} className="table-drop-btn-cur">
+                        <button type="button" onClick={() => handleToggleDrop(i, j)} className="table-drop-btn-cur">
                           {colValue}
                         </button>
                         {isOpen && (
@@ -110,7 +111,7 @@ export default function TableGridFix({ tableData, setTableData }: Props) {
                     {isLastColumn && tableData.length > 2 ? (
                       <div className="delete-button-wrap">
                         <StyledTooltip placement="top" title="Delete row">
-                          <button onClick={() => handleDeleteRow(i)} className="delete-button">
+                          <button type="button" onClick={() => handleDeleteRow(i)} className="delete-button">
                             <Icon id="delete" />
                           </button>
                         </StyledTooltip>
@@ -125,7 +126,7 @@ export default function TableGridFix({ tableData, setTableData }: Props) {
       </div>
       {!isMaxRows ? (
         <StyledTooltip placement="top" title="Insert 1 row bottom">
-          <button className="btn-add-row" onClick={handleAddRow}>
+          <button type="button" className="btn-add-row" onClick={handleAddRow}>
             +
           </button>
         </StyledTooltip>
