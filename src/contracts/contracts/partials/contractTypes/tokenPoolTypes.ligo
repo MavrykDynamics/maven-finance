@@ -29,7 +29,7 @@ type rewardsLedgerType is big_map((address * string), rewardsRecordType)        
 type accumulatedRewardsLedgerType is big_map(string, nat)                   
 
 // liquidity provider
-type depositorLedgerType is big_map((address * string), nat)                    // key - user address and token name e.g. USDT, EURL
+type tokenPoolDepositorLedgerType is big_map((address * string), nat)                    // key - user address and token name e.g. USDT, EURL
 
 
 type tokenPoolBreakGlassConfigType is record [
@@ -211,7 +211,7 @@ type tokenPoolStorage is [@layout:comb] record [
     
     tokenLedger                 : tokenLedgerType;
     rewardsLedger               : rewardsLedgerType;
-    depositorLedger             : depositorLedgerType;
+    tokenPoolDepositorLedger    : tokenPoolDepositorLedgerType;
 
     lambdaLedger                : lambdaLedgerType;   
 ]

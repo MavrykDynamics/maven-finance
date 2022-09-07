@@ -31,11 +31,18 @@ const config = {
 
 const breakGlassConfig = {
 
+    // Token Pool Entrypoints
+    setLoanTokenIsPaused                : false,
+    addLiquidityIsPaused                : false,
+    removeLiquidityIsPaused             : false,
+
     // Vault Entrypoints
+    updateCollateralTokenIsPaused       : false,
     createVaultIsPaused                 : false,
     closeVaultIsPaused                  : false,
     registerDepositIsPaused             : false,
     registerWithdrawalIsPaused          : false,
+    markForLiquidationIsPaused          : false,
     liquidateVaultIsPaused              : false,
     borrowIsPaused                      : false,
     repayIsPaused                       : false,
@@ -44,6 +51,9 @@ const breakGlassConfig = {
     vaultDepositStakedMvkIsPaused       : false,
     vaultWithdrawStakedMvkIsPaused      : false,
     vaultLiquidateStakedMvkIsPaused     : false,
+
+    // Reward Entrypoints
+    claimRewardsIsPaused     : false,
 }
 
 const metadata = MichelsonMap.fromLiteral({

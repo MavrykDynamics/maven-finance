@@ -45,11 +45,18 @@ type lendingControllerConfigType is [@layout:comb] record [
 
 type lendingControllerBreakGlassConfigType is record [
     
+    // Lending Controller Token Pool Entrypoints
+    setLoanTokenIsPaused                : bool;
+    addLiquidityIsPaused                : bool;
+    removeLiquidityIsPaused             : bool;
+
     // Lending Controller Vault Entrypoints
+    updateCollateralTokenIsPaused       : bool;
     createVaultIsPaused                 : bool; 
     closeVaultIsPaused                  : bool;
     registerDepositIsPaused             : bool;
     registerWithdrawalIsPaused          : bool;
+    markForLiquidationIsPaused          : bool;
     liquidateVaultIsPaused              : bool;
     borrowIsPaused                      : bool;
     repayIsPaused                       : bool;
@@ -66,6 +73,9 @@ type lendingControllerBreakGlassConfigType is record [
     vaultDepositIsPaused                    : bool;
     vaultEditDepositorIsPaused              : bool;
 
+    // Reward Entrypoints
+    claimRewardsIsPaused                    : bool;
+
 ]
 
 type rewardsRecordType is [@layout:comb] record[
@@ -75,7 +85,7 @@ type rewardsRecordType is [@layout:comb] record[
 ]
 type rewardsLedgerType is big_map((address * string), rewardsRecordType)        // key - user address and token name e.g. USDT, EURL
 
-type depositorLedgerType is big_map((address * string), nat)   // key - user address and token name e.g. USDT, EURL, value - amount
+type tokenPoolDepositorLedgerType is big_map((address * string), nat)   // key - user address and token name e.g. USDT, EURL, value - amount
 
 
 type collateralTokenRecordType is [@layout:comb] record [
@@ -122,7 +132,7 @@ type loanTokenRecordType is [@layout:comb] record [
     borrowIndex                             : nat;
 ]
 
-type loanTokenLedgerType is big_map(string, loanTokenRecordType)
+type loanTokenLedgerType is map(string, loanTokenRecordType)
 
 
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
@@ -264,10 +274,12 @@ type registerDepositActionType is [@layout:comb] record [
     tokenName   : string;
 ]
 
+
 type markForLiquidationActionType is [@layout:comb] record [
     vaultId     : nat;
     vaultOwner  : address;
 ]
+
 
 type liquidateVaultActionType is [@layout:comb] record [
     vaultId     : nat;
@@ -293,15 +305,18 @@ type updateRewardsActionType is [@layout:comb] record [
     amount          : nat;
 ]
 
+
 type vaultDepositStakedMvkType is [@layout:comb] record [
     vaultId         : nat;
     depositAmount   : nat;
 ]
 
+
 type vaultWithdrawStakedMvkType is [@layout:comb] record [
     vaultId         : nat;
     withdrawAmount  : nat;
 ]
+
 
 type vaultLiquidateStakedMvkType is [@layout:comb] record [
     vaultId           : nat;
@@ -311,13 +326,23 @@ type vaultLiquidateStakedMvkType is [@layout:comb] record [
 ]
 
 
+type claimRewardsType is address
+
+
 type lendingControllerPausableEntrypointType is
 
+        // Lending Controller Token Pool Entrypoints
+    |   SetLoanToken                of bool
+    |   AddLiquidity                of bool
+    |   RemoveLiquidity             of bool
+
         // Lending Controller Vault Entrypoints
-        CreateVault                 of bool
+    |   UpdateCollateralToken       of bool
+    |   CreateVault                 of bool
     |   CloseVault                  of bool
-    |   RegisterWithdrawal          of bool
     |   RegisterDeposit             of bool
+    |   RegisterWithdrawal          of bool
+    |   MarkForLiquidation          of bool
     |   LiquidateVault              of bool
     |   Borrow                      of bool
     |   Repay                       of bool
@@ -333,6 +358,9 @@ type lendingControllerPausableEntrypointType is
     |   VaultWithdraw               of bool
     |   VaultDeposit                of bool
     |   VaultEditDepositor          of bool
+
+        // Rewards Entrypoints
+    |   ClaimRewards                of bool
 
 type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : lendingControllerPausableEntrypointType;
@@ -380,7 +408,10 @@ type lendingControllerLambdaActionType is
         // Vault Staked MVK Entrypoints   
     |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkType   
     |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+    // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+
+        // Rewards Entrypoints
+    // |   LambdaClaimRewards                    of claimRewardsType
 
 
 // ------------------------------------------------------------------------------
@@ -404,7 +435,7 @@ type lendingControllerStorageType is [@layout:comb] record [
 
     // token pool
     rewardsLedger               : rewardsLedgerType;
-    depositorLedger             : depositorLedgerType;
+    tokenPoolDepositorLedger    : tokenPoolDepositorLedgerType;
 
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
