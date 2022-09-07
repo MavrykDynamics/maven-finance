@@ -19,8 +19,8 @@ async def on_council_sign_action(
     signer_count            = int(action_record_storage.signersCount)
     status                  = action_record_storage.status
     executed                = action_record_storage.executed
-    executed_timestamp      = action_record_storage.executedDateTime
-    executed_level          = int(action_record_storage.executedLevel)
+    execution_datetime      = action_record_storage.executedDateTime
+    execution_level         = int(action_record_storage.executedLevel)
     council_members         = sign_action.storage.councilMembers
 
     # Select correct status
@@ -36,11 +36,11 @@ async def on_council_sign_action(
         council = council,
         id      = action_id
     )
-    action_record.status            = status_type
-    action_record.signers_count     = signer_count
-    action_record.executed          = executed
-    action_record.executed_datetime = parser.parse(executed_timestamp)
-    action_record.executed_level    = executed_level
+    action_record.status                = status_type
+    action_record.signers_count         = signer_count
+    action_record.executed              = executed
+    action_record.execution_datetime    = parser.parse(execution_datetime)
+    action_record.execution_level       = execution_level
     await action_record.save()
 
     # Update the status if there are multiple records (flush)

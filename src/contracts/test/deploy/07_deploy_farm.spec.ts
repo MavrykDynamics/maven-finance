@@ -15,19 +15,19 @@ import { bob } from '../../scripts/sandbox/accounts'
 
 import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 import governanceAddress from '../../deployments/governanceAddress.json';
+import fa12LpTokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
+import fa2LpTokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
 import { Farm, setFarmLambdas } from "../helpers/farmHelper"
-import { LPToken } from "../helpers/testLPHelper"
 
 // ------------------------------------------------------------------------------
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { lpStorage } from "../../storage/testLPTokenStorage";
 import { farmStorage } from "../../storage/farmStorage";
 
 // ------------------------------------------------------------------------------
@@ -39,7 +39,6 @@ describe('Farms', async () => {
   var utils: Utils
   var farm: Farm;
   var farmFA2: Farm;
-  var lpToken: LPToken;
   var tezos
 
   const signerFactory = async (pk) => {
@@ -56,17 +55,9 @@ describe('Farms', async () => {
       // Originate and deploy contracts
       //----------------------------
   
-      lpToken = await LPToken.originate(
-        utils.tezos,
-        lpStorage
-      );
-  
-      await saveContractAddress("lpTokenAddress", lpToken.contract.address)
-      console.log("LP Token Contract deployed at:", lpToken.contract.address);
-  
       farmStorage.governanceAddress = governanceAddress.address;
       farmStorage.mvkTokenAddress  = mvkTokenAddress.address;
-      farmStorage.config.lpToken.tokenAddress = lpToken.contract.address;
+      farmStorage.config.lpToken.tokenAddress = fa12LpTokenAddress.address;
       farmStorage.config.tokenPair = {
         token0Address: "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb",
         token1Address: "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"
@@ -80,7 +71,7 @@ describe('Farms', async () => {
       await saveContractAddress("farmAddress", farm.contract.address)
       console.log("FA12 Farm Contract deployed at:", farm.contract.address);
   
-      farmStorage.config.lpToken.tokenAddress = mvkTokenAddress.address;
+      farmStorage.config.lpToken.tokenAddress = fa2LpTokenAddress.address;
       farmStorage.config.lpToken.tokenStandard = {
         fa2: ""
       };
@@ -93,7 +84,7 @@ describe('Farms', async () => {
       await saveContractAddress("farmFA2Address", farmFA2.contract.address)
       console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
   
-      farmStorage.config.lpToken.tokenAddress = lpToken.contract.address;
+      farmStorage.config.lpToken.tokenAddress = fa12LpTokenAddress.address;
       farmStorage.config.infinite = true
       farmStorage.config.lpToken.tokenStandard = {
         fa12: ""

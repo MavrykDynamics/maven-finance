@@ -24,8 +24,8 @@ import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAdd
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
 import vestingAddress from '../../deployments/vestingAddress.json';
 import treasuryAddress from '../../deployments/treasuryAddress.json';
-import mockFa12TokenAddress from '../../deployments/mockFa12TokenAddress.json';
-import mockFa2TokenAddress from '../../deployments/mockFa2TokenAddress.json';
+import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
+import mavrykFa2TokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
 import farmFactoryAddress from '../../deployments/farmFactoryAddress.json'
 import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json'
 import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json'
@@ -246,24 +246,24 @@ describe('Linked contracts updates for Tests', async () => {
   
   
   
-      // Governance Financial Contract - set whitelist token contracts [MockFA2, MockFA12, MVK]
+      // Governance Financial Contract - set whitelist token contracts [MavrykFA2, MavrykFA12, MVK]
       const governanceFinancialContractsBatch = await utils.tezos.wallet
       .batch()
 
       // whitelist token contracts
-      .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts("MockFA2", mockFa2TokenAddress.address))
-      .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts("MockFA12", mockFa12TokenAddress.address))
+      .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts("MavrykFA2", mavrykFa2TokenAddress.address))
+      .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts("MavrykFA12", mavrykFa12TokenAddress.address))
       .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts("MVK", mvkTokenAddress.address))
 
       const governanceFinancialContractsBatchOperation = await governanceFinancialContractsBatch.send()
       await governanceFinancialContractsBatchOperation.confirmation();
   
-      console.log('Governance Financial Contract - set whitelist token contract addresss [MockFA12, MockFA2, MVK]')
+      console.log('Governance Financial Contract - set whitelist token contract addresss [MavrykFA12, MavrykFA2, MVK]')
   
 
 
       // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
-      // Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]
+      // Treasury Contract - set whitelist token contract addresses map [mavrykFa12, mavrykFA2, MVK]
       const treasuryContractsBatch = await utils.tezos.wallet
       .batch()
   
@@ -277,15 +277,15 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governance", governanceAddress.address))
   
       // whitelist token contracts
-      .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("MockFA2", mockFa2TokenAddress.address))
-      .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("MockFA12", mockFa12TokenAddress.address))
+      .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("MavrykFA2", mavrykFa2TokenAddress.address))
+      .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("MavrykFA12", mavrykFa12TokenAddress.address))
       .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("MVK", mvkTokenAddress.address))
   
       const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
       await treasuryContractsBatchOperation.confirmation();
       
       console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory]')
-      console.log('Treasury Contract - set whitelist token contract addresses map [MockFA12, MockFA2, MVK]')
+      console.log('Treasury Contract - set whitelist token contract addresses map [MavrykFA12, MavrykFA2, MVK]')
   
       // Vesting Contract - set whitelist contract addresses map [council]
       const setCouncilContractAddressInVesting = (await vestingInstance.methods.updateWhitelistContracts('council', councilAddress.address).send()) as TransactionOperation

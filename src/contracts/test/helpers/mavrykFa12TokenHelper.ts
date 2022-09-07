@@ -3,11 +3,11 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { mockFa12TokenStorageType } from "../types/mockFa12TokenStorageType";
+import { mavrykFa12TokenStorageType } from "../types/mavrykFa12TokenStorageType";
 
-export class MockFa12Token {
+export class MavrykFa12Token {
     contract: Contract;
-    storage: mockFa12TokenStorageType;
+    storage: mavrykFa12TokenStorageType;
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
@@ -16,22 +16,22 @@ export class MockFa12Token {
     }
   
     static async init(
-        mockFa12TokenAddress: string,
+        mavrykFa12TokenAddress: string,
         tezos: TezosToolkit
-    ): Promise<MockFa12Token> {
-        return new MockFa12Token(
-            await tezos.contract.at(mockFa12TokenAddress),
+    ): Promise<MavrykFa12Token> {
+        return new MavrykFa12Token(
+            await tezos.contract.at(mavrykFa12TokenAddress),
             tezos
         );
     }
 
     static async originate(
         tezos: TezosToolkit,
-        storage: mockFa12TokenStorageType
-    ): Promise<MockFa12Token> {       
+        storage: mavrykFa12TokenStorageType
+    ): Promise<MavrykFa12Token> {       
 
         const artifacts: any = JSON.parse(
-            fs.readFileSync(`${env.buildDir}/mockFa12Token.json`).toString()
+            fs.readFileSync(`${env.buildDir}/mavrykFa12Token.json`).toString()
         );
         const operation: OriginationOperation = await tezos.contract
             .originate({
@@ -46,7 +46,7 @@ export class MockFa12Token {
     
         await confirmOperation(tezos, operation.hash);
     
-        return new MockFa12Token(
+        return new MavrykFa12Token(
             await tezos.contract.at(operation.contractAddress),
             tezos
         );
