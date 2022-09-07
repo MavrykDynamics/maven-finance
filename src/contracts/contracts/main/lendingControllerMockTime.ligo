@@ -79,6 +79,9 @@ type lendingControllerAction is
     |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
     |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
+        // Rewards Entrypoints
+    |   ClaimRewards                    of claimRewardsType
+
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
     |   SetProductLambda                of setLambdaType
@@ -204,6 +207,136 @@ function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
 
 // ------------------------------------------------------------------------------
 // Misc Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// -----------------------------------------
+// Lending Controller Token Pool Entrypoints
+// -----------------------------------------
+
+// helper function to check that the %setLoanToken entrypoint is not paused
+function checkSetLoanTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.setLoanTokenIsPaused then failwith(error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %addLiquidity entrypoint is not paused
+function checkAddLiquidityIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.addLiquidityIsPaused then failwith(error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %removeLiquidity entrypoint is not paused
+function checkRemoveLiquidityIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.removeLiquidityIsPaused then failwith(error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+// -----------------------------------------
+// Lending Controller Vault Entrypoints
+// -----------------------------------------
+
+// helper function to check that the %updateCollateralToken entrypoint is not paused
+function checkUpdateCollateralTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.updateCollateralTokenIsPaused then failwith(error_UPDATE_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %createVault entrypoint is not paused
+function checkCreateVaultIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.createVaultIsPaused then failwith(error_CREATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %closeVault entrypoint is not paused
+function checkCloseVaultIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.closeVaultIsPaused then failwith(error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %registerDeposit entrypoint is not paused
+function checkRegisterDepositIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.registerDepositIsPaused then failwith(error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %registerWithdrawal entrypoint is not paused
+function checkRegisterWithdrawalIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.registerWithdrawalIsPaused then failwith(error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %markForLiquidation entrypoint is not paused
+function checkMarkForLiquidationIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.markForLiquidationIsPaused then failwith(error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %liquidateVault entrypoint is not paused
+function checkLiquidateVaultIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.liquidateVaultIsPaused then failwith(error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %borrow entrypoint is not paused
+function checkBorrowIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.borrowIsPaused then failwith(error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %repay entrypoint is not paused
+function checkRepayIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.repayIsPaused then failwith(error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+// -----------------------------------------
+// Lending Controller Vault Staked MVK Entrypoints
+// -----------------------------------------
+
+// helper function to check that the %vaultDepositStakedMvk entrypoint is not paused
+function checkVaultDepositStakedMvkIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then failwith(error_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %vaultWithdrawStakedMvk entrypoint is not paused
+function checkVaultWithdrawStakedMvkIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then failwith(error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %vaultLiquidateStakedMvk entrypoint is not paused
+function checkVaultLiquidateStakedMvkIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then failwith(error_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+// -----------------------------------------
+// Lending Controller Reward Entrypoints
+// -----------------------------------------
+
+// helper function to check that the %claimRewards entrypoint is not paused
+function checkClaimRewardsIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.claimRewardsIsPaused then failwith(error_CLAIM_REWARDS_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -826,7 +959,7 @@ block{
             ];
 
             // Get token record
-            const tokenRecord : loanTokenRecordType  = case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
+            const tokenRecord : loanTokenRecordType  = case Map.find_opt(tokenName, s.loanTokenLedger) of [
                     Some (_tokenRecord) -> _tokenRecord
                 |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
             ];
@@ -929,7 +1062,7 @@ block{
 //     **)
 
 //     // Get token record
-//     var tokenRecord : loanTokenRecordType := case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
+//     var tokenRecord : loanTokenRecordType := case Map.find_opt(tokenName, s.loanTokenLedger) of [
 //             Some (_tokenRecord) -> _tokenRecord
 //         |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
 //     ];
@@ -1132,7 +1265,7 @@ block {
 
 (* View: get loan token *)
 [@view] function getLoanTokenRecord(const tokenName : string; const s : lendingControllerStorageType) : option(loanTokenRecordType) is
-    Big_map.find_opt(tokenName, s.loanTokenLedger)
+    Map.find_opt(tokenName, s.loanTokenLedger)
 
 
 
@@ -1687,6 +1820,34 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Rewards Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* claimRewards entrypoint *)
+function claimRewards(const claimRewardsParams : claimRewardsType; var s : lendingControllerStorageType) : return is 
+block {
+
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaimRewards"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaClaimRewards(claimRewardsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+// ------------------------------------------------------------------------------
+// Rewards Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Lambda Entrypoints Begin
 // ------------------------------------------------------------------------------
 
@@ -1772,6 +1933,9 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
         |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
         |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
+
+            // Rewards Entrypoints
+        |   ClaimRewards(parameters)                      -> claimRewards(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    
