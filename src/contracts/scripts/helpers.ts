@@ -243,7 +243,7 @@ export const compileContract = async (
 
 export const compileContractNoLambdas = async (
 
-    contract: string = undefined,
+    contract: string,
     contractsDir: string = env.contractsDir,
     michelsonOutputDir: string = env.michelsonBuildDir,
     jsonOutputDir: string = env.buildDir,

@@ -16,6 +16,7 @@ async def on_governance_process_proposal_single_date(
     storage_proposal    = process_proposal_single_data.storage.proposalLedger[process_proposal_single_data.storage.timelockProposalId]
     execution_counter   = int(storage_proposal.proposalMetadataExecutionCounter)
     executed            = storage_proposal.executed
+    timestamp           = process_proposal_single_data.data.timestamp
 
     # Update record
     governance          = await models.Governance.get(address   = governance_address)
@@ -25,4 +26,6 @@ async def on_governance_process_proposal_single_date(
     )
     proposal.execution_counter  = execution_counter
     proposal.executed           = executed
+    if executed:
+        proposal.execution_timestamp   = timestamp
     await proposal.save()
