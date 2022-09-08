@@ -29,7 +29,7 @@ type aggregatorConfigType is [@layout:comb] record [
 ];
 
 type aggregatorBreakGlassConfigType is [@layout:comb] record [
-    updatePriceIsPaused                 : bool;
+    updateDataIsPaused                 : bool;
     withdrawRewardXtzIsPaused           : bool;
     withdrawRewardStakedMvkIsPaused     : bool;
 ]
@@ -67,7 +67,7 @@ type oracleObservationType is [@layout:comb] record [
        aggregatorAddress: address;
 ];
 
-type updatePriceType is   [@layout:comb] record [
+type updateDataType is   [@layout:comb] record [
   oracleObservations: map (address, oracleObservationType);
   signatures: map (address, signature);
 ];
@@ -82,17 +82,18 @@ type addOracleType is   [@layout:comb] record [
 
 type removeOracleType                 is address;
 
-type updatePriceType                  is updatePriceType;
+type updateDataType                  is updateDataType;
 
 (* updateConfig entrypoint inputs *)
 type aggregatorUpdateConfigNewValueType is nat
 type aggregatorUpdateConfigActionType is 
         ConfigDecimals                      of unit
-    |   ConfigHeartBeatSeconds             of unit
+    |   ConfigAlphaPercentPerThousand       of unit
 
     |   ConfigDevTriggerBanDuration         of unit
     |   ConfigPerThousandDevTrigger         of unit
     |   ConfigPercentOracleThreshold        of unit
+    |   ConfigHeartBeatSeconds              of unit
 
     |   ConfigRequestRateDevDepositFee      of unit
 
@@ -107,7 +108,7 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 type aggregatorPausableEntrypointType is
-        UpdatePrice                   of bool
+        UpdateData                   of bool
     |   WithdrawRewardXtz             of bool
     |   WithdrawRewardStakedMvk       of bool
 
@@ -144,7 +145,7 @@ type aggregatorLambdaActionType is
     |   LambdaTogglePauseEntrypoint         of aggregatorTogglePauseEntrypointType
 
         // Oracle Entrypoint
-    |   LambdaUpdatePrice                   of updatePriceType
+    |   LambdaUpdateData                   of updateDataType
     
         // Reward Entrypoints
     |   LambdaWithdrawRewardXtz             of withdrawRewardXtzType

@@ -63,7 +63,7 @@ type aggregatorAction is
     |   TogglePauseEntrypoint                of aggregatorTogglePauseEntrypointType
 
         // Oracle Entrypoints
-    |   UpdatePrice                   of updatePriceType
+    |   UpdateData                   of updateDataType
     
         // Reward Entrypoints
     |   WithdrawRewardXtz                    of withdrawRewardXtzType
@@ -233,9 +233,9 @@ function checkOracleIsNotBannedForDeviationTrigger(const s : aggregatorStorageTy
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to check that the %updatePrice entrypoint is not paused
-function checkUpdatePriceIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.updatePriceIsPaused then failwith(error_UPDATE_PRICE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
+// helper function to check that the %updateData entrypoint is not paused
+function checkUpdateDataIsNotPaused(var s : aggregatorStorageType) : unit is
+    if s.breakGlassConfig.updateDataIsPaused then failwith(error_UPDATE_PRICE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
 // helper function to check that the %withdrawRewardXtz entrypoint is not paused
@@ -326,7 +326,7 @@ function verifyAllResponsesSignature(const oracleAddress: address; const oracleS
   else unit
 
 // helper function to verify signatures and oracleObservations maps sizes
-function verifyMapsSizes(const leaderReponse : updatePriceType; const s: aggregatorStorageType): unit is block {
+function verifyMapsSizes(const leaderReponse : updateDataType; const s: aggregatorStorageType): unit is block {
   const f: int = (Map.size(s.oracleAddresses) - 1) / 3n;
 
   if (int(Map.size(leaderReponse.signatures)) < f)
@@ -992,17 +992,17 @@ block{
 // Oracle Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  updatePrice entrypoint  *)
-function updatePrice(const params : updatePriceType; const s : aggregatorStorageType) : return is
+(*  updateData entrypoint  *)
+function updateData(const params : updateDataType; const s : aggregatorStorageType) : return is
 block{
   
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdatePrice"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateData"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdatePrice(params);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateData(params);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -1117,7 +1117,7 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
         |   TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
 
             // Oracle Entrypoints
-        |   UpdatePrice (parameters)                       -> updatePrice(parameters, s)
+        |   UpdateData (parameters)                       -> updateData(parameters, s)
 
             // Reward Entrypoints
         |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
