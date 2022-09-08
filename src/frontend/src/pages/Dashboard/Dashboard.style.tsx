@@ -161,3 +161,10 @@ export const StatBlock = styled.div`
     }
   }
 `
+
+export const BlockName = styled.div`
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 18px;
+  color: ${({ theme }) => theme.dashboardTextColor};
+`
