@@ -4,7 +4,7 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import React from 'react'
 import { BlockName, StatBlock } from '../Dashboard.style'
-import { TabWrapperStyled, TreasuryContentStyled } from './DashboardTabs.style'
+import { TabWrapperStyled, TreasuryContentStyled, TreasuryVesting } from './DashboardTabs.style'
 
 const tableData = [
   {
@@ -80,6 +80,35 @@ export const TreasuryTab = () => {
           </div>
           <div>
             <BlockName>Token Vesting</BlockName>
+
+            <TreasuryVesting totalPersent={20} claimedColor={'navTitleColor'} totalColor={'primaryColor'}>
+              <div className="vest-stat">
+                <div className="name">
+                  <div className="color claimed" /> Tokens Claimed
+                </div>
+                <div className="value">
+                  <CommaNumber value={42342342} endingText="MVK" />
+                </div>
+              </div>
+
+              <div className="vest-stat">
+                <div className="name">
+                  <div className="color total" /> Total Vested
+                </div>
+                <div className="value">
+                  <CommaNumber value={42342342} endingText="MVK" />
+                </div>
+              </div>
+
+              <div className="ratio">
+                <div className="claimed">
+                  <div className="hoverValue">Claimed tokens persent: {100 - 20}%</div>
+                </div>
+                <div className="total">
+                  <div className="hoverValue">Total vested persent: {20}%</div>
+                </div>
+              </div>
+            </TreasuryVesting>
           </div>
         </div>
       </TreasuryContentStyled>
