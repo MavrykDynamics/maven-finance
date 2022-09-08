@@ -30,23 +30,27 @@
 
 type tokenPoolRewardAction is 
 
-    |   Default                        of unit
+    |   Default                         of unit
 
         // Housekeeping Entrypoints    
     |   SetAdmin                        of (address)
     |   SetGovernance                   of (address)
     |   UpdateMetadata                  of updateMetadataType
-    // |   UpdateWhitelistContracts        of updateWhitelistContractsType
-    // |   UpdateGeneralContracts          of updateGeneralContractsType
-    // |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
+    |   UpdateWhitelistContracts        of updateWhitelistContractsType
+    |   UpdateGeneralContracts          of updateGeneralContractsType
+    |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
+    |   MistakenTransfer                of transferActionType
 
         // BreakGlass Entrypoints   
-    // |   PauseAll                        of (unit)
-    // |   UnpauseAll                      of (unit)
-    // |   TogglePauseEntrypoint           of tokenPoolRewardTogglePauseEntrypointType
+    |   PauseAll                        of (unit)
+    |   UnpauseAll                      of (unit)
+    |   TogglePauseEntrypoint           of tokenPoolRewardTogglePauseEntrypointType
 
         // Rewards Entrypoints
-    // |   OnClaimRewards                  of onClaimRewardsActionType
+    |   OnClaimRewards                  of transferActionType
+
+        // Lambda Entrypoints
+    |   SetLambda                       of setLambdaType
     
 const noOperations : list (operation) = nil;
 type return is list (operation) * tokenPoolRewardStorageType
@@ -94,6 +98,13 @@ function ceildiv(const numerator : nat; const denominator : nat) is abs( (- nume
 
 
 
+// Allowed Senders : Admin, Governance Contract
+function checkSenderIsAllowed(const s : tokenPoolRewardStorageType) : unit is
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
 // Allowed Senders: Admin
 function checkSenderIsAdmin(var s : tokenPoolRewardStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
@@ -101,46 +112,17 @@ function checkSenderIsAdmin(var s : tokenPoolRewardStorageType) : unit is
 
 
 
-// Allowed Senders: Vault Controller Contract
-// function checkSenderIsVaultControllerContract(var s : tokenPoolRewardStorageType) : unit is
-// block{
+// Allowed Senders: Lending Controller Contract
+function checkSenderIsLendingControllerContract(var s : tokenPoolRewardStorageType) : unit is
+block{
 
-//     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vaultController", s.governanceAddress);
-//     const vaultControllerAddress : address = case generalContractsOptView of [
-//             Some (_optionContract) -> case _optionContract of [
-//                     Some (_contract)    -> _contract
-//                 |   None                -> failwith (error_VAULT_CONTROLLER_CONTRACT_NOT_FOUND)
-//             ]
-//         |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-//     ];
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
-//     if (Tezos.get_sender() = vaultControllerAddress) then skip
-//     else failwith(error_ONLY_VAULT_CONTROLLER_CONTRACT_ALLOWED);
+    if (Tezos.get_sender() = lendingControllerAddress) then skip
+    else failwith(error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED);
 
-// } with unit
-
-
-
-// helper function to get mintOrBurn entrypoint from LQT contract
-// function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
-//     case (Tezos.get_entrypoint_opt(
-//         "%mintOrBurn",
-//         tokenContractAddress) : option(contract(mintOrBurnParamsType))) of [
-//                 Some(contr) -> contr
-//             |   None -> (failwith("Error. MintOrBurn entrypoint in LP Token contract not found") : contract(mintOrBurnParamsType))
-//         ]
-
-
-
-// function mintOrBurnLpToken(const target : address; const quantity : int; const lpTokenAddress : address; var s : tokenPoolRewardStorageType) : operation is 
-// block {
-
-//     const mintOrBurnParams : mintOrBurnParamsType = record [
-//         quantity = quantity;
-//         target   = target;
-//     ];
-
-// } with (Tezos.transaction(mintOrBurnParams, 0mutez, getLpTokenMintOrBurnEntrypoint(lpTokenAddress) ) )
+} with unit
 
 
 
@@ -154,6 +136,19 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to check that the %onClaimRewards entrypoint is not paused
+function checkOnClaimRewardsIsNotPaused(var s : tokenPoolRewardStorageType) : unit is
+    if s.breakGlassConfig.onClaimRewardsIsPaused then failwith(error_ON_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
 
 
 
@@ -184,6 +179,22 @@ block {
 
 
 
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers Begin
+//
+// ------------------------------------------------------------------------------
+
+// Token Pool Reward Lambdas:
+#include "../partials/contractLambdas/tokenPoolReward/tokenPoolRewardLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers End
+//
+// ------------------------------------------------------------------------------
+
+
 
 
 // ------------------------------------------------------------------------------
@@ -191,10 +202,6 @@ block {
 // Views Begin
 //
 // ------------------------------------------------------------------------------
-
-(* View: get stablecoin token in token ledger *)
-// [@view] function viewGetTokenRecordByName(const tokenName : string; var s : tokenPoolRewardStorageType) : option(tokenRecordType) is
-//     Big_map.find_opt(tokenName, s.tokenLedger)
 
 
 
@@ -274,80 +281,80 @@ block {
 
 
 
-// (* updateConfig entrypoint *)
-// function updateConfig(const updateConfigParams : delegationUpdateConfigParamsType; var s : tokenPoolRewardStorageType) : return is 
-// block {
-
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
-
-//     // init token pool lambda action
-//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateConfig(updateConfigParams);
-
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
-
-// } with response
-
-
 
 (* updateWhitelistContracts entrypoint *)
-// function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : tokenPoolRewardStorageType) : return is
-// block {
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : tokenPoolRewardStorageType) : return is
+block {
     
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init token pool lambda action
-//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
-// } with response
+} with response
 
 
 
 // (* updateGeneralContracts entrypoint *)
-// function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : tokenPoolRewardStorageType) : return is
-// block {
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : tokenPoolRewardStorageType) : return is
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init token pool lambda action
-//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
-// } with response
+} with response
 
 
 
 // (* updateWhitelistTokenContracts entrypoint *)
-// function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : tokenPoolRewardStorageType) : return is
-// block {
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : tokenPoolRewardStorageType) : return is
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init token pool lambda action
-//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);  
 
-// } with response
+} with response
 
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: tokenPoolRewardStorageType): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints Begin
@@ -360,59 +367,59 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll entrypoint *)
-// function pauseAll(var s : tokenPoolRewardStorageType) : return is
-// block {
+function pauseAll(var s : tokenPoolRewardStorageType) : return is
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init token pool lambda action
-//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaPauseAll(unit);
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaPauseAll(unit);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
-// } with response
+} with response
 
 
 
 // (* unpauseAll entrypoint *)
-// function unpauseAll(var s : tokenPoolRewardStorageType) : return is
-// block {
+function unpauseAll(var s : tokenPoolRewardStorageType) : return is
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init token pool lambda action
-//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUnpauseAll(unit);
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUnpauseAll(unit);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
-// } with response
+} with response
 
 
 
 // (*  togglePauseEntrypoint entrypoint  *)
-// function togglePauseEntrypoint(const targetEntrypoint : tokenPoolRewardTogglePauseEntrypointType; const s : tokenPoolRewardStorageType) : return is
-// block{
+function togglePauseEntrypoint(const targetEntrypoint : tokenPoolRewardTogglePauseEntrypointType; const s : tokenPoolRewardStorageType) : return is
+block{
   
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init token pool lambda action
-//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
-// } with response
+} with response
 
 // ------------------------------------------------------------------------------
 // Break Glass Entrypoints End
@@ -424,28 +431,52 @@ block {
 // Rewards Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(* transfer entrypoint *)
-// function transfer(const transferParams : transferActionType; var s : tokenPoolRewardStorageType) : return is 
-// block {
+(* onClaimRewards entrypoint *)
+function onClaimRewards(const onClaimRewardsParams : transferActionType; var s : tokenPoolRewardStorageType) : return is 
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTransfer"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnClaimRewards"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init token pool lambda action
-//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaTransfer(transferParams);
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaOnClaimRewards(onClaimRewardsParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
     
-// } with response
+} with response
 
 // ------------------------------------------------------------------------------
 // Rewards Entrypoints End
 // ------------------------------------------------------------------------------
 
 
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams : setLambdaType; var s : tokenPoolRewardStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+
+    // set lambda in lambdaLedger - allow override of lambdas
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //
@@ -466,11 +497,20 @@ function main (const action : tokenPoolRewardAction; const s : tokenPoolRewardSt
         |   SetAdmin(parameters)                        -> setAdmin(parameters, s)
         |   SetGovernance(parameters)                   -> setGovernance(parameters, s) 
         |   UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
-        // |   UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
-        // |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
-        // |   UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
+        |   UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
+        |   UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
+        |   MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
+
+            // Pause / Break Glass Entrypoints
+        |   PauseAll(_parameters)                       -> pauseAll(s)
+        |   UnpauseAll(_parameters)                     -> unpauseAll(s)
+        |   TogglePauseEntrypoint(parameters)           -> togglePauseEntrypoint(parameters, s)
 
             // Rewards Entrypoints
-        // |   OnClaimRewards(parameters)                  -> onclaimRewards(parameters, s)
+        |   OnClaimRewards(parameters)                  -> onClaimRewards(parameters, s)
+
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                       -> setLambda(parameters, s)
            
     ]

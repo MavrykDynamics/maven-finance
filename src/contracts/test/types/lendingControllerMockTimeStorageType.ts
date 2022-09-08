@@ -18,7 +18,7 @@ export type lendingControllerMockTimeStorageType = {
 
     // token pool
     rewardsLedger               : MichelsonMap<MichelsonMapKey, unknown>;
-    depositorLedger             : MichelsonMap<MichelsonMapKey, unknown>;
+    tokenPoolDepositorLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 
     // vaults and owners
     vaults                      : MichelsonMap<MichelsonMapKey, unknown>;

@@ -5,7 +5,6 @@ export type tokenPoolRewardStorageType = {
 
     admin                     : string;
     metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
-    config                    : {};
     breakGlassConfig          : {};
 
     mvkTokenAddress           : string;

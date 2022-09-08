@@ -792,7 +792,7 @@ block {
                 block {
 
                     const token        : tokenType        = destination.token;
-                    const to_          : ownerType        = destination.to_;
+                    const to_          : address          = destination.to_;
                     const amt          : tokenAmountType  = destination.amount;
                     const from_        : address          = Tezos.get_self_address(); // token pool
                     

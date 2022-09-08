@@ -126,11 +126,8 @@ type loanTokenRecordType is [@layout:comb] record [
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
 
     currentInterestRate                     : nat;
-
     lastUpdatedBlockLevel                   : nat; 
-
     accumulatedRewardsPerShare              : nat;
-    
     borrowIndex                             : nat;
 ]
 
