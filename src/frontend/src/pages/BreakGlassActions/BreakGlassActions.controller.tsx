@@ -10,8 +10,7 @@ import { Page } from 'styles'
 export const BreakGlassActions: FC = () => {
   return (
     <Page>
-      <PageHeader page={'break-glass-actions'} />
-      Working...
+      <PageHeader page={'break glass actions'} />
     </Page>
   )
 }
