@@ -14,21 +14,26 @@ type tokenIdType        is nat;
 // Storage Types
 // ------------------------------------------------------------------------------
 
-type tokenPoolRewardConfigType is [@layout:comb] record [
-    decimals                         : nat;
-];
 
 type tokenPoolRewardBreakGlassConfigType is [@layout:comb] record [
-    testEntrypointIsPaused           : nat;
+    onClaimRewardsIsPaused  : bool;
+    empty                   : unit
 ]
-
-
 
 
 // ------------------------------------------------------------------------------
 // Action Types
 // ------------------------------------------------------------------------------
 
+
+type tokenPoolRewardPausableEntrypointType is
+    |   OnClaimRewards              of bool
+    |   Empty                       of unit
+    
+type tokenPoolRewardTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : tokenPoolRewardPausableEntrypointType;
+    empty             : unit
+];
 
 
 // ------------------------------------------------------------------------------
@@ -45,15 +50,17 @@ type tokenPoolRewardLambdaActionType is
     |   LambdaUpdateWhitelistContracts  of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts    of updateGeneralContractsType
     |   LambdaUpdateWhitelistTokens     of updateWhitelistTokenContractsType
+    |   LambdaMistakenTransfer          of transferActionType
 
-        // Token Pool Entrypoints
-    // |   LambdaAddLiquidity              of addLiquidityActionType
-    // |   LambdaRemoveLiquidity           of removeLiquidityActionType
+        // Pause / Break Glass Entrypoints
+    |   LambdaPauseAll                  of (unit)
+    |   LambdaUnpauseAll                of (unit)
+    |   LambdaTogglePauseEntrypoint     of tokenPoolRewardTogglePauseEntrypointType
 
-        // Lending Entrypoints
-    // |   OnBorrow                        of onBorrowActionType
-    // |   OnRepay                         of onRepayActionType
+        // Rewards Entrypoints
+    |   LambdaOnClaimRewards            of transferActionType
     
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
@@ -62,7 +69,6 @@ type tokenPoolRewardLambdaActionType is
 type tokenPoolRewardStorageType is [@layout:comb] record [
     admin                       : address;
     metadata                    : metadataType;
-    config                      : tokenPoolRewardConfigType;
     breakGlassConfig            : tokenPoolRewardBreakGlassConfigType;
 
     mvkTokenAddress             : address;
