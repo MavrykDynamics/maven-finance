@@ -1,9 +1,9 @@
 import styled from "styled-components/macro";
-import { Card, skyColor, cyanColor } from "styles";
+import { Card, royalPurpleColor, skyColor, headerColor } from "styles";
 
 import { MavrykTheme } from "../../styles/interfaces";
 
-export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
+export const PropagateBreakGlassCard = styled(Card)<{ theme: MavrykTheme }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -15,6 +15,76 @@ export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
     &::after{
       display: none;
     }
+  }
+
+  button {
+    max-width: 250px;
+  }
+`
+
+export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
+  padding: 0%;
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 35px;
+
+    height: 75px;
+
+    border-bottom: 1px solid ${royalPurpleColor};
+  }
+
+  .top-bar-title {
+    margin: 0;
+
+    &::after{
+      display: none;
+    }
+  }
+
+  .main-section {
+    padding: 40px 35px;
+  }
+
+  .input-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .input-size {
+    width: 515px;
+
+    label {
+      display: block;
+      padding-bottom: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 21px;
+
+      color: ${headerColor};
+    }
+  }
+
+  .dropdown-size {
+    width: 450px;
+  }
+
+  h1 {
+    margin: 0;
+  }
+  
+  p {
+    margin-top: 0;
+    margin-bottom: 20px;
+
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+
+    color: ${skyColor};
   }
 
   button {
