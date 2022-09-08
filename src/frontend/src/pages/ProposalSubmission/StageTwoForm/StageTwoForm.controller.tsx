@@ -1,10 +1,26 @@
-import { useState, useEffect } from 'react'
-import { StageTwoFormView } from './StageTwoForm.view'
+import { useState, useEffect, useMemo } from 'react'
+
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
 import type { ProposalDataType } from '../../../utils/TypesAndInterfaces/Governance'
+import type { ProposalUpdateFormProposalBytes } from '../../../utils/TypesAndInterfaces/Forms'
+import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
+
+// components
+import { Button } from '../../../app/App.components/Button/Button.controller'
+import Icon from '../../../app/App.components/Icon/Icon.view'
+import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
+import { Input } from '../../../app/App.components/Input/Input.controller'
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+
+// hooks
+import useGovernence from '../../Governance/UseGovernance'
+
+// const
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 import {
   ProposalUpdateForm,
@@ -15,12 +31,21 @@ import { validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 
 import { dropProposal, updateProposal } from '../ProposalSubmission.actions'
 
+// styles
+import {
+  FormButtonContainer,
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+  FormTitleEntry,
+} from '../ProposalSubmission.style'
+
 type StageTwoFormProps = {
   locked: boolean
   accountPkh?: string
   proposalId: number | undefined
   proposalTitle: string
-  proposalData: ProposalDataType[] | undefined
+  proposalData?: ProposalDataType[] | undefined
 }
 
 export const PROPOSAL_BYTE = {
@@ -29,18 +54,74 @@ export const PROPOSAL_BYTE = {
   id: 0,
   record_internal_id: 0,
   title: '',
+  validTitle: '',
+  validBytes: '',
+} as ProposalUpdateFormProposalBytes
+
+type CleanData = {
+  bytes: string
+  title: string
 }
 
-export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, proposalData }: StageTwoFormProps) => {
+function isSameForm(first: CleanData[], second: CleanData[]): boolean {
+  const result = JSON.stringify(first) === JSON.stringify(second)
+
+  return result
+}
+
+export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoFormProps) => {
   const dispatch = useDispatch()
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
   const { fee, currentRound } = governanceStorage
-  const isProposalRound = currentRound === 'PROPOSAL'
+
+  const { watingProposals } = useGovernence()
+  const { governancePhase } = useSelector((state: State) => state.governance)
+  const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
   const successReward = governanceStorage.config.successReward
+
+  const findUserCurrentRoundProposal = useMemo(
+    () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
+    [accountPkh, currentRoundProposals],
+  )
+
+  const proposalData = findUserCurrentRoundProposal?.proposalData || []
+
   const [form, setForm] = useState<ProposalUpdateForm>({
-    title: proposalTitle,
-    proposalBytes: proposalData?.length ? proposalData : [PROPOSAL_BYTE],
+    title: '',
+    proposalBytes: [PROPOSAL_BYTE],
   })
+
+  const [proposalBytesUpdate, setPoposalBytesUpdate] = useState<any[]>([])
+
+  console.log('%c ||||| proposalBytesUpdate', 'color:yellowgreen', proposalBytesUpdate)
+  console.log('%c ||||| form.proposalBytes', 'color:yellowgreen', form.proposalBytes)
+
+  useEffect(() => {
+    const proposalBytes = findUserCurrentRoundProposal?.proposalData?.length
+      ? (findUserCurrentRoundProposal?.proposalData.map((item) => {
+          return { ...item, validTitle: '', validBytes: '' }
+        }) as ProposalUpdateFormProposalBytes[])
+      : [PROPOSAL_BYTE]
+    setForm({
+      title: proposalTitle,
+      proposalBytes,
+    })
+  }, [findUserCurrentRoundProposal, proposalTitle])
+  const disabled = !isProposalRound || !form.title
+  const cleanFormData = form.proposalBytes.map((item) => {
+    return {
+      title: item.title,
+      bytes: item.bytes,
+    }
+  }) as CleanData[]
+  const cleanData = proposalData.map((item) => {
+    return {
+      title: item.title,
+      bytes: item.bytes,
+    }
+  }) as CleanData[]
+  const isDisabledEdit = disabled || isSameForm(cleanFormData, cleanData)
 
   const [validForm, setValidForm] = useState<ValidProposalUpdateForm>({
     title: false,
@@ -52,20 +133,16 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
   })
 
   const handleOnBlur = (index: number, text: string, type: string) => {
-    const validityCheckResultData = Boolean(text)
-    const validityCheckResultText = Boolean(text)
+    const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes))
 
     if (type === 'title') {
-      setValidForm({ ...validForm, title: validityCheckResultText })
-      const updatedState = { ...validForm, title: validityCheckResultText }
-      setFormInputStatus({ ...formInputStatus, title: updatedState.title ? 'success' : 'error' })
+      cloneProposalBytes[index].validTitle = Boolean(text) ? 'success' : 'error'
     }
 
     if (type === 'data') {
-      setValidForm({ ...validForm, proposalBytes: validityCheckResultData })
-      const updatedState = { ...validForm, proposalBytes: validityCheckResultData }
-      setFormInputStatus({ ...formInputStatus, proposalBytes: updatedState.proposalBytes ? 'success' : 'error' })
+      cloneProposalBytes[index].validBytes = Boolean(text) ? 'success' : 'error'
     }
+    setForm({ ...form, proposalBytes: cloneProposalBytes })
   }
 
   const clearState = (): void => {
@@ -91,27 +168,171 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
   }
 
   const handleUpdateProposal = async () => {
-    await dispatch(updateProposal(form, proposalId, clearState))
+    //await dispatch(updateProposal(form, proposalId, clearState))
   }
 
   const handleDeleteProposal = async () => {
     if (proposalId) await dispatch(dropProposal(proposalId))
   }
 
+  const isAllTitleBytesExist = form.proposalBytes.every((item) => Boolean(item.title))
+  const isAllBytesExist = form.proposalBytes.every((item) => Boolean(item.title) && Boolean(item.bytes))
+
+  const isEdit = proposalData?.length
+
+  const handleCreateNewByte = () => {
+    setForm({
+      ...form,
+      proposalBytes: [
+        ...form.proposalBytes,
+        {
+          id: form.proposalBytes.length,
+          bytes: '',
+          governance_proposal_record_id: 0,
+          record_internal_id: 0,
+          title: '',
+          validTitle: '',
+          validBytes: '',
+        },
+      ],
+    })
+  }
+
+  const handleDeletePair = (id: number) => {
+    const findInOrigin = proposalData.find((item) => item.id === id)
+    if (findInOrigin) {
+      setPoposalBytesUpdate((prev) => {
+        return prev.concat(findInOrigin)
+      })
+    }
+    setForm({ ...form, proposalBytes: form.proposalBytes.filter((item) => item.id !== id) })
+    console.log('%c ||||| findInOrigin', 'color:yellowgreen', findInOrigin)
+  }
+
+  const handleChangeTitle = (index: number, text: string) => {
+    const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes)) as ProposalUpdateFormProposalBytes[]
+    cloneProposalBytes[index].title = text
+    setForm({ ...form, proposalBytes: cloneProposalBytes })
+
+    const cleanDataChange = cloneProposalBytes.map((item) => {
+      return {
+        title: item.title,
+        bytes: item.bytes,
+      }
+    }) as CleanData[]
+
+    console.log('%c ||||| cleanDataChange', 'color:yellowgreen', cleanDataChange)
+  } //handleChangeTitle
+
+  const handleChangeData = (index: number, text: string) => {
+    const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes))
+    cloneProposalBytes[index].bytes = text
+    setForm({ ...form, proposalBytes: cloneProposalBytes })
+  }
+
   return (
-    <StageTwoFormView
-      locked={locked}
-      form={form}
-      fee={fee}
-      proposalId={proposalId}
-      successReward={successReward}
-      setForm={setForm}
-      formInputStatus={formInputStatus}
-      handleOnBlur={handleOnBlur}
-      handleUpdateProposal={handleUpdateProposal}
-      handleAddProposal={handleAddProposal}
-      handleDeleteProposal={handleDeleteProposal}
-      proposalData={proposalData}
-    />
+    <>
+      <FormHeaderGroup>
+        <h1>Stage 2</h1>
+        <StatusFlag
+          text={locked ? 'LOCKED' : 'UNLOCKED'}
+          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+        />
+        <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+          <Icon id="question" />
+        </a>
+      </FormHeaderGroup>
+      <FormTitleAndFeeContainer>
+        <FormTitleContainer>
+          <label>1 - Enter Proposal Title</label>
+          <FormTitleEntry>{form.title}</FormTitleEntry>
+        </FormTitleContainer>
+        <div>
+          <label>2 - Proposal Success Reward</label>
+          <FormTitleEntry>{successReward} MVK</FormTitleEntry>
+        </div>
+        <div>
+          <label>3 - Fee</label>
+          <FormTitleEntry>{fee} XTZ</FormTitleEntry>
+        </div>
+      </FormTitleAndFeeContainer>
+      <div className="step-bytes">
+        {form.proposalBytes.map((item, i) => {
+          return (
+            <article key={item.id}>
+              {item.id}
+              <div className="step-bytes-title">
+                <label>
+                  <span>{i + 4}a</span> - Enter Proposal Bytes Title
+                </label>
+                <Input
+                  type="text"
+                  value={item.title}
+                  required
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChangeTitle(i, e.target.value)}
+                  onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(i, e.target.value, 'title')}
+                  inputStatus={item.validTitle}
+                  disabled={disabled}
+                />
+              </div>
+
+              <label>
+                <span>{i + 4}b</span> - Enter Proposal Bytes data
+              </label>
+              <TextArea
+                className="step-2-textarea"
+                value={item.bytes}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChangeData(i, e.target.value)}
+                onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(i, e.target.value, 'data')}
+                inputStatus={item.validBytes}
+                disabled={disabled}
+              />
+              <Button
+                icon="close-stroke"
+                className="close delete-pair"
+                text="Delete Proposal Byte Pair"
+                kind="actionSecondary"
+                onClick={() => handleDeletePair(item.id)}
+              />
+            </article>
+          )
+        })}
+        <StyledTooltip placement="top" title="Insert new bytes pair">
+          <button disabled={disabled} onClick={handleCreateNewByte} className="step-plus-bytes">
+            +
+          </button>
+        </StyledTooltip>
+      </div>
+
+      <FormButtonContainer>
+        {isEdit ? (
+          <>
+            <Button
+              icon="lock"
+              className="lock"
+              text="Delete Proposal"
+              kind="actionSecondary"
+              onClick={handleDeleteProposal}
+            />
+            <Button
+              icon="pencil-stroke"
+              text="Edit Proposal"
+              kind="actionPrimary"
+              disabled={isDisabledEdit}
+              onClick={handleUpdateProposal}
+            />
+          </>
+        ) : (
+          <Button
+            icon="bytes"
+            className="bytes"
+            text="Submit Bytes"
+            kind="actionPrimary"
+            disabled={disabled}
+            onClick={handleAddProposal}
+          />
+        )}
+      </FormButtonContainer>
+    </>
   )
 }
