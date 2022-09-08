@@ -1,14 +1,111 @@
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import PieChartView from 'app/App.components/PieСhart/PieСhart.view'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
-import React from 'react'
+import { getPieChartData } from 'pages/Treasury/helpers/calculateChartData'
+import React, { useMemo, useState } from 'react'
 import { StatBlock, BlockName } from '../Dashboard.style'
 import { TabWrapperStyled, VaultsContentStyled } from './DashboardTabs.style'
 import { columnNames, tableData, fieldsMapper } from './TreasuryTab.controller'
 
+const balances = [
+  {
+    rate: 0.25,
+    balance: 123,
+    contract: '',
+    decimals: 3,
+    is_transferable: true,
+    name: 'mvk',
+    network: 'ghostnet',
+    symbol: 'mvk',
+    thumbnail_uri: 'mvk',
+    token_id: 23,
+  },
+  {
+    rate: 0.2325,
+    balance: 423,
+    contract: '',
+    decimals: 3,
+    is_transferable: true,
+    name: 'tzBTC',
+    network: 'ghostnet',
+    symbol: 'tzBTC',
+    thumbnail_uri: 'tzBTC',
+    token_id: 213,
+  },
+  {
+    rate: 0.245,
+    balance: 111,
+    contract: '',
+    decimals: 3,
+    is_transferable: true,
+    name: 'xtz',
+    network: 'ghostnet',
+    symbol: 'xtz',
+    thumbnail_uri: 'xtz',
+    token_id: 233,
+  },
+  {
+    rate: 0.2325,
+    balance: 423,
+    contract: '',
+    decimals: 3,
+    is_transferable: true,
+    name: 'tzBTC',
+    network: 'ghostnet',
+    symbol: 'tzBTC',
+    thumbnail_uri: 'tzBTC',
+    token_id: 213,
+  },
+  {
+    rate: 0.245,
+    balance: 111,
+    contract: '',
+    decimals: 3,
+    is_transferable: true,
+    name: 'xtz',
+    network: 'ghostnet',
+    symbol: 'xtz',
+    thumbnail_uri: 'xtz',
+    token_id: 233,
+  },
+  {
+    rate: 0.2325,
+    balance: 423,
+    contract: '',
+    decimals: 3,
+    is_transferable: true,
+    name: 'tzBTC',
+    network: 'ghostnet',
+    symbol: 'tzBTC',
+    thumbnail_uri: 'tzBTC',
+    token_id: 213,
+  },
+  {
+    rate: 0.245,
+    balance: 111,
+    contract: '',
+    decimals: 3,
+    is_transferable: true,
+    name: 'xtz',
+    network: 'ghostnet',
+    symbol: 'xtz',
+    thumbnail_uri: 'xtz',
+    token_id: 233,
+  },
+]
+
+const reducedBalance = 1000
+
 export const VaultsTab = () => {
+  const [hoveredPath, setHoveredPath] = useState<null | string>(null)
+
+  const chartData = useMemo(() => {
+    return getPieChartData(balances, reducedBalance, hoveredPath)
+  }, [hoveredPath])
+
   return (
     <TabWrapperStyled className="vaults">
       <div className="top">
@@ -54,6 +151,31 @@ export const VaultsTab = () => {
               <div className="value">
                 <CommaNumber beginningText="$" value={34324234234.02} />
               </div>
+            </div>
+          </div>
+          <div className="chart-wrapper">
+            <PieChartView chartData={chartData} />
+
+            <div className="asset-lables scroll-block">
+              {balances.map((balanceValue) => (
+                <div
+                  style={{
+                    background: `linear-gradient(90deg,${
+                      chartData.find(
+                        ({ title }) => title === balanceValue.symbol || title.includes(balanceValue.symbol),
+                      )?.color
+                    } 0%,rgba(255,255,255,0) 100%)`,
+                  }}
+                  className="asset-lable"
+                  onMouseEnter={() => {
+                    setHoveredPath(balanceValue.symbol)
+                  }}
+                  onMouseLeave={() => setHoveredPath(null)}
+                  key={balanceValue.contract}
+                >
+                  <p className="asset-lable-text">{balanceValue.symbol}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
