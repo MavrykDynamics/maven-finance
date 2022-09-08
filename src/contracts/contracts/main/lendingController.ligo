@@ -75,12 +75,12 @@ type lendingControllerAction is
     |   Repay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
+    // |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
+    // |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
     // |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Rewards Entrypoints
-    // |   ClaimRewards                    of claimRewardsType
+    |   ClaimRewards                    of claimRewardsType
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -399,13 +399,14 @@ function getOnVaultLiquidateStakedMvkEntrypoint(const contractAddress : address)
         ]
 
 
-// helper function to send %transfer operation in Token Pool Contract
-function getTransferEntrypointInTokenPoolContract(const contractAddress : address) : contract(transferActionType) is
+
+// helper function to send %onClaimRewards operation in Token Pool Reward Contract
+function getOnClaimRewardsEntrypointInTokenPoolRewardContract(const contractAddress : address) : contract(transferActionType) is
     case (Tezos.get_entrypoint_opt(
-        "%transfer",
+        "%onClaimRewards",
         contractAddress) : option(contract(transferActionType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(transferActionType))
+            |   None -> (failwith(error_ON_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND) : contract(transferActionType))
         ];
 
 
@@ -676,6 +677,9 @@ block {
     ];
 
 } with tokenPoolTransferOperation
+
+
+
 
 
 
@@ -1763,40 +1767,40 @@ block {
 // ------------------------------------------------------------------------------
 
 (* vaultDepositStakedMvk entrypoint *)
-function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDepositStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDepositStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 
 
-(* vaultWithdrawStakedMvk entrypoint *)
-function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// (* vaultWithdrawStakedMvk entrypoint *)
+// function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 
 
@@ -1829,22 +1833,22 @@ block {
 // ------------------------------------------------------------------------------
 
 (* claimRewards entrypoint *)
-// function claimRewards(const claimRewardsParams : claimRewardsType; var s : lendingControllerStorageType) : return is 
-// block {
+function claimRewards(const claimRewardsParams : claimRewardsType; var s : lendingControllerStorageType) : return is 
+block {
 
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaimRewards"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaimRewards"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaClaimRewards(claimRewardsParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaClaimRewards(claimRewardsParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
 
 // ------------------------------------------------------------------------------
 // Rewards Entrypoints End
@@ -1934,12 +1938,12 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   Repay(parameters)                             -> repay(parameters, s)
 
             // Vault Staked MVK Entrypoints   
-        |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
-        |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
+        // |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
+        // |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
         // |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
 
             // Rewards Entrypoints
-        // |   ClaimRewards(parameters)                      -> claimRewards(parameters, s)
+        |   ClaimRewards(parameters)                      -> claimRewards(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    

@@ -8,14 +8,8 @@ import { zeroAddress } from "../test/helpers/Utils";
 
 import { tokenPoolRewardStorageType } from "../test/types/tokenPoolRewardStorageType";
 
-const config = {
-    minXtzAmount            : 0,
-    maxXtzAmount            : 1000000000,
-}
-
 const breakGlassConfig = {
-    transferIsPaused         : false,
-    mintAndTransferIsPaused  : false
+    onClaimRewardsIsPaused : false,
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -35,8 +29,7 @@ export const tokenPoolRewardStorage : tokenPoolRewardStorageType = {
     
     admin                     : bob.pkh,
     metadata                  : metadata,
-    config                    : 0,  // test temp
-    breakGlassConfig          : 0,  // test temp
+    breakGlassConfig          : breakGlassConfig, 
 
     mvkTokenAddress           : zeroAddress,
     governanceAddress         : zeroAddress,

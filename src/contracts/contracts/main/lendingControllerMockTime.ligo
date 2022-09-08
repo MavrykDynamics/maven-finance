@@ -75,9 +75,9 @@ type lendingControllerAction is
     |   Repay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+    // |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
+    // |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
+    // |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Rewards Entrypoints
     |   ClaimRewards                    of claimRewardsType
@@ -399,13 +399,14 @@ function getOnVaultLiquidateStakedMvkEntrypoint(const contractAddress : address)
         ]
 
 
-// helper function to send %transfer operation in Token Pool Contract
-function getTransferEntrypointInTokenPoolContract(const contractAddress : address) : contract(transferActionType) is
+
+// helper function to send %onClaimRewards operation in Token Pool Reward Contract
+function getOnClaimRewardsEntrypointInTokenPoolRewardContract(const contractAddress : address) : contract(transferActionType) is
     case (Tezos.get_entrypoint_opt(
-        "%transfer",
+        "%onClaimRewards",
         contractAddress) : option(contract(transferActionType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(transferActionType))
+            |   None -> (failwith(error_ON_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND) : contract(transferActionType))
         ];
 
 
@@ -935,53 +936,64 @@ block {
 // Rewards Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to update rewards
-function updateRewards(const userAddress : address; const tokenName : string; var s : lendingControllerStorageType) : lendingControllerStorageType is
+// helper function to create or update user rewards
+function createOrUpdateUserRewards(const userAddress : address; const loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : lendingControllerStorageType is
 block{
 
-        // Steps Overview:
+    // Steps Overview:
+    // 1. Make big map key - (userAddress, loanTokenName)
+    // 2. Get loan token accumulated rewards per share
+    // 3. Get or create user's rewards record
+    // 4. Get user depositor balance for token (i.e. liquidity provided for token)
+    // 5. Calculate new unclaimed rewards
+    //      - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
+    //      - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
+    // 6. Update user's rewards record 
+    //      - set rewardsPerShare to token's accumulatedRewardsPerShare
+    //      - increment user's unpaid rewards by the calculated rewards
 
-        // Check if user is recorded in the Rewards Ledger
-        if Big_map.mem((userAddress, tokenName), s.rewardsLedger) then {
+    // Make big map key - (userAddress, loanTokenName)
+    const userAddressLoanTokenKey : (address * string) = (userAddress, loanTokenRecord.tokenName);
 
-            // Get user's rewards record
-            var userRewardsRecord : rewardsRecordType := case Big_map.find_opt((userAddress, tokenName), s.rewardsLedger) of [
-                    Some (_record) -> _record
-                |   None           -> failwith(error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND)
-            ];
-            var userRewardsPerShare : nat := userRewardsRecord.rewardsPerShare;            
+    // Get loan token accumulated rewards per share
+    const loanTokenAccumulatedRewardsPerShare : nat = loanTokenRecord.accumulatedRewardsPerShare;            
 
-            // Get user depositor record for token (i.e. liquidity provided for token)
-            const depositorKey : (address * string) = (userAddress, tokenName);
-            var depositorAmount : nat := case Big_map.find_opt(depositorKey, s.depositorLedger) of [
-                    Some(_record) -> _record
-                |   None          -> failwith(error_DEPOSITOR_RECORD_NOT_FOUND)
-            ];
+    // Get or create user's rewards record
+    var userRewardsRecord : rewardsRecordType := case Big_map.find_opt(userAddressLoanTokenKey, s.rewardsLedger) of [
+            Some (_record) -> _record
+        |   None           -> record [
+                unpaid          = 0n;
+                paid            = 0n;
+                rewardsPerShare = loanTokenAccumulatedRewardsPerShare;
+            ]
+    ];
+    const userRewardsPerShare : nat = userRewardsRecord.rewardsPerShare;            
 
-            // Get token record
-            const tokenRecord : loanTokenRecordType  = case Map.find_opt(tokenName, s.loanTokenLedger) of [
-                    Some (_tokenRecord) -> _tokenRecord
-                |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-            ];
+    // Get user depositor balance for token (i.e. liquidity provided for token)
+    var tokenPoolDepositorBalance : nat := case Big_map.find_opt(userAddressLoanTokenKey, s.tokenPoolDepositorLedger) of [
+            Some(_record) -> _record
+        |   None          -> 0n
+    ];
 
-            const tokenAccumulatedRewardsPerShare : nat = tokenRecord.accumulatedRewardsPerShare;            
+    // Calculate new unclaimed rewards
+    // - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
+    // - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
 
-            // Calculate new unclaimed rewards
-            // - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
-            // - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
-            
-            const rewardsRatioDifference : nat  = abs(tokenAccumulatedRewardsPerShare - userRewardsPerShare);
-            const newRewards : nat              = (depositorAmount * rewardsRatioDifference) / fixedPointAccuracy;
+    var accruedRewards : nat := 0n;
+    if userRewardsPerShare < loanTokenAccumulatedRewardsPerShare then {
+        
+        const rewardsRatioDifference : nat = abs(loanTokenAccumulatedRewardsPerShare - userRewardsPerShare);
+        accruedRewards := (tokenPoolDepositorBalance * rewardsRatioDifference) / fixedPointAccuracy;
 
-            // Update user's rewards record 
-            // - set rewardsPerShare to token's accumulatedRewardsPerShare
-            // - increment user's unpaid rewards by the calculated rewards
+    } else skip;
 
-            userRewardsRecord.rewardsPerShare       := tokenAccumulatedRewardsPerShare;
-            userRewardsRecord.unpaid                := userRewardsRecord.unpaid + newRewards;
-            s.rewardsLedger[(userAddress, tokenName)]            := userRewardsRecord;
+    // Update user's rewards record 
+    // - set rewardsPerShare to token's accumulatedRewardsPerShare
+    // - increment user's unpaid rewards by the calculated rewards
 
-        } else skip;
+    userRewardsRecord.rewardsPerShare          := loanTokenAccumulatedRewardsPerShare;
+    userRewardsRecord.unpaid                   := userRewardsRecord.unpaid + accruedRewards;
+    s.rewardsLedger[userAddressLoanTokenKey]   := userRewardsRecord;
 
 } with (s)
 
@@ -1758,60 +1770,60 @@ block {
 // ------------------------------------------------------------------------------
 
 (* vaultDepositStakedMvk entrypoint *)
-function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDepositStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDepositStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 
 
-(* vaultWithdrawStakedMvk entrypoint *)
-function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// (* vaultWithdrawStakedMvk entrypoint *)
+// function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 
 
-(* vaultLiquidateStakedMvk entrypoint *)
-function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// (* vaultLiquidateStakedMvk entrypoint *)
+// function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Entrypoints End
@@ -1930,9 +1942,9 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   Repay(parameters)                             -> repay(parameters, s)
 
             // Vault Staked MVK Entrypoints   
-        |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
-        |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
-        |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
+        // |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
+        // |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
+        // |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
 
             // Rewards Entrypoints
         |   ClaimRewards(parameters)                      -> claimRewards(parameters, s)

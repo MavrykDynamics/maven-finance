@@ -132,7 +132,7 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
     whitelistTokenContracts         : MichelsonMap.fromLiteral({}),
     
     rewardsLedger                   : MichelsonMap.fromLiteral({}),
-    depositorLedger                 : MichelsonMap.fromLiteral({}),
+    tokenPoolDepositorLedger        : MichelsonMap.fromLiteral({}),
 
     vaults                          : MichelsonMap.fromLiteral({}),
     vaultCounter                    : new BigNumber(1),

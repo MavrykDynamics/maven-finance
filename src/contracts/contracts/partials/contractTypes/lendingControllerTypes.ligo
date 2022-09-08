@@ -124,12 +124,11 @@ type loanTokenRecordType is [@layout:comb] record [
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
 
     currentInterestRate                     : nat;
-
     lastUpdatedBlockLevel                   : nat; 
-
     accumulatedRewardsPerShare              : nat;
-    
     borrowIndex                             : nat;
+
+    // minRepaymentAmount                      : nat; 
 ]
 
 type loanTokenLedgerType is map(string, loanTokenRecordType)
@@ -406,12 +405,12 @@ type lendingControllerLambdaActionType is
     |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
+    // |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkType   
+    // |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
     // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Rewards Entrypoints
-    // |   LambdaClaimRewards                    of claimRewardsType
+    |   LambdaClaimRewards                    of claimRewardsType
 
 
 // ------------------------------------------------------------------------------
