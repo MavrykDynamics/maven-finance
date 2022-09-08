@@ -300,6 +300,7 @@ p {
 .scroll-block::-webkit-scrollbar
   {
     width: 5px;
+    height: 5px;
     background-color: transparent;
   }
 .scroll-block::-webkit-scrollbar-thumb
