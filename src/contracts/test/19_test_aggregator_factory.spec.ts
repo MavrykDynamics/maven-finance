@@ -305,11 +305,11 @@ describe('AggregatorFactory', () => {
             
             var aggregatorStorage: aggregatorStorageType = await aggregatorInstance.storage();
 
-            const updatePriceIsPaused                 = aggregatorStorage.breakGlassConfig.updatePriceIsPaused;
+            const updateDataIsPaused                 = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
             const withdrawRewardXtzIsPaused           = aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
             const withdrawRewardStakedMvkIsPaused     = aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
 
-            assert.equal(updatePriceIsPaused, false);
+            assert.equal(updateDataIsPaused, false);
             assert.equal(withdrawRewardXtzIsPaused, false);
             assert.equal(withdrawRewardStakedMvkIsPaused, false);
 
@@ -321,11 +321,11 @@ describe('AggregatorFactory', () => {
             const updatedAggregatorFactoryStorage                  = await aggregatorFactory.storage();
             const updatedAggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
 
-            const updatedUpdatePriceIsPaused                = updatedAggregatorStorage.breakGlassConfig.updatePriceIsPaused;
+            const updatedUpdateDataIsPaused                = updatedAggregatorStorage.breakGlassConfig.updateDataIsPaused;
             const updatedWithdrawRewardXtzIsPaused          = updatedAggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
             const updatedWithdrawRewardStakedMvkIsPaused    = updatedAggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused;
 
-            assert.equal(updatedUpdatePriceIsPaused,                true);
+            assert.equal(updatedUpdateDataIsPaused,                true);
             assert.equal(updatedWithdrawRewardXtzIsPaused,          true);
             assert.equal(updatedWithdrawRewardStakedMvkIsPaused,    true);
             
@@ -417,7 +417,7 @@ describe('AggregatorFactory', () => {
   
             
 
-            await chai.expect(aggregatorInstance.methods.updatePrice(oracleObservations, signatures).send()).to.be.rejected;
+            await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
             await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send()).to.be.rejected;
             await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvk(bob.pkh).send()).to.be.rejected;
 
@@ -492,11 +492,11 @@ describe('AggregatorFactory', () => {
             assert.equal(distributeRewardStakedMvkIsPaused, true);
 
             var aggregatorStorage: aggregatorStorageType = await aggregatorInstance.storage();
-            const updatePriceIsPaused                 = aggregatorStorage.breakGlassConfig.updatePriceIsPaused;
+            const updateDataIsPaused                 = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
             const withdrawRewardXtzIsPaused           = aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
             const withdrawRewardStakedMvkIsPaused     = aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
 
-            assert.equal(updatePriceIsPaused,                 true);
+            assert.equal(updateDataIsPaused,                 true);
             assert.equal(withdrawRewardXtzIsPaused,           true);
             assert.equal(withdrawRewardStakedMvkIsPaused,     true);
 
@@ -508,11 +508,11 @@ describe('AggregatorFactory', () => {
             const updatedAggregatorFactoryStorage                  = await aggregatorFactory.storage();
             const updatedAggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
 
-            const updatedUpdatePriceIsPaused                = updatedAggregatorStorage.breakGlassConfig.updatePriceIsPaused;
+            const updatedUpdateDataIsPaused                = updatedAggregatorStorage.breakGlassConfig.updateDataIsPaused;
             const updatedWithdrawRewardXtzIsPaused          = updatedAggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
             const updatedWithdrawRewardStakedMvkIsPaused    = updatedAggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused;
 
-            assert.equal(updatedUpdatePriceIsPaused,                false);
+            assert.equal(updatedUpdateDataIsPaused,                false);
             assert.equal(updatedWithdrawRewardXtzIsPaused,          false);
             assert.equal(updatedWithdrawRewardStakedMvkIsPaused,    false);
             
