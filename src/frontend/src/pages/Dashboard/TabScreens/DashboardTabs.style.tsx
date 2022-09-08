@@ -1,10 +1,9 @@
 import styled from 'styled-components'
-import { containerColor, cyanColor, skyColor, whiteColor } from 'styles'
+import { cyanColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
 export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage?: string }>`
   padding: 24px 32px 40px 32px;
-  background: ${({ theme }) => theme.containerColor};
   position: relative;
 
   background: ${({ backgroundImage, theme }) =>
@@ -391,6 +390,78 @@ export const VaultsContentStyled = styled.div<{ theme: MavrykTheme }>`
         p {
           margin: 0;
         }
+      }
+    }
+  }
+`
+
+export const FarmsContentStyled = styled.div`
+  display: flex;
+  column-gap: 80px;
+  margin-top: 70px;
+  padding-left: 25px;
+  overflow-x: auto;
+  padding-bottom: 7px;
+
+  .card {
+    width: 250px;
+    position: relative;
+    flex: none;
+
+    .top {
+      margin-bottom: 20px;
+      .name {
+        color: ${({ theme }) => theme.dashboardTextColor};
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 12px;
+
+        .large {
+          font-weight: 600;
+          font-size: 18px;
+          line-height: 18px;
+          margin-bottom: 5px;
+        }
+      }
+
+      svg {
+        width: 58px;
+        height: 58px;
+      }
+    }
+
+    .row-info {
+      display: flex;
+      justify-content: space-between;
+      margin: 3px 0;
+      .name {
+        color: ${({ theme }) => theme.dashboardTextColor};
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 21px;
+      }
+
+      .value {
+        color: ${({ theme }) => theme.dataColor};
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 21px;
+      }
+    }
+
+    &:before {
+      position: absolute;
+      top: 0;
+      right: -40px;
+      width: 1px;
+      height: 100%;
+      content: '';
+      background-color: ${({ theme }) => theme.footerColor};
+    }
+
+    &:last-child {
+      &:before {
+        display: none;
       }
     }
   }
