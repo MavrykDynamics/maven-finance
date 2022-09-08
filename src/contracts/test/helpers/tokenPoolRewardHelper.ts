@@ -14,9 +14,9 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { tokenPoolRewardStorageType } from "../types/tokenPoolRewardStorageType";
 
-// import treasuryLambdaIndex
-//     from '../../../contracts/contracts/partials/contractLambdas/treasury/treasuryLambdaIndex.json';
-// import treasuryLambdas from "../../build/lambdas/treasuryLambdas.json";
+import tokenPoolRewardLambdaIndex
+    from '../../../contracts/contracts/partials/contractLambdas/tokenPoolReward/tokenPoolRewardLambdaIndex.json';
+import tokenPoolRewardLambdas from "../../build/lambdas/tokenPoolRewardLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {BigNumber} from "bignumber.js";
 
@@ -43,17 +43,17 @@ type TokenPoolRewardContractAbstraction<T extends ContractProvider | Wallet = an
     tokenPoolRewardStorageType>;
 
 
-// export const setTokenPoolRewardLambdas = async (tezosToolkit: TezosToolkit, contract: TokenPoolRewardContractAbstraction) => {
-//     const batch = tezosToolkit.wallet
-//         .batch();
+export const setTokenPoolRewardLambdas = async (tezosToolkit: TezosToolkit, contract: TokenPoolRewardContractAbstraction) => {
+    const batch = tezosToolkit.wallet
+        .batch();
 
-//         tokenPoolRewardLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-//         batch.withContractCall(contract.methods.setLambda(name, tokenPoolRewardLambdas[index]))
-//     });
+        tokenPoolRewardLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+        batch.withContractCall(contract.methods.setLambda(name, tokenPoolRewardLambdas[index]))
+    });
 
-//     const setupTokenPoolRewardLambdasOperation = await batch.send()
-//     await confirmOperation(tezosToolkit, setupTokenPoolRewardLambdasOperation.opHash);
-// };
+    const setupTokenPoolRewardLambdasOperation = await batch.send()
+    await confirmOperation(tezosToolkit, setupTokenPoolRewardLambdasOperation.opHash);
+};
 
 export class TokenPoolReward {
     contract: TokenPoolRewardContractAbstraction;
