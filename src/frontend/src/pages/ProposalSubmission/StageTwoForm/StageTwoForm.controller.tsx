@@ -94,7 +94,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
 
   const [proposalBytesUpdate, setPoposalBytesUpdate] = useState<any[]>([])
 
-  console.log('%c ||||| proposalBytesUpdate', 'color:yellowgreen', proposalBytesUpdate)
+  const disabledAdd = console.log('%c ||||| proposalBytesUpdate', 'color:yellowgreen', proposalBytesUpdate)
   console.log('%c ||||| form.proposalBytes', 'color:yellowgreen', form.proposalBytes)
 
   useEffect(() => {
@@ -161,21 +161,20 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
   }
 
   const handleAddProposal = async () => {
-    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
+    const formIsValid = form.proposalBytes.every((item) => item.title && item.bytes)
     if (formIsValid) {
       await dispatch(updateProposal(form, proposalId, clearState))
     }
   }
 
   const handleUpdateProposal = async () => {
-    //await dispatch(updateProposal(form, proposalId, clearState))
+    await dispatch(updateProposal({ title: form.title, proposalBytes: proposalBytesUpdate }, proposalId, clearState))
   }
 
   const handleDeleteProposal = async () => {
     if (proposalId) await dispatch(dropProposal(proposalId))
   }
 
-  const isAllTitleBytesExist = form.proposalBytes.every((item) => Boolean(item.title))
   const isAllBytesExist = form.proposalBytes.every((item) => Boolean(item.title) && Boolean(item.bytes))
 
   const isEdit = proposalData?.length
@@ -214,14 +213,14 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     cloneProposalBytes[index].title = text
     setForm({ ...form, proposalBytes: cloneProposalBytes })
 
-    const cleanDataChange = cloneProposalBytes.map((item) => {
-      return {
-        title: item.title,
-        bytes: item.bytes,
-      }
-    }) as CleanData[]
+    // const cleanDataChange = cloneProposalBytes.map((item) => {
+    //   return {
+    //     title: item.title,
+    //     bytes: item.bytes,
+    //   }
+    // }) as CleanData[]
 
-    console.log('%c ||||| cleanDataChange', 'color:yellowgreen', cleanDataChange)
+    // console.log('%c ||||| cleanDataChange', 'color:yellowgreen', cleanDataChange)
   } //handleChangeTitle
 
   const handleChangeData = (index: number, text: string) => {
@@ -328,7 +327,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
             className="bytes"
             text="Submit Bytes"
             kind="actionPrimary"
-            disabled={disabled}
+            disabled={!isAllBytesExist}
             onClick={handleAddProposal}
           />
         )}
