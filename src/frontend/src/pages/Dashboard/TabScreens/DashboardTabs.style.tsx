@@ -251,6 +251,129 @@ export const TreasuryContentStyled = styled.div<{ theme: MavrykTheme }>`
           row-gap: 17px;
         }
       }
+
+      .vesting {
+      }
+    }
+  }
+`
+
+export const TreasuryVesting = styled.div<{
+  theme: MavrykTheme
+  totalPersent: number
+  claimedColor: string
+  totalColor: string
+}>`
+  padding: 30px 20px 33px 20px;
+  border: 0.5px solid ${({ theme }) => theme.cardBorderColor};
+  border-radius: 10px;
+  margin-top: 20px;
+
+  .vest-stat {
+    display: flex;
+    justify-content: space-between;
+    margin: 7px 0;
+
+    .name {
+      color: ${({ theme }) => theme.dashboardTextColor};
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 21px;
+      display: flex;
+      column-gap: 10px;
+
+      .color {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+
+        &.claimed {
+          background-color: ${({ theme, claimedColor }) => theme[claimedColor]};
+        }
+
+        &.total {
+          background-color: ${({ theme, totalColor }) => theme[totalColor]};
+        }
+      }
+    }
+
+    .value {
+      color: ${({ theme }) => theme.dataColor};
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 21px;
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  .ratio {
+    margin-top: 30px;
+    display: flex;
+
+    > div {
+      position: relative;
+      cursor: pointer;
+      height: 4px;
+
+      &:hover {
+        .hoverValue {
+          visibility: visible;
+          opacity: 1;
+        }
+      }
+    }
+
+    .hoverValue {
+      font-size: 12px;
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: block;
+      white-space: pre-line;
+      padding: 3px 5px;
+      border-radius: 3px;
+      line-height: 15px;
+      background: #503eaa;
+      color: #9ea9e8;
+      opacity: 0;
+      transition: 0.3s all;
+      visibility: hidden;
+      width: max-content;
+      max-width: 330px;
+
+      &::after {
+        content: ' ';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #503eaa transparent transparent transparent;
+      }
+
+      &:hover {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+
+    .claimed {
+      background-color: ${({ theme, claimedColor }) => theme[claimedColor]};
+      width: ${({ totalPersent }) => `${100 - totalPersent}%`};
+      border-top-left-radius: 2px;
+      border-bottom-left-radius: 2px;
+    }
+
+    .total {
+      width: ${({ totalPersent }) => `${totalPersent}%`};
+      background-color: ${({ theme, totalColor }) => theme[totalColor]};
+      border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px;
     }
   }
 `
