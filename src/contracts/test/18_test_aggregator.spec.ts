@@ -78,8 +78,8 @@ describe('Aggregator Tests', async () => {
     if(aggregatorStorage.oracleAddresses.get(bob.pkh) === undefined){
       const addBobOracle = await aggregator.methods.addOracle(
         bob.pkh,
+        bob.pk,
         bob.peerId,
-        bob.pk
         ).send();
       await addBobOracle.confirmation();
     }
@@ -87,8 +87,8 @@ describe('Aggregator Tests', async () => {
     if(aggregatorStorage.oracleAddresses.get(eve.pkh) === undefined){
       const addEveOracle = await aggregator.methods.addOracle(
         eve.pkh,
+        eve.pk,
         eve.peerId,
-        eve.pk
         ).send();
       await addEveOracle.confirmation();
     }
@@ -96,8 +96,8 @@ describe('Aggregator Tests', async () => {
     if(aggregatorStorage.oracleAddresses.get(mallory.pkh) === undefined){
       const addMalloryOracle = await aggregator.methods.addOracle(
         mallory.pkh,
+        mallory.pk,
         mallory.peerId,
-        mallory.pk
         ).send();
       await addMalloryOracle.confirmation();
     }
@@ -105,11 +105,12 @@ describe('Aggregator Tests', async () => {
     if(aggregatorStorage.oracleAddresses.get(oracleMaintainer.pkh) === undefined){
       const addMaintainerOracle = await aggregator.methods.addOracle(
         oracleMaintainer.pkh,
+        oracleMaintainer.pk,
         oracleMaintainer.peerId,
-        oracleMaintainer.pk
         ).send();
       await addMaintainerOracle.confirmation();
     }
+
 
     // -----------------------------------------------
     // set up second aggregator for tests with non-zero request rate deviation fees
@@ -386,8 +387,8 @@ describe('Aggregator Tests', async () => {
 
         const op = aggregator.methods.addOracle(
             susie.pkh,
-            susie.peerId,
-            susie.pk
+            susie.pk,
+            susie.peerId
         )
 
         await chai.expect(op.send()).to.be.rejectedWith();
@@ -402,8 +403,8 @@ describe('Aggregator Tests', async () => {
 
         const op = await aggregator.methods.addOracle(
             bob.pkh,
-            bob.peerId,
-            bob.pk
+            bob.pk,
+            bob.peerId
         );
 
         // await chai.expect(op.send()).rejects.toThrow("You can't add an already present whitelisted oracle");
@@ -418,8 +419,8 @@ describe('Aggregator Tests', async () => {
 
         const op = aggregator.methods.addOracle(
             susie.pkh,
-            susie.peerId,
-            susie.pk
+            susie.pk,
+            susie.peerId
         );
 
           const tx = await op.send();
@@ -480,7 +481,7 @@ describe('Aggregator Tests', async () => {
   });
 
 
-  describe.only('UpdatePrice', () => {
+  describe('UpdatePrice', () => {
 
     const observations = [
       {
@@ -500,10 +501,44 @@ describe('Aggregator Tests', async () => {
           "price": new BigNumber(10144537815)
        },
    ];
-   const epoch: number = 1;
-   const round: number = 1;
+   let epoch: number = 1;
+   let round: number = 1;
 
-    it.only(
+   it(
+    'should fail if called by random address',
+    async () => {
+
+
+      const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+      for (const { oracle, price } of observations) {
+         oracleObservations.set(oracle, {
+             price,
+             epoch,
+             round,
+             aggregatorAddress: aggregatorAddress.address
+           });
+      };
+
+      const signatures = new MichelsonMap<string, string>();
+
+      await signerFactory(bob.sk);
+      signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+      await signerFactory(eve.sk);
+      signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+      await signerFactory(mallory.sk);
+      signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+      await signerFactory(oracleMaintainer.sk);
+      signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+      await signerFactory(trudy.sk);
+      await chai.expect(aggregator.methods.updatePrice(
+        oracleObservations,
+        signatures
+      ).send()).to.be.rejected;
+     },
+  );
+
+    it(
         'UpdatePrice should works',
         async () => {
 
@@ -530,10 +565,10 @@ describe('Aggregator Tests', async () => {
          signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
 
-          const op = aggregator.methods.updatePrice({
+          const op = aggregator.methods.updatePrice(
             oracleObservations,
             signatures
-          });
+          );
 
           const tx = await op.send();
           await tx.confirmation();
@@ -541,91 +576,354 @@ describe('Aggregator Tests', async () => {
           const storage: aggregatorStorageType = await aggregator.storage();
           assert.deepEqual(storage.lastCompletedPrice.round,new BigNumber(1));
           assert.deepEqual(storage.lastCompletedPrice.epoch,new BigNumber(1));
-          assert.deepEqual(storage.lastCompletedPrice.price,new BigNumber(10142857521.5));
+          assert.deepEqual(storage.lastCompletedPrice.price,new BigNumber(10142857521));
           assert.deepEqual(storage.lastCompletedPrice.percentOracleResponse,new BigNumber(4));
-          assert.deepEqual(storage.lastCompletedPrice.priceDateTime,"aze");  
+          round++;
         },
-  
       );
-
-    it(
-      'should fail if called by random address',
-      async () => {
-        
-
-      },
-    );
 
     it(
       'should fail if not many observations in observations map',
       async () => {
-        
 
-      },
+
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+        oracleObservations.set(observations[0].oracle, {
+          price: observations[0].price,
+          epoch,
+          round,
+          aggregatorAddress: aggregatorAddress.address
+        });
+
+        const signatures = new MichelsonMap<string, string>();
+
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(eve.sk);
+        signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(oracleMaintainer.sk);
+        signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
     );
 
     it(
       'should fail if not many signatures in signatures map',
       async () => {
-        
 
-      },
+
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+         for (const { oracle, price } of observations) {
+            oracleObservations.set(oracle, {
+                price,
+                epoch,
+                round,
+                aggregatorAddress: aggregatorAddress.address
+              });
+         };
+
+        const signatures = new MichelsonMap<string, string>();
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
     );
 
     it(
-      'should fail if wrong oracle address in obervations map',
+      'should fail if wrong aggregator address in obervations map',
       async () => {
-        
 
-      },
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+         for (const { oracle, price } of observations) {
+            oracleObservations.set(oracle, {
+                price,
+                epoch,
+                round,
+                aggregatorAddress: aggregatorFactoryAddress.address
+              });
+         };
+
+        const signatures = new MichelsonMap<string, string>();
+
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(eve.sk);
+        signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(oracleMaintainer.sk);
+        signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
     );
 
     it(
       'should fail if one of the oracle in obervations map id not authorized',
       async () => {
-        
 
-      },
+        const observations_bad = [
+          {
+             "oracle": bob.pkh,
+             "price": new BigNumber(10142857143)
+          },
+          {
+              "oracle": eve.pkh,
+              "price": new BigNumber(10142853322)
+           },
+           {
+              "oracle": mallory.pkh,
+              "price": new BigNumber(10142857900)
+           },
+           {
+              "oracle": trudy.pkh,
+              "price": new BigNumber(10144537815)
+           },
+       ];
+
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+         for (const { oracle, price } of observations_bad) {
+            oracleObservations.set(oracle, {
+                price,
+                epoch,
+                round,
+                aggregatorAddress: aggregatorAddress.address
+              });
+         };
+
+        const signatures = new MichelsonMap<string, string>();
+
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(eve.sk);
+        signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(oracleMaintainer.sk);
+        signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
     );
 
     it(
       'should fail if different epoch in signatures map',
       async () => {
-        
 
-      },
+        const observations_bad = [
+          {
+             "oracle": bob.pkh,
+             "price": new BigNumber(10142857143),
+             "epoch": 1
+          },
+          {
+              "oracle": eve.pkh,
+              "price": new BigNumber(10142853322),
+              "epoch": 1
+           },
+           {
+              "oracle": mallory.pkh,
+              "price": new BigNumber(10142857900),
+              "epoch": 1
+           },
+           {
+              "oracle": trudy.pkh,
+              "price": new BigNumber(10144537815),
+              "epoch": 2
+           },
+       ];
+
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+         for (const { oracle, price, epoch } of observations_bad) {
+            oracleObservations.set(oracle, {
+                price,
+                epoch,
+                round,
+                aggregatorAddress: aggregatorFactoryAddress.address
+              });
+         };
+
+        const signatures = new MichelsonMap<string, string>();
+
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(eve.sk);
+        signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(oracleMaintainer.sk);
+        signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
     );
 
     it(
-      'should fail if epoch in observations maps is not greather than previous one',
+      'should fail if different round in signatures map',
       async () => {
-        
 
-      },
+        const observations_bad = [
+          {
+             "oracle": bob.pkh,
+             "price": new BigNumber(10142857143),
+             "round": 2
+          },
+          {
+              "oracle": eve.pkh,
+              "price": new BigNumber(10142853322),
+              "round": 2
+           },
+           {
+              "oracle": mallory.pkh,
+              "price": new BigNumber(10142857900),
+              "round": 2
+           },
+           {
+              "oracle": trudy.pkh,
+              "price": new BigNumber(10144537815),
+              "round": 3
+           },
+       ];
+
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+         for (const { oracle, price, round } of observations_bad) {
+            oracleObservations.set(oracle, {
+                price,
+                epoch,
+                round,
+                aggregatorAddress: aggregatorFactoryAddress.address
+              });
+         };
+
+        const signatures = new MichelsonMap<string, string>();
+
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(eve.sk);
+        signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(oracleMaintainer.sk);
+        signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
+    );
+
+    it(
+      'should fail if epoch in observations maps is not greather or equal than previous one',
+      async () => {
+
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+         for (const { oracle, price } of observations) {
+            oracleObservations.set(oracle, {
+                price,
+                epoch: epoch - 1,
+                round,
+                aggregatorAddress: aggregatorAddress.address
+              });
+         };
+
+        const signatures = new MichelsonMap<string, string>();
+
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(eve.sk);
+        signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(oracleMaintainer.sk);
+        signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
     );
 
     it(
       'should fail if round in observations maps is not greather than previous one with same epoch',
       async () => {
-        
 
-      },
-    );
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+         for (const { oracle, price } of observations) {
+            oracleObservations.set(oracle, {
+                price,
+                epoch,
+                round: round - 1,
+                aggregatorAddress: aggregatorAddress.address
+              });
+         };
 
-    it(
-      'should fail if wrong oracle address in obervations map',
-      async () => {
-        
+        const signatures = new MichelsonMap<string, string>();
 
-      },
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(eve.sk);
+        signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(oracleMaintainer.sk);
+        signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
     );
 
     it(
       'should fail if wrong oracle signature in signatures map',
       async () => {
-        
 
-      },
+        const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+         for (const { oracle, price } of observations) {
+            oracleObservations.set(oracle, {
+                price,
+                epoch,
+                round,
+                aggregatorAddress: aggregatorAddress.address
+              });
+         };
+
+        const signatures = new MichelsonMap<string, string>();
+
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(trudy.sk);
+        signatures.set(eve.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOraclePriceResponses(oracleObservations));
+        await signerFactory(oracleMaintainer.sk);
+        signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
+
+        await chai.expect(aggregator.methods.updatePrice(
+          oracleObservations,
+          signatures
+        ).send()).to.be.rejected;
+       },
     );
 
   });
@@ -646,10 +944,10 @@ describe('Aggregator Tests', async () => {
             const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk.toNumber();
 
             // For reference if needed:
-            // console.log("rewardAmountXtz: "          + rewardAmountXtz);
-            // console.log("rewardAmountStakedMvk:"     + rewardAmountStakedMvk);
-            // console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
-            // console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
+            console.log("rewardAmountXtz: "          + rewardAmountXtz);
+            console.log("rewardAmountStakedMvk:"     + rewardAmountStakedMvk);
+            console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
+            console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
 
             const beforeBobRewardXtz            = await beforeStorage.oracleRewardXtz.get(bob.pkh);
             const beforeEveRewardXtz            = await beforeStorage.oracleRewardXtz.get(eve.pkh);
