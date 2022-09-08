@@ -78,7 +78,7 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
 export const LendingContentStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
-  padding: 0 25px;
+  padding: 0 20px;
   column-gap: 48px;
   margin-bottom: 40px;
   position: relative;
@@ -111,6 +111,7 @@ export const LendingContentStyled = styled.div<{ theme: MavrykTheme }>`
 
 export const SatellitesContentStyled = styled.div<{ theme: MavrykTheme }>`
   display: grid;
+  padding-left: 20px;
   grid-template-columns: repeat(3, auto);
   flex-direction: column;
   margin-top: 42px;
@@ -122,6 +123,8 @@ export const SatellitesContentStyled = styled.div<{ theme: MavrykTheme }>`
 export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
+  padding-left: 20px;
+  margin-top: 25px;
 
   .top {
     width: fit-content;
@@ -151,7 +154,7 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
       grid-template-columns: repeat(4, auto);
 
       .value {
-        height: 25px;
+        height: 22px;
       }
     }
   }
@@ -177,83 +180,6 @@ export const TreasuryContentStyled = styled.div<{ theme: MavrykTheme }>`
 
     > div {
       width: 50%;
-
-      .table-wrapper {
-        margin-top: 20px;
-        display: flex;
-        flex-direction: column;
-        row-gap: 13px;
-
-        .row {
-          display: flex;
-          width: 100%;
-          justify-content: space-between;
-          position: relative;
-
-          > div {
-            color: ${({ theme }) => theme.dashboardTextColor};
-            font-weight: 600;
-            width: 33%;
-            transition: 0.4s all;
-
-            P {
-              margin: 0;
-            }
-          }
-
-          > div:last-child {
-            text-align: right;
-            padding-right: 8px;
-          }
-
-          &:not(.column-names) {
-            > div {
-              color: ${({ theme }) => theme.dataColor};
-            }
-
-            > div:last-child {
-              padding-right: 5px;
-            }
-
-            &:before {
-              position: absolute;
-              content: '';
-              bottom: -7px;
-              width: 100%;
-              height: 1px;
-              background-color: ${({ theme }) => theme.dataColor};
-              transition: 0.4s all;
-            }
-          }
-
-          &:last-child {
-            &:before {
-              display: none;
-            }
-          }
-
-          &:hover {
-            > div {
-              color: ${({ theme }) => theme.navTitleColor};
-            }
-
-            &:before {
-              background-color: ${({ theme }) => theme.navTitleColor};
-            }
-          }
-        }
-
-        .table-content {
-          display: flex;
-          flex-direction: column;
-          max-height: 140px;
-          overflow-y: auto;
-          row-gap: 17px;
-        }
-      }
-
-      .vesting {
-      }
     }
   }
 `
@@ -329,12 +255,12 @@ export const TreasuryVesting = styled.div<{
     .hoverValue {
       font-size: 12px;
       position: absolute;
-      bottom: 10px;
+      bottom: 13px;
       left: 50%;
       transform: translateX(-50%);
       display: block;
       white-space: pre-line;
-      padding: 3px 5px;
+      padding: 4px 6px;
       border-radius: 3px;
       line-height: 15px;
       background: #503eaa;
@@ -350,8 +276,8 @@ export const TreasuryVesting = styled.div<{
         position: absolute;
         top: 100%;
         left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
+        margin-left: -8px;
+        border-width: 8px;
         border-style: solid;
         border-color: #503eaa transparent transparent transparent;
       }
@@ -374,6 +300,54 @@ export const TreasuryVesting = styled.div<{
       background-color: ${({ theme, totalColor }) => theme[totalColor]};
       border-top-right-radius: 2px;
       border-bottom-right-radius: 2px;
+    }
+  }
+`
+
+export const VaultsContentStyled = styled.div<{ theme: MavrykTheme }>`
+  padding-left: 20px;
+  margin-top: 25px;
+
+  .top {
+    width: fit-content;
+    column-gap: 50px;
+
+    .value {
+      height: 25px;
+    }
+  }
+
+  .container {
+    display: flex;
+    margin-top: 32px;
+    column-gap: 55px;
+
+    > div {
+      width: 50%;
+    }
+
+    .summary {
+      display: flex;
+      column-gap: 20px;
+      margin-left: auto;
+      justify-content: flex-end;
+      margin-top: 13px;
+
+      .name {
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 22px;
+      }
+
+      .value {
+        font-weight: 600;
+        font-size: 22px;
+        line-height: 22px;
+        color: ${({ theme }) => theme.dataColor};
+        p {
+          margin: 0;
+        }
+      }
     }
   }
 `

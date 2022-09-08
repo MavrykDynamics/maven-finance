@@ -1,31 +1,66 @@
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import React from 'react'
 import { BlockName, StatBlock } from '../Dashboard.style'
 import { TabWrapperStyled, TreasuryContentStyled, TreasuryVesting } from './DashboardTabs.style'
 
-const tableData = [
+export const tableData = [
   {
     asset: 'MVK',
+    id: 1,
     amount: 234243242,
     usdValue: 32423424,
   },
   {
     asset: 'XTZ',
+    id: 2,
+    amount: 234243242,
+    usdValue: 32423424,
+  },
+  {
+    asset: 'MVK',
+    id: 3,
+    amount: 234243242,
+    usdValue: 32423424,
+  },
+  {
+    asset: 'XTZ',
+    id: 4,
     amount: 234243242,
     usdValue: 32423424,
   },
   {
     asset: 'tzBTC',
+    id: 5,
     amount: 234243242,
     usdValue: 32423424,
   },
   {
     asset: 'USDT',
+    id: 6,
     amount: 234243242,
     usdValue: 32423424,
+  },
+]
+
+export const columnNames = ['Asset', 'Amount', 'USD Value']
+export const fieldsMapper = [
+  {
+    fieldName: 'asset',
+  },
+  {
+    fieldName: 'amount',
+    needCommaNumber: true,
+  },
+  {
+    fieldName: 'usdValue',
+    needCommaNumber: true,
+    propsToComponents: {
+      beginningText: '$',
+    },
   },
 ]
 
@@ -56,27 +91,12 @@ export const TreasuryTab = () => {
           <div>
             <BlockName>Treasury Assets</BlockName>
 
-            <div className="table-wrapper">
-              <div className="row column-names">
-                <div className="row-item">Asset</div>
-                <div className="row-item">Amount</div>
-                <div className="row-item">USD Value</div>
-              </div>
-
-              <div className="table-content scroll-block">
-                {tableData.map((item) => (
-                  <div className="row">
-                    <div className="row-item">{item.asset}</div>
-                    <div className="row-item">
-                      <CommaNumber value={item.amount} />
-                    </div>
-                    <div className="row-item">
-                      <CommaNumber beginningText="$" value={item.usdValue} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <SimpleTable
+              colunmNames={columnNames}
+              data={tableData}
+              fieldsMapper={fieldsMapper}
+              className="dashboard-st"
+            />
           </div>
           <div>
             <BlockName>Token Vesting</BlockName>
