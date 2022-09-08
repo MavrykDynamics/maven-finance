@@ -58,6 +58,12 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: 'mavryk-council',
         protectedRoute: false,
       },
+      {
+        id: 38375,
+        subTitle: 'Break Glass Actions',
+        subPath: 'break-glass-actions',
+        protectedRoute: true,
+      },
       { id: 561812, subTitle: 'Financial Requests', subPath: 'financial-requests', protectedRoute: false },
       {
         id: 59416,
