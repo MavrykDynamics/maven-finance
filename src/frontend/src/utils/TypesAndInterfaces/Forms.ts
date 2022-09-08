@@ -48,9 +48,14 @@ export type ProposalBytesType = {
   data: string
 }
 
+export type ProposalUpdateFormProposalBytes = ProposalDataType & {
+  validTitle: InputStatusType
+  validBytes: InputStatusType
+}
+
 export type ProposalUpdateForm = {
   title: string
-  proposalBytes: ProposalDataType[]
+  proposalBytes: ProposalUpdateFormProposalBytes[]
 }
 export type ValidProposalUpdateForm = {
   title: boolean | undefined
