@@ -122,11 +122,12 @@ describe('AggregatorFactory', () => {
         oracleMap,
 
         new BigNumber(8),             // decimals
-        new BigNumber(2),             // numberBlocksDelay
+        new BigNumber(2),             // alphaPercentPerThousand
 
         new BigNumber(86400),         // deviationTriggerBanTimestamp
         new BigNumber(5),             // perthousandDeviationTrigger
         new BigNumber(60),            // percentOracleThreshold
+        new BigNumber(30),            // heartBeatSeconds
 
         new BigNumber(0),             // requestRateDeviationDepositFee 
 
@@ -135,7 +136,6 @@ describe('AggregatorFactory', () => {
         new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
         new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
         
-        oracleMaintainer.pkh,         // maintainer
         aggregatorMetadataBase        // metadata
       );
 
@@ -357,6 +357,8 @@ describe('AggregatorFactory', () => {
               new BigNumber(86400),         // deviationTriggerBanTimestamp
               new BigNumber(5),             // perthousandDeviationTrigger
               new BigNumber(60),            // percentOracleThreshold
+              new BigNumber(30),            // heartBeatSeconds
+
       
               new BigNumber(0),             // requestRateDeviationDepositFee 
       
