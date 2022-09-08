@@ -34,7 +34,7 @@
     "compile-all-lambdas-3": "yarn compile-contract-lambdas vault,lendingController",
     "compile-all-contracts-no-lambdas": " yarn compile-contract-no-lambdas mvkToken,mavrykFa12Token,mavrykFa2Token,tokenPoolLpToken",
     
-    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2 && yarn compile-all-lambdas-3",
+    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
 
     "migrate": "./deploy-contracts.sh",
