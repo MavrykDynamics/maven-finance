@@ -1,10 +1,11 @@
 import styled from 'styled-components'
-import { cyanColor } from 'styles'
+import { containerColor, cyanColor, skyColor, whiteColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
 export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage?: string }>`
   padding: 24px 32px 40px 32px;
   background: ${({ theme }) => theme.containerColor};
+  position: relative;
 
   background: ${({ backgroundImage, theme }) =>
     backgroundImage ? `url(images/dashboard/${backgroundImage}), ${theme.containerColor}` : theme.containerColor};
@@ -324,6 +325,49 @@ export const VaultsContentStyled = styled.div<{ theme: MavrykTheme }>`
 
     > div {
       width: 50%;
+
+      &.chart-wrapper {
+        width: 360px;
+        position: absolute;
+        right: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        top: 50%;
+        transform: translateY(-63%);
+      }
+
+      .asset-lables {
+        display: flex;
+        max-height: 75px;
+        overflow: auto;
+        gap: 6px;
+        flex-wrap: wrap;
+        width: 100%;
+        margin-top: 15px;
+      }
+
+      .asset-lable {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        border-bottom-left-radius: 6px;
+        border-top-left-radius: 6px;
+        max-width: 110px;
+        width: 100%;
+      }
+
+      .asset-lable-text {
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 16px;
+        color: ${({ theme }) => theme.dashboardTextColor};
+        margin: 0;
+        margin-left: 8px;
+        line-height: 30px;
+        padding-left: 10px;
+        background-color: ${({ theme }) => theme.containerColor};
+      }
     }
 
     .summary {
