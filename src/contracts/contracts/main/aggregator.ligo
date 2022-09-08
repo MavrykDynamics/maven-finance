@@ -344,7 +344,7 @@ function verifyInfosFromObservations(const oracleObservations: map (address, ora
 
   for key -> value in map oracleObservations block {
       if (not (Tezos.get_self_address() = value.aggregatorAddress)) then failwith("wrong aggregator address in the observations");
-      if isOracleAddress(key, store.oracleAddresses) then failwith ("observation made by a wrong oracle");
+      if (not isOracleAddress(key, store.oracleAddresses))   then failwith ("observation made by a wrong oracle");
       if (epoch = 0n) then epoch:= value.epoch;
       if (not (epoch = value.epoch)) then failwith("different epoch in the observations");
 
