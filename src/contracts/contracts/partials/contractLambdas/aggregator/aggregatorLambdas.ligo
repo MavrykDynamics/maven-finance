@@ -125,11 +125,12 @@ block{
 
                 case updateConfigAction of [
                     |   ConfigDecimals (_v)                  -> s.config.decimals                             := updateConfigNewValue
-                    |   ConfigHeartBeatSeconds (_v)          -> s.config.heartBeatSeconds                     := updateConfigNewValue
-                    
+                    |   ConfigAlphaPercentPerThousand (_v)   -> s.config.alphaPercentPerThousand              := updateConfigNewValue
+
                     |   ConfigDevTriggerBanDuration (_v)     -> s.config.deviationTriggerBanDuration          := updateConfigNewValue
                     |   ConfigPerThousandDevTrigger (_v)     -> s.config.perThousandDeviationTrigger          := updateConfigNewValue
                     |   ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
+                    |   ConfigHeartBeatSeconds (_v)          -> s.config.heartBeatSeconds                     := updateConfigNewValue
 
                     |   ConfigRequestRateDevDepositFee (_v)  -> s.config.requestRateDeviationDepositFee       := updateConfigNewValue
                     
@@ -293,8 +294,8 @@ block {
         |   LambdaPauseAll(_parameters) -> {
                 
                 // set all pause configs to True
-                if s.breakGlassConfig.updatePriceIsPaused then skip
-                else s.breakGlassConfig.updatePriceIsPaused := True;
+                if s.breakGlassConfig.updateDataIsPaused then skip
+                else s.breakGlassConfig.updateDataIsPaused := True;
 
                 if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
                 else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
@@ -324,7 +325,7 @@ block {
         |   LambdaUnpauseAll(_parameters) -> {
                 
                 // set all pause configs to False
-                if s.breakGlassConfig.updatePriceIsPaused then s.breakGlassConfig.updatePriceIsPaused := False
+                if s.breakGlassConfig.updateDataIsPaused then s.breakGlassConfig.updateDataIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
@@ -352,7 +353,7 @@ block {
         |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                        UpdatePrice (_v)              -> s.breakGlassConfig.updatePriceIsPaused                       := _v
+                        UpdateData (_v)              -> s.breakGlassConfig.updateDataIsPaused                       := _v
                     |   WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused           := _v
                     |   WithdrawRewardStakedMvk (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused     := _v
                 ]
@@ -378,13 +379,13 @@ block {
 
 
 
-(*  updatePrice entrypoint  *)
-function lambdaUpdatePrice(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
+(*  updateData entrypoint  *)
+function lambdaUpdateData(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
     // Steps Overview:
     // 1. Standard checks
-    //    - Check that %updatePrice entrypoint is not paused (e.g. glass broken)
+    //    - Check that %updateData entrypoint is not paused (e.g. glass broken)
     //    - Check that entrypoint should not receive any tez amount   
     //    - Check that sender is oracle
     //    - Check that satellite is not suspended or banned
@@ -394,14 +395,14 @@ block{
     // 5. update rewards
     // 6. Update storage with lastCompletedPrice
 
-    // Check that %updatePrice entrypoint is not paused (e.g. glass broken)
-    checkUpdatePriceIsNotPaused(s); 
+    // Check that %updateData entrypoint is not paused (e.g. glass broken)
+    checkUpdateDataIsNotPaused(s); 
 
     // Check that entrypoint should not receive any tez amount   
     checkNoAmount(Unit);
 
     case aggregatorLambdaAction of [
-        |   LambdaUpdatePrice(params) -> {
+        |   LambdaUpdateData(params) -> {
 
                 // Get Delegation Contract address from the General Contracts Map on the Governance Contract
                 const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);

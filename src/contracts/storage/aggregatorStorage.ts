@@ -10,7 +10,7 @@ import governanceAddress from '../deployments/governanceAddress.json';
 import { string } from 'yargs';
 
 const breakGlassConfig = {
-    updatePriceIsPaused                 : false,
+    updateDataIsPaused                 : false,
     withdrawRewardXtzIsPaused           : false,
     withdrawRewardStakedMvkIsPaused     : false
 }

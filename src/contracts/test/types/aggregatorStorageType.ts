@@ -26,7 +26,7 @@ export type aggregatorStorageType = {
     };
 
     breakGlassConfig          : {
-        updatePriceIsPaused                 : boolean;
+        updateDataIsPaused                 : boolean;
         withdrawRewardXtzIsPaused           : boolean;
         withdrawRewardStakedMvkIsPaused     : boolean;
     };

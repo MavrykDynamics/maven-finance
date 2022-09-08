@@ -481,7 +481,7 @@ describe('Aggregator Tests', async () => {
   });
 
 
-  describe('UpdatePrice', () => {
+  describe('UpdateData', () => {
 
     const observations = [
       {
@@ -531,7 +531,7 @@ describe('Aggregator Tests', async () => {
       signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
       await signerFactory(trudy.sk);
-      await chai.expect(aggregator.methods.updatePrice(
+      await chai.expect(aggregator.methods.updateData(
         oracleObservations,
         signatures
       ).send()).to.be.rejected;
@@ -539,7 +539,7 @@ describe('Aggregator Tests', async () => {
   );
 
     it(
-        'UpdatePrice should works',
+        'UpdateData should works',
         async () => {
 
 
@@ -565,7 +565,7 @@ describe('Aggregator Tests', async () => {
          signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
 
-          const op = aggregator.methods.updatePrice(
+          const op = aggregator.methods.updateData(
             oracleObservations,
             signatures
           );
@@ -606,7 +606,7 @@ describe('Aggregator Tests', async () => {
         await signerFactory(oracleMaintainer.sk);
         signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -630,7 +630,7 @@ describe('Aggregator Tests', async () => {
 
         const signatures = new MichelsonMap<string, string>();
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -662,7 +662,7 @@ describe('Aggregator Tests', async () => {
         await signerFactory(oracleMaintainer.sk);
         signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -713,7 +713,7 @@ describe('Aggregator Tests', async () => {
         await signerFactory(oracleMaintainer.sk);
         signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -768,7 +768,7 @@ describe('Aggregator Tests', async () => {
         await signerFactory(oracleMaintainer.sk);
         signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -823,7 +823,7 @@ describe('Aggregator Tests', async () => {
         await signerFactory(oracleMaintainer.sk);
         signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -855,7 +855,7 @@ describe('Aggregator Tests', async () => {
         await signerFactory(oracleMaintainer.sk);
         signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -887,7 +887,7 @@ describe('Aggregator Tests', async () => {
         await signerFactory(oracleMaintainer.sk);
         signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -919,7 +919,7 @@ describe('Aggregator Tests', async () => {
         await signerFactory(oracleMaintainer.sk);
         signatures.set(oracleMaintainer.pkh, await utils.signOraclePriceResponses(oracleObservations));
 
-        await chai.expect(aggregator.methods.updatePrice(
+        await chai.expect(aggregator.methods.updateData(
           oracleObservations,
           signatures
         ).send()).to.be.rejected;
@@ -944,10 +944,10 @@ describe('Aggregator Tests', async () => {
             const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk.toNumber();
 
             // For reference if needed:
-            console.log("rewardAmountXtz: "          + rewardAmountXtz);
-            console.log("rewardAmountStakedMvk:"     + rewardAmountStakedMvk);
-            console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
-            console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
+            // console.log("rewardAmountXtz: "          + rewardAmountXtz);
+            // console.log("rewardAmountStakedMvk:"     + rewardAmountStakedMvk);
+            // console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
+            // console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
 
             const beforeBobRewardXtz            = await beforeStorage.oracleRewardXtz.get(bob.pkh);
             const beforeEveRewardXtz            = await beforeStorage.oracleRewardXtz.get(eve.pkh);
@@ -1104,11 +1104,12 @@ describe('Aggregator Tests', async () => {
   describe('updateConfig', () => {
     
     const decimals                      : BigNumber = new BigNumber(100);
-    const numberBlocksDelay             : BigNumber = new BigNumber(2);
+    const alphaPercentPerThousand             : BigNumber = new BigNumber(2);
 
     const devTriggerBanDuration         : BigNumber = new BigNumber(100);
     const perThousandDeviationTrigger   : BigNumber = new BigNumber(100);
     const percentOracleThreshold        : BigNumber = new BigNumber(100);
+    const heartBeatSeconds              : BigNumber = new BigNumber(100);
 
     const requestRateDevDepositFee      : BigNumber = new BigNumber(100);
     
@@ -1128,10 +1129,10 @@ describe('Aggregator Tests', async () => {
         );
         await chai.expect(test_update_config_decimals_op.send()).to.be.rejectedWith();
 
-        const test_update_config_numberBlocksDelay_op = aggregator.methods.updateConfig(
-          numberBlocksDelay, "configNumberBlocksDelay"
+        const test_update_config_alphaPercentPerThousand_op = aggregator.methods.updateConfig(
+          alphaPercentPerThousand, "configAlphaPercentPerThousand"
         );
-        await chai.expect(test_update_config_numberBlocksDelay_op.send()).to.be.rejectedWith();
+        await chai.expect(test_update_config_alphaPercentPerThousand_op.send()).to.be.rejectedWith();
 
 
 
@@ -1149,6 +1150,11 @@ describe('Aggregator Tests', async () => {
           percentOracleThreshold, "configPercentOracleThreshold"
         );
         await chai.expect(test_update_config_percentOracleThreshold_op.send()).to.be.rejectedWith();
+
+        const test_update_config_heartBeatSeconds_op = aggregator.methods.updateConfig(
+          heartBeatSeconds, "configHeartBeatSeconds"
+        );
+        await chai.expect(test_update_config_heartBeatSeconds_op.send()).to.be.rejectedWith();
 
 
 
@@ -1193,10 +1199,10 @@ describe('Aggregator Tests', async () => {
         ).send();
         await test_update_config_decimals_op.confirmation();
 
-        const test_update_config_numberBlocksDelay_op = await aggregator.methods.updateConfig(
-          numberBlocksDelay, "configNumberBlocksDelay"
+        const test_update_config_alphaPercentPerThousand_op = await aggregator.methods.updateConfig(
+          alphaPercentPerThousand, "configAlphaPercentPerThousand"
         ).send();
-        await test_update_config_numberBlocksDelay_op.confirmation();
+        await test_update_config_alphaPercentPerThousand_op.confirmation();
 
 
 
@@ -1214,6 +1220,11 @@ describe('Aggregator Tests', async () => {
           percentOracleThreshold, "configPercentOracleThreshold"
         ).send();
         await test_update_config_percentOracleThreshold_op.confirmation();
+
+        const test_update_config_heartBeatSeconds_op = await aggregator.methods.updateConfig(
+          heartBeatSeconds, "configHeartBeatSeconds"
+        ).send();
+        await test_update_config_heartBeatSeconds_op.confirmation();
 
 
 
@@ -1245,11 +1256,12 @@ describe('Aggregator Tests', async () => {
 
         const storage: aggregatorStorageType = await aggregator.storage();
         assert.deepEqual(storage.config.decimals,                        decimals);
-        assert.deepEqual(storage.config.numberBlocksDelay,               numberBlocksDelay);
+        assert.deepEqual(storage.config.alphaPercentPerThousand,         alphaPercentPerThousand);
 
         assert.deepEqual(storage.config.deviationTriggerBanDuration,     devTriggerBanDuration);
         assert.deepEqual(storage.config.percentOracleThreshold,          percentOracleThreshold);
-        
+        assert.deepEqual(storage.config.heartBeatSeconds,                heartBeatSeconds);
+
         assert.deepEqual(storage.config.deviationRewardAmountXtz,        deviationRewardAmountXtz);
         assert.deepEqual(storage.config.requestRateDeviationDepositFee,  requestRateDevDepositFee);
         assert.deepEqual(storage.config.rewardAmountXtz,                 rewardAmountXtz);
@@ -1510,10 +1522,7 @@ describe('Aggregator Tests', async () => {
 
         const storage: aggregatorStorageType = await aggregator.storage();
         const breakGlassConfig = await storage.breakGlassConfig;
-        assert.equal(breakGlassConfig.requestRateUpdateIsPaused, true);
-        assert.equal(breakGlassConfig.requestRateUpdateDeviationIsPaused, true);
-        assert.equal(breakGlassConfig.setObservationCommitIsPaused, true);
-        assert.equal(breakGlassConfig.setObservationRevealIsPaused, true);
+        assert.equal(breakGlassConfig.updateDataIsPaused, true);
         assert.equal(breakGlassConfig.withdrawRewardXtzIsPaused, true);
         assert.equal(breakGlassConfig.withdrawRewardStakedMvkIsPaused, true);
 
@@ -1524,10 +1533,7 @@ describe('Aggregator Tests', async () => {
 
         const updatedStorage: aggregatorStorageType = await aggregator.storage();
         const updatedBreakGlassConfig = await updatedStorage.breakGlassConfig;
-        assert.equal(updatedBreakGlassConfig.requestRateUpdateIsPaused, false);
-        assert.equal(updatedBreakGlassConfig.requestRateUpdateDeviationIsPaused, false);
-        assert.equal(updatedBreakGlassConfig.setObservationCommitIsPaused, false);
-        assert.equal(updatedBreakGlassConfig.setObservationRevealIsPaused, false);
+        assert.equal(updatedBreakGlassConfig.updateDataIsPaused, false);
         assert.equal(updatedBreakGlassConfig.withdrawRewardXtzIsPaused, false);
         assert.equal(updatedBreakGlassConfig.withdrawRewardStakedMvkIsPaused, false);
         },
