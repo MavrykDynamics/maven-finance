@@ -8,7 +8,7 @@ export const VaultsTab = () => {
   return (
     <TabWrapperStyled className="vaults">
       <div className="top">
-        <BGTitle>Lending</BGTitle>
+        <BGTitle>Vaults</BGTitle>
         <Button text="Vaults" icon="vaults" kind={ACTION_PRIMARY} className="noStroke" />
       </div>
 
