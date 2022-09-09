@@ -28,7 +28,7 @@ export const SimpleTable = ({ colunmNames, data, fieldsMapper, className = '' }:
           return (
             <div className="row" key={item.id}>
               {fieldsMapper.map(({ fieldName, needCommaNumber, needTzAddress, propsToComponents = {} }) => {
-                if (!item?.[fieldName]) return null
+                if (item?.[fieldName] === undefined) return null
 
                 if (needCommaNumber) {
                   return (
