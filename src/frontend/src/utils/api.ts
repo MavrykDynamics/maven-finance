@@ -27,8 +27,9 @@ export async function getChainInfo() {
 
 export async function getTreasuryDataByAddress(treasuryAddress: string) {
   return await axios
-    .get(`https://api.better-call.dev/v1/account/${network}/${treasuryAddress}/token_balances`)
+    .get(`https://api.tzkt.io/v1/tokens/balances?account=${treasuryAddress}`)
     .then((response: { data: object }) => {
-      return response.data
+      return { balances: response.data }
     })
+    .catch(() => null)
 }

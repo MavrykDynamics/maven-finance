@@ -99,6 +99,14 @@ export const StatBlock = styled.div`
 
   &.icon-first {
     padding-left: 50px;
+
+    .feed-token {
+      height: 40px;
+      width: 40px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
 
   .name {
