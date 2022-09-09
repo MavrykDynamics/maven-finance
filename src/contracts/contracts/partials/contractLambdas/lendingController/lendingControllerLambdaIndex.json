@@ -53,42 +53,46 @@
     },
     {
         "index": 13,
-        "name": "lambdaUpdateCollateralToken"
+        "name": "lambdaCallVaultEntrypoint"
     },
     {
         "index": 14,
-        "name": "lambdaCreateVault"
+        "name": "lambdaUpdateCollateralToken"
     },
     {
         "index": 15,
-        "name": "lambdaCloseVault"
+        "name": "lambdaCreateVault"
     },
     {
         "index": 16,
-        "name": "lambdaMarkForLiquidation"
+        "name": "lambdaCloseVault"
     },
     {
         "index": 17,
-        "name": "lambdaLiquidateVault"
+        "name": "lambdaMarkForLiquidation"
     },
     {
         "index": 18,
-        "name": "lambdaRegisterDeposit"
+        "name": "lambdaLiquidateVault"
     },
     {
         "index": 19,
-        "name": "lambdaRegisterWithdrawal"
+        "name": "lambdaRegisterDeposit"
     },
     {
         "index": 20,
-        "name": "lambdaBorrow"
+        "name": "lambdaRegisterWithdrawal"
     },
     {
         "index": 21,
-        "name": "lambdaRepay"
+        "name": "lambdaBorrow"
     },
     {
         "index": 22,
+        "name": "lambdaRepay"
+    },
+    {
+        "index": 23,
         "name": "lambdaClaimRewards"
     }
     
