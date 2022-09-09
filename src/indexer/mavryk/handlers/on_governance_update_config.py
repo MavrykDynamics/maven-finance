@@ -14,11 +14,13 @@ async def on_governance_update_config(
     governance_address      = update_config.data.target_address
     updated_value           = int(update_config.parameter.updateConfigNewValue)
     update_config_action    = type(update_config.parameter.updateConfigAction)
+    timestamp               = update_config.data.timestamp
 
     # Update contract
     governance = await models.Governance.get(
         address = governance_address
     )
+    governance.last_updated_at  = timestamp
 
     if update_config_action == configBlocksPerProposalRound:
         governance.blocks_per_proposal_round                = int(updated_value)
