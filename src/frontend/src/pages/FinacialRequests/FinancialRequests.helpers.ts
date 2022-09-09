@@ -70,6 +70,7 @@ export const getRequestStatus = (request: GovernanceFinancialRequestRecordGraphQ
 }
 
 export const getDate_MDHMTZ_Format = (time: string) => moment(new Date(time)).format('MMMM Do hh:mm Z')
+export const getDate_DMYHM_Format = (time: string) => moment(new Date(time)).format('Do MMM YYYY / HH:mm')
 export const getDate_MDY_Format = (time: string) => moment(new Date(time)).format('MMM Do, Y')
 export const getDate_MDHMS_Format = ({ time, timestamp }: { time?: string; timestamp?: number }) =>
   moment(time ? new Date(time) : timestamp || Date.now()).format('MMM Do, HH:MM:SS')

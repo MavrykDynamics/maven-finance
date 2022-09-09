@@ -1,36 +1,25 @@
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import Icon from 'app/App.components/Icon/Icon.view'
+import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { BLUE } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
-import React from 'react'
+import { getDate_DMYHM_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { useMemo } from 'react'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
 import { StatBlock } from '../Dashboard.style'
 import { OraclesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 
-const feedsMocked = [
-  {
-    name: 'XTZ/USD',
-    answer: 123432,
-    address: 'retregdsfgfdsgfsdgdsfgfsd',
-    date: Date.now(),
-  },
-  {
-    name: 'XTZ/USD',
-    answer: 123432,
-    address: 'retregdsfgfdsgfsdgdsfgfsd',
-    date: Date.now(),
-  },
-  {
-    name: 'XTZ/USD',
-    answer: 123432,
-    address: 'retregdsfgfdsgfsdgdsfgfsd',
-    date: Date.now(),
-  },
-]
-
 export const OraclesTab = () => {
+  const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
+
+  const oracleFeeds = feeds.length
+  const popularFeeds = useMemo(() => feeds.splice(0, 3), [feeds])
+
+  console.log('feeds', popularFeeds)
+
   return (
     <TabWrapperStyled className="oracles" backgroundImage="dashboard_oraclesTab_bg.png">
       <div className="top">
@@ -49,7 +38,7 @@ export const OraclesTab = () => {
           <StatBlock>
             <div className="name">Total Oracle Feeds</div>
             <div className="value">
-              <CommaNumber value={12} />
+              <CommaNumber value={oracleFeeds} />
             </div>
           </StatBlock>
         </div>
@@ -57,17 +46,19 @@ export const OraclesTab = () => {
         <div className="block-name">Popular Feeds</div>
 
         <div className="feeds-grid">
-          {feedsMocked.map((feed) => (
+          {popularFeeds.map((feed) => (
             <div className="row">
               <StatBlock className="icon-first">
-                <Icon id="mvkTokenGold" className="feed-token" />
+                <CoinsLogo assetName={feed.token_1_symbol} className="feed-token" />
                 <div className="name">Feed</div>
-                <div className="value">{feed.name}</div>
+                <div className="value">
+                  {feed.token_1_symbol}/{feed.token_0_symbol}
+                </div>
               </StatBlock>
               <StatBlock>
                 <div className="name">Answer</div>
                 <div className="value">
-                  <CommaNumber beginningText="$" value={feed.answer} />
+                  <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
                 </div>
               </StatBlock>
               <StatBlock>
@@ -78,9 +69,7 @@ export const OraclesTab = () => {
               </StatBlock>
               <StatBlock>
                 <div className="name">Date/Time</div>
-                <div className="value">
-                  <CommaNumber value={12} />
-                </div>
+                <div className="value">{getDate_DMYHM_Format(feed.creation_timestamp)}</div>
               </StatBlock>
             </div>
           ))}

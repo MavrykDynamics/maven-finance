@@ -95,7 +95,7 @@ export const LendingContentStyled = styled.div<{ theme: MavrykTheme }>`
 
   .left,
   .right {
-    padding-top: 30px;
+    padding-top: 10px;
     width: 45%;
   }
 
@@ -151,7 +151,7 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
     row-gap: 20px;
     .row {
       display: grid;
-      grid-template-columns: repeat(4, auto);
+      grid-template-columns: 1.2fr 0.7fr 1.5fr 1.2fr;
 
       .value {
         height: 22px;

@@ -16,6 +16,8 @@ import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './tre
 import CoinGecko from 'coingecko-api'
 import { normalizeTreasury } from './Treasury.helpers'
 import type { AppDispatch, GetState } from '../../app/App.controller'
+import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
+import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 
 const coinGeckoClient = new CoinGecko()
 
@@ -131,6 +133,8 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       treasuryFactoryAddress: convertedStorage.treasuryFactoryAddress,
     })
   } catch (error) {
+    dispatch(showToaster(ERROR, 'Small problem :)', 'Error while loading treasuries occured, please try later'))
+
     console.log('%c ---- error getTreasuryStorage', 'color:red', error)
   }
 }
