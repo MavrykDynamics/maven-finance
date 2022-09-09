@@ -33,11 +33,11 @@ export const getGovernanceSatelliteStorage = () => async (dispatch: AppDispatch,
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: GET_GOVERNANCE_SATELLITE_STORAGE,
-        error,
-      })
     }
+    dispatch({
+      type: GET_GOVERNANCE_SATELLITE_STORAGE,
+      error,
+    })
   }
 }
 
@@ -83,11 +83,11 @@ export const suspendSatellite =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: SUSPEND_SATELLITE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: SUSPEND_SATELLITE_ERROR,
+        error,
+      })
     }
   }
 
@@ -133,11 +133,11 @@ export const unsuspendSatellite =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: UNSUSPEND_SATELLITE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: UNSUSPEND_SATELLITE_ERROR,
+        error,
+      })
     }
   }
 
@@ -183,11 +183,11 @@ export const banSatellite =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: BAN_SATELLITE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: BAN_SATELLITE_ERROR,
+        error,
+      })
     }
   }
 
@@ -233,11 +233,11 @@ export const unbanSatellite =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: UNBAN_SATELLITE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: UNBAN_SATELLITE_ERROR,
+        error,
+      })
     }
   }
 
@@ -283,11 +283,11 @@ export const removeOracles =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: REMOVE_ORACLES_SATELLITE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: REMOVE_ORACLES_SATELLITE_ERROR,
+        error,
+      })
     }
   }
 
@@ -336,11 +336,11 @@ export const removeOracleInAggregator =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: REMOVE_FROM_AGGREGATOR_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: REMOVE_FROM_AGGREGATOR_ERROR,
+        error,
+      })
     }
   }
 
@@ -387,11 +387,11 @@ export const addOracleToAggregator =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: ADD_FROM_AGGREGATOR_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: ADD_FROM_AGGREGATOR_ERROR,
+        error,
+      })
     }
   }
 
@@ -440,11 +440,11 @@ export const setAggregatorMaintainer =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: SET_AGGREGATOR_MAINTAINER_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: SET_AGGREGATOR_MAINTAINER_ERROR,
+        error,
+      })
     }
   }
 
@@ -491,11 +491,11 @@ export const dropAction =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: DROP_ACTION_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: DROP_ACTION_ERROR,
+        error,
+      })
     }
   }
 
@@ -542,11 +542,11 @@ export const voteForAction =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: VOTE_FOR_ACTION_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: VOTE_FOR_ACTION_ERROR,
+        error,
+      })
     }
   }
 
@@ -592,11 +592,11 @@ export const restoreSatellite =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: RESTORE_SATELLITE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: RESTORE_SATELLITE_ERROR,
+        error,
+      })
     }
   }
 
@@ -642,11 +642,11 @@ export const updateAggregatorStatus =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: UPDATE_AGGREGATOR_STATUS_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: UPDATE_AGGREGATOR_STATUS_ERROR,
+        error,
+      })
     }
   }
 
@@ -672,6 +672,7 @@ export const registerAggregator =
       dispatch({
         type: REGISTER_AGGREGATOR_REQUEST,
       })
+
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
       console.log('contract', contract)
       const transaction = await contract?.methods.registerAggregator(aggregatorPair, aggregatorAddress).send()
@@ -692,11 +693,11 @@ export const registerAggregator =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: REGISTER_AGGREGATOR_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: REGISTER_AGGREGATOR_ERROR,
+        error,
+      })
     }
   }
 
@@ -720,6 +721,7 @@ export const fixMistakenTransfer =
     }
 
     try {
+      console.log('%c ||||| transferList', 'color:yellowgreen', transferList)
       dispatch({
         type: FIX_TRANSFER_REQUEST,
       })
@@ -745,10 +747,10 @@ export const fixMistakenTransfer =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: FIX_TRANSFER_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: FIX_TRANSFER_ERROR,
+        error,
+      })
     }
   }

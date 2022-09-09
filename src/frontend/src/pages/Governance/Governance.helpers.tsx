@@ -183,7 +183,7 @@ export const normalizeProposalStatus = (
 }
 
 export const normalizeTokenStandart = (token?: TokenGraphQL): PaymentType => {
-  return token?.type === 0 ? 'XTZ' : 'MVK'
+  return token === 0 ? 'XTZ' : 'MVK'
 }
 
 const BEFORE_DIGIT = 24

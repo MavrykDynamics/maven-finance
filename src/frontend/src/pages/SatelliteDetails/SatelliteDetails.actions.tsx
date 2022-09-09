@@ -43,10 +43,10 @@ export const getSatelliteByAddress =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: GET_SATELLITE_BY_ADDRESS,
-          error,
-        })
       }
+      dispatch({
+        type: GET_SATELLITE_BY_ADDRESS,
+        error,
+      })
     }
   }

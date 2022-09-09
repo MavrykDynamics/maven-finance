@@ -65,9 +65,19 @@ export const ProposalSubmissionForm = styled(Card)`
 
   .step-bytes {
     position: relative;
+    padding-bottom: 16px;
 
     article {
       margin-top: 27px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .delete-pair {
+      width: auto;
+      align-self: flex-end;
+      padding: 0 40px;
+      margin-top: 20px;
     }
   }
 

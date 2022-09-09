@@ -39,9 +39,7 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
 
   const status = emergencyGovernance.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
 
-  const currentData = emergencyGovernance.executed
-    ? emergencyGovernance.executedTimestamp
-    : emergencyGovernance.startTimestamp
+  const currentData = emergencyGovernance.startTimestamp
 
   return (
     <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
