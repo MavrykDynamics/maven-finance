@@ -91,3 +91,12 @@ export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
     max-width: 250px;
   }
 `
+
+export const PastBreakGlassActions = styled.div`
+  margin-top: 30px;
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+`
