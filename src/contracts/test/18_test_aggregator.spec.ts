@@ -112,7 +112,7 @@ describe('Aggregator Tests', async () => {
 
 
     // -----------------------------------------------
-    // set up second aggregator for tests with non-zero request rate deviation fees
+    // set up second aggregator for tests
     // -----------------------------------------------
 
     aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
@@ -159,11 +159,9 @@ describe('Aggregator Tests', async () => {
         new BigNumber(8),             // decimals
         new BigNumber(2),             // alphaPercentPerThousand
 
-        new BigNumber(5),             // perthousandDeviationTrigger
         new BigNumber(60),            // percentOracleThreshold
         new BigNumber(30),            // heartBeatSeconds
 
-        new BigNumber(0),             // requestRateDeviationDepositFee 
 
         new BigNumber(10000000),      // rewardAmountStakedMvk ~ 0.01 MVK 
         new BigNumber(1000000),       // rewardAmountXtz - 1 tez for testing (usual should be around ~ 0.0013 tez)
