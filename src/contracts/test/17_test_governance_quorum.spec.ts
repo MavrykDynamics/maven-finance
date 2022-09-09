@@ -25,7 +25,7 @@
 // import breakGlassAddress from '../deployments/breakGlassAddress.json';
 // import vestingAddress from '../deployments/vestingAddress.json';
 // import treasuryAddress from '../deployments/treasuryAddress.json';
-// import lpTokenAddress from '../deployments/lpTokenAddress.json';
+// import mavrykFa12TokenAddress from '../deployments/mavrykFa12TokenAddress.json';
 // import farmFactoryAddress from '../deployments/farmFactoryAddress.json'
 // import treasuryFactoryAddress from '../deployments/treasuryFactoryAddress.json'
 // import farmAddress from '../deployments/farmAddress.json'

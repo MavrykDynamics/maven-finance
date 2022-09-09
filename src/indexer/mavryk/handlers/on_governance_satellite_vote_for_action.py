@@ -44,6 +44,8 @@ async def on_governance_satellite_vote_for_action(
     action_record.nay_vote_smvk_total   = nay_vote_smvk_total
     action_record.pass_vote_smvk_total  = pass_vote_smvk_total
     action_record.executed              = executed
+    if executed:
+        action_record.execution_datetime    = timestamp
     await action_record.save()
 
     voter, _                = await models.MavrykUser.get_or_create(address = voter_address)

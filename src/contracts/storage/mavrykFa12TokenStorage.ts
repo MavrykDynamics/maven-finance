@@ -2,16 +2,15 @@ import { MichelsonMap } from "@taquito/michelson-encoder";
 
 import { BigNumber } from "bignumber.js";
 import { Buffer } from "buffer";
-import { array } from "yargs";
 
 const { bob, alice, eve, mallory } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from "../test/helpers/Utils";
 
-import { mockFa12TokenStorageType } from "../test/types/mockFa12TokenStorageType";
+import { mavrykFa12TokenStorageType } from "../test/types/mavrykFa12TokenStorageType";
 
 const totalSupply   = 2000000000;
-const initialSupply = new BigNumber(totalSupply); // 2,000 MOCK FA12 Tokens in mu (10^6)
+const initialSupply = new BigNumber(totalSupply); // 2,000 MAVRYK FA12 Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4);
 
 const metadata = MichelsonMap.fromLiteral({
@@ -19,7 +18,7 @@ const metadata = MichelsonMap.fromLiteral({
     data: Buffer.from(
         JSON.stringify({
             version: 'v1.0.0',
-            description: 'MOCK FA12',
+            description: 'MAVRYK FA12 TOKEN',
             authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
             source: {
                 tools: ['Ligo', 'Flextesa'],
@@ -31,7 +30,7 @@ const metadata = MichelsonMap.fromLiteral({
             assets: [
                 {
                 symbol: Buffer.from('FA12').toString('hex'),
-                name: Buffer.from('MOCKFA12').toString('hex'),
+                name: Buffer.from('MAVRYK FA12 TOKEN').toString('hex'),
                 decimals: Buffer.from('6').toString('hex'),
                 icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
                 shouldPreferSymbol: true,
@@ -67,7 +66,7 @@ const token_metadata = MichelsonMap.fromLiteral({
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA12').toString('hex'),
-            name: Buffer.from('MOCKFA12').toString('hex'),
+            name: Buffer.from('MAVRYKFA12').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
             icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
             shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
@@ -76,12 +75,16 @@ const token_metadata = MichelsonMap.fromLiteral({
     },
   })
 
-export const mockFa12TokenStorage: mockFa12TokenStorageType = {
+export const mavrykFa12TokenStorage: mavrykFa12TokenStorageType = {
+
+    admin:                  bob.pkh,
+    metadata:               metadata,
+    governanceAddress:      zeroAddress,
     
-    admin: bob.pkh,
-    metadata: metadata,
-    token_metadata: token_metadata,
-    totalSupply: initialSupply,
-    ledger: ledger,
+    whitelistContracts:     MichelsonMap.fromLiteral({}),
+
+    token_metadata:         token_metadata,
+    totalSupply:            initialSupply,
+    ledger:                 ledger,
 
 };

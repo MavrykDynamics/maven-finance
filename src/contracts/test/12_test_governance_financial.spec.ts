@@ -21,8 +21,8 @@
 // import councilAddress                   from '../deployments/councilAddress.json';
 // import treasuryAddress                  from '../deployments/treasuryAddress.json';
 // import mvkTokenAddress                  from '../deployments/mvkTokenAddress.json';
-// import mockFa12TokenAddress             from '../deployments/mockFa12TokenAddress.json';
-// import mockFa2TokenAddress              from '../deployments/mockFa2TokenAddress.json';
+// import mavrykFa12TokenAddress             from '../deployments/mavrykFa12TokenAddress.json';
+// import mavrykFa2TokenAddress              from '../deployments/mavrykFa2TokenAddress.json';
 
 // import { config } from "yargs";
 
@@ -36,8 +36,8 @@
 //     let governanceFinancialInstance;
 //     let councilInstance;
 //     let treasuryInstance;
-//     let mockFa12TokenInstance;
-//     let mockFa2TokenInstance;
+//     let mavrykFa12TokenInstance;
+//     let mavrykFa2TokenInstance;
 
 //     let doormanStorage;
 //     let delegationStorage;
@@ -46,8 +46,8 @@
 //     let governanceFinancialStorage;
 //     let councilStorage;
 //     let treasuryStorage;
-//     let mockFa12TokenStorage;
-//     let mockFa2TokenStorage;
+//     let mavrykFa12TokenStorage;
+//     let mavrykFa2TokenStorage;
     
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -66,8 +66,8 @@
 //             governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress.address);
 //             councilInstance                 = await utils.tezos.contract.at(councilAddress.address);
 //             treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
-//             mockFa12TokenInstance           = await utils.tezos.contract.at(mockFa12TokenAddress.address);
-//             mockFa2TokenInstance            = await utils.tezos.contract.at(mockFa2TokenAddress.address);
+//             mavrykFa12TokenInstance           = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
+//             mavrykFa2TokenInstance            = await utils.tezos.contract.at(mavrykFa2TokenAddress.address);
     
 //             doormanStorage                  = await doormanInstance.storage();
 //             delegationStorage               = await delegationInstance.storage();
@@ -76,8 +76,8 @@
 //             governanceFinancialStorage      = await governanceFinancialInstance.storage();
 //             councilStorage                  = await councilInstance.storage();
 //             treasuryStorage                 = await treasuryInstance.storage();
-//             mockFa12TokenStorage            = await mockFa12TokenInstance.storage();
-//             mockFa2TokenStorage             = await mockFa2TokenInstance.storage();
+//             mavrykFa12TokenStorage            = await mavrykFa12TokenInstance.storage();
+//             mavrykFa2TokenStorage             = await mavrykFa2TokenInstance.storage();
     
 //             console.log('-- -- -- -- -- Governance Financial Tests -- -- -- --')
 //             console.log('Doorman Contract deployed at:', doormanInstance.address);
@@ -87,8 +87,8 @@
 //             console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
 //             console.log('Council Contract deployed at:', councilInstance.address);
 //             console.log('Treasury Contract deployed at:', treasuryInstance.address);
-//             console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
-//             console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
+//             console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+//             console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
 //             console.log('Bob address: ' + bob.pkh);
 //             console.log('Alice address: '   + alice.pkh);
 //             console.log('Eve address: '   + eve.pkh);
@@ -157,12 +157,12 @@
 //                 ]).send();
 //                 await malloryTransferMvkToTreasuryOperation.confirmation();
     
-//                 // Mallory transfers 250 Mock FA12 Tokens to Treasury
-//                 const malloryTransferMockFa12ToTreasuryOperation = await mockFa12TokenInstance.methods.transfer(mallory.pkh, treasuryAddress.address, 250000000).send();
-//                 await malloryTransferMockFa12ToTreasuryOperation.confirmation();
+//                 // Mallory transfers 250 Mavryk FA12 Tokens to Treasury
+//                 const malloryTransferMavrykFa12ToTreasuryOperation = await mavrykFa12TokenInstance.methods.transfer(mallory.pkh, treasuryAddress.address, 250000000).send();
+//                 await malloryTransferMavrykFa12ToTreasuryOperation.confirmation();
     
-//                 // Mallory transfers 250 Mock FA2 Tokens to Treasury
-//                 const malloryTransferMockFa2ToTreasuryOperation = await mockFa2TokenInstance.methods.transfer([
+//                 // Mallory transfers 250 Mavryk FA2 Tokens to Treasury
+//                 const malloryTransferMavrykFa2ToTreasuryOperation = await mavrykFa2TokenInstance.methods.transfer([
 //                     {
 //                         from_: mallory.pkh,
 //                         txs: [
@@ -174,7 +174,7 @@
 //                         ]
 //                     }
 //                 ]).send();
-//                 await malloryTransferMockFa2ToTreasuryOperation.confirmation();
+//                 await malloryTransferMavrykFa2ToTreasuryOperation.confirmation();
                 
 //                 // Mallory transfers 250 XTZ to Treasury
 //                 const malloryTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 100});
@@ -1956,19 +1956,19 @@
 //                 const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
 
 //                 // request tokens params
-//                 const tokenAmount                   = 100000000; // 100 Mock FA12 Tokens
+//                 const tokenAmount                   = 100000000; // 100 Mavryk FA12 Tokens
 //                 const treasury                      = treasuryAddress.address;
-//                 const mockFa12TokenContractAddress  = mockFa12TokenInstance.address; 
-//                 const tokenName                     = "MOCKFA12";
+//                 const mavrykFa12TokenContractAddress  = mavrykFa12TokenInstance.address; 
+//                 const tokenName                     = "MAVRYKFA12";
 //                 const tokenType                     = "FA12";
 //                 const tokenId                       = 0;
-//                 const purpose                       = "Test Council Request Transfer of 100 Mock FA12 Tokens";            
+//                 const purpose                       = "Test Council Request Transfer of 100 Mavryk FA12 Tokens";            
 
-//                 // Council member (bob) requests for mock FA12 token to be transferred from the Treasury
+//                 // Council member (bob) requests for mavryk FA12 token to be transferred from the Treasury
 //                 await signerFactory(bob.sk);
 //                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
 //                         treasury, 
-//                         mockFa12TokenContractAddress,
+//                         mavrykFa12TokenContractAddress,
 //                         tokenName, 
 //                         tokenAmount, 
 //                         tokenType, 
@@ -1987,7 +1987,7 @@
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
 //                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  mockFa12TokenContractAddress);
+//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  mavrykFa12TokenContractAddress);
 //                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
 //                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
 //                 assert.equal(councilActionString.get("tokenName"),      tokenName);
@@ -2030,7 +2030,7 @@
 //                 assert.equal(governanceFinancialRequestLedger.status,                         true);
 //                 assert.equal(governanceFinancialRequestLedger.executed,                       false);
 //                 assert.equal(governanceFinancialRequestLedger.treasuryAddress,                treasury);
-//                 assert.equal(governanceFinancialRequestLedger.tokenContractAddress,           mockFa12TokenContractAddress);
+//                 assert.equal(governanceFinancialRequestLedger.tokenContractAddress,           mavrykFa12TokenContractAddress);
 //                 assert.equal(governanceFinancialRequestLedger.tokenName,                      tokenName);
 //                 assert.equal(governanceFinancialRequestLedger.tokenAmount,                    tokenAmount);
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
@@ -2054,8 +2054,8 @@
 //                 const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);            
 
-//                 const mockFa12TokenStorage                             = await mockFa12TokenInstance.storage();
-//                 const councilMockFa12Ledger                            = await mockFa12TokenStorage.ledger.get(councilContractAddress);
+//                 const mavrykFa12TokenStorage                             = await mavrykFa12TokenInstance.storage();
+//                 const councilMavrykFa12Ledger                            = await mavrykFa12TokenStorage.ledger.get(councilContractAddress);
 
 
 //                 governanceStorage                     = await governanceInstance.storage();
@@ -2078,8 +2078,8 @@
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
-//                 // check that council now has 100 Mock FA12 Tokens in its account
-//                 assert.equal(councilMockFa12Ledger.balance, tokenAmount);
+//                 // check that council now has 100 Mavryk FA12 Tokens in its account
+//                 assert.equal(councilMavrykFa12Ledger.balance, tokenAmount);
 
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -2097,19 +2097,19 @@
 //                 const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
 
 //                 // request tokens params
-//                 const tokenAmount                   = 100000000; // 100 Mock FA2 Tokens
+//                 const tokenAmount                   = 100000000; // 100 Mavryk FA2 Tokens
 //                 const treasury                      = treasuryAddress.address;
-//                 const mockFa2TokenContractAddress   = mockFa2TokenInstance.address; 
-//                 const tokenName                     = "MOCKFA2";
+//                 const mavrykFa2TokenContractAddress   = mavrykFa2TokenInstance.address; 
+//                 const tokenName                     = "MAVRYKFA2";
 //                 const tokenType                     = "FA2";
 //                 const tokenId                       = 0;
-//                 const purpose                       = "Test Council Request Transfer of 100 Mock FA2 Tokens";            
+//                 const purpose                       = "Test Council Request Transfer of 100 Mavryk FA2 Tokens";            
 
-//                 // Council member (bob) requests for mock FA2 token to be transferred from the Treasury
+//                 // Council member (bob) requests for mavryk FA2 token to be transferred from the Treasury
 //                 await signerFactory(bob.sk);
 //                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
 //                         treasury, 
-//                         mockFa2TokenContractAddress,
+//                         mavrykFa2TokenContractAddress,
 //                         tokenName, 
 //                         tokenAmount, 
 //                         tokenType, 
@@ -2128,7 +2128,7 @@
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
 //                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  mockFa2TokenContractAddress);
+//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  mavrykFa2TokenContractAddress);
 //                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
 //                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
 //                 assert.equal(councilActionString.get("tokenName"),      tokenName);
@@ -2171,7 +2171,7 @@
 //                 assert.equal(governanceFinancialRequestLedger.status,                         true);
 //                 assert.equal(governanceFinancialRequestLedger.executed,                       false);
 //                 assert.equal(governanceFinancialRequestLedger.treasuryAddress,                treasury);
-//                 assert.equal(governanceFinancialRequestLedger.tokenContractAddress,           mockFa2TokenContractAddress);
+//                 assert.equal(governanceFinancialRequestLedger.tokenContractAddress,           mavrykFa2TokenContractAddress);
 //                 assert.equal(governanceFinancialRequestLedger.tokenName,                      tokenName);
 //                 assert.equal(governanceFinancialRequestLedger.tokenAmount,                    tokenAmount);
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
@@ -2195,8 +2195,8 @@
 //                 const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);            
 
-//                 const mockFa2TokenStorage                              = await mockFa2TokenInstance.storage();
-//                 const councilMockFa2Ledger                             = await mockFa2TokenStorage.ledger.get(councilAddress.address);
+//                 const mavrykFa2TokenStorage                              = await mavrykFa2TokenInstance.storage();
+//                 const councilMavrykFa2Ledger                             = await mavrykFa2TokenStorage.ledger.get(councilAddress.address);
 
 
 //                 governanceStorage                     = await governanceInstance.storage();
@@ -2219,8 +2219,8 @@
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
-//                 // check that council now has 100 Mock FA2 Tokens in its account
-//                 assert.equal(councilMockFa2Ledger, tokenAmount);
+//                 // check that council now has 100 Mavryk FA2 Tokens in its account
+//                 assert.equal(councilMavrykFa2Ledger, tokenAmount);
 
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
