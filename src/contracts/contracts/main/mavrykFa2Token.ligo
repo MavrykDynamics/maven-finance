@@ -23,7 +23,6 @@ type action is
         SetAdmin                  of address
     |   SetGovernance             of address
     |   UpdateWhitelistContracts  of updateWhitelistContractsType
-    |   UpdateGeneralContracts    of updateGeneralContractsType
     |   MistakenTransfer          of transferActionType
 
         // FA2 Entrypoints
@@ -33,7 +32,7 @@ type action is
     |   AssertMetadata            of assertMetadataType
 
         // Additional Entrypoints (Token Supply Inflation)
-    |   MintOrBurn                of mintOrBurnTypes
+    |   MintOrBurn                of mintOrBurnType
 
 
 type return is list (operation) * mavrykFa2TokenStorageType
@@ -178,12 +177,6 @@ block{
 
 
 
-(* get: general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const store : mavrykFa2TokenStorageType) : generalContractsType is
-    store.generalContracts
-
-
-
 (* get: whitelist contracts *)
 [@view] function getWhitelistContracts(const _ : unit; const store : mavrykFa2TokenStorageType) : whitelistContractsType is
     store.whitelistContracts
@@ -278,17 +271,6 @@ block {
     checkSenderIsAdmin(s);
     s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsTypes, s.whitelistContracts);
   
-} with (noOperations, s)
-
-
-
-(*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsTypes : updateGeneralContractsType; var s : mavrykFa2TokenStorageType) : return is
-block {
-  
-    checkSenderIsAdmin(s);
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsTypes, s.generalContracts);
-
 } with (noOperations, s)
 
 
@@ -451,7 +433,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* MintOrBurn Entrypoint *)
-function mintOrBurn(const mintOrBurnParams : mintOrBurnTypes; var s : mavrykFa2TokenStorageType) : return is
+function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mavrykFa2TokenStorageType) : return is
 block {
 
     // check sender is from cfmm contract
@@ -526,7 +508,6 @@ block{
             SetAdmin (parameters)                   -> setAdmin(parameters, s)
         |   SetGovernance (parameters)              -> setGovernance(parameters, s)
         |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
-        |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
         |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
 
             // FA2 Entrypoints

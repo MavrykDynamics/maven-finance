@@ -8,7 +8,7 @@ type trusted is address;
 // Storage Types
 // ------------------------------------------------------------------------------
 
-type account is [@layout:comb] record [
+type accountType is [@layout:comb] record [
     balance         : tokenBalanceType;
     allowances      : map (trusted, tokenBalanceType);
 ]
@@ -18,26 +18,26 @@ type tokenMetadataInfoType is [@layout:comb] record [
   token_info        : map(string, bytes);
 ]
 
-type ledgerType is big_map (address, account);
+type ledgerType is big_map (address, accountType);
 
 // ------------------------------------------------------------------------------
 // Action Types
 // ------------------------------------------------------------------------------
 
 (* Approve entrypoint inputs *)
-type approveTypes is michelson_pair(trusted, "spender", tokenBalanceType, "value")
+type approveType is michelson_pair(trusted, "spender", tokenBalanceType, "value")
 
 (* GetBalance entrypoint inputs *)
-type balanceTypes is michelson_pair(address, "owner", contract(tokenBalanceType), "")
+type balanceType is michelson_pair(address, "owner", contract(tokenBalanceType), "")
 
 (* GetAllowances entrypoint inputs *)
-type allowanceTypes is michelson_pair(michelson_pair(address, "owner", trusted, "spender"), "", contract(tokenBalanceType), "")
+type allowanceType is michelson_pair(michelson_pair(address, "owner", trusted, "spender"), "", contract(tokenBalanceType), "")
 
 (* GetTotalSupply entrypoint inputs *)
-type totalSupplyTypes is (unit * contract(tokenBalanceType))
+type totalSupplyType is (unit * contract(tokenBalanceType))
 
 (* MintOrBurn entrypoint inputs *)
-type mintOrBurnTypes is [@layout:comb] record [
+type mintOrBurnType is [@layout:comb] record [
     target    : address;
     quantity  : int;
 ]
@@ -53,7 +53,6 @@ type mavrykFa12TokenStorageType is [@layout:comb] record [
     governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;   // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
-    generalContracts        : generalContractsType;     // map of contract addresses
 
     token_metadata          : big_map(tokenIdType, tokenMetadataInfoType);
     totalSupply             : tokenBalanceType;

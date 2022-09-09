@@ -8,7 +8,6 @@ export type mavrykFa2TokenStorageType = {
     governanceAddress   : string;
 
     whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;
-    generalContracts    : MichelsonMap<MichelsonMapKey, unknown>;
 
     token_metadata      : MichelsonMap<MichelsonMapKey, unknown>;
     totalSupply         : BigNumber;

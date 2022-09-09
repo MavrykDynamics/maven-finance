@@ -32,7 +32,7 @@ type transfer is [@layout:comb] record[
 
 type fa2TransferType is list(transfer)
 
-type operatorsType is big_map((ownerType * operatorType * nat), unit)
+type operatorsType is big_map((ownerType * operatorType * tokenIdType), unit)
 
 (* Balance_of entrypoint inputs *)
 type balanceOfRequestType is [@layout:comb] record[
