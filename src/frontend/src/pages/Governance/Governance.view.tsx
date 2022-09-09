@@ -100,6 +100,7 @@ export const GovernanceView = ({
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
   const [votingEnding, setVotingEnding] = useState<string>('')
+  const [visibleMeta, setVisibleMeta] = useState<string>('')
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
@@ -472,16 +473,24 @@ export const GovernanceView = ({
                         <div>
                           <b className="proposal-list-title">Bytes: </b>
                           <span className="proposal-list-bites">
-                            <input type="checkbox" className="byte-input" id={unique} />
-                            <span className="byte">
-                              <button onClick={() => handleCopyToClipboard(item.bytes)}>
-                                {item.bytes} <Icon id="copyToClipboard" />
-                              </button>
-                              <br /> <label htmlFor={unique}>hide</label>
-                            </span>
-                            <span className="short-byte">
-                              {getShortByte(item.bytes)} <label htmlFor={unique}>see all</label>
-                            </span>
+                            {visibleMeta === unique ? (
+                              <span className="byte">
+                                <button onClick={() => handleCopyToClipboard(item.bytes)}>
+                                  {item.bytes} <Icon id="copyToClipboard" />
+                                </button>
+                                <br />
+                                <button onClick={() => setVisibleMeta('')} className="visible-button">
+                                  hide
+                                </button>
+                              </span>
+                            ) : (
+                              <span className="short-byte">
+                                {getShortByte(item.bytes)}{' '}
+                                <button onClick={() => setVisibleMeta(unique)} className="visible-button">
+                                  see all
+                                </button>
+                              </span>
+                            )}
                           </span>
                         </div>
                       </div>
@@ -507,7 +516,7 @@ export const GovernanceView = ({
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
                     {rightSideContent.proposalPayments.map((item, i: number) => {
-                      const paymentType = normalizeTokenStandart(item.token)
+                      const paymentType = normalizeTokenStandart(item.token_standard)
 
                       const amount =
                         paymentType === 'MVK'

@@ -6,8 +6,8 @@ import { GET_COUNCIL_PAST_ACTIONS_STORAGE, GET_COUNCIL_PENDING_ACTIONS_STORAGE }
 export interface CouncilPastAction {
   council_id: string
   executed: boolean
-  executed_datetime: string
-  executed_level: number
+  execution_datetime: string
+  execution_level: number
   expiration_datetime: string
   id: number
   initiator_id: string

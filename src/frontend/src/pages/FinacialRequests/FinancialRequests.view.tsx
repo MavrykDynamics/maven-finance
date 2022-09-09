@@ -50,7 +50,7 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
   }
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
-  const tokenName = rightSideContent.token?.type === 0 ? 'XTZ' : 'MVK'
+  const tokenName = rightSideContent.token_name
 
   const RightSideBlock = () =>
     rightSideContent ? (
