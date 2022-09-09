@@ -20,15 +20,9 @@ const config = {
     decimals                            : new BigNumber(8),
     alphaPercentPerThousand             : new BigNumber(2),
     
-    deviationTriggerBanDuration         : new BigNumber(86400), // one day
-    perThousandDeviationTrigger         : new BigNumber(2),
     percentOracleThreshold              : new BigNumber(49),
     heartBeatSeconds                    : new BigNumber(3),
-
-    requestRateDeviationDepositFee      : new BigNumber(0),
     
-    deviationRewardStakedMvk            : new BigNumber(15000000), // 0.015 MVK
-    deviationRewardAmountXtz            : new BigNumber(0),  
     rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
     rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
 }
@@ -54,10 +48,6 @@ const metadata = MichelsonMap.fromLiteral({
 
 const oracleAddresses = MichelsonMap.fromLiteral({});
 
-const deviationTriggerInfos = {
-    oracleAddress   : oracleMaintainer.pkh,
-    roundPrice      : new BigNumber(0),
-}
 
 const lastCompletedPrice = {
     round                   : new BigNumber(0),
@@ -83,10 +73,8 @@ export const aggregatorStorage: aggregatorStorageType = {
 
     oracleAddresses           : oracleAddresses,
     
-    deviationTriggerInfos     : deviationTriggerInfos,
     lastCompletedPrice        : lastCompletedPrice,
     
-    deviationTriggerBan       : MichelsonMap.fromLiteral({}),
 
     oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
     oracleRewardXtz           : MichelsonMap.fromLiteral({}),

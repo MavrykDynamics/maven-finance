@@ -12,15 +12,10 @@ export type aggregatorStorageType = {
         decimals                            : BigNumber;
         alphaPercentPerThousand             : BigNumber;
 
-        deviationTriggerBanDuration         : BigNumber;
-        perThousandDeviationTrigger         : BigNumber;
         percentOracleThreshold              : BigNumber;
         heartBeatSeconds                    : BigNumber;
 
-        requestRateDeviationDepositFee      : BigNumber;
         
-        deviationRewardStakedMvk            : BigNumber;    
-        deviationRewardAmountXtz            : BigNumber;    
         rewardAmountXtz                     : BigNumber;
         rewardAmountStakedMvk               : BigNumber;
     };
@@ -39,10 +34,6 @@ export type aggregatorStorageType = {
 
     oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
     
-    deviationTriggerInfos: {
-        oracleAddress   : string;
-        roundPrice      : BigNumber;
-    };
 
     lastCompletedPrice: {
         round                 : BigNumber;
@@ -52,7 +43,6 @@ export type aggregatorStorageType = {
         priceDateTime         : string;
     };
 
-    deviationTriggerBan       : MichelsonMap<MichelsonMapKey, unknown>;
 
     oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;
     oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;

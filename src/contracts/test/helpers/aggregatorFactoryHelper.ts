@@ -48,14 +48,8 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         decimals                            : BigNumber,
         numberBlocksDelay                   : BigNumber,
 
-        deviationTriggerBanDuration         : BigNumber,
-        perthousandDeviationTrigger         : BigNumber,
         percentOracleThreshold              : BigNumber,
-
-        requestRateDeviationDepositFee      : BigNumber,
         
-        deviationRewardStakedMvk            : BigNumber,
-        deviationRewardAmountXtz            : BigNumber,
         rewardAmountStakedMvK               : BigNumber,
         rewardAmountXtz                     : BigNumber,
 

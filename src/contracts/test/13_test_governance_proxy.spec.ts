@@ -2307,14 +2307,8 @@
 //                     new BigNumber(8),             // decimals
 //                     new BigNumber(2),             // numberBlocksDelay
 
-//                     new BigNumber(86400),         // deviationTriggerBanTimestamp
-//                     new BigNumber(5),             // perthousandDeviationTrigger
 //                     new BigNumber(60),            // percentOracleThreshold
 
-//                     new BigNumber(0),             // requestRateDeviationDepositFee 
-
-//                     new BigNumber(10000000),      // deviationRewardStakedMvk
-//                     new BigNumber(0),             // deviationRewardAmountXtz
 //                     new BigNumber(10000000),      // rewardAmountStakedMvk ~ 0.01 MVK 
 //                     new BigNumber(1000000),       // rewardAmountXtz - 1 tez for testing (usual should be around ~ 0.0013 tez)
                     
