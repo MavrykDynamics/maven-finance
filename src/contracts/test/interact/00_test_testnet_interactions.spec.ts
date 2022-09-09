@@ -26,7 +26,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import lpTokenAddress from '../../deployments/lpTokenAddress.json';
+import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
 import treasuryAddress from '../../deployments/treasuryAddress.json';
 import vestingAddress from '../../deployments/vestingAddress.json';
 import governanceFinancialAddress from '../../deployments/governanceFinancialAddress.json';
@@ -40,6 +40,13 @@ import tokenSaleAddress from '../../deployments/tokenSaleAddress.json';
 // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 import { config } from "yargs";
 import { MichelsonMap } from "@taquito/taquito";
+
+interface IOracleObservationType {
+    price: BigNumber;
+    epoch: number;
+    round: number;
+    aggregatorAddress: string;
+}
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -157,7 +164,7 @@ describe("Testnet interactions helper", async () => {
             treasuryFactoryInstance         = await utils.tezos.contract.at(treasuryFactoryAddress.address);
             treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
             farmInstance                    = await utils.tezos.contract.at(farmAddress.address);
-            lpTokenInstance                 = await utils.tezos.contract.at(lpTokenAddress.address);
+            lpTokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
             governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress.address);
             aggregatorInstance              = await utils.tezos.contract.at(aggregatorAddress.address);
             aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
@@ -1752,7 +1759,7 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase,
-                    lpTokenAddress.address,
+                    mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
                 ).send();
@@ -2088,17 +2095,34 @@ describe("Testnet interactions helper", async () => {
         
         it('Admin creates an aggregator', async () => {
             try{
-                // Operation
+  
                 const oracleMap = MichelsonMap.fromLiteral({
-                    [oracle0.pkh] : true,
-                    [oracle1.pkh] : true,
-                    [oracle2.pkh] : true,
-                    // [oracle3.pkh]: true,
-                    // [oracle4.pkh]: true,
-                }) as MichelsonMap<
-                    string,
-                    boolean
-                    >
+                    [bob.pkh]              : {
+                                                oraclePublicKey: bob.pk,
+                                                oraclePeerId: bob.peerId
+                                            },
+                    [eve.pkh]              : {
+                                                oraclePublicKey: eve.pk,
+                                                oraclePeerId: eve.peerId
+                                            },
+                    [mallory.pkh]          : {
+                                                oraclePublicKey: mallory.pk,
+                                                oraclePeerId: mallory.peerId
+                                            },
+                    [oracleMaintainer.pkh] : {
+                                                oraclePublicKey: oracleMaintainer.pk,
+                                                oraclePeerId: oracleMaintainer.peerId
+                                            },
+                });
+
+                const aggregatorMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: 'MAVRYK Aggregator Contract',
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                    ).toString('hex')
                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
                     'USD',
                     'BTC',
@@ -2114,7 +2138,8 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(86400),         // deviationTriggerBanDuration
                     new BigNumber(5),             // perthousandDeviationTrigger
                     new BigNumber(60),            // percentOracleThreshold
-                    
+                    new BigNumber(30),            // heartBeatSeconds
+
                     new BigNumber(0),             // requestRateDeviationDepositFee
     
                     new BigNumber(10000000),      // deviationRewardStakedMvk
@@ -2122,7 +2147,6 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
                     
-                    oracleMaintainer.pkh,         // maintainer
                     aggregatorMetadataBase        // metadata
                 ).send()
                 await operation.confirmation();
@@ -2182,16 +2206,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin sets maintainer', async () => {
-            try{
-                // Operation
-                const operation = await aggregatorInstance.methods.setMaintainer(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin sets name', async () => {
             try{
                 // Operation
@@ -2225,7 +2239,11 @@ describe("Testnet interactions helper", async () => {
         it('Admin adds an oracle', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.addOracle(bob.pkh).send();
+                const operation = await aggregatorInstance.methods.addOracle(
+                    bob.pkh,
+                    bob.pk,
+                    bob.peerId
+                ).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2237,47 +2255,21 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 var operation   = await aggregatorInstance.methods.removeOracle(bob.pkh).send();
                 await operation.confirmation();
-                var operation       = await aggregatorInstance.methods.addOracle(bob.pkh).send();
+                var operation       = await aggregatorInstance.methods.addOracle(
+                    bob.pkh,
+                    bob.pk,
+                    bob.peerId
+                ).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin pauses %requestRateUpdate', async () => {
+        it('Admin pauses %updatePrice', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("requestRateUpdate", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin pauses %requestRateUpdateDeviation', async () => {
-            try{
-                // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("requestRateUpdateDeviation", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin pauses %setObservationCommit', async () => {
-            try{
-                // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("setObservationCommit", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin pauses %setObservationReveal', async () => {
-            try{
-                // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("setObservationReveal", true).send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("updatePrice", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2324,90 +2316,38 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin requests rate update', async () => {
+        it('Admin updates price', async () => {
             try{
+                // Initial values
+                const observations = [
+                {
+                    "oracle": bob.pkh,
+                    "price": new BigNumber(10142857143)
+                }
+                ];
+                const epoch: number = 1;
+                const round: number = 1;
+                const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+                for (const { oracle, price } of observations) {
+                   oracleObservations.set(oracle, {
+                       price,
+                       epoch,
+                       round,
+                       aggregatorAddress: aggregatorAddress.address
+                     });
+                };
+       
+                const signatures = new MichelsonMap<string, string>();
+       
+                await signerFactory(bob.sk);
+                signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+       
                 // Operation
                 aggregatorStorage   = await aggregatorInstance.storage()
-                const operation = await aggregatorInstance.methods.requestRateUpdate().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
 
-        it('Admin sets observation commit', async () => {
-            try{
-                // Operation
-                aggregatorStorage   = await aggregatorInstance.storage()
-                const round         = aggregatorStorage.round;
-                const price         = new BigNumber(200);
-                const data: MichelsonData = {
-                  prim: 'Pair',
-                  args: [
-                    { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-                    { string: bob.pkh },
-                  ],
-                };
-                const type: MichelsonType = {
-                  prim: 'pair',
-                  args: [
-                    { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-                    { prim: 'address' },
-                  ],
-                };
-                const priceCodec = packDataBytes(data, type);
-                const hash = createHash('sha256')
-                    .update(priceCodec.bytes, 'hex')
-                    .digest('hex');
-                const operation = await aggregatorInstance.methods.setObservationCommit(round, hash).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin sets observation reveal', async () => {
-            try{
-                // Operation
-                await wait(2 * 60 * 1000);
-                aggregatorStorage   = await aggregatorInstance.storage()
-                const round         = aggregatorStorage.round;
-                const price         = new BigNumber(200);
-
-                const operation = await aggregatorInstance.methods.setObservationReveal(round, price, salt, bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin requests rate update deviation', async () => {
-            try{
-                // Operation
-                aggregatorStorage   = await aggregatorInstance.storage()
-                const roundId       = aggregatorStorage.round;
-                const price         = new BigNumber(200);
-                const data: MichelsonData = {
-                prim: 'Pair',
-                args: [
-                    { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-                    { string: bob.pkh },
-                ],
-                };
-                const type: MichelsonType = {
-                prim: 'pair',
-                args: [
-                    { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-                    { prim: 'address' },
-                ],
-                };
-                const priceCodec = packDataBytes(data, type);
-                const hash = createHash('sha256')
-                    .update(priceCodec.bytes, 'hex')
-                    .digest('hex');
-                const operation = await aggregatorInstance.methods.requestRateUpdateDeviation(
-                    roundId.plus(1),
-                    hash
+                const operation = await aggregatorInstance.methods.updatePrice(
+                    oracleObservations,
+                    signatures
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -2447,10 +2387,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates number blocks delay', async () => {
+        it('Admin updates heart beat seconds', async () => {
             try{
                 // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(1, "configNumberBlocksDelay").send();
+                var operation = await aggregatorInstance.methods.updateConfig(15, "configHeartBeatSeconds").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2814,7 +2754,7 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase,
-                    lpTokenAddress.address,
+                    mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
                 ).toTransferParams();
@@ -2913,7 +2853,7 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase,
-                    lpTokenAddress.address,
+                    mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
                 ).toTransferParams();
@@ -3034,7 +2974,7 @@ describe("Testnet interactions helper", async () => {
                     12000,
                     100,
                     farmMetadataBase,
-                    lpTokenAddress.address,
+                    mavrykFa12TokenAddress.address,
                     0,
                     "fa12",
                 ).toTransferParams();

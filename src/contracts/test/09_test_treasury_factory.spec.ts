@@ -17,8 +17,8 @@
 // import treasuryFactoryAddress from '../deployments/treasuryFactoryAddress.json';
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 // import governanceAddress from '../deployments/governanceAddress.json';
-// import mockFa12TokenAddress  from '../deployments/mockFa12TokenAddress.json';
-// import mockFa2TokenAddress   from '../deployments/mockFa2TokenAddress.json';
+// import mavrykFa12TokenAddress  from '../deployments/mavrykFa12TokenAddress.json';
+// import mavrykFa2TokenAddress   from '../deployments/mavrykFa2TokenAddress.json';
 // import delegationAddress   from '../deployments/delegationAddress.json';
 // import { treasuryStorageType } from "./types/treasuryStorageType";
 
@@ -29,15 +29,15 @@
 //     let treasuryFactoryInstance;
 //     let mvkTokenInstance;
 //     let governanceInstance;
-//     let mockFa12TokenInstance;
-//     let mockFa2TokenInstance;
+//     let mavrykFa12TokenInstance;
+//     let mavrykFa2TokenInstance;
 
 //     let treasuryStorage;
 //     let treasuryFactoryStorage;
 //     let mvkTokenStorage;
 //     let governanceStorage;
-//     let mockFa12TokenStorage;
-//     let mockFa2TokenStorage;
+//     let mavrykFa12TokenStorage;
+//     let mavrykFa2TokenStorage;
     
 //     const treasuryMetadataBase = Buffer.from(
 //         JSON.stringify({
@@ -78,15 +78,15 @@
 //         treasuryFactoryInstance = await utils.tezos.contract.at(treasuryFactoryAddress.address);
 //         mvkTokenInstance        = await utils.tezos.contract.at(mvkTokenAddress.address);
 //         governanceInstance      = await utils.tezos.contract.at(governanceAddress.address);
-//         mockFa12TokenInstance   = await utils.tezos.contract.at(mockFa12TokenAddress.address);
-//         mockFa2TokenInstance    = await utils.tezos.contract.at(mockFa2TokenAddress.address);
+//         mavrykFa12TokenInstance   = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
+//         mavrykFa2TokenInstance    = await utils.tezos.contract.at(mavrykFa2TokenAddress.address);
 
 //         treasuryStorage         = await treasuryInstance.storage();
 //         treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
 //         mvkTokenStorage         = await mvkTokenInstance.storage();
 //         governanceStorage       = await governanceInstance.storage();
-//         mockFa12TokenStorage    = await mockFa12TokenInstance.storage();
-//         mockFa2TokenStorage     = await mockFa2TokenInstance.storage();
+//         mavrykFa12TokenStorage    = await mavrykFa12TokenInstance.storage();
+//         mavrykFa2TokenStorage     = await mavrykFa2TokenInstance.storage();
 
 //         console.log("Treasury metadata in bytes:")
 //         console.log(treasuryMetadataBase)
@@ -96,8 +96,8 @@
 //         console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
 //         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
 //         console.log('Governance Contract deployed at:', governanceInstance.address);
-//         console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
-//         console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
+//         console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+//         console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
 //         console.log('Bob address: ' + bob.pkh);
 //         console.log('Alice address: ' + alice.pkh);
 //         console.log('Eve address: ' + eve.pkh);

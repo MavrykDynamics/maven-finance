@@ -41,6 +41,8 @@ async def on_governance_financial_vote_for_request(
     financial_request.yay_vote_smvk_total   = yay_smvk_total
     financial_request.nay_vote_smvk_total   = nay_smvk_total
     financial_request.pass_vote_smvk_total  = pass_smvk_total
+    if executed:
+        financial_request.execution_datetime    = timestamp
     await financial_request.save()
     
     voter, _                = await models.MavrykUser.get_or_create(
