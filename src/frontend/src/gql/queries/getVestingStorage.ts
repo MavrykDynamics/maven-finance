@@ -3,16 +3,6 @@ export const VESTING_STORAGE_QUERY = `
     vesting {
       address
       total_vested_amount
-      vestee_records_aggregate {
-        aggregate {
-          sum {
-            total_claimed
-            total_remainder
-            total_allocated_amount
-            claim_amount_per_month
-          }
-        }
-      }
     }
   }
 `

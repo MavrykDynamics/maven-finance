@@ -19,7 +19,6 @@ export const EMERGENCY_GOVERNANCE_STORAGE_QUERY = `
         dropped
         emergency_governance_id
         executed
-        execution_datetime
         expiration_timestamp
         id
         proposer_id
@@ -34,7 +33,6 @@ export const EMERGENCY_GOVERNANCE_STORAGE_QUERY = `
           timestamp
           voter_id
         }
-        execution_level
         start_level
         total_smvk_votes
       }
