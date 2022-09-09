@@ -27,17 +27,18 @@ export const BreakGlassActions: FC = () => {
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
   const [form, setForm] = useState({ address: '' })
-  const [address, setAddress] = useState('')
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     address: '',
   })
+
+  const { address } = form;
 
   const handleClickPropagateBreakGlass = () => {
   
   }
   
-  const handleClickSetContractsAdmin = () => {
-  
+  const handleClickSetContractsAdmin = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
   }
   
   const handleClickDropdown = () => {
@@ -100,8 +101,7 @@ export const BreakGlassActions: FC = () => {
           <h1>Set All Contracts Admin</h1>
           <p>Please enter valid function parameters for adding a vestee</p>
 
-          <div className="input-section">
-            {/* TODO: change to form */}
+          <form onSubmit={handleClickSetContractsAdmin}>
             <div className="input-size">
               <label>New Admin Address</label>
 
@@ -119,14 +119,13 @@ export const BreakGlassActions: FC = () => {
               />
             </div>
 
-
             <Button
               text={'Set Contracts Admin'}
               kind={ACTION_PRIMARY}
               icon={'profile'}
-              onClick={handleClickSetContractsAdmin}
+              type="submit"
             />
-          </div>
+          </form>
         </div>
       </BreakGlassActionsCard>
     </Page>

@@ -48,12 +48,6 @@ export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
     padding: 40px 35px;
   }
 
-  .input-section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
   .input-size {
     width: 515px;
 
@@ -70,6 +64,12 @@ export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
 
   .dropdown-size {
     width: 450px;
+  }
+
+  form {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   h1 {
