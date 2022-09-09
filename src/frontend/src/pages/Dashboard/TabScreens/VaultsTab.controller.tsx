@@ -6,105 +6,37 @@ import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controll
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getPieChartData } from 'pages/Treasury/helpers/calculateChartData'
 import React, { useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { StatBlock, BlockName } from '../Dashboard.style'
 import { TabWrapperStyled, VaultsContentStyled } from './DashboardTabs.style'
-import { columnNames, tableData, fieldsMapper } from './TreasuryTab.controller'
-
-const balances = [
-  {
-    rate: 0.25,
-    balance: 123,
-    contract: '',
-    decimals: 3,
-    is_transferable: true,
-    name: 'mvk',
-    network: 'ghostnet',
-    symbol: 'mvk',
-    thumbnail_uri: 'mvk',
-    token_id: 23,
-  },
-  {
-    rate: 0.2325,
-    balance: 423,
-    contract: '',
-    decimals: 3,
-    is_transferable: true,
-    name: 'tzBTC',
-    network: 'ghostnet',
-    symbol: 'tzBTC',
-    thumbnail_uri: 'tzBTC',
-    token_id: 213,
-  },
-  {
-    rate: 0.245,
-    balance: 111,
-    contract: '',
-    decimals: 3,
-    is_transferable: true,
-    name: 'xtz',
-    network: 'ghostnet',
-    symbol: 'xtz',
-    thumbnail_uri: 'xtz',
-    token_id: 233,
-  },
-  {
-    rate: 0.2325,
-    balance: 423,
-    contract: '',
-    decimals: 3,
-    is_transferable: true,
-    name: 'tzBTC',
-    network: 'ghostnet',
-    symbol: 'tzBTC',
-    thumbnail_uri: 'tzBTC',
-    token_id: 213,
-  },
-  {
-    rate: 0.245,
-    balance: 111,
-    contract: '',
-    decimals: 3,
-    is_transferable: true,
-    name: 'xtz',
-    network: 'ghostnet',
-    symbol: 'xtz',
-    thumbnail_uri: 'xtz',
-    token_id: 233,
-  },
-  {
-    rate: 0.2325,
-    balance: 423,
-    contract: '',
-    decimals: 3,
-    is_transferable: true,
-    name: 'tzBTC',
-    network: 'ghostnet',
-    symbol: 'tzBTC',
-    thumbnail_uri: 'tzBTC',
-    token_id: 213,
-  },
-  {
-    rate: 0.245,
-    balance: 111,
-    contract: '',
-    decimals: 3,
-    is_transferable: true,
-    name: 'xtz',
-    network: 'ghostnet',
-    symbol: 'xtz',
-    thumbnail_uri: 'xtz',
-    token_id: 233,
-  },
-]
-
-const reducedBalance = 1000
+import { columnNames, fieldsMapper } from './TreasuryTab.controller'
 
 export const VaultsTab = () => {
   const [hoveredPath, setHoveredPath] = useState<null | string>(null)
 
+  const { treasuryStorage } = useSelector((state: State) => state.treasury)
+
+  const treasuryAssets = treasuryStorage.reduce((acc, { balances }) => {
+    balances.forEach((balanceAsset) => {
+      const currentAssetIndex = acc.findIndex((asset: TreasuryBalanceType) => asset.symbol === balanceAsset.symbol)
+      if (currentAssetIndex < 0) {
+        acc.push(balanceAsset)
+      } else {
+        acc[currentAssetIndex].balance += balanceAsset.balance
+        acc[currentAssetIndex].usdValue += balanceAsset.usdValue
+      }
+    })
+
+    return acc
+  }, [] as Array<TreasuryBalanceType>)
+
+  const globalTreasury = treasuryAssets.reduce((acc, asset) => acc + asset.usdValue, 0)
+
   const chartData = useMemo(() => {
-    return getPieChartData(balances, reducedBalance, hoveredPath)
-  }, [hoveredPath])
+    return getPieChartData(treasuryAssets, globalTreasury, hoveredPath)
+  }, [hoveredPath, globalTreasury, treasuryAssets])
 
   return (
     <TabWrapperStyled className="vaults">
@@ -141,7 +73,7 @@ export const VaultsTab = () => {
 
             <SimpleTable
               colunmNames={columnNames}
-              data={tableData}
+              data={treasuryAssets}
               fieldsMapper={fieldsMapper}
               className="dashboard-st vaults"
             />
@@ -157,7 +89,7 @@ export const VaultsTab = () => {
             <PieChartView chartData={chartData} />
 
             <div className="asset-lables scroll-block">
-              {balances.map((balanceValue) => (
+              {treasuryAssets.map((balanceValue) => (
                 <div
                   style={{
                     background: `linear-gradient(90deg,${

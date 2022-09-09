@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import qs from 'qs'
 import { useEffect } from 'react'
-import { getVestingStorage } from '../Treasury/Treasury.actions'
+import { fillTreasuryStorage, getVestingStorage } from '../Treasury/Treasury.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { DashboardView } from './Dashboard.view'
@@ -32,8 +32,12 @@ export const Dashboard = () => {
     mvkTokenStorage: { totalSupply, maximumTotalSupply },
   } = useSelector((state: State) => state.mvkToken)
 
+  // useEffect(() => {
+  //   dispatch(getVestingStorage())
+  // }, [dispatch])
+
   useEffect(() => {
-    dispatch(getVestingStorage())
+    dispatch(fillTreasuryStorage())
   }, [dispatch])
 
   const mvkStatsBlock: mvkStatsType = {

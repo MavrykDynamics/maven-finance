@@ -51,6 +51,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       ({ smvk_balance, address }: { smvk_balance: number; address: string }): TreasuryBalanceType => {
         return {
           balance: smvk_balance,
+          usdValue: smvk_balance * MVK_EXCHANGE_RATE,
           decimals: 9,
           contract: address,
           name: 'Staked MAVRYK',
@@ -98,14 +99,16 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
         .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
           const assetRate = metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]
+          const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
 
           return {
             contract: contract.address,
+            usdValue: coinsAmount * assetRate,
             decimals: parseInt(metadata.decimals),
             name: metadata.name,
             thumbnail_uri: metadata.thumbnailUri,
             symbol: metadata.symbol,
-            balance: calcWithoutMu(balance) / assetRate,
+            balance: coinsAmount,
             rate: assetRate,
           }
         })
@@ -142,19 +145,19 @@ export const getVestingStorage = (accountPkh?: string) => async (dispatch: AppDi
   try {
     const state: State = getState()
 
-    const contract = accountPkh
-      ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.vestingAddress?.address)
-      : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/')?.contract?.at(
-          state?.contractAddresses?.vestingAddress?.address,
-        )
+    // const contract = accountPkh
+    //   ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.vestingAddress?.address)
+    //   : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/')?.contract?.at(
+    //       state?.contractAddresses?.vestingAddress?.address,
+    //     )
 
-    const storage = await contract?.storage()
-    console.log('Printing out Vesting storage:\n', storage)
+    // const storage = await contract?.storage()
+    // console.log('Printing out Vesting storage:\n', storage)
 
-    dispatch({
-      type: GET_VESTING_STORAGE,
-      vestingStorage: storage,
-    })
+    // dispatch({
+    //   type: GET_VESTING_STORAGE,
+    //   vestingStorage: storage,
+    // })
   } catch (error) {
     console.log('%c ----- error getVestingStorage', 'color:red', error)
   }

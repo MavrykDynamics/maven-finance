@@ -4,6 +4,9 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import React from 'react'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { BlockName, StatBlock } from '../Dashboard.style'
 import { TabWrapperStyled, TreasuryContentStyled, TreasuryVesting } from './DashboardTabs.style'
 
@@ -49,10 +52,10 @@ export const tableData = [
 export const columnNames = ['Asset', 'Amount', 'USD Value']
 export const fieldsMapper = [
   {
-    fieldName: 'asset',
+    fieldName: 'symbol',
   },
   {
-    fieldName: 'amount',
+    fieldName: 'balance',
     needCommaNumber: true,
   },
   {
@@ -65,6 +68,24 @@ export const fieldsMapper = [
 ]
 
 export const TreasuryTab = () => {
+  const { treasuryStorage } = useSelector((state: State) => state.treasury)
+
+  const treasuryAssets = treasuryStorage.reduce((acc, { balances }) => {
+    balances.forEach((balanceAsset) => {
+      const currentAssetIndex = acc.findIndex((asset: TreasuryBalanceType) => asset.symbol === balanceAsset.symbol)
+      if (currentAssetIndex < 0) {
+        acc.push(balanceAsset)
+      } else {
+        acc[currentAssetIndex].balance += balanceAsset.balance
+        acc[currentAssetIndex].usdValue += balanceAsset.usdValue
+      }
+    })
+
+    return acc
+  }, [] as Array<TreasuryBalanceType>)
+
+  const globalTreasury = treasuryAssets.reduce((acc, asset) => acc + asset.usdValue, 0)
+
   return (
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">
       <div className="top">
@@ -77,7 +98,7 @@ export const TreasuryTab = () => {
           <StatBlock>
             <div className="name">Global Treasury</div>
             <div className="value">
-              <CommaNumber endingText="USD" value={124141} />
+              <CommaNumber endingText="USD" value={globalTreasury} />
             </div>
           </StatBlock>
           <StatBlock>
@@ -93,7 +114,7 @@ export const TreasuryTab = () => {
 
             <SimpleTable
               colunmNames={columnNames}
-              data={tableData}
+              data={treasuryAssets}
               fieldsMapper={fieldsMapper}
               className="dashboard-st"
             />

@@ -20,6 +20,7 @@ export const CommaNumber = ({
   svgKind?: CommaNumberSvgKind
 }) => {
   const numberWithCommas = value?.toLocaleString('en-US', { maximumFractionDigits: showDecimal ? DECIMALS_TO_SHOW : 0 })
+
   return (
     <>
       {loading ? (
