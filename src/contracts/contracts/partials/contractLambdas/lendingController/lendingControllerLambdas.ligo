@@ -603,12 +603,44 @@ block {
 // Vault Lambdas Begin
 // ------------------------------------------------------------------------------
 
+(* callVaultEntrypoint lambda *)
+function callVaultEntrypoint(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
+block {
+
+    checkSenderIsAdmin(s);                       // check that sender is admin 
+
+    var operations : list(operation) := nil;
+
+    case lendingControllerLambdaAction of [
+      
+        |   CallVaultEntrypoint(callVaultEntrypointParams) -> {
+
+                (operations) := case callVaultEntrypointParams of [
+                        UpdateCollateralToken (_v)     -> updateCollateralToken(_v, operations, s)
+                    |   CreateVault (_v)               -> createVault(_v, operations, s)
+                    // |   CloseVault (_v)                -> closeVault(_v, operations, s)
+                    // |   MarkForLiquidation (_v)        -> markForLiquidation(_v, operations, s)
+                    // |   LiquidateVault (_v)            -> liquidateVault(_v, operations, s)
+                    // |   RegisterWithdrawal (_v)        -> registerWithdrawal(_v, operations, s)
+                    // |   RegisterDeposit (_v)           -> registerDeposit(_v, operations, s)
+                    // |   Borrow (_v)                    -> borrow(_v, operations, s)
+                    // |   Repay (_v)                     -> repay(_v, operations, s)
+                ]
+
+            }
+        |   _ -> skip
+    ]
+
+} with response
+
+
+
 (* updateCollateralToken lambda *)
 function lambdaUpdateCollateralToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);                       // check that sender is admin 
-    // checkUpdateCollateralTokenIsNotPaused(s);    // check that %updateCollateralToken entrypoint is not paused (e.g. if glass broken)
+    checkUpdateCollateralTokenIsNotPaused(s);    // check that %updateCollateralToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaUpdateCollateralToken(updateCollateralTokenParams) -> {
@@ -649,7 +681,6 @@ block {
             }
         |   _ -> skip
     ];
-
 
 } with (noOperations, s)
 

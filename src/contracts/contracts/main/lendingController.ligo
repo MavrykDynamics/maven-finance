@@ -64,20 +64,21 @@ type lendingControllerAction is
     |   RemoveLiquidity                 of removeLiquidityActionType 
 
         // Vault Entrypoints
-    |   UpdateCollateralToken           of updateCollateralTokenActionType
-    |   CreateVault                     of createVaultActionType
-    |   CloseVault                      of closeVaultActionType
-    |   RegisterDeposit                 of registerDepositActionType
-    |   RegisterWithdrawal              of registerWithdrawalActionType
-    |   MarkForLiquidation              of markForLiquidationActionType
-    |   LiquidateVault                  of liquidateVaultActionType
-    |   Borrow                          of borrowActionType
-    |   Repay                           of repayActionType
+    |   CallVaultEntrypoint             of callVaultEntrypointActionType
+    // |   UpdateCollateralToken           of updateCollateralTokenActionType
+    // |   CreateVault                     of createVaultActionType
+    // |   CloseVault                      of closeVaultActionType
+    // |   RegisterDeposit                 of registerDepositActionType
+    // |   RegisterWithdrawal              of registerWithdrawalActionType
+    // |   MarkForLiquidation              of markForLiquidationActionType
+    // |   LiquidateVault                  of liquidateVaultActionType
+    // |   Borrow                          of borrowActionType
+    // |   Repay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    // |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    // |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    // |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+    |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
+    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
+    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Rewards Entrypoints
     |   ClaimRewards                    of claimRewardsType
@@ -1586,46 +1587,204 @@ block {
 // Vault Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(* callVaultEntrypoint entrypoint *)
+function callVaultEntrypoint(const callVaultEntrypointParams : callVaultEntrypointActionType ; var s : lendingControllerStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCallVaultEntrypoint"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCallVaultEntrypoint(callVaultEntrypointParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+
+
+
 (* updateCollateralToken entrypoint *)
-function updateCollateralToken(const updateCollateralTokenParams : updateCollateralTokenActionType ; var s : lendingControllerStorageType) : return is 
+// function updateCollateralToken(const updateCollateralTokenParams : updateCollateralTokenActionType; var operations : list(operation); var s : lendingControllerStorageType) : return is 
+// block {
+
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCollateralToken"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
+
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateCollateralToken(updateCollateralTokenParams);
+
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+// } with response
+
+
+
+// (* createVault entrypoint *)
+// function createVault(const createVaultParams : createVaultActionType; var s : lendingControllerStorageType) : return is 
+// block {
+
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateVault"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
+
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCreateVault(createVaultParams);
+
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+// } with response
+
+
+
+(* updateCollateralToken  *)
+function updateCollateralToken(const updateCollateralTokenParams : updateCollateralTokenActionType; var operations : list(operation); var s: lendingControllerStorageType) : list(operation) is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCollateralToken"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    checkSenderIsAdmin(s);                       // check that sender is admin 
+    checkUpdateCollateralTokenIsNotPaused(s);    // check that %updateCollateralToken entrypoint is not paused (e.g. if glass broken)
+                
+    const tokenName             : string       = updateCollateralTokenParams.tokenName;
+    const tokenContractAddress  : address      = updateCollateralTokenParams.tokenContractAddress;
+    const tokenType             : tokenType    = updateCollateralTokenParams.tokenType;
+    const tokenDecimals         : nat          = updateCollateralTokenParams.tokenDecimals;
+    const oracleType            : string       = updateCollateralTokenParams.oracleType;
+    var oracleAddress           : address     := updateCollateralTokenParams.oracleAddress;
+
+    if oracleType = "cfmm" then block {
+        oracleAddress := zeroAddress;
+    } else skip;
+    
+    const collateralTokenRecord : collateralTokenRecordType = record [
+        tokenName            = tokenName;
+        tokenContractAddress = tokenContractAddress;
+        tokenType            = tokenType;
+        tokenDecimals        = tokenDecimals;
+
+        oracleType           = oracleType;
+        oracleAddress        = oracleAddress;
     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateCollateralToken(updateCollateralTokenParams);
+    const existingToken: option(collateralTokenRecordType) = 
+    if checkInCollateralTokenLedger(collateralTokenRecord, s) then (None : option(collateralTokenRecordType)) else Some (collateralTokenRecord);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
-    
-} with response
+    const updatedCollateralTokenLedger : collateralTokenLedgerType = 
+        Map.update(
+            tokenName, 
+            existingToken,
+            s.collateralTokenLedger
+        );
+
+    s.collateralTokenLedger := updatedCollateralTokenLedger
+
+} with (noOperations)
 
 
 
-(* createVault entrypoint *)
-function createVault(const createVaultParams : createVaultActionType ; var s : lendingControllerStorageType) : return is 
+(* createVault lambda *)
+function createVault(const createVaultParams : createVaultActionType; var operations : list(operation); var s : lendingControllerStorageType) : return is
 block {
+    
+    var operations : list(operation) := nil;
+    checkCreateVaultIsNotPaused(s);    // check that %createVault entrypoint is not paused (e.g. if glass broken)
+            
+    // init loan token name
+    const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
+    const vaultOwner : address = Tezos.get_sender();
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateVault"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    // Get loan token type
+    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCreateVault(createVaultParams);
+    // Get borrow index of token
+    const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // get vault counter
+    const newVaultId : vaultIdType = s.vaultCounter;
     
-} with response
+    // make vault handle
+    const handle : vaultHandleType = record [
+        id     = newVaultId;
+        owner  = vaultOwner;
+    ];
+
+    // check if vault already exists
+    if Big_map.mem(handle, s.vaults) then failwith(error_VAULT_ALREADY_EXISTS) else skip;
+
+    // Prepare Vault Metadata
+    const vaultMetadata: metadataType = Big_map.literal (list [
+        ("", Bytes.pack("tezos-storage:data"));
+        ("data", createVaultParams.metadata);
+    ]); 
+
+    const vaultLambdaLedger : lambdaLedgerType = s.vaultLambdaLedger;
+
+    // params for vault with tez storage origination
+    const originateVaultStorage : vaultStorageType = record [
+        admin                       = s.admin;
+        metadata                    = vaultMetadata;
+        governanceAddress           = s.governanceAddress;
+        
+        handle                      = handle;
+        depositors                  = createVaultParams.depositors;
+
+        lambdaLedger                = vaultLambdaLedger;
+    ];
+
+    // originate vault func
+    const vaultOrigination : (operation * address) = createVaultFunc(
+        (None : option(key_hash)), 
+        Tezos.get_amount(),
+        originateVaultStorage
+    );
+
+    // add vaultWithTezOrigination operation to operations list
+    operations := vaultOrigination.0 # operations; 
+
+    // set collateral balance if tez is sent
+    var collateralBalanceLedgerMap : collateralBalanceLedgerType := map[];
+    if mutezToNatural(Tezos.get_amount()) > 0n then block {
+        collateralBalanceLedgerMap["tez"] := mutezToNatural(Tezos.get_amount())
+    } else skip;
+
+    // create vault record
+    const vault : vaultRecordType = createVaultRecord(
+        vaultOrigination.1,             // vault address
+        collateralBalanceLedgerMap,     // collateral balance ledger
+        loanTokenRecord.tokenName,      // loan token name
+        loanTokenRecord.tokenDecimals,  // loan token decimals
+        tokenBorrowIndex                // token borrow index
+    );
+    
+    // update controller storage with new vault
+    s.vaults := Big_map.update(handle, Some(vault), s.vaults);
+
+    // add new vault to owner's vault set
+    var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
+            Some (_set) -> _set
+        |   None        -> set []
+    ];
+    s.ownerLedger[vaultOwner] := Set.add(newVaultId, ownerVaultSet);
+
+    // increment vault counter 
+    s.vaultCounter            := s.vaultCounter + 1n;
+
+} with (operations, s)
 
 
 
 (* closeVault entrypoint *)
-function closeVault(const closeVaultParams : closeVaultActionType ; var s : lendingControllerStorageType) : return is 
+function closeVault(const closeVaultParams : closeVaultActionType; var s : lendingControllerStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCloseVault"] of [
@@ -1767,60 +1926,60 @@ block {
 // ------------------------------------------------------------------------------
 
 (* vaultDepositStakedMvk entrypoint *)
-// function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
-// block {
+function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDepositStakedMvk"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDepositStakedMvk"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
 
 
 
 // (* vaultWithdrawStakedMvk entrypoint *)
-// function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
-// block {
+function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawStakedMvk"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawStakedMvk"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
 
 
 
 // (* vaultLiquidateStakedMvk entrypoint *)
-// function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
-// block {
+function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
+block {
 
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateStakedMvk"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateStakedMvk"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
 
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Entrypoints End
@@ -1927,20 +2086,21 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   RemoveLiquidity(parameters)                   -> removeLiquidity(parameters, s)
         
             // Vault Entrypoints
-        |   UpdateCollateralToken(parameters)             -> updateCollateralToken(parameters, s)
-        |   CreateVault(parameters)                       -> createVault(parameters, s)
-        |   CloseVault(parameters)                        -> closeVault(parameters, s)
-        |   RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
-        |   RegisterWithdrawal(parameters)                -> registerWithdrawal(parameters, s)
-        |   MarkForLiquidation(parameters)                -> markForLiquidation(parameters, s)
-        |   LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
-        |   Borrow(parameters)                            -> borrow(parameters, s)
-        |   Repay(parameters)                             -> repay(parameters, s)
+        |   CallVaultEntrypoint (parameters)              -> callVaultEntrypoint (parameters, s)
+        // |   UpdateCollateralToken(parameters)             -> updateCollateralToken(parameters, s)
+        // |   CreateVault(parameters)                       -> createVault(parameters, s)
+        // |   CloseVault(parameters)                        -> closeVault(parameters, s)
+        // |   RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
+        // |   RegisterWithdrawal(parameters)                -> registerWithdrawal(parameters, s)
+        // |   MarkForLiquidation(parameters)                -> markForLiquidation(parameters, s)
+        // |   LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
+        // |   Borrow(parameters)                            -> borrow(parameters, s)
+        // |   Repay(parameters)                             -> repay(parameters, s)
 
             // Vault Staked MVK Entrypoints   
-        // |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
-        // |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
-        // |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
+        |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
+        |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
+        |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
 
             // Rewards Entrypoints
         |   ClaimRewards(parameters)                      -> claimRewards(parameters, s)
