@@ -4,13 +4,12 @@ import React, { FC, useState } from "react";
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
 import { Button } from '../../app/App.components/Button/Button.controller'
 import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
-
-// view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreakGlassActionsCard.controller'
 
 // styles
 import { Page } from 'styles'
-import { PropagateBreakGlassCard, BreakGlassActionsCard } from "./BreakGlassActions.style";
+import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions } from "./BreakGlassActions.style";
 import { InputStatusType } from "app/App.components/Input/Input.constants";
 
 // types
@@ -19,6 +18,45 @@ import { Input } from "app/App.components/Input/Input.controller";
 const itemsForDropDown = [
   { text: 'Remove Council Member', value: '' },
   { text: 'Test Value', value: 'testValue' },
+]
+
+// TODO: change mock to valid data
+const mock = [
+  {
+    date: new Date(),
+    action: 'Set all contracts admin',
+    target: 'fkjsdakh...dfss',
+    button: true,
+    id: 1,
+  },
+  {
+    date: new Date(),
+    action: 'Set all contracts admin',
+    target: 'fkjsdakh...dfss',
+    button: true,
+    id: 2,
+  },
+  {
+    date: new Date(),
+    action: 'Set all contracts admin',
+    target: 'fkjsdakh...dfss',
+    button: true,
+    id: 3,
+  },
+  {
+    date: new Date(),
+    action: 'Set all contracts admin',
+    target: 'fkjsdakh...dfss',
+    button: true,
+    id: 4,
+  },
+  {
+    date: new Date(),
+    action: 'Set all contracts admin',
+    target: 'fkjsdakh...dfss',
+    button: false,
+    id: 5,
+  },
 ]
 
 export const BreakGlassActions: FC = () => {
@@ -128,6 +166,15 @@ export const BreakGlassActions: FC = () => {
           </form>
         </div>
       </BreakGlassActionsCard>
+
+      <PastBreakGlassActions>
+        <h1>Past Break Glass Actions</h1>
+        
+        {mock.map((item) => {
+          const { id, ...props } = item;
+          return <PastBreakGlassActionsCard key={id} {...props} />
+        })}
+      </PastBreakGlassActions>
     </Page>
   )
 }
