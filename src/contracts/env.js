@@ -17,7 +17,7 @@ module.exports = {
   michelsonBuildDir : "contracts/compiled",
   migrationsDir: "migrations",
   contractsDir: "contracts/main",
-  ligoVersion: "0.47.0",
+  ligoVersion: "0.50.0",
   network: "development",
   networks: {
     development: {
@@ -27,7 +27,7 @@ module.exports = {
       port: 8732,
     },
     ghostnet: {
-      rpc: "https://ghostnet.smartpy.io",
+      rpc: "https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev",
       port: 443,
       network_id: "*",
       secretKey: bob.sk,

@@ -1,9 +1,10 @@
 
-from mavryk.utils.persisters import persist_whitelist_token_contract
+from mavryk.utils.persisters import persist_linked_contract
 from mavryk.types.treasury_factory.parameter.update_whitelist_token_contracts import UpdateWhitelistTokenContractsParameter
 from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
+import mavryk.models as models
 
 async def on_treasury_factory_update_whitelist_token_contracts(
     ctx: HandlerContext,
@@ -11,4 +12,4 @@ async def on_treasury_factory_update_whitelist_token_contracts(
 ) -> None:
     
     # Persist whitelist token contract
-    await persist_whitelist_token_contract(update_whitelist_token_contracts)
+    await persist_linked_contract(models.TreasuryFactory, models.TreasuryFactoryWhitelistTokenContract, update_whitelist_token_contracts)

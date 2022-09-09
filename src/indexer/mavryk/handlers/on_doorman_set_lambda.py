@@ -1,0 +1,15 @@
+
+from dipdup.models import Transaction
+from mavryk.utils.persisters import persist_lambda
+from mavryk.types.doorman.parameter.set_lambda import SetLambdaParameter
+from mavryk.types.doorman.storage import DoormanStorage
+from dipdup.context import HandlerContext
+import mavryk.models as models
+
+async def on_doorman_set_lambda(
+    ctx: HandlerContext,
+    set_lambda: Transaction[SetLambdaParameter, DoormanStorage],
+) -> None:
+
+    # Persist lambda
+    await persist_lambda(models.Doorman, models.DoormanLambda, set_lambda)

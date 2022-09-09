@@ -230,10 +230,26 @@ async def persist_financial_request(action):
             expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
             requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
 
-            treasury, _             = await models.Treasury.get_or_create(
+            treasury, _     = await models.Treasury.get_or_create(
                 address     = treasuryAddress
             )
             await treasury.save()
+
+            token_standard  = models.TokenType.OTHER
+            if token_type == "FA2":
+                token_standard  = models.TokenType.FA2
+            elif token_type == "FA12":
+                token_standard  = models.TokenType.FA12
+            elif token_type == "XTZ":
+                token_standard  = models.TokenType.XTZ
+
+            token, _        = await models.Token.get_or_create(
+                address     = token_contract_address,
+                token_id    = token_id,
+                type        = token_standard
+            )
+            token.name      = token_name
+            await token.save()
 
             requester, _            = await models.MavrykUser.get_or_create(
                 address = requesterAddress
@@ -245,13 +261,10 @@ async def persist_financial_request(action):
                 requester                       = requester,
                 request_type                    = request_type,
                 status                          = statusType,
-                token_type                      = token_type,
                 key_hash                        = key_hash,
                 executed                        = executed,
-                token_contract_address          = token_contract_address,
+                token                           = token,
                 token_amount                    = token_amount,
-                token_name                      = token_name,
-                token_id                        = token_id,
                 request_purpose                 = request_purpose,
                 yay_vote_smvk_total             = yay_vote_smvk_total,
                 nay_vote_smvk_total             = nay_vote_smvk_total,
@@ -374,12 +387,17 @@ async def persist_governance_satellite_action(action):
                     token_contract_address  = value.token.fa2.tokenContractAddress
                 elif type(value.token) == tez:
                     token_type  = models.TokenType.XTZ
+
+                token, _        = await models.Token.get_or_create(
+                    address     = token_contract_address,
+                    token_id    = token_id,
+                    type        = token_type
+                )
+                await token.save()
                     
                 governance_satellite_action_record_transfer = models.GovernanceSatelliteActionRecordTransfer(
                     governance_satellite_action     = action_record,
-                    token_contract_address          = token_contract_address,
-                    token_type                      = token_type,
-                    token_id                        = token_id,
+                    token                           = token,
                     to_                             = receiver,
                     amount                          = amount
                 )
@@ -392,62 +410,40 @@ async def persist_governance_satellite_action(action):
 # PERSIST CONTRACTS
 #
 ###
-async def persist_general_contract(update_general_contracts):
+async def persist_linked_contract(contract_class, linked_contract_class, update_linked_contracts):
     # Get operation info
-    target_address          = update_general_contracts.data.target_address
-    contract_address        = update_general_contracts.parameter.generalContractAddress
-    contract_name           = update_general_contracts.parameter.generalContractName
-    contract_in_storage     = contract_name in update_general_contracts.storage.generalContracts
+    target_address          = update_linked_contracts.data.target_address
+    contract                = await contract_class.get(
+        address         = target_address
+    )
 
+    contract_address        = ""
+    contract_name           = ""
+    contract_in_storage     = False
+    if hasattr(update_linked_contracts.parameter, "generalContractAddress"):
+        contract_address        = update_linked_contracts.parameter.generalContractAddress
+        contract_name           = update_linked_contracts.parameter.generalContractName
+        contract_in_storage     = contract_name in update_linked_contracts.storage.generalContracts
+    elif hasattr(update_linked_contracts.parameter, "whitelistContractAddress"):
+        contract_address        = update_linked_contracts.parameter.whitelistContractAddress
+        contract_name           = update_linked_contracts.parameter.whitelistContractName
+        contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistContracts
+    elif hasattr(update_linked_contracts.parameter, "whitelistTokenContractAddress"):
+        contract_address        = update_linked_contracts.parameter.whitelistTokenContractAddress
+        contract_name           = update_linked_contracts.parameter.whitelistTokenContractName
+        contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistTokenContracts
+   
     # Update general contracts record
-    general_contract, _ = await models.GeneralContract.get_or_create(
-        target_contract = target_address,
+    linked_contract, _ = await linked_contract_class.get_or_create(
+        contract        = contract,
         contract_name   = contract_name
     )
-    general_contract.contract_address   = contract_address
+    linked_contract.contract_address   = contract_address
 
     if contract_in_storage:
-        await general_contract.save()
+        await linked_contract.save()
     else:
-        await general_contract.delete()
-
-async def persist_whitelist_contract(update_whitelist_contracts):
-    # Get operation info
-    target_address          = update_whitelist_contracts.data.target_address
-    contract_address        = update_whitelist_contracts.parameter.whitelistContractAddress
-    contract_name           = update_whitelist_contracts.parameter.whitelistContractName
-    contract_in_storage     = contract_name in update_whitelist_contracts.storage.whitelistContracts
-
-    # Update general contracts record
-    whitelist_contract, _ = await models.WhitelistContract.get_or_create(
-        target_contract = target_address,
-        contract_name   = contract_name
-    )
-    whitelist_contract.contract_address   = contract_address
-
-    if contract_in_storage:
-        await whitelist_contract.save()
-    else:
-        await whitelist_contract.delete()
-
-async def persist_whitelist_token_contract(update_whitelist_token_contracts):
-    # Get operation info
-    target_address          = update_whitelist_token_contracts.data.target_address
-    contract_address        = update_whitelist_token_contracts.parameter.tokenContractAddress
-    contract_name           = update_whitelist_token_contracts.parameter.tokenContractName
-    contract_in_storage     = contract_name in update_whitelist_token_contracts.storage.whitelistTokenContracts
-
-    # Update general contracts record
-    whitelist_token_contract, _ = await models.WhitelistTokenContract.get_or_create(
-        target_contract = target_address,
-        contract_name   = contract_name
-    )
-    whitelist_token_contract.contract_address   = contract_address
-
-    if contract_in_storage:
-        await whitelist_token_contract.save()
-    else:
-        await whitelist_token_contract.delete()
+        await linked_contract.delete()
 
 ###
 #
@@ -467,3 +463,52 @@ async def persist_governance(set_governance,contract):
     await governance.save()
     contract.governance     = governance
     await contract.save()
+
+###
+#
+# PERSIST LAMBDAS
+#
+###
+async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
+    
+    # Get operation values
+    contract_address        = set_lambda.data.target_address
+    timestamp               = set_lambda.data.timestamp
+    lambda_bytes            = set_lambda.parameter.func_bytes
+    lambda_name             = set_lambda.parameter.name
+
+    # Save / Update record
+    contract                = await contract_class.get(
+        address     = contract_address
+    )
+    contract.last_updated_at            = timestamp
+    await contract.save()
+    contract_lambda, _      = await lambda_contract_class.get_or_create(
+        contract        = contract,
+        lambda_name     = lambda_name,
+    )
+    contract_lambda.last_updated_at     = timestamp
+    contract_lambda.lambda_bytes        = lambda_bytes
+    await contract_lambda.save()
+
+async def persist_proxy_lambda(contract_class, proxy_lambda_contract_class, set_proxy_lambda):
+    
+    # Get operation values
+    contract_address        = set_proxy_lambda.data.target_address
+    timestamp               = set_proxy_lambda.data.timestamp
+    lambda_bytes            = set_proxy_lambda.parameter.func_bytes
+    lambda_name             = set_proxy_lambda.parameter.id
+
+    # Save / Update record
+    contract                = await contract_class.get(
+        address     = contract_address
+    )
+    contract.last_updated_at            = timestamp
+    await contract.save()
+    contract_lambda, _      = await proxy_lambda_contract_class.get_or_create(
+        contract        = contract,
+        lambda_name     = lambda_name
+    )
+    contract_lambda.last_updated_at     = timestamp
+    contract_lambda.lambda_bytes        = lambda_bytes
+    await contract_lambda.save()
