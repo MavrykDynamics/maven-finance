@@ -3,10 +3,40 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import React from 'react'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { StatBlock } from '../Dashboard.style'
 import { SatellitesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 
 export const SatellitesTab = () => {
+  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+
+  const satellitesInfo = satelliteLedger.reduce(
+    (acc, satellite: SatelliteRecord) => {
+      acc.activeSatellites += satellite.status === 0 ? 1 : 0
+      acc.avgFee += satellite.satelliteFee
+      acc.avgStakedMVK += satellite.sMvkBalance
+      acc.partisipationRate += satellite.participation
+
+      return acc
+    },
+    {
+      activeSatellites: 0,
+      avgFee: 0,
+      avgDelegatedsMVK: 0,
+      avgStakedMVK: 0,
+      partisipationRate: 0,
+      avgFreesMVKSpace: 0,
+    },
+  )
+
+  satellitesInfo.avgFee = satellitesInfo.avgFee / satelliteLedger.length
+  satellitesInfo.avgStakedMVK = satellitesInfo.avgStakedMVK / satelliteLedger.length
+  satellitesInfo.partisipationRate = satellitesInfo.partisipationRate / satelliteLedger.length
+  satellitesInfo.avgFreesMVKSpace = satellitesInfo.avgFreesMVKSpace / satelliteLedger.length
+  satellitesInfo.avgDelegatedsMVK = satellitesInfo.avgDelegatedsMVK / satelliteLedger.length
+
   return (
     <TabWrapperStyled backgroundImage="dashboard_satelliteTab_bg.png">
       <div className="top">
@@ -18,42 +48,42 @@ export const SatellitesTab = () => {
         <StatBlock>
           <div className="name">Active Satellites</div>
           <div className="value">
-            <CommaNumber value={88} />
+            <CommaNumber value={satellitesInfo.activeSatellites} />
           </div>
         </StatBlock>
 
         <StatBlock>
           <div className="name">Avg. Delegated sMVK</div>
           <div className="value">
-            <CommaNumber endingText="sMVK" value={1043242} />
+            <CommaNumber endingText="sMVK" value={satellitesInfo.avgDelegatedsMVK} />
           </div>
         </StatBlock>
 
         <StatBlock>
           <div className="name">Avg Free sMVK Space</div>
           <div className="value">
-            <CommaNumber endingText="sMVK" value={1043242} />
+            <CommaNumber endingText="sMVK" value={satellitesInfo.avgFreesMVKSpace} />
           </div>
         </StatBlock>
 
         <StatBlock>
           <div className="name">Avg Delegation Fee</div>
           <div className="value">
-            <CommaNumber endingText="%" value={7} />
+            <CommaNumber endingText="%" value={satellitesInfo.avgFee} />
           </div>
         </StatBlock>
 
         <StatBlock>
           <div className="name">Avg. MVK Staked</div>
           <div className="value">
-            <CommaNumber endingText="sMVK" value={1043242} />
+            <CommaNumber endingText="sMVK" value={satellitesInfo.avgStakedMVK} />
           </div>
         </StatBlock>
 
         <StatBlock>
           <div className="name">Participation Rate</div>
           <div className="value">
-            <CommaNumber endingText="%" value={87} />
+            <CommaNumber endingText="%" value={satellitesInfo.partisipationRate} />
           </div>
         </StatBlock>
       </SatellitesContentStyled>
