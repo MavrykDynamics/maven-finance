@@ -205,18 +205,18 @@ type executeActionParamsType is
     |   StakeMvkTreasury                   of stakeTreasuryType
     |   UnstakeMvkTreasury                 of unstakeTreasuryType
 
-    // |   CreateAggregator                   of createAggregatorParamsType
-    // |   TrackAggregator                    of trackAggregatorParamsType
-    // |   UntrackAggregator                  of untrackAggregatorParamsType
-    // |   SetAggregatorMaintainer            of setAggregatorMaintainerType
+    |   CreateAggregator                   of createAggregatorParamsType
+    |   TrackAggregator                    of trackAggregatorParamsType
+    |   UntrackAggregator                  of untrackAggregatorParamsType
+    |   SetAggregatorMaintainer            of setAggregatorMaintainerType
 
     |   UpdateMvkInflationRate             of (nat)
     |   TriggerMvkInflation                of (unit)
 
-    // |   AddVestee                          of addVesteeType
-    // |   RemoveVestee                       of (address)
-    // |   UpdateVestee                       of updateVesteeType
-    // |   ToggleVesteeLock                   of (address)
+    |   AddVestee                          of addVesteeType
+    |   RemoveVestee                       of (address)
+    |   UpdateVestee                       of updateVesteeType
+    |   ToggleVesteeLock                   of (address)
 
 type executeActionType is (executeActionParamsType)
 
