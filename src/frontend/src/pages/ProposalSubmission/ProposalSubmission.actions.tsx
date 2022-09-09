@@ -64,11 +64,11 @@ export const submitProposal =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: SUBMIT_PROPOSAL_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: SUBMIT_PROPOSAL_ERROR,
+        error,
+      })
     }
   }
 
@@ -127,11 +127,63 @@ export const updateProposal =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: PROPOSAL_UPDATE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: PROPOSAL_UPDATE_ERROR,
+        error,
+      })
+    }
+  }
+
+export const PROPOSAL_DELETE_REQUEST = 'PROPOSAL_DELETE_REQUEST'
+export const PROPOSAL_DELETE_RESULT = 'PROPOSAL_DELETE_RESULT'
+export const PROPOSAL_DELETE_ERROR = 'PROPOSAL_DELETE_ERROR'
+export const deleteProposalDataPair =
+  (title: string, bytes: string, proposalId: number | undefined) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: PROPOSAL_UPDATE_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+
+      const transaction = await contract?.methods.updateProposalData(proposalId, title, bytes).send()
+      console.log('transaction', transaction)
+
+      await dispatch(showToaster(INFO, 'Delete proposal Bype Pair...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      await dispatch(showToaster(SUCCESS, 'Delete proposal Bype Pair updated.', 'All good :)'))
+
+      await dispatch({
+        type: PROPOSAL_DELETE_RESULT,
+      })
+
+      await dispatch(getGovernanceStorage())
+      await dispatch(getDelegationStorage())
+      await dispatch(getCurrentRoundProposals())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+      }
+      dispatch({
+        type: PROPOSAL_DELETE_ERROR,
+        error,
+      })
     }
   }
 
@@ -178,11 +230,11 @@ export const lockProposal =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: LOCK_PROPOSAL_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: LOCK_PROPOSAL_ERROR,
+        error,
+      })
     }
   }
 
@@ -267,11 +319,11 @@ export const submitFinancialRequestData =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: SUBMIT_FINANCIAL_DATA_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: SUBMIT_FINANCIAL_DATA_ERROR,
+        error,
+      })
     }
   }
 
@@ -316,10 +368,10 @@ export const dropProposal = (proposalId: number) => async (dispatch: AppDispatch
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: DROP_PROPOSAL_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: DROP_PROPOSAL_ERROR,
+      error,
+    })
   }
 }

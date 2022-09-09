@@ -98,11 +98,11 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: AppDis
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: PROPOSAL_ROUND_VOTING_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: PROPOSAL_ROUND_VOTING_ERROR,
+      error,
+    })
   }
 }
 
@@ -147,11 +147,11 @@ export const votingRoundVote = (vote: string) => async (dispatch: AppDispatch, g
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: VOTING_ROUND_VOTING_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: VOTING_ROUND_VOTING_ERROR,
+      error,
+    })
   }
 }
 
@@ -195,11 +195,11 @@ export const startProposalRound = () => async (dispatch: AppDispatch, getState: 
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: START_PROPOSAL_ROUND_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: START_PROPOSAL_ROUND_ERROR,
+      error,
+    })
   }
 }
 
@@ -244,11 +244,11 @@ export const startVotingRound = () => async (dispatch: AppDispatch, getState: Ge
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: START_VOTING_ROUND_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: START_VOTING_ROUND_ERROR,
+      error,
+    })
   }
 }
 
@@ -309,11 +309,11 @@ export const startNextRound = (executePastProposal: boolean) => async (dispatch:
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: START_NEXT_ROUND_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: START_NEXT_ROUND_ERROR,
+      error,
+    })
   }
 }
 
@@ -346,11 +346,11 @@ export const executeProposal = (proposalId: number) => async (dispatch: AppDispa
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: EXECUTE_PROPOSAL_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: EXECUTE_PROPOSAL_ERROR,
+      error,
+    })
   }
 }
 
@@ -383,10 +383,10 @@ export const processProposalPayment = (proposalId: number) => async (dispatch: A
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: PROCESS_PAYMENT_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: PROCESS_PAYMENT_ERROR,
+      error,
+    })
   }
 }

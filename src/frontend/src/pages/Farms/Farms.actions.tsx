@@ -110,11 +110,11 @@ export const harvest = (farmAddress: string) => async (dispatch: AppDispatch, ge
     if (error instanceof Error) {
       console.error(error)
       await dispatch(showToaster(ERROR, 'Error', error.message))
-      await dispatch({
-        type: HARVEST_ERROR,
-        error,
-      })
     }
+    await dispatch({
+      type: HARVEST_ERROR,
+      error,
+    })
   }
 }
 
@@ -165,11 +165,11 @@ export const deposit = (farmAddress: string, amount: number) => async (dispatch:
     if (error instanceof Error) {
       console.error(error)
       await dispatch(showToaster(ERROR, 'Error', error.message))
-      await dispatch({
-        type: DEPOSIT_ERROR,
-        error,
-      })
     }
+    await dispatch({
+      type: DEPOSIT_ERROR,
+      error,
+    })
   }
 }
 
@@ -217,10 +217,10 @@ export const withdraw = (farmAddress: string, amount: number) => async (dispatch
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: WITHDRAW_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: WITHDRAW_ERROR,
+      error,
+    })
   }
 }
