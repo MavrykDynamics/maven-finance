@@ -33,7 +33,6 @@ function wait(ms: number) {
 }
 
 describe('Aggregator Tests', async () => {
-  const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
 
   var utils: Utils
   let aggregator
@@ -932,16 +931,11 @@ describe('Aggregator Tests', async () => {
   describe('withdrawRewardXtz', () => {
 
       it('oracles should be able to withdraw reward xtz', async () => {
-          try{
             
             await signerFactory(bob.sk);
 
             const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
             const rewardAmountXtz           = beforeStorage.config.rewardAmountXtz.toNumber();
-            const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountStakedMvk.toNumber();
-            const deviationRewardAmountXtz  = beforeStorage.config.deviationRewardAmountXtz.toNumber();
-            const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk.toNumber();
 
             // For reference if needed:
             // console.log("rewardAmountXtz: "          + rewardAmountXtz);
@@ -949,64 +943,48 @@ describe('Aggregator Tests', async () => {
             // console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
             // console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
 
-            const beforeBobRewardXtz            = await beforeStorage.oracleRewardXtz.get(bob.pkh);
-            const beforeEveRewardXtz            = await beforeStorage.oracleRewardXtz.get(eve.pkh);
-            const beforeMalloryRewardXtz        = await beforeStorage.oracleRewardXtz.get(mallory.pkh);
+            const beforeOracleMaintainerRewardXtz            = await beforeStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
+            const beforeEveRewardXtz                         = await beforeStorage.oracleRewardXtz.get(eve.pkh);
 
-            const beforeBobTezBalance           = await utils.tezos.tz.getBalance(bob.pkh);
-            const beforeEveTezBalance           = await utils.tezos.tz.getBalance(eve.pkh);
-            const beforeMalloryTezBalance       = await utils.tezos.tz.getBalance(mallory.pkh);
+            const beforeOracleMaintainerTezBalance           = await utils.tezos.tz.getBalance(oracleMaintainer.pkh);
+            const beforeEveTezBalance                        = await utils.tezos.tz.getBalance(eve.pkh);
 
-            const bobTezRewardAmount            = rewardAmountXtz;
-            const eveTezRewardAmount            = rewardAmountXtz * 2;
-            const malloryTezRewardAmount        = (rewardAmountXtz * 2) + deviationRewardAmountXtz;
+            const oracleMaintainerTezRewardAmount            = rewardAmountXtz;
 
             // check that xtz reward amounts are correct
-            assert.equal(beforeBobRewardXtz, bobTezRewardAmount);         // 1000000 - one reveal
-            assert.equal(beforeEveRewardXtz, eveTezRewardAmount);         // 2000000 - two reveals
-            assert.equal(beforeMalloryRewardXtz, malloryTezRewardAmount); // 2000000 - two reveals, one req rate upd dev (0)
+            assert.equal(beforeOracleMaintainerRewardXtz, oracleMaintainerTezRewardAmount);         // 1000000 - one updateData
+            assert.equal(beforeEveRewardXtz, undefined);                                            // undefined because no rewards
 
             // use alice to withdraw reward to the oracles and pay the gas cost for easier testing
             await signerFactory(alice.sk);
             
-            const bob_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(bob.pkh).send();
-            await bob_withdraw_reward_xtz_op.confirmation();
+            const oracleMaintainer_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(oracleMaintainer.pkh).send();
+            await oracleMaintainer_withdraw_reward_xtz_op.confirmation();
             
             const eve_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(eve.pkh).send();
             await eve_withdraw_reward_xtz_op.confirmation();
-            
-            const mallory_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(mallory.pkh).send();
-            await mallory_withdraw_reward_xtz_op.confirmation();
+
 
             const storage: aggregatorStorageType = await aggregator.storage();
 
             // get updated satellite oracle rewards for xtz
-            const resetBobRewardXtz        = await storage.oracleRewardXtz.get(bob.pkh);
-            const resetEveRewardXtz        = await storage.oracleRewardXtz.get(eve.pkh);
-            const resetMalloryRewardXtz    = await storage.oracleRewardXtz.get(mallory.pkh);
+            const resetOracleMaintainerRewardXtz        = await storage.oracleRewardXtz.get(oracleMaintainer.pkh);
+            const resetEveRewardXtz                     = await storage.oracleRewardXtz.get(eve.pkh);
 
             // check that reward xtz is now reset to zero after claiming
-            assert.equal(resetBobRewardXtz, 0);
-            assert.equal(resetEveRewardXtz, 0);
-            assert.equal(resetMalloryRewardXtz, 0);
+            assert.equal(resetOracleMaintainerRewardXtz, 0);
+            assert.equal(resetEveRewardXtz, undefined);
 
             // get updated xtz balance of satellites
-            const bobTezBalance       = await utils.tezos.tz.getBalance(bob.pkh);
-            const eveTezBalance       = await utils.tezos.tz.getBalance(eve.pkh);
-            const malloryTezBalance   = await utils.tezos.tz.getBalance(mallory.pkh);
+            const oracleMaintainerTezBalance       = await utils.tezos.tz.getBalance(oracleMaintainer.pkh);
+            const eveTezBalance                    = await utils.tezos.tz.getBalance(eve.pkh);
 
             // check that tez balance has been updated by the right amount
-            assert.equal(bobTezBalance, beforeBobTezBalance.toNumber() + bobTezRewardAmount);      
-            assert.equal(eveTezBalance, beforeEveTezBalance.toNumber() + eveTezRewardAmount);      
-            assert.equal(malloryTezBalance, beforeMalloryTezBalance.toNumber() + malloryTezRewardAmount);      
-
-          } catch(e){
-              console.dir(e, {depth: 5})
-          }
+            assert.deepEqual(oracleMaintainerTezBalance, beforeOracleMaintainerTezBalance.plus(oracleMaintainerTezRewardAmount));      
+            assert.deepEqual(eveTezBalance, beforeEveTezBalance);      
       });
 
       it('oracles should be able to withdraw reward - staked MVK', async () => {
-        try{
           
           await signerFactory(bob.sk);
 
@@ -1024,6 +1002,7 @@ describe('Aggregator Tests', async () => {
           const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountStakedMvk.toNumber();
           const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk.toNumber();
 
+          console.log("ici " + Array.from(beforeStorage.oracleRewardStakedMvk.entries()))
           // satellite oracle rewards in staked MVK
           const beforeBobRewardStakedMvk      = await beforeStorage.oracleRewardStakedMvk.get(bob.pkh);
           const beforeEveRewardStakedMvk      = await beforeStorage.oracleRewardStakedMvk.get(eve.pkh);
@@ -1091,10 +1070,7 @@ describe('Aggregator Tests', async () => {
           assert.equal(bobRewardsLedger.unpaid.toNumber(), beforeBobRewardsLedger.unpaid.toNumber() + Math.trunc(finalBobStakedMvkRewardsAfterFees));
           assert.equal(eveRewardsLedger.unpaid.toNumber(), beforeEveRewardsLedger.unpaid.toNumber() + Math.trunc(finalEveStakedMvkRewardsAfterFees));
           assert.equal(malloryRewardsLedger.unpaid.toNumber(), beforeMalloryRewardsLedger.unpaid.toNumber() + Math.trunc(finalMalloryStakedMvkRewardsAfterFees));
-          
-        } catch(e){
-            console.dir(e, {depth: 5})
-        }
+
       });
 
   });
