@@ -74,11 +74,11 @@ export const adminChangeGovernancePeriod =
     } catch (error) {
       if (error instanceof Error) {
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR,
+        error,
+      })
     }
   }
 

@@ -50,11 +50,11 @@ export const registerAsSatellite =
     } catch (error) {
       if (error instanceof Error) {
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: REGISTER_AS_SATELLITE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: REGISTER_AS_SATELLITE_ERROR,
+        error,
+      })
     }
   }
 
@@ -101,11 +101,11 @@ export const updateSatelliteRecord =
     } catch (error) {
       if (error instanceof Error) {
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: UPDATE_AS_SATELLITE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: UPDATE_AS_SATELLITE_ERROR,
+        error,
+      })
     }
   }
 
@@ -148,10 +148,10 @@ export const unregisterAsSatellite = () => async (dispatch: AppDispatch, getStat
   } catch (error) {
     if (error instanceof Error) {
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: UNREGISTER_AS_SATELLITE_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: UNREGISTER_AS_SATELLITE_ERROR,
+      error,
+    })
   }
 }

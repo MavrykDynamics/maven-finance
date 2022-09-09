@@ -117,11 +117,11 @@ export const stake = (amount: number) => async (dispatch: AppDispatch, getState:
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: STAKE_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: STAKE_ERROR,
+      error,
+    })
   }
 }
 
@@ -177,11 +177,11 @@ export const unstake = (amount: number) => async (dispatch: AppDispatch, getStat
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: UNSTAKE_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: UNSTAKE_ERROR,
+      error,
+    })
   }
 }
 
@@ -227,11 +227,11 @@ export const rewardsCompound = (address: string) => async (dispatch: AppDispatch
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: COMPOUND_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: COMPOUND_ERROR,
+      error,
+    })
   }
 
   dispatch(showToaster(INFO, 'Compound', 'Coming Soon', 3000))
@@ -259,11 +259,11 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: AppDi
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: GET_DOORMAN_STORAGE,
-        error,
-      })
     }
+    dispatch({
+      type: GET_DOORMAN_STORAGE,
+      error,
+    })
   }
 }
 
@@ -307,11 +307,11 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: GET_USER_DATA_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: GET_USER_DATA_ERROR,
+      error,
+    })
   }
 }
 
@@ -330,10 +330,10 @@ export const updateUserData = (field: string, value: string) => async (dispatch:
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: UPDATE_USER_DATA,
-        error,
-      })
     }
+    dispatch({
+      type: UPDATE_USER_DATA,
+      error,
+    })
   }
 }
