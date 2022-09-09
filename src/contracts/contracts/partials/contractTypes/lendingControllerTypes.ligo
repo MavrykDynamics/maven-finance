@@ -373,15 +373,15 @@ type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
 
 
 type callVaultEntrypointActionType is 
-    |   UpdateCollateralToken           of updateCollateralTokenActionType  
+    // |   UpdateCollateralToken           of updateCollateralTokenActionType  
     |   CreateVault                     of createVaultActionType
-    // |   LambdaCloseVault                      of closeVaultActionType
-    // |   LambdaMarkForLiquidation              of markForLiquidationActionType
-    // |   LambdaLiquidateVault                  of liquidateVaultActionType
-    // |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
-    // |   LambdaRegisterDeposit                 of registerDepositActionType
-    // |   LambdaBorrow                          of borrowActionType
-    // |   LambdaRepay                           of repayActionType
+    |   CloseVault                      of closeVaultActionType
+    |   MarkForLiquidation              of markForLiquidationActionType
+    |   LiquidateVault                  of liquidateVaultActionType
+    // |   RegisterWithdrawal              of registerWithdrawalActionType
+    // |   RegisterDeposit                 of registerDepositActionType
+    |   Borrow                          of borrowActionType
+    |   Repay                           of repayActionType
 
 
 type lendingControllerLambdaActionType is 
@@ -406,14 +406,14 @@ type lendingControllerLambdaActionType is
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
         // Vault Entrypoints
-    |   CallVaultEntrypoint                   of callVaultEntrypointActionType
-    // |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
+    |   LambdaCallVaultEntrypoint             of callVaultEntrypointActionType
+    |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
     // |   LambdaCreateVault                     of createVaultActionType
     // |   LambdaCloseVault                      of closeVaultActionType
     // |   LambdaMarkForLiquidation              of markForLiquidationActionType
     // |   LambdaLiquidateVault                  of liquidateVaultActionType
-    // |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
-    // |   LambdaRegisterDeposit                 of registerDepositActionType
+    |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
+    |   LambdaRegisterDeposit                 of registerDepositActionType
     // |   LambdaBorrow                          of borrowActionType
     // |   LambdaRepay                           of repayActionType
 
