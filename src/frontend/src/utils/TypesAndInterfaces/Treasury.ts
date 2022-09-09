@@ -15,17 +15,37 @@ export type FetchedTreasuryType = {
   total: number
 }
 
+export type FetchedTreasuryBalanceType = {
+  balance: string
+  firstLevel: number
+  firstTime: string
+  id: number
+  lastLevel: number
+  lastTime: string
+  token: {
+    contract: { address: string }
+    id: number
+    metadata: {
+      decimals: string
+      icon: string
+      name: string
+      shouldPreferSymbol: string
+      symbol: string
+      thumbnailUri: string
+    }
+    standard: string
+    tokenId: string
+  }
+}
+
 export type TreasuryBalanceType = {
   rate: number
   balance: number
   contract: string
   decimals: number
-  is_transferable: boolean
   name: string
-  network: string
   symbol: string
   thumbnail_uri: string
-  token_id: number
 }
 
 export type TreasuryChartType = Array<ChartSectorType>
