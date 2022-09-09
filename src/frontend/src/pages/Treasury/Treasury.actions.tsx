@@ -12,11 +12,9 @@ import { FetchedTreasuryBalanceType, TreasuryBalanceType, TreasuryGQLType } from
 
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
-import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './treasury.const'
 import CoinGecko from 'coingecko-api'
 import { normalizeTreasury } from './Treasury.helpers'
 import type { AppDispatch, GetState } from '../../app/App.controller'
-import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 
 const coinGeckoClient = new CoinGecko()
 
@@ -52,7 +50,8 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       ({ smvk_balance, address }: { smvk_balance: number; address: string }): TreasuryBalanceType => {
         return {
           balance: smvk_balance,
-          decimals: 9,
+          usdValue: smvk_balance * MVK_EXCHANGE_RATE,
+          decimals: 6,
           contract: address,
           name: 'Staked MAVRYK',
           symbol: 'sMVK',
@@ -99,14 +98,16 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
         .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
           const assetRate = metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]
+          const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
 
           return {
             contract: contract.address,
+            usdValue: coinsAmount * assetRate,
             decimals: parseInt(metadata.decimals),
             name: metadata.name,
             thumbnail_uri: metadata.thumbnailUri,
             symbol: metadata.symbol,
-            balance: calcWithoutMu(balance) / assetRate,
+            balance: coinsAmount,
             rate: assetRate,
           }
         })
