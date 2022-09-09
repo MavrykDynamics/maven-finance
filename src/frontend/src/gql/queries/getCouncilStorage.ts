@@ -15,8 +15,6 @@ export const COUNCIL_STORAGE_QUERY = `
         action_type
         council_id
         executed
-        execution_datetime
-        execution_level
         expiration_datetime
         id
         status
@@ -46,7 +44,6 @@ const COUNCIL_ACTIONS_PARAMS = `
   council_id
   executed
   execution_datetime
-  execution_level
   expiration_datetime
   id
   initiator_id
