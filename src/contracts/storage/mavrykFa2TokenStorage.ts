@@ -69,7 +69,6 @@ export const mavrykFa2TokenStorage: mavrykFa2TokenStorageType = {
     governanceAddress: zeroAddress,
 
     whitelistContracts:  MichelsonMap.fromLiteral({}),
-    generalContracts:  MichelsonMap.fromLiteral({}),
 
     token_metadata: token_metadata,
     totalSupply: initialSupply,

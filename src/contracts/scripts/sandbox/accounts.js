@@ -1,50 +1,63 @@
 module.exports = {
     alice: {
         pkh: "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
-        sk: "edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz"
+        sk: "edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz",
+        pk: "edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd",
+        peerId: "alicePeerId"
     },
     bob: {
         pkh: "tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD",
         sk: "edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq",
+        pk: "edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D",
+        peerId: "bobPeerId"
     },
     eve: {
         pkh: "tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1",
-        sk: "edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH"
+        sk: "edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH",
+        pk: "edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis",
+        peerId: "evePeerId"
     },
     mallory: {
         pkh: "tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n",
         sk: "edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB",
-        pk: "edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ"
+        pk: "edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ",
+        peerId: "malloryPeerId"
     },
     oscar: {
         pkh: "tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw",
         sk: "edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs",
-        pk: "edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP"
+        pk: "edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP",
+        peerId: "oscarPeerId"
     },
     trudy: {
         pkh: "tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq",
         sk: "edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c",
-        pk: "edpkubMsp1wdfpARu3ZsHKwrtkR9PQiAN8nsACP2hiksb7oM5aUhpu"
+        pk: "edpkubMsp1wdfpARu3ZsHKwrtkR9PQiAN8nsACP2hiksb7oM5aUhpu",
+        peerId: "trudyPeerId"
     },
     isaac: {
         pkh: "tz1SDg2Wah3wBHFwCK5gYV591BhpLWZTWX42",
         sk: "edsk3ahGaSWjzjHuS7mK5Bsy7LxH8iTRXpGcMvzjgSypKHKw2wrq1u",
-        pk: "edpktpYJesCTU55qxTy2RjdBUupRzVUM3Ek4VzVFxZjypLXPJSaTdn"
+        pk: "edpktpYJesCTU55qxTy2RjdBUupRzVUM3Ek4VzVFxZjypLXPJSaTdn",
+        peerId: "isaacPeerId"
     },
     david: {
         pkh: "tz1PPLFcQyechtAm9XRZWRnMEXJ8NsXUNGdS",
         sk: "edsk3hwth6tL9hppsUT6sZQ5687DDY9GPgKiZgjg9DDcMjJxoRUsGc",
-        pk: "edpkvK4zfvkuzHmbh2CofrBmQ52jrk3b23puVdJkTJCFmHZTLapSWB"
+        pk: "edpkvK4zfvkuzHmbh2CofrBmQ52jrk3b23puVdJkTJCFmHZTLapSWB",
+        peerId: "davidPeerId"
     },
     susie: {
         pkh: "tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7",
         sk: "edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP",
-        pk: "edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN"
+        pk: "edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN",
+        peerId: "susiePeerId"
     },
     ivan: {
         pkh: "tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ",
         sk: "edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf",
-        pk: "edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL"
+        pk: "edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL",
+        peerId: "ivanePeerId"
     },
     //
     // Local oracle adresses
@@ -53,31 +66,37 @@ module.exports = {
         pkh: 'tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb',
         sk: 'edsk3ULsmx8aEogiMs2T4Td8rLzfvd6Vv8D5CJqeKQKrsjZHVqRDrX',
         pk: 'edpkuZxa3i78gthryUa1aqh5AwuCqqLG7P55Tsh79pZaSryxZzhCVZ',
+        peerId: "oracleMaintainerPeerId"
     },
     oracle0: {
         pkh: 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6',
         sk: 'edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e',
         pk: 'edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4',
+        peerId: "oracle0PeerId"
     },
     oracle1: {
         pkh: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
         sk: 'edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt',
         pk: 'edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4',
+        peerId: "oracle1PeerId"
     },
     oracle2: {
         pkh: 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L',
         sk: 'edsk3W5Fz1yWK39sLY6vidmgkfmGAXh6V2JqUiri9W1pFeeYWbFbJL',
         pk: 'edpkujwsG5JMrWVXQwmRMBoR9yJkokRbn6wy3monpQKBpnZTs1ogRR',
+        peerId: "oracle2PeerId"
     },
     oracle3: {
         pkh: 'tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc',
         sk: 'edsk3Wz91mGzhGcq2jVnbTnfkyY7Zod8gdQp2dHfnzud5gRAJ2uoaK',
         pk: 'edpkvJm4eyR4vL7cY3B8zRyFMAGE4W8AuDtjio6v1GSm7dgS79rL23',
+        peerId: "oracle3PeerId"
     },
     oracle4: {
         pkh: 'tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px',
         sk: 'edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf',
         pk: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
+        peerId: "oracle4PeerId"
     }
 };
 

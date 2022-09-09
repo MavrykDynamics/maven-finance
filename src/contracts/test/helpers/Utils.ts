@@ -1,6 +1,8 @@
 import { InMemorySigner } from '@taquito/signer'
 import { MichelsonMap, PollingSubscribeProvider, TezosToolkit, TransactionOperation } from '@taquito/taquito'
 import { BigNumber } from 'bignumber.js'
+import { Schema } from '@taquito/michelson-encoder';
+import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
 
 import env from '../../env'
 import mvkTokenDecimals from '../../helpers/mvkTokenDecimals.json';
@@ -50,6 +52,15 @@ export class Utils {
     return Date.parse((await this.tezos.rpc.getBlockHeader()).timestamp)
   }
 
+  async signOraclePriceResponses(
+    oraclePriceResponsesForPack: MichelsonMap<string, any>
+  ): Promise<string> {
+    const signature_observations = await this.tezos.signer.sign(
+      `0x${await packObservations(oraclePriceResponsesForPack)}`
+    );
+    return signature_observations.sig;
+  }
+
   static destructObj(obj: any) {
     const strs: string[] = ['tez', 'fa12', 'fa2', 'tokan_a', 'tokan_b']
     let arr: any[] = []
@@ -82,4 +93,41 @@ export const zeroAddress: string = 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg'
 // MVK Formatter
 export const MVK = (value: number = 1) => {
   return value * 10**parseInt(mvkTokenDecimals.decimals)
+}
+
+export const packObservations = async (
+  oraclePriceResponsesForPack: MichelsonMap<string, any>
+): Promise<string>  => {
+  const typeMap: MichelsonType = {
+    prim: 'map',
+    args: [
+      { prim: 'address' },
+      {
+        prim: 'pair',
+        args: [
+          { prim: 'nat', annots: ['%price'] },
+          {
+            prim: 'pair',
+            args: [
+              { prim: 'nat', annots: ['%epoch'] },
+              {
+                prim: 'pair',
+                args: [
+                  { prim: 'nat', annots: ['%round'] },
+                  { prim: 'address', annots: ['%aggregatorAddress'] }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    annots: ['%oraclePriceResponsesForPack']
+  };
+
+  const params = oraclePriceResponsesForPack;
+  const schema = new Schema(typeMap);
+  const toPack = schema.Encode(params);
+  const priceCodec = packDataBytes(toPack, typeMap);
+  return priceCodec.bytes;
 }
