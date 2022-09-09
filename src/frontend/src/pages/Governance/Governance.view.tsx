@@ -305,8 +305,6 @@ export const GovernanceView = ({
     if (findUserCurrentRoundProposal?.id) await dispatch(dropProposal(findUserCurrentRoundProposal?.id))
   }
 
-  console.log('%c ||||| visibleMeta', 'color:yellowgreen', visibleMeta)
-
   return (
     <GovernanceStyled>
       {someVisible ? (
