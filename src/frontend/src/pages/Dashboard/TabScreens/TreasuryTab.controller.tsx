@@ -75,13 +75,13 @@ export const TreasuryTab = () => {
       <TreasuryContentStyled>
         <div className="top">
           <StatBlock>
-            <div className="name">Total Oracle Rewards Paid</div>
+            <div className="name">Global Treasury</div>
             <div className="value">
               <CommaNumber endingText="USD" value={124141} />
             </div>
           </StatBlock>
           <StatBlock>
-            <div className="name">Total Oracle Feeds</div>
+            <div className="name">Development Treasury</div>
             <div className="value">
               <CommaNumber endingText="USD" value={124141} />
             </div>
