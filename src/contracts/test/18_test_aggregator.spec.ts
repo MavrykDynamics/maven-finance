@@ -159,15 +159,12 @@ describe('Aggregator Tests', async () => {
         new BigNumber(8),             // decimals
         new BigNumber(2),             // alphaPercentPerThousand
 
-        new BigNumber(86400),         // deviationTriggerBanTimestamp
         new BigNumber(5),             // perthousandDeviationTrigger
         new BigNumber(60),            // percentOracleThreshold
         new BigNumber(30),            // heartBeatSeconds
 
         new BigNumber(0),             // requestRateDeviationDepositFee 
 
-        new BigNumber(10000000),      // deviationRewardStakedMvk
-        new BigNumber(0),             // deviationRewardAmountXtz
         new BigNumber(10000000),      // rewardAmountStakedMvk ~ 0.01 MVK 
         new BigNumber(1000000),       // rewardAmountXtz - 1 tez for testing (usual should be around ~ 0.0013 tez)
          
@@ -1000,7 +997,6 @@ describe('Aggregator Tests', async () => {
           const totalStakedMvkTwoCommits = eveStakedMvk + malloryStakedMvk;
 
           const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountStakedMvk.toNumber();
-          const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk.toNumber();
 
           console.log("ici " + Array.from(beforeStorage.oracleRewardStakedMvk.entries()))
           // satellite oracle rewards in staked MVK
@@ -1026,7 +1022,7 @@ describe('Aggregator Tests', async () => {
           // calculate satellite staked MVK rewards based on number of commits/reveals and request rate update deviation (also assuming one commit is followed by one reveal)
           const bobTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits;
           const eveTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
-          const malloryTotalStakedMvkReward   = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits + deviationRewardStakedMvk;
+          const malloryTotalStakedMvkReward   = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
 
           // check that staked mvk reward amounts are correct
           assert.equal(beforeBobRewardStakedMvk, bobTotalStakedMvkReward);          // 3,333,333 - one reveal
@@ -1111,17 +1107,6 @@ describe('Aggregator Tests', async () => {
         await chai.expect(test_update_config_alphaPercentPerThousand_op.send()).to.be.rejectedWith();
 
 
-
-        const test_update_config_devTriggerBanDuration_op = aggregator.methods.updateConfig(
-          devTriggerBanDuration, "configDevTriggerBanDuration"
-        );
-        await chai.expect(test_update_config_devTriggerBanDuration_op.send()).to.be.rejectedWith();
-
-        const test_update_config_perThousandDeviationTrigger_op = aggregator.methods.updateConfig(
-          perThousandDeviationTrigger, "configPerThousandDevTrigger"
-        );
-        await chai.expect(test_update_config_perThousandDeviationTrigger_op.send()).to.be.rejectedWith();
-        
         const test_update_config_percentOracleThreshold_op = aggregator.methods.updateConfig(
           percentOracleThreshold, "configPercentOracleThreshold"
         );
@@ -1131,13 +1116,6 @@ describe('Aggregator Tests', async () => {
           heartBeatSeconds, "configHeartBeatSeconds"
         );
         await chai.expect(test_update_config_heartBeatSeconds_op.send()).to.be.rejectedWith();
-
-
-
-        const test_update_config_requestRateDevDepositFee_op = aggregator.methods.updateConfig(
-          requestRateDevDepositFee, "configRequestRateDevDepositFee"
-        );
-        await chai.expect(test_update_config_requestRateDevDepositFee_op.send()).to.be.rejectedWith();
 
 
 
@@ -1180,17 +1158,6 @@ describe('Aggregator Tests', async () => {
         ).send();
         await test_update_config_alphaPercentPerThousand_op.confirmation();
 
-
-
-        const test_update_config_devTriggerBanDuration_op = await aggregator.methods.updateConfig(
-          devTriggerBanDuration, "configDevTriggerBanDuration"
-        ).send();
-        await test_update_config_devTriggerBanDuration_op.confirmation();
-
-        const test_update_config_perThousandDeviationTrigger_op = await aggregator.methods.updateConfig(
-          perThousandDeviationTrigger, "configPerThousandDevTrigger"
-        ).send();
-        await test_update_config_perThousandDeviationTrigger_op.confirmation();
         
         const test_update_config_percentOracleThreshold_op = await aggregator.methods.updateConfig(
           percentOracleThreshold, "configPercentOracleThreshold"
@@ -1202,12 +1169,6 @@ describe('Aggregator Tests', async () => {
         ).send();
         await test_update_config_heartBeatSeconds_op.confirmation();
 
-
-
-        const test_update_config_requestRateDevDepositFee_op = await aggregator.methods.updateConfig(
-          requestRateDevDepositFee, "configRequestRateDevDepositFee"
-        ).send();
-        await test_update_config_requestRateDevDepositFee_op.confirmation();
 
 
         const test_update_config_deviationRewardStakedMvk_op = await aggregator.methods.updateConfig(
@@ -1234,11 +1195,9 @@ describe('Aggregator Tests', async () => {
         assert.deepEqual(storage.config.decimals,                        decimals);
         assert.deepEqual(storage.config.alphaPercentPerThousand,         alphaPercentPerThousand);
 
-        assert.deepEqual(storage.config.deviationTriggerBanDuration,     devTriggerBanDuration);
         assert.deepEqual(storage.config.percentOracleThreshold,          percentOracleThreshold);
         assert.deepEqual(storage.config.heartBeatSeconds,                heartBeatSeconds);
 
-        assert.deepEqual(storage.config.deviationRewardAmountXtz,        deviationRewardAmountXtz);
         assert.deepEqual(storage.config.requestRateDeviationDepositFee,  requestRateDevDepositFee);
         assert.deepEqual(storage.config.rewardAmountXtz,                 rewardAmountXtz);
         assert.deepEqual(storage.config.rewardAmountStakedMvk,           rewardAmountStakedMvk);
