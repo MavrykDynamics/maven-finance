@@ -1,8 +1,9 @@
+{{- if .Values.dipdup.database.backup.enabled }}
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: postgres-backup
+  name: postgres-backup-{{ .Release.Name }}
 spec:
   schedule: '0 1 * * *'
   jobTemplate:
@@ -15,7 +16,7 @@ spec:
                 claimName: mavryk-indexer-backup
             - name: backup-script
               configMap:
-                name: backup-script
+                name: backup-script-{{ .Release.Name }}
                 defaultMode: 0755
           containers:
             - name: backup
@@ -36,22 +37,22 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: indexer
-                      key: POSTGRES_HOST_PROD
+                      key: POSTGRES_HOST
                 - name: PGPORT
                   valueFrom:
                     secretKeyRef:
                       name: indexer
-                      key: POSTGRES_PORT_PROD
+                      key: POSTGRES_PORT
                 - name: PGUSER
                   valueFrom:
                     secretKeyRef:
                       name: indexer
-                      key: POSTGRES_USERNAME_PROD
+                      key: POSTGRES_USERNAME
                 - name: PGPASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: indexer
-                      key: POSTGRES_PASSWORD_PROD
+                      key: POSTGRES_PASSWORD
                 - name: BACKUP_RETENTION_IN_DAYS
                   value: '7'
                 - name: BACKUP_FOLDER
@@ -73,7 +74,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: backup-script
+  name: backup-script-{{ .Release.Name }}
 data:
   backup.sh: |
     #!/bin/bash
@@ -110,4 +111,5 @@ data:
 
     # Creates a new backup
     echo 💾 Creating a new backup: $BACKUP_FOLDER/$FILE_NAME
-    pg_dump -h $PGHOST -p $PGPORT -U $PGUSER -f $BACKUP_FOLDER/$FILE_NAME -d dipdup
+    pg_dump -h $PGHOST -p $PGPORT -U $PGUSER -f $BACKUP_FOLDER/$FILE_NAME -d {{ .Values.dipdup.database.name }}
+{{- end}}

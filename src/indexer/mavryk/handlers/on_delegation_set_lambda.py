@@ -1,0 +1,15 @@
+
+from dipdup.models import Transaction
+from mavryk.utils.persisters import persist_lambda
+from mavryk.types.delegation.storage import DelegationStorage
+from mavryk.types.delegation.parameter.set_lambda import SetLambdaParameter
+from dipdup.context import HandlerContext
+import mavryk.models as models
+
+async def on_delegation_set_lambda(
+    ctx: HandlerContext,
+    set_lambda: Transaction[SetLambdaParameter, DelegationStorage],
+) -> None:
+
+    # Persist lambda
+    await persist_lambda(models.Delegation, models.DelegationLambda, set_lambda)

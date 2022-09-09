@@ -1631,14 +1631,14 @@
 //             it('User should not be able to call this entrypoint if it’s the voting round', async () => {
 //                 try{
 //                     // Initial Values
-//                     governanceStorage           = await governanceInstance.storage()
+//                     governanceStorage                    = await governanceInstance.storage()
 //                     const currentCycleInfoRound          = governanceStorage.currentCycleInfo.round
 //                     const currentCycleInfoRoundString    = Object.keys(currentCycleInfoRound)[0]
-//                     const highestVotedProposal  = governanceStorage.cycleHighestVotedProposalId;
-//                     const timelockProposal      = governanceStorage.timelockProposalId;
+//                     const highestVotedProposal           = governanceStorage.cycleHighestVotedProposalId;
+//                     const timelockProposal               = governanceStorage.timelockProposalId;
 
 //                     // Operation
-//                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.executeProposal(highestVotedProposal).send()).to.be.rejected;
 
 //                     // Assertions
 //                     assert.strictEqual(currentCycleInfoRoundString, "voting")
@@ -1650,15 +1650,16 @@
 //             it('User should not be able to call this entrypoint if it’s the timelock round', async () => {
 //                 try{
 //                     // Initial Values
-//                     governanceStorage           = await governanceInstance.storage()
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     const proposalId                    = governanceStorage.timelockProposalId.toNumber();
 
 //                     // Operation
 //                     const startTimelockRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startTimelockRoundOperation.confirmation();
-//                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.executeProposal(proposalId).send()).to.be.rejected;
 
 //                     // Final values
-//                     governanceStorage           = await governanceInstance.storage()
+//                     governanceStorage                    = await governanceInstance.storage()
 //                     const currentCycleInfoRound          = governanceStorage.currentCycleInfo.round
 //                     const currentCycleInfoRoundString    = Object.keys(currentCycleInfoRound)[0]
 
@@ -1678,7 +1679,7 @@
                 
 //                     const startProposalRoundOperation = await governanceInstance.methods.startNextRound(false).send();
 //                     await startProposalRoundOperation.confirmation();
-//                     const executeOperation = await governanceInstance.methods.executeProposal().send();
+//                     const executeOperation = await governanceInstance.methods.executeProposal(timelockProposal).send();
 //                     await executeOperation.confirmation();
 
 //                     // Final values
@@ -2919,6 +2920,140 @@
 //                     console.dir(e, {depth: 5})
 //                 }
 //             })
+            
+//             it('User should be able to call this entrypoint and execute a non-executed proposal from a previous cycle', async () => {
+//                 try{
+
+//                     // Initial Values
+//                     await signerFactory(eve.sk)
+//                     governanceStorage                       = await governanceInstance.storage();
+//                     const firstProposalId                   = governanceStorage.nextProposalId; 
+//                     var currentCycleInfoRound               = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString         = Object.keys(currentCycleInfoRound)[0];
+
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
+//                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+//                         await startNextRoundOperation.confirmation();
+//                         governanceStorage           = await governanceInstance.storage();
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
+//                     }
+                    
+//                     const firstProposalName          = "New Proposal #1";
+//                     const firstProposalDesc          = "Details about new proposal #1";
+//                     const firstProposalIpfs          = "ipfs://QM123456789";
+//                     const firstProposalSourceCode    = "Proposal Source Code";
+
+//                     // First cycle operations
+//                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
+//                     await proposeOperation.confirmation();
+
+//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
+//                     'updateCouncilConfig',
+//                     1234,
+//                     'configActionExpiryDays'
+//                     ).toTransferParams();
+//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
+//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+        
+//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
+//                         data: configSuccessRewardParamValue,
+//                         type: callGovernanceLambdaEntrypointType
+//                     }).catch(e => console.error('error:', e));
+        
+//                     var packedUpdateConfigSuccessRewardParam;
+//                     if (updateConfigSuccessRewardPacked) {
+//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
+//                     } else {
+//                       throw `packing failed`
+//                     };
+
+//                     var addDataOperation = await governanceInstance.methods.updateProposalData(firstProposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     await addDataOperation.confirmation()
+
+//                     var lockOperation = await governanceInstance.methods.lockProposal(firstProposalId).send();
+//                     await lockOperation.confirmation()
+
+//                     var proposalRoundVoteOperation = await governanceInstance.methods.proposalRoundVote(firstProposalId).send();
+//                     await proposalRoundVoteOperation.confirmation();
+
+//                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
+//                     await startNextRoundOperation.confirmation();
+
+//                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     await votingRoundVoteOperation.confirmation();
+
+//                     await signerFactory(alice.sk)
+//                     votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     await votingRoundVoteOperation.confirmation();
+
+//                     await signerFactory(eve.sk)
+
+//                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
+//                     await startNextRoundOperation.confirmation();
+
+//                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
+//                     await startNextRoundOperation.confirmation();
+
+//                     // Mid values
+//                     governanceStorage                       = await governanceInstance.storage();
+//                     const secondProposalId                  = governanceStorage.nextProposalId;
+//                     const midValuesProposal                 = await governanceStorage.proposalLedger.get(firstProposalId);
+
+//                     // Second cycle operations
+//                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
+//                     await proposeOperation.confirmation();
+        
+//                     var packedUpdateConfigSuccessRewardParam;
+//                     if (updateConfigSuccessRewardPacked) {
+//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
+//                     } else {
+//                       throw `packing failed`
+//                     };
+
+//                     addDataOperation = await governanceInstance.methods.updateProposalData(secondProposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     await addDataOperation.confirmation()
+
+//                     lockOperation = await governanceInstance.methods.lockProposal(secondProposalId).send();
+//                     await lockOperation.confirmation()
+
+//                     proposalRoundVoteOperation = await governanceInstance.methods.proposalRoundVote(secondProposalId).send();
+//                     await proposalRoundVoteOperation.confirmation();
+
+//                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
+//                     await startNextRoundOperation.confirmation();
+
+//                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     await votingRoundVoteOperation.confirmation();
+
+//                     await signerFactory(alice.sk)
+//                     votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     await votingRoundVoteOperation.confirmation();
+
+//                     await signerFactory(eve.sk)
+
+//                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
+//                     await startNextRoundOperation.confirmation();
+
+//                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
+//                     await startNextRoundOperation.confirmation();
+
+//                     // Execute first proposal
+//                     const executeProposalOperation      = await governanceInstance.methods.executeProposal(firstProposalId).send();
+//                     await executeProposalOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     var proposal                        = await governanceStorage.proposalLedger.get(firstProposalId);
+
+//                     assert.strictEqual(midValuesProposal.executed, false)
+//                     assert.strictEqual(midValuesProposal.executionReady, true)
+//                     assert.strictEqual(proposal.executed, true)
+//                     assert.strictEqual(proposal.executionReady, true)
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
 //             it('User should not be able to call this entrypoint if there is no proposal to execute', async () => {
 //                 try{
@@ -2983,7 +3118,7 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
 
-//                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.executeProposal(proposalId).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -3064,7 +3199,7 @@
 //                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, true)
 
-//                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.executeProposal(proposalId).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -3148,7 +3283,7 @@
 //                     assert.strictEqual(proposal.executed, false)
 //                     assert.strictEqual(proposal.status, "DROPPED")
 
-//                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.executeProposal(proposalId).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -3208,7 +3343,7 @@
 //                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, false)
                     
-//                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.executeProposal(proposalId).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -3268,7 +3403,7 @@
 //                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, false)
 
-//                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.executeProposal(proposalId).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }

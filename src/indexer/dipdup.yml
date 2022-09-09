@@ -28,59 +28,6 @@ advanced:
     config_modified: wipe
     schema_modified: wipe
 
-contracts:
-  liquidity_baking:
-    address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
-    typename: liquidity_baking
-  mvk:
-    address: KT192v2xcsPVAoskhDguRGEz7hqsAVJ4MQtC
-    typename: mvk
-  governance:
-    address: KT1WHrvLPYe9BwGrrrecTvP8sMMQNWLvHgeo
-    typename: governance
-  doorman:
-    address: KT1J3DBsCtT3b2gQnh93sEp8RYZtm9qvKzzs
-    typename: doorman
-  farm:
-    address: KT1JAgDRhRpUmisn6dU4pCUyfiQoUZc5wB74 #KT1CbLGSBeeHES4eXjjp6teh5pbrgkDi2qto
-    typename: farm
-  farm_factory:
-    address: KT18cWwjTscZey2VvN6dy1h3bSTotjpUKqZq
-    typename: farm_factory
-  delegation:
-    address: KT1TiD8PAqz6cF9fNkySyQmW93any7TrNhab
-    typename: delegation
-  vesting:
-    address: KT1PXkvDio6sjem4tZ1cXhKsji9A3naZd73r
-    typename: vesting
-  emergency_governance:
-    address: KT1BeKpjRUSTkykiAGGGzfgiVFpRb5Dk3SGo
-    typename: emergency_governance
-  council:
-    address: KT1SR8Hutr5TFWDUuNncg6pjXrcMkjQJjfKm
-    typename: council
-  break_glass:
-    address: KT1S4B8HWNj5QBrYLSSVQfECpwCaBU6rRVm9
-    typename: break_glass
-  governance_financial:
-    address: KT1J5614w7Ku4613TduVyvSv3B1X1jf6nWah
-    typename: governance_financial
-  governance_satellite:
-    address: KT19HcgaDZydTBSENfo1HxfEfAbiitZgRiSk
-    typename: governance_satellite
-  aggregator:
-    address: KT1R8uVX8bXeeUnzyepLoSAx55Hj2iNXkrsL
-    typename: aggregator
-  aggregator_factory:
-    address: KT1WXqKTZdtei7zLEAs243zgWev6tobJccHB
-    typename: aggregator_factory
-  treasury:
-    address: KT1UHBYfSKHSYP5mCyiHbEipdSuGJgZyJf3c
-    typename: treasury
-  treasury_factory:
-    address: KT1GHvyBLDjvUCBsfVxjFKea7zrifgjPWZHV
-    typename: treasury_factory
-
 datasources:
   tzkt_testnet:
     kind: tzkt
@@ -89,8 +36,73 @@ datasources:
     kind: tzkt
     url: ${TZKT_MAINNET_URL:-changeme}
 
+contracts:
+  liquidity_baking:
+    address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
+    typename: liquidity_baking
+  mvk:
+    address: KT1WESG5zjPWpTJvupm1HbaGSZG1YpNNHrk9
+    typename: mvk
+  governance_proxy:
+    address: KT1QBMFDBpJYknJffETnodXQDmUivbrDY6BQ
+    typename: governance_proxy
+  governance:
+    address: KT1UhppqfnxScFsTaEvwLVjbCjrTA8B9Twt3
+    typename: governance
+  doorman:
+    address: KT1Jx3ntKnxfouejfFVdjMDyw2Evu6KriqDq
+    typename: doorman
+  farm:
+    address: KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH #KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH
+    typename: farm
+  farm_factory:
+    address: KT1XLw5Wvr145MKhUqXNSeAQRrKzCFL7pa3C
+    typename: farm_factory
+  delegation:
+    address: KT1F9GLKRNH3Bvz91BMoKqm7DcUagbZNmvLE
+    typename: delegation
+  vesting:
+    address: KT1BFKLJZswWw6R6JTvxwqR4717NyrbB4XcK
+    typename: vesting
+  emergency_governance:
+    address: KT1VX35UiMQtK4bX1tsbF26eRWiDvDiPXeLW
+    typename: emergency_governance
+  council:
+    address: KT1ANuhVbRuBq6njgSU4kRA2AeSE3sXgPTSA
+    typename: council
+  break_glass:
+    address: KT1DNkJukJDLdzeabZRFsCcbUh7JJmrDcvBj
+    typename: break_glass
+  governance_financial:
+    address: KT1W4SNraUVbSrKCiCoVppffGRiaw6B5vdfz
+    typename: governance_financial
+  governance_satellite:
+    address: KT1Kb6ddSqcuUUc5vhbCEBWTCYnYVvWQz6B8
+    typename: governance_satellite
+  aggregator:
+    address: KT1UyiRss5ypVwrttUyU9JfvtLwdRZPnZnY5
+    typename: aggregator
+  aggregator_factory:
+    address: KT1Renbm7aVR6JAvEWvkxwsAuFkUQEbb3SqN
+    typename: aggregator_factory
+  treasury:
+    address: KT1RahUBbjVuhS8BsLjcMRMmfijZMABmf5Ws
+    typename: treasury
+  treasury_factory:
+    address: KT197SwRzhE3zkmWxKYyV5r3FuYrbwVB7kM9
+    typename: treasury_factory
+  token_sale:
+    address: KT1DM3EjTwYWrwZeLjQXMPcNDXdzrTVviq4H
+    typename: token_sale
+  # lending_controller:
+  #   address:
+  #   typename: lending_controller
+  # vault:
+  #   address:
+  #   typename: vault
+
 templates:
-  # Template for Farm Factory
+  # Template for Farm
   farm_template:
     kind: operation
     datasource: tzkt_testnet
@@ -152,7 +164,7 @@ templates:
         pattern:
           - destination: <farm_contract>
             entrypoint: claim
-  # Template for treasury Factory
+  # Template for Treasury
   treasury_template:
     kind: operation
     datasource: tzkt_testnet
@@ -198,7 +210,7 @@ templates:
         pattern:
           - destination: <treasury_contract>
             entrypoint: transfer
-  # Template for aggregator factory
+  # Template for Aggregator
   aggregator_template:
     kind: operation
     datasource: tzkt_testnet
@@ -276,6 +288,36 @@ templates:
         pattern:
           - destination: <aggregator_contract>
             entrypoint: withdrawRewardStakedMvk
+  # # Template for Vault
+  # vault:
+  #   kind: operation
+  #   datasource: tzkt_testnet
+  #   types:
+  #     - origination
+  #     - transaction
+  #   contracts:
+  #     - <vault_contract>
+  #   handlers:
+  #     - callback: on_vault_origination
+  #       pattern:
+  #         - type: origination
+  #           originated_contract: <vault_contract>
+  #     - callback: on_vault_set_admin
+  #       pattern:
+  #         - destination: <vault_contract>
+  #           entrypoint: setAdmin
+  #     - callback: on_vault_set_governance
+  #       pattern:
+  #         - destination: <vault_contract>
+  #           entrypoint: setGovernance
+  #     - callback: on_vault_update_depositor
+  #       pattern:
+  #         - destination: <vault_contract>
+  #           entrypoint: updateDepositor
+  #     - callback: on_vault_set_lambda
+  #       pattern:
+  #         - destination: <vault_contract>
+  #           entrypoint: setLambda
 
 indexes:
   # BIGMAP INDEXES
@@ -369,6 +411,48 @@ indexes:
         pattern:
           - destination: mvk
             entrypoint: triggerInflation
+  # Governance Proxy contract indexes
+  governance_proxy:
+    kind: operation
+    datasource: tzkt_testnet
+    types:
+      - origination
+      - transaction
+    contracts:
+      - governance_proxy
+    handlers:
+      - callback: on_governance_proxy_origination
+        pattern:
+          - type: origination
+            originated_contract: governance_proxy
+      - callback: on_governance_proxy_set_admin
+        pattern:
+          - destination: governance_proxy
+            entrypoint: setAdmin
+      - callback: on_governance_proxy_set_governance
+        pattern:
+          - destination: governance_proxy
+            entrypoint: setGovernance
+      - callback: on_governance_proxy_update_whitelist_contracts
+        pattern:
+          - destination: governance_proxy
+            entrypoint: updateWhitelistContracts
+      - callback: on_governance_proxy_update_whitelist_token_contracts
+        pattern:
+          - destination: governance_proxy
+            entrypoint: updateWhitelistTokenContracts
+      - callback: on_governance_proxy_update_general_contracts
+        pattern:
+          - destination: governance_proxy
+            entrypoint: updateGeneralContracts
+      - callback: on_governance_proxy_set_lambda
+        pattern:
+          - destination: governance_proxy
+            entrypoint: setLambda
+      - callback: on_governance_proxy_set_proxy_lambda
+        pattern:
+          - destination: governance_proxy
+            entrypoint: setProxyLambda
   # Governance contract indexes
   governance:
     kind: operation
@@ -455,6 +539,10 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: dropProposal
+      - callback: on_governance_set_lambda
+        pattern:
+          - destination: governance
+            entrypoint: setLambda
   # Doorman contract indexes
   doorman:
     kind: operation
@@ -524,6 +612,10 @@ indexes:
         pattern:
           - destination: doorman
             entrypoint: farmClaim
+      - callback: on_doorman_set_lambda
+        pattern:
+          - destination: doorman
+            entrypoint: setLambda
   # Farm contract indexes
   farm:
     kind: operation
@@ -590,6 +682,10 @@ indexes:
         pattern:
           - destination: farm
             entrypoint: claim
+      - callback: on_farm_set_lambda
+        pattern:
+          - destination: farm
+            entrypoint: setLambda
   # Farm Factory contract indexes
   farm_factory:
     kind: operation
@@ -652,6 +748,14 @@ indexes:
         pattern:
           - destination: farm_factory
             entrypoint: untrackFarm
+      - callback: on_farm_factory_set_lambda
+        pattern:
+          - destination: farm_factory
+            entrypoint: setLambda
+      - callback: on_farm_factory_set_product_lambda
+        pattern:
+          - destination: farm_factory
+            entrypoint: setProductLambda
   # Delegation contract indexes
   delegation:
     kind: operation
@@ -730,6 +834,10 @@ indexes:
         pattern:
           - destination: delegation
             entrypoint: onStakeChange
+      - callback: on_delegation_set_lambda
+        pattern:
+          - destination: delegation
+            entrypoint: setLambda
   # Vesting contract indexes
   vesting:
     kind: operation
@@ -780,6 +888,10 @@ indexes:
         pattern:
           - destination: vesting
             entrypoint: claim
+      - callback: on_vesting_set_lambda
+        pattern:
+          - destination: vesting
+            entrypoint: setLambda
   # Emergency Governance contract indexes
   emergency_governance:
     kind: operation
@@ -826,6 +938,10 @@ indexes:
         pattern:
           - destination: emergency_governance
             entrypoint: dropEmergencyGovernance
+      - callback: on_emergency_governance_set_lambda
+        pattern:
+          - destination: emergency_governance
+            entrypoint: setLambda
   # Council contract indexes
   council:
     kind: operation
@@ -924,6 +1040,10 @@ indexes:
         pattern:
           - destination: council
             entrypoint: signAction
+      - callback: on_council_set_lambda
+        pattern:
+          - destination: council
+            entrypoint: setLambda
   # Break Glass contract indexes
   break_glass:
     kind: operation
@@ -1010,6 +1130,10 @@ indexes:
         pattern:
           - destination: break_glass
             entrypoint: signAction
+      - callback: on_break_glass_set_lambda
+        pattern:
+          - destination: break_glass
+            entrypoint: setLambda
   # Governance Financial contract indexes
   governance_financial:
     kind: operation
@@ -1068,6 +1192,10 @@ indexes:
         pattern:
           - destination: governance_financial
             entrypoint: voteForRequest
+      - callback: on_governance_financial_set_lambda
+        pattern:
+          - destination: governance_financial
+            entrypoint: setLambda
   # Governance Satellite contract indexes
   governance_satellite:
     kind: operation
@@ -1146,6 +1274,10 @@ indexes:
         pattern:
           - destination: governance_satellite
             entrypoint: voteForAction
+      - callback: on_governance_satellite_set_lambda
+        pattern:
+          - destination: governance_satellite
+            entrypoint: setLambda
   # Aggregator contract indexes
   aggregator:
     kind: operation
@@ -1228,6 +1360,10 @@ indexes:
         pattern:
           - destination: aggregator
             entrypoint: withdrawRewardStakedMvk
+      - callback: on_aggregator_set_lambda
+        pattern:
+          - destination: aggregator
+            entrypoint: setLambda
   # Aggregator Factory contract indexes
   aggregator_factory:
     kind: operation
@@ -1285,6 +1421,14 @@ indexes:
         pattern:
           - destination: aggregator_factory
             entrypoint: untrackAggregator
+      - callback: on_aggregator_factory_set_lambda
+        pattern:
+          - destination: aggregator_factory
+            entrypoint: setLambda
+      - callback: on_aggregator_factory_set_product_lambda
+        pattern:
+          - destination: aggregator_factory
+            entrypoint: setProductLambda
   # Treasury contract indexes
   treasury:
     kind: operation
@@ -1335,6 +1479,10 @@ indexes:
         pattern:
           - destination: treasury
             entrypoint: transfer
+      - callback: on_treasury_set_lambda
+        pattern:
+          - destination: treasury
+            entrypoint: setLambda
   # Treasury Factory contract indexes
   treasury_factory:
     kind: operation
@@ -1401,3 +1549,209 @@ indexes:
         pattern:
           - destination: treasury_factory
             entrypoint: untrackTreasury
+      - callback: on_treasury_factory_set_lambda
+        pattern:
+          - destination: treasury_factory
+            entrypoint: setLambda
+      - callback: on_treasury_factory_set_product_lambda
+        pattern:
+          - destination: treasury_factory
+            entrypoint: setProductLambda
+  # Token sale contract indexes
+  token_sale:
+    kind: operation
+    datasource: tzkt_testnet
+    types:
+      - origination
+      - transaction
+    contracts:
+      - token_sale
+    handlers:
+      - callback: on_token_sale_origination
+        pattern:
+          - type: origination
+            originated_contract: token_sale
+      - callback: on_token_sale_set_admin
+        pattern:
+          - destination: token_sale
+            entrypoint: setAdmin
+      - callback: on_token_sale_set_governance
+        pattern:
+          - destination: token_sale
+            entrypoint: setGovernance
+      - callback: on_token_sale_update_config
+        pattern:
+          - destination: token_sale
+            entrypoint: updateConfig
+      - callback: on_token_sale_set_whitelist_timestamp
+        pattern:
+          - destination: token_sale
+            entrypoint: setWhitelistTimestamp
+      - callback: on_token_sale_add_to_whitelist
+        pattern:
+          - destination: token_sale
+            entrypoint: addToWhitelist
+      - callback: on_token_sale_remove_from_whitelist
+        pattern:
+          - destination: token_sale
+            entrypoint: removeFromWhitelist
+      - callback: on_token_sale_start_sale
+        pattern:
+          - destination: token_sale
+            entrypoint: startSale
+      - callback: on_token_sale_close_sale
+        pattern:
+          - destination: token_sale
+            entrypoint: closeSale
+      - callback: on_token_sale_pause_sale
+        pattern:
+          - destination: token_sale
+            entrypoint: pauseSale
+      - callback: on_token_sale_buy_tokens
+        pattern:
+          - destination: token_sale
+            entrypoint: buyTokens
+      - callback: on_token_sale_claim_tokens
+        pattern:
+          - destination: token_sale
+            entrypoint: claimTokens
+  # # Vault contract indexes
+  # vault:
+  #   kind: operation
+  #   datasource: tzkt_testnet
+  #   types:
+  #     - origination
+  #     - transaction
+  #   contracts:
+  #     - vault
+  #   handlers:
+  #     - callback: on_vault_origination
+  #       pattern:
+  #         - type: origination
+  #           originated_contract: vault
+  #     - callback: on_vault_set_admin
+  #       pattern:
+  #         - destination: vault
+  #           entrypoint: setAdmin
+  #     - callback: on_vault_set_governance
+  #       pattern:
+  #         - destination: vault
+  #           entrypoint: setGovernance
+  #     - callback: on_vault_update_depositor
+  #       pattern:
+  #         - destination: vault
+  #           entrypoint: updateDepositor
+  #     - callback: on_vault_set_lambda
+  #       pattern:
+  #         - destination: vault
+  #           entrypoint: setLambda
+  # # Lending Controller contract indexes
+  # lending_controller:
+  #   kind: operation
+  #   datasource: tzkt_testnet
+  #   types:
+  #     - origination
+  #     - transaction
+  #   contracts:
+  #     - lending_controller
+  #   handlers:
+  #     - callback: on_lending_controller_origination
+  #       pattern:
+  #         - type: origination
+  #           originated_contract: lending_controller
+  #     - callback: on_lending_controller_set_admin
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: setAdmin
+  #     - callback: on_lending_controller_set_governance
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: setGovernance
+  #     - callback: on_lending_controller_update_config
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: updateConfig
+  #     - callback: on_lending_controller_update_config
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: updateConfig
+  #     - callback: on_lending_controller_update_whitelist_contracts
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: updateWhitelistContracts
+  #     - callback: on_lending_controller_update_general_contracts
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: updateGeneralContracts
+  #     - callback: on_lending_controller_update_whitelist_token_contracts
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: updateWhitelistTokenContracts
+  #     - callback: on_lending_controller_pause_all
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: pauseAll
+  #     - callback: on_lending_controller_unpause_all
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: unpauseAll
+  #     - callback: on_lending_controller_toggle_pause_entrypoint
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: togglePauseEntrypoint
+  #     - callback: on_lending_controller_set_loan_token
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: setLoanToken
+  #     - callback: on_lending_controller_add_liquidity
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: addLiquidity
+  #     - callback: on_lending_controller_remove_liquidity
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: removeLiquidity
+  #     - callback: on_lending_controller_update_collateral_token
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: updateCollateralToken
+  #     - callback: on_lending_controller_create_vault
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: createVault
+  #     - callback: on_lending_controller_close_vault
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: closeVault
+  #     - callback: on_lending_controller_register_deposit
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: registerDeposit
+  #     - callback: on_lending_controller_register_withdrawal
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: registerWithdrawal
+  #     - callback: on_lending_controller_mark_for_liquidation
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: markForLiquidation
+  #     - callback: on_lending_controller_borrow
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: borrow
+  #     - callback: on_lending_controller_vault_deposit_staked_mvk
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: vaultDepositStakedMvk
+  #     - callback: on_lending_controller_vault_liquidate_staked_mvk
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: vaultLiquidateStakedMvk
+  #     - callback: on_lending_controller_set_lambda
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: setLambda
+  #     - callback: on_lending_controller_set_product_lambda
+  #       pattern:
+  #         - destination: lending_controller
+  #           entrypoint: setProductLambda

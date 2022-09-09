@@ -142,6 +142,31 @@ type toggleDelegationEntrypointType is [@layout:comb] record [
 // Lambda Action Types
 // ------------------------------------------------------------------------------
 
+type updateContractConfigType is 
+        UpdateGovernanceConfig             of governanceUpdateConfigParamsType
+    |   UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
+    |   UpdateGovernanceSatelliteConfig    of governanceSatelliteUpdateConfigParamsType
+    |   UpdateDelegationConfig             of delegationUpdateConfigParamsType
+    |   UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
+    |   UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
+    |   UpdateCouncilConfig                of councilUpdateConfigParamsType
+    |   UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
+    |   UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
+    |   UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
+    |   UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
+    |   UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
+    |   UpdateDoormanConfig                of doormanUpdateConfigParamsType
+
+type toggleContractEntrypointType is
+        ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
+    |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
+    |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
+    |   ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
+    |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
+    |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
+    |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
+    |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
+
 
 type executeActionParamsType is 
 
@@ -156,30 +181,11 @@ type executeActionParamsType is
     |   UpdateContractGeneralMap           of updateContractGeneralMapType
     |   UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
 
-    |   UpdateGovernanceConfig             of governanceUpdateConfigParamsType
-    |   UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
-    |   UpdateGovernanceSatelliteConfig    of governanceSatelliteUpdateConfigParamsType
-    |   UpdateDelegationConfig             of delegationUpdateConfigParamsType
-    |   UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
-    |   UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
-    |   UpdateCouncilConfig                of councilUpdateConfigParamsType
-    |   UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
-    |   UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
-    |   UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
-    |   UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
-    |   UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
-    |   UpdateDoormanConfig                of doormanUpdateConfigParamsType
+    |   UpdateContractConfig               of updateContractConfigType
 
     |   PauseAllContractEntrypoint         of (address)
     |   UnpauseAllContractEntrypoint       of (address)
-    |   ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
-    |   ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
-    |   ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
-    |   ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
-    |   ToggleFarmEntrypoint               of toggleFarmEntrypointType
-    |   ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
-    |   ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
-    |   ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
+    |   ToggleContractEntrypoint           of toggleContractEntrypointType
 
     |   UpdateWhitelistDevelopersSet       of (address)
     |   SetGovernanceProxy                 of (address)

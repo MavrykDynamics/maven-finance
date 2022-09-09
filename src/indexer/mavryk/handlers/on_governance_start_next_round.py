@@ -45,7 +45,7 @@ async def on_governance_start_next_round(
     governance.current_round_end_level                  = current_round_end_level
     governance.current_cycle_end_level                  = current_cycle_end_level
     governance.current_cycle_total_voters_reward        = current_cycle_voters_rewards
-    governance.cycle_id                            = cycle_id
+    governance.cycle_id                                 = cycle_id
     governance.cycle_highest_voted_proposal_id          = highest_voted_proposal
     governance.timelock_proposal_id                     = timelock_proposal
     await governance.save()
@@ -58,6 +58,15 @@ async def on_governance_start_next_round(
         )
         highest_voted_proposal_record.reward_claim_ready    = highest_voted_proposal_storage.rewardClaimReady
         await highest_voted_proposal_record.save()
+
+    # Update timelock proposal
+    if start_next_round.storage.timelockProposalId in start_next_round.storage.proposalLedger:
+        timelock_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.timelockProposalId]
+        timelock_proposal_record   = await models.GovernanceProposalRecord.get(
+            id  = timelock_proposal
+        )
+        timelock_proposal_record.execution_ready            = timelock_proposal_storage.executionReady
+        await timelock_proposal_record.save()
 
     # Update round proposals
     round_proposals = await models.GovernanceProposalRecord.filter(current_round_proposal=True).all()

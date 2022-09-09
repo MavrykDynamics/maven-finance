@@ -9,7 +9,7 @@ import { zeroAddress } from "../test/helpers/Utils";
 import { treasuryStorageType } from "../test/types/treasuryStorageType";
 
 const config = {
-    minXtzAmount            : 0,
+    minMvkAmount            : 0,
     maxXtzAmount            : 1000000000,
 }
 

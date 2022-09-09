@@ -14,11 +14,13 @@ async def on_treasury_factory_update_config(
     treasury_factory_address    = update_config.data.target_address
     updated_value               = int(update_config.parameter.updateConfigNewValue)
     update_config_action        = type(update_config.parameter.updateConfigAction)
+    timestamp                   = update_config.data.timestamp
 
     # Update contract
     treasury_factory = await models.TreasuryFactory.get(
         address = treasury_factory_address
     )
+    treasury_factory.last_updated_at    = timestamp
     if update_config_action == configTreasuryNameMaxLength:
         treasury_factory.treasuryNameMaxLength                 = updated_value
     

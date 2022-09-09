@@ -14,11 +14,13 @@ async def on_aggregator_update_config(
     aggregator_address      = update_config.data.target_address
     updated_value           = int(update_config.parameter.updateConfigNewValue)
     updated_config_action   = type(update_config.parameter.updateConfigAction)
+    timestamp               = update_config.data.timestamp
 
     # Update contract
     aggregator              = await models.Aggregator.get(
         address = aggregator_address
     )
+    aggregator.last_updated_at  = timestamp
     if updated_config_action == configDecimals:
         aggregator.decimals                             = updated_value
     elif updated_config_action == configDevTriggerBanDuration:

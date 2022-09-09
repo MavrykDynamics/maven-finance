@@ -22,6 +22,7 @@ EOF
 remote_state {
   backend = "s3"
   config = {
+    skip_region_validation      = true
     skip_credentials_validation = true
     skip_metadata_api_check     = true
     endpoint                    = "https://ams3.digitaloceanspaces.com"
@@ -34,4 +35,3 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
 }
-
