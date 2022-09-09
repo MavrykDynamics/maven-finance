@@ -2345,39 +2345,39 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin requests rate update deviation', async () => {
-            try{
-                // Operation
-                aggregatorStorage   = await aggregatorInstance.storage()
-                const roundId       = aggregatorStorage.round;
-                const price         = new BigNumber(200);
-                const data: MichelsonData = {
-                prim: 'Pair',
-                args: [
-                    { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-                    { string: bob.pkh },
-                ],
-                };
-                const type: MichelsonType = {
-                prim: 'pair',
-                args: [
-                    { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-                    { prim: 'address' },
-                ],
-                };
-                const priceCodec = packDataBytes(data, type);
-                const hash = createHash('sha256')
-                    .update(priceCodec.bytes, 'hex')
-                    .digest('hex');
-                const operation = await aggregatorInstance.methods.requestRateUpdateDeviation(
-                    roundId.plus(1),
-                    hash
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+        // it('Admin requests rate update deviation', async () => {
+        //     try{
+        //         // Operation
+        //         aggregatorStorage   = await aggregatorInstance.storage()
+        //         const roundId       = aggregatorStorage.round;
+        //         const price         = new BigNumber(200);
+        //         const data: MichelsonData = {
+        //         prim: 'Pair',
+        //         args: [
+        //             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+        //             { string: bob.pkh },
+        //         ],
+        //         };
+        //         const type: MichelsonType = {
+        //         prim: 'pair',
+        //         args: [
+        //             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+        //             { prim: 'address' },
+        //         ],
+        //         };
+        //         const priceCodec = packDataBytes(data, type);
+        //         const hash = createHash('sha256')
+        //             .update(priceCodec.bytes, 'hex')
+        //             .digest('hex');
+        //         const operation = await aggregatorInstance.methods.requestRateUpdateDeviation(
+        //             roundId.plus(1),
+        //             hash
+        //         ).send();
+        //         await operation.confirmation();
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     }
+        // });
 
         it('Admin withdraws rewards xtz', async () => {
             try{
