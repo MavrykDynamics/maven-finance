@@ -17,7 +17,6 @@ export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
           actionType: actionRecord.action_type,
           councilId: actionRecord.council_id,
           executed: actionRecord.executed,
-          executedDatetime: new Date(actionRecord.execution_datetime as string),
           expirationDatetime: new Date(actionRecord.expiration_datetime as string),
           id: actionRecord.id,
           initiatorId: actionRecord.initiator_id,
