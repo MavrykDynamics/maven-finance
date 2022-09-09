@@ -29,7 +29,7 @@ import {
 } from '../../../utils/TypesAndInterfaces/Forms'
 import { validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 
-import { dropProposal, updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
+import { dropProposal, updateProposal } from '../ProposalSubmission.actions'
 
 // styles
 import {
@@ -103,12 +103,30 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
 
   const proposalData = findUserCurrentRoundProposal?.proposalData || []
 
+  const [pairs, setPairs] = useState({})
+
+  console.log('%c ||||| pairs', 'color:yellowgreen', pairs)
+  const pairsList = Object.keys(pairs)
+
+  console.log('%c ||||| pairsList', 'color:yellowgreen', pairsList)
+
+  useEffect(() => {
+    if (proposalData?.length) {
+      const [normPairs] = normalizeData(proposalData)
+      setPairs(normPairs)
+    } else {
+      setPairs({ 1: PROPOSAL_BYTE })
+    }
+  }, [proposalData])
+
   const [form, setForm] = useState<ProposalUpdateForm>({
     title: '',
     proposalBytes: [PROPOSAL_BYTE],
   })
 
   const [proposalBytesUpdate, setPoposalBytesUpdate] = useState<any[]>([])
+
+  const disabledAdd = console.log('%c ||||| proposalBytesUpdate', 'color:yellowgreen', proposalBytesUpdate)
 
   useEffect(() => {
     const proposalBytes = findUserCurrentRoundProposal?.proposalData?.length
@@ -148,8 +166,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes))
 
     if (type === 'title') {
-      const isExistTitleInServer = proposalData.some((e) => e.title === text)
-      cloneProposalBytes[index].validTitle = Boolean(text) && !isExistTitleInServer ? 'success' : 'error'
+      cloneProposalBytes[index].validTitle = Boolean(text) ? 'success' : 'error'
     }
 
     if (type === 'data') {
@@ -179,19 +196,9 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
       await dispatch(updateProposal(form, proposalId, clearState))
     }
   }
-  const prepareToUpdate = form.proposalBytes.filter((item) => {
-    const findedInProposalData = proposalData.find((data) => data.id === item.id)
-    return findedInProposalData?.title === item.title && findedInProposalData?.bytes === item.bytes ? null : item
-  })
-
-  const isCanEditProposal =
-    prepareToUpdate.length && prepareToUpdate.every((item) => Boolean(item.title) && Boolean(item.bytes))
-  const isNoOneError = form.proposalBytes.every((item) => item.validTitle !== 'error' && item.validBytes !== 'error')
-  console.log('%c ||||| isNoOneError', 'color:yellowgreen', isNoOneError)
-  const isDisabledEdit = disabled || !isCanEditProposal || !isNoOneError
 
   const handleUpdateProposal = async () => {
-    await dispatch(updateProposal({ title: form.title, proposalBytes: prepareToUpdate }, proposalId, clearState))
+    await dispatch(updateProposal({ title: form.title, proposalBytes: proposalBytesUpdate }, proposalId, clearState))
   }
 
   const handleDeleteProposal = async () => {
@@ -201,6 +208,8 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
   const isAllBytesExist = form.proposalBytes.every((item) => Boolean(item.title) && Boolean(item.bytes))
   const isProposalBytesUpdate = proposalBytesUpdate.every((item) => Boolean(item.title) && Boolean(item.bytes))
 
+  console.log('%c ||||| isProposalBytesUpdate', 'color:yellowgreen', isProposalBytesUpdate)
+
   const isEdit = proposalData?.length
 
   const handleCreateNewByte = () => {
@@ -209,7 +218,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
       proposalBytes: [
         ...form.proposalBytes,
         {
-          id: form.proposalBytes.length + 1,
+          id: form.proposalBytes.length,
           bytes: '',
           governance_proposal_record_id: 0,
           record_internal_id: 0,
@@ -221,7 +230,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     })
   }
 
-  const handleClosePair = (id: number) => {
+  const handleDeletePair = (id: number) => {
     const findInOrigin = proposalData.find((item) => item.id === id)
     if (findInOrigin) {
       setPoposalBytesUpdate((prev) => {
@@ -229,26 +238,31 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
       })
     }
     setForm({ ...form, proposalBytes: form.proposalBytes.filter((item) => item.id !== id) })
+    console.log('%c ||||| findInOrigin', 'color:yellowgreen', findInOrigin)
   }
 
-  const handleDeletePair = (id: number) => {
-    const findOriginPair = proposalData.find((item) => item.id === id)
-    if (findOriginPair) dispatch(deleteProposalDataPair(findOriginPair.title, findOriginPair.bytes, proposalId))
-  }
+  const handleChangeTitle = (index: number, text: string) => {
+    const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes)) as ProposalUpdateFormProposalBytes[]
+    cloneProposalBytes[index].title = text
+    setForm({ ...form, proposalBytes: cloneProposalBytes })
 
-  const handleOnCange = (index: number, text: string, type: string) => {
+    // const cleanDataChange = cloneProposalBytes.map((item) => {
+    //   return {
+    //     title: item.title,
+    //     bytes: item.bytes,
+    //   }
+    // }) as CleanData[]
+
+    // console.log('%c ||||| cleanDataChange', 'color:yellowgreen', cleanDataChange)
+  } //handleChangeTitle
+
+  const handleChangeData = (index: number, text: string) => {
     const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes))
-
-    if (type === 'title') {
-      cloneProposalBytes[index].title = text
-    }
-
-    if (type === 'data') {
-      cloneProposalBytes[index].bytes = text
-    }
-
+    cloneProposalBytes[index].bytes = text
     setForm({ ...form, proposalBytes: cloneProposalBytes })
   }
+
+  const isDisabledEdit = disabled
 
   return (
     <>
@@ -278,10 +292,9 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
       </FormTitleAndFeeContainer>
       <div className="step-bytes">
         {form.proposalBytes.map((item, i) => {
-          const existInServer = proposalData.find((data) => item.title === data.title && item.id === data.id)
-
           return (
             <article key={item.id}>
+              {item.id}
               <div className="step-bytes-title">
                 <label>
                   <span>{i + 4}a</span> - Enter Proposal Bytes Title
@@ -290,10 +303,10 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
                   type="text"
                   value={item.title}
                   required
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOnCange(i, e.target.value, 'title')}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChangeTitle(i, e.target.value)}
                   onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(i, e.target.value, 'title')}
                   inputStatus={item.validTitle}
-                  disabled={disabled || Boolean(existInServer)}
+                  disabled={disabled}
                 />
               </div>
 
@@ -303,18 +316,17 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
               <TextArea
                 className="step-2-textarea"
                 value={item.bytes}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnCange(i, e.target.value, 'data')}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChangeData(i, e.target.value)}
                 onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(i, e.target.value, 'data')}
                 inputStatus={item.validBytes}
                 disabled={disabled}
               />
-
               <Button
                 icon="close-stroke"
                 className="close delete-pair"
                 text="Delete Proposal Byte Pair"
                 kind="actionSecondary"
-                onClick={() => (existInServer ? handleDeletePair(item.id) : handleClosePair(item.id))}
+                onClick={() => handleDeletePair(item.id)}
               />
             </article>
           )
@@ -329,13 +341,13 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
       <FormButtonContainer>
         {isEdit ? (
           <>
-            {/* <Button
+            <Button
               icon="lock"
               className="lock"
               text="Delete Proposal"
               kind="actionSecondary"
               onClick={handleDeleteProposal}
-            /> */}
+            />
             <Button
               icon="pencil-stroke"
               text="Edit Proposal"

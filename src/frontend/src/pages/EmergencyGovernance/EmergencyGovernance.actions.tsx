@@ -90,10 +90,10 @@ export const submitEmergencyGovernanceProposal =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR,
+        error,
+      })
     }
   }

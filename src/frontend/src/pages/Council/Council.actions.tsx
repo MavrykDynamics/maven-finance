@@ -54,11 +54,11 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, 
   } catch (error) {
     if (error instanceof Error) {
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
-        error,
-      })
     }
+    dispatch({
+      type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
+      error,
+    })
   }
 }
 
@@ -92,11 +92,11 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
   } catch (error) {
     if (error instanceof Error) {
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
-        error,
-      })
     }
+    dispatch({
+      type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
+      error,
+    })
   }
 }
 
@@ -140,11 +140,11 @@ export const sign = (actionID: number) => async (dispatch: AppDispatch, getState
   } catch (error) {
     if (error instanceof Error) {
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: SIGN_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: SIGN_ERROR,
+      error,
+    })
   }
 }
 
@@ -192,11 +192,11 @@ export const addVestee =
     } catch (error) {
       if (error instanceof Error) {
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: ADD_VESTEE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: ADD_VESTEE_ERROR,
+        error,
+      })
     }
   }
 
@@ -245,11 +245,11 @@ export const addCouncilMember =
     } catch (error) {
       if (error instanceof Error) {
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: ADD_MEMBER_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: ADD_MEMBER_ERROR,
+        error,
+      })
     }
   }
 
@@ -298,11 +298,11 @@ export const updateVestee =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: UPDATE_VESTEE_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: UPDATE_VESTEE_ERROR,
+        error,
+      })
     }
   }
 
@@ -347,11 +347,11 @@ export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: AppD
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: TOGGLE_VESTEE_LOCK_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: TOGGLE_VESTEE_LOCK_ERROR,
+      error,
+    })
   }
 }
 
@@ -413,11 +413,11 @@ export const changeCouncilMember =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: CHANGE_MEMBER_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: CHANGE_MEMBER_ERROR,
+        error,
+      })
     }
   }
 
@@ -463,11 +463,11 @@ export const removeCouncilMember = (memberAddress: string) => async (dispatch: A
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: REMOVE_MEMBER_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: REMOVE_MEMBER_ERROR,
+      error,
+    })
   }
 }
 
@@ -517,11 +517,11 @@ export const updateCouncilMemberInfo =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: UPDATE_INFO_MEMBER_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: UPDATE_INFO_MEMBER_ERROR,
+        error,
+      })
     }
   }
 
@@ -578,11 +578,11 @@ export const transferTokens =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: TRANSFER_TOKENS_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: TRANSFER_TOKENS_ERROR,
+        error,
+      })
     }
   }
 
@@ -648,11 +648,11 @@ export const requestTokens =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: REQUEST_TOKENS_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: REQUEST_TOKENS_ERROR,
+        error,
+      })
     }
   }
 
@@ -700,11 +700,11 @@ export const requestTokenMint =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: REQUEST_TOKEN_MINT_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: REQUEST_TOKEN_MINT_ERROR,
+        error,
+      })
     }
   }
 
@@ -750,11 +750,11 @@ export const dropFinancialRequest = (financialReqID: number) => async (dispatch:
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: DROP_FINANCICAL_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: DROP_FINANCICAL_ERROR,
+      error,
+    })
   }
 }
 
@@ -800,11 +800,11 @@ export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: A
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: REMOVE_VESTEE_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: REMOVE_VESTEE_ERROR,
+      error,
+    })
   }
 }
 
@@ -850,11 +850,11 @@ export const setBakerRequest = (bakerHash: string) => async (dispatch: AppDispat
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: SET_BAKER_ERROR,
-        error,
-      })
     }
+    dispatch({
+      type: SET_BAKER_ERROR,
+      error,
+    })
   }
 }
 
@@ -901,10 +901,10 @@ export const setContractBakerRequest =
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
-        dispatch({
-          type: SET_CONTRACT_BAKER_ERROR,
-          error,
-        })
       }
+      dispatch({
+        type: SET_CONTRACT_BAKER_ERROR,
+        error,
+      })
     }
   }

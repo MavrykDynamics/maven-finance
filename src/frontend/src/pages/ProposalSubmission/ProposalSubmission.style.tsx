@@ -78,7 +78,6 @@ export const ProposalSubmissionForm = styled(Card)`
       align-self: flex-end;
       padding: 0 40px;
       margin-top: 20px;
-      margin-bottom: 10px;
     }
   }
 
