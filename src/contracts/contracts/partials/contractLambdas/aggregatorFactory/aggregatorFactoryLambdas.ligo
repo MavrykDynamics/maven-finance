@@ -316,7 +316,6 @@ block {
                 checkSenderIsAdmin(s); // check that sender is admin
 
                 // createAggregator parameters declaration
-                const deviationTriggerBan  : deviationTriggerBanType  = map[];
                 
                 const lastCompletedPrice = record[
                       round                 = 0n;
@@ -376,9 +375,7 @@ block {
                     oracleAddresses           = createAggregatorParams.2.oracleAddresses;
                     
                     lastCompletedPrice        = lastCompletedPrice;
-                    
-                    deviationTriggerBan       = deviationTriggerBan;
-                    
+                                        
                     oracleRewardXtz           = oracleRewardXtz;
                     oracleRewardStakedMvk     = oracleRewardStakedMvk;      
 

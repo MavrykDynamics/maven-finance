@@ -2111,14 +2111,8 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(16),            // decimals
                     new BigNumber(2),             // numberBlocksDelay
                     
-                    new BigNumber(86400),         // deviationTriggerBanDuration
-                    new BigNumber(5),             // perthousandDeviationTrigger
                     new BigNumber(60),            // percentOracleThreshold
-                    
-                    new BigNumber(0),             // requestRateDeviationDepositFee
-    
-                    new BigNumber(10000000),      // deviationRewardStakedMvk
-                    new BigNumber(2600),          // deviationRewardAmountXtz
+                        
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
                     
@@ -2244,40 +2238,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin pauses %requestRateUpdate', async () => {
+        it('Admin pauses %updateData', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("requestRateUpdate", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin pauses %requestRateUpdateDeviation', async () => {
-            try{
-                // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("requestRateUpdateDeviation", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin pauses %setObservationCommit', async () => {
-            try{
-                // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("setObservationCommit", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin pauses %setObservationReveal', async () => {
-            try{
-                // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("setObservationReveal", true).send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("updateData", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2457,25 +2421,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates number deviation trigger ban duration', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(10, "configDevTriggerBanDuration").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates number per thousand deviation trigger', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(10, "configPerThousandDevTrigger").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
 
         it('Admin updates number percentage oracle threshold', async () => {
             try{
@@ -2487,35 +2432,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates request rate deviation deposit fee', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(0, "configRequestRateDevDepositFee").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates deviation reward smvk', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(MVK(1), "configDeviationRewardStakedMvk").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates deviation reward xtz', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(100, "configDeviationRewardAmountXtz").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
 
         it('Admin updates reward smvk', async () => {
             try{

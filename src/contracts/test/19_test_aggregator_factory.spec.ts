@@ -90,15 +90,12 @@ describe('AggregatorFactory', () => {
         new BigNumber(8),             // decimals
         new BigNumber(2),             // alphaPercentPerThousand
 
-        new BigNumber(86400),         // deviationTriggerBanTimestamp
         new BigNumber(5),             // perthousandDeviationTrigger
         new BigNumber(60),            // percentOracleThreshold
         new BigNumber(30),            // heartBeatSeconds
 
         new BigNumber(0),             // requestRateDeviationDepositFee 
 
-        new BigNumber(10000000),      // deviationRewardStakedMvk
-        new BigNumber(2600),          // deviationRewardAmountXtz
         new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
         new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
         
@@ -124,15 +121,12 @@ describe('AggregatorFactory', () => {
         new BigNumber(8),             // decimals
         new BigNumber(2),             // alphaPercentPerThousand
 
-        new BigNumber(86400),         // deviationTriggerBanTimestamp
         new BigNumber(5),             // perthousandDeviationTrigger
         new BigNumber(60),            // percentOracleThreshold
         new BigNumber(30),            // heartBeatSeconds
 
         new BigNumber(0),             // requestRateDeviationDepositFee 
 
-        new BigNumber(10000000),      // deviationRewardStakedMvk
-        new BigNumber(2600),          // deviationRewardAmountXtz
         new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
         new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
         
@@ -354,7 +348,6 @@ describe('AggregatorFactory', () => {
               new BigNumber(8),             // decimals
               new BigNumber(2),             // numberBlocksDelay
       
-              new BigNumber(86400),         // deviationTriggerBanTimestamp
               new BigNumber(5),             // perthousandDeviationTrigger
               new BigNumber(60),            // percentOracleThreshold
               new BigNumber(30),            // heartBeatSeconds
@@ -362,8 +355,6 @@ describe('AggregatorFactory', () => {
       
               new BigNumber(0),             // requestRateDeviationDepositFee 
       
-              new BigNumber(10000000),      // deviationRewardStakedMvk
-              new BigNumber(2600),          // deviationRewardAmountXtz
               new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
               new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
               
@@ -541,15 +532,12 @@ describe('AggregatorFactory', () => {
               new BigNumber(8),             // decimals
               new BigNumber(2),             // alphaPercentPerThousand
       
-              new BigNumber(86400),         // deviationTriggerBanTimestamp
               new BigNumber(5),             // perthousandDeviationTrigger
               new BigNumber(60),            // percentOracleThreshold
               new BigNumber(30),            // heartBeatSeconds
 
               new BigNumber(0),             // requestRateDeviationDepositFee 
       
-              new BigNumber(10000000),      // deviationRewardStakedMvk
-              new BigNumber(2600),          // deviationRewardAmountXtz
               new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
               new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
               
