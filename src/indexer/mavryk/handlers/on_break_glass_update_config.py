@@ -14,11 +14,13 @@ async def on_break_glass_update_config(
     break_glass_address     = update_config.data.target_address
     updated_value           = int(update_config.parameter.updateConfigNewValue)
     update_config_action    = type(update_config.parameter.updateConfigAction)
+    timestamp               = update_config.data.timestamp
 
     # Update contract
     breakGlass = await models.BreakGlass.get(
         address = break_glass_address
     )
+    breakGlass.last_updated_at  = timestamp
     if update_config_action == configActionExpiryDays:
         breakGlass.action_expiry_days                   = updated_value
     elif update_config_action == configCouncilImageMaxLength:

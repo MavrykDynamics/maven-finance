@@ -1,0 +1,15 @@
+
+from dipdup.models import Transaction
+from mavryk.utils.persisters import persist_lambda
+from mavryk.types.aggregator_factory.storage import AggregatorFactoryStorage
+from mavryk.types.aggregator_factory.parameter.set_lambda import SetLambdaParameter
+from dipdup.context import HandlerContext
+import mavryk.models as models
+
+async def on_aggregator_factory_set_lambda(
+    ctx: HandlerContext,
+    set_lambda: Transaction[SetLambdaParameter, AggregatorFactoryStorage],
+) -> None:
+
+    # Persist lambda
+    await persist_lambda(models.AggregatorFactory, models.AggregatorFactoryLambda, set_lambda)

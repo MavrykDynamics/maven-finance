@@ -85,7 +85,8 @@ type proposalRecordType is [@layout:comb] record [
     executed                          : bool;                    // true / false
     paymentProcessed                  : bool;                    // true / false
     locked                            : bool;                    // true / false
-    rewardClaimReady                  : bool;
+    rewardClaimReady                  : bool;                    // true / false
+    executionReady                    : bool;                    // true / false
   
     proposalVoteCount                 : nat;                     // proposal round: pass votes count - number of satellites
     proposalVoteStakedMvkTotal        : nat;                     // proposal round pass vote total mvk from satellites who voted pass
@@ -254,9 +255,9 @@ type governanceLambdaActionType is
     |   LambdaUpdatePaymentData                     of updatePaymentDataType
     |   LambdaLockProposal                          of actionIdType
     |   LambdaVotingRoundVote                       of votingRoundVoteType
-    |   LambdaExecuteProposal                       of (unit)
+    |   LambdaExecuteProposal                       of actionIdType
     |   LambdaProcessProposalPayment                of actionIdType
-    |   LambdaProcessProposalSingleData             of (unit)
+    |   LambdaProcessProposalSingleData             of actionIdType
     |   LambdaDistributeProposalRewards             of distributeProposalRewardsType
     |   LambdaDropProposal                          of actionIdType
 

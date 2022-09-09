@@ -568,20 +568,29 @@ block {
                     |   Timelock -> block {
 
                             // Current Round is a Timelock Round 
-                            //  -   Start a new proposal round
+                            //  -   Mark the timelock proposal as ready to execute
                             //  -   Execute timelocked proposal if boolean input is True
                             //          - If proposal is too large for execution (e.g. gas cost exceed limits), set boolean to False 
                             //            and execute proposal manually through the %processProposalSingleData entrypoint
-                            
-                            // Start proposal round 
-                            s := setupProposalRound(s);
+                            //  -   Start a new proposal round
 
                             // Execute timelocked proposal if boolean input is True
-                            if s.timelockProposalId =/= 0n and executePastProposal then operations := Tezos.transaction(
-                                (unit), 
-                                0tez, 
-                                getExecuteProposalEntrypoint(Tezos.get_self_address())
-                            ) # operations else skip;
+                            if s.timelockProposalId =/= 0n then {
+                                // Mark the proposal as ready to execute even if it's not executed during this cycle
+                                var proposalToExecute                           := case Big_map.find_opt(s.timelockProposalId, s.proposalLedger) of [
+                                        Some (_proposal)    -> _proposal
+                                    |   None                -> failwith(error_PROPOSAL_NOT_FOUND)
+                                ];
+                                proposalToExecute.executionReady                := True;
+                                s.proposalLedger[s.timelockProposalId]          := proposalToExecute;
+
+                                // Execute the timelock proposal if the boolean was set to true
+                                if executePastProposal then operations := Tezos.transaction((s.timelockProposalId), 0tez, getExecuteProposalEntrypoint(Tezos.get_self_address())) # operations 
+                                else skip;
+                            } else skip;
+
+                            // Start proposal round 
+                            s := setupProposalRound(s);
                         }
                 ];
 
@@ -744,6 +753,7 @@ block {
                     paymentProcessed                    = False;                                        // boolean: set to true if proposal payment has been processed 
                     locked                              = False;                                        // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
                     rewardClaimReady                    = False;                                        // boolean: set to true if the voters are able to claim the rewards
+                    executionReady                      = False;                                        // boolean: set to true if the proposal can be executed
 
                     proposalVoteCount                   = 0n;                                           // proposal round: pass votes count (to proceed to voting round)
                     proposalVoteStakedMvkTotal          = 0n;                                           // proposal round pass vote total mvk from satellites who voted pass
@@ -1472,7 +1482,9 @@ function lambdaExecuteProposal(const governanceLambdaAction : governanceLambdaAc
 block {
 
     // Steps Overview:
-    // 1. Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+    // 1. Check the desired proposal to execute can be executed
+    //      -   executionReady set to True
+    //      -   or the current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
     // 2. Check that there is a valid timelock proposal
     // 3. Validation Checks
     //      -   Check that proposal has not been executed
@@ -1484,25 +1496,30 @@ block {
     //      -   Operation data should be executed in FIFO mode so the loop starts at the last index of the proposal
     // 6. Send reward to proposer
 
-
-    // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
-    else skip;
-
-    // Check that there is a valid timelock proposal
-    if s.timelockProposalId = 0n then failwith(error_NO_PROPOSAL_TO_EXECUTE)
-    else skip;
-
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaExecuteProposal(_parameters) -> {
+        |   LambdaExecuteProposal(proposalId) -> {
                 
                 // Get proposal record
-                var proposal : proposalRecordType := case s.proposalLedger[s.timelockProposalId] of [
+                var proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_PROPOSAL_NOT_FOUND)
                 ];
+
+                // Check the proposal can be executed
+                if proposal.executionReady then skip
+                else {
+
+                    // Check that there is a valid timelock proposal
+                    if s.timelockProposalId =/= proposalId then failwith(error_NO_PROPOSAL_TO_EXECUTE)
+                    else skip;
+
+                    // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+                    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
+                    else skip;
+
+                };
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -1530,7 +1547,7 @@ block {
 
                 // Update proposal and set "executed" boolean to True
                 proposal.executed                      := True;
-                s.proposalLedger[s.timelockProposalId] := proposal;
+                s.proposalLedger[proposalId] := proposal;
 
                 // ------------------------------------------------------------------
                 // Process Metadata Loop
@@ -1707,7 +1724,9 @@ function lambdaProcessProposalSingleData(const governanceLambdaAction : governan
 block {
 
     // Steps Overview:
-    // 1. Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+    // 1. Check the desired proposal to execute can be executed
+    //      -   executionReady set to True
+    //      -   or the current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)    
     // 2. Check that there is a valid timelock proposal
     // 3. Validation Checks
     //      -   Check that proposal has not been executed
@@ -1723,26 +1742,31 @@ block {
     //              -   Set proposal "executed" boolean to True
     //              -   Send reward to proposer
     //      -   Update and save proposal in storage
-    
-
-    // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
-    else skip;
-
-    // Check that there is a valid timelock proposal
-    if s.timelockProposalId = 0n then failwith(error_NO_PROPOSAL_TO_EXECUTE)
-    else skip;
 
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaProcessProposalSingleData(_parameter) -> {
+        |   LambdaProcessProposalSingleData(proposalId) -> {
                 
                 // Get proposal record
-                var proposal : proposalRecordType := case s.proposalLedger[s.timelockProposalId] of [
+                var proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_PROPOSAL_NOT_FOUND)
                 ];
+
+                // Check the proposal can be executed
+                if proposal.executionReady then skip
+                else {
+
+                    // Check that there is a valid timelock proposal
+                    if s.timelockProposalId =/= proposalId then failwith(error_NO_PROPOSAL_TO_EXECUTE)
+                    else skip;
+
+                    // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+                    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
+                    else skip;
+
+                };
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -1811,7 +1835,7 @@ block {
                 } else skip;
 
                 // Update and save proposal in storage
-                s.proposalLedger[s.timelockProposalId] := proposal;
+                s.proposalLedger[proposalId] := proposal;
 
             }
         |   _ -> skip
