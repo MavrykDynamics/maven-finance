@@ -372,6 +372,18 @@ type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 
+type callVaultEntrypointActionType is 
+    |   UpdateCollateralToken           of updateCollateralTokenActionType  
+    |   CreateVault                     of createVaultActionType
+    // |   LambdaCloseVault                      of closeVaultActionType
+    // |   LambdaMarkForLiquidation              of markForLiquidationActionType
+    // |   LambdaLiquidateVault                  of liquidateVaultActionType
+    // |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
+    // |   LambdaRegisterDeposit                 of registerDepositActionType
+    // |   LambdaBorrow                          of borrowActionType
+    // |   LambdaRepay                           of repayActionType
+
+
 type lendingControllerLambdaActionType is 
         
         // Housekeeping Entrypoints
@@ -394,20 +406,21 @@ type lendingControllerLambdaActionType is
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
         // Vault Entrypoints
-    |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
-    |   LambdaCreateVault                     of createVaultActionType
-    |   LambdaCloseVault                      of closeVaultActionType
-    |   LambdaMarkForLiquidation              of markForLiquidationActionType
-    |   LambdaLiquidateVault                  of liquidateVaultActionType
-    |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
-    |   LambdaRegisterDeposit                 of registerDepositActionType
-    |   LambdaBorrow                          of borrowActionType
-    |   LambdaRepay                           of repayActionType
+    |   CallVaultEntrypoint                   of callVaultEntrypointActionType
+    // |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
+    // |   LambdaCreateVault                     of createVaultActionType
+    // |   LambdaCloseVault                      of closeVaultActionType
+    // |   LambdaMarkForLiquidation              of markForLiquidationActionType
+    // |   LambdaLiquidateVault                  of liquidateVaultActionType
+    // |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
+    // |   LambdaRegisterDeposit                 of registerDepositActionType
+    // |   LambdaBorrow                          of borrowActionType
+    // |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    // |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    // |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkType   
+    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
+    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Rewards Entrypoints
     |   LambdaClaimRewards                    of claimRewardsType
