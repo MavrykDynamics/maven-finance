@@ -6,7 +6,6 @@ export type mavrykFa12TokenStorageType = {
     admin                   : string;
     governanceAddress       : string;
 
-    generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
     whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>;
     metadata                : MichelsonMap<MichelsonMapKey, unknown>;
     token_metadata          : MichelsonMap<MichelsonMapKey, unknown>;

@@ -15,7 +15,7 @@ type tokenMetadataType is big_map(tokenIdType, tokenMetadataInfoType);
 // ------------------------------------------------------------------------------
 
 (* MintOrBurn entrypoint inputs *)
-type mintOrBurnTypes is [@layout:comb] record [
+type mintOrBurnType is [@layout:comb] record [
     target    : address;
     tokenId   : tokenIdType;
     quantity  : int;
@@ -32,7 +32,6 @@ type mavrykFa2TokenStorageType is [@layout:comb] record [
     governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;   // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
-    generalContracts        : generalContractsType;     // map of contract addresses
     
     token_metadata          : tokenMetadataType;
     totalSupply             : tokenBalanceType;

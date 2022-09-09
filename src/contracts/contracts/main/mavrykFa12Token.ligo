@@ -23,18 +23,17 @@ type action is
         SetAdmin                  of address
     |   SetGovernance             of address
     |   UpdateWhitelistContracts  of updateWhitelistContractsType
-    |   UpdateGeneralContracts    of updateGeneralContractsType
     |   MistakenTransfer          of transferActionType
 
         // FA12 Entrypoints
     |   Transfer                  of fa12TransferType
-    |   Approve                   of approveTypes
-    |   GetBalance                of balanceTypes
-    |   GetAllowance              of allowanceTypes
-    |   GetTotalSupply            of totalSupplyTypes
+    |   Approve                   of approveType
+    |   GetBalance                of balanceType
+    |   GetAllowance              of allowanceType
+    |   GetTotalSupply            of totalSupplyType
 
         // Additional Entrypoints (Token Supply Inflation)
-    |   MintOrBurn                of mintOrBurnTypes
+    |   MintOrBurn                of mintOrBurnType
 
 
 type return is list (operation) * mavrykFa12TokenStorageType
@@ -92,9 +91,9 @@ block{
 // ------------------------------------------------------------------------------
 
 (* Helper function to get account *)
-function getAccount (const addr : address; const s : mavrykFa12TokenStorageType) : account is
+function getAccount (const addr : address; const s : mavrykFa12TokenStorageType) : accountType is
 block {
-    var acct : account :=
+    var acct : accountType :=
         record [
             balance    = 0n;
             allowances = (map [] : map (address, tokenBalanceType));
@@ -108,7 +107,7 @@ block {
 
 
 (* Helper function to get allowance for an account *)
-function getAllowance (const ownerAccount : account; const spender : address; const _s : mavrykFa12TokenStorageType) : tokenBalanceType is
+function getAllowance (const ownerAccount : accountType; const spender : address; const _s : mavrykFa12TokenStorageType) : tokenBalanceType is
     case ownerAccount.allowances[spender] of [
             Some (tokenBalanceType)  -> tokenBalanceType
         |   None        -> 0n
@@ -136,20 +135,14 @@ function getAllowance (const ownerAccount : account; const spender : address; co
 
 
 
-(* get: general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : mavrykFa12TokenStorageType) : generalContractsType is
-    s.generalContracts
-
-
-
 (* get: whitelist contracts *)
 [@view] function getWhitelistContracts(const _ : unit; const s : mavrykFa12TokenStorageType) : whitelistContractsType is
     s.whitelistContracts
 
 
 
-(* get: account view *)
-[@view] function getLedgerRecordOpt(const userAddress : address; const s : mavrykFa12TokenStorageType) : option(account) is
+(* get: accountType view *)
+[@view] function getLedgerRecordOpt(const userAddress : address; const s : mavrykFa12TokenStorageType) : option(accountType) is
     s.ledger[userAddress]
 
 
@@ -234,17 +227,6 @@ block {
 
 
 
-(*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsTypes : updateGeneralContractsType; var s : mavrykFa12TokenStorageType) : return is
-block {
-  
-    checkSenderIsAdmin(s);
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsTypes, s.generalContracts);
-
-} with (noOperations, s)
-
-
-
 (*  mistakenTransfer entrypoint *)
 function mistakenTransfer(const destinationTypes : transferActionType; var s : mavrykFa12TokenStorageType) : return is
 block {
@@ -288,7 +270,7 @@ function transfer (const from_ : address; const to_ : address; const value : tok
 block {
 
     (* Retrieve sender account from mavrykFa12TokenStorageType *)
-    var senderAccount : account := getAccount(from_, s);
+    var senderAccount : accountType := getAccount(from_, s);
 
     (* Balance check *)
     if senderAccount.balance < value then
@@ -314,7 +296,7 @@ block {
     s.ledger[from_] := senderAccount;
 
     (* Create or get destination account *)
-    var destAccount : account := getAccount(to_, s);
+    var destAccount : accountType := getAccount(to_, s);
 
     (* Update destination balance *)
     destAccount.balance := destAccount.balance + value;
@@ -331,7 +313,7 @@ function approve (const spender : address; const value : tokenBalanceType; var s
 block {
 
     (* Create or get sender account *)
-    var senderAccount : account := getAccount(Tezos.get_sender(), s);
+    var senderAccount : accountType := getAccount(Tezos.get_sender(), s);
 
     (* Get current spender allowance *)
     const spenderAllowance : tokenBalanceType = getAllowance(senderAccount, spender, s);
@@ -354,7 +336,7 @@ block {
 (* View function that forwards the balance of source to a contract *)
 function getBalance (const owner : address; const contr : contract(tokenBalanceType); var s : mavrykFa12TokenStorageType) : return is
 block {
-    const ownerAccount : account = getAccount(owner, s);
+    const ownerAccount : accountType = getAccount(owner, s);
 } with (list [Tezos.transaction(ownerAccount.balance, 0tz, contr)], s)
 
 
@@ -362,7 +344,7 @@ block {
 (* View function that forwards the allowance tokenBalanceType of spender in the name of tokenOwner to a contract *)
 function getAllowance (const owner : address; const spender : address; const contr : contract(tokenBalanceType); var s : mavrykFa12TokenStorageType) : return is
 block {
-    const ownerAccount : account = getAccount(owner, s);
+    const ownerAccount : accountType = getAccount(owner, s);
     const spenderAllowance : tokenBalanceType = getAllowance(ownerAccount, spender, s);
 } with (list [Tezos.transaction(spenderAllowance, 0tz, contr)], s)
 
@@ -381,7 +363,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* MintOrBurn Entrypoint *)
-function mintOrBurn(const mintOrBurnParams: mintOrBurnTypes; var s : mavrykFa12TokenStorageType) : return is
+function mintOrBurn(const mintOrBurnParams: mintOrBurnType; var s : mavrykFa12TokenStorageType) : return is
 block {
 
     // check sender is from cfmm contract
@@ -392,7 +374,7 @@ block {
     const tokenAmount     : nat       = abs(quantity);
 
     // get target balance
-    const userAccount : account       = getAccount(targetAddress, s);
+    const userAccount : accountType       = getAccount(targetAddress, s);
 
     if quantity < 0 then block {
         // burn Token
@@ -407,9 +389,9 @@ block {
         
         const targetNewBalance = abs(userAccount.balance - tokenAmount);
         const emptyAllowanceMap : map(trusted, tokenBalanceType) = map[];
-        const newAccount : account = record [
-        balance    = targetNewBalance;
-        allowances = emptyAllowanceMap;
+        const newAccount : accountType = record [
+            balance    = targetNewBalance;
+            allowances = emptyAllowanceMap;
         ];
 
         const newTotalSupply : tokenBalanceType = abs(s.totalSupply - tokenAmount);
@@ -426,7 +408,7 @@ block {
         // Update target's balance
         const targetNewBalance  : tokenBalanceType = userAccount.balance + tokenAmount;
         const emptyAllowanceMap : map(trusted, tokenBalanceType) = map[];
-        const newAccount : account = record [
+        const newAccount : accountType = record [
         balance    = targetNewBalance;
         allowances = emptyAllowanceMap;
         ];
@@ -467,7 +449,6 @@ block{
             SetAdmin (parameters)                   -> setAdmin(parameters, s)
         |   SetGovernance (parameters)              -> setGovernance(parameters, s)
         |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
-        |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
         |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
 
             // FA12 Entrypoints

@@ -81,7 +81,6 @@ export const mavrykFa12TokenStorage: mavrykFa12TokenStorageType = {
     metadata:               metadata,
     governanceAddress:      zeroAddress,
     
-    generalContracts:       MichelsonMap.fromLiteral({}),
     whitelistContracts:     MichelsonMap.fromLiteral({}),
 
     token_metadata:         token_metadata,
