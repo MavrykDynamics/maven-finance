@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { backdropColor } from 'styles/colors'
+import { backdropColor, cyanColor } from 'styles/colors'
 import { MENU_Z_INDEX, Z_INDEX_DEFAULT } from 'styles/constants'
 
 import { MavrykTheme } from '../../../styles/interfaces'
@@ -140,6 +140,27 @@ export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
   font-size: 11px;
   color: ${({ theme }) => theme.footerColor};
   font-weight: 600;
+  padding: 0 14px;
+
+  .social-wrapper {
+    display: flex;
+    margin-bottom: 10px;
+    column-gap: 5px;
+    a {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #080628;
+      border-radius: 10px;
+      svg {
+        width: 27px;
+        height: 27px;
+        fill: ${cyanColor};
+      }
+    }
+  }
 
   @media screen and (max-width: 1460px) {
     padding: 0 10px;
