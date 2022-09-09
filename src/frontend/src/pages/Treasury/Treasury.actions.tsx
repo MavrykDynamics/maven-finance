@@ -8,7 +8,7 @@ import {
   TREASURY_STORAGE_QUERY_VARIABLE,
 } from 'gql/queries/getTreasuryStorage'
 import { getTreasuryDataByAddress } from 'utils/api'
-import { TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
+import { FetchedTreasuryBalanceType, TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
@@ -16,6 +16,7 @@ import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './tre
 import CoinGecko from 'coingecko-api'
 import { normalizeTreasury } from './Treasury.helpers'
 import type { AppDispatch, GetState } from '../../app/App.controller'
+import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 
 const coinGeckoClient = new CoinGecko()
 
@@ -48,24 +49,14 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
 
     // Parse sMVK amount for each treasury, to make this structure usable
     const parsedsMVKAmount = sMVKAmounts.mavryk_user?.map(
-      ({ smvk_balance, address }: { smvk_balance: number; address: string }) => {
-        // TODO: clarify some fieds for sMVK (Example of token object)
-        // balance: 5299.975
-        // contract: "KT1FzmWjf3Wi5MsxvjwZa1CkwekSzhhAPJpj"
-        // decimals: 9
-        // is_transferable: true
-        // name: "MAVRYK"
-        // network: "ghostnet"
-        // symbol: "MVK"
-        // thumbnail_uri: "https://mavryk.finance/logo192.png"
-        // token_id: 0
-
+      ({ smvk_balance, address }: { smvk_balance: number; address: string }): TreasuryBalanceType => {
         return {
           balance: smvk_balance,
-          treasuryAddress: address,
+          decimals: 9,
+          contract: address,
           name: 'Staked MAVRYK',
           symbol: 'sMVK',
-          token_id: 0,
+          thumbnail_uri: 'https://mavryk.finance/logo192.png',
           rate: MVK_EXCHANGE_RATE,
         }
       },
@@ -83,7 +74,15 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
 
     // Mapping assets for every treasury, to fetch rates for them
     const arrayOfAssetsSymbols: Set<string> = fetchedTheasuryData.reduce((acc, treasuryData) => {
-      treasuryData.balances.forEach((asset: TreasuryBalanceType) => acc.add(asset.symbol))
+      treasuryData.forEach(
+        ({
+          token: {
+            metadata: { symbol },
+          },
+        }: {
+          token: { metadata: { symbol: string } }
+        }) => acc.add(symbol),
+      )
       return acc
     }, new Set<string>())
 
@@ -97,20 +96,24 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
 
     // Map every treasury to combine treasury name, and divide balance by constant
     const treasuryStorage = convertedStorage.treasuryAddresses.map((treasuryData: TreasuryGQLType, idx: number) => {
-      const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances
-        .map((token: TreasuryBalanceType) => ({
-          ...token,
-          balance: Number(token.balance) / TREASURY_BALANCE_DIVIDER,
-          rate: token.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[token.symbol],
-        }))
-        .concat(
-          parsedsMVKAmount.find(
-            ({ treasuryAddress }: { treasuryAddress: string }) => treasuryAddress === treasuryData.address,
-          ) || [],
-        )
+      const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
+        .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
+          const assetRate = metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]
+
+          return {
+            contract: contract.address,
+            decimals: parseInt(metadata.decimals),
+            name: metadata.name,
+            thumbnail_uri: metadata.thumbnailUri,
+            symbol: metadata.symbol,
+            balance: calcWithoutMu(balance) / assetRate,
+            rate: assetRate,
+          }
+        })
+        .concat(parsedsMVKAmount.find(({ contract }: TreasuryBalanceType) => contract === treasuryData.address) || [])
         .sort(
           (asset1: TreasuryBalanceType, asset2: TreasuryBalanceType) =>
-            asset2.balance * TREASURY_ASSSET_BALANCE_DIVIDER - asset1.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
+            asset2.balance * asset2.rate - asset1.balance * asset1.balance,
         )
 
       return {

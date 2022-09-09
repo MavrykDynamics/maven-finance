@@ -11,6 +11,7 @@ import { HIGHLIGHTED_STROKE_WIDTH, DEFAULT_STROKE_WIDTH } from 'app/App.componen
 
 // style
 import { TreasuryViewStyle } from './Treasury.style'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 type Props = {
   treasury: TreasuryType
@@ -24,12 +25,12 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
   const reducedBalance = useMemo(
     () =>
       Number(
-        (
-          treasury.balances.reduce((acc, treasuryBalanceObj) => {
-            acc += treasuryBalanceObj.balance
+        treasury.balances
+          .reduce((acc, treasuryBalanceObj) => {
+            acc += treasuryBalanceObj.balance * treasuryBalanceObj.rate
             return acc
-          }, 0) * TREASURY_ASSSET_BALANCE_DIVIDER
-        ).toFixed(3),
+          }, 0)
+          .toFixed(3),
       ),
     [treasury.balances],
   )
@@ -110,7 +111,11 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
       <div className="content-wrapper">
         <header>
           {treasury.name ? <h1 title={treasury.name}>{treasury.name}</h1> : null}
-          {isGlobal ? <var>$ {TREASURY_NUMBER_FORMATTER.format(reducedBalance)}</var> : null}
+          {isGlobal ? (
+            <var>
+              <CommaNumber beginningText="$" value={reducedBalance} />
+            </var>
+          ) : null}
         </header>
         {factoryAddress ? (
           <div className="factory_address">
@@ -138,10 +143,10 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                 <div className="assets-block assets-block-map" key={balanceValue.contract}>
                   <p className="asset-name">{balanceValue.symbol}</p>
                   <p className="asset-value">
-                    {TREASURY_NUMBER_FORMATTER.format(Number(balanceValue.balance.toFixed(3)))}
+                    <CommaNumber value={balanceValue.balance} />
                   </p>
                   <p className="asset-value right-text value">
-                    $ {TREASURY_NUMBER_FORMATTER.format(Number((balanceValue.balance * balanceValue.rate).toFixed(3)))}
+                    <CommaNumber beginningText="$" value={balanceValue.balance * balanceValue.rate} />
                   </p>
                 </div>
               )
