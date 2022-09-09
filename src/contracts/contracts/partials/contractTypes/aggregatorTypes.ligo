@@ -2,7 +2,6 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-type deviationTriggerBanType     is map (address, timestamp);
 type oracleInformationType is [@layout:comb] record [
        oraclePublicKey: key;
        oraclePeerId: string;
@@ -15,15 +14,9 @@ type aggregatorConfigType is [@layout:comb] record [
     decimals                            : nat;
     alphaPercentPerThousand             : nat;
 
-    deviationTriggerBanDuration         : nat;
-    perThousandDeviationTrigger         : nat;
     percentOracleThreshold              : nat;
     heartBeatSeconds                    : nat;
 
-    requestRateDeviationDepositFee      : nat;
-
-    deviationRewardStakedMvk            : nat;
-    deviationRewardAmountXtz            : nat;
     rewardAmountStakedMvk               : nat;
     rewardAmountXtz                     : nat;
 ];
@@ -90,15 +83,9 @@ type aggregatorUpdateConfigActionType is
         ConfigDecimals                      of unit
     |   ConfigAlphaPercentPerThousand       of unit
 
-    |   ConfigDevTriggerBanDuration         of unit
-    |   ConfigPerThousandDevTrigger         of unit
     |   ConfigPercentOracleThreshold        of unit
     |   ConfigHeartBeatSeconds              of unit
 
-    |   ConfigRequestRateDevDepositFee      of unit
-
-    |   ConfigDeviationRewardStakedMvk      of unit
-    |   ConfigDeviationRewardAmountXtz      of unit
     |   ConfigRewardAmountStakedMvk         of unit
     |   ConfigRewardAmountXtz               of unit
 
@@ -174,8 +161,6 @@ type aggregatorStorageType is [@layout:comb] record [
     oracleAddresses           : oracleAddressesType;
     
     lastCompletedPrice        : lastCompletedPriceType;
-
-    deviationTriggerBan       : deviationTriggerBanType;
 
     oracleRewardStakedMvk     : oracleRewardStakedMvkType;
     oracleRewardXtz           : oracleRewardXtzType;

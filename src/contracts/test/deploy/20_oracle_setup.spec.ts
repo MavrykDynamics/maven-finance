@@ -80,14 +80,9 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(16),            // decimals
                   new BigNumber(2),             // numberBlocksDelay
                   
-                  new BigNumber(86400),         // deviationTriggerBanDuration
-                  new BigNumber(5),             // perthousandDeviationTrigger
                   new BigNumber(60),            // percentOracleThreshold
                   
-                  new BigNumber(0),             // requestRateDeviationDepositFee
   
-                  new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(0),             // deviationRewardAmountXtz
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
@@ -107,14 +102,8 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(16),            // decimals
                   new BigNumber(2),             // numberBlocksDelay
                   
-                  new BigNumber(86400),         // deviationTriggerBanDuration
-                  new BigNumber(5),             // perthousandDeviationTrigger
                   new BigNumber(60),            // percentOracleThreshold
-                  
-                  new BigNumber(0),             // requestRateDeviationDepositFee
-                  
-                  new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(0),             // deviationRewardAmountXtz
+                                    
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
@@ -134,14 +123,8 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(16),            // decimals
                   new BigNumber(2),             // numberBlocksDelay
                   
-                  new BigNumber(86400),         // deviationTriggerBanDuration
-                  new BigNumber(5),             // perthousandDeviationTrigger
                   new BigNumber(60),            // percentOracleThreshold
-                  
-                  new BigNumber(0),             // requestRateDeviationDepositFee
-                  
-                  new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(0),             // deviationRewardAmountXtz
+                                    
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   

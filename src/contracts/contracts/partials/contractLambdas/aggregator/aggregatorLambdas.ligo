@@ -127,15 +127,9 @@ block{
                     |   ConfigDecimals (_v)                  -> s.config.decimals                             := updateConfigNewValue
                     |   ConfigAlphaPercentPerThousand (_v)   -> s.config.alphaPercentPerThousand              := updateConfigNewValue
 
-                    |   ConfigDevTriggerBanDuration (_v)     -> s.config.deviationTriggerBanDuration          := updateConfigNewValue
-                    |   ConfigPerThousandDevTrigger (_v)     -> s.config.perThousandDeviationTrigger          := updateConfigNewValue
                     |   ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
                     |   ConfigHeartBeatSeconds (_v)          -> s.config.heartBeatSeconds                     := updateConfigNewValue
-
-                    |   ConfigRequestRateDevDepositFee (_v)  -> s.config.requestRateDeviationDepositFee       := updateConfigNewValue
                     
-                    |   ConfigDeviationRewardStakedMvk (_v)  -> s.config.deviationRewardStakedMvk             := updateConfigNewValue
-                    |   ConfigDeviationRewardAmountXtz (_v)  -> s.config.deviationRewardAmountXtz             := updateConfigNewValue
                     |   ConfigRewardAmountStakedMvk (_v)     -> s.config.rewardAmountStakedMvk                := updateConfigNewValue
                     |   ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
                 ];

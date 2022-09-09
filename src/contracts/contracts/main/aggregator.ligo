@@ -209,27 +209,6 @@ function checkNoAmount(const _p : unit) : unit is
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
-// Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-// helper function to get oracle that has been banned from triggering a deviation round
-function getDeviationTriggerBanOracle(const addressKey : address; const deviationTriggerBan: deviationTriggerBanType) : timestamp is
-    case Map.find_opt(addressKey, deviationTriggerBan) of [
-            Some (v) -> (v)
-        |   None     -> (Tezos.get_now())
-    ]
-
-
-// helper function to check that oracle is not banned from triggering a deviation round
-function checkOracleIsNotBannedForDeviationTrigger(const s : aggregatorStorageType) : unit is 
-    if Tezos.get_now() < (getDeviationTriggerBanOracle(Tezos.get_sender(),s.deviationTriggerBan)) then failwith(error_NOT_ALLOWED_TO_TRIGGER_DEVIATION_BAN)
-    else unit
-
-// ------------------------------------------------------------------------------
-// Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -639,13 +618,6 @@ block {
 (* View: get oracle addresses *)
 [@view] function getOracleAddresses(const _ : unit; var s : aggregatorStorageType) : oracleAddressesType is
     s.oracleAddresses
-
-
-
-(* View: get deviation trigger ban *)
-[@view] function getDeviationTriggerBan(const _ : unit; var s : aggregatorStorageType) : deviationTriggerBanType is
-    s.deviationTriggerBan
-
 
 
 (* View: get oracle reward staked MVK *)
