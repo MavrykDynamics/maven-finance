@@ -22,14 +22,12 @@ export const normalizeBreakGlass = (storage: BreakGlassGraphQL) => {
           actionType: actionRecord.action_type,
           breakGlassId: actionRecord.break_glass_id,
           executed: actionRecord.executed,
-          executedDatetime: new Date(actionRecord.execution_datetime as string),
           expirationDatetime: new Date(actionRecord.expiration_datetime as string),
           id: actionRecord.id,
           initiatorId: actionRecord.initiator_id,
           startDatetime: new Date(actionRecord.start_datetime as string),
           status: actionRecord.status,
           signers,
-          executedLevel: actionRecord.execution_level,
           signersCount: actionRecord.signers_count,
         }
       })
