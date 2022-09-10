@@ -8,6 +8,7 @@ import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getDate_DMYHM_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { StatBlock } from '../Dashboard.style'
 import { OraclesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
@@ -18,13 +19,19 @@ export const OraclesTab = () => {
   const oracleFeeds = feeds.length
   const popularFeeds = useMemo(() => feeds.splice(0, 3), [feeds])
 
-  console.log('feeds', popularFeeds)
+  const history = useHistory()
 
   return (
     <TabWrapperStyled className="oracles" backgroundImage="dashboard_oraclesTab_bg.png">
       <div className="top">
         <BGTitle>Oracles</BGTitle>
-        <Button text="Oracle Feeds" icon="plant" kind={ACTION_PRIMARY} className="noStroke" />
+        <Button
+          text="Oracle Feeds"
+          icon="plant"
+          kind={ACTION_PRIMARY}
+          className="noStroke"
+          onClick={() => history.push('/satellites')}
+        />
       </div>
 
       <OraclesContentStyled>

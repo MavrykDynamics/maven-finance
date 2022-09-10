@@ -4,6 +4,7 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import React from 'react'
 import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { StatBlock } from '../Dashboard.style'
@@ -11,6 +12,8 @@ import { SatellitesContentStyled, TabWrapperStyled } from './DashboardTabs.style
 
 export const SatellitesTab = () => {
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+
+  const history = useHistory()
 
   const satellitesInfo = satelliteLedger.reduce(
     (acc, satellite: SatelliteRecord) => {
@@ -41,7 +44,13 @@ export const SatellitesTab = () => {
     <TabWrapperStyled backgroundImage="dashboard_satelliteTab_bg.png">
       <div className="top">
         <BGTitle>Satellites</BGTitle>
-        <Button text="Satellite" icon="satellite" kind={ACTION_PRIMARY} className="noStroke" />
+        <Button
+          text="Satellite"
+          icon="satellite"
+          kind={ACTION_PRIMARY}
+          className="noStroke"
+          onClick={() => history.push('/satellites')}
+        />
       </div>
 
       <SatellitesContentStyled>

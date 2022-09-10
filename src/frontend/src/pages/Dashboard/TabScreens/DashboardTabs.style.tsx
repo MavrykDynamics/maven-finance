@@ -407,6 +407,8 @@ export const FarmsContentStyled = styled.div`
     width: 250px;
     position: relative;
     flex: none;
+    transition: 0.5s all;
+    cursor: pointer;
 
     .top {
       margin-bottom: 20px;
@@ -415,6 +417,11 @@ export const FarmsContentStyled = styled.div`
         font-weight: 500;
         font-size: 12px;
         line-height: 12px;
+        transition: 0.5s all;
+
+        p {
+          margin: 0;
+        }
 
         .large {
           font-weight: 600;
@@ -424,7 +431,7 @@ export const FarmsContentStyled = styled.div`
         }
       }
 
-      svg {
+      > svg {
         width: 58px;
         height: 58px;
       }
@@ -439,6 +446,7 @@ export const FarmsContentStyled = styled.div`
         font-weight: 600;
         font-size: 14px;
         line-height: 21px;
+        transition: 0.5s all;
       }
 
       .value {
@@ -446,6 +454,7 @@ export const FarmsContentStyled = styled.div`
         font-weight: 600;
         font-size: 14px;
         line-height: 21px;
+        transition: 0.5s all;
       }
     }
 
@@ -462,6 +471,23 @@ export const FarmsContentStyled = styled.div`
     &:last-child {
       &:before {
         display: none;
+      }
+    }
+
+    &:hover {
+      .top {
+        .name {
+          color: ${cyanColor};
+        }
+      }
+      .row-info {
+        .name {
+          color: ${cyanColor};
+        }
+
+        .value {
+          color: ${cyanColor};
+        }
       }
     }
   }
