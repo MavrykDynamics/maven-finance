@@ -3,51 +3,12 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
-import React from 'react'
 import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { BlockName, StatBlock } from '../Dashboard.style'
 import { TabWrapperStyled, TreasuryContentStyled, TreasuryVesting } from './DashboardTabs.style'
-
-export const tableData = [
-  {
-    asset: 'MVK',
-    id: 1,
-    amount: 234243242,
-    usdValue: 32423424,
-  },
-  {
-    asset: 'XTZ',
-    id: 2,
-    amount: 234243242,
-    usdValue: 32423424,
-  },
-  {
-    asset: 'MVK',
-    id: 3,
-    amount: 234243242,
-    usdValue: 32423424,
-  },
-  {
-    asset: 'XTZ',
-    id: 4,
-    amount: 234243242,
-    usdValue: 32423424,
-  },
-  {
-    asset: 'tzBTC',
-    id: 5,
-    amount: 234243242,
-    usdValue: 32423424,
-  },
-  {
-    asset: 'USDT',
-    id: 6,
-    amount: 234243242,
-    usdValue: 32423424,
-  },
-]
 
 export const columnNames = ['Asset', 'Amount', 'USD Value']
 export const fieldsMapper = [
@@ -70,6 +31,8 @@ export const fieldsMapper = [
 export const TreasuryTab = () => {
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
 
+  const history = useHistory()
+
   const treasuryAssets = treasuryStorage.reduce((acc, { balances }) => {
     balances.forEach((balanceAsset) => {
       const currentAssetIndex = acc.findIndex((asset: TreasuryBalanceType) => asset.symbol === balanceAsset.symbol)
@@ -90,7 +53,13 @@ export const TreasuryTab = () => {
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">
       <div className="top">
         <BGTitle>Treasury</BGTitle>
-        <Button text="Treasury" icon="treasury" kind={ACTION_PRIMARY} className="noStroke" />
+        <Button
+          text="Treasury"
+          icon="treasury"
+          kind={ACTION_PRIMARY}
+          className="noStroke"
+          onClick={() => history.push('/treasury')}
+        />
       </div>
 
       <TreasuryContentStyled>

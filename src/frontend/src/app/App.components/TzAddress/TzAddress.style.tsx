@@ -60,6 +60,6 @@ export const TzAddressIcon = styled.svg<{ theme: MavrykTheme }>`
   }
 
   &.${CYAN} {
-    color: ${({ theme }) => theme.navIconColor};
+    stroke: ${({ theme }) => theme.navIconColor};
   }
 `

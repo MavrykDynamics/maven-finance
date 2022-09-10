@@ -7,6 +7,7 @@ import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getPieChartData } from 'pages/Treasury/helpers/calculateChartData'
 import React, { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { StatBlock, BlockName } from '../Dashboard.style'
@@ -15,6 +16,8 @@ import { columnNames, fieldsMapper } from './TreasuryTab.controller'
 
 export const VaultsTab = () => {
   const [hoveredPath, setHoveredPath] = useState<null | string>(null)
+
+  const history = useHistory()
 
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
 
@@ -42,7 +45,13 @@ export const VaultsTab = () => {
     <TabWrapperStyled className="vaults">
       <div className="top">
         <BGTitle>Vaults</BGTitle>
-        <Button text="Vaults" icon="vaults" kind={ACTION_PRIMARY} className="noStroke" />
+        <Button
+          text="Vaults"
+          icon="vaults"
+          kind={ACTION_PRIMARY}
+          className="noStroke"
+          onClick={() => history.push('/vaults')}
+        />
       </div>
 
       <VaultsContentStyled>

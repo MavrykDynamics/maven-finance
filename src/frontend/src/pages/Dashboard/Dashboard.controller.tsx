@@ -7,6 +7,8 @@ import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { DashboardView } from './Dashboard.view'
 import { useLocation } from 'react-router'
+import { getFarmStorage } from 'pages/Farms/Farms.actions'
+import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 
 export type mvkStatsType = {
   marketCap: number
@@ -32,12 +34,10 @@ export const Dashboard = () => {
     mvkTokenStorage: { totalSupply, maximumTotalSupply },
   } = useSelector((state: State) => state.mvkToken)
 
-  // useEffect(() => {
-  //   dispatch(getVestingStorage())
-  // }, [dispatch])
-
   useEffect(() => {
     dispatch(fillTreasuryStorage())
+    dispatch(getFarmStorage())
+    dispatch(getDelegationStorage())
   }, [dispatch])
 
   const mvkStatsBlock: mvkStatsType = {
