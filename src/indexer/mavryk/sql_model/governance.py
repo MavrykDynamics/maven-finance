@@ -69,7 +69,7 @@ class WhitelistDeveloper(Model):
 
 class GovernanceProposalRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_proposal_records')
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='proposal_records')
     proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_proposer')
     status                                  = fields.IntEnumField(enum_type=GovernanceRecordStatus)
     execution_counter                       = fields.SmallIntField(default=0)
@@ -111,7 +111,7 @@ class GovernanceProposalRecord(Model):
 class GovernanceProposalRecordData(Model):
     id                                      = fields.BigIntField(pk=True)
     record_internal_id                      = fields.SmallIntField(default=0)
-    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='proposal_data')
+    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='data')
     title                                   = fields.TextField(default="")
     bytes                                   = fields.TextField(default="")
 
@@ -121,7 +121,7 @@ class GovernanceProposalRecordData(Model):
 class GovernanceProposalRecordPayment(Model):
     id                                      = fields.BigIntField(pk=True)
     record_internal_id                      = fields.SmallIntField(default=0)
-    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='proposal_payments')
+    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='payments')
     token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposal_records_payments_token', null=True)
     title                                   = fields.TextField(default="")
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_payments', null=True)
@@ -145,8 +145,8 @@ class GovernanceProposalRecordVote(Model):
 
 class GovernanceSatelliteSnapshotRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshot_records')
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshot_records_votes')
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='satellite_snapshot_records')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshot_records')
     ready                                   = fields.BooleanField(default=True)
     total_smvk_balance                      = fields.FloatField(default=0.0)
     total_delegated_amount                  = fields.FloatField(default=0.0)
