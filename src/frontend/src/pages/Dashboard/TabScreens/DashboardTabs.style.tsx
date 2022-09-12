@@ -403,9 +403,28 @@ export const FarmsContentStyled = styled.div`
   overflow-x: auto;
   padding-bottom: 7px;
 
+  a {
+    position: relative;
+
+    &::before {
+      position: absolute;
+      top: 0;
+      right: -40px;
+      width: 1px;
+      height: 100%;
+      content: '';
+      background-color: ${({ theme }) => theme.footerColor};
+    }
+
+    &:last-child {
+      &::before {
+        display: none;
+      }
+    }
+  }
+
   .card {
     width: 250px;
-    position: relative;
     flex: none;
     transition: 0.5s all;
     cursor: pointer;
@@ -455,22 +474,6 @@ export const FarmsContentStyled = styled.div`
         font-size: 14px;
         line-height: 21px;
         transition: 0.5s all;
-      }
-    }
-
-    &:before {
-      position: absolute;
-      top: 0;
-      right: -40px;
-      width: 1px;
-      height: 100%;
-      content: '';
-      background-color: ${({ theme }) => theme.footerColor};
-    }
-
-    &:last-child {
-      &:before {
-        display: none;
       }
     }
 
