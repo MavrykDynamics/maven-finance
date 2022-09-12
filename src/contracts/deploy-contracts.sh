@@ -1,5 +1,10 @@
 #!/bin/bash
 
+trap ctrl_c INT
+ctrl_c() {
+     exit
+}
+
 ts-mocha --paths test/deploy/00*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/01*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/02*.spec.ts --bail --timeout 9000000 && \
@@ -20,4 +25,6 @@ ts-mocha --paths test/deploy/16*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/17*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/18*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/19*.spec.ts --bail --timeout 9000000 && \
-ts-mocha --paths test/deploy/20*.spec.ts --bail --timeout 9000000
+ts-mocha --paths test/deploy/20*.spec.ts --bail --timeout 9000000 && \
+ts-mocha --paths test/deploy/x1*.spec.ts --bail --timeout 9000000 && \
+ts-mocha --paths test/deploy/x2*.spec.ts --bail --timeout 9000000
