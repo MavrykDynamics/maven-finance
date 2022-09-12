@@ -87,10 +87,7 @@ export const BreakGlassActions: FC = () => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
-    handleSelect(chosenItem)
   }
-
-  const handleSelect = (item: DropdownItemType) => {}
 
   return (
     <Page>
