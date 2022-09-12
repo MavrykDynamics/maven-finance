@@ -1,6 +1,7 @@
 import { ConnectWallet } from 'app/App.components/ConnectWallet/ConnectWallet.controller'
 import React, { useState } from 'react'
-import { ABOUT_LINKS, BLOG_LINKS, DOCS_LINKS, PRODUCTS_LINKS, SocialIcons } from '../MenuTopBar.controller'
+import { SocialIcons } from '../../Menu.view'
+import { ABOUT_LINKS, BLOG_LINKS, DOCS_LINKS, PRODUCTS_LINKS } from '../MenuTopBar.controller'
 import { MobileTopBarStyled } from '../MenuTopBar.style'
 import { TopBarLinks } from './TopBarLinks.controller'
 
