@@ -12,7 +12,9 @@ async def on_aggregator_add_oracle(
 
     # Get operation info
     aggregator_address      = add_oracle.data.target_address
-    oracle_address          = add_oracle.parameter.__root__
+    oracle_address          = add_oracle.parameter.oracleAddress
+    oracle_pk               = add_oracle.parameter.oracleInformation.oraclePublicKey
+    oracle_peer_id          = add_oracle.parameter.oracleInformation.oraclePeerId
 
     # Create record
     oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
@@ -20,6 +22,8 @@ async def on_aggregator_add_oracle(
     aggregator              = await models.Aggregator.get(address   = aggregator_address)
     aggregator_oracle       = models.AggregatorOracleRecord(
         aggregator  = aggregator,
-        oracle      = oracle
+        oracle      = oracle,
+        public_key  = oracle_pk,
+        peer_id     = oracle_peer_id
     )
     await aggregator_oracle.save()
