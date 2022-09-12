@@ -112,6 +112,7 @@ export const BreakGlassActions: FC = () => {
         <h1>Propagate Break Glass</h1>
 
         <Button
+          className="start_verification"
           text={'Propagate Break Glass'}
           kind={ACTION_PRIMARY}
           icon={'plus'}
@@ -142,7 +143,7 @@ export const BreakGlassActions: FC = () => {
           <form onSubmit={handleClickSetContractsAdmin}>
             <div className="input-size">
               <label>New Admin Address</label>
-
+ 
               <Input
                 type="text"
                 required
@@ -158,6 +159,7 @@ export const BreakGlassActions: FC = () => {
             </div>
 
             <Button
+              className="start_verification"
               text={'Set Contracts Admin'}
               kind={ACTION_PRIMARY}
               icon={'profile'}

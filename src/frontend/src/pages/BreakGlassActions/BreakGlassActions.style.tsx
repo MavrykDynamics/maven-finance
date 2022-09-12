@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { Card, royalPurpleColor, skyColor, headerColor } from "styles";
+import { Card, royalPurpleColor, skyColor, headerColor, textsColor } from "styles";
 
 import { MavrykTheme } from "../../styles/interfaces";
 
@@ -20,6 +20,13 @@ export const PropagateBreakGlassCard = styled(Card)<{ theme: MavrykTheme }>`
 
   button {
     max-width: 250px;
+
+    &.start_verification {
+      svg {
+        stroke-width: 0.1;
+        fill: ${textsColor};
+      }
+    }
   }
 `
 
@@ -93,6 +100,13 @@ export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
 
   button {
     max-width: 250px;
+
+    &.start_verification {
+      svg {
+        stroke-width: 0.1;
+        fill: ${textsColor};
+      }
+    }
   }
 `
 
