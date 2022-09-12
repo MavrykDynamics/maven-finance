@@ -7,14 +7,12 @@ import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/Dr
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreakGlassActionsCard.controller'
 import { breakGlassActions } from "./BreakGlassActions.actions"
+import { BreakGlassActionsForms } from "./BreakGlassActionsForms/BreakGlassActionsForm.controller";
 
 // styles
 import { Page } from 'styles'
 import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions } from "./BreakGlassActions.style"
-import { InputStatusType } from "app/App.components/Input/Input.constants"
 
-// types
-import { Input } from "app/App.components/Input/Input.controller"
 
 // TODO: change mock to valid data
 const mock = [
@@ -77,20 +75,12 @@ export const BreakGlassActions: FC = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
-  const [form, setForm] = useState({ address: '' })
-  const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    address: '',
-  })
-
-  const { address } = form;
 
   const handleClickPropagateBreakGlass = () => {
   
   }
   
-  const handleClickSetContractsAdmin = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-  }
+
   
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -105,17 +95,7 @@ export const BreakGlassActions: FC = () => {
 
   const handleSelect = (item: DropdownItemType) => {}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setForm((prev) => {
-      return { ...prev, [e.target.name]: e.target.value }
-    })
-  }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
 
   return (
     <Page>
@@ -149,37 +129,7 @@ export const BreakGlassActions: FC = () => {
           </div>
         </div>
 
-        <div className="main-section">
-          <h1>Set All Contracts Admin</h1>
-          <p>Please enter valid function parameters for adding a vestee</p>
-
-          <form onSubmit={handleClickSetContractsAdmin}>
-            <div className="input-size">
-              <label>New Admin Address</label>
- 
-              <Input
-                type="text"
-                required
-                value={address}
-                name="address"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  handleChange(e)
-                  handleBlur(e)
-                }}
-                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-                inputStatus={formInputStatus.address}
-              />
-            </div>
-
-            <Button
-              className="start_verification"
-              text={'Set Contracts Admin'}
-              kind={ACTION_PRIMARY}
-              icon={'profile'}
-              type="submit"
-            />
-          </form>
-        </div>
+        <BreakGlassActionsForms action={chosenDdItem?.value} />
       </BreakGlassActionsCard>
 
       <PastBreakGlassActions>
