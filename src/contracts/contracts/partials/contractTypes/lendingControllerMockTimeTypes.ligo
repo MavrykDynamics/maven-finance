@@ -405,21 +405,21 @@ type lendingControllerLambdaActionType is
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
         // Vault Entrypoints
-    |   LambdaCallVaultEntrypoint             of callVaultEntrypointActionType
+    // |   LambdaCallVaultEntrypoint             of callVaultEntrypointActionType
     |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
-    // |   LambdaCreateVault                     of createVaultActionType
-    // |   LambdaCloseVault                      of closeVaultActionType
-    // |   LambdaMarkForLiquidation              of markForLiquidationActionType
-    // |   LambdaLiquidateVault                  of liquidateVaultActionType
+    |   LambdaCreateVault                     of createVaultActionType
+    |   LambdaCloseVault                      of closeVaultActionType
+    |   LambdaMarkForLiquidation              of markForLiquidationActionType
+    |   LambdaLiquidateVault                  of liquidateVaultActionType
     |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
     |   LambdaRegisterDeposit                 of registerDepositActionType
-    // |   LambdaBorrow                          of borrowActionType
-    // |   LambdaRepay                           of repayActionType
+    |   LambdaBorrow                          of borrowActionType
+    |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+    // |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkType   
+    // |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
+    // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Rewards Entrypoints
     |   LambdaClaimRewards                    of claimRewardsType

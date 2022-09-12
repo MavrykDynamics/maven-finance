@@ -23,7 +23,7 @@ import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('Aggregator Factory', async () => {
+describe('Oracle Setup', async () => {
   
   var utils: Utils
   var tezos
