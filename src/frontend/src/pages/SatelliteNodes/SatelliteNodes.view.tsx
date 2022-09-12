@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
-
 import { State } from 'reducers'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
@@ -13,8 +12,11 @@ import SatteliteList from 'pages/Satellites/SatelliteList/SatellitesList.view'
 
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
-import { Page } from 'styles'
+
 import { EmptyContainer } from 'app/App.style'
+import SatellitesSideBar from '../Satellites/SatellitesSideBar/SatellitesSideBar.controller'
+// styles
+import { Page, PageContent } from 'styles'
 
 type OracleSatellitesViewProps = {
   handleSelect: (item: { text: string; value: string }) => void
@@ -58,46 +60,50 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
   return (
     <Page>
       <PageHeader page={'satellites'} />
+      <PageContent>
+        <div className="left-content-wrapper">
+          <SatelliteSearchFilter>
+            <Input
+              type="text"
+              kind={'search'}
+              placeholder="Search by address or name..."
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setInputSearch(e.target.value)
+                handleSearch(e)
+              }}
+              value={inputSearch}
+            />
+            <DropdownContainer>
+              <h4>Order by:</h4>
+              <DropDown
+                clickOnDropDown={handleClickDropdown}
+                placeholder={ddItems[0]}
+                isOpen={ddIsOpen}
+                itemSelected={chosenDdItem?.text}
+                items={ddItems}
+                clickOnItem={(e) => handleOnClickDropdownItem(e)}
+              />
+            </DropdownContainer>
+          </SatelliteSearchFilter>
 
-      <SatelliteSearchFilter oracle>
-        <Input
-          type="text"
-          kind={'search'}
-          placeholder="Search by address or name..."
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setInputSearch(e.target.value)
-            handleSearch(e)
-          }}
-          value={inputSearch}
-        />
-        <DropdownContainer>
-          <h4>Order by:</h4>
-          <DropDown
-            clickOnDropDown={handleClickDropdown}
-            placeholder={ddItems[0]}
-            isOpen={ddIsOpen}
-            itemSelected={chosenDdItem?.text}
-            items={ddItems}
-            clickOnItem={(e) => handleOnClickDropdownItem(e)}
-          />
-        </DropdownContainer>
-      </SatelliteSearchFilter>
-
-      {satellitesList.length ? (
-        <SatteliteList
-          loading={loading}
-          items={satellitesList}
-          listType={'satellites'}
-          name={SATELITES_NODES_LIST_NAME}
-          onClickHandler={() => null}
-          additionaldata={{
-            isAllOracles: true,
-            fullUtemsCount: satellitesList.length,
-          }}
-        />
-      ) : (
-        emptyContainer
-      )}
+          {satellitesList.length ? (
+            <SatteliteList
+              loading={loading}
+              items={satellitesList}
+              listType={'satellites'}
+              name={SATELITES_NODES_LIST_NAME}
+              onClickHandler={() => null}
+              additionaldata={{
+                isAllOracles: true,
+                fullUtemsCount: satellitesList.length,
+              }}
+            />
+          ) : (
+            emptyContainer
+          )}
+        </div>
+        <SatellitesSideBar />
+      </PageContent>
     </Page>
   )
 }
