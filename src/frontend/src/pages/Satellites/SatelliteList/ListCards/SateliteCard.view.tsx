@@ -1,7 +1,7 @@
 //styles
 import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
 // consts, helpers, actions
-import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, ACTION_SECONDARY, PRIMARY } from 'app/App.components/Button/Button.constants'
 // view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
@@ -37,6 +37,7 @@ export const SatelliteListItem = ({
   loading,
   delegateCallback,
   undelegateCallback,
+  claimRewardsCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
   isExtendedListItem = false,
@@ -73,13 +74,25 @@ export const SatelliteListItem = ({
 
   const showButtons = !isSatellite && satellite.status === 0
   const buttonToShow = userIsDelegatedToThisSatellite ? (
-    <Button
-      text="Undelegate"
-      icon="man-close"
-      kind={ACTION_SECONDARY}
-      loading={loading}
-      onClick={() => undelegateCallback()}
-    />
+    <>
+      <Button
+        text="Undelegate"
+        icon="man-close"
+        kind={ACTION_SECONDARY}
+        loading={loading}
+        onClick={() => undelegateCallback()}
+      />
+      {isDetailsPage && claimRewardsCallback && (
+        <Button
+          text="Claim Rewards"
+          icon="rewards"
+          kind={ACTION_PRIMARY}
+          loading={loading}
+          onClick={() => claimRewardsCallback(satellite.address)}
+          strokeWidth={0.3}
+        />
+      )}
+    </>
   ) : (
     <Button
       text="Delegate"

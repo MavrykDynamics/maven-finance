@@ -78,6 +78,7 @@ export type SatelliteListItemProps = {
   satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (satelliteAddress: string) => void
+  claimRewardsCallback?: (satelliteAddress: string) => void
   undelegateCallback: () => void
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
