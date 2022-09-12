@@ -18,7 +18,7 @@ async def on_aggregator_remove_oracle(
     oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
     await oracle.save()
     aggregator              = await models.Aggregator.get(address   = aggregator_address)
-    aggregator_oracle       = await models.AggregatorOracleRecord.get(
+    aggregator_oracle       = await models.AggregatorOracle.get(
         aggregator  = aggregator,
         oracle      = oracle
     )

@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.12.0
+    tag: v0.13.0
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:

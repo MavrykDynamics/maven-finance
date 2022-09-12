@@ -48,9 +48,9 @@ class BreakGlassCouncilMember(Model):
     class Meta:
         table = 'break_glass_council_member'
 
-class BreakGlassActionRecord(Model):
+class BreakGlassAction(Model):
     id                                      = fields.BigIntField(pk=True)
-    break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='action_records')
+    break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_actions_initiator')
     start_datetime                          = fields.DatetimeField(null=True)
     execution_datetime                      = fields.DatetimeField(null=True)
@@ -62,21 +62,21 @@ class BreakGlassActionRecord(Model):
     signers_count                           = fields.SmallIntField(default=1)
 
     class Meta:
-        table = 'break_glass_action_record'
+        table = 'break_glass_action'
 
-class BreakGlassActionRecordSigner(Model):
+class BreakGlassActionSigner(Model):
     id                                      = fields.BigIntField(pk=True)
-    break_glass_action_record               = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='signers')
-    signer                                  = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_action_record_signers')
+    break_glass_action                      = fields.ForeignKeyField('models.BreakGlassAction', related_name='signers')
+    signer                                  = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_action_signers')
 
     class Meta:
-        table = 'break_glass_action_record_signer'
+        table = 'break_glass_action_signer'
 
-class BreakGlassActionRecordParameter(Model):
+class BreakGlassActionParameter(Model):
     id                                      = fields.BigIntField(pk=True)
-    break_glass_action_record               = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='parameters')
+    break_glass_action                      = fields.ForeignKeyField('models.BreakGlassAction', related_name='parameters')
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 
     class Meta:
-        table = 'break_glass_action_record_parameter'
+        table = 'break_glass_action_parameter'

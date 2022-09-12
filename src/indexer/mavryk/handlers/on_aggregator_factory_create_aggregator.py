@@ -113,7 +113,7 @@ async def on_aggregator_factory_create_aggregator(
         # Create record
         oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
         await oracle.save()
-        aggregator_oracle       = models.AggregatorOracleRecord(
+        aggregator_oracle       = models.AggregatorOracle(
             aggregator  = aggregator,
             oracle      = oracle,
             public_key  = oracle_pk,

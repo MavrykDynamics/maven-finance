@@ -41,7 +41,7 @@ async def on_vesting_update_vestee(
     vesting = await models.Vesting.get(
         address = vesting_address
     )
-    vestee_record    = await models.VestingVesteeRecord.get(
+    vestee_record    = await models.VestingVestee.get(
         vesting                         = vesting,
         vestee                          = user
     )

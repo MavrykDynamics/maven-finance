@@ -17,10 +17,10 @@ class VaultLambda(ContractLambda, Model):
     class Meta:
         table = 'vault_lambda'
 
-class VaultDepositorRecord(Model):
+class VaultDepositor(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    vault                                   = fields.ForeignKeyField('models.Vault', related_name='depositor_records', null=True)
-    depositor                               = fields.ForeignKeyField('models.MavrykUser', related_name='vault_depositor_records', null=True)
+    vault                                   = fields.ForeignKeyField('models.Vault', related_name='depositors', null=True)
+    depositor                               = fields.ForeignKeyField('models.MavrykUser', related_name='vault_depositors', null=True)
 
     class Meta:
-        table = 'vault_depositor_record'
+        table = 'vault_depositor'
