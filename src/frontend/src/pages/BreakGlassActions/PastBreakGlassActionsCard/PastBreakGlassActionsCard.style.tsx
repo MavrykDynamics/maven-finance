@@ -20,7 +20,7 @@ export const TopSection = styled.div<{
   display: grid;
   grid-template-columns: 190px 240px 200px 200px auto 150px;
   padding: 20px 40px;
-  padding-right: 26px;
+  padding-right: 23.5px;
 `;
 
 export const ArrowButton = styled.div<{ theme: MavrykTheme }>`

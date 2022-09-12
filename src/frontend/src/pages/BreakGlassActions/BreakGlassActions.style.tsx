@@ -7,6 +7,7 @@ export const PropagateBreakGlassCard = styled(Card)<{ theme: MavrykTheme }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 20px 0 30px;
   height: 75px;
   
   h1 {
@@ -23,14 +24,13 @@ export const PropagateBreakGlassCard = styled(Card)<{ theme: MavrykTheme }>`
 `
 
 export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
-  padding: 0%;
+  padding: 0;
 
   .top-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 35px;
-
+    padding: 0 20px 0 30px;
     height: 75px;
 
     border-bottom: 1px solid ${royalPurpleColor};
@@ -45,7 +45,11 @@ export const BreakGlassActionsCard = styled(Card)<{ theme: MavrykTheme }>`
   }
 
   .main-section {
-    padding: 40px 35px;
+    padding: 40px 20px;
+
+    h1, p, label {
+      padding-left: 10px;
+    }
   }
 
   .input-size {
