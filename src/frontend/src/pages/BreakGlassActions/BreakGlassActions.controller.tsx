@@ -1,6 +1,4 @@
 import React, { FC, useState, useMemo } from "react";
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from 'reducers'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
@@ -8,18 +6,15 @@ import { Button } from '../../app/App.components/Button/Button.controller'
 import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreakGlassActionsCard.controller'
+import { breakGlassActions } from "./BreakGlassActions.actions"
 
 // styles
 import { Page } from 'styles'
 import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions } from "./BreakGlassActions.style"
 import { InputStatusType } from "app/App.components/Input/Input.constants"
 
-// helpers
-import { getShortTzAddress } from '../../utils/tzAdress'
-
 // types
 import { Input } from "app/App.components/Input/Input.controller"
-import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 
 // TODO: change mock to valid data
 const mock = [
@@ -60,25 +55,22 @@ const mock = [
   },
 ]
 
-export const BreakGlassActions: FC = () => {
-  const dispatch = useDispatch()
-  const { councilStorage } = useSelector((state: State) => state.council)
-  const { councilMembers } = councilStorage
+const actionNameHandler = (name: string) => {
+  return name.split('_').map(word => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ');
+}
 
+export const BreakGlassActions: FC = () => {
   const itemsForDropDown = useMemo(
     () =>
-      councilMembers?.length
-        ? [
-            { text: 'Remove Council Member', value: '' },
-            ...councilMembers.map((item: CouncilMember) => {
-              return {
-                text: `${item.name} - ${getShortTzAddress(item.user_id)}`,
-                value: item.user_id,
-              }
-            }),
-          ]
-        : [{ text: 'Remove Council Member', value: '' }],
-    [councilMembers],
+    [
+      ...Object.values(breakGlassActions).map((item) => {
+        return {
+          text: actionNameHandler(item),
+          value: item,
+        }
+      }),
+    ],
+    []
   )
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
