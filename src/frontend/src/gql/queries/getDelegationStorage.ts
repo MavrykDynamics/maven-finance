@@ -17,7 +17,7 @@ query DelegationStorageQuery {
     satellite_image_max_length
     satellite_name_max_length
     satellite_website_max_length
-    satellite_records {
+    satellites {
       delegation_id
       description
       fee
@@ -27,7 +27,7 @@ query DelegationStorageQuery {
       status
       website
       user_id
-      delegation_records {
+      delegations {
         user {
           smvk_balance
         }
@@ -35,8 +35,7 @@ query DelegationStorageQuery {
       user {
         smvk_balance
         mvk_balance
-        aggregator_oracle_records {
-          active
+        aggregator_oracles {
           aggregator_id
           id
           oracle_id
@@ -61,8 +60,8 @@ query DelegationStorageQuery {
             request_type
           }
         }
-        governance_proposal_records_votes {
-          governance_proposal_record_id
+        governance_proposals_votes {
+          governance_proposal_id
           id
           round
           timestamp
@@ -70,7 +69,7 @@ query DelegationStorageQuery {
           voter_id
           voting_power
           current_round_vote
-          governance_proposal_record {
+          governance_proposal {
             title
           }
         }
@@ -86,8 +85,8 @@ query DelegationStorageQuery {
         }
       }
     }
-    delegation_records {
-      satellite_record_id
+    delegations {
+      satellite_id
       delegation_id
       id
     }

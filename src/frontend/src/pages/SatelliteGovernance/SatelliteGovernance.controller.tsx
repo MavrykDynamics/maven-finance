@@ -5,7 +5,7 @@ import { State } from 'reducers'
 import { useLocation } from 'react-router'
 
 // types
-import type { GovernanceSatelliteActionRecordGraphQL } from '../../utils/TypesAndInterfaces/Governance'
+import type { GovernanceSatelliteActionGraphQL } from '../../utils/TypesAndInterfaces/Governance'
 
 // const
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
@@ -53,21 +53,16 @@ const itemsForDropDown = [
   { text: 'Fix Mistaken Transfer', value: 'fixMistakenTransfer' },
 ]
 
-const getOngoingActionsList = (
-  list: GovernanceSatelliteActionRecordGraphQL[],
-): GovernanceSatelliteActionRecordGraphQL[] => {
-  return list.filter((item) => {
+const getOngoingActionsList = (list: GovernanceSatelliteActionGraphQL[]): GovernanceSatelliteActionGraphQL[] => {
+  return list?.filter((item) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
     return expirationDatetime > timeNow && item.status !== 1 && !item.executed
   })
 }
 
-const getPastActionsList = (
-  list: GovernanceSatelliteActionRecordGraphQL[],
-): GovernanceSatelliteActionRecordGraphQL[] => {
-  console.log(list)
-  return list.filter((item) => {
+const getPastActionsList = (list: GovernanceSatelliteActionGraphQL[]): GovernanceSatelliteActionGraphQL[] => {
+  return list?.filter((item) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
     return expirationDatetime < timeNow || item.status === 0
@@ -94,11 +89,11 @@ export const SatelliteGovernance = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
   const [activeTab, setActiveTab] = useState('ongoing')
-  const governanceSatelliteActionRecord = governanceSatelliteStorage.governance_satellite_action_record
+  const governanceSatelliteActionRecord = governanceSatelliteStorage?.governance_satellite_action_record
 
-  const ongoingActionsAmount = getOngoingActionsList(governanceSatelliteActionRecord).length
+  const ongoingActionsAmount = getOngoingActionsList(governanceSatelliteActionRecord)?.length
 
-  const [separateRecord, setSeparateRecord] = useState<GovernanceSatelliteActionRecordGraphQL[]>([])
+  const [separateRecord, setSeparateRecord] = useState<GovernanceSatelliteActionGraphQL[]>([])
 
   const [tabsList, setTabsList] = useState<TabItem[]>([])
 
@@ -107,12 +102,12 @@ export const SatelliteGovernance = () => {
 
     const filterPast = getPastActionsList(governanceSatelliteActionRecord)
 
-    setSeparateRecord(filterOngoing.length ? filterOngoing : filterPast)
-    setActiveTab(filterOngoing.length ? 'ongoing' : 'past')
+    setSeparateRecord(filterOngoing?.length ? filterOngoing : filterPast)
+    setActiveTab(filterOngoing?.length ? 'ongoing' : 'past')
 
     const prevTabs = [
-      { text: 'Ongoing Actions', id: 1, active: Boolean(filterOngoing.length) },
-      { text: 'Past Actions', id: 2, active: Boolean(!filterOngoing.length) },
+      { text: 'Ongoing Actions', id: 1, active: Boolean(filterOngoing?.length) },
+      { text: 'Past Actions', id: 2, active: Boolean(!filterOngoing?.length) },
     ]
 
     if (userIsSatellite) {
@@ -165,7 +160,7 @@ export const SatelliteGovernance = () => {
 
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, listName)
-    return separateRecord.slice(from, to)
+    return separateRecord?.slice(from, to)
   }, [currentPage, separateRecord])
 
   const emptyContainer = (
@@ -265,8 +260,8 @@ export const SatelliteGovernance = () => {
       </SatelliteGovernanceStyled>
 
       {paginatedItemsList?.length
-        ? paginatedItemsList.map((item: GovernanceSatelliteActionRecordGraphQL) => {
-            const linkAddress = item.governance_satellite_action_parameters?.[0]?.value || ''
+        ? paginatedItemsList.map((item: GovernanceSatelliteActionGraphQL) => {
+            const linkAddress = item.parameters?.[0]?.value || ''
 
             return (
               <SatelliteGovernanceCard
@@ -290,7 +285,7 @@ export const SatelliteGovernance = () => {
           })
         : emptyContainer}
 
-      <Pagination itemsCount={separateRecord.length} listName={listName} />
+      <Pagination itemsCount={separateRecord?.length} listName={listName} />
     </Page>
   )
 }

@@ -5,7 +5,7 @@ import type { VestingGraphQL } from '../utils/TypesAndInterfaces/Vesting'
 import type {
   AggregatorGraphQL,
   AggregatorFactoryGraphQL,
-  AggregatorOracleRecordGraphQL,
+  AggregatorOracleGraphQL,
 } from '../utils/TypesAndInterfaces/Aggregator'
 
 export function normalizeAddressesStorage(storage: AddressesGraphQl): ContractAddressesState {
@@ -54,17 +54,17 @@ export function getEnumKeyByEnumValue<T extends { [index: string]: string }>(
 export function normalizeOracle(storage: {
   aggregator: AggregatorGraphQL[]
   aggregator_factory: AggregatorFactoryGraphQL[]
-  aggregator_oracle_record: AggregatorOracleRecordGraphQL[]
+  aggregator_oracle_record: AggregatorOracleGraphQL[]
 }) {
   return {
-    feeds: storage.aggregator.map((feed) => ({
+    feeds: storage?.aggregator.map((feed) => ({
       ...feed,
       category: 'Cryptocurrency (USD pairs)',
       network: 'Tezos',
     })),
     feedsFactory: storage?.aggregator_factory,
     totalOracleNetworks: storage?.aggregator
-      ? storage.aggregator.reduce((acc, cur) => acc + cur.oracle_records.length, 0)
+      ? storage?.aggregator?.reduce((acc, cur) => acc + cur.oracles?.length, 0)
       : 0,
   }
 }

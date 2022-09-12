@@ -2,8 +2,8 @@
 import { CouncilGraphQL } from '../../utils/TypesAndInterfaces/Council'
 
 export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
-  const councilActionsLedger = storage?.council_action_records?.length
-    ? storage?.council_action_records.map((actionRecord) => {
+  const councilActionsLedger = storage?.actions?.length
+    ? storage?.actions.map((actionRecord) => {
         const signers = actionRecord.signers?.length
           ? actionRecord.signers.map((signer) => {
               return {
@@ -35,6 +35,6 @@ export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
     },
     actionCounter: storage?.action_counter,
     councilActionsLedger,
-    councilMembers: storage?.council_council_members?.length ? storage.council_council_members : [],
+    councilMembers: storage?.members?.length ? storage.members : [],
   }
 }

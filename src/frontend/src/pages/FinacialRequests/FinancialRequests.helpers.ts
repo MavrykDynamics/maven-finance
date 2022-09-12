@@ -1,16 +1,16 @@
 import qs, { ParsedQs } from 'qs'
 import moment from 'moment'
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
-import { GovernanceFinancialRequestRecordGraphQL } from '../../utils/TypesAndInterfaces/Governance'
+import { GovernanceFinancialRequestGraphQL } from '../../utils/TypesAndInterfaces/Governance'
 
 export const distinctRequestsByExecuting = (
-  mixedUpRequests: GovernanceFinancialRequestRecordGraphQL[],
+  mixedUpRequests: GovernanceFinancialRequestGraphQL[],
 ): {
-  ongoing: GovernanceFinancialRequestRecordGraphQL[]
-  past: GovernanceFinancialRequestRecordGraphQL[]
+  ongoing: GovernanceFinancialRequestGraphQL[]
+  past: GovernanceFinancialRequestGraphQL[]
 } => {
-  const ongoing: GovernanceFinancialRequestRecordGraphQL[] = [],
-    past: GovernanceFinancialRequestRecordGraphQL[] = []
+  const ongoing: GovernanceFinancialRequestGraphQL[] = [],
+    past: GovernanceFinancialRequestGraphQL[] = []
   if (!mixedUpRequests) return { ongoing, past }
 
   mixedUpRequests.forEach((request) => {
@@ -57,7 +57,7 @@ export const updatePageInUrl = ({
   return pathname + qs.stringify(newQueryParams, { addQueryPrefix: true })
 }
 
-export const getRequestStatus = (request: GovernanceFinancialRequestRecordGraphQL) => {
+export const getRequestStatus = (request: GovernanceFinancialRequestGraphQL) => {
   if (!request.executed) {
     if (new Date(request.expiration_datetime as string).getTime() < +Date.now()) {
       return ProposalStatus.DEFEATED
