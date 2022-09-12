@@ -88,9 +88,10 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
 
         <Button
           onClick={confirmHandler}
-          className="popup_btn default_svg start_verification"
+          className="popup_btn default_svg"
           text="Confirm"
           icon="okIcon"
+          strokeWidth={0.3}
           kind={ACTION_PRIMARY}
         />
       </div>
