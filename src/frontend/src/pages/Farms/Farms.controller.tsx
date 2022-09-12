@@ -19,6 +19,8 @@ import { calculateAPR, getSummDepositedAmount } from './Frams.helpers'
 import { FarmsStyled } from './Farms.style'
 import { EmptyContainer as EmptyList } from 'app/App.style'
 import { MOCK_FARMS } from './Frams.helpers'
+import { useHistory, useLocation } from 'react-router-dom'
+import qs from 'qs'
 
 export type FarmsViewVariantType = 'vertical' | 'horizontal'
 
@@ -31,6 +33,7 @@ const EmptyContainer = () => (
 
 export const Farms = () => {
   const dispatch = useDispatch()
+  const history = useHistory()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
@@ -43,6 +46,18 @@ export const Farms = () => {
   const [searchValue, setSearchValue] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
   const [farmsViewVariant, setFarmsViewVariant] = useState<FarmsViewVariantType>('vertical')
+
+  const { search, pathname } = useLocation()
+  const { openedCards = [] } = qs.parse(search, { ignoreQueryPrefix: true }) as { openedCards?: Array<string> }
+
+  const addOpenedCardToQP = (cardAddress: string) => {
+    const arrayOfCards = openedCards.find((address) => cardAddress === address)
+      ? openedCards.filter((address) => address !== cardAddress)
+      : [...openedCards, cardAddress]
+
+    const stringifiedQP = qs.stringify({ openedCards: arrayOfCards })
+    history.push(`${pathname}?${stringifiedQP}`)
+  }
 
   useEffect(() => {
     dispatch(getFarmStorage())
@@ -137,6 +152,7 @@ export const Farms = () => {
   const handleOnSort = (sortValue: string) => {
     setSortBy(sortValue)
   }
+
   return (
     <Page>
       <PageHeader page={'farms'} />
@@ -160,12 +176,11 @@ export const Farms = () => {
                 const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
                 const depositAmount = getSummDepositedAmount(farm.farmAccounts)
                 return (
-                  <div>
+                  <div key={farm.address + index}>
                     {/* For test <p>LpBalance = {farm.lpTokenBalance}</p>
                     <p>Stake amount = {depositAmount}</p>
                     <p>Rewards per block= {farm.currentRewardPerBlock}</p> */}
                     <FarmCard
-                      key={farm.address + index}
                       variant={farmsViewVariant}
                       farmAddress={farm.address}
                       name={farm.name}
@@ -179,6 +194,8 @@ export const Farms = () => {
                       firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
                       secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
                       totalLiquidity={farm.lpTokenBalance}
+                      expandCallback={addOpenedCardToQP}
+                      isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
                     />
                   </div>
                 )

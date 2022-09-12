@@ -5,6 +5,7 @@ import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { calculateAPR } from 'pages/Farms/Frams.helpers'
+import qs from 'qs'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
@@ -32,7 +33,10 @@ export const FarmsTab = () => {
         {farmStorage.map((farmCardData) => {
           const apr = calculateAPR(farmCardData.currentRewardPerBlock, farmCardData.lpTokenBalance)
           return (
-            <Link to={`/yield-farms`}>
+            <Link
+              to={`/yield-farms?${qs.stringify({ openedCards: [farmCardData.address] })}`}
+              key={farmCardData.address + farmCardData.name}
+            >
               <div className="card">
                 <div className="top">
                   <div className="name">

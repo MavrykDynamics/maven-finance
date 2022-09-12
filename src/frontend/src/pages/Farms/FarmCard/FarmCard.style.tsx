@@ -238,6 +238,10 @@ export const FarmCardStyled = styled(Card)`
       fill: ${headerColor};
     }
   }
+
+  &.opened {
+    border: 0.5px solid ${cyanColor};
+  }
 ` // CARD
 
 export const FarmHarvestStyled = styled(Card)`
