@@ -64,21 +64,21 @@ type lendingControllerAction is
     |   RemoveLiquidity                 of removeLiquidityActionType 
 
         // Vault Entrypoints
-    |   CallVaultEntrypoint             of callVaultEntrypointActionType
+    // |   CallVaultEntrypoint             of callVaultEntrypointActionType
     |   UpdateCollateralToken           of updateCollateralTokenActionType
-    // |   CreateVault                     of createVaultActionType
-    // |   CloseVault                      of closeVaultActionType
+    |   CreateVault                     of createVaultActionType
+    |   CloseVault                      of closeVaultActionType
     |   RegisterDeposit                 of registerDepositActionType
     |   RegisterWithdrawal              of registerWithdrawalActionType
-    // |   MarkForLiquidation              of markForLiquidationActionType
-    // |   LiquidateVault                  of liquidateVaultActionType
-    // |   Borrow                          of borrowActionType
-    // |   Repay                           of repayActionType
+    |   MarkForLiquidation              of markForLiquidationActionType
+    |   LiquidateVault                  of liquidateVaultActionType
+    |   Borrow                          of borrowActionType
+    |   Repay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+    // |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
+    // |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
+    // |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Rewards Entrypoints
     |   ClaimRewards                    of claimRewardsType
@@ -1253,595 +1253,595 @@ block {
 
 
 
-(* createVault lambda *)
-function createVault(const createVaultParams : createVaultActionType; var s : lendingControllerStorageType) : return is
-block {
+// (* createVault lambda *)
+// function createVault(const createVaultParams : createVaultActionType; var s : lendingControllerStorageType) : return is
+// block {
     
-    var operations : list(operation) := nil;
-    checkCreateVaultIsNotPaused(s);    // check that %createVault entrypoint is not paused (e.g. if glass broken)
+//     var operations : list(operation) := nil;
+//     checkCreateVaultIsNotPaused(s);    // check that %createVault entrypoint is not paused (e.g. if glass broken)
             
-    // init loan token name
-    const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
-    const vaultOwner : address = Tezos.get_sender();
+//     // init loan token name
+//     const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
+//     const vaultOwner : address = Tezos.get_sender();
 
-    // Get loan token type
-    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    ];
+//     // Get loan token type
+//     const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
+//             Some(_record) -> _record
+//         |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+//     ];
 
-    // Get borrow index of token
-    const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
+//     // Get borrow index of token
+//     const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
 
-    // get vault counter
-    const newVaultId : vaultIdType = s.vaultCounter;
+//     // get vault counter
+//     const newVaultId : vaultIdType = s.vaultCounter;
     
-    // make vault handle
-    const handle : vaultHandleType = record [
-        id     = newVaultId;
-        owner  = vaultOwner;
-    ];
+//     // make vault handle
+//     const handle : vaultHandleType = record [
+//         id     = newVaultId;
+//         owner  = vaultOwner;
+//     ];
 
-    // check if vault already exists
-    if Big_map.mem(handle, s.vaults) then failwith(error_VAULT_ALREADY_EXISTS) else skip;
+//     // check if vault already exists
+//     if Big_map.mem(handle, s.vaults) then failwith(error_VAULT_ALREADY_EXISTS) else skip;
 
-    // Prepare Vault Metadata
-    const vaultMetadata: metadataType = Big_map.literal (list [
-        ("", Bytes.pack("tezos-storage:data"));
-        ("data", createVaultParams.metadata);
-    ]); 
+//     // Prepare Vault Metadata
+//     const vaultMetadata: metadataType = Big_map.literal (list [
+//         ("", Bytes.pack("tezos-storage:data"));
+//         ("data", createVaultParams.metadata);
+//     ]); 
 
-    const vaultLambdaLedger : lambdaLedgerType = s.vaultLambdaLedger;
+//     const vaultLambdaLedger : lambdaLedgerType = s.vaultLambdaLedger;
 
-    // params for vault with tez storage origination
-    const originateVaultStorage : vaultStorageType = record [
-        admin                       = s.admin;
-        metadata                    = vaultMetadata;
-        governanceAddress           = s.governanceAddress;
+//     // params for vault with tez storage origination
+//     const originateVaultStorage : vaultStorageType = record [
+//         admin                       = s.admin;
+//         metadata                    = vaultMetadata;
+//         governanceAddress           = s.governanceAddress;
         
-        handle                      = handle;
-        depositors                  = createVaultParams.depositors;
+//         handle                      = handle;
+//         depositors                  = createVaultParams.depositors;
 
-        lambdaLedger                = vaultLambdaLedger;
-    ];
+//         lambdaLedger                = vaultLambdaLedger;
+//     ];
 
-    // originate vault func
-    const vaultOrigination : (operation * address) = createVaultFunc(
-        (None : option(key_hash)), 
-        Tezos.get_amount(),
-        originateVaultStorage
-    );
+//     // originate vault func
+//     const vaultOrigination : (operation * address) = createVaultFunc(
+//         (None : option(key_hash)), 
+//         Tezos.get_amount(),
+//         originateVaultStorage
+//     );
 
-    // add vaultWithTezOrigination operation to operations list
-    operations := vaultOrigination.0 # operations; 
+//     // add vaultWithTezOrigination operation to operations list
+//     operations := vaultOrigination.0 # operations; 
 
-    // set collateral balance if tez is sent
-    var collateralBalanceLedgerMap : collateralBalanceLedgerType := map[];
-    if mutezToNatural(Tezos.get_amount()) > 0n then block {
-        collateralBalanceLedgerMap["tez"] := mutezToNatural(Tezos.get_amount())
-    } else skip;
+//     // set collateral balance if tez is sent
+//     var collateralBalanceLedgerMap : collateralBalanceLedgerType := map[];
+//     if mutezToNatural(Tezos.get_amount()) > 0n then block {
+//         collateralBalanceLedgerMap["tez"] := mutezToNatural(Tezos.get_amount())
+//     } else skip;
 
-    // create vault record
-    const vault : vaultRecordType = createVaultRecord(
-        vaultOrigination.1,             // vault address
-        collateralBalanceLedgerMap,     // collateral balance ledger
-        loanTokenRecord.tokenName,      // loan token name
-        loanTokenRecord.tokenDecimals,  // loan token decimals
-        tokenBorrowIndex                // token borrow index
-    );
+//     // create vault record
+//     const vault : vaultRecordType = createVaultRecord(
+//         vaultOrigination.1,             // vault address
+//         collateralBalanceLedgerMap,     // collateral balance ledger
+//         loanTokenRecord.tokenName,      // loan token name
+//         loanTokenRecord.tokenDecimals,  // loan token decimals
+//         tokenBorrowIndex                // token borrow index
+//     );
     
-    // update controller storage with new vault
-    s.vaults := Big_map.update(handle, Some(vault), s.vaults);
+//     // update controller storage with new vault
+//     s.vaults := Big_map.update(handle, Some(vault), s.vaults);
 
-    // add new vault to owner's vault set
-    var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
-            Some (_set) -> _set
-        |   None        -> set []
-    ];
-    s.ownerLedger[vaultOwner] := Set.add(newVaultId, ownerVaultSet);
+//     // add new vault to owner's vault set
+//     var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
+//             Some (_set) -> _set
+//         |   None        -> set []
+//     ];
+//     s.ownerLedger[vaultOwner] := Set.add(newVaultId, ownerVaultSet);
 
-    // increment vault counter 
-    s.vaultCounter            := s.vaultCounter + 1n;
+//     // increment vault counter 
+//     s.vaultCounter            := s.vaultCounter + 1n;
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-(* closeVault lambda *)
-function closeVault(const closeVaultParams : closeVaultActionType; var s : lendingControllerStorageType) : return is
-block {
+// (* closeVault lambda *)
+// function closeVault(const closeVaultParams : closeVaultActionType; var s : lendingControllerStorageType) : return is
+// block {
     
-    var operations : list(operation) := nil;
-    checkCloseVaultIsNotPaused(s);    // check that %closeVault entrypoint is not paused (e.g. if glass broken)
+//     var operations : list(operation) := nil;
+//     checkCloseVaultIsNotPaused(s);    // check that %closeVault entrypoint is not paused (e.g. if glass broken)
 
-    // only the vault owner can close his own vault
+//     // only the vault owner can close his own vault
 
-    // init parameters 
-    const vaultId     : vaultIdType      = closeVaultParams.vaultId;
-    const vaultOwner  : vaultOwnerType   = Tezos.get_sender();
+//     // init parameters 
+//     const vaultId     : vaultIdType      = closeVaultParams.vaultId;
+//     const vaultOwner  : vaultOwnerType   = Tezos.get_sender();
 
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = vaultOwner;
-    ];
+//     // Make vault handle
+//     const vaultHandle : vaultHandleType = record [
+//         id     = vaultId;
+//         owner  = vaultOwner;
+//     ];
 
-    // Get vault if exists
-    var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+//     // Get vault if exists
+//     var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
 
-    const vaultAddress : address = vault.address;
+//     const vaultAddress : address = vault.address;
 
-    // check that vault has zero loan oustanding
-    checkZeroLoanOutstanding(vault);
+//     // check that vault has zero loan oustanding
+//     checkZeroLoanOutstanding(vault);
 
-    // get tokens and token balances and initiate transfer back to the vault owner
-    for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
+//     // get tokens and token balances and initiate transfer back to the vault owner
+//     for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
         
-        if tokenName = "tez" then block {
+//         if tokenName = "tez" then block {
 
-            const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), tokenBalance * 1mutez );
-            operations := transferTezOperation # operations;
+//             const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), tokenBalance * 1mutez );
+//             operations := transferTezOperation # operations;
 
-            vault.collateralBalanceLedger[tokenName]  := 0n;
+//             vault.collateralBalanceLedger[tokenName]  := 0n;
             
-        } else block {
+//         } else block {
 
-            const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                    Some(_record) -> _record
-                |   None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-            ];
+//             const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+//                     Some(_record) -> _record
+//                 |   None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+//             ];
 
-            if collateralTokenRecord.tokenName = "sMVK" then block {
+//             if collateralTokenRecord.tokenName = "sMVK" then block {
 
-                // for special case of sMVK
+//                 // for special case of sMVK
 
-                // Get Doorman Address from the General Contracts map on the Governance Contract
-                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+//                 // Get Doorman Address from the General Contracts map on the Governance Contract
+//                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-                // create operation to doorman to withdraw all staked MVK from vault to user
-                const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType = record [
-                    vaultOwner      = vaultOwner;
-                    vaultAddress    = vaultAddress;
-                    withdrawAmount  = tokenBalance;
-                ];
+//                 // create operation to doorman to withdraw all staked MVK from vault to user
+//                 const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType = record [
+//                     vaultOwner      = vaultOwner;
+//                     vaultAddress    = vaultAddress;
+//                     withdrawAmount  = tokenBalance;
+//                 ];
 
-                const vaultWithdrawAllStakedMvkOperation : operation = Tezos.transaction(
-                    onVaultWithdrawStakedMvkParams,
-                    0tez,
-                    getOnVaultWithdrawStakedMvkEntrypoint(doormanAddress)
-                );
+//                 const vaultWithdrawAllStakedMvkOperation : operation = Tezos.transaction(
+//                     onVaultWithdrawStakedMvkParams,
+//                     0tez,
+//                     getOnVaultWithdrawStakedMvkEntrypoint(doormanAddress)
+//                 );
 
-                operations := vaultWithdrawAllStakedMvkOperation # operations;
+//                 operations := vaultWithdrawAllStakedMvkOperation # operations;
 
-            } else block {
+//             } else block {
 
-                // for other collateral token types besides sMVK
-                const withdrawTokenOperation : operation = withdrawFromVaultOperation(
-                    vaultOwner,                         // to_
-                    tokenBalance,                       // token amount to be withdrawn
-                    collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
-                    vaultAddress                        // vault address
-                );
-                operations := withdrawTokenOperation # operations;
+//                 // for other collateral token types besides sMVK
+//                 const withdrawTokenOperation : operation = withdrawFromVaultOperation(
+//                     vaultOwner,                         // to_
+//                     tokenBalance,                       // token amount to be withdrawn
+//                     collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
+//                     vaultAddress                        // vault address
+//                 );
+//                 operations := withdrawTokenOperation # operations;
 
-            };
+//             };
 
-            // save and update balance for collateral token to zero
-            vault.collateralBalanceLedger[tokenName]  := 0n;
+//             // save and update balance for collateral token to zero
+//             vault.collateralBalanceLedger[tokenName]  := 0n;
 
-        }; // end if/else check for tez/token
+//         }; // end if/else check for tez/token
 
-    }; // end loop for withdraw operations of tez/tokens in vault collateral 
-
-
-    // remove vault from stroage
-    var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
-            Some (_set) -> _set
-        |   None        -> failwith(error_OWNER_VAULT_SET_DOES_NOT_EXIST)
-    ];
-
-    s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
-    remove vaultHandle from map s.vaults;
-
-} with (operations, s)
+//     }; // end loop for withdraw operations of tez/tokens in vault collateral 
 
 
+//     // remove vault from stroage
+//     var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
+//             Some (_set) -> _set
+//         |   None        -> failwith(error_OWNER_VAULT_SET_DOES_NOT_EXIST)
+//     ];
 
-(* markForLiquidation lambda *)
-function markForLiquidation(const markForLiquidationParams : markForLiquidationActionType; var s : lendingControllerStorageType) : return is
-block {
+//     s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
+//     remove vaultHandle from map s.vaults;
 
-    var operations : list(operation) := nil;
-    checkMarkForLiquidationIsNotPaused(s);    // check that %markForLiquidation entrypoint is not paused (e.g. if glass broken)
+// } with (operations, s)
 
-    // anyone can mark a vault for liquidation
 
-    // init parameters 
-    const vaultId     : vaultIdType      = markForLiquidationParams.vaultId;
-    const vaultOwner  : vaultOwnerType   = markForLiquidationParams.vaultOwner;
 
-    const currentTimestamp        : timestamp   = Tezos.get_now();
-    const liquidationDelayInMins  : int         = int(s.config.liquidationDelayInMins);
+// (* markForLiquidation lambda *)
+// function markForLiquidation(const markForLiquidationParams : markForLiquidationActionType; var s : lendingControllerStorageType) : return is
+// block {
 
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = vaultOwner;
-    ];
+//     var operations : list(operation) := nil;
+//     checkMarkForLiquidationIsNotPaused(s);    // check that %markForLiquidation entrypoint is not paused (e.g. if glass broken)
 
-    // Get vault if exists
-    var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+//     // anyone can mark a vault for liquidation
+
+//     // init parameters 
+//     const vaultId     : vaultIdType      = markForLiquidationParams.vaultId;
+//     const vaultOwner  : vaultOwnerType   = markForLiquidationParams.vaultOwner;
+
+//     const currentTimestamp        : timestamp   = Tezos.get_now();
+//     const liquidationDelayInMins  : int         = int(s.config.liquidationDelayInMins);
+
+//     // Make vault handle
+//     const vaultHandle : vaultHandleType = record [
+//         id     = vaultId;
+//         owner  = vaultOwner;
+//     ];
+
+//     // Get vault if exists
+//     var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
     
-    // get vault liquidation timestamps
-    const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
-    const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
+//     // get vault liquidation timestamps
+//     const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
+//     const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
 
-    // check if vault is liquidatable
-    if isLiquidatable(vault, s) 
-    then skip 
-    else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
+//     // check if vault is liquidatable
+//     if isLiquidatable(vault, s) 
+//     then skip 
+//     else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
 
-    // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
-    if currentTimestamp < timeWhenVaultCanBeLiquidated 
-    then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
-    else vault.markedForLiquidationTimestamp := currentTimestamp;
+//     // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
+//     if currentTimestamp < timeWhenVaultCanBeLiquidated 
+//     then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
+//     else vault.markedForLiquidationTimestamp := currentTimestamp;
 
-    // update vault storage
-    s.vaults[vaultHandle] := vault;
+//     // update vault storage
+//     s.vaults[vaultHandle] := vault;
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-(* liquidateVault lambda *)
-function liquidateVault(const liquidateVaultParams : liquidateVaultActionType; var s : lendingControllerStorageType) : return is
-block {
+// (* liquidateVault lambda *)
+// function liquidateVault(const liquidateVaultParams : liquidateVaultActionType; var s : lendingControllerStorageType) : return is
+// block {
     
-    var operations : list(operation) := nil;
-    checkLiquidateVaultIsNotPaused(s);    // check that %liquidateVault entrypoint is not paused (e.g. if glass broken)
+//     var operations : list(operation) := nil;
+//     checkLiquidateVaultIsNotPaused(s);    // check that %liquidateVault entrypoint is not paused (e.g. if glass broken)
             
-    // init variables                 
-    const vaultId           : nat       = liquidateVaultParams.vaultId;
-    const vaultOwner        : address   = liquidateVaultParams.vaultOwner;
-    const amount            : nat       = liquidateVaultParams.amount;
-    const liquidator        : address   = Tezos.get_sender();
-    const currentTimestamp  : timestamp = Tezos.get_now();
+//     // init variables                 
+//     const vaultId           : nat       = liquidateVaultParams.vaultId;
+//     const vaultOwner        : address   = liquidateVaultParams.vaultOwner;
+//     const amount            : nat       = liquidateVaultParams.amount;
+//     const liquidator        : address   = Tezos.get_sender();
+//     const currentTimestamp  : timestamp = Tezos.get_now();
 
-    // config variables
-    const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
-    const adminLiquidationFeePercent    : nat  = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
-    const maxDecimalsForCalculation     : nat  = s.config.maxDecimalsForCalculation;
-    const liquidationDelayInMins        : int  = int(s.config.liquidationDelayInMins);
+//     // config variables
+//     const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
+//     const adminLiquidationFeePercent    : nat  = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
+//     const maxDecimalsForCalculation     : nat  = s.config.maxDecimalsForCalculation;
+//     const liquidationDelayInMins        : int  = int(s.config.liquidationDelayInMins);
 
-    // calculate final amounts to be liquidated
-    const liquidationIncentive          : nat = ((liquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
-    const liquidatorAmountAndIncentive  : nat = amount + liquidationIncentive;
-    const adminLiquidationFee           : nat = ((adminLiquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+//     // calculate final amounts to be liquidated
+//     const liquidationIncentive          : nat = ((liquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+//     const liquidatorAmountAndIncentive  : nat = amount + liquidationIncentive;
+//     const adminLiquidationFee           : nat = ((adminLiquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-    // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
-    const treasuryAddress           : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
-    const tokenPoolRewardAddress    : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+//     // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
+//     const treasuryAddress           : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+//     const tokenPoolRewardAddress    : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
-    // ------------------------------------------------------------------
-    // Get Vault record and parameters
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Get Vault record and parameters
+//     // ------------------------------------------------------------------
 
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = vaultOwner;
-    ];
+//     // Make vault handle
+//     const vaultHandle : vaultHandleType = record [
+//         id     = vaultId;
+//         owner  = vaultOwner;
+//     ];
 
-    // get vault record
-    var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+//     // get vault record
+//     var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
 
-    // init vault parameters
-    const vaultLoanTokenName            : string  = vault.loanToken; // USDT, EURL, some other crypto coin
-    const currentLoanOutstandingTotal   : nat     = vault.loanOutstandingTotal;
-    const initialLoanPrincipalTotal     : nat     = vault.loanPrincipalTotal;
-    var vaultBorrowIndex                : nat    := vault.borrowIndex;
+//     // init vault parameters
+//     const vaultLoanTokenName            : string  = vault.loanToken; // USDT, EURL, some other crypto coin
+//     const currentLoanOutstandingTotal   : nat     = vault.loanOutstandingTotal;
+//     const initialLoanPrincipalTotal     : nat     = vault.loanPrincipalTotal;
+//     var vaultBorrowIndex                : nat    := vault.borrowIndex;
 
-    // get vault liquidation timestamps
-    const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
-    const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
+//     // get vault liquidation timestamps
+//     const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
+//     const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
 
-    // ------------------------------------------------------------------
-    // Check collaterization and update interest rates
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Check collaterization and update interest rates
+//     // ------------------------------------------------------------------
 
-    // check if vault is liquidatable
-    if isLiquidatable(vault, s) 
-    then skip 
-    else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
+//     // check if vault is liquidatable
+//     if isLiquidatable(vault, s) 
+//     then skip 
+//     else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
 
-    // check if sufficient time has passed since vault was marked for liquidation
-    if currentTimestamp < timeWhenVaultCanBeLiquidated
-    then failwith(error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED)
-    else skip;
+//     // check if sufficient time has passed since vault was marked for liquidation
+//     if currentTimestamp < timeWhenVaultCanBeLiquidated
+//     then failwith(error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED)
+//     else skip;
 
-    // Get loan token type
-    var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    ];
+//     // Get loan token type
+//     var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
+//             Some(_record) -> _record
+//         |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+//     ];
 
-    // ------------------------------------------------------------------
-    // Update Vault interest
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Update Vault interest
+//     // ------------------------------------------------------------------
 
-    const totalBorrowed          : nat   = loanTokenRecord.totalBorrowed;
-    const totalRemaining         : nat   = loanTokenRecord.totalRemaining;
-    const tokenBorrowIndex       : nat   = loanTokenRecord.borrowIndex;
+//     const totalBorrowed          : nat   = loanTokenRecord.totalBorrowed;
+//     const totalRemaining         : nat   = loanTokenRecord.totalRemaining;
+//     const tokenBorrowIndex       : nat   = loanTokenRecord.borrowIndex;
 
-    // Init new total amounts
-    var newLoanOutstandingTotal  : nat  := currentLoanOutstandingTotal;
-    var newLoanPrincipalTotal    : nat  := vault.loanPrincipalTotal;
-    var newLoanInterestTotal     : nat  := vault.loanInterestTotal;
+//     // Init new total amounts
+//     var newLoanOutstandingTotal  : nat  := currentLoanOutstandingTotal;
+//     var newLoanPrincipalTotal    : nat  := vault.loanPrincipalTotal;
+//     var newLoanInterestTotal     : nat  := vault.loanInterestTotal;
 
-    // calculate interest
-    newLoanOutstandingTotal := accrueInterestToVault(
-        currentLoanOutstandingTotal,
-        vaultBorrowIndex,
-        tokenBorrowIndex
-    );
+//     // calculate interest
+//     newLoanOutstandingTotal := accrueInterestToVault(
+//         currentLoanOutstandingTotal,
+//         vaultBorrowIndex,
+//         tokenBorrowIndex
+//     );
 
-    if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
-    newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+//     if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+//     newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
     
-    // ------------------------------------------------------------------
-    // Liquidation Process
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Liquidation Process
+//     // ------------------------------------------------------------------
 
-    // get max vault liquidation amount
-    const vaultMaxLiquidationAmount : nat = (newLoanOutstandingTotal * s.config.maxVaultLiquidationPercent) / 10000n;
+//     // get max vault liquidation amount
+//     const vaultMaxLiquidationAmount : nat = (newLoanOutstandingTotal * s.config.maxVaultLiquidationPercent) / 10000n;
 
-    // check if there is sufficient loanOutstanding, and calculate remaining loan after liquidation
-    if amount > vaultMaxLiquidationAmount then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL) else skip;
+//     // check if there is sufficient loanOutstanding, and calculate remaining loan after liquidation
+//     if amount > vaultMaxLiquidationAmount then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL) else skip;
 
-    // calculate vault collateral value rebased (1e32 or 10^32)
-    const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
+//     // calculate vault collateral value rebased (1e32 or 10^32)
+//     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
     
-    // // loop tokens in vault collateral balance ledger to be liquidated
-    for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
+//     // // loop tokens in vault collateral balance ledger to be liquidated
+//     for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
 
-        // skip if token balance is 0n
-        if tokenBalance = 0n then skip else block {
+//         // skip if token balance is 0n
+//         if tokenBalance = 0n then skip else block {
 
-            const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                    Some(_record) -> _record
-                |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-            ];
+//             const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+//                     Some(_record) -> _record
+//                 |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+//             ];
 
-            // get last completed round price of token from Oracle view
-            const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
+//             // get last completed round price of token from Oracle view
+//             const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
             
-            const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
-            const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
-            const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
+//             const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
+//             const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
+//             const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
 
-            // calculate required number of decimals to rebase each token to the same unit for comparison                        
-            if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
-            const rebaseDecimals : nat  = abs(maxDecimalsForCalculation - (tokenDecimals + priceDecimals));
+//             // calculate required number of decimals to rebase each token to the same unit for comparison                        
+//             if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
+//             const rebaseDecimals : nat  = abs(maxDecimalsForCalculation - (tokenDecimals + priceDecimals));
 
-            // calculate raw value of collateral balance
-            const tokenValueRaw : nat = tokenBalance * tokenPrice;
+//             // calculate raw value of collateral balance
+//             const tokenValueRaw : nat = tokenBalance * tokenPrice;
 
-            // rebase token value to 1e32 (or 10^32)
-            const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);     
+//             // rebase token value to 1e32 (or 10^32)
+//             const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);     
 
-            // get proportion of collateral token balance against total vault's collateral value
-            const tokenProportion : nat = (tokenValueRebased * fixedPointAccuracy) / vaultCollateralValueRebased;
+//             // get proportion of collateral token balance against total vault's collateral value
+//             const tokenProportion : nat = (tokenValueRebased * fixedPointAccuracy) / vaultCollateralValueRebased;
 
-            // ------------------------------------------------------------------
-            // Liquidator's Amount
-            // ------------------------------------------------------------------
+//             // ------------------------------------------------------------------
+//             // Liquidator's Amount
+//             // ------------------------------------------------------------------
 
-            // get balance to be extracted from token and sent to liquidator
-            const liquidatorTokenProportionalValue : nat = tokenProportion * liquidatorAmountAndIncentive;
+//             // get balance to be extracted from token and sent to liquidator
+//             const liquidatorTokenProportionalValue : nat = tokenProportion * liquidatorAmountAndIncentive;
 
-            // get quantity of tokens to be liquidated
-            const liquidatorTokenQuantityTotal : nat = (liquidatorTokenProportionalValue / tokenPrice) / fixedPointAccuracy;
+//             // get quantity of tokens to be liquidated
+//             const liquidatorTokenQuantityTotal : nat = (liquidatorTokenProportionalValue / tokenPrice) / fixedPointAccuracy;
 
-            // calculate new collateral balance
-            if liquidatorTokenQuantityTotal > tokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
-            var newTokenCollateralBalance : nat := abs(tokenBalance - liquidatorTokenQuantityTotal);
+//             // calculate new collateral balance
+//             if liquidatorTokenQuantityTotal > tokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
+//             var newTokenCollateralBalance : nat := abs(tokenBalance - liquidatorTokenQuantityTotal);
 
-            // send tokens from vault to liquidator
-            const sendTokensFromVaultToLiquidatorOperation : operation = withdrawFromVaultOperation(
-                liquidator,                         // to_
-                liquidatorTokenQuantityTotal,       // token amount to be withdrawn
-                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
-                vault.address                       // vault address
-            );
-            operations := sendTokensFromVaultToLiquidatorOperation # operations;
+//             // send tokens from vault to liquidator
+//             const sendTokensFromVaultToLiquidatorOperation : operation = withdrawFromVaultOperation(
+//                 liquidator,                         // to_
+//                 liquidatorTokenQuantityTotal,       // token amount to be withdrawn
+//                 collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
+//                 vault.address                       // vault address
+//             );
+//             operations := sendTokensFromVaultToLiquidatorOperation # operations;
 
-            // ------------------------------------------------------------------
-            // Treasury's Amount
-            // ------------------------------------------------------------------
+//             // ------------------------------------------------------------------
+//             // Treasury's Amount
+//             // ------------------------------------------------------------------
 
-            // get balance to be extracted from token and sent to liquidator
-            const treasuryTokenProportionalValue : nat = tokenProportion * adminLiquidationFee;
+//             // get balance to be extracted from token and sent to liquidator
+//             const treasuryTokenProportionalValue : nat = tokenProportion * adminLiquidationFee;
 
-            // get quantity of tokens to be liquidated
-            const treasuryTokenQuantityTotal : nat = (treasuryTokenProportionalValue / tokenPrice) / fixedPointAccuracy;
+//             // get quantity of tokens to be liquidated
+//             const treasuryTokenQuantityTotal : nat = (treasuryTokenProportionalValue / tokenPrice) / fixedPointAccuracy;
 
-            // calculate new collateral balance
-            if treasuryTokenQuantityTotal > tokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
-            newTokenCollateralBalance := abs(tokenBalance - treasuryTokenQuantityTotal);
+//             // calculate new collateral balance
+//             if treasuryTokenQuantityTotal > tokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
+//             newTokenCollateralBalance := abs(tokenBalance - treasuryTokenQuantityTotal);
 
-            // send tokens from vault to treasury
-            const sendTokensFromVaultToTreasuryOperation : operation = withdrawFromVaultOperation(
-                treasuryAddress,                    // to_
-                treasuryTokenQuantityTotal,         // token amount to be withdrawn
-                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
-                vault.address                       // vault address
-            );
-            operations := sendTokensFromVaultToTreasuryOperation # operations;
+//             // send tokens from vault to treasury
+//             const sendTokensFromVaultToTreasuryOperation : operation = withdrawFromVaultOperation(
+//                 treasuryAddress,                    // to_
+//                 treasuryTokenQuantityTotal,         // token amount to be withdrawn
+//                 collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
+//                 vault.address                       // vault address
+//             );
+//             operations := sendTokensFromVaultToTreasuryOperation # operations;
 
-            // ------------------------------------------------------------------
-            // Update collateral balance
-            // ------------------------------------------------------------------
+//             // ------------------------------------------------------------------
+//             // Update collateral balance
+//             // ------------------------------------------------------------------
 
-            // save and update new balance for collateral token
-            vault.collateralBalanceLedger[tokenName]  := newTokenCollateralBalance;
+//             // save and update new balance for collateral token
+//             vault.collateralBalanceLedger[tokenName]  := newTokenCollateralBalance;
 
-        };
+//         };
 
-    };
+//     };
 
 
-    // ------------------------------------------------------------------
-    // Update Interest Records
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Update Interest Records
+//     // ------------------------------------------------------------------
 
-    var totalInterestPaid       : nat := 0n;
-    var totalPrincipalRepaid    : nat := 0n;                
+//     var totalInterestPaid       : nat := 0n;
+//     var totalPrincipalRepaid    : nat := 0n;                
 
-    if amount > newLoanInterestTotal then {
+//     if amount > newLoanInterestTotal then {
         
-        // final repayment amount covers interest and principal
+//         // final repayment amount covers interest and principal
 
-        // calculate remainder amount
-        const principalReductionAmount : nat = abs(amount - newLoanInterestTotal);
+//         // calculate remainder amount
+//         const principalReductionAmount : nat = abs(amount - newLoanInterestTotal);
 
-        // set total interest paid and reset loan interest to zero
-        totalInterestPaid := newLoanInterestTotal;
-        newLoanInterestTotal := 0n;
+//         // set total interest paid and reset loan interest to zero
+//         totalInterestPaid := newLoanInterestTotal;
+//         newLoanInterestTotal := 0n;
 
-        // calculate final loan principal
-        if principalReductionAmount > initialLoanPrincipalTotal then failwith(error_PRINCIPAL_REDUCTION_MISCALCULATION) else skip;
-        newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
+//         // calculate final loan principal
+//         if principalReductionAmount > initialLoanPrincipalTotal then failwith(error_PRINCIPAL_REDUCTION_MISCALCULATION) else skip;
+//         newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
 
-        // set total principal repaid amount
-        totalPrincipalRepaid := principalReductionAmount;
+//         // set total principal repaid amount
+//         totalPrincipalRepaid := principalReductionAmount;
 
-        // calculate final loan outstanding total
-        if amount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
-        newLoanOutstandingTotal := abs(newLoanOutstandingTotal - amount);
+//         // calculate final loan outstanding total
+//         if amount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
+//         newLoanOutstandingTotal := abs(newLoanOutstandingTotal - amount);
 
-    } else {
+//     } else {
 
-        // final repayment amount covers interest only
+//         // final repayment amount covers interest only
 
-        // set total interest paid
-        totalInterestPaid := amount;
+//         // set total interest paid
+//         totalInterestPaid := amount;
 
-        // calculate final loan interest
-        if amount > newLoanInterestTotal then failwith(error_LOAN_INTEREST_MISCALCULATION) else skip;
-        newLoanInterestTotal := abs(newLoanInterestTotal - amount);
+//         // calculate final loan interest
+//         if amount > newLoanInterestTotal then failwith(error_LOAN_INTEREST_MISCALCULATION) else skip;
+//         newLoanInterestTotal := abs(newLoanInterestTotal - amount);
 
-        // calculate final loan outstanding total
-        if amount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
-        newLoanOutstandingTotal := abs(newLoanOutstandingTotal - amount);
+//         // calculate final loan outstanding total
+//         if amount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
+//         newLoanOutstandingTotal := abs(newLoanOutstandingTotal - amount);
 
-    };
+//     };
 
-    // Calculate share of interest that goes to the Treasury 
-    const interestTreasuryShare : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+//     // Calculate share of interest that goes to the Treasury 
+//     const interestTreasuryShare : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-    // Calculate share of interest that goes to the Reward Pool 
-    if interestTreasuryShare > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
-    const interestRewardPool : nat = abs(totalInterestPaid - interestTreasuryShare);
+//     // Calculate share of interest that goes to the Reward Pool 
+//     if interestTreasuryShare > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
+//     const interestRewardPool : nat = abs(totalInterestPaid - interestTreasuryShare);
 
-    // ------------------------------------------------------------------
-    // Process Fee Transfers
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Process Fee Transfers
+//     // ------------------------------------------------------------------
 
-    // Send interest payment from Lending Controller Token Pool to treasury
-    const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-        Tezos.get_self_address(),    // from_    
-        treasuryAddress,             // to_
-        interestTreasuryShare,       // amount
-        loanTokenRecord.tokenType    // token type
-    );
+//     // Send interest payment from Lending Controller Token Pool to treasury
+//     const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
+//         Tezos.get_self_address(),    // from_    
+//         treasuryAddress,             // to_
+//         interestTreasuryShare,       // amount
+//         loanTokenRecord.tokenType    // token type
+//     );
 
-    // Send interest as rewards from Lending Controller Token Pool to Token Pool Rewards Contract
-    const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
-        Tezos.get_self_address(),       // from_
-        tokenPoolRewardAddress,         // to_
-        interestRewardPool,             // amount
-        loanTokenRecord.tokenType       // token type
-    );
+//     // Send interest as rewards from Lending Controller Token Pool to Token Pool Rewards Contract
+//     const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
+//         Tezos.get_self_address(),       // from_
+//         tokenPoolRewardAddress,         // to_
+//         interestRewardPool,             // amount
+//         loanTokenRecord.tokenType       // token type
+//     );
 
-    // Update rewards in Token Pool Contract
-    const updateRewardsParams : updateRewardsActionType = record [
-        tokenName = vaultLoanTokenName;
-        amount    = interestRewardPool;
-    ];
+//     // Update rewards in Token Pool Contract
+//     const updateRewardsParams : updateRewardsActionType = record [
+//         tokenName = vaultLoanTokenName;
+//         amount    = interestRewardPool;
+//     ];
 
-    const updateRewardsInTokenPoolRewardContractOperation : operation = Tezos.transaction(
-        updateRewardsParams,
-        0mutez,
-        getUpdateRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
-    );
+//     const updateRewardsInTokenPoolRewardContractOperation : operation = Tezos.transaction(
+//         updateRewardsParams,
+//         0mutez,
+//         getUpdateRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
+//     );
 
-    operations := list[
-        sendInterestToTreasuryOperation;
-        sendInterestRewardToTokenPoolRewardContractOperation;
-        updateRewardsInTokenPoolRewardContractOperation;
-    ];
-
-
-    // ------------------------------------------------------------------
-    // Process Repayment
-    // ------------------------------------------------------------------            
+//     operations := list[
+//         sendInterestToTreasuryOperation;
+//         sendInterestRewardToTokenPoolRewardContractOperation;
+//         updateRewardsInTokenPoolRewardContractOperation;
+//     ];
 
 
-    var newTokenPoolTotal   : nat  := 0n;
-    var newTotalBorrowed    : nat  := 0n;
-    var newTotalRemaining   : nat  := 0n;
+//     // ------------------------------------------------------------------
+//     // Process Repayment
+//     // ------------------------------------------------------------------            
+
+
+//     var newTokenPoolTotal   : nat  := 0n;
+//     var newTotalBorrowed    : nat  := 0n;
+//     var newTotalRemaining   : nat  := 0n;
     
-    // process repayment of principal if total principal repaid quantity is greater than 0
-    if totalPrincipalRepaid > 0n then {
+//     // process repayment of principal if total principal repaid quantity is greater than 0
+//     if totalPrincipalRepaid > 0n then {
 
-        // calculate new totalBorrowed and totalRemaining
-        if totalPrincipalRepaid > totalBorrowed then failwith(error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT) else skip;
-        newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
-        newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
-        newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
+//         // calculate new totalBorrowed and totalRemaining
+//         if totalPrincipalRepaid > totalBorrowed then failwith(error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT) else skip;
+//         newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
+//         newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
+//         newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
 
-        // transfer prinicpal repayment amount from liquidator to token pool
-        const transferRepaymentAmountToTokenPoolOperation : operation = tokenPoolTransfer(
-            liquidator,                 // from_
-            Tezos.get_self_address(),   // to_
-            totalPrincipalRepaid,       // amount
-            loanTokenRecord.tokenType   // token type
-        );
+//         // transfer prinicpal repayment amount from liquidator to token pool
+//         const transferRepaymentAmountToTokenPoolOperation : operation = tokenPoolTransfer(
+//             liquidator,                 // from_
+//             Tezos.get_self_address(),   // to_
+//             totalPrincipalRepaid,       // amount
+//             loanTokenRecord.tokenType   // token type
+//         );
 
-        operations := transferRepaymentAmountToTokenPoolOperation # operations;
+//         operations := transferRepaymentAmountToTokenPoolOperation # operations;
 
-    } else skip;
+//     } else skip;
 
-    // ------------------------------------------------------------------
-    // Update Storage
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Update Storage
+//     // ------------------------------------------------------------------
 
-    // update token storage
-    loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
-    loanTokenRecord.totalBorrowed           := newTotalBorrowed;
-    loanTokenRecord.totalRemaining          := newTotalRemaining;
+//     // update token storage
+//     loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
+//     loanTokenRecord.totalBorrowed           := newTotalBorrowed;
+//     loanTokenRecord.totalRemaining          := newTotalRemaining;
 
-    // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-    loanTokenRecord := loanTokenRecordUpdated.0;
-    s := loanTokenRecordUpdated.1;
+//     // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+//     const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+//     loanTokenRecord := loanTokenRecordUpdated.0;
+//     s := loanTokenRecordUpdated.1;
 
-    s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
+//     s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
 
-    // update vault storage
-    vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
-    vault.loanPrincipalTotal        := newLoanPrincipalTotal;
-    vault.loanInterestTotal         := newLoanInterestTotal;
-    vault.borrowIndex               := tokenBorrowIndex;
-    vault.lastUpdatedBlockLevel     := Tezos.get_level();
-    vault.lastUpdatedTimestamp      := Tezos.get_now();
-    s.vaults[vaultHandle]           := vault;                
+//     // update vault storage
+//     vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
+//     vault.loanPrincipalTotal        := newLoanPrincipalTotal;
+//     vault.loanInterestTotal         := newLoanInterestTotal;
+//     vault.borrowIndex               := tokenBorrowIndex;
+//     vault.lastUpdatedBlockLevel     := Tezos.get_level();
+//     vault.lastUpdatedTimestamp      := Tezos.get_now();
+//     s.vaults[vaultHandle]           := vault;                
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-(* registerDeposit lambda *)
+// (* registerDeposit lambda *)
 // function registerDeposit(const registerDepositParams : registerDepositActionType; var s : lendingControllerStorageType) : return is
 // block {
     
@@ -1931,18 +1931,17 @@ block {
 
 //     // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
 //     if loanTokenRecord.tokenPoolTotal > 0n then {
-            // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-            // loanTokenRecord := loanTokenRecordUpdated.0;
-            // s := loanTokenRecordUpdated.1;
+//             const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+//             loanTokenRecord := loanTokenRecordUpdated.0;
+//             s := loanTokenRecordUpdated.1;
 //     } else skip;
 //     s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
-
 
 // } with (noOperations, s)
 
 
 
-(* registerWithdrawal lambda *)
+// (* registerWithdrawal lambda *)
 // function registerWithdrawal(const registerWithdrawalParams : registerWithdrawalActionType; var s : lendingControllerStorageType) : return is
 // block {
     
@@ -2038,9 +2037,9 @@ block {
 
 //     // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
 //     if loanTokenRecord.tokenPoolTotal > 0n then {
-            // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-            // loanTokenRecord := loanTokenRecordUpdated.0;
-            // s := loanTokenRecordUpdated.1;
+//             const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+//             loanTokenRecord := loanTokenRecordUpdated.0;
+//             s := loanTokenRecordUpdated.1;
 //     } else skip;
 //     s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
 
@@ -2048,395 +2047,395 @@ block {
 
 
 
-(* borrow lambda *)
-function borrow(const borrowParams : borrowActionType; var s : lendingControllerStorageType) : return is
-block {
+// (* borrow lambda *)
+// function borrow(const borrowParams : borrowActionType; var s : lendingControllerStorageType) : return is
+// block {
     
-    var operations : list(operation):= nil;
-    checkBorrowIsNotPaused(s);    // check that %borrow entrypoint is not paused (e.g. if glass broken)
+//     var operations : list(operation):= nil;
+//     checkBorrowIsNotPaused(s);    // check that %borrow entrypoint is not paused (e.g. if glass broken)
                 
-    // Init variables for convenience
-    const vaultId            : nat                     = borrowParams.vaultId; 
-    const initialLoanAmount  : nat                     = borrowParams.quantity;
-    const initiator          : initiatorAddressType    = Tezos.get_sender();
+//     // Init variables for convenience
+//     const vaultId            : nat                     = borrowParams.vaultId; 
+//     const initialLoanAmount  : nat                     = borrowParams.quantity;
+//     const initiator          : initiatorAddressType    = Tezos.get_sender();
 
-    // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
-    const treasuryAddress: address        = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
-    const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+//     // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
+//     const treasuryAddress: address        = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+//     const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = initiator;
-    ];
+//     // Make vault handle
+//     const vaultHandle : vaultHandleType = record [
+//         id     = vaultId;
+//         owner  = initiator;
+//     ];
 
-    // Get vault if exists and vault loan token name
-    var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-    const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
+//     // Get vault if exists and vault loan token name
+//     var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+//     const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-    // Get loan token type
-    var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    ];
+//     // Get loan token type
+//     var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
+//             Some(_record) -> _record
+//         |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+//     ];
 
-    // Get loan token parameters
-    const reserveRatio      : nat         = loanTokenRecord.reserveRatio;
-    const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
-    const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
-    const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
-    const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
-    const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
+//     // Get loan token parameters
+//     const reserveRatio      : nat         = loanTokenRecord.reserveRatio;
+//     const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
+//     const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
+//     const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
+//     const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
+//     const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
 
-    // ------------------------------------------------------------------
-    // Calculate Service Loan Fees
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Calculate Service Loan Fees
+//     // ------------------------------------------------------------------
     
-    // Charge a minimum loan fee if user is borrowing
-    const minimumLoanFee : nat = ((initialLoanAmount * s.config.minimumLoanFeePercent * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+//     // Charge a minimum loan fee if user is borrowing
+//     const minimumLoanFee : nat = ((initialLoanAmount * s.config.minimumLoanFeePercent * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-    // Calculate share of fees that goes to the Treasury 
-    const minimumLoanFeeToTreasury : nat = ((minimumLoanFee * s.config.minimumLoanFeeTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+//     // Calculate share of fees that goes to the Treasury 
+//     const minimumLoanFeeToTreasury : nat = ((minimumLoanFee * s.config.minimumLoanFeeTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-    // Calculate share of fees that goes to the Reward Pool 
-    if minimumLoanFeeToTreasury > minimumLoanFee then failwith(error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE) else skip;
-    const minimumLoanFeeRewardPool : nat = abs(minimumLoanFee - minimumLoanFeeToTreasury);
+//     // Calculate share of fees that goes to the Reward Pool 
+//     if minimumLoanFeeToTreasury > minimumLoanFee then failwith(error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE) else skip;
+//     const minimumLoanFeeRewardPool : nat = abs(minimumLoanFee - minimumLoanFeeToTreasury);
 
-    // ------------------------------------------------------------------
-    // Get current user borrow index
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Get current user borrow index
+//     // ------------------------------------------------------------------
 
-    // Get user's vault borrow index
-    var vaultBorrowIndex : nat := vault.borrowIndex;
+//     // Get user's vault borrow index
+//     var vaultBorrowIndex : nat := vault.borrowIndex;
 
-    // Get current user loan outstanding
-    const currentLoanOutstandingTotal : nat = vault.loanOutstandingTotal;
-    const initialLoanPrincipalTotal   : nat = vault.loanPrincipalTotal;
+//     // Get current user loan outstanding
+//     const currentLoanOutstandingTotal : nat = vault.loanOutstandingTotal;
+//     const initialLoanPrincipalTotal   : nat = vault.loanPrincipalTotal;
     
-    // Init new total amounts
-    var newLoanOutstandingTotal     : nat := currentLoanOutstandingTotal;
-    var newLoanPrincipalTotal       : nat := vault.loanPrincipalTotal;
-    var newLoanInterestTotal        : nat := vault.loanInterestTotal;
+//     // Init new total amounts
+//     var newLoanOutstandingTotal     : nat := currentLoanOutstandingTotal;
+//     var newLoanPrincipalTotal       : nat := vault.loanPrincipalTotal;
+//     var newLoanInterestTotal        : nat := vault.loanInterestTotal;
 
-    // ------------------------------------------------------------------
-    // Calculate fees on past loan outstanding
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Calculate fees on past loan outstanding
+//     // ------------------------------------------------------------------
 
-    // calculate interest
-    newLoanOutstandingTotal := accrueInterestToVault(
-        currentLoanOutstandingTotal,
-        vaultBorrowIndex,
-        tokenBorrowIndex
-    );
+//     // calculate interest
+//     newLoanOutstandingTotal := accrueInterestToVault(
+//         currentLoanOutstandingTotal,
+//         vaultBorrowIndex,
+//         tokenBorrowIndex
+//     );
 
-    if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
-    newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+//     if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+//     newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
 
-    // ------------------------------------------------------------------
-    // Calculate Final Borrow Amount
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Calculate Final Borrow Amount
+//     // ------------------------------------------------------------------
 
-    var finalLoanAmount : nat := initialLoanAmount;
+//     var finalLoanAmount : nat := initialLoanAmount;
 
-    // reduce finalLoanAmount by minimum loan fee
-    if minimumLoanFee > finalLoanAmount then failwith(error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
-    finalLoanAmount := abs(finalLoanAmount - minimumLoanFee);
+//     // reduce finalLoanAmount by minimum loan fee
+//     if minimumLoanFee > finalLoanAmount then failwith(error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
+//     finalLoanAmount := abs(finalLoanAmount - minimumLoanFee);
 
-    // calculate new loan outstanding
-    newLoanOutstandingTotal := newLoanOutstandingTotal + initialLoanAmount;
+//     // calculate new loan outstanding
+//     newLoanOutstandingTotal := newLoanOutstandingTotal + initialLoanAmount;
 
-    // increment new principal total
-    newLoanPrincipalTotal := newLoanPrincipalTotal + initialLoanAmount;
+//     // increment new principal total
+//     newLoanPrincipalTotal := newLoanPrincipalTotal + initialLoanAmount;
 
-    // ------------------------------------------------------------------
-    // Token Pool Calculations
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Token Pool Calculations
+//     // ------------------------------------------------------------------
 
-    // calculate required reserve amount for token in token pool
-    const requiredTokenPoolReserves = (tokenPoolTotal * fixedPointAccuracy * reserveRatio) / (10000n * fixedPointAccuracy);
+//     // calculate required reserve amount for token in token pool
+//     const requiredTokenPoolReserves = (tokenPoolTotal * fixedPointAccuracy * reserveRatio) / (10000n * fixedPointAccuracy);
 
-    // calculate new totalBorrowed 
-    const newTotalBorrowed   : nat = totalBorrowed + initialLoanAmount;
+//     // calculate new totalBorrowed 
+//     const newTotalBorrowed   : nat = totalBorrowed + initialLoanAmount;
     
-    // calculate new total remaining
-    if initialLoanAmount > totalRemaining then failwith(error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED) else skip;
-    const newTotalRemaining  : nat = abs(totalRemaining - initialLoanAmount);
+//     // calculate new total remaining
+//     if initialLoanAmount > totalRemaining then failwith(error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED) else skip;
+//     const newTotalRemaining  : nat = abs(totalRemaining - initialLoanAmount);
 
-    // check that new total remaining is greater than required token pool reserves
-    if newTotalRemaining > requiredTokenPoolReserves then skip else failwith(error_TOKEN_POOL_RESERVES_RATIO_NOT_MET);
+//     // check that new total remaining is greater than required token pool reserves
+//     if newTotalRemaining > requiredTokenPoolReserves then skip else failwith(error_TOKEN_POOL_RESERVES_RATIO_NOT_MET);
 
-    // ------------------------------------------------------------------
-    // Process Transfers (loan, fees, and rewards)
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Process Transfers (loan, fees, and rewards)
+//     // ------------------------------------------------------------------
 
-    const transferLoanToBorrowerOperation : operation = tokenPoolTransfer(
-        Tezos.get_self_address(),   // from_
-        initiator,                  // to_
-        finalLoanAmount,            // amount
-        loanTokenType               // token type
-    );
+//     const transferLoanToBorrowerOperation : operation = tokenPoolTransfer(
+//         Tezos.get_self_address(),   // from_
+//         initiator,                  // to_
+//         finalLoanAmount,            // amount
+//         loanTokenType               // token type
+//     );
 
-    const transferFeesToTreasuryOperation : operation = tokenPoolTransfer(
-        Tezos.get_self_address(),   // from_
-        treasuryAddress,            // to_
-        minimumLoanFeeToTreasury,   // amount
-        loanTokenType               // token type
-    );
+//     const transferFeesToTreasuryOperation : operation = tokenPoolTransfer(
+//         Tezos.get_self_address(),   // from_
+//         treasuryAddress,            // to_
+//         minimumLoanFeeToTreasury,   // amount
+//         loanTokenType               // token type
+//     );
 
-    const transferFeesToTokenPoolRewardOperation : operation = tokenPoolTransfer(
-        Tezos.get_self_address(),   // from_
-        tokenPoolRewardAddress,     // to_
-        minimumLoanFeeRewardPool,   // amount
-        loanTokenType               // token type
-    );
+//     const transferFeesToTokenPoolRewardOperation : operation = tokenPoolTransfer(
+//         Tezos.get_self_address(),   // from_
+//         tokenPoolRewardAddress,     // to_
+//         minimumLoanFeeRewardPool,   // amount
+//         loanTokenType               // token type
+//     );
 
-    operations := list[
-        transferLoanToBorrowerOperation; 
-        transferFeesToTreasuryOperation;
-        transferFeesToTokenPoolRewardOperation;
-    ];
+//     operations := list[
+//         transferLoanToBorrowerOperation; 
+//         transferFeesToTreasuryOperation;
+//         transferFeesToTokenPoolRewardOperation;
+//     ];
 
-    // ------------------------------------------------------------------
-    // Update Storage
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Update Storage
+//     // ------------------------------------------------------------------
     
-    // update token storage
-    loanTokenRecord.tokenPoolTotal         := newTotalBorrowed + newTotalRemaining;
-    loanTokenRecord.totalBorrowed          := newTotalBorrowed;
-    loanTokenRecord.totalRemaining         := newTotalRemaining;
+//     // update token storage
+//     loanTokenRecord.tokenPoolTotal         := newTotalBorrowed + newTotalRemaining;
+//     loanTokenRecord.totalBorrowed          := newTotalBorrowed;
+//     loanTokenRecord.totalRemaining         := newTotalRemaining;
 
-    // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-    loanTokenRecord := loanTokenRecordUpdated.0;
-    s := loanTokenRecordUpdated.1;
+//     // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+//     const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+//     loanTokenRecord := loanTokenRecordUpdated.0;
+//     s := loanTokenRecordUpdated.1;
 
-    s.loanTokenLedger[vaultLoanTokenName]  := loanTokenRecord;
+//     s.loanTokenLedger[vaultLoanTokenName]  := loanTokenRecord;
 
-    // update vault storage
-    vault.loanOutstandingTotal             := newLoanOutstandingTotal;
-    vault.loanPrincipalTotal               := newLoanPrincipalTotal;
-    vault.loanInterestTotal                := newLoanInterestTotal;
-    vault.borrowIndex                      := tokenBorrowIndex;
-    vault.lastUpdatedBlockLevel            := Tezos.get_level();
-    vault.lastUpdatedTimestamp             := Tezos.get_now();
+//     // update vault storage
+//     vault.loanOutstandingTotal             := newLoanOutstandingTotal;
+//     vault.loanPrincipalTotal               := newLoanPrincipalTotal;
+//     vault.loanInterestTotal                := newLoanInterestTotal;
+//     vault.borrowIndex                      := tokenBorrowIndex;
+//     vault.lastUpdatedBlockLevel            := Tezos.get_level();
+//     vault.lastUpdatedTimestamp             := Tezos.get_now();
 
-    // update vault
-    s.vaults[vaultHandle] := vault;
+//     // update vault
+//     s.vaults[vaultHandle] := vault;
 
-    // check if vault is undercollaterized again after loan; if it is not, then allow user to borrow
-    if isUnderCollaterized(vault, s) 
-    then failwith(error_VAULT_IS_UNDERCOLLATERIZED)
-    else skip;
+//     // check if vault is undercollaterized again after loan; if it is not, then allow user to borrow
+//     if isUnderCollaterized(vault, s) 
+//     then failwith(error_VAULT_IS_UNDERCOLLATERIZED)
+//     else skip;
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
 (* repay lambda *)
-function repay(const repayParams : repayActionType; var s : lendingControllerStorageType) : return is
-block {
+// function repay(const repayParams : repayActionType; var s : lendingControllerStorageType) : return is
+// block {
     
-    var operations : list(operation) := nil;
-    checkRepayIsNotPaused(s);    // check that %repay entrypoint is not paused (e.g. if glass broken)
+//     var operations : list(operation) := nil;
+//     checkRepayIsNotPaused(s);    // check that %repay entrypoint is not paused (e.g. if glass broken)
 
-    // Init variables for convenience
-    const vaultId                   : nat                     = repayParams.vaultId; 
-    const initialRepaymentAmount    : nat                     = repayParams.quantity;
-    const initiator                 : initiatorAddressType    = Tezos.get_sender();
-    var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
+//     // Init variables for convenience
+//     const vaultId                   : nat                     = repayParams.vaultId; 
+//     const initialRepaymentAmount    : nat                     = repayParams.quantity;
+//     const initiator                 : initiatorAddressType    = Tezos.get_sender();
+//     var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
 
-    // Get Treasury Address and Token Pool Reward Address  from the General Contracts map on the Governance Contract
-    const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
-    const tokenPoolRewardAddress : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+//     // Get Treasury Address and Token Pool Reward Address  from the General Contracts map on the Governance Contract
+//     const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+//     const tokenPoolRewardAddress : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = initiator;
-    ];
+//     // Make vault handle
+//     const vaultHandle : vaultHandleType = record [
+//         id     = vaultId;
+//         owner  = initiator;
+//     ];
 
-    // Get vault if exists and vault loan token name
-    var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-    const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
+//     // Get vault if exists and vault loan token name
+//     var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+//     const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-    // Get loan token type
-    var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    ];
+//     // Get loan token type
+//     var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
+//             Some(_record) -> _record
+//         |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+//     ];
 
-    // Get loan token parameters
-    const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
-    const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
-    const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
-    const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
-    const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
+//     // Get loan token parameters
+//     const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
+//     const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
+//     const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
+//     const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
+//     const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
 
-    // ------------------------------------------------------------------
-    // Get current user borrow index
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Get current user borrow index
+//     // ------------------------------------------------------------------
 
-    // Get user's vault borrow index
-    var vaultBorrowIndex : nat := vault.borrowIndex;
+//     // Get user's vault borrow index
+//     var vaultBorrowIndex : nat := vault.borrowIndex;
 
-    // Get current user loan outstanding
-    const currentLoanOutstandingTotal   : nat = vault.loanOutstandingTotal;
-    const initialLoanPrincipalTotal     : nat = vault.loanPrincipalTotal;
+//     // Get current user loan outstanding
+//     const currentLoanOutstandingTotal   : nat = vault.loanOutstandingTotal;
+//     const initialLoanPrincipalTotal     : nat = vault.loanPrincipalTotal;
     
-    // Init new total amounts
-    var newLoanOutstandingTotal     : nat := currentLoanOutstandingTotal;
-    var newLoanPrincipalTotal       : nat := vault.loanPrincipalTotal;
-    var newLoanInterestTotal        : nat := vault.loanInterestTotal;
+//     // Init new total amounts
+//     var newLoanOutstandingTotal     : nat := currentLoanOutstandingTotal;
+//     var newLoanPrincipalTotal       : nat := vault.loanPrincipalTotal;
+//     var newLoanInterestTotal        : nat := vault.loanInterestTotal;
     
-    // ------------------------------------------------------------------
-    // Calculate fees on past loan outstanding
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Calculate fees on past loan outstanding
+//     // ------------------------------------------------------------------
 
-    newLoanOutstandingTotal := accrueInterestToVault(
-        currentLoanOutstandingTotal,
-        vaultBorrowIndex,
-        tokenBorrowIndex
-    );
+//     newLoanOutstandingTotal := accrueInterestToVault(
+//         currentLoanOutstandingTotal,
+//         vaultBorrowIndex,
+//         tokenBorrowIndex
+//     );
 
-    if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
-    newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+//     if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+//     newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
 
 
-    // ------------------------------------------------------------------
-    // Calculate Principal / Interest Repayments
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Calculate Principal / Interest Repayments
+//     // ------------------------------------------------------------------
 
-    var totalInterestPaid       : nat := 0n;
-    var totalPrincipalRepaid    : nat := 0n;
+//     var totalInterestPaid       : nat := 0n;
+//     var totalPrincipalRepaid    : nat := 0n;
 
-    if finalRepaymentAmount > newLoanInterestTotal then {
+//     if finalRepaymentAmount > newLoanInterestTotal then {
         
-        // final repayment amount covers interest and principal
+//         // final repayment amount covers interest and principal
 
-        // calculate remainder amount
-        const principalReductionAmount : nat = abs(finalRepaymentAmount - newLoanInterestTotal);
+//         // calculate remainder amount
+//         const principalReductionAmount : nat = abs(finalRepaymentAmount - newLoanInterestTotal);
 
-        // set total interest paid and reset loan interest to zero
-        totalInterestPaid := newLoanInterestTotal;
-        newLoanInterestTotal := 0n;
+//         // set total interest paid and reset loan interest to zero
+//         totalInterestPaid := newLoanInterestTotal;
+//         newLoanInterestTotal := 0n;
 
-        // calculate final loan principal
-        if principalReductionAmount > initialLoanPrincipalTotal then failwith(error_PRINCIPAL_REDUCTION_MISCALCULATION) else skip;
-        newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
+//         // calculate final loan principal
+//         if principalReductionAmount > initialLoanPrincipalTotal then failwith(error_PRINCIPAL_REDUCTION_MISCALCULATION) else skip;
+//         newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
 
-        // set total principal repaid amount
-        totalPrincipalRepaid := principalReductionAmount;
+//         // set total principal repaid amount
+//         totalPrincipalRepaid := principalReductionAmount;
 
-        // calculate final loan outstanding total
-        if finalRepaymentAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
-        newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
+//         // calculate final loan outstanding total
+//         if finalRepaymentAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
+//         newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
 
-    } else {
+//     } else {
 
-        // final repayment amount covers interest only
+//         // final repayment amount covers interest only
 
-        // set total interest paid
-        totalInterestPaid := finalRepaymentAmount;
+//         // set total interest paid
+//         totalInterestPaid := finalRepaymentAmount;
 
-        // calculate final loan interest
-        if finalRepaymentAmount > newLoanInterestTotal then failwith(error_LOAN_INTEREST_MISCALCULATION) else skip;
-        newLoanInterestTotal := abs(newLoanInterestTotal - finalRepaymentAmount);
+//         // calculate final loan interest
+//         if finalRepaymentAmount > newLoanInterestTotal then failwith(error_LOAN_INTEREST_MISCALCULATION) else skip;
+//         newLoanInterestTotal := abs(newLoanInterestTotal - finalRepaymentAmount);
 
-        // calculate final loan outstanding total
-        if finalRepaymentAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
-        newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
+//         // calculate final loan outstanding total
+//         if finalRepaymentAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
+//         newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
 
-    };
+//     };
 
-    // Calculate share of interest that goes to the Treasury 
-    const interestTreasuryShare : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+//     // Calculate share of interest that goes to the Treasury 
+//     const interestTreasuryShare : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-    // Calculate share of interest that goes to the Reward Pool 
-    if interestTreasuryShare > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
-    const interestRewardPool : nat = abs(totalInterestPaid - interestTreasuryShare);
+//     // Calculate share of interest that goes to the Reward Pool 
+//     if interestTreasuryShare > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
+//     const interestRewardPool : nat = abs(totalInterestPaid - interestTreasuryShare);
 
-    // ------------------------------------------------------------------
-    // Process Interest Repayment - Fee Transfers
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Process Interest Repayment - Fee Transfers
+//     // ------------------------------------------------------------------
 
-    // Send interest payment to treasury
-    const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-        Tezos.get_self_address(),    // from_
-        treasuryAddress,             // to_
-        interestTreasuryShare,       // amount
-        loanTokenType                // token type
-    );
+//     // Send interest payment to treasury
+//     const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
+//         Tezos.get_self_address(),    // from_
+//         treasuryAddress,             // to_
+//         interestTreasuryShare,       // amount
+//         loanTokenType                // token type
+//     );
 
-    // Send interest as rewards to Token Pool Rewards Contract
-    const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
-        Tezos.get_self_address(),    // from_   
-        tokenPoolRewardAddress,      // to_
-        interestRewardPool,          // amount
-        loanTokenType                // token type
-    );
+//     // Send interest as rewards to Token Pool Rewards Contract
+//     const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
+//         Tezos.get_self_address(),    // from_   
+//         tokenPoolRewardAddress,      // to_
+//         interestRewardPool,          // amount
+//         loanTokenType                // token type
+//     );
 
-    operations := list[
-        sendInterestToTreasuryOperation;
-        sendInterestRewardToTokenPoolRewardContractOperation;
-    ];
+//     operations := list[
+//         sendInterestToTreasuryOperation;
+//         sendInterestRewardToTokenPoolRewardContractOperation;
+//     ];
 
-    // ------------------------------------------------------------------
-    // Process Principal Repayment
-    // ------------------------------------------------------------------            
+//     // ------------------------------------------------------------------
+//     // Process Principal Repayment
+//     // ------------------------------------------------------------------            
 
-    var newTokenPoolTotal   : nat  := tokenPoolTotal;
-    var newTotalBorrowed    : nat  := totalBorrowed;
-    var newTotalRemaining   : nat  := totalRemaining;
+//     var newTokenPoolTotal   : nat  := tokenPoolTotal;
+//     var newTotalBorrowed    : nat  := totalBorrowed;
+//     var newTotalRemaining   : nat  := totalRemaining;
     
-    // process repayment of principal if total principal repaid quantity is greater than 0
-    if totalPrincipalRepaid > 0n then {
+//     // process repayment of principal if total principal repaid quantity is greater than 0
+//     if totalPrincipalRepaid > 0n then {
 
-        // calculate new totalBorrowed and totalRemaining
-        if totalPrincipalRepaid > totalBorrowed then failwith(error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT) else skip;
-        newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
-        newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
-        newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
+//         // calculate new totalBorrowed and totalRemaining
+//         if totalPrincipalRepaid > totalBorrowed then failwith(error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT) else skip;
+//         newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
+//         newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
+//         newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
 
-        // transfer prinicpal repayment amount from repayer to token pool
-        const transferRepaymentAmountToTokenPoolOperation : operation = tokenPoolTransfer(
-            initiator,                  // from_
-            Tezos.get_self_address(),   // to_
-            totalPrincipalRepaid,       // amount
-            loanTokenType               // token type
-        );
+//         // transfer prinicpal repayment amount from repayer to token pool
+//         const transferRepaymentAmountToTokenPoolOperation : operation = tokenPoolTransfer(
+//             initiator,                  // from_
+//             Tezos.get_self_address(),   // to_
+//             totalPrincipalRepaid,       // amount
+//             loanTokenType               // token type
+//         );
 
-        operations := transferRepaymentAmountToTokenPoolOperation # operations;
+//         operations := transferRepaymentAmountToTokenPoolOperation # operations;
 
-    } else skip;
+//     } else skip;
 
-    // ------------------------------------------------------------------
-    // Update Storage
-    // ------------------------------------------------------------------
+//     // ------------------------------------------------------------------
+//     // Update Storage
+//     // ------------------------------------------------------------------
 
-    // update token storage
-    loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
-    loanTokenRecord.totalBorrowed           := newTotalBorrowed;
-    loanTokenRecord.totalRemaining          := newTotalRemaining;
+//     // update token storage
+//     loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
+//     loanTokenRecord.totalBorrowed           := newTotalBorrowed;
+//     loanTokenRecord.totalRemaining          := newTotalRemaining;
 
-    // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-    loanTokenRecord := loanTokenRecordUpdated.0;
-    s := loanTokenRecordUpdated.1;
+//     // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+//     const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+//     loanTokenRecord := loanTokenRecordUpdated.0;
+//     s := loanTokenRecordUpdated.1;
 
-    s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
+//     s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
 
-    // update vault storage
-    vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
-    vault.loanPrincipalTotal        := newLoanPrincipalTotal;
-    vault.loanInterestTotal         := newLoanInterestTotal;
-    vault.borrowIndex               := tokenBorrowIndex;
-    vault.lastUpdatedBlockLevel     := Tezos.get_level();
-    vault.lastUpdatedTimestamp      := Tezos.get_now();
+//     // update vault storage
+//     vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
+//     vault.loanPrincipalTotal        := newLoanPrincipalTotal;
+//     vault.loanInterestTotal         := newLoanInterestTotal;
+//     vault.borrowIndex               := tokenBorrowIndex;
+//     vault.lastUpdatedBlockLevel     := Tezos.get_level();
+//     vault.lastUpdatedTimestamp      := Tezos.get_now();
 
-    // update vault
-    s.vaults[vaultHandle] := vault;
+//     // update vault
+//     s.vaults[vaultHandle] := vault;
 
-} with (operations, s)
+// } with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Vault Entrypoint Helper Functions End
@@ -2830,21 +2829,21 @@ block {
 // ------------------------------------------------------------------------------
 
 (* callVaultEntrypoint entrypoint *)
-function callVaultEntrypoint(const callVaultEntrypointParams : callVaultEntrypointActionType ; var s : lendingControllerStorageType) : return is 
-block {
+// function callVaultEntrypoint(const callVaultEntrypointParams : callVaultEntrypointActionType ; var s : lendingControllerStorageType) : return is 
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCallVaultEntrypoint"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCallVaultEntrypoint"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCallVaultEntrypoint(callVaultEntrypointParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCallVaultEntrypoint(callVaultEntrypointParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 
 
@@ -2868,40 +2867,40 @@ block {
 
 
 (* createVault entrypoint *)
-// function createVault(const createVaultParams : createVaultActionType ; var s : lendingControllerStorageType) : return is 
-// block {
+function createVault(const createVaultParams : createVaultActionType ; var s : lendingControllerStorageType) : return is 
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateVault"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateVault"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCreateVault(createVaultParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCreateVault(createVaultParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
 
 
 
 (* closeVault entrypoint *)
-// function closeVault(const closeVaultParams : closeVaultActionType ; var s : lendingControllerStorageType) : return is 
-// block {
+function closeVault(const closeVaultParams : closeVaultActionType ; var s : lendingControllerStorageType) : return is 
+block {
     
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCloseVault"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCloseVault"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCloseVault(closeVaultParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCloseVault(closeVaultParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
 
 
 
@@ -2945,78 +2944,78 @@ block {
 
 
 (* markForLiquidation entrypoint *)
-// function markForLiquidation(const markForLiquidationParams : markForLiquidationActionType; var s : lendingControllerStorageType) : return is 
-// block {
+function markForLiquidation(const markForLiquidationParams : markForLiquidationActionType; var s : lendingControllerStorageType) : return is 
+block {
     
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMarkForLiquidation"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMarkForLiquidation"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaMarkForLiquidation(markForLiquidationParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaMarkForLiquidation(markForLiquidationParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
 
 
 
 (* liquidateVault entrypoint *)
-// function liquidateVault(const liquidateVaultParams : liquidateVaultActionType; var s : lendingControllerStorageType) : return is 
-// block {
+function liquidateVault(const liquidateVaultParams : liquidateVaultActionType; var s : lendingControllerStorageType) : return is 
+block {
     
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateVault"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateVault"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaLiquidateVault(liquidateVaultParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaLiquidateVault(liquidateVaultParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
 
 
 
 (* borrow entrypoint *)
-// function borrow(const borrowParams : borrowActionType; var s : lendingControllerStorageType) : return is 
-// block {
+function borrow(const borrowParams : borrowActionType; var s : lendingControllerStorageType) : return is 
+block {
     
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaBorrow"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaBorrow"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaBorrow(borrowParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaBorrow(borrowParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
 
-// } with response
+} with response
 
 
 
-// (* repay entrypoint *)
-// function repay(const repayParams : repayActionType; var s : lendingControllerStorageType) : return is 
-// block {
+(* repay entrypoint *)
+function repay(const repayParams : repayActionType; var s : lendingControllerStorageType) : return is 
+block {
     
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRepay"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRepay"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRepay(repayParams);
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRepay(repayParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
 
-// } with response
+} with response
 
 // ------------------------------------------------------------------------------
 // Vault Entrypoints End
@@ -3029,60 +3028,60 @@ block {
 // ------------------------------------------------------------------------------
 
 (* vaultDepositStakedMvk entrypoint *)
-function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDepositStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDepositStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 
 
-(* vaultWithdrawStakedMvk entrypoint *)
-function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// (* vaultWithdrawStakedMvk entrypoint *)
+// function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 
 
-(* vaultLiquidateStakedMvk entrypoint *)
-function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
-block {
+// (* vaultLiquidateStakedMvk entrypoint *)
+// function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
+// block {
 
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaLiquidateStakedMvk"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-} with response
+// } with response
 
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Entrypoints End
@@ -3190,21 +3189,21 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   RemoveLiquidity(parameters)                   -> removeLiquidity(parameters, s)
         
             // Vault Entrypoints
-        |   CallVaultEntrypoint (parameters)              -> callVaultEntrypoint (parameters, s)
+        // |   CallVaultEntrypoint (parameters)              -> callVaultEntrypoint (parameters, s)
         |   UpdateCollateralToken(parameters)             -> updateCollateralToken(parameters, s)
-        // |   CreateVault(parameters)                       -> createVault(parameters, s)
-        // |   CloseVault(parameters)                        -> closeVault(parameters, s)
+        |   CreateVault(parameters)                       -> createVault(parameters, s)
+        |   CloseVault(parameters)                        -> closeVault(parameters, s)
         |   RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
         |   RegisterWithdrawal(parameters)                -> registerWithdrawal(parameters, s)
-        // |   MarkForLiquidation(parameters)                -> markForLiquidation(parameters, s)
-        // |   LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
-        // |   Borrow(parameters)                            -> borrow(parameters, s)
-        // |   Repay(parameters)                             -> repay(parameters, s)
+        |   MarkForLiquidation(parameters)                -> markForLiquidation(parameters, s)
+        |   LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
+        |   Borrow(parameters)                            -> borrow(parameters, s)
+        |   Repay(parameters)                             -> repay(parameters, s)
 
             // Vault Staked MVK Entrypoints   
-        |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
-        |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
-        |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
+        // |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
+        // |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
+        // |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
 
             // Rewards Entrypoints
         |   ClaimRewards(parameters)                      -> claimRewards(parameters, s)

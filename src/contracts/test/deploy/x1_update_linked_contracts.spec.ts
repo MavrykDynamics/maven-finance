@@ -34,6 +34,8 @@ import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress
 import farmAddress from '../../deployments/farmAddress.json'
 import farmFA2Address from '../../deployments/farmFA2Address.json'
 import tokenSaleAddress from '../../deployments/tokenSaleAddress.json'
+import lendingControllerAddress from '../../deployments/lendingControllerAddress.json'
+import tokenPoolRewardAddress from '../../deployments/tokenPoolRewardAddress.json'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -73,6 +75,8 @@ describe('Linked contracts updates for Tests', async () => {
       const farmFA2Instance: any               = await utils.tezos.contract.at(farmFA2Address.address);
       const aggregatorInstance: any            = await utils.tezos.contract.at(aggregatorAddress.address);
       const aggregatorFactoryInstance: any     = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+      const lendingControllerInstance: any     = await utils.tezos.contract.at(lendingControllerAddress.address);
+      const tokenPoolRewardInstance: any       = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
       
       //----------------------------
       // Set remaining contract addresses - post-deployment
@@ -217,6 +221,7 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('breakGlass', breakGlassAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('council', councilAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vesting', vestingAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingTreasury', treasuryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('taxTreasury', treasuryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('farmTreasury', treasuryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('paymentTreasury', treasuryAddress.address))
@@ -227,6 +232,8 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('aggregatorFactory', aggregatorFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite', governanceSatelliteAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial', governanceFinancialAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolRewardAddress.address))
   
       // whitelist contracts
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('farmFactory', farmFactoryAddress.address))
