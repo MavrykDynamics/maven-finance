@@ -75,12 +75,9 @@ export const BreakGlassActions: FC = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
-
   const handleClickPropagateBreakGlass = () => {
   
   }
-  
-
   
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -94,8 +91,6 @@ export const BreakGlassActions: FC = () => {
   }
 
   const handleSelect = (item: DropdownItemType) => {}
-
-
 
   return (
     <Page>
