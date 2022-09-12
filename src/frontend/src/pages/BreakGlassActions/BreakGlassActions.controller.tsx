@@ -1,4 +1,6 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useMemo } from "react";
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
@@ -9,16 +11,15 @@ import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreak
 
 // styles
 import { Page } from 'styles'
-import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions } from "./BreakGlassActions.style";
-import { InputStatusType } from "app/App.components/Input/Input.constants";
+import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions } from "./BreakGlassActions.style"
+import { InputStatusType } from "app/App.components/Input/Input.constants"
+
+// helpers
+import { getShortTzAddress } from '../../utils/tzAdress'
 
 // types
-import { Input } from "app/App.components/Input/Input.controller";
-
-const itemsForDropDown = [
-  { text: 'Remove Council Member', value: '' },
-  { text: 'Test Value', value: 'testValue' },
-]
+import { Input } from "app/App.components/Input/Input.controller"
+import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 
 // TODO: change mock to valid data
 const mock = [
@@ -60,6 +61,26 @@ const mock = [
 ]
 
 export const BreakGlassActions: FC = () => {
+  const dispatch = useDispatch()
+  const { councilStorage } = useSelector((state: State) => state.council)
+  const { councilMembers } = councilStorage
+
+  const itemsForDropDown = useMemo(
+    () =>
+      councilMembers?.length
+        ? [
+            { text: 'Remove Council Member', value: '' },
+            ...councilMembers.map((item: CouncilMember) => {
+              return {
+                text: `${item.name} - ${getShortTzAddress(item.user_id)}`,
+                value: item.user_id,
+              }
+            }),
+          ]
+        : [{ text: 'Remove Council Member', value: '' }],
+    [councilMembers],
+  )
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
