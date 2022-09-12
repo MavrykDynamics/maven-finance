@@ -41,7 +41,7 @@ class CouncilWhitelistContract(LinkedContract, Model):
 class CouncilCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='council_council_members')
-    council                                 = fields.ForeignKeyField('models.Council', related_name='council_council_members')
+    council                                 = fields.ForeignKeyField('models.Council', related_name='members')
     name                                    = fields.TextField(default="")
     website                                 = fields.TextField(default="")
     image                                   = fields.TextField(default="")
@@ -51,7 +51,7 @@ class CouncilCouncilMember(Model):
 
 class CouncilActionRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    council                                 = fields.ForeignKeyField('models.Council', related_name='council_action_records')
+    council                                 = fields.ForeignKeyField('models.Council', related_name='action_records')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator')
     start_datetime                          = fields.DatetimeField(null=True)
     execution_datetime                      = fields.DatetimeField(null=True)
@@ -75,7 +75,7 @@ class CouncilActionRecordSigner(Model):
 
 class CouncilActionRecordParameter(Model):
     id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilActionRecord', related_name='council_action_record_parameters')
+    council_action                          = fields.ForeignKeyField('models.CouncilActionRecord', related_name='parameters')
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 
