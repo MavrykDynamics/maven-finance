@@ -285,7 +285,7 @@ function getObservationsPriceUtils(const price : nat; const myMap : pivotedObser
 function getOraclePublicKey(const addressKey: address; const oracleAddresses: oracleAddressesType) : key is
   case Map.find_opt(addressKey, oracleAddresses) of [
       Some (v) -> (v.oraclePublicKey)
-    | None -> failwith("fail to get oracle public key")
+    | None -> failwith(error_ACTION_FAILED_AS_ORACLE_IS_NOT_REGISTERED)
   ]
 
 // helper function to check if the signature is correct
@@ -301,7 +301,7 @@ function verifyAllResponsesSignature(const oracleAddress: address; const oracleS
       getOraclePublicKey(oracleAddress, store.oracleAddresses),
       oracleSignatures,
       Bytes.pack(oracleObservations)))
-      then failwith("wrong signature on observation signatures")
+      then failwith(error_WRONG_SIGNATURE_IN_OBSERVATIONS_MAP)
   else unit
 
 // helper function to verify signatures and oracleObservations maps sizes
@@ -309,10 +309,10 @@ function verifyMapsSizes(const leaderReponse : updateDataType; const s: aggregat
   const f: int = (Map.size(s.oracleAddresses) - 1) / 3n;
 
   if (int(Map.size(leaderReponse.signatures)) < f)
-      then failwith("map signatures should have at least f size")
+      then failwith(error_WRONG_SIGNATURES_MAP_SIZE)
   else skip;
   if (int(Map.size(leaderReponse.oracleObservations)) <= (2 * f))
-      then failwith("map oracleObservations should have at least 2f + 1 size")
+      then failwith(error_WRONG_OBSERVATIONS_MAP_SIZE)
   else skip
 } with unit;
 
@@ -322,18 +322,18 @@ function verifyInfosFromObservations(const oracleObservations: map (address, ora
   var round: nat := 0n;
 
   for key -> value in map oracleObservations block {
-      if (not (Tezos.get_self_address() = value.aggregatorAddress)) then failwith("wrong aggregator address in the observations");
-      if (not isOracleAddress(key, store.oracleAddresses))   then failwith ("observation made by a wrong oracle");
+      if (not (Tezos.get_self_address() = value.aggregatorAddress)) then failwith(error_WRONG_AGGREGATOR_ADDRESS_IN_OBSERVATIONS_MAP);
+      if (not isOracleAddress(key, store.oracleAddresses))   then failwith (error_OBSERVATION_MADE_BY_WRONG_ORACLE);
       if (epoch = 0n) then epoch:= value.epoch;
-      if (not (epoch = value.epoch)) then failwith("different epoch in the observations");
+      if (not (epoch = value.epoch)) then failwith(error_DIFFERENT_EPOCH_IN_OBSERVATIONS_MAP);
 
       if (round = 0n) then round:= value.round;
-      if (not (round = value.round)) then failwith("different round in the observations");
+      if (not (round = value.round)) then failwith(error_DIFFERENT_ROUND_IN_OBSERVATIONS_MAP);
   };
 
-  if (epoch < store.lastCompletedPrice.epoch) then failwith("epoch should be greater than previous result")
+  if (epoch < store.lastCompletedPrice.epoch) then failwith(error_EPOCH_SOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
   else if (epoch = store.lastCompletedPrice.epoch) then {
-    if (round <= store.lastCompletedPrice.round) then failwith("round should be greater than previous result")
+    if (round <= store.lastCompletedPrice.round) then failwith(error_ROUND_SOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
     else skip;
   }
   else skip;
