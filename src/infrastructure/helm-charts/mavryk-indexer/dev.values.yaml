@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.11.1
+    tag: v0.12.0
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -57,10 +57,10 @@ dipdup:
         address: KT1Kb6ddSqcuUUc5vhbCEBWTCYnYVvWQz6B8
         typename: governance_satellite
       aggregator:
-        address: KT1UyiRss5ypVwrttUyU9JfvtLwdRZPnZnY5
+        address: KT1NdZrQhWh8xMhnsVvAqiFTvTXDQR9RqTEH
         typename: aggregator
       aggregator_factory:
-        address: KT1Renbm7aVR6JAvEWvkxwsAuFkUQEbb3SqN
+        address: KT1HYM7uGvfQ6B6v5QX8FXYLupAVebeJjwZs
         typename: aggregator_factory
       treasury:
         address: KT1RahUBbjVuhS8BsLjcMRMmfijZMABmf5Ws
@@ -205,10 +205,10 @@ dipdup:
             pattern:
               - destination: <aggregator_contract>
                 entrypoint: setGovernance
-          - callback: on_aggregator_set_maintainer
+          - callback: on_aggregator_set_name
             pattern:
               - destination: <aggregator_contract>
-                entrypoint: setMaintainer
+                entrypoint: setName
           - callback: on_aggregator_update_config
             pattern:
               - destination: <aggregator_contract>
@@ -241,22 +241,10 @@ dipdup:
             pattern:
               - destination: <aggregator_contract>
                 entrypoint: togglePauseEntrypoint
-          - callback: on_aggregator_request_rate_update
+          - callback: on_aggregator_update_data
             pattern:
               - destination: <aggregator_contract>
-                entrypoint: requestRateUpdate
-          - callback: on_aggregator_request_rate_update_deviation
-            pattern:
-              - destination: <aggregator_contract>
-                entrypoint: requestRateUpdateDeviation
-          - callback: on_aggregator_set_observation_commit
-            pattern:
-              - destination: <aggregator_contract>
-                entrypoint: setObservationCommit
-          - callback: on_aggregator_set_observation_reveal
-            pattern:
-              - destination: <aggregator_contract>
-                entrypoint: setObservationReveal
+                entrypoint: updateData
           - callback: on_aggregator_withdraw_reward_xtz
             pattern:
               - destination: <aggregator_contract>
@@ -265,6 +253,10 @@ dipdup:
             pattern:
               - destination: <aggregator_contract>
                 entrypoint: withdrawRewardStakedMvk
+          - callback: on_aggregator_set_lambda
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setLambda
       # # Template for Vault
       # vault:
       #   kind: operation
@@ -1277,10 +1269,10 @@ dipdup:
             pattern:
               - destination: aggregator
                 entrypoint: setGovernance
-          - callback: on_aggregator_set_maintainer
+          - callback: on_aggregator_set_name
             pattern:
               - destination: aggregator
-                entrypoint: setMaintainer
+                entrypoint: setName
           - callback: on_aggregator_update_config
             pattern:
               - destination: aggregator
@@ -1313,22 +1305,10 @@ dipdup:
             pattern:
               - destination: aggregator
                 entrypoint: togglePauseEntrypoint
-          - callback: on_aggregator_request_rate_update
+          - callback: on_aggregator_update_data
             pattern:
               - destination: aggregator
-                entrypoint: requestRateUpdate
-          - callback: on_aggregator_request_rate_update_deviation
-            pattern:
-              - destination: aggregator
-                entrypoint: requestRateUpdateDeviation
-          - callback: on_aggregator_set_observation_commit
-            pattern:
-              - destination: aggregator
-                entrypoint: setObservationCommit
-          - callback: on_aggregator_set_observation_reveal
-            pattern:
-              - destination: aggregator
-                entrypoint: setObservationReveal
+                entrypoint: updateData
           - callback: on_aggregator_withdraw_reward_xtz
             pattern:
               - destination: aggregator
@@ -1363,6 +1343,10 @@ dipdup:
             pattern:
               - destination: aggregator_factory
                 entrypoint: setGovernance
+          - callback: on_aggregator_factory_update_config
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: updateConfig
           - callback: on_aggregator_factory_update_whitelist_contracts
             pattern:
               - destination: aggregator_factory

@@ -12,38 +12,17 @@ class TargetEntrypointItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    requestRateUpdate: bool
+    updateData: bool
 
 
 class TargetEntrypointItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    requestRateUpdateDeviation: bool
-
-
-class TargetEntrypointItem2(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    setObservationCommit: bool
-
-
-class TargetEntrypointItem3(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    setObservationReveal: bool
-
-
-class TargetEntrypointItem4(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     withdrawRewardStakedMvk: bool
 
 
-class TargetEntrypointItem5(BaseModel):
+class TargetEntrypointItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -55,11 +34,6 @@ class TogglePauseEntrypointParameter(BaseModel):
         extra = Extra.forbid
 
     targetEntrypoint: Union[
-        TargetEntrypointItem,
-        TargetEntrypointItem1,
-        TargetEntrypointItem2,
-        TargetEntrypointItem3,
-        TargetEntrypointItem4,
-        TargetEntrypointItem5,
+        TargetEntrypointItem, TargetEntrypointItem1, TargetEntrypointItem2
     ]
     empty: Dict[str, Any]

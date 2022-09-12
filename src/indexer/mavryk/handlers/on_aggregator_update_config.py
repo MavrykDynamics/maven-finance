@@ -1,5 +1,5 @@
 
-from mavryk.types.aggregator.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configDecimals, UpdateConfigActionItem1 as configDevTriggerBanDuration, UpdateConfigActionItem2 as configDeviationRewardAmountXtz, UpdateConfigActionItem3 as configDeviationRewardStakedMvk, UpdateConfigActionItem4 as configNumberBlocksDelay, UpdateConfigActionItem5 as configPerThousandDevTrigger, UpdateConfigActionItem6 as configPercentOracleThreshold, UpdateConfigActionItem7 as configRequestRateDevDepositFee, UpdateConfigActionItem8 as configRewardAmountStakedMvk, UpdateConfigActionItem9 as configRewardAmountXtz 
+from mavryk.types.aggregator.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configDecimals, UpdateConfigActionItem1 as configDevTriggerBanDuration, UpdateConfigActionItem2 as configDeviationRewardAmountXtz, UpdateConfigActionItem3 as configDeviationRewardStakedMvk, UpdateConfigActionItem4 as configHeartBeatSeconds, UpdateConfigActionItem5 as configPerThousandDevTrigger, UpdateConfigActionItem6 as configPercentOracleThreshold, UpdateConfigActionItem7 as configRequestRateDevDepositFee, UpdateConfigActionItem8 as configRewardAmountStakedMvk, UpdateConfigActionItem9 as configRewardAmountXtz 
 from mavryk.types.aggregator.storage import AggregatorStorage
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -29,8 +29,8 @@ async def on_aggregator_update_config(
         aggregator.deviation_reward_amount_xtz          = updated_value
     elif updated_config_action == configDeviationRewardStakedMvk:
         aggregator.deviation_reward_amount_smvk         = updated_value
-    elif updated_config_action == configNumberBlocksDelay:
-        aggregator.number_blocks_delay                  = updated_value
+    elif updated_config_action == configHeartBeatSeconds:
+        aggregator.heart_beat_seconds                   = updated_value
     elif updated_config_action == configPerThousandDevTrigger:
         aggregator.per_thousand_deviation_trigger       = updated_value
     elif updated_config_action == configPercentOracleThreshold:

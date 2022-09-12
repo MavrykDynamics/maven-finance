@@ -21,9 +21,10 @@ async def on_aggregator_withdraw_reward_staked_mvk(
 
     aggregator                  = await models.Aggregator.get(address   = aggregator_address)
 
-    oracle_reward_smvk, _       = await models.AggregatorOracleRewardSMVK.get_or_create(
+    oracle_reward_smvk, _       = await models.AggregatorOracleReward.get_or_create(
         aggregator  = aggregator,
-        oracle      = oracle
+        oracle      = oracle,
+        type        = models.RewardType.SMVK
     )
     oracle_reward_smvk.smvk     = oracle_reward_smvk_storage
     await oracle_reward_smvk.save()

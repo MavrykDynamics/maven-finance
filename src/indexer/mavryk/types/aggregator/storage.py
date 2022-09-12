@@ -13,10 +13,11 @@ class Config(BaseModel):
         extra = Extra.forbid
 
     decimals: str
-    numberBlocksDelay: str
+    alphaPercentPerThousand: str
     deviationTriggerBanDuration: str
     perThousandDeviationTrigger: str
     percentOracleThreshold: str
+    heartBeatSeconds: str
     requestRateDeviationDepositFee: str
     deviationRewardStakedMvk: str
     deviationRewardAmountXtz: str
@@ -28,27 +29,25 @@ class BreakGlassConfig(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    requestRateUpdateIsPaused: bool
-    requestRateUpdateDeviationIsPaused: bool
-    setObservationCommitIsPaused: bool
-    setObservationRevealIsPaused: bool
+    updateDataIsPaused: bool
     withdrawRewardXtzIsPaused: bool
     withdrawRewardStakedMvkIsPaused: bool
 
 
-class DeviationTriggerInfos(BaseModel):
+class OracleAddresses(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    oracleAddress: str
-    roundPrice: str
+    oraclePublicKey: str
+    oraclePeerId: str
 
 
-class LastCompletedRoundPrice(BaseModel):
+class LastCompletedPrice(BaseModel):
     class Config:
         extra = Extra.forbid
 
     round: str
+    epoch: str
     price: str
     percentOracleResponse: str
     priceDateTime: str
@@ -63,19 +62,12 @@ class AggregatorStorage(BaseModel):
     name: str
     config: Config
     breakGlassConfig: BreakGlassConfig
-    maintainer: str
     mvkTokenAddress: str
     governanceAddress: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
-    round: str
-    roundStart: str
-    switchBlock: str
-    oracleAddresses: Dict[str, bool]
-    deviationTriggerInfos: DeviationTriggerInfos
-    lastCompletedRoundPrice: LastCompletedRoundPrice
-    observationCommits: Dict[str, str]
-    observationReveals: Dict[str, str]
+    oracleAddresses: Dict[str, OracleAddresses]
+    lastCompletedPrice: LastCompletedPrice
     deviationTriggerBan: Dict[str, str]
     oracleRewardStakedMvk: Dict[str, str]
     oracleRewardXtz: Dict[str, str]

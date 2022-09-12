@@ -51,3 +51,7 @@ class TokenType(IntEnum):
 class OracleType(IntEnum):
     CFMM                = 0
     ORACLE              = 1
+
+class RewardType(IntEnum):
+    XTZ                 = 0
+    SMVK                = 1
