@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
-from mavryk.sql_model.enums import GovernanceRecordStatus, GovernanceVoteType
+from mavryk.sql_model.enums import GovernanceActionStatus, GovernanceVoteType
 
 ###
 # Governance Financial Tables
@@ -39,14 +39,14 @@ class GovernanceFinancialWhitelistTokenContract(LinkedContract, Model):
     class Meta:
         table = 'governance_financial_whitelist_token_contract'
 
-class GovernanceFinancialRequestRecord(Model):
+class GovernanceFinancialRequest(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='request_records')
-    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_request_records')
+    governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='requests')
+    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_requests')
     requester                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_requester')
     token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests_token', null=True)
     request_type                            = fields.CharField(max_length=255)
-    status                                  = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
+    status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE)
     executed                                = fields.BooleanField()
     token_amount                            = fields.FloatField(default=0.0)
     request_purpose                         = fields.TextField(default="")
@@ -62,13 +62,13 @@ class GovernanceFinancialRequestRecord(Model):
     requested_datetime                      = fields.DatetimeField(null=True)
 
     class Meta:
-        table = 'governance_financial_request_record'
+        table = 'governance_financial_request'
 
-class GovernanceFinancialRequestRecordVote(Model):
+class GovernanceFinancialRequestVote(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_financial_request            = fields.ForeignKeyField('models.GovernanceFinancialRequestRecord', related_name='votes')
+    governance_financial_request            = fields.ForeignKeyField('models.GovernanceFinancialRequest', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_votes')
-    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshotRecord', related_name='governance_financial_requests_votes', null=True)
+    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_financial_requests_votes', null=True)
     timestamp                               = fields.DatetimeField(null=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
 

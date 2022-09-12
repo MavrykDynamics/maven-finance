@@ -24,7 +24,7 @@ async def on_delegation_on_stake_change(
         delegation              = await models.Delegation.get(
             address = delegation_address
         )
-        satellite_rewards, _    = await models.SatelliteRewardsRecord.get_or_create(
+        satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
             user        = user,
             delegation  = delegation
         )

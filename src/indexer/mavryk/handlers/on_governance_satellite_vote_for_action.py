@@ -36,7 +36,7 @@ async def on_governance_satellite_vote_for_action(
     # Create or update vote record
     governance              = await models.Governance.get(address   = governance_address)
     governance_satellite    = await models.GovernanceSatellite.get(address  = governance_satellite_address)
-    action_record           = await models.GovernanceSatelliteActionRecord.get(
+    action_record           = await models.GovernanceSatelliteAction.get(
         governance_satellite    = governance_satellite,
         id                      = action_id
     )
@@ -52,13 +52,13 @@ async def on_governance_satellite_vote_for_action(
     await voter.save()
 
     # Register vote
-    satellite_snapshot, _   = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
+    satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(
         governance  = governance,
         user        = voter,
         cycle       = governance.cycle_id
     )
     await satellite_snapshot.save()
-    vote_record, _          = await models.GovernanceSatelliteActionRecordVote.get_or_create(
+    vote_record, _          = await models.GovernanceSatelliteActionVote.get_or_create(
         governance_satellite_action = action_record,
         voter                       = voter
     )
@@ -79,7 +79,7 @@ async def on_governance_satellite_vote_for_action(
         aggregator, _           = await models.Aggregator.get_or_create(address = aggregator_address)
         await aggregator.save()
 
-        satellite_aggregator, _ = await models.GovernanceSatelliteAggregatorRecord.get_or_create(
+        satellite_aggregator, _ = await models.GovernanceSatelliteAggregator.get_or_create(
             governance_satellite    = governance_satellite,
             aggregator              = aggregator
         )
@@ -89,7 +89,7 @@ async def on_governance_satellite_vote_for_action(
         for oracle_address in oracles:
             oracle, _               = await models.MavrykUser.get_or_create(address = oracle_address)
             await oracle.save()
-            aggregator_oracle, _    = await models.GovernanceSatelliteAggregatorRecordOracle.get_or_create(
+            aggregator_oracle, _    = await models.GovernanceSatelliteAggregatorOracle.get_or_create(
                 governance_satellite_aggregator = satellite_aggregator,
                 oracle                          = oracle
             )
@@ -101,15 +101,15 @@ async def on_governance_satellite_vote_for_action(
         satellite_oracle_storage    = satellite_oracle_ledger[oracle_address]
         aggregators_subscribed      = int(satellite_oracle_storage.aggregatorsSubscribed)
         aggregator_pairs            = satellite_oracle_storage.aggregatorPairs
-        satellite_oracle_record, _  = await models.GovernanceSatelliteSatelliteOracleRecord.get_or_create(
+        satellite_oracle_record, _  = await models.GovernanceSatelliteSatelliteOracle.get_or_create(
             governance_satellite    = governance_satellite,
             oracle                  = oracle
         )
         satellite_oracle_record.aggregators_subscribed  = aggregators_subscribed
         await satellite_oracle_record.save()
 
-        aggregator_pairs_records    = await models.GovernanceSatelliteSatelliteOracleAggregatorPairRecord.filter(
-            governance_satellite_satellite_oracle_record=satellite_oracle_record,
+        aggregator_pairs_records    = await models.GovernanceSatelliteSatelliteOracleAggregatorPair.filter(
+            governance_satellite_satellite_oracle   = satellite_oracle_record,
             oracle=oracle
         ).all()
 
@@ -130,8 +130,8 @@ async def on_governance_satellite_vote_for_action(
             token_0_symbol                  = aggregator_pair_storage.aggregatorPair.string_0
             token_1_symbol                  = aggregator_pair_storage.aggregatorPair.string_1
 
-            aggregator_pair_record          = models.GovernanceSatelliteSatelliteOracleAggregatorPairRecord(
-                governance_satellite_satellite_oracle_record    = satellite_oracle_record,
+            aggregator_pair_record          = models.GovernanceSatelliteSatelliteOracleAggregatorPair(
+                governance_satellite_satellite_oracle           = satellite_oracle_record,
                 oracle                                          = oracle,
                 aggregator                                      = aggregator_from_pair,
                 start_timestamp                                 = start_timestamp,

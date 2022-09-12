@@ -14,7 +14,7 @@ async def on_governance_lock_proposal(
     proposalID  = int(lock_proposal.parameter.__root__)
 
     # Update record
-    proposal    = await models.GovernanceProposalRecord.get(
+    proposal    = await models.GovernanceProposal.get(
         id      = proposalID
     )
     proposal.locked = True

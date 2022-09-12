@@ -26,15 +26,15 @@ async def on_delegation_delegate_to_satellite(
     delegation = await models.Delegation.get(
         address = delegation_address
     )
-    satelliteRecord, _ = await models.SatelliteRecord.get_or_create(
+    satelliteRecord, _ = await models.Satellite.get_or_create(
         user        = satellite_address,
         delegation  = delegation
     )
-    satelliteRewardReferenceRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
+    satelliteRewardReferenceRecord, _ = await models.SatelliteRewards.get_or_create(
         user        = satellite,
         delegation  = delegation
     )
-    satelliteRewardRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
+    satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
         user        = user,
         delegation  = delegation
     )

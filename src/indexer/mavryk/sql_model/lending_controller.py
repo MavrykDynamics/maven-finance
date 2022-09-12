@@ -62,30 +62,30 @@ class LendingControllerWhitelistTokenContract(LinkedContract, Model):
     class Meta:
         table = 'lending_controller_whitelist_token_contract'
 
-class LendingControllerRewardRecord(Model):
+class LendingControllerReward(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='reward_records', null=True)
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='rewards', null=True)
     token_name                              = fields.CharField(default="", max_length=36)
     unpaid                                  = fields.FloatField(default=0.0)
     paid                                    = fields.FloatField(default=0.0)
     rewards_per_share                       = fields.FloatField(default=0.0)
 
     class Meta:
-        table = 'lending_controller_reward_record'
+        table = 'lending_controller_reward'
 
 class LendingControllerVaultHandle(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='vault_handles', null=True)
-    lending_controller_vault_record         = fields.ForeignKeyField('models.LendingControllerVaultRecord', related_name='vault_handles', null=True)
+    lending_controller_vault                = fields.ForeignKeyField('models.LendingControllerVault', related_name='vault_handles', null=True)
     owner                                   = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_vault_owners', null=True)
     internal_id                             = fields.BigIntField(default=0)
 
     class Meta:
         table = 'lending_controller_vault_handle'
 
-class LendingControllerVaultRecord(Model):
+class LendingControllerVault(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    vault                                   = fields.ForeignKeyField('models.Vault', related_name='lending_controller_vault_records', null=True)
+    vault                                   = fields.ForeignKeyField('models.Vault', related_name='lending_controller_vaults', null=True)
     loan_token                              = fields.CharField(default="", max_length=36)
     loan_outstanding_total                  = fields.FloatField(default=0.0)
     loan_principal_total                    = fields.FloatField(default=0.0)
@@ -96,41 +96,41 @@ class LendingControllerVaultRecord(Model):
     last_updated_timestamp                  = fields.DatetimeField(null=True, auto_now=True)
 
     class Meta:
-        table = 'lending_controller_vault_record'
+        table = 'lending_controller_vault'
 
-class LendingControllerVaultRecordCollateralBalance(Model):
+class LendingControllerVaultCollateralBalance(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller_vault_record         = fields.ForeignKeyField('models.LendingControllerVaultRecord', related_name='collateral_balances', null=True)
+    lending_controller_vault                = fields.ForeignKeyField('models.LendingControllerVault', related_name='collateral_balances', null=True)
     collateral_name                         = fields.CharField(default="", max_length=36)
     collateral_balance                      = fields.FloatField(default=0.0)
 
     class Meta:
-        table = 'lending_controller_vault_record_collateral_balance'
+        table = 'lending_controller_vault_collateral_balance'
 
-class LendingControllerDepositorRecord(Model):
+class LendingControllerDepositor(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='depositor_records', null=True)
-    depositor                               = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_depositor_records', null=True)
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='depositors', null=True)
+    depositor                               = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_depositors', null=True)
     token_name                              = fields.CharField(default="", max_length=36)
     deposited_amount                        = fields.FloatField(default=0.0)
 
     class Meta:
-        table = 'lending_controller_depositor_record'
+        table = 'lending_controller_depositor'
 
-class LendingControllerCollateralTokenRecord(Model):
+class LendingControllerCollateralToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='collateral_token_records', null=True)
-    token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_collateral_token_records', null=True)
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='collateral_tokens', null=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_collateral_tokens', null=True)
     oracle_type                             = fields.IntEnumField(enum_type=OracleType, default=OracleType.CFMM)
 
     class Meta:
-        table = 'lending_controller_collateral_token_record'
+        table = 'lending_controller_collateral_token'
 
-class LendingControllerLoanTokenRecord(Model):
+class LendingControllerLoanToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='loan_token_records', null=True)
-    loan_token                              = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_loan_token_records', null=True)
-    lp_token                                = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_lp_token_records', null=True)
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='loan_tokens', null=True)
+    loan_token                              = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_loan_tokens', null=True)
+    lp_token                                = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_lp_tokens', null=True)
     lp_token_total                          = fields.FloatField(default=0.0)
     reserve_ratio                           = fields.SmallIntField(default=0)
     token_pool_total                        = fields.FloatField(default=0.0)
@@ -148,4 +148,4 @@ class LendingControllerLoanTokenRecord(Model):
     borrow_index                            = fields.BigIntField(default=0)
 
     class Meta:
-        table = 'lending_controller_loan_token_record'
+        table = 'lending_controller_loan_token'

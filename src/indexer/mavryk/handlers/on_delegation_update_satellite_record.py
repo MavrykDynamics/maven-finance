@@ -26,7 +26,7 @@ async def on_delegation_update_satellite_record(
     delegation = await models.Delegation.get(
         address = delegation_address
     )
-    satelliteRecord, _ = await models.SatelliteRecord.get_or_create(
+    satelliteRecord, _ = await models.Satellite.get_or_create(
         user        = user,
         delegation  = delegation
     )
@@ -36,7 +36,7 @@ async def on_delegation_update_satellite_record(
     satelliteRecord.image                           = image
     satelliteRecord.website                         = website
 
-    satelliteRewardRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
+    satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
         user        = user,
         delegation  = delegation
     )
