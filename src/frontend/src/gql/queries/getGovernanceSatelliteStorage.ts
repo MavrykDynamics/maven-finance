@@ -1,5 +1,5 @@
 export const GOVERNANCE_SATELLITE_STORAGE_QUERY = `
-  query GetGovernanceSatelliteStorageQuery {
+query GetGovernanceSatelliteStorageQuery {
     governance_satellite {
       address
       admin
@@ -10,7 +10,7 @@ export const GOVERNANCE_SATELLITE_STORAGE_QUERY = `
       governance_satellite_counter
      
     }
-    governance_satellite_action_record(order_by: {expiration_datetime: desc}) {
+    governance_satellite_action(order_by: {expiration_datetime: desc}) {
       executed
       expiration_datetime
       governance_purpose
@@ -26,7 +26,7 @@ export const GOVERNANCE_SATELLITE_STORAGE_QUERY = `
       start_datetime
       status
       yay_vote_smvk_total
-      governance_satellite_action_parameters {
+      parameters {
         name
         value
         id
@@ -58,8 +58,7 @@ export const GOVERNANCE_SATELLITE_STORAGE_QUERY = `
       }
     }
   }
-`;
+`
 
-export const GOVERNANCE_SATELLITE_STORAGE_QUERY_NAME =
-  "GetGovernanceSatelliteStorageQuery";
-export const GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE = {};
+export const GOVERNANCE_SATELLITE_STORAGE_QUERY_NAME = 'GetGovernanceSatelliteStorageQuery'
+export const GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE = {}
