@@ -37,15 +37,15 @@ async def on_token_sale_claim_tokens(
             token_sale              = token_sale
         )
 
-        buyer_record, _         = await models.TokenSaleBuyerRecord.get_or_create(
+        buyer_record, _         = await models.TokenSaleBuyer.get_or_create(
             token_sale  = token_sale,
             buyer       = buyer
         )
         await buyer_record.save()
 
-        buyer_record_option, _  = await models.TokenSaleBuyerRecordOption.get_or_create(
+        buyer_record_option, _  = await models.TokenSaleBuyerOption.get_or_create(
             buy_option      = buy_option,
-            buyer_record    = buyer_record
+            buyer           = buyer_record
         )
         buyer_record_option.token_bought            = token_bought
         buyer_record_option.token_claimed           = token_claimed

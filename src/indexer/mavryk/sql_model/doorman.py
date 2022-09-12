@@ -49,8 +49,8 @@ class DoormanStakeAccount(Model):
 
 class StakeHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_records')
-    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='stake_records')
+    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_history_data')
+    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='stakes_history_data')
     timestamp                               = fields.DatetimeField()
     type                                    = fields.IntEnumField(enum_type=StakeType)
     mvk_loyalty_index                       = fields.BigIntField(default=0.0)

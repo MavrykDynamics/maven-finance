@@ -45,11 +45,11 @@ async def persist_council_action(action):
     )
     await initiator.save()
 
-    councilActionRecord = await models.CouncilActionRecord.get_or_none(
+    councilActionRecord = await models.CouncilAction.get_or_none(
         id                              = actionID
     )
     if councilActionRecord == None:
-        councilActionRecord = models.CouncilActionRecord(
+        councilActionRecord = models.CouncilAction(
             id                              = actionID,
             council                         = council,
             initiator                       = initiator,
@@ -65,7 +65,7 @@ async def persist_council_action(action):
         # Parameters
         for key in councilActionAddressParams:
             value   = councilActionAddressParams[key]
-            councilActionRecordParameter    = models.CouncilActionRecordParameter(
+            councilActionRecordParameter    = models.CouncilActionParameter(
                 council_action          = councilActionRecord,
                 name                    = key,
                 value                   = value
@@ -74,7 +74,7 @@ async def persist_council_action(action):
 
         for key in councilActionStringParams:
             value   = councilActionStringParams[key]
-            councilActionRecordParameter    = models.CouncilActionRecordParameter(
+            councilActionRecordParameter    = models.CouncilActionParameter(
                 council_action          = councilActionRecord,
                 name                    = key,
                 value                   = value
@@ -83,7 +83,7 @@ async def persist_council_action(action):
 
         for key in councilActionNatParams:
             value   = councilActionNatParams[key]
-            councilActionRecordParameter    = models.CouncilActionRecordParameter(
+            councilActionRecordParameter    = models.CouncilActionParameter(
                 council_action          = councilActionRecord,
                 name                    = key,
                 value                   = value
@@ -96,7 +96,7 @@ async def persist_council_action(action):
                 address = signer
             )
             await user.save()
-            councilActionRecordSigner = models.CouncilActionRecordSigner(
+            councilActionRecordSigner = models.CouncilActionSigner(
                 signer                  = user,
                 council_action          = councilActionRecord
             )
@@ -139,16 +139,16 @@ async def persist_break_glass_action(action):
     )
     await initiator.save()
 
-    breakGlassActionRecord = await models.BreakGlassActionRecord.get_or_none(
+    breakGlassActionRecord = await models.BreakGlassAction.get_or_none(
         id                              = actionID
     )
     if breakGlassActionRecord == None:
-        breakGlassActionRecord = models.BreakGlassActionRecord(
+        breakGlassActionRecord = models.BreakGlassAction(
             id                              = actionID,
             break_glass                     = breakGlass,
             initiator                       = initiator,
             start_datetime                  = breakGlassActionStartDate,
-            execution_datetime               = breakGlassActionExecutedDate,
+            execution_datetime              = breakGlassActionExecutedDate,
             expiration_datetime             = breakGlassActionExpirationDate,
             action_type                     = breakGlassActionType,
             status                          = recordStatus,
@@ -159,8 +159,8 @@ async def persist_break_glass_action(action):
         # Parameters
         for key in breakGlassActionAddressParams:
             value   = breakGlassActionAddressParams[key]
-            breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
-                break_glass_action_record   = breakGlassActionRecord,
+            breakGlassActionRecordParameter    = models.BreakGlassActionParameter(
+                break_glass_action          = breakGlassActionRecord,
                 name                        = key,
                 value                       = value
             )
@@ -168,8 +168,8 @@ async def persist_break_glass_action(action):
 
         for key in breakGlassActionNatParams:
             value   = breakGlassActionNatParams[key]
-            breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
-                break_glass_action_record   = breakGlassActionRecord,
+            breakGlassActionRecordParameter    = models.BreakGlassActionParameter(
+                break_glass_action          = breakGlassActionRecord,
                 name                        = key,
                 value                       = value
             )
@@ -181,9 +181,9 @@ async def persist_break_glass_action(action):
                 address = signer
             )
             await user.save()
-            breakGlassActionRecordSigner = models.BreakGlassActionRecordSigner(
-                signer                          = user,
-                break_glass_action_record       = breakGlassActionRecord
+            breakGlassActionRecordSigner = models.BreakGlassActionSigner(
+                signer                      = user,
+                break_glass_action          = breakGlassActionRecord
             )
             await breakGlassActionRecordSigner.save()
 
@@ -201,7 +201,7 @@ async def persist_financial_request(action):
     await governanceFinancial.save()
 
     for requestID in requestLedger:
-        requestRecord       = await models.GovernanceFinancialRequestRecord.get_or_none(
+        requestRecord       = await models.GovernanceFinancialRequest.get_or_none(
             id  = int(requestID)
         )
         if requestRecord == None:
@@ -210,9 +210,9 @@ async def persist_financial_request(action):
             requesterAddress                = requestRecordStorage.requesterAddress
             request_type                    = requestRecordStorage.requestType
             status                          = requestRecordStorage.status
-            statusType                      = models.GovernanceRecordStatus.ACTIVE
+            statusType                      = models.GovernanceActionStatus.ACTIVE
             if not status:
-                statusType  = models.GovernanceRecordStatus.DROPPED
+                statusType  = models.GovernanceActionStatus.DROPPED
             executed                        = requestRecordStorage.executed
             token_contract_address          = requestRecordStorage.tokenContractAddress
             token_amount                    = float(requestRecordStorage.tokenAmount)
@@ -254,7 +254,7 @@ async def persist_financial_request(action):
             requester, _            = await models.MavrykUser.get_or_create(
                 address = requesterAddress
             )
-            requestRecord           = models.GovernanceFinancialRequestRecord(
+            requestRecord           = models.GovernanceFinancialRequest(
                 id                              = int(requestID),
                 governance_financial            = governanceFinancial,
                 treasury                        = treasury,
@@ -291,7 +291,7 @@ async def persist_governance_satellite_action(action):
     await governance_satellite.save()
 
     for action_id in action_ledger:
-        action_record       = await models.GovernanceSatelliteActionRecord.get_or_none(
+        action_record       = await models.GovernanceSatelliteAction.get_or_none(
             id  = int(action_id)
         )
         if action_record == None:
@@ -300,9 +300,9 @@ async def persist_governance_satellite_action(action):
             action_purpose                  = action_record_storage.governancePurpose
             action_type                     = action_record_storage.governanceType
             status                          = action_record_storage.status
-            statusType                      = models.GovernanceRecordStatus.ACTIVE
+            statusType                      = models.GovernanceActionStatus.ACTIVE
             if not status:
-                statusType  = models.GovernanceRecordStatus.DROPPED
+                statusType  = models.GovernanceActionStatus.DROPPED
             executed                        = action_record_storage.executed
             yay_vote_smvk_total             = float(action_record_storage.yayVoteStakedMvkTotal)
             nay_vote_smvk_total             = float(action_record_storage.nayVoteStakedMvkTotal)
@@ -320,7 +320,7 @@ async def persist_governance_satellite_action(action):
             initiator, _                    = await models.MavrykUser.get_or_create(
                 address = initiator_address
             )
-            action_record                   = models.GovernanceSatelliteActionRecord(
+            action_record                   = models.GovernanceSatelliteAction(
                 governance_satellite            = governance_satellite,
                 initiator                       = initiator,
                 governance_type                 = action_type,
@@ -341,7 +341,7 @@ async def persist_governance_satellite_action(action):
             # Parameters
             for key in address_map:
                 value   = address_map[key]
-                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
+                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionParameter(
                     governance_satellite_action     = action_record,
                     name                            = key,
                     value                           = value
@@ -350,7 +350,7 @@ async def persist_governance_satellite_action(action):
 
             for key in string_map:
                 value   = string_map[key]
-                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
+                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionParameter(
                     governance_satellite_action     = action_record,
                     name                            = key,
                     value                           = value
@@ -359,7 +359,7 @@ async def persist_governance_satellite_action(action):
 
             for key in nat_map:
                 value   = nat_map[key]
-                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
+                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionParameter(
                     governance_satellite_action     = action_record,
                     name                            = key,
                     value                           = value
@@ -395,7 +395,7 @@ async def persist_governance_satellite_action(action):
                 )
                 await token.save()
                     
-                governance_satellite_action_record_transfer = models.GovernanceSatelliteActionRecordTransfer(
+                governance_satellite_action_record_transfer = models.GovernanceSatelliteActionTransfer(
                     governance_satellite_action     = action_record,
                     token                           = token,
                     to_                             = receiver,

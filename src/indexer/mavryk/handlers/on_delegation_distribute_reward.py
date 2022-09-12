@@ -25,7 +25,7 @@ async def on_delegation_distribute_reward(
         await user.save()
         
         rewards_record          = distribute_reward.storage.satelliteRewardsLedger[satellite_address]
-        satellite_rewards, _    = await models.SatelliteRewardsRecord.get_or_create(
+        satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
             user        = user,
             delegation  = delegation
         )

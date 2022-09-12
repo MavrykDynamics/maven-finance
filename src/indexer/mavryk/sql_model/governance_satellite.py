@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
-from mavryk.sql_model.enums import GovernanceVoteType, GovernanceRecordStatus
+from mavryk.sql_model.enums import GovernanceVoteType, GovernanceActionStatus
 
 ###
 # Governance Satellite Tables
@@ -35,14 +35,14 @@ class GovernanceSatelliteWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'governance_satellite_whitelist_contract'
 
-class GovernanceSatelliteActionRecord(Model):
+class GovernanceSatelliteAction(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='action_records')
+    governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_initiators')
     governance_type                         = fields.CharField(max_length=255)
-    status                                  = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
+    status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE)
     executed                                = fields.BooleanField()
-    governance_purpose                      = fields.TextField() #TODO: Should I reuse CharField instead?
+    governance_purpose                      = fields.TextField()
     yay_vote_smvk_total                     = fields.FloatField(default=0.0)
     nay_vote_smvk_total                     = fields.FloatField(default=0.0)
     pass_vote_smvk_total                    = fields.FloatField(default=0.0)
@@ -54,74 +54,74 @@ class GovernanceSatelliteActionRecord(Model):
     start_datetime                          = fields.DatetimeField(null=True)
 
     class Meta:
-        table = 'governance_satellite_action_record'
+        table = 'governance_satellite_action'
 
-class GovernanceSatelliteActionRecordVote(Model):
+class GovernanceSatelliteActionVote(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='votes')
+    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_actions_votes')
-    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshotRecord', related_name='governance_satellite_actions_votes', null=True)
+    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_satellite_actions_votes', null=True)
     timestamp                               = fields.DatetimeField(null=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
     class Meta:
-        table = 'governance_satellite_action_record_vote'
+        table = 'governance_satellite_action_vote'
 
-class GovernanceSatelliteActionRecordParameter(Model):
+class GovernanceSatelliteActionParameter(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='parameters')
+    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='parameters')
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 
     class Meta:
-        table = 'governance_satellite_action_record_parameter'
+        table = 'governance_satellite_action_parameter'
 
-class GovernanceSatelliteActionRecordTransfer(Model):
+class GovernanceSatelliteActionTransfer(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='transfers')
+    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='transfers')
     token                                   = fields.ForeignKeyField('models.Token', related_name='governance_satellite_action_transfer_tokens', null=True)
-    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_record_transfer_receiver')
+    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_transfer_receiver')
     amount                                  = fields.BigIntField(default=0)
 
     class Meta:
-        table = 'governance_satellite_action_record_transfer'
+        table = 'governance_satellite_action_transfer'
 
-class GovernanceSatelliteAggregatorRecord(Model):
+class GovernanceSatelliteAggregator(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='aggregator_records')
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_aggregator_records')
+    governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='aggregators')
+    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_aggregators')
     creation_timestamp                      = fields.DatetimeField(null=True)
     token_0_symbol                          = fields.CharField(max_length=32, default="")
     token_1_symbol                          = fields.CharField(max_length=32, default="")
     active                                  = fields.BooleanField(default=True)
 
     class Meta:
-        table = 'governance_satellite_aggregator_record'
+        table = 'governance_satellite_aggregator'
 
-class GovernanceSatelliteAggregatorRecordOracle(Model):
+class GovernanceSatelliteAggregatorOracle(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_aggregator         = fields.ForeignKeyField('models.GovernanceSatelliteAggregatorRecord', related_name='oracles')
-    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_aggregator_record_oracles')
+    governance_satellite_aggregator         = fields.ForeignKeyField('models.GovernanceSatelliteAggregator', related_name='oracles')
+    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_aggregator_oracles')
 
     class Meta:
-        table = 'governance_satellite_aggregator_record_oracle'
+        table = 'governance_satellite_aggregator_oracle'
 
-class GovernanceSatelliteSatelliteOracleRecord(Model):
+class GovernanceSatelliteSatelliteOracle(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='oracles')
-    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_satellite_oracle_records')
+    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_satellite_oracles')
     aggregators_subscribed                  = fields.BigIntField(default=0)
 
     class Meta:
-        table = 'governance_satellite_satellite_oracle_record'
+        table = 'governance_satellite_satellite_oracle'
 
-class GovernanceSatelliteSatelliteOracleAggregatorPairRecord(Model):
+class GovernanceSatelliteSatelliteOracleAggregatorPair(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_satellite_oracle_record= fields.ForeignKeyField('models.GovernanceSatelliteSatelliteOracleRecord', related_name='aggregator_pairs')
-    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_satellite_oracle_aggregator_pair_records')
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_satellite_oracle_aggregator_pair_records')
+    governance_satellite_satellite_oracle   = fields.ForeignKeyField('models.GovernanceSatelliteSatelliteOracle', related_name='aggregator_pairs')
+    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_satellite_oracle_aggregator_pairs')
+    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_satellite_oracle_aggregator_pairs')
     start_timestamp                         = fields.DatetimeField(null=True)
     token_0_symbol                          = fields.CharField(max_length=32)
     token_1_symbol                          = fields.CharField(max_length=32)
 
     class Meta:
-        table = 'governance_satellite_satellite_oracle_aggregator_pair_record'
+        table = 'governance_satellite_satellite_oracle_aggregator_pair'

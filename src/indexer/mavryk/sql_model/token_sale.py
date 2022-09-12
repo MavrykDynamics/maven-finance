@@ -42,18 +42,18 @@ class TokenSaleWhitelistedUser(Model):
     class Meta:
         table = 'token_sale_whitelisted_account'
 
-class TokenSaleBuyerRecord(Model):
+class TokenSaleBuyer(Model):
     id                                      = fields.BigIntField(pk=True)
-    token_sale                              = fields.ForeignKeyField('models.TokenSale', related_name='token_sale_buyer_records')
-    buyer                                   = fields.ForeignKeyField('models.MavrykUser', related_name='token_sale_buyer_records')
+    token_sale                              = fields.ForeignKeyField('models.TokenSale', related_name='token_sale_buyers')
+    buyer                                   = fields.ForeignKeyField('models.MavrykUser', related_name='token_sale_buyers')
 
     class Meta:
-        table = 'token_sale_buyer_record'
+        table = 'token_sale_buyer'
 
-class TokenSaleBuyerRecordOption(Model):
+class TokenSaleBuyerOption(Model):
     id                                      = fields.BigIntField(pk=True)
-    buy_option                              = fields.ForeignKeyField('models.TokenSaleBuyOption', related_name='buyer_record_options')
-    buyer_record                            = fields.ForeignKeyField('models.TokenSaleBuyerRecord', related_name='options')
+    buy_option                              = fields.ForeignKeyField('models.TokenSaleBuyOption', related_name='buyer_options')
+    buyer                                   = fields.ForeignKeyField('models.TokenSaleBuyer', related_name='options')
     token_bought                            = fields.FloatField(default=0.0)
     token_claimed                           = fields.FloatField(default=0.0)
     claim_counter                           = fields.SmallIntField(default=0)
@@ -61,4 +61,4 @@ class TokenSaleBuyerRecordOption(Model):
     last_claim_level                        = fields.BigIntField(default=0)
 
     class Meta:
-        table = 'token_sale_buyer_record_option'
+        table = 'token_sale_buyer_option'
