@@ -49,9 +49,9 @@ class CouncilCouncilMember(Model):
     class Meta:
         table = 'council_council_member'
 
-class CouncilActionRecord(Model):
+class CouncilAction(Model):
     id                                      = fields.BigIntField(pk=True)
-    council                                 = fields.ForeignKeyField('models.Council', related_name='action_records')
+    council                                 = fields.ForeignKeyField('models.Council', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator')
     start_datetime                          = fields.DatetimeField(null=True)
     execution_datetime                      = fields.DatetimeField(null=True)
@@ -63,21 +63,21 @@ class CouncilActionRecord(Model):
     signers_count                           = fields.SmallIntField(default=1)
 
     class Meta:
-        table = 'council_action_record'
+        table = 'council_action'
 
-class CouncilActionRecordSigner(Model):
+class CouncilActionSigner(Model):
     id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilActionRecord', related_name='signers')
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='signers')
     signer                                  = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_signer')
 
     class Meta:
-        table = 'council_action_record_signer'
+        table = 'council_action_signer'
 
-class CouncilActionRecordParameter(Model):
+class CouncilActionParameter(Model):
     id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilActionRecord', related_name='parameters')
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='parameters')
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 
     class Meta:
-        table = 'council_action_record_parameter'
+        table = 'council_action_parameter'

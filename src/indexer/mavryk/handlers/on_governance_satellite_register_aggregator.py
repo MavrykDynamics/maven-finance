@@ -27,7 +27,7 @@ async def on_governance_satellite_register_aggregator(
     governance_satellite            = await models.GovernanceSatellite.get(address  = governance_satellite_address)
     aggregator, _                   = await models.Aggregator.get_or_create(address = aggregator_address)
     await aggregator.save()
-    aggregator_record, _            = await models.GovernanceSatelliteAggregatorRecord.get_or_create(
+    aggregator_record, _            = await models.GovernanceSatelliteAggregator.get_or_create(
         governance_satellite    = governance_satellite,
         aggregator              = aggregator
     )

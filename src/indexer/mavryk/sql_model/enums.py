@@ -33,7 +33,7 @@ class GovernanceRoundType(IntEnum):
     VOTING              = 1
     TIMELOCK            = 2
 
-class GovernanceRecordStatus(IntEnum):
+class GovernanceActionStatus(IntEnum):
     ACTIVE              = 0
     DROPPED             = 1
 

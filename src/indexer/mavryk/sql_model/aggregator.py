@@ -23,7 +23,7 @@ class Aggregator(MavrykContract, Model):
     deviation_reward_amount_xtz             = fields.FloatField(default=0.0)
     reward_amount_smvk                      = fields.FloatField(default=0.0)
     reward_amount_xtz                       = fields.FloatField(default=0.0)
-    update_data_paused                     = fields.BooleanField(default=False)
+    update_data_paused                      = fields.BooleanField(default=False)
     withdraw_reward_xtz_paused              = fields.BooleanField(default=False)
     withdraw_reward_smvk_paused             = fields.BooleanField(default=False)
     last_completed_price_round              = fields.BigIntField(default=0)
@@ -35,7 +35,7 @@ class Aggregator(MavrykContract, Model):
     class Meta:
         table = 'aggregator'
 
-class AggregatorOracleRecord(ContractLambda, Model):
+class AggregatorOracle(ContractLambda, Model):
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles')
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles')
     public_key                              = fields.CharField(max_length=54, default="")
@@ -63,19 +63,19 @@ class AggregatorOracleReward(ContractLambda, Model):
         table = 'aggregator_observation_reward'
 
 class AggregatorLambda(ContractLambda, Model):
-    contract                                 = fields.ForeignKeyField('models.Aggregator', related_name='lambdas')
+    contract                                = fields.ForeignKeyField('models.Aggregator', related_name='lambdas')
 
     class Meta:
         table = 'aggregator_lambda'
 
 class AggregatorGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Aggregator', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.Aggregator', related_name='general_contracts')
 
     class Meta:
         table = 'aggregator_general_contract'
 
 class AggregatorWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Aggregator', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.Aggregator', related_name='whitelist_contracts')
 
     class Meta:
         table = 'aggregator_whitelist_contract'

@@ -14,13 +14,13 @@ async def on_governance_financial_drop_financial_request(
     financial_address   = drop_financial_request.data.target_address
     request_id          = int(drop_financial_request.parameter.__root__)
     request_storage     = drop_financial_request.storage.financialRequestLedger[drop_financial_request.parameter.__root__]
-    status              = models.GovernanceRecordStatus.DROPPED
+    status              = models.GovernanceActionStatus.DROPPED
     if request_storage.status:
-        status          = models.GovernanceRecordStatus.ACTIVE
+        status          = models.GovernanceActionStatus.ACTIVE
 
     # Update record
     governance_financial    = await models.GovernanceFinancial.get(address  = financial_address)
-    request                 = await models.GovernanceFinancialRequestRecord.get(
+    request                 = await models.GovernanceFinancialRequest.get(
         governance_financial    = governance_financial,
         id                      = request_id
     )

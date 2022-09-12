@@ -20,7 +20,7 @@ async def on_aggregator_add_oracle(
     oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
     await oracle.save()
     aggregator              = await models.Aggregator.get(address   = aggregator_address)
-    aggregator_oracle       = models.AggregatorOracleRecord(
+    aggregator_oracle       = models.AggregatorOracle(
         aggregator  = aggregator,
         oracle      = oracle,
         public_key  = oracle_pk,

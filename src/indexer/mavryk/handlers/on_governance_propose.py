@@ -19,9 +19,9 @@ async def on_governance_propose(
     storage_record          = propose.storage.proposalLedger[current_id]
     proposer_address        = storage_record.proposerAddress
     execution_counter       = int(storage_record.proposalMetadataExecutionCounter)
-    status                  = models.GovernanceRecordStatus.ACTIVE
+    status                  = models.GovernanceActionStatus.ACTIVE
     if storage_record.status == 'DROPPED':
-        status  = models.GovernanceRecordStatus.DROPPED
+        status  = models.GovernanceActionStatus.DROPPED
     title                   = storage_record.title
     description             = storage_record.description
     invoice                 = storage_record.invoice
@@ -58,7 +58,7 @@ async def on_governance_propose(
     )
     await user.save()
 
-    proposalRecord              = models.GovernanceProposalRecord(
+    proposalRecord              = models.GovernanceProposal(
         id                              = int(governance.next_proposal_id),
         governance                      = governance,
         proposer                        = user,
@@ -103,7 +103,7 @@ async def on_governance_propose(
     # Update or a satellite snapshot record
     if proposer_address in satellite_snapshots:
         satellite_snapshot      = satellite_snapshots[proposer_address]
-        governance_snapshot, _  = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
+        governance_snapshot, _  = await models.GovernanceSatelliteSnapshot.get_or_create(
             governance              = governance,
             user                    = user
         )

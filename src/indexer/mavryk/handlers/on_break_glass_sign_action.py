@@ -37,7 +37,7 @@ async def on_break_glass_sign_action(
     break_glass.admin           = admin
     break_glass.glass_broken    = glass_broken
     await break_glass.save()
-    action_record           = await models.BreakGlassActionRecord.get(
+    action_record           = await models.BreakGlassAction.get(
         break_glass = break_glass,
         id          = action_id
     )
@@ -52,7 +52,7 @@ async def on_break_glass_sign_action(
     if len(sign_action.storage.actionsLedger) > 1:
         for single_action_id in sign_action.storage.actionsLedger:
             action_status           = sign_action.storage.actionsLedger[single_action_id].status
-            single_action_record    = await models.BreakGlassActionRecord.get(
+            single_action_record    = await models.BreakGlassAction.get(
                 break_glass = break_glass,
                 id          = single_action_id
             )
@@ -89,8 +89,8 @@ async def on_break_glass_sign_action(
     # Create signature record
     user, _                 = await models.MavrykUser.get_or_create(address = signer_address)
     await user.save()
-    signer_record           = await models.BreakGlassActionRecordSigner(
-        break_glass_action_record   = action_record,
+    signer_record           = await models.BreakGlassActionSigner(
+        break_glass_action          = action_record,
         signer                      = user
     )
     await signer_record.save()

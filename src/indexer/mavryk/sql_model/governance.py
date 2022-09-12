@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
-from mavryk.sql_model.enums import GovernanceRoundType, GovernanceRecordStatus, GovernanceVoteType
+from mavryk.sql_model.enums import GovernanceRoundType, GovernanceActionStatus, GovernanceVoteType
 
 ###
 # Governance Tables
@@ -67,11 +67,11 @@ class WhitelistDeveloper(Model):
     class Meta:
         table = 'whitelist_developer'
 
-class GovernanceProposalRecord(Model):
+class GovernanceProposal(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='proposal_records')
-    proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_proposer')
-    status                                  = fields.IntEnumField(enum_type=GovernanceRecordStatus)
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='proposals')
+    proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_proposer')
+    status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus)
     execution_counter                       = fields.SmallIntField(default=0)
     title                                   = fields.TextField(default="")
     description                             = fields.TextField(default="")
@@ -106,34 +106,34 @@ class GovernanceProposalRecord(Model):
     current_round_proposal                  = fields.BooleanField(default=True)
 
     class Meta:
-        table = 'governance_proposal_record'
+        table = 'governance_proposal'
 
-class GovernanceProposalRecordData(Model):
+class GovernanceProposalData(Model):
     id                                      = fields.BigIntField(pk=True)
     record_internal_id                      = fields.SmallIntField(default=0)
-    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='data')
+    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='data')
     title                                   = fields.TextField(default="")
     bytes                                   = fields.TextField(default="")
 
     class Meta:
-        table = 'governance_proposal_record_data'
+        table = 'governance_proposal_data'
 
-class GovernanceProposalRecordPayment(Model):
+class GovernanceProposalPayment(Model):
     id                                      = fields.BigIntField(pk=True)
     record_internal_id                      = fields.SmallIntField(default=0)
-    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='payments')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposal_records_payments_token', null=True)
+    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='payments')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposals_payments_token', null=True)
     title                                   = fields.TextField(default="")
-    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_payments', null=True)
+    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_payments', null=True)
     token_amount                            = fields.FloatField(default=0.0)
 
     class Meta:
-        table = 'governance_proposal_record_payment'
+        table = 'governance_proposal_payment'
 
-class GovernanceProposalRecordVote(Model):
+class GovernanceProposalVote(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='votes', null=True)
-    voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_votes')
+    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='votes', null=True)
+    voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_votes')
     timestamp                               = fields.DatetimeField(null=True)
     round                                   = fields.IntEnumField(enum_type=GovernanceRoundType)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
@@ -141,12 +141,12 @@ class GovernanceProposalRecordVote(Model):
     current_round_vote                      = fields.BooleanField(default=True)
 
     class Meta:
-        table = 'governance_proposal_record_vote'
+        table = 'governance_proposal_vote'
 
-class GovernanceSatelliteSnapshotRecord(Model):
+class GovernanceSatelliteSnapshot(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='satellite_snapshot_records')
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshot_records')
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='satellite_snapshots')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshots')
     ready                                   = fields.BooleanField(default=True)
     total_smvk_balance                      = fields.FloatField(default=0.0)
     total_delegated_amount                  = fields.FloatField(default=0.0)
@@ -154,4 +154,4 @@ class GovernanceSatelliteSnapshotRecord(Model):
     cycle                                   = fields.BigIntField(default=0)
 
     class Meta:
-        table = 'governance_satellite_snapshot_record'
+        table = 'governance_satellite_snapshot'

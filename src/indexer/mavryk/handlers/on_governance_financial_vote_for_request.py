@@ -33,7 +33,7 @@ async def on_governance_financial_vote_for_request(
     # Create and update records
     governance              = await models.Governance.get(address   = governance_address)
     governance_financial    = await models.GovernanceFinancial.get(address  = financial_address)
-    financial_request       = await models.GovernanceFinancialRequestRecord.get(
+    financial_request       = await models.GovernanceFinancialRequest.get(
         governance_financial    = governance_financial,
         id                      = request_id
     )
@@ -51,17 +51,17 @@ async def on_governance_financial_vote_for_request(
     await voter.save()
 
     # Register vote
-    satellite_snapshot, _   = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
+    satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(
         governance  = governance,
         user        = voter,
         cycle       = governance.cycle_id
     )
     await satellite_snapshot.save()
-    vote_record, _          = await models.GovernanceFinancialRequestRecordVote.get_or_create(
+    vote_record, _          = await models.GovernanceFinancialRequestVote.get_or_create(
         governance_financial_request    = financial_request,
         voter                           = voter
     )
     vote_record.timestamp       = timestamp
-    vote_record.snapshot_record = satellite_snapshot
+    vote_record.snapshot        = satellite_snapshot
     vote_record.vote            = vote_type
     await vote_record.save()

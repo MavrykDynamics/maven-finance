@@ -46,12 +46,12 @@ async def on_governance_update_payment_data(
         type        = token_standard
     )
     await token.save()
-    proposal        = await models.GovernanceProposalRecord.get(
+    proposal        = await models.GovernanceProposal.get(
         id                  = proposal_id,
         governance          = governance
     )
-    payment_record  = await models.GovernanceProposalRecordPayment.get_or_none(
-        governance_proposal_record  = proposal,
+    payment_record  = await models.GovernanceProposalPayment.get_or_none(
+        governance_proposal         = proposal,
         title                       = title,
         to_                         = user,
         token                       = token
@@ -65,8 +65,8 @@ async def on_governance_update_payment_data(
         for key in payment_metadata:
             if payment_metadata[key] and payment_metadata[key].title == title:
                 int(key)
-        payment_record, _     = await models.GovernanceProposalRecordPayment.get_or_create(
-            governance_proposal_record  = proposal,
+        payment_record, _     = await models.GovernanceProposalPayment.get_or_create(
+            governance_proposal         = proposal,
             record_internal_id          = internal_id,
             title                       = title
         )
