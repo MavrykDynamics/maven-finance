@@ -51,7 +51,7 @@
 | VaultDepositorRecord                                   | VaultDepositor                                   |
 | VestingVesteeRecord                                    | VestingVestee                                    |
 
-### New Major Table: Table
+### New Major Table: Token
 
 - Contains info about tokens for the entire system
 - Table refactored accordingly (attributes removed and replaced by a single foreign key | the Token table):
