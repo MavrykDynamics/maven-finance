@@ -33,6 +33,9 @@ export const Dashboard = () => {
     exchangeRate,
     mvkTokenStorage: { totalSupply, maximumTotalSupply },
   } = useSelector((state: State) => state.mvkToken)
+  const { totalStakedMvk = 0 } = useSelector((state: State) => state.doorman)
+
+  const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
 
   useEffect(() => {
     dispatch(fillTreasuryStorage())
@@ -41,8 +44,8 @@ export const Dashboard = () => {
   }, [dispatch])
 
   const mvkStatsBlock: mvkStatsType = {
-    marketCap: 0,
-    stakedMvk: 0,
+    marketCap: marketCapValue,
+    stakedMvk: totalStakedMvk,
     circuatingSupply: totalSupply,
     maxSupply: maximumTotalSupply,
     livePrice: exchangeRate,
@@ -52,7 +55,11 @@ export const Dashboard = () => {
   return (
     <Page>
       <PageHeader page={'dashboard'} />
-      <DashboardView tvl={38545844} mvkStatsBlock={mvkStatsBlock} activeTab={isValidId(tab) ? tab : 'lending'} />
+      <DashboardView
+        tvl={totalSupply * exchangeRate}
+        mvkStatsBlock={mvkStatsBlock}
+        activeTab={isValidId(tab) ? tab : 'lending'}
+      />
     </Page>
   )
 }
