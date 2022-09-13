@@ -1828,7 +1828,7 @@ block {
 
                 // Calculate share of interest that goes to the Reward Pool 
                 if interestTreasuryShare > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
-                const interestRewardPool : nat = abs(totalInterestPaid - interestTreasuryShare);
+                const interestRewardPoolShare : nat = abs(totalInterestPaid - interestTreasuryShare);
 
                 // ------------------------------------------------------------------
                 // Process Interest Repayment - Fee Transfers
@@ -1846,7 +1846,7 @@ block {
                 const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
                     Tezos.get_self_address(),    // from_   
                     tokenPoolRewardAddress,      // to_
-                    interestRewardPool,          // amount
+                    interestRewardPoolShare,     // amount
                     loanTokenType                // token type
                 );
 
