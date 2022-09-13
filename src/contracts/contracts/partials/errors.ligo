@@ -875,8 +875,8 @@
 [@inline] const error_OBSERVATION_MADE_BY_WRONG_ORACLE                                                                  = 629n;
 [@inline] const error_DIFFERENT_EPOCH_IN_OBSERVATIONS_MAP                                                               = 630n;
 [@inline] const error_DIFFERENT_ROUND_IN_OBSERVATIONS_MAP                                                               = 631n;
-[@inline] const error_EPOCH_SOULD_BE_GREATER_THAN_PREVIOUS_RESULT                                                       = 632n;
-[@inline] const error_ROUND_SOULD_BE_GREATER_THAN_PREVIOUS_RESULT                                                       = 633n;
+[@inline] const error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT                                                      = 632n;
+[@inline] const error_ROUND_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT                                                      = 633n;
 
 
 // ENTRYPOINTS PAUSED ERRORS

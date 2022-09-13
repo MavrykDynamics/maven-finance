@@ -430,7 +430,7 @@ block{
                 // -----------------------------------------
 
                 // Set staked MVK reward for oracle
-                s := updateRewardsStakedMvk(Tezos.get_sender(), params.oracleObservations, s);
+                s := updateRewardsStakedMvk(params.oracleObservations, s);
 
                 // Set XTZ reward for oracle
                 const rewardAmountXtz        : nat  = s.config.rewardAmountXtz;
