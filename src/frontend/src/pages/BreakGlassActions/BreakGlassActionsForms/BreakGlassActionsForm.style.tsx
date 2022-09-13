@@ -1,32 +1,12 @@
 import styled from "styled-components/macro";
 import { skyColor, headerColor, textsColor } from "styles";
 
-export const BreakGlassActionsFormsWrapper = styled.div`
-  .form {
-    padding: 40px 20px;
-
-    h1, p, label {
-      padding-left: 10px;
-    }
-  }
-
-  .input-size {
-    width: 515px;
-
-    label {
-      display: block;
-      padding-bottom: 6px;
-      font-weight: 700;
-      font-size: 14px;
-      line-height: 21px;
-
-      color: ${headerColor};
-    }
-  }
+export const FormStyled = styled.div`
+  padding: 40px 20px;
 
   form {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
   }
 
@@ -45,6 +25,10 @@ export const BreakGlassActionsFormsWrapper = styled.div`
     color: ${skyColor};
   }
 
+  h1, p, label {
+    padding-left: 10px;
+  }
+
   button {
     max-width: 250px;
 
@@ -54,5 +38,23 @@ export const BreakGlassActionsFormsWrapper = styled.div`
         fill: ${textsColor};
       }
     }
+  }
+
+  .input-size {
+    width: 515px;
+
+    label {
+      display: block;
+      padding-bottom: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 21px;
+
+      color: ${headerColor};
+    }
+  }
+
+  .margin-bottom-15 {
+    margin-bottom: 15px;
   }
 `
