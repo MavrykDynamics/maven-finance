@@ -7,7 +7,7 @@ import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/Dr
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreakGlassActionsCard.controller'
 import { breakGlassActions } from "./BreakGlassActions.actions"
-import { BreakGlassActionsForms } from "./BreakGlassActionsForms/BreakGlassActionsForm.controller";
+import { BreakGlassActionsForm } from "./BreakGlassActionsForms/BreakGlassActionsForm.controller";
 
 // styles
 import { Page } from 'styles'
@@ -121,7 +121,7 @@ export const BreakGlassActions: FC = () => {
           </div>
         </div>
 
-        <BreakGlassActionsForms action={chosenDdItem?.value} />
+        <BreakGlassActionsForm action={chosenDdItem?.value} />
       </BreakGlassActionsCard>
 
       <PastBreakGlassActions>
