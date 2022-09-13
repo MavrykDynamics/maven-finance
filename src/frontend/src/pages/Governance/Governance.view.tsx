@@ -564,7 +564,7 @@ export const GovernanceView = ({
               </div>
             </article>
           ) : null}
-          {userIsSatellite && !isVisibleHistoryProposal ? (
+          {userIsSatellite && findUserCurrentRoundProposal && !isVisibleHistoryProposal ? (
             <div className="drop-proposal">
               <Button
                 icon="close-stroke"
