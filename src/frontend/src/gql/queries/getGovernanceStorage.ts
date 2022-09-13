@@ -1,5 +1,5 @@
 export const GOVERNANCE_STORAGE_QUERY = `
-  query GetGovernanceStorageQuery {
+query GetGovernanceStorageQuery {
     governance(where: {active: {_eq: true}}) {
       address
       blocks_per_proposal_round
@@ -32,7 +32,7 @@ export const GOVERNANCE_STORAGE_QUERY = `
       min_quorum_percentage
       min_yay_vote_percentage
     }
-    governance_financial_request_record {
+    governance_financial_request {
       executed
       expiration_datetime
       id
@@ -65,7 +65,7 @@ export const GOVERNANCE_STORAGE_QUERY = `
         }
       }
     }
-    governance_proposal_record {
+    governance_proposal {
       current_cycle_end_level
       current_cycle_start_level
       current_round_proposal
@@ -100,21 +100,21 @@ export const GOVERNANCE_STORAGE_QUERY = `
       min_yay_vote_percentage
       votes {
         current_round_vote
-        governance_proposal_record_id
+        governance_proposal_id
         id
         round
         vote
         voter_id
       }
-      proposal_data {
+      data {
         bytes
-        governance_proposal_record_id
+        governance_proposal_id
         id
         record_internal_id
         title
       }
-      proposal_payments {
-        governance_proposal_record_id
+      payments {
+        governance_proposal_id
         id
         record_internal_id
         title
@@ -131,7 +131,7 @@ export const GOVERNANCE_STORAGE_QUERY_VARIABLE = {}
 
 export const CURRENT_ROUND_PROPOSALS_QUERY = `
 query GetCurrentRoundProposalsQuery {
-    governance_proposal_record(where: {current_round_proposal: {_eq: true}}) {
+    governance_proposal(where: {current_round_proposal: {_eq: true}}) {
       current_cycle_end_level
       current_cycle_start_level
       current_round_proposal
@@ -166,21 +166,21 @@ query GetCurrentRoundProposalsQuery {
       min_yay_vote_percentage
       votes {
         current_round_vote
-        governance_proposal_record_id
+        governance_proposal_id
         id
         round
         vote
         voter_id
       }
-      proposal_data {
+      data {
         bytes
-        governance_proposal_record_id
+        governance_proposal_id
         id
         record_internal_id
         title
       }
-      proposal_payments {
-        governance_proposal_record_id
+      payments {
+        governance_proposal_id
         id
         record_internal_id
         title

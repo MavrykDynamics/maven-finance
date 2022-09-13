@@ -9,7 +9,14 @@ import {
 
 // types
 import { FinancialRequestBody } from './FinancialRequests.types'
-import { GovernanceFinancialRequestRecordGraphQL } from '../../utils/TypesAndInterfaces/Governance'
+import { GovernanceFinancialRequestGraphQL } from '../../utils/TypesAndInterfaces/Governance'
+// helpers
+import {
+  normalizeProposalStatus,
+  normalizeTokenStandart,
+  getShortByte,
+  getProposalStatusInfo,
+} from 'pages/Governance/Governance.helpers'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -35,7 +42,7 @@ import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 type FinancialRequestsViewProps = {
   ready: boolean
   loading: boolean
-  financialRequestsList: GovernanceFinancialRequestRecordGraphQL[]
+  financialRequestsList: GovernanceFinancialRequestGraphQL[]
 }
 
 export const FinancialRequestsView = ({ ready, loading, financialRequestsList = [] }: FinancialRequestsViewProps) => {
@@ -43,14 +50,14 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
 
-  const handleItemSelect = (selectedRequest: GovernanceFinancialRequestRecordGraphQL) => {
+  const handleItemSelect = (selectedRequest: GovernanceFinancialRequestGraphQL) => {
     if (selectedRequest.id !== rightSideContent?.id) {
       setRightSideContent(selectedRequest)
     }
   }
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
-  const tokenName = rightSideContent.token_name
+  const tokenName = normalizeTokenStandart(rightSideContent?.token)
 
   const RightSideBlock = () =>
     rightSideContent ? (
