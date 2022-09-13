@@ -1879,7 +1879,7 @@ block {
 
                 // Send interest payment to treasury
                 const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-                    initiator,                   // from_
+                    Tezos.get_self_address(),    // from_
                     treasuryAddress,             // to_
                     interestTreasuryShare,       // amount
                     loanTokenType                // token type
@@ -1887,7 +1887,7 @@ block {
 
                 // Send interest as rewards to Token Pool Rewards Contract
                 const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
-                    initiator,                   // from_   
+                    Tezos.get_self_address(),    // from_   
                     tokenPoolRewardAddress,      // to_
                     interestRewardPool,          // amount
                     loanTokenType                // token type
@@ -1916,16 +1916,26 @@ block {
                     newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
 
                     // transfer prinicpal repayment amount from repayer to token pool
-                    const transferRepaymentAmountToTokenPoolOperation : operation = tokenPoolTransfer(
-                        initiator,                  // from_
-                        Tezos.get_self_address(),   // to_
-                        totalPrincipalRepaid,       // amount
-                        loanTokenType               // token type
-                    );
+                    // const transferRepaymentAmountToTokenPoolOperation : operation = tokenPoolTransfer(
+                    //     initiator,                  // from_
+                    //     Tezos.get_self_address(),   // to_
+                    //     totalPrincipalRepaid,       // amount
+                    //     loanTokenType               // token type
+                    // );
 
-                    operations := transferRepaymentAmountToTokenPoolOperation # operations;
+                    // operations := transferRepaymentAmountToTokenPoolOperation # operations;
 
                 } else skip;
+
+
+                const makeRepaymentOperation : operation = tokenPoolTransfer(
+                    initiator,                  // from_
+                    Tezos.get_self_address(),   // to_
+                    initialRepaymentAmount,     // amount
+                    loanTokenType               // token type
+                );
+
+                operations := makeRepaymentOperation # operations;
 
                 // ------------------------------------------------------------------
                 // Update Storage
