@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { State } from 'reducers'
@@ -45,13 +45,17 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
   const dispatch = useDispatch()
   const { pathname } = useLocation()
 
-  const expandedRouteSection = mainNavigationLinks.find(({ path, subPages = null }) => {
-    if (subPages) {
-      return subPages.find(({ subPath }) => `/${subPath}` === pathname)
-    }
+  const expandedRouteSection = useMemo(
+    () =>
+      mainNavigationLinks.find(({ path, subPages = null }) => {
+        if (subPages) {
+          return subPages.find(({ subPath }) => `/${subPath}` === pathname)
+        }
 
-    return `/${path}` === pathname
-  })
+        return `/${path}` === pathname
+      }),
+    [pathname, mainNavigationLinks],
+  )
 
   const [isExpanded, setExpanded] = useState<number>(expandedRouteSection?.id || 0)
   const { sidebarOpened } = useSelector((state: State) => state.preferences)
