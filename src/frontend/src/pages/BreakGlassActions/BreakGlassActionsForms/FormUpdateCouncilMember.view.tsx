@@ -114,9 +114,9 @@ export const FormUpdateCouncilMemberView: FC = () => {
         <div className='align-to-right'>
           <Button
             className="stroke-01"
-            text={'Add Council Member'}
+            text={'Update Council Member'}
             kind={ACTION_PRIMARY}
-            icon={'plus'}
+            icon={'upload'}
             type="submit"
           />
         </div>
