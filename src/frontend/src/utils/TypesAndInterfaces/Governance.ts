@@ -22,7 +22,7 @@ export type GovernanceSatelliteActionGraphQL = Omit<Governance_Satellite_Action,
 export type GovernanceSatelliteGraphQL = Omit<Governance_Satellite, '__typename'>
 export type GovernanceStorageGraphQL = {
   governance: GovernanceGraphQL[]
-  governance_financial_request_record: GovernanceFinancialRequestGraphQL[]
+  governance_financial_request: GovernanceFinancialRequestGraphQL[]
   governance_proposal: GovernanceProposalGraphQL[]
 }
 
