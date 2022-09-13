@@ -247,7 +247,7 @@ export const normalizeProposals = (proposalsList?: GovernanceProposalGraphQL[]) 
 
 export const normalizeGovernanceStorage = (storage: GovernanceStorageGraphQL | null) => {
   const currentGovernance = storage?.governance?.[0]
-  const proposalLedger = normalizeProposals(storage?.governance_proposal_record)
+  const proposalLedger = normalizeProposals(storage?.governance_proposal)
 
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
