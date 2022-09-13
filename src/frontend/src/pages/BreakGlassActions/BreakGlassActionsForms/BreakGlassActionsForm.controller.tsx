@@ -6,6 +6,7 @@ import { FormSetSingleContractAdminView } from './FormSetSingleContractAdmin.vie
 import { FormSignActionView } from './FormSignAction.view'
 import { FormAddCouncilMemberView } from './FormAddCouncilMember.view'
 import { FormUpdateCouncilMemberView } from './FormUpdateCouncilMember.view'
+import { FormChangeCouncilMemberView } from './FormChangeCouncilMember.view'
 import { breakGlassActions } from "../BreakGlassActions.actions"
 
 type Props = {
@@ -20,6 +21,7 @@ export const BreakGlassActionsForm: FC<Props> = ({ action }) => {
       {breakGlassActions.SIGN_ACTION === action ? <FormSignActionView /> : null}
       {breakGlassActions.ADD_COUNCIL_MEMBER === action ? <FormAddCouncilMemberView /> : null}
       {breakGlassActions.UPDATE_COUNCIL_MEMBER === action ? <FormUpdateCouncilMemberView /> : null}
+      {breakGlassActions.CHANGE_COUNCIL_MEMBER === action ? <FormChangeCouncilMemberView /> : null}
     </>
   )
 }
