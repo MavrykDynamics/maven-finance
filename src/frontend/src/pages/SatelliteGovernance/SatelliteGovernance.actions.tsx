@@ -25,6 +25,8 @@ export const getGovernanceSatelliteStorage = () => async (dispatch: AppDispatch,
       GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE,
     )
 
+    console.log('%c ||||| governanceSatelliteStorage', 'color:yellowgreen', governanceSatelliteStorage)
+
     await dispatch({
       type: GET_GOVERNANCE_SATELLITE_STORAGE,
       governanceSatelliteStorage,

@@ -55,8 +55,8 @@ export const Council = () => {
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
-  const isPendingList = councilPendingActions.length && isUserInCouncilMembers
-  console.log('%c ||||| councilPastActions', 'color:yellowgreen', councilPastActions)
+  const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
+
   const currentCouncilPastActions = useMemo(
     () =>
       isPendingSignature
@@ -163,7 +163,7 @@ export const Council = () => {
                           initiator_id={item.initiator_id}
                           num_council_members={councilMembers.length}
                           councilPendingActionsLength={councilPendingActions?.length}
-                          council_action_record_parameters={item.council_action_record_parameters}
+                          parameters={item.parameters || []}
                         />
                       ))}
                     </Carousel>

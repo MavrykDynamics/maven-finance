@@ -1,12 +1,12 @@
 export const BREAK_GLASS_STORAGE_QUERY = `
-  query GetBreakGlassStorageQuery {
+ query GetBreakGlassStorageQuery {
     break_glass {
       action_counter
       action_expiry_days
       address
       glass_broken
       threshold
-      break_glass_action_records {
+      actions {
         action_type
         break_glass_id
         executed
@@ -18,7 +18,7 @@ export const BREAK_GLASS_STORAGE_QUERY = `
         signers {
           signer_id
           id
-          break_glass_action_record_id
+          break_glass_action_id
         }
         signers_count
       }
@@ -87,10 +87,6 @@ export const BREAK_GLASS_STATUS_QUERY = `
     aggregator {
       address
       name
-      request_rate_update_deviation_paused
-      request_rate_update_paused
-      set_observation_commit_paused
-      set_observation_reveal_paused
       withdraw_reward_smvk_paused
       withdraw_reward_xtz_paused
       admin
