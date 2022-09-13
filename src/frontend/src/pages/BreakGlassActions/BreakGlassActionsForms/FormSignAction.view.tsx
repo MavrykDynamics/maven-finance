@@ -11,13 +11,13 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
 
-export const FormSetAllContractsAdminView: FC = () => {
-  const [form, setForm] = useState({ address: '' })
+export const FormSignActionView: FC = () => {
+  const [form, setForm] = useState({ actionId: '' })
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    address: '',
+    actionId: '',
   })
 
-  const { address } = form;
+  const { actionId } = form;
 
   const handleClickButton = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -37,32 +37,32 @@ export const FormSetAllContractsAdminView: FC = () => {
 
   return (
     <FormStyled>
-      <h1>Set All Contracts Admin</h1>
-      <p>Please enter valid function parameters for adding a vestee</p>
+      <h1>Sign Action</h1>
+      <p>Please enter valid function parameters for sign action</p>
 
       <form onSubmit={handleClickButton}>
         <div className="input-size">
-          <label>New Admin Address</label>
+          <label>Break Glass Action ID</label>
 
           <Input
             type="text"
             required
-            value={address}
-            name="address"
+            value={actionId}
+            name="actionId"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.address}
+            inputStatus={formInputStatus.actionId}
           />
         </div>
 
         <Button
-          className="stroke-01"
-          text={'Set Contracts Admin'}
+          className="stroke-03"
+          text={'Sign Action'}
           kind={ACTION_PRIMARY}
-          icon={'profile'}
+          icon={'sign'}
           type="submit"
         />
       </form>

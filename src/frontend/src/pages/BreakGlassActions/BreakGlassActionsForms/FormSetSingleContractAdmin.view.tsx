@@ -55,7 +55,7 @@ export const FormSetSingleContractAdminView: FC = () => {
               handleBlur(e)
             }}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.address}
+            inputStatus={formInputStatus.newAddress}
           />
 
           <label>Target Contract</label>
@@ -69,13 +69,13 @@ export const FormSetSingleContractAdminView: FC = () => {
               handleBlur(e)
             }}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.address}
+            inputStatus={formInputStatus.targetContract}
           />
         </div>
 
         <Button
-          className="start_verification"
-          text={'Set Contracts Admin'}
+          className="stroke-01"
+          text={'Set Contract Admin'}
           kind={ACTION_PRIMARY}
           icon={'profile'}
           type="submit"
