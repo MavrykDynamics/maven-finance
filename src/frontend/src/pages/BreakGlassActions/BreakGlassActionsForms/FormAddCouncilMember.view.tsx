@@ -15,7 +15,7 @@ import { FormStyled } from './BreakGlassActionsForm.style'
 export const FormAddCouncilMemberView: FC = () => {
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState({ address: '', website: '', name: '', image: '' })
-  console.log("🚀 ~ file: FormAddCouncilMember.view.tsx ~ line 18 ~ form", form)
+
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     address: '',
     website: '',
@@ -23,7 +23,7 @@ export const FormAddCouncilMemberView: FC = () => {
     image: '',
   })
 
-  const { address, website, name, image } = form;
+  const { address, website, name, image } = form
   const disabled = false
 
   const handleClickButton = (e: React.FormEvent<HTMLFormElement>) => {
