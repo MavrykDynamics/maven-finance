@@ -48,9 +48,20 @@ export type ProposalBytesType = {
   data: string
 }
 
+<<<<<<< HEAD
 export type ProposalUpdateFormProposalBytes = ProposalDataType & {
   validTitle: InputStatusType
   validBytes: InputStatusType
+=======
+export type ProposalUpdateFormProposalBytes = {
+  validTitle: InputStatusType
+  validBytes: InputStatusType
+  bytes: string
+  governance_proposal_record_id: number
+  id: number
+  record_internal_id: number
+  title: string
+>>>>>>> origin/front-udate-graphql-types
 }
 
 export type ProposalUpdateForm = {

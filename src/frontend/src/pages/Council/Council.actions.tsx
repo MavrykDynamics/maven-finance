@@ -49,7 +49,7 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, 
 
     dispatch({
       type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
-      councilPastActions: storage.council_action_record,
+      councilPastActions: storage.council_action,
     })
   } catch (error) {
     if (error instanceof Error) {
@@ -74,9 +74,8 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
       COUNCIL_PENDING_ACTIONS_NAME,
       COUNCIL_PENDING_ACTIONS_VARIABLE,
     )
-    const councilActionRecord: CouncilActionRecordhQL[] = storage?.council_action_record?.length
-      ? storage?.council_action_record
-      : []
+
+    const councilActionRecord: CouncilActionRecordhQL[] = storage?.council_action?.length ? storage?.council_action : []
     const councilPendingActions = councilActionRecord.filter((item) => {
       const timeNow = Date.now()
       const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
