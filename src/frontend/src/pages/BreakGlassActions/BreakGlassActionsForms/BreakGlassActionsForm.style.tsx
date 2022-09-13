@@ -32,9 +32,16 @@ export const FormStyled = styled.div`
   button {
     max-width: 250px;
 
-    &.start_verification {
+    &.stroke-01 {
       svg {
         stroke-width: 0.1;
+        fill: ${textsColor};
+      }
+    }
+
+    &.stroke-03 {
+      svg {
+        stroke-width: 0.3;
         fill: ${textsColor};
       }
     }
