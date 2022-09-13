@@ -9,6 +9,7 @@ from mavryk.sql_model.enums import RewardType
 class Aggregator(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregators', null=True)
     aggregator_factory                      = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
+    creation_timestamp                      = fields.DatetimeField(auto_now_add=True)
     token_0_symbol                          = fields.CharField(default='', max_length=36)
     token_1_symbol                          = fields.CharField(default='', max_length=36)
     name                                    = fields.TextField(default='')
