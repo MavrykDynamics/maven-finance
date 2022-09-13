@@ -22,7 +22,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   const { exchangeRate, mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { doormanAddress, mvkTokenAddress } = useSelector((state: State) => state.contractAddresses)
   const { user } = useSelector((state: State) => state.user)
-  const totalSupply = mvkTokenStorage?.totalSupply ?? 0
+  const totalSupply = (mvkTokenStorage?.totalSupply ?? 0) + stakedMvkTokens
   const maximumTotalSupply = mvkTokenStorage?.maximumTotalSupply ?? 0
 
   const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
@@ -30,31 +30,23 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
 
   return (
     <DoormanStatsStyled>
-      <DoormanStatsHeader>MVK Staking contract details</DoormanStatsHeader>
+      <DoormanStatsHeader>Key MVK Metrics</DoormanStatsHeader>
       <DoormanList>
+        <div>
+          <h4>MVK Price</h4>
+          <var>
+            <CommaNumber value={exchangeRate} loading={loading} endingText={'USD'} />
+          </var>
+        </div>
+
         {mvkTokenAddress?.address ? (
           <div>
-            <h4>MVK Token address</h4>
+            <h4>Contract Address</h4>
             <var className="click-address">
               <TzAddress tzAddress={mvkTokenAddress?.address} hasIcon />
             </var>
           </div>
         ) : null}
-        {doormanAddress?.address ? (
-          <div>
-            <h4>Doorman address</h4>
-            <var className="click-address">
-              <TzAddress tzAddress={doormanAddress?.address} hasIcon />
-            </var>
-          </div>
-        ) : null}
-
-        <div>
-          <h4>Total staked MVK</h4>
-          <var>
-            <CommaNumber value={stakedMvkTokens} loading={loading} endingText={'MVK'} />
-          </var>
-        </div>
 
         <div>
           <h4>
@@ -88,10 +80,33 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
           </var>
         </div>
 
+        {/* {doormanAddress?.address ? (
+          <div>
+            <h4>Doorman address</h4>
+            <var className="click-address">
+              <TzAddress tzAddress={doormanAddress?.address} hasIcon />
+            </var>
+          </div>
+        ) : null} */}
+
         <div>
-          <h4>Circulating</h4>
+          <h4>Total staked MVK</h4>
+          <var>
+            <CommaNumber value={stakedMvkTokens} loading={loading} endingText={'MVK'} />
+          </var>
+        </div>
+
+        <div>
+          <h4>Total Circulating</h4>
           <var>
             <CommaNumber value={totalSupply} loading={loading} endingText={'MVK'} />
+          </var>
+        </div>
+
+        <div>
+          <h4>Max supply</h4>
+          <var>
+            <CommaNumber value={maxSupplyCapValue} loading={loading} endingText={'USD'} />
           </var>
         </div>
 
@@ -102,19 +117,12 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
           </var>
         </div>
 
-        <div>
-          <h4>Max supply cap</h4>
-          <var>
-            <CommaNumber value={maxSupplyCapValue} loading={loading} endingText={'USD'} />
-          </var>
-        </div>
-
-        <div>
+        {/* <div>
           <h4>Total supply</h4>
           <var>
             <CommaNumber value={maximumTotalSupply} loading={loading} endingText={'MVK'} />
           </var>
-        </div>
+        </div> */}
       </DoormanList>
     </DoormanStatsStyled>
   )
