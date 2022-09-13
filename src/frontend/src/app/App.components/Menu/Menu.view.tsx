@@ -1,6 +1,7 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { State } from 'reducers'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
@@ -44,25 +45,29 @@ export const SocialIcons = () => (
 export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewProps) => {
   const dispatch = useDispatch()
   const { pathname } = useLocation()
+  const showSidebarOpened = useMedia('(min-width: 1400px)')
+  const { sidebarOpened } = useSelector((state: State) => state.preferences)
 
-  const expandedRouteSection = useMemo(
-    () =>
-      mainNavigationLinks.find(({ path, subPages = null }) => {
+  useEffect(() => {
+    if (showSidebarOpened || sidebarOpened) {
+      const expandedRouteSection = mainNavigationLinks.find(({ path, subPages = null }) => {
         if (subPages) {
           return subPages.find(({ subPath }) => `/${subPath}` === pathname)
         }
 
         return `/${path}` === pathname
-      }),
-    [pathname, mainNavigationLinks],
-  )
+      })
 
-  const [isExpanded, setExpanded] = useState<number>(expandedRouteSection?.id || 0)
-  const { sidebarOpened } = useSelector((state: State) => state.preferences)
+      setExpanded(expandedRouteSection?.id || 0)
+    } else {
+      setExpanded(0)
+    }
+  }, [pathname, showSidebarOpened, sidebarOpened])
 
-  const handleToggle = (id: number) => {
+  const [isExpanded, setExpanded] = useState<number>(0)
+
+  const handleToggle = () => {
     dispatch(toggleSidebarCollapsing(true))
-    setExpanded(id === isExpanded ? 0 : id)
   }
 
   const burgerClickHandler = useCallback(() => {
@@ -102,7 +107,7 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
               )
             })}
           </MenuGrid>
-          <MenuFooter>
+          <MenuFooter className={`${sidebarOpened ? '' : 'menu-collapsed'}`}>
             <SocialIcons />
             MAVRYK App <p>v1.0</p>
           </MenuFooter>
