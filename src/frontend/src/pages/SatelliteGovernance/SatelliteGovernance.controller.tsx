@@ -89,7 +89,7 @@ export const SatelliteGovernance = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
   const [activeTab, setActiveTab] = useState('ongoing')
-  const governanceSatelliteActionRecord = governanceSatelliteStorage?.governance_satellite_action_record
+  const governanceSatelliteActionRecord = governanceSatelliteStorage?.governance_satellite_action
 
   const ongoingActionsAmount = getOngoingActionsList(governanceSatelliteActionRecord)?.length
 
