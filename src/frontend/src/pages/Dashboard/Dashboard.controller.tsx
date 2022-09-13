@@ -19,6 +19,8 @@ export type mvkStatsType = {
   prevPrice: number
 }
 
+//TODO: add calculation for tvl value
+
 export type TabId = 'lending' | 'vaults' | 'satellites' | 'treasury' | 'farms' | 'oracles'
 const tabIds = ['lending', 'vaults', 'satellites', 'treasury', 'farms', 'oracles'] as const
 type TabIdTypes = typeof tabIds[number]
@@ -55,11 +57,7 @@ export const Dashboard = () => {
   return (
     <Page>
       <PageHeader page={'dashboard'} />
-      <DashboardView
-        tvl={totalSupply * exchangeRate}
-        mvkStatsBlock={mvkStatsBlock}
-        activeTab={isValidId(tab) ? tab : 'lending'}
-      />
+      <DashboardView tvl={0} mvkStatsBlock={mvkStatsBlock} activeTab={isValidId(tab) ? tab : 'lending'} />
     </Page>
   )
 }

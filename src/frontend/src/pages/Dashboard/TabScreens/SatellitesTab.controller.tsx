@@ -17,10 +17,14 @@ export const SatellitesTab = () => {
 
   const satellitesInfo = satelliteLedger.reduce(
     (acc, satellite: SatelliteRecord) => {
-      acc.activeSatellites += satellite.status === 0 ? 1 : 0
+      if (satellite.status !== 0) return acc
+
+      acc.activeSatellites += 1
       acc.avgFee += satellite.satelliteFee
       acc.avgStakedMVK += satellite.sMvkBalance
       acc.partisipationRate += satellite.participation
+      acc.avgFreesMVKSpace += satellite.sMvkBalance - satellite.totalDelegatedAmount
+      acc.avgDelegatedsMVK += satellite.sMvkBalance + satellite.totalDelegatedAmount
 
       return acc
     },
@@ -34,11 +38,11 @@ export const SatellitesTab = () => {
     },
   )
 
-  satellitesInfo.avgFee = satellitesInfo.avgFee / satelliteLedger.length
-  satellitesInfo.avgStakedMVK = satellitesInfo.avgStakedMVK / satelliteLedger.length
-  satellitesInfo.partisipationRate = satellitesInfo.partisipationRate / satelliteLedger.length
-  satellitesInfo.avgFreesMVKSpace = satellitesInfo.avgFreesMVKSpace / satelliteLedger.length
-  satellitesInfo.avgDelegatedsMVK = satellitesInfo.avgDelegatedsMVK / satelliteLedger.length
+  satellitesInfo.avgFee = satellitesInfo.avgFee / satellitesInfo.activeSatellites
+  satellitesInfo.avgStakedMVK = satellitesInfo.avgStakedMVK / satellitesInfo.activeSatellites
+  satellitesInfo.partisipationRate = satellitesInfo.partisipationRate / satellitesInfo.activeSatellites
+  satellitesInfo.avgFreesMVKSpace = satellitesInfo.avgFreesMVKSpace / satellitesInfo.activeSatellites
+  satellitesInfo.avgDelegatedsMVK = satellitesInfo.avgDelegatedsMVK / satellitesInfo.activeSatellites
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_satelliteTab_bg.png">

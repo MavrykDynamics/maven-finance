@@ -54,9 +54,7 @@ export const FarmsTab = () => {
 
                 <div className="row-info">
                   <div className="name">Earn: </div>
-                  <div className="value">
-                    <span style={{ color: 'red' }}>need data</span>
-                  </div>
+                  <div className="value">sMVK + Fees</div>
                 </div>
 
                 <div className="row-info">
