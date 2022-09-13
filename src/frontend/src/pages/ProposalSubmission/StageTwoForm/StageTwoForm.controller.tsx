@@ -187,7 +187,6 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
   const isCanEditProposal =
     prepareToUpdate.length && prepareToUpdate.every((item) => Boolean(item.title) && Boolean(item.bytes))
   const isNoOneError = form.proposalBytes.every((item) => item.validTitle !== 'error' && item.validBytes !== 'error')
-
   const isDisabledEdit = disabled || !isCanEditProposal || !isNoOneError
 
   const handleUpdateProposal = async () => {
