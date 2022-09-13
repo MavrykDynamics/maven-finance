@@ -269,7 +269,7 @@ export const normalizeGovernanceStorage = (storage: GovernanceStorageGraphQL | n
     currentRoundProposals: new MichelsonMap<string, ProposalRecordType>(),
     currentRoundStartLevel: currentGovernance?.current_round_start_level ?? 0,
     currentRoundVotes: new MichelsonMap<string, Date>(),
-    financialRequestLedger: storage?.governance_financial_request_record,
+    financialRequestLedger: storage?.governance_financial_request,
     governanceLambdaLedger: new MichelsonMap<string, Date>(),
     nextProposalId: currentGovernance?.next_proposal_id ?? 0,
     proposalLedger,
