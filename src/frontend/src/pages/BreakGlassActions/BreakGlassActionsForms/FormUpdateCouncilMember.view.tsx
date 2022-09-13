@@ -5,6 +5,7 @@ import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.consta
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { Input } from "app/App.components/Input/Input.controller"
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
+import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // types
 import { InputStatusType } from "app/App.components/Input/Input.constants"
@@ -44,6 +45,10 @@ export const FormUpdateCouncilMemberView: FC = () => {
 
   return (
     <FormStyled>
+      <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
+        <Icon id="question" />
+      </a>
+
       <h1>Update Council Member Info</h1>
       <p>Please enter valid function parameters for adding council member info</p>
 

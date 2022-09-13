@@ -4,6 +4,7 @@ import React, { FC, useState } from 'react'
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
+import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
@@ -33,6 +34,10 @@ export const FormRemoveCouncilMemberView: FC = () => {
 
   return (
     <FormStyled>
+      <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
+        <Icon id="question" />
+      </a>
+
       <h1>Remove Council Member</h1>
       <p>Please enter valid function parameters for removing a council member</p>
 

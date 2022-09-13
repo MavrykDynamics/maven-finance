@@ -2,6 +2,7 @@ import styled from "styled-components/macro";
 import { skyColor, headerColor, textsColor } from "styles";
 
 export const FormStyled = styled.div`
+  position: relative;
   padding: 40px 20px;
 
   h1 {
