@@ -1,12 +1,6 @@
 // type
 import type {
   Governance,
-<<<<<<< HEAD
-  Governance_Financial_Request_Record,
-  Governance_Proposal_Record,
-  Governance_Satellite_Snapshot_Record,
-=======
->>>>>>> origin/front-udate-graphql-types
   Maybe,
   Token,
   Governance_Satellite,
@@ -19,7 +13,7 @@ import type {
 } from '../generated/graphqlTypes'
 import { normalizeGovernanceStorage, normalizeProposal } from '../../pages/Governance/Governance.helpers'
 
-export type TokenGraphQL = Maybe<number> | undefined
+export type TokenGraphQL = Maybe<Token> | undefined
 export type GovernanceGraphQL = Omit<Governance, '__typename'>
 export type GovernanceFinancialRequestGraphQL = Omit<Governance_Financial_Request, '__typename'>
 export type GovernanceProposalGraphQL = Omit<Governance_Proposal, '__typename'>

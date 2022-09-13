@@ -112,15 +112,6 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
 
   useEffect(() => {
     const proposalBytes = findUserCurrentRoundProposal?.proposalData?.length
-<<<<<<< HEAD
-      ? (findUserCurrentRoundProposal?.proposalData.map((item) => {
-          return { ...item, validTitle: '', validBytes: '' }
-        }) as ProposalUpdateFormProposalBytes[])
-      : [PROPOSAL_BYTE]
-    setForm({
-      title: proposalTitle,
-      proposalBytes,
-=======
       ? findUserCurrentRoundProposal?.proposalData.map((item) => {
           return { ...item, validTitle: '', validBytes: '' }
         })
@@ -128,7 +119,6 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     setForm({
       title: proposalTitle,
       proposalBytes: proposalBytes as ProposalUpdateFormProposalBytes[],
->>>>>>> origin/front-udate-graphql-types
     })
   }, [findUserCurrentRoundProposal, proposalTitle])
   const disabled = !isProposalRound || !form.title
@@ -197,11 +187,6 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
   const isCanEditProposal =
     prepareToUpdate.length && prepareToUpdate.every((item) => Boolean(item.title) && Boolean(item.bytes))
   const isNoOneError = form.proposalBytes.every((item) => item.validTitle !== 'error' && item.validBytes !== 'error')
-<<<<<<< HEAD
-  console.log('%c ||||| isNoOneError', 'color:yellowgreen', isNoOneError)
-=======
-
->>>>>>> origin/front-udate-graphql-types
   const isDisabledEdit = disabled || !isCanEditProposal || !isNoOneError
 
   const handleUpdateProposal = async () => {
