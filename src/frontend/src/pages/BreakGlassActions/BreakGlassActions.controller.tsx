@@ -1,4 +1,5 @@
-import React, { FC, useState, useMemo } from "react";
+import React, { FC, useState, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
@@ -6,13 +7,15 @@ import { Button } from '../../app/App.components/Button/Button.controller'
 import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreakGlassActionsCard.controller'
-import { breakGlassActions } from "./BreakGlassActions.actions"
-import { BreakGlassActionsForm } from "./BreakGlassActionsForms/BreakGlassActionsForm.controller";
+import { breakGlassActions } from './BreakGlassActions.actions'
+import { BreakGlassActionsForm } from './BreakGlassActionsForms/BreakGlassActionsForm.controller'
+
+// actions
+import { propagateBreakGlass } from './BreakGlassActions.actions'
 
 // styles
 import { Page } from 'styles'
-import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions } from "./BreakGlassActions.style"
-
+import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions } from './BreakGlassActions.style'
 
 // TODO: change mock to valid data
 const mock = [
@@ -54,13 +57,16 @@ const mock = [
 ]
 
 const actionNameHandler = (name: string) => {
-  return name.split('_').map(word => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ');
+  return name
+    .split('_')
+    .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
+    .join(' ')
 }
 
 export const BreakGlassActions: FC = () => {
+  const dispatch = useDispatch()
   const itemsForDropDown = useMemo(
-    () =>
-    [
+    () => [
       ...Object.values(breakGlassActions).map((item) => {
         return {
           text: actionNameHandler(item),
@@ -68,7 +74,7 @@ export const BreakGlassActions: FC = () => {
         }
       }),
     ],
-    []
+    [],
   )
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -76,13 +82,13 @@ export const BreakGlassActions: FC = () => {
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
   const handleClickPropagateBreakGlass = () => {
-  
+    dispatch(propagateBreakGlass())
   }
-  
+
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
-  
+
   const handleClickDropdownItem = (e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
@@ -98,7 +104,7 @@ export const BreakGlassActions: FC = () => {
 
         <Button
           className="start_verification"
-          text={'Propagate Break Glass'}
+          text="Propagate Break Glass"
           kind={ACTION_PRIMARY}
           icon={'plus'}
           onClick={handleClickPropagateBreakGlass}
@@ -108,7 +114,7 @@ export const BreakGlassActions: FC = () => {
       <BreakGlassActionsCard>
         <div className="top-bar">
           <h1 className="top-bar-title">Break Glass Actions</h1>
-   
+
           <div className="dropdown-size">
             <DropDown
               clickOnDropDown={handleClickDropdown}
@@ -126,9 +132,9 @@ export const BreakGlassActions: FC = () => {
 
       <PastBreakGlassActions>
         <h1>Past Break Glass Actions</h1>
-        
+
         {mock.map((item) => {
-          const { id, ...props } = item;
+          const { id, ...props } = item
           return <PastBreakGlassActionsCard key={id} {...props} />
         })}
       </PastBreakGlassActions>
