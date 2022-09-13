@@ -1,27 +1,29 @@
 // type
 import type {
   Governance,
-  Governance_Financial_Request_Record,
-  Governance_Proposal_Record,
-  Governance_Satellite_Snapshot_Record,
   Maybe,
-  Governance_Proposal_Record_Payment,
-  Governance_Satellite_Action_Record,
+  Token,
   Governance_Satellite,
+  Governance_Financial_Request,
+  Governance_Proposal,
+  Governance_Satellite_Snapshot,
+  Governance_Satellite_Action,
+  Governance_Proposal_Payment,
+  Governance_Proposal_Data,
 } from '../generated/graphqlTypes'
 import { normalizeGovernanceStorage, normalizeProposal } from '../../pages/Governance/Governance.helpers'
 
-export type TokenGraphQL = Maybe<number> | undefined
+export type TokenGraphQL = Maybe<Token> | undefined
 export type GovernanceGraphQL = Omit<Governance, '__typename'>
-export type GovernanceFinancialRequestRecordGraphQL = Omit<Governance_Financial_Request_Record, '__typename'>
-export type GovernanceProposalRecordGraphQL = Omit<Governance_Proposal_Record, '__typename'>
-export type GovernanceSatelliteSnapshotRecordGraphQL = Omit<Governance_Satellite_Snapshot_Record, '__typename'>
-export type GovernanceSatelliteActionRecordGraphQL = Omit<Governance_Satellite_Action_Record, '__typename'>
+export type GovernanceFinancialRequestGraphQL = Omit<Governance_Financial_Request, '__typename'>
+export type GovernanceProposalGraphQL = Omit<Governance_Proposal, '__typename'>
+export type GovernanceSatelliteSnapshotGraphQL = Omit<Governance_Satellite_Snapshot, '__typename'>
+export type GovernanceSatelliteActionGraphQL = Omit<Governance_Satellite_Action, '__typename'>
 export type GovernanceSatelliteGraphQL = Omit<Governance_Satellite, '__typename'>
 export type GovernanceStorageGraphQL = {
   governance: GovernanceGraphQL[]
-  governance_financial_request_record: GovernanceFinancialRequestRecordGraphQL[]
-  governance_proposal_record: GovernanceProposalRecordGraphQL[]
+  governance_financial_request: GovernanceFinancialRequestGraphQL[]
+  governance_proposal: GovernanceProposalGraphQL[]
 }
 
 export type GovernanceStorage = ReturnType<typeof normalizeGovernanceStorage>
@@ -72,18 +74,12 @@ export interface ProposalVote {
   votingPower: number
 }
 
-export interface ProposalDataType {
-  bytes: string
-  governance_proposal_record_id: number
-  id: number
-  record_internal_id: number
-  title: string
-}
+export type ProposalDataType = Governance_Proposal_Data
 
 export type TokenStandardType = 0 | 1 | 2 | 3
 export type PaymentType = 'XTZ' | 'MVK'
 
-export type ProposalPaymentType = Governance_Proposal_Record_Payment
+export type ProposalPaymentType = Governance_Proposal_Payment
 
 export interface SnapshotRecordType {
   id: number

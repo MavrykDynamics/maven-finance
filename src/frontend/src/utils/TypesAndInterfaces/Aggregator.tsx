@@ -1,6 +1,6 @@
 // type
-import type { Aggregator, Aggregator_Factory, Aggregator_Oracle_Record } from '../generated/graphqlTypes'
+import type { Aggregator, Aggregator_Factory, Aggregator_Oracle } from '../generated/graphqlTypes'
 
 export type AggregatorGraphQL = Omit<Aggregator, '__typename'>
 export type AggregatorFactoryGraphQL = Omit<Aggregator_Factory, '__typename'>
-export type AggregatorOracleRecordGraphQL = Omit<Aggregator_Oracle_Record, '__typename'>
+export type AggregatorOracleGraphQL = Omit<Aggregator_Oracle, '__typename'>
