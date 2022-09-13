@@ -5,6 +5,7 @@ import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.consta
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { Input } from "app/App.components/Input/Input.controller"
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // types
 import { InputStatusType } from "app/App.components/Input/Input.constants"
@@ -12,7 +13,15 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
 
-export const FormUpdateCouncilMemberView: FC = () => {
+const itemsForDropDown = [
+  {text: 'Choose', value: ''}
+]
+
+export const FormChangeCouncilMemberView: FC = () => {
+  const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
+  const [ddIsOpen, setDdIsOpen] = useState(false)
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState({ address: '', website: '', name: '', image: '' })
 
@@ -42,12 +51,34 @@ export const FormUpdateCouncilMemberView: FC = () => {
     })
   }
 
+  const handleClickDropdown = () => {
+    setDdIsOpen(!ddIsOpen)
+  }
+
+  const handleClickDropdownItem = (e: string) => {
+    const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
+    setChosenDdItem(chosenItem)
+    setDdIsOpen(!ddIsOpen)
+  }
+
   return (
     <FormStyled>
-      <h1>Update Council Member Info</h1>
-      <p>Please enter valid function parameters for adding council member info</p>
+      <h1>Change Council Member</h1>
+      <p>Please enter valid function parameters for changing a council member</p>
 
       <form onSubmit={handleClickButton}>
+        <div className='form-fields input-size-secondary margin-bottom-20'>
+          <label>Council Member Address</label>
+          <DropDown
+            clickOnDropDown={handleClickDropdown}
+            placeholder={ddItems[0]}
+            isOpen={ddIsOpen}
+            itemSelected={chosenDdItem?.text}
+            items={ddItems}
+            clickOnItem={(e) => handleClickDropdownItem(e)}
+          />
+        </div>
+
         <div className="form-fields in-two-columns">
           <div className='input-size-secondary margin-bottom-20'>
             <label>Council Member Address</label>
