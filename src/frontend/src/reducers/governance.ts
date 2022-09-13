@@ -21,7 +21,7 @@ import { PROPOSAL_UPDATE_ERROR, PROPOSAL_UPDATE_RESULT } from '../pages/Proposal
 import { GET_GOVERNANCE_SATELLITE_STORAGE } from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import type {
-  GovernanceSatelliteActionRecordGraphQL,
+  GovernanceSatelliteActionGraphQL,
   GovernanceSatelliteGraphQL,
 } from '../utils/TypesAndInterfaces/Governance'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
@@ -32,7 +32,7 @@ const PROPOSAL = 'PROPOSAL',
 
 export type GovernanceSatellite = {
   governance_satellite: GovernanceSatelliteGraphQL[]
-  governance_satellite_action_record: GovernanceSatelliteActionRecordGraphQL[]
+  governance_satellite_action: GovernanceSatelliteActionGraphQL[]
 }
 export type GovernancePhase = typeof PROPOSAL | typeof VOTING | typeof TIME_LOCK
 export interface GovernanceState {
@@ -53,7 +53,7 @@ const governanceDefaultState: GovernanceState = {
   pastProposals: [],
   governanceSatelliteStorage: {
     governance_satellite: [],
-    governance_satellite_action_record: [],
+    governance_satellite_action: [],
   },
 }
 

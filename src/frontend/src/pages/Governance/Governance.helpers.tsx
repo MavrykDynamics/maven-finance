@@ -6,7 +6,7 @@ import {
   PaymentType,
   GovernanceStorageGraphQL,
   ProposalRecordType,
-  GovernanceProposalRecordGraphQL,
+  GovernanceProposalGraphQL,
 } from '../../utils/TypesAndInterfaces/Governance'
 import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
 
@@ -208,7 +208,7 @@ function convertGovernanceRound(round: number) {
   return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : round === 2 ? 'TIME_LOCK' : ''
 }
 
-export const normalizeProposal = (item: GovernanceProposalRecordGraphQL) => {
+export const normalizeProposal = (item: GovernanceProposalGraphQL) => {
   return {
     id: item.id,
     proposerId: item.proposer_id,
@@ -234,20 +234,20 @@ export const normalizeProposal = (item: GovernanceProposalRecordGraphQL) => {
     currentCycleStartLevel: item.current_cycle_start_level,
     currentCycleEndLevel: item.current_cycle_end_level,
     cycle: item.cycle,
-    proposalData: item.proposal_data,
-    proposalPayments: item.proposal_payments,
+    proposalData: item.data,
+    proposalPayments: item.payments,
     governanceId: item.governance_id,
     paymentProcessed: item.payment_processed,
   }
 }
 
-export const normalizeProposals = (proposalsList?: GovernanceProposalRecordGraphQL[]) => {
+export const normalizeProposals = (proposalsList?: GovernanceProposalGraphQL[]) => {
   return proposalsList?.length ? proposalsList.map((item) => normalizeProposal(item)) : []
 }
 
 export const normalizeGovernanceStorage = (storage: GovernanceStorageGraphQL | null) => {
   const currentGovernance = storage?.governance?.[0]
-  const proposalLedger = normalizeProposals(storage?.governance_proposal_record)
+  const proposalLedger = normalizeProposals(storage?.governance_proposal)
 
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),

@@ -12,25 +12,25 @@ export function normalizeSatelliteRecord(
   userVotingHistory: MavrykUserGraphQl,
 ): SatelliteRecord {
   const totalDelegatedAmount = satelliteRecord
-    ? satelliteRecord.delegation_records.reduce(
+    ? satelliteRecord.delegations.reduce(
         (sum: number, current: { user: { smvk_balance: number } }) => sum + current.user.smvk_balance,
         0,
       )
     : 0
 
   const proposalVotingHistory = userVotingHistory
-    ? userVotingHistory?.governance_proposal_records_votes?.map((vote) => {
+    ? userVotingHistory?.governance_proposals_votes?.map((vote) => {
         return {
           id: vote.id,
           currentRoundVote: vote.current_round_vote,
-          proposalId: vote.governance_proposal_record_id || 0,
+          proposalId: vote.governance_proposal_id || 0,
           round: vote.round,
           timestamp: new Date(vote.timestamp as string),
           vote: vote.vote,
           voterId: vote.voter_id,
           votingPower: calcWithoutPrecision(vote.voting_power),
-          requestData: vote.governance_proposal_record,
-          voteName: vote?.governance_proposal_record?.title,
+          requestData: vote.governance_proposal,
+          voteName: vote?.governance_proposal?.title,
         }
       })
     : []
@@ -74,16 +74,19 @@ export function normalizeSatelliteRecord(
       })
     : []
 
-  const oracleRecords = (satelliteRecord?.user?.aggregator_oracle_records || []).map(({ oracle, ...rest }) => {
+  const oracleRecords = (satelliteRecord?.user?.aggregator_oracles || []).map(({ oracle, ...rest }) => {
     return {
       ...rest,
+      // @ts-ignore
       sMVKReward: oracle?.aggregator_oracle_rewards_smvk?.[0]?.smvk || 0,
+      // @ts-ignore
       XTZReward: oracle?.aggregator_oracle_rewards_xtz?.[0]?.xtz || 0,
     }
   })
 
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord?.user_id || '',
+    // @ts-ignore
     oracleRecords,
     description: satelliteRecord?.description || '',
     website: satelliteRecord?.website || '',
@@ -94,7 +97,7 @@ export function normalizeSatelliteRecord(
     name: satelliteRecord?.name || '',
     satelliteFee: (satelliteRecord?.fee || 0) / 100, //- not exist
     status: satelliteRecord?.status,
-    delegatorCount: satelliteRecord?.delegation_records.length,
+    delegatorCount: satelliteRecord?.delegations.length,
     totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
     // unregisteredDateTime: new Date(satelliteRecord?.unregistered_datetime), not exist
     unregisteredDateTime: new Date(0),
@@ -107,7 +110,7 @@ export function normalizeSatelliteRecord(
   return newSatelliteRecord
 }
 
-function convertToSatelliteRecords(satelliteRecordList: DelegationGraphQl['satellite_records']): SatelliteRecord[] {
+function convertToSatelliteRecords(satelliteRecordList: DelegationGraphQl['satellites']): SatelliteRecord[] {
   return satelliteRecordList?.length
     ? satelliteRecordList.map((item) => normalizeSatelliteRecord(item, item?.user))
     : []
@@ -133,7 +136,7 @@ export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl)
       satelliteWebsiteMaxLength: delegationStorage?.satellite_website_max_length,
     },
     delegateLedger: new MichelsonMap<string, DelegateRecord>(),
-    satelliteLedger: convertToSatelliteRecords(delegationStorage?.satellite_records),
+    satelliteLedger: convertToSatelliteRecords(delegationStorage?.satellites),
     numberActiveSatellites: delegationStorage?.max_satellites,
     totalDelegatedMVK: delegationStorage?.max_satellites,
   }

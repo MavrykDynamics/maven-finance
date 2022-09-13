@@ -11,7 +11,7 @@ export const COUNCIL_STORAGE_QUERY = `
       request_purpose_max_length
       request_token_name_max_length
       threshold
-      council_action_records {
+      actions {
         action_type
         council_id
         executed
@@ -27,7 +27,7 @@ export const COUNCIL_STORAGE_QUERY = `
         }
       }
       council_member_website_max_length
-      council_council_members {
+      members {
         id
         name
         image
@@ -51,7 +51,7 @@ const COUNCIL_ACTIONS_PARAMS = `
   start_datetime
   status
   action_type
-  council_action_record_parameters {
+  parameters {
     id
     name
     value
@@ -60,7 +60,7 @@ const COUNCIL_ACTIONS_PARAMS = `
 
 export const COUNCIL_PAST_ACTIONS_QUERY = `
   query GetPastCouncilActions {
-    council_action_record(where: {executed: {_eq: true}}) {
+    council_action(where: {executed: {_eq: true}}) {
       ${COUNCIL_ACTIONS_PARAMS}
     }
   }
@@ -70,7 +70,7 @@ export const COUNCIL_PAST_ACTIONS_VARIABLE = {}
 
 export const COUNCIL_PENDING_ACTIONS_QUERY = `
   query GetPandingCouncilActions {
-    council_action_record(where: {status: {_eq: "0"}}) {
+    council_action(where: {status: {_eq: "0"}}) {
       ${COUNCIL_ACTIONS_PARAMS}
     }
   }
