@@ -45,7 +45,7 @@ export const FormSetSingleContractAdminView: FC = () => {
         <div className="form-fields input-size-primary">
           <label>New Admin Address</label>
           <Input
-            className="margin-bottom-15"
+            className="margin-bottom-20"
             type="text"
             required
             value={newAddress}
