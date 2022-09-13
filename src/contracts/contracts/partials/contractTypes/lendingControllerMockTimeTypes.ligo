@@ -109,6 +109,9 @@ type loanTokenRecordType is [@layout:comb] record [
     tokenType                               : tokenType; 
     tokenDecimals                           : nat;
 
+    // oracleType                              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
+    // oracleAddress                           : address;   // zeroAddress if no oracle
+
     lpTokensTotal                           : nat;
     lpTokenContractAddress                  : address;
     lpTokenId                               : nat;

@@ -758,7 +758,71 @@ block {
     else if rebaseDecimals = 3n then 
         tokenValueRebased := tokenValueRebased * 1000n 
     else if rebaseDecimals = 4n then 
-        tokenValueRebased := tokenValueRebased * fpa10e4  // e.g. fixed point accuracy (10^4 or 1e4)
+        tokenValueRebased := tokenValueRebased * fpa10e4  
+    else if rebaseDecimals = 5n then 
+        tokenValueRebased := tokenValueRebased * fpa10e5
+    else if rebaseDecimals = 6n then 
+        tokenValueRebased := tokenValueRebased * fpa10e6
+    else if rebaseDecimals = 7n then 
+        tokenValueRebased := tokenValueRebased * fpa10e7
+    else if rebaseDecimals = 8n then 
+        tokenValueRebased := tokenValueRebased * fpa10e8
+    else if rebaseDecimals = 9n then 
+        tokenValueRebased := tokenValueRebased * fpa10e9
+    else if rebaseDecimals = 10n then 
+        tokenValueRebased := tokenValueRebased * fpa10e10
+    else if rebaseDecimals = 11n then 
+        tokenValueRebased := tokenValueRebased * fpa10e11
+    else if rebaseDecimals = 12n then 
+        tokenValueRebased := tokenValueRebased * fpa10e12
+    else if rebaseDecimals = 13n then 
+        tokenValueRebased := tokenValueRebased * fpa10e13
+    else if rebaseDecimals = 14n then 
+        tokenValueRebased := tokenValueRebased * fpa10e14
+    else if rebaseDecimals = 15n then 
+        tokenValueRebased := tokenValueRebased * fpa10e15
+    else if rebaseDecimals = 16n then 
+        tokenValueRebased := tokenValueRebased * fpa10e16
+    else if rebaseDecimals = 17n then 
+        tokenValueRebased := tokenValueRebased * fpa10e17
+    else if rebaseDecimals = 18n then 
+        tokenValueRebased := tokenValueRebased * fpa10e18
+    else if rebaseDecimals = 19n then 
+        tokenValueRebased := tokenValueRebased * fpa10e19
+    else if rebaseDecimals = 20n then 
+        tokenValueRebased := tokenValueRebased * fpa10e20
+    else if rebaseDecimals = 21n then 
+        tokenValueRebased := tokenValueRebased * fpa10e21
+    else if rebaseDecimals = 22n then 
+        tokenValueRebased := tokenValueRebased * fpa10e22
+    else if rebaseDecimals = 23n then 
+        tokenValueRebased := tokenValueRebased * fpa10e23
+    else if rebaseDecimals = 24n then 
+        tokenValueRebased := tokenValueRebased * fpa10e24
+    else if rebaseDecimals = 25n then 
+        tokenValueRebased := tokenValueRebased * fpa10e25
+    else if rebaseDecimals = 26n then 
+        tokenValueRebased := tokenValueRebased * fpa10e26
+    else failwith(error_REBASE_DECIMALS_OUT_OF_BOUNDS);    
+
+} with tokenValueRebased
+
+
+
+// helper function to rebase loan token decimals
+function rebaseLoanTokenValue(const tokenValueRaw : nat; const rebaseDecimals : nat) : nat is 
+block {
+
+    var tokenValueRebased : nat := tokenValueRaw;
+
+    if rebaseDecimals = 1n then 
+        tokenValueRebased := tokenValueRebased * 10n
+    else if rebaseDecimals = 2n then 
+        tokenValueRebased := tokenValueRebased * 100n 
+    else if rebaseDecimals = 3n then 
+        tokenValueRebased := tokenValueRebased * 1000n 
+    else if rebaseDecimals = 4n then 
+        tokenValueRebased := tokenValueRebased * fpa10e4  
     else if rebaseDecimals = 5n then 
         tokenValueRebased := tokenValueRebased * fpa10e5
     else if rebaseDecimals = 6n then 

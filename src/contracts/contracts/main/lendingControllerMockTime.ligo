@@ -755,7 +755,7 @@ block {
     else if rebaseDecimals = 3n then 
         tokenValueRebased := tokenValueRebased * 1000n 
     else if rebaseDecimals = 4n then 
-        tokenValueRebased := tokenValueRebased * fpa10e4  // e.g. fixed point accuracy (10^4 or 1e4)
+        tokenValueRebased := tokenValueRebased * fpa10e4  
     else if rebaseDecimals = 5n then 
         tokenValueRebased := tokenValueRebased * fpa10e5
     else if rebaseDecimals = 6n then 

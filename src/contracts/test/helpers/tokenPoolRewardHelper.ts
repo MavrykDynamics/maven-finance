@@ -22,7 +22,19 @@ import {BigNumber} from "bignumber.js";
 
 
 type TokenPoolRewardContractMethods<T extends ContractProvider | Wallet> = {
-    
+    setLambda: (number, string) => ContractMethod<T>;
+    updateWhitelistContracts: (
+        whitelistContractName:string,
+        whitelistContractAddress:string
+    ) => ContractMethod<T>;
+    updateGeneralContracts: (
+        generalContractName:string,
+        generalContractAddress:string
+    ) => ContractMethod<T>;
+    updateWhitelistTokenContracts: (
+        whitelistTokenContractName:string,
+        whitelistTokenContractAddress:string
+    ) => ContractMethod<T>;
 };
 
 
