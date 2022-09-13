@@ -32,7 +32,7 @@ const PROPOSAL = 'PROPOSAL',
 
 export type GovernanceSatellite = {
   governance_satellite: GovernanceSatelliteGraphQL[]
-  governance_satellite_action_record: GovernanceSatelliteActionGraphQL[]
+  governance_satellite_action: GovernanceSatelliteActionGraphQL[]
 }
 export type GovernancePhase = typeof PROPOSAL | typeof VOTING | typeof TIME_LOCK
 export interface GovernanceState {
@@ -53,7 +53,7 @@ const governanceDefaultState: GovernanceState = {
   pastProposals: [],
   governanceSatelliteStorage: {
     governance_satellite: [],
-    governance_satellite_action_record: [],
+    governance_satellite_action: [],
   },
 }
 
