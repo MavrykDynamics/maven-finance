@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react'
-import { useDispatch } from 'react-redux'
 import { ACTION_PRIMARY, TRANSPARENT } from '../Button/Button.constants'
 import { Button } from '../Button/Button.controller'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import Icon from '../Icon/Icon.view'
+import { BLUE } from '../TzAddress/TzAddress.constants'
 import { TzAddress } from '../TzAddress/TzAddress.view'
 import {
   ConnectedWalletStyled,
@@ -134,7 +134,7 @@ export const ConnectedWalletBlock = ({
       <div className="top-visible-part ">
         <Icon id="wallet" className="wallet" />
         <var>
-          <TzAddress tzAddress={accountPkh} hasIcon={false} shouldCopy={false} />
+          <TzAddress tzAddress={accountPkh} hasIcon type={BLUE} />
         </var>
         <Icon id="paginationArrowLeft" className="end-icon" />
       </div>

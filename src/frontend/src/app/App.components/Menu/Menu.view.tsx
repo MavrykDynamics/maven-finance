@@ -43,7 +43,17 @@ export const SocialIcons = () => (
 
 export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewProps) => {
   const dispatch = useDispatch()
-  const [isExpanded, setExpanded] = useState<number>(0)
+  const { pathname } = useLocation()
+
+  const expandedRouteSection = mainNavigationLinks.find(({ path, subPages = null }) => {
+    if (subPages) {
+      return subPages.find(({ subPath }) => `/${subPath}` === pathname)
+    }
+
+    return `/${path}` === pathname
+  })
+
+  const [isExpanded, setExpanded] = useState<number>(expandedRouteSection?.id || 0)
   const { sidebarOpened } = useSelector((state: State) => state.preferences)
 
   const handleToggle = (id: number) => {
