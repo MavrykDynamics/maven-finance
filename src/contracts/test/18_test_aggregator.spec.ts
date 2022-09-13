@@ -495,8 +495,12 @@ describe('Aggregator Tests', async () => {
           "price": new BigNumber(10144537815)
        },
    ];
+
    let epoch: number = 1;
    let round: number = 1;
+
+  // const lastCompletedRoundView = aggregator.contractViews.getLastCompletedPrice().executeView({ viewCaller : bob.pkh});
+  // console.log(lastCompletedRoundView);
 
    it(
     'should fail if called by random address',
@@ -533,7 +537,7 @@ describe('Aggregator Tests', async () => {
   );
 
     it(
-        'UpdateData should works',
+        'UpdateData should work',
         async () => {
 
 
@@ -568,8 +572,8 @@ describe('Aggregator Tests', async () => {
           await tx.confirmation();
   
           const storage: aggregatorStorageType = await aggregator.storage();
-          assert.deepEqual(storage.lastCompletedPrice.round,new BigNumber(1));
-          assert.deepEqual(storage.lastCompletedPrice.epoch,new BigNumber(1));
+          assert.deepEqual(storage.lastCompletedPrice.round,new BigNumber(round));
+          assert.deepEqual(storage.lastCompletedPrice.epoch,new BigNumber(epoch));
           assert.deepEqual(storage.lastCompletedPrice.price,new BigNumber(10142857521));
           assert.deepEqual(storage.lastCompletedPrice.percentOracleResponse,new BigNumber(4));
           round++;
@@ -991,8 +995,11 @@ describe('Aggregator Tests', async () => {
           const bobStakedMvk     = 100;
           const eveStakedMvk     = 100;
           const malloryStakedMvk = 100;
-          const totalStakedMvkThreeCommits = bobStakedMvk + eveStakedMvk + malloryStakedMvk;
-          const totalStakedMvkTwoCommits = eveStakedMvk + malloryStakedMvk;
+          const oracleMaintainerStakedMvk = 100;
+          // const totalStakedMvkThreeCommits = bobStakedMvk + eveStakedMvk + malloryStakedMvk;
+          // const totalStakedMvkTwoCommits = eveStakedMvk + malloryStakedMvk;
+
+          const totalStakedMvkFourObservations = 100 * 4;
 
           const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountStakedMvk.toNumber();
 
@@ -1014,18 +1021,24 @@ describe('Aggregator Tests', async () => {
 
           // percent oracle threshold is 49% so even two oracles reveals will be successful
           // - N.B. rewards are a fixed amount (e.g. 5 sMVK) divided by the number of satellite oracles that participated in the commit/reveal
-          const singleRewardSMvkWithThreeCommits = Math.trunc((bobStakedMvk / totalStakedMvkThreeCommits) * rewardAmountStakedMvk);
-          const singleRewardSMvkWithTwoCommits   = Math.trunc((bobStakedMvk / totalStakedMvkTwoCommits) * rewardAmountStakedMvk);
+          // const singleRewardSMvkWithThreeCommits = Math.trunc((bobStakedMvk / totalStakedMvkThreeCommits) * rewardAmountStakedMvk);
+          // const singleRewardSMvkWithTwoCommits   = Math.trunc((bobStakedMvk / totalStakedMvkTwoCommits) * rewardAmountStakedMvk);
 
           // calculate satellite staked MVK rewards based on number of commits/reveals and request rate update deviation (also assuming one commit is followed by one reveal)
-          const bobTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits;
-          const eveTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
-          const malloryTotalStakedMvkReward   = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
+          // const bobTotalStakedMvkReward       = singleRewardSMvk;
+          // const eveTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
+          // const malloryTotalStakedMvkReward   = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
 
           // check that staked mvk reward amounts are correct
-          assert.equal(beforeBobRewardStakedMvk, bobTotalStakedMvkReward);          // 3,333,333 - one reveal
-          assert.equal(beforeEveRewardStakedMvk, eveTotalStakedMvkReward);          // 8,333,333 - one reveal with two commits, one reveal with three commits
-          assert.equal(beforeMalloryRewardStakedMvk, malloryTotalStakedMvkReward);  // 21,333,333 -  one reveal with two commits, one reveal with three commits, one req rate upd dev
+          // assert.equal(beforeBobRewardStakedMvk, bobTotalStakedMvkReward);          // 3,333,333 - one reveal
+          // assert.equal(beforeEveRewardStakedMvk, eveTotalStakedMvkReward);          // 8,333,333 - one reveal with two commits, one reveal with three commits
+          // assert.equal(beforeMalloryRewardStakedMvk, malloryTotalStakedMvkReward);  // 21,333,333 -  one reveal with two commits, one reveal with three commits, one req rate upd dev
+
+          const oneObservationRewardSMvk  = Math.trunc((bobStakedMvk / totalStakedMvkFourObservations) * rewardAmountStakedMvk);
+          
+          assert.equal(beforeBobRewardStakedMvk, oneObservationRewardSMvk);     
+          assert.equal(beforeEveRewardStakedMvk, oneObservationRewardSMvk);     
+          assert.equal(beforeMalloryRewardStakedMvk, oneObservationRewardSMvk); 
 
           await signerFactory(bob.sk);
           const bob_withdraw_reward_staked_mvk_op = await aggregator.methods.withdrawRewardStakedMvk(bob.pkh).send();
@@ -1056,9 +1069,13 @@ describe('Aggregator Tests', async () => {
           assert.equal(resetMalloryRewardStakedMvk, 0);
 
           // calculate satellite's staked MVK rewards from fees (the remainder will be for the satellite's delegates)
-          const finalBobStakedMvkRewardsAfterFees     = satelliteFee * bobTotalStakedMvkReward / 10000;
-          const finalEveStakedMvkRewardsAfterFees     = satelliteFee * eveTotalStakedMvkReward / 10000;
-          const finalMalloryStakedMvkRewardsAfterFees = satelliteFee * malloryTotalStakedMvkReward / 10000;
+          // const finalBobStakedMvkRewardsAfterFees     = satelliteFee * bobTotalStakedMvkReward / 10000;
+          // const finalEveStakedMvkRewardsAfterFees     = satelliteFee * eveTotalStakedMvkReward / 10000;
+          // const finalMalloryStakedMvkRewardsAfterFees = satelliteFee * malloryTotalStakedMvkReward / 10000;
+
+          const finalBobStakedMvkRewardsAfterFees     = satelliteFee * oneObservationRewardSMvk / 10000;
+          const finalEveStakedMvkRewardsAfterFees     = satelliteFee * oneObservationRewardSMvk / 10000;
+          const finalMalloryStakedMvkRewardsAfterFees = satelliteFee * oneObservationRewardSMvk / 10000;
 
           // check that satellite's unpaid staked mvk rewards have increased by the right amount
           assert.equal(bobRewardsLedger.unpaid.toNumber(), beforeBobRewardsLedger.unpaid.toNumber() + Math.trunc(finalBobStakedMvkRewardsAfterFees));
@@ -1168,17 +1185,6 @@ describe('Aggregator Tests', async () => {
         await test_update_config_heartBeatSeconds_op.confirmation();
 
 
-
-        const test_update_config_deviationRewardStakedMvk_op = await aggregator.methods.updateConfig(
-          deviationRewardAmountXtz, "configDeviationRewardStakedMvk"
-        ).send();
-        await test_update_config_deviationRewardStakedMvk_op.confirmation();
-
-        const test_update_config_deviationRewardAmountXtz_op = await aggregator.methods.updateConfig(
-          deviationRewardAmountXtz, "configDeviationRewardAmountXtz"
-        ).send();
-        await test_update_config_deviationRewardAmountXtz_op.confirmation();
-
         const test_update_config_rewardAmountXtz_op = await aggregator.methods.updateConfig(
           rewardAmountXtz, "configRewardAmountXtz"
         ).send();
@@ -1196,7 +1202,6 @@ describe('Aggregator Tests', async () => {
         assert.deepEqual(storage.config.percentOracleThreshold,          percentOracleThreshold);
         assert.deepEqual(storage.config.heartBeatSeconds,                heartBeatSeconds);
 
-        assert.deepEqual(storage.config.requestRateDeviationDepositFee,  requestRateDevDepositFee);
         assert.deepEqual(storage.config.rewardAmountXtz,                 rewardAmountXtz);
         assert.deepEqual(storage.config.rewardAmountStakedMvk,           rewardAmountStakedMvk);
         

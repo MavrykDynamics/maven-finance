@@ -331,9 +331,9 @@ function verifyInfosFromObservations(const oracleObservations: map (address, ora
       if (not (round = value.round)) then failwith(error_DIFFERENT_ROUND_IN_OBSERVATIONS_MAP);
   };
 
-  if (epoch < store.lastCompletedPrice.epoch) then failwith(error_EPOCH_SOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
+  if (epoch < store.lastCompletedPrice.epoch) then failwith(error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
   else if (epoch = store.lastCompletedPrice.epoch) then {
-    if (round <= store.lastCompletedPrice.round) then failwith(error_ROUND_SOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
+    if (round <= store.lastCompletedPrice.round) then failwith(error_ROUND_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
     else skip;
   }
   else skip;
@@ -457,70 +457,75 @@ function getRewardAmountXtz(const oracleAddress : address; const s : aggregatorS
 
 
 // helper function to update specified oracle's staked MVK rewards
-function updateRewardsStakedMvk (const senderAddress : address; const oracleObservations : map (address, oracleObservationType); var s : aggregatorStorageType) : aggregatorStorageType is block {
+function updateRewardsStakedMvk (const oracleObservations : map (address, oracleObservationType); var s : aggregatorStorageType) : aggregatorStorageType is 
+block {
 
-  // init params
-  var tempSatellitesMap : map(address, nat) := map [];
-  var total: nat := 0n;
+    // init params
+    var tempSatellitesMap : map(address, nat) := map [];
+    var total: nat := 0n;
 
-  // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-  const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-  // Get delegation ratio from Delegation contract config through on-chain view (delegationRatio equivalent to votingPowerRatio)
-  const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
-  const votingPowerRatio: nat                     = case configView of [
-            Some (_optionConfig) -> _optionConfig.delegationRatio
-        |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-  ];
-
-  // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
-  // and store each satellite respective share in tempSatellitesMap
-  // N.B.: may result in slight discrepancies if some oracles do not reveal their price feed data
-  for oracleAddress -> _value in map oracleObservations block {
-
-    // View call getSatelliteOpt to delegation contract
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
-    const satelliteOpt : satelliteRecordType = case satelliteOptView of [
-            Some (optionView) -> case optionView of [
-                    Some(_satelliteRecord)      -> _satelliteRecord
-                |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
-            ]
-        |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    // Get delegation ratio from Delegation contract config through on-chain view (delegationRatio equivalent to votingPowerRatio)
+    const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const votingPowerRatio: nat                     = case configView of [
+                Some (_optionConfig) -> _optionConfig.delegationRatio
+            |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
-    // Get total sum of all satellite oracles total voting power (to be used as denominator to determine each oracle's share of staked MVK rewards)
-    if (satelliteOpt.status = "ACTIVE") then {
+    // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
+    // and store each satellite respective share in tempSatellitesMap
+    for oracleAddress -> _value in map oracleObservations block {
 
-        // totalVotingPower calculation
-        const totalVotingPower : nat    = calculateVotingPower(votingPowerRatio, satelliteOpt.stakedMvkBalance, satelliteOpt.totalDelegatedAmount);
+        // View call getSatelliteOpt to delegation contract
+        const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
+        const satelliteOpt : satelliteRecordType = case satelliteOptView of [
+                Some (optionView) -> case optionView of [
+                        Some(_satelliteRecord)      -> _satelliteRecord
+                    |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
+                ]
+            |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+        ];
 
-        // totalVotingPower storage + total updated
-        tempSatellitesMap := Map.update(oracleAddress, Some (totalVotingPower), tempSatellitesMap);
-        total             := total + totalVotingPower;
+        // Get total sum of all satellite oracles total voting power (to be used as denominator to determine each oracle's share of staked MVK rewards)
+        if (satelliteOpt.status = "ACTIVE") then {
 
-    } else skip;
+            // totalVotingPower calculation
+            const totalVotingPower : nat    = calculateVotingPower(votingPowerRatio, satelliteOpt.stakedMvkBalance, satelliteOpt.totalDelegatedAmount);
 
-  };
+            // totalVotingPower storage + total updated
+            tempSatellitesMap := Map.update(oracleAddress, Some (totalVotingPower), tempSatellitesMap);
+            total             := total + totalVotingPower;
 
-  // get reward amount staked mvk
-  const rewardAmountStakedMvk : nat = s.config.rewardAmountStakedMvk;
+        } else skip;
 
-  // increment satellites' staked mvk reward amounts based on their share of total voting power (among other satellites for this observation reveal)
-  const senderShare : nat = case tempSatellitesMap[senderAddress] of [
-            Some(_value) -> _value
-        |   None -> failwith(error_SATELLITE_NOT_FOUND)
-  ];
+    };
 
-  const newStakedMvkRewardShare = ((senderShare * fixedPointAccuracy) / total) * rewardAmountStakedMvk;
-  const newStakedMvkRewardAmount = newStakedMvkRewardShare / fixedPointAccuracy;
+    // get reward amount staked mvk
+    const rewardAmountStakedMvk : nat = s.config.rewardAmountStakedMvk;
 
-  var senderRewardStakedMvk : nat := case s.oracleRewardStakedMvk[senderAddress] of [
-            Some(_value) -> _value
-        |   None -> 0n
-  ];
+    // total voting power has been calculated, so update amount for each oracle
+    for oracleAddress -> _value in map oracleObservations block {
 
-  senderRewardStakedMvk := senderRewardStakedMvk + newStakedMvkRewardAmount; 
-  s.oracleRewardStakedMvk[senderAddress] := senderRewardStakedMvk;
+        // increment satellites' staked mvk reward amounts based on their share of total voting power (among other satellites for this observation reveal)
+        const oracleShare : nat = case tempSatellitesMap[oracleAddress] of [
+                    Some(_value) -> _value
+                |   None -> failwith(error_SATELLITE_NOT_FOUND)
+        ];
+
+        const newStakedMvkRewardShare = ((oracleShare * fixedPointAccuracy) / total) * rewardAmountStakedMvk;
+        const newStakedMvkRewardAmount = newStakedMvkRewardShare / fixedPointAccuracy;
+
+        var oracleRewardStakedMvk : nat := case s.oracleRewardStakedMvk[oracleAddress] of [
+                    Some(_value) -> _value
+                |   None -> 0n
+        ];
+
+        oracleRewardStakedMvk := oracleRewardStakedMvk + newStakedMvkRewardAmount; 
+        s.oracleRewardStakedMvk[oracleAddress] := oracleRewardStakedMvk;
+
+    }
 
 } with (s)
 
