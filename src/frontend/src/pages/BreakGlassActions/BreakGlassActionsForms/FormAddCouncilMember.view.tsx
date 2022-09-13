@@ -49,7 +49,7 @@ export const FormAddCouncilMemberView: FC = () => {
 
       <form onSubmit={handleClickButton}>
         <div className="form-fields in-two-columns">
-          <div className='input-size-secondary margin-bottom-15'>
+          <div className='input-size-secondary margin-bottom-20'>
             <label>Council Member Address</label>
             <Input
               type="text"
@@ -81,7 +81,7 @@ export const FormAddCouncilMemberView: FC = () => {
             />
           </div>
 
-          <div className='input-size-secondary margin-bottom-15'>
+          <div className='input-size-secondary margin-bottom-20'>
             <label>Council Member Website URL</label>
             <Input
               type="text"
@@ -114,9 +114,9 @@ export const FormAddCouncilMemberView: FC = () => {
         <div className='align-to-right'>
           <Button
             className="stroke-01"
-            text={'Set Contract Admin'}
+            text={'Add Council Member'}
             kind={ACTION_PRIMARY}
-            icon={'profile'}
+            icon={'plus'}
             type="submit"
           />
         </div>

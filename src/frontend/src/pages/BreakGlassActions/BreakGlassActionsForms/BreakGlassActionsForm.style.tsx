@@ -92,8 +92,8 @@ export const FormStyled = styled.div`
     justify-content: space-between;
   }
 
-  .margin-bottom-15 {
-    margin-bottom: 15px;
+  .margin-bottom-20 {
+    margin-bottom: 20px;
   }
 
   .align-to-right {
