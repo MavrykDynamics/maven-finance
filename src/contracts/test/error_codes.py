@@ -875,8 +875,8 @@ error_WRONG_AGGREGATOR_ADDRESS_IN_OBSERVATIONS_MAP                              
 error_OBSERVATION_MADE_BY_WRONG_ORACLE                                                                  = 629
 error_DIFFERENT_EPOCH_IN_OBSERVATIONS_MAP                                                               = 630
 error_DIFFERENT_ROUND_IN_OBSERVATIONS_MAP                                                               = 631
-error_EPOCH_SOULD_BE_GREATER_THAN_PREVIOUS_RESULT                                                       = 632
-error_ROUND_SOULD_BE_GREATER_THAN_PREVIOUS_RESULT                                                       = 633
+error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT                                                       = 632
+error_ROUND_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT                                                       = 633
 
 
 
