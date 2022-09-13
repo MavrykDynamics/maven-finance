@@ -41,8 +41,8 @@ export const FormSetSingleContractAdminView: FC = () => {
       <h1>Set Single Contract Admin</h1>
       <p>Please enter valid function parameters for adding a vestee</p>
 
-      <form onSubmit={handleClickButton}>
-        <div className="input-size">
+      <form className='form' onSubmit={handleClickButton}>
+        <div className="form-fields input-size-primary">
           <label>New Admin Address</label>
           <Input
             className="margin-bottom-15"

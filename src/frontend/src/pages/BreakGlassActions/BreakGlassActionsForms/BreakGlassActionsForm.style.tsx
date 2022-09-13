@@ -4,12 +4,6 @@ import { skyColor, headerColor, textsColor } from "styles";
 export const FormStyled = styled.div`
   padding: 40px 20px;
 
-  form {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-
   h1 {
     margin: 0;
   }
@@ -47,9 +41,13 @@ export const FormStyled = styled.div`
     }
   }
 
-  .input-size {
-    width: 515px;
+  .form {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
 
+  .form-fields {
     label {
       display: block;
       padding-bottom: 6px;
@@ -61,7 +59,45 @@ export const FormStyled = styled.div`
     }
   }
 
+  .form-ipfs {
+    margin: 0;
+    margin-bottom: 40px;
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 21px;
+
+      color: ${headerColor};
+    }
+  }
+
+  .input-size-primary {
+    width: 515px;
+  }
+
+  .input-size-secondary {
+    width: 480px;
+  }
+
+  .input-size-tertiary {
+    width: 550px;
+  }
+
+  .in-two-columns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
   .margin-bottom-15 {
     margin-bottom: 15px;
+  }
+
+  .align-to-right {
+    display: flex;
+    justify-content: flex-end;
   }
 `

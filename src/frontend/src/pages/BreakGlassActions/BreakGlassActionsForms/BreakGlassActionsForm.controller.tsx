@@ -4,6 +4,7 @@ import React, { FC } from 'react'
 import { FormSetAllContractsAdminView } from './FormSetAllContractsAdmin.view'
 import { FormSetSingleContractAdminView } from './FormSetSingleContractAdmin.view'
 import { FormSignActionView } from './FormSignAction.view'
+import { FormAddCouncilMemberView } from './FormAddCouncilMember.view'
 import { breakGlassActions } from "../BreakGlassActions.actions"
 
 type Props = {
@@ -16,6 +17,7 @@ export const BreakGlassActionsForm: FC<Props> = ({ action }) => {
       {breakGlassActions.SET_ALL_CONTRACTS_ADMIN === action ? <FormSetAllContractsAdminView /> : null}
       {breakGlassActions.SET_SINGLE_CONTRACT_ADMIN === action ? <FormSetSingleContractAdminView /> : null}
       {breakGlassActions.SIGN_ACTION === action ? <FormSignActionView /> : null}
+      {breakGlassActions.ADD_COUNCIL_MEMBER === action ? <FormAddCouncilMemberView /> : null}
     </>
   )
 }

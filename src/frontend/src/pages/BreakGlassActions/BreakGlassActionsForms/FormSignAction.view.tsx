@@ -40,8 +40,8 @@ export const FormSignActionView: FC = () => {
       <h1>Sign Action</h1>
       <p>Please enter valid function parameters for sign action</p>
 
-      <form onSubmit={handleClickButton}>
-        <div className="input-size">
+      <form className='form' onSubmit={handleClickButton}>
+        <div className="form-fields input-size-primary">
           <label>Break Glass Action ID</label>
 
           <Input
