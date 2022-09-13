@@ -81,7 +81,6 @@ export type SatelliteListItemProps = {
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
   isDetailsPage?: boolean
-  isExtendedListItem?: boolean
   className?: string
   children?: JSX.Element
 }

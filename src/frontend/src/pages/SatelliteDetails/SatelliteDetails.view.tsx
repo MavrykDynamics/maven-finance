@@ -91,7 +91,6 @@ export const SatelliteDetailsView = ({
           claimRewardsCallback={(address: string) => console.log('claim rewards from: ', address)}
           userStakedBalance={myDelegatedMVK}
           satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
-          isExtendedListItem={true}
           isDetailsPage={true}
         >
           <SatelliteCardBottomRow>
