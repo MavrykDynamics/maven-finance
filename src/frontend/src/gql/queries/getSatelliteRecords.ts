@@ -1,6 +1,6 @@
 export const SATELLITE_RECORDS_QUERY = `
   query GetSatelliteRecord($_eq: String = "") {
-    satellite_record(where: {user_id: {_eq: $_eq}}) {
+    satellite(where: {user_id: {_eq: $_eq}}) {
       delegation_id
       description
       fee
@@ -10,7 +10,7 @@ export const SATELLITE_RECORDS_QUERY = `
       user_id
       status
       website
-      delegation_records {
+      delegations {
         user {
           smvk_balance
         }
@@ -19,8 +19,7 @@ export const SATELLITE_RECORDS_QUERY = `
         smvk_balance
         mvk_balance
         address
-        aggregator_oracle_records {
-          active
+        aggregator_oracles {
           aggregator_id
           id
           oracle_id
@@ -55,15 +54,15 @@ export const SATELLITE_RECORDS_QUERY = `
             governance_type
           }
         }
-        governance_proposal_records_votes {
-          governance_proposal_record_id
+        governance_proposals_votes {
+          governance_proposal_id
           id
           current_round_vote
           round
           vote
           voter_id
           timestamp
-          governance_proposal_record {
+          governance_proposal {
             current_cycle_end_level
             current_cycle_start_level
             current_round_proposal
@@ -136,8 +135,8 @@ export const USER_VOTING_HYSTORY_QUERY = `
           request_type
         }
       }
-      governance_proposal_records_votes {
-        governance_proposal_record_id
+      governance_proposals_votes {
+        governance_proposal_id
         current_round_vote
         round
         id
@@ -145,7 +144,7 @@ export const USER_VOTING_HYSTORY_QUERY = `
         voter_id
         voting_power
         timestamp
-        governance_proposal_record {
+        governance_proposal {
           title
         }
       }

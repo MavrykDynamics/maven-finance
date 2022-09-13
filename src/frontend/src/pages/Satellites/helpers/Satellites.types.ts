@@ -45,9 +45,6 @@ export type Feed = {
   maintainer_id: string
   name: string
   number_blocks_delay: number
-  oracle_records: Aggregator['oracle_records']
-  oracle_rewards_smvk: Aggregator['oracle_rewards_smvk']
-  oracle_rewards_xtz: Aggregator['oracle_rewards_xtz']
   per_thousand_deviation_trigger: number
   percent_oracle_threshold: number
   request_rate_deviation_deposit_fee: number
@@ -66,6 +63,7 @@ export type Feed = {
   withdraw_reward_xtz_paused: boolean
   network?: string
   category?: string
+  oracles: Aggregator['oracles']
 }
 
 export type InitialOracleStorageType = {
