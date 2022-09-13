@@ -9,7 +9,7 @@ export interface UserData {
   isSatellite: boolean
   // myDoormanRewardsData: UserDoormanRewardsData
   // myFarmRewardsData: UserFarmRewardsData[]
-  mySatelliteRewardsData: UserSatelliteRewardsData
+  mySatelliteRewardsData?: UserSatelliteRewardsData
 }
 
 export interface UserSatelliteRewardsData {

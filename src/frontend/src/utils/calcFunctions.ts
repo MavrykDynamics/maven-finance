@@ -83,15 +83,15 @@ export function calcWithoutMu(amount: string | number): number {
 //   return newFarmRewardsData
 // }
 
-export function calcUsersSatelliteRewards(userInfo: UserData): UserSatelliteRewardsData {
-  const { mySMvkTokenBalance, mySatelliteRewardsData } = userInfo
-  const satelliteRewardRatio =
-    mySatelliteRewardsData.satelliteAccumulatedRewardPerShare - mySatelliteRewardsData.participationRewardsPerShare
-  const usersAvailableSatelliteRewards =
-    (mySatelliteRewardsData.unpaid + satelliteRewardRatio * mySMvkTokenBalance * PRECISION_NUMBER) /
-    FIXED_POINT_ACCURACY
-  mySatelliteRewardsData.myAvailableSatelliteRewards = calcWithoutPrecision(
-    String(Math.trunc(usersAvailableSatelliteRewards)),
-  )
-  return mySatelliteRewardsData
-}
+// export function calcUsersSatelliteRewards(userInfo: UserData): UserSatelliteRewardsData {
+//   const { mySMvkTokenBalance, mySatelliteRewardsData } = userInfo
+//   const satelliteRewardRatio =
+//     mySatelliteRewardsData.satelliteAccumulatedRewardPerShare - mySatelliteRewardsData.participationRewardsPerShare
+//   const usersAvailableSatelliteRewards =
+//     (mySatelliteRewardsData.unpaid + satelliteRewardRatio * mySMvkTokenBalance * PRECISION_NUMBER) /
+//     FIXED_POINT_ACCURACY
+//   mySatelliteRewardsData.myAvailableSatelliteRewards = calcWithoutPrecision(
+//     String(Math.trunc(usersAvailableSatelliteRewards)),
+//   )
+//   return mySatelliteRewardsData
+// }
