@@ -3,6 +3,7 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { BGAccordion } from '../Accordeon/Accordeon.view'
+import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 
 type ContractCardProps = {
   contract: Record<string, unknown>
@@ -14,6 +15,7 @@ type ContractCardProps = {
 export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleExpandAccordeon }: ContractCardProps) => {
   const title = (contract.title as string).replace(/([a-z0-9])([A-Z])/g, '$1 $2')
   const address = contract.address as string
+  const lastUpdated = (contract.lastUpdated || '') as string
   const admin = contract.admin as string
   const methods = contract.methods as Record<string, boolean>
   const isStatusPaused = methods ? Object.keys(methods).some((method) => methods[method]) : false
@@ -34,7 +36,7 @@ export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleEx
 
         <div className="card-info-item">
           Last Update
-          <div>March 19,2020 (static)</div>
+          <div>{getDate_MDY_Format(lastUpdated)}</div>
         </div>
 
         <div className="card-info-item">
