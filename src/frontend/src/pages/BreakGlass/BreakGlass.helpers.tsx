@@ -6,12 +6,12 @@ import {
 } from '../../utils/TypesAndInterfaces/BreakGlass'
 
 export const normalizeBreakGlass = (storage: BreakGlassGraphQL) => {
-  const actionLedger = storage?.break_glass_action_records?.length
-    ? storage?.break_glass_action_records.map((actionRecord) => {
+  const actionLedger = storage?.actions?.length
+    ? storage?.actions.map((actionRecord) => {
         const signers = actionRecord.signers?.length
           ? actionRecord.signers.map((signer) => {
               return {
-                breakGlassActionRecordId: signer.break_glass_action_record_id,
+                breakGlassActionRecordId: signer.break_glass_action_id,
                 id: signer.id,
                 signerId: signer.signer_id,
               }
@@ -178,10 +178,6 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               address: item.address,
               admin: item.admin,
               methods: {
-                'request rate update deviation paused': item.request_rate_update_deviation_paused,
-                'request rate update paused': item.request_rate_update_paused,
-                'set observation commit paused': item.set_observation_commit_paused,
-                'set observation reveal paused': item.set_observation_reveal_paused,
                 'withdraw reward smvk paused': item.withdraw_reward_smvk_paused,
                 'withdraw reward xtz paused': item.withdraw_reward_xtz_paused,
               },

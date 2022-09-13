@@ -48,9 +48,14 @@ export type ProposalBytesType = {
   data: string
 }
 
-export type ProposalUpdateFormProposalBytes = ProposalDataType & {
+export type ProposalUpdateFormProposalBytes = {
   validTitle: InputStatusType
   validBytes: InputStatusType
+  bytes: string
+  governance_proposal_record_id: number
+  id: number
+  record_internal_id: number
+  title: string
 }
 
 export type ProposalUpdateForm = {

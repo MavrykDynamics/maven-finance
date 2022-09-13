@@ -21,7 +21,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const numSatellites = satelliteLedger?.length || 0
   const dataPointsCount = useMemo(
     () =>
-      feeds.filter(
+      feeds?.filter(
         (feed) => moment(Date.now()).diff(moment(feed?.last_completed_round_price_timestamp), 'minutes') <= 60,
       ).length,
     [feeds],
@@ -53,8 +53,8 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
       totalOracleNetworks={totalOracleNetworks}
       infoBlockAddresses={{
         satellite: delegationAddress?.address || '',
-        oracle: feedsFactory[0]?.address || '',
-        aggregator: feedsFactory[0]?.address || '',
+        oracle: feedsFactory?.[0]?.address || '',
+        aggregator: feedsFactory?.[0]?.address || '',
       }}
       averageRevard={averageRevard}
       dataPointsCount={dataPointsCount}
