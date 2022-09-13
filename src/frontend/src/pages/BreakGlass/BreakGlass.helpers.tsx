@@ -65,6 +65,7 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               type: 'General Contracts',
               address: item.address,
               admin: item.admin,
+              lastUpdated: item.last_updated_at,
               methods: {
                 compound: item.compound_paused,
                 'farm claimed': item.farm_claimed_paused,
@@ -83,6 +84,7 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               type: 'General Contracts',
               address: item.address,
               admin: item.admin,
+              lastUpdated: item.last_updated_at,
               methods: {
                 'delegate to satellite': item.delegate_to_satellite_paused,
                 'distribute reward': item.distribute_reward_paused,
@@ -104,6 +106,7 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               type: 'Farms',
               address: item.address,
               admin: item.admin,
+              lastUpdated: item.last_updated_at,
               methods: {
                 'create farm': item.create_farm_paused,
                 'track farm': item.track_farm_paused,
@@ -122,6 +125,7 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               type: 'Farms',
               address: item.address,
               admin: item.admin,
+              lastUpdated: item.last_updated_at,
               methods: {
                 claim: item.claim_paused,
                 deposit: item.deposit_paused,
@@ -140,6 +144,7 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               type: 'Treasury',
               address: item.address,
               admin: item.admin,
+              lastUpdated: item.last_updated_at,
               methods: {
                 'mint mvk and transfer': item.mint_mvk_and_transfer_paused,
                 'stake mvk': item.stake_mvk_paused,
@@ -158,6 +163,7 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               title: 'Treasury Factory',
               type: 'Treasury',
               address: item.address,
+              lastUpdated: item.last_updated_at,
               admin: item.admin,
               methods: {
                 'create treasury paused': item.create_treasury_paused,
@@ -176,6 +182,7 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               title: `${item.name} Aggregator`,
               type: 'Oracles',
               address: item.address,
+              lastUpdated: item.last_updated_at,
               admin: item.admin,
               methods: {
                 'withdraw reward smvk paused': item.withdraw_reward_smvk_paused,
@@ -193,6 +200,7 @@ export function normalizeBreakGlassStatus(storage: BreakGlassStatusGraphQL) {
               title: 'Aggregator Factory',
               type: 'Oracles',
               address: item.address,
+              lastUpdated: item.last_updated_at,
               admin: item.admin,
               methods: {
                 'untrack aggregator paused': item.untrack_aggregator_paused,
