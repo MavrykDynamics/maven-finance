@@ -1,5 +1,5 @@
 import React, { FC, useState, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
