@@ -44,7 +44,8 @@ export const DashboardView = ({
               <div className="value">
                 <CommaNumber beginningText="$" value={mvkStatsBlock.livePrice} />
                 <div className={`impact ${mvkStatsBlock.livePrice >= mvkStatsBlock.prevPrice ? 'up' : 'down'}`}>
-                  {mvkStatsBlock.livePrice >= mvkStatsBlock.prevPrice ? '+' : '-'} 27%
+                  {mvkStatsBlock.livePrice >= mvkStatsBlock.prevPrice ? '+' : '-'}{' '}
+                  {mvkStatsBlock.livePrice * 100 - mvkStatsBlock.prevPrice * 100}%
                 </div>
               </div>
             </StatBlock>
