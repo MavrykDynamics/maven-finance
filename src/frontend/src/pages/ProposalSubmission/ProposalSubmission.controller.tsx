@@ -32,7 +32,7 @@ export const ProposalSubmission = () => {
       proposalTitle={findUserCurrentRoundProposal?.title || ''}
       proposalDescription={findUserCurrentRoundProposal?.description || ''}
       proposalSourceCode={findUserCurrentRoundProposal?.sourceCode || ''}
-      proposalData={findUserCurrentRoundProposal?.proposalData}
+      proposalData={findUserCurrentRoundProposal?.proposalData || []}
       proposalPayments={findUserCurrentRoundProposal?.proposalPayments || []}
     />
   )
