@@ -28,7 +28,7 @@ type Props = {
   num_council_members: number
   id: number
   councilPendingActionsLength: number
-  council_action_record_parameters: Record<string, string>[]
+  parameters: Record<string, string>[]
 }
 
 export const CouncilPendingView = (props: Props) => {
@@ -42,7 +42,7 @@ export const CouncilPendingView = (props: Props) => {
     initiator_id,
     id,
     councilPendingActionsLength,
-    council_action_record_parameters,
+    parameters,
   } = props
 
   const handleSign = () => {
@@ -52,8 +52,8 @@ export const CouncilPendingView = (props: Props) => {
   }
 
   const findActionByName = useCallback(
-    (name: string) => council_action_record_parameters.find((item) => item.name === name)?.value || '',
-    [council_action_record_parameters],
+    (name: string) => parameters.find((item) => item.name === name)?.value || '',
+    [parameters],
   )
 
   const isAddVestee = action_type === 'addVestee'

@@ -54,7 +54,7 @@ export function getEnumKeyByEnumValue<T extends { [index: string]: string }>(
 export function normalizeOracle(storage: {
   aggregator: AggregatorGraphQL[]
   aggregator_factory: AggregatorFactoryGraphQL[]
-  aggregator_oracle_record: AggregatorOracleGraphQL[]
+  aggregator_oracle: AggregatorOracleGraphQL[]
 }) {
   return {
     feeds: storage?.aggregator.map((feed) => ({
