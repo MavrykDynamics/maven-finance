@@ -36,10 +36,7 @@ export const FormSetAllContractsAdminView: FC = () => {
       await dispatch(setAllContractsAdmin(address))
       setForm(INIT_FORM)
       setFormInputStatus({
-        vesteeAddress: '',
-        totalAllocated: '',
-        cliffInMonths: '',
-        vestingInMonths: '',
+        address: '',
       })
     } catch (error) {
       console.error(error)
