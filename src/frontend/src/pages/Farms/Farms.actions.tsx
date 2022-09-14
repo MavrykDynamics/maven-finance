@@ -1,10 +1,10 @@
 import { State } from '../../reducers'
 
 // types
-import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+import { FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
 
 //helpers
-import { getLvlTimestamp, normalizeFarmStorage } from './Frams.helpers'
+import { getEndsInTimestampForFarmCards, normalizeFarmStorage } from './Frams.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
@@ -56,14 +56,7 @@ export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
 export const getFarmStorage = () => async (dispatch: AppDispatch) => {
   const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
-  const farmCardEndsIn = await Promise.all(
-    storage?.farm.map(async (farmCard: { init_block: number; total_blocks: number; address: string }) => {
-      const endsIn = await getLvlTimestamp(farmCard.init_block + farmCard.total_blocks)
-      return { endsIn, address: farmCard.address }
-    }),
-  )
-
-  console.log('farmCardEndsIn', farmCardEndsIn)
+  const farmCardEndsIn = await getEndsInTimestampForFarmCards(storage?.farm)
 
   const farmStorage = normalizeFarmStorage(storage?.farm, farmCardEndsIn)
 
