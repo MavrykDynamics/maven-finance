@@ -20,39 +20,58 @@ import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions }
 // TODO: change mock to valid data
 const mock = [
   {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: true,
+    targetId: 'jfdasjklfklsakljf',
+    initiatorId: 'dsafknkasdkfj',
+    date: `${new Date()}`,
+    executed: true,
+    status: 1,
     id: 1,
+    purpose: `Satellite tz1V...8HAJ has acted in good faith and wishes 
+              to return to being an active part of governance following their usage 
+              of inappropiate images as their satellite image`,
+    governanceType: 'Set All Contracts Admin',
+    linkAddress: 'fkdsnjkfnads',
+    smvkPercentageForApproval: 1,
+    yayVotesSmvkTotal: 233,
+    nayVotesSmvkTotal: 342432,
+    passVoteSmvkTotal: 4423,
+    snapshotSmvkTotalSupply: 324,
   },
   {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: true,
+    targetId: 'jfdasjklfklsakljf',
+    initiatorId: 'dsafknkasdkfj',
+    date: `${new Date()}`,
+    executed: false,
+    status: 2,
     id: 2,
+    purpose: `Satellite tz1V...8HAJ has acted in good faith and wishes 
+              to return to being an active part of governance following their usage 
+              of inappropiate images as their satellite image`,
+    governanceType: 'Set All Contracts Admin',
+    linkAddress: 'fkdsnjkfnads',
+    smvkPercentageForApproval: 1,
+    yayVotesSmvkTotal: 32,
+    nayVotesSmvkTotal: 34243232,
+    passVoteSmvkTotal: 4423,
+    snapshotSmvkTotalSupply: 324,
   },
   {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: true,
+    targetId: 'jfdasjklfklsakljf',
+    initiatorId: 'dsafknkasdkfj',
+    date: `${new Date()}`,
+    executed: true,
+    status: 3,
     id: 3,
-  },
-  {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: true,
-    id: 4,
-  },
-  {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: false,
-    id: 5,
+    purpose: `Satellite tz1V...8HAJ has acted in good faith and wishes 
+              to return to being an active part of governance following their usage 
+              of inappropiate images as their satellite image`,
+    governanceType: 'Set All Contracts Admin',
+    linkAddress: 'fkdsnjkfnads',
+    smvkPercentageForApproval: 1,
+    yayVotesSmvkTotal: 233,
+    nayVotesSmvkTotal: 342,
+    passVoteSmvkTotal: 23,
+    snapshotSmvkTotalSupply: 324,
   },
 ]
 
@@ -134,8 +153,7 @@ export const BreakGlassActions: FC = () => {
         <h1>Past Break Glass Actions</h1>
 
         {mock.map((item) => {
-          const { id, ...props } = item
-          return <PastBreakGlassActionsCard key={id} {...props} />
+          return <PastBreakGlassActionsCard key={item.id} {...item}  />
         })}
       </PastBreakGlassActions>
     </Page>

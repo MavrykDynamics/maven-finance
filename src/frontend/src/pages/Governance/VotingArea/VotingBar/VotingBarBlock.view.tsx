@@ -41,7 +41,7 @@ export const VotingBarBlockView = ({
 
   return (
     <VotingContainer>
-      <QuorumBar width={quorumWidth}>
+      <QuorumBar className="quorum-bar" width={quorumWidth}>
         Quorum <b>{quorumWidth.toFixed(2)}%</b>
       </QuorumBar>
       <VotingBarStyled>
