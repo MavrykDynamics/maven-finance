@@ -54,6 +54,14 @@ export const calculateAPR = (currentRewardPerBlock: number, lpTokenBalance: numb
   return `${result}%`
 }
 
+export const getEndsInTimestampForFarmCards = async (farmList: FarmGraphQL[]) =>
+  await Promise.all(
+    farmList.map(async (farmCard: { init_block: number; total_blocks: number; address: string }) => {
+      const endsIn = await getLvlTimestamp(farmCard.init_block + farmCard.total_blocks)
+      return { endsIn, address: farmCard.address }
+    }),
+  )
+
 export const getSummDepositedAmount = (farmAccounts: FarmAccountsType[]): number => {
   return farmAccounts.reduce((acc, cur) => acc + cur.deposited_amount, 0)
 }
