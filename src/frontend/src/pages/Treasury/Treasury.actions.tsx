@@ -11,13 +11,8 @@ import { getTreasuryDataByAddress } from 'utils/api'
 import { FetchedTreasuryBalanceType, TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
-import { TezosToolkit } from '@taquito/taquito'
-import CoinGecko from 'coingecko-api'
 import { normalizeTreasury } from './Treasury.helpers'
-import type { AppDispatch, GetState } from '../../app/App.controller'
-import { calcWithoutMu } from 'utils/calcFunctions'
-
-const coinGeckoClient = new CoinGecko()
+import { AppDispatch, coinGeckoClient, GetState } from '../../app/App.controller'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'

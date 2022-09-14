@@ -74,19 +74,36 @@ export function normalizeSatelliteRecord(
       })
     : []
 
-  const oracleRecords = (satelliteRecord?.user?.aggregator_oracles || []).map(({ oracle, ...rest }) => {
-    return {
-      ...rest,
-      // @ts-ignore
-      sMVKReward: oracle?.aggregator_oracle_rewards_smvk?.[0]?.smvk || 0,
-      // @ts-ignore
-      XTZReward: oracle?.aggregator_oracle_rewards_xtz?.[0]?.xtz || 0,
-    }
-  })
+  const oracleRecords = (satelliteRecord?.user?.aggregator_oracles || []).map(
+    ({ oracle: { aggregator_oracle_rewards }, ...rest }) => {
+      const { sMVKReward, XTZReward } = aggregator_oracle_rewards.reduce(
+        (acc, reward) => {
+          if (reward.type === 0) {
+            acc.XTZReward += reward.reward
+          }
+
+          if (reward.type === 1) {
+            acc.sMVKReward += reward.reward
+          }
+
+          return acc
+        },
+        {
+          sMVKReward: 0,
+          XTZReward: 0,
+        },
+      )
+      return {
+        ...rest,
+        active: false,
+        sMVKReward,
+        XTZReward,
+      }
+    },
+  )
 
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord?.user_id || '',
-    // @ts-ignore
     oracleRecords,
     description: satelliteRecord?.description || '',
     website: satelliteRecord?.website || '',

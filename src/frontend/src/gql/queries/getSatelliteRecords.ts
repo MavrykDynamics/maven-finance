@@ -23,6 +23,12 @@ export const SATELLITE_RECORDS_QUERY = `
           aggregator_id
           id
           oracle_id
+          oracle {
+            aggregator_oracle_rewards {
+              reward
+              type
+            }
+          }
         }
         emergency_governance_votes {
           emergency_governance_record_id
@@ -33,6 +39,7 @@ export const SATELLITE_RECORDS_QUERY = `
           emergency_governance_record {
             title
           }
+          
         }
         governance_financial_requests_votes {
           governance_financial_request_id

@@ -4,9 +4,10 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { BLUE } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { coinGeckoClient } from 'app/App.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getDate_DMYHM_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { State } from 'reducers'
@@ -15,9 +16,51 @@ import { OraclesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 
 export const OraclesTab = () => {
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
+  const { exchangeRate } = useSelector((state: State) => state.mvkToken)
+  const { satelliteLedger = [] } = useSelector((state: State) => state.delegation.delegationStorage)
 
   const oracleFeeds = feeds.length
+  // TODO: extract is to mvkToken reducer in future?
+  const [xtzRate, setXTZRate] = useState(0)
   const popularFeeds = useMemo(() => feeds.splice(0, 3), [feeds])
+
+  useEffect(() => {
+    ;(async function fetchXtzRate() {
+      const xtzRate = (
+        await coinGeckoClient.simple.price({
+          ids: ['tezos'],
+          vs_currencies: ['usd'],
+        })
+      ).data
+
+      setXTZRate(xtzRate?.tezos?.usd || 0)
+    })()
+  }, [])
+
+  const oracleRevardsTotal = useMemo(
+    () =>
+      satelliteLedger.reduce(
+        (acc, { oracleRecords }) => {
+          if (oracleRecords.length) {
+            const { sMVKReward, XTZReward } = oracleRecords.reduce(
+              (acc, { sMVKReward = 0, XTZReward = 0 }) => {
+                acc.XTZReward += XTZReward
+                acc.sMVKReward += sMVKReward
+
+                return acc
+              },
+              { sMVKReward: 0, XTZReward: 0 },
+            )
+
+            acc.sMVKRewards += sMVKReward * exchangeRate
+            acc.XTZReward += XTZReward * xtzRate
+          }
+          return acc
+        },
+        { sMVKRewards: 0, XTZReward: 0 },
+      ),
+    [satelliteLedger],
+  )
 
   const history = useHistory()
 
@@ -39,7 +82,7 @@ export const OraclesTab = () => {
           <StatBlock>
             <div className="name">Total Oracle Rewards Paid</div>
             <div className="value">
-              <CommaNumber beginningText="$" value={124141} />
+              <CommaNumber beginningText="$" value={oracleRevardsTotal.XTZReward | oracleRevardsTotal.sMVKRewards} />
             </div>
           </StatBlock>
           <StatBlock>
