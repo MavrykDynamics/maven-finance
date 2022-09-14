@@ -93,6 +93,7 @@ export const MobileDetailsBlock = ({
             kind={ACTION_PRIMARY}
             icon="exchange"
             className="change-wallet"
+            strokeWidth={0.3}
           />
         </div>
       </div>
@@ -170,6 +171,7 @@ export const ConnectedWalletBlock = ({
             kind={ACTION_PRIMARY}
             icon="exchange"
             className="change-wallet"
+            strokeWidth={0.3}
           />
         </div>
       </div>

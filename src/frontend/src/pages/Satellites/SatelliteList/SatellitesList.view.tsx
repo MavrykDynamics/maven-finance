@@ -36,7 +36,6 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
                 undelegateCallback={additionaldata?.undelegateCallback as () => void}
                 userStakedBalance={(additionaldata?.userStakedBalance as number) || 0}
                 satelliteUserIsDelegatedTo={(additionaldata?.satelliteUserIsDelegatedTo as string) || ''}
-                isExtendedListItem={additionaldata?.isAllOracles as boolean}
               />
             )
           case 'feeds':
