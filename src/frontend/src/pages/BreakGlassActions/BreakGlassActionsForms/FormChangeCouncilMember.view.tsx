@@ -63,6 +63,7 @@ export const FormChangeCouncilMemberView: FC = () => {
         name: '' ,
         image: '',
       })
+      setChosenDdItem(itemsForDropDown[0])
       setUploadKey(uploadKey + 1)
     } catch (error) {
       console.error(error)

@@ -345,3 +345,46 @@ export const changeCouncilMember = (
     })
   }
 }
+
+// Remove Council Member
+export const REMOVE_COUNCIL_MEMBER_REQUEST = 'REMOVE_COUNCIL_MEMBER_REQUEST'
+export const REMOVE_COUNCIL_MEMBER_RESULT = 'REMOVE_COUNCIL_MEMBER_RESULT'
+export const REMOVE_COUNCIL_MEMBER_ERROR = 'REMOVE_COUNCIL_MEMBER_ERROR'
+export const removeCouncilMember = (memberAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: REMOVE_COUNCIL_MEMBER_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.removeCouncilMember(memberAddress).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('propagateBreakGlass - ERROR ', error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+    dispatch({
+      type: PROPOGATE_BREAK_GLASS_ERROR,
+      error,
+    })
+  }
+}

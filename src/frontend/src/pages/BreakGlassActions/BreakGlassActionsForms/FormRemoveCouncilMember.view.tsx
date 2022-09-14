@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -9,17 +10,30 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
 
+// actions
+import { removeCouncilMember } from '../BreakGlassActions.actions'
+
 const itemsForDropDown = [
   {text: 'Choose', value: ''}
 ]
 
 export const FormRemoveCouncilMemberView: FC = () => {
+  const dispatch = useDispatch()
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    try {
+      const memberAddress = chosenDdItem?.value || ''
+      await dispatch(removeCouncilMember(memberAddress))
+      setChosenDdItem(itemsForDropDown[0])
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const handleClickDropdown = () => {
