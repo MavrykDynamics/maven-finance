@@ -107,8 +107,8 @@ type loanTokenRecordType is [@layout:comb] record [
     tokenType                               : tokenType; 
     tokenDecimals                           : nat;
 
-    // oracleType                              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
-    // oracleAddress                           : address;   // zeroAddress if no oracle
+    oracleType                              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
+    oracleAddress                           : address;   // zeroAddress if no oracle
 
     lpTokensTotal                           : nat;
     lpTokenContractAddress                  : address;
@@ -131,8 +131,7 @@ type loanTokenRecordType is [@layout:comb] record [
     accumulatedRewardsPerShare              : nat;
     borrowIndex                             : nat;
 
-    // todo:
-    // minRepaymentAmount                      : nat; 
+    minRepaymentAmount                      : nat; 
 ]
 
 type loanTokenLedgerType is map(string, loanTokenRecordType)
@@ -233,6 +232,9 @@ type setLoanTokenActionType is [@layout:comb] record [
     tokenName                               : string;
     tokenDecimals                           : nat;
 
+    oracleType                              : string;
+    oracleAddress                           : address;
+
     lpTokenContractAddress                  : address;
     lpTokenId                               : nat;
 
@@ -243,6 +245,8 @@ type setLoanTokenActionType is [@layout:comb] record [
     maxInterestRate                         : nat;  // max interest rate
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
+
+    minRepaymentAmount                      : nat; 
 
     // variants at the end for taquito 
     tokenType                               : tokenType; 
@@ -309,19 +313,19 @@ type updateRewardsActionType is [@layout:comb] record [
 ]
 
 
-type vaultDepositStakedMvkType is [@layout:comb] record [
+type vaultDepositStakedMvkActionType is [@layout:comb] record [
     vaultId         : nat;
     depositAmount   : nat;
 ]
 
 
-type vaultWithdrawStakedMvkType is [@layout:comb] record [
+type vaultWithdrawStakedMvkActionType is [@layout:comb] record [
     vaultId         : nat;
     withdrawAmount  : nat;
 ]
 
 
-type vaultLiquidateStakedMvkType is [@layout:comb] record [
+type vaultLiquidateStakedMvkActionType is [@layout:comb] record [
     vaultId           : nat;
     vaultOwner        : address;
     liquidator        : address;
@@ -350,17 +354,17 @@ type lendingControllerPausableEntrypointType is
     |   Borrow                      of bool
     |   Repay                       of bool
 
-        // Vault Staked MVK Entrypoints
-    |   VaultDepositStakedMvk       of bool
-    |   VaultWithdrawStakedMvk      of bool
-    |   VaultLiquidateStakedMvk     of bool
-
         // Vault Entrypoints
     |   VaultDelegateTezToBaker     of bool
     |   VaultDelegateMvkToSatellite of bool
     |   VaultWithdraw               of bool
     |   VaultDeposit                of bool
     |   VaultEditDepositor          of bool
+
+        // Vault Staked MVK Entrypoints
+    |   VaultDepositStakedMvk       of bool
+    |   VaultWithdrawStakedMvk      of bool
+    |   VaultLiquidateStakedMvk     of bool
 
         // Rewards Entrypoints
     |   ClaimRewards                of bool
@@ -375,17 +379,15 @@ type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
 // Lambda Action Types
 // ------------------------------------------------------------------------------
 
+type callVaultStakedMvkActionType is 
+    
+    |   VaultDepositStakedMvkAction           of vaultDepositStakedMvkActionType
+    |   VaultWithdrawStakedMvkAction          of vaultWithdrawStakedMvkActionType
+    // |   Empty                                 of unit
+    |   VaultLiquidateStakedqwe         of unit
+    // |   VaultLiquidateStakedMvkAction         of vaultLiquidateStakedMvkActionType
 
-type callVaultEntrypointActionType is 
-    // |   UpdateCollateralToken           of updateCollateralTokenActionType  
-    |   CreateVault                     of createVaultActionType
-    |   CloseVault                      of closeVaultActionType
-    |   MarkForLiquidation              of markForLiquidationActionType
-    |   LiquidateVault                  of liquidateVaultActionType
-    // |   RegisterWithdrawal              of registerWithdrawalActionType
-    // |   RegisterDeposit                 of registerDepositActionType
-    |   Borrow                          of borrowActionType
-    |   Repay                           of repayActionType
+// type callVaultStakedMvkActionType is unit
 
 
 type lendingControllerLambdaActionType is 
@@ -410,7 +412,6 @@ type lendingControllerLambdaActionType is
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
         // Vault Entrypoints
-    // |   LambdaCallVaultEntrypoint             of callVaultEntrypointActionType
     |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
     |   LambdaCreateVault                     of createVaultActionType
     |   LambdaCloseVault                      of closeVaultActionType
@@ -422,9 +423,7 @@ type lendingControllerLambdaActionType is
     |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    // |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    // |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+    |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
 
         // Rewards Entrypoints
     |   LambdaClaimRewards                    of claimRewardsType

@@ -164,6 +164,9 @@
 //                 const tokenType                             = "fa12";
 //                 const tokenDecimals                         = 6;
 
+//                 const oracleType                            = "oracle";
+//                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
+
 //                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
 //                 const lpTokenId                             = 0;
 
@@ -175,6 +178,8 @@
 //                 const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
 //                 const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
+//                 const minRepaymentAmount                    = 10000;
+
 //                 // check if loan token exists
 //                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
@@ -185,6 +190,9 @@
 //                         tokenName,
 //                         tokenDecimals,
 
+//                         oracleType,
+//                         oracleAddress,
+
 //                         lpTokenContractAddress,
 //                         lpTokenId,
                         
@@ -194,6 +202,8 @@
 //                         maxInterestRate,
 //                         interestRateBelowOptimalUtilisation,
 //                         interestRateAboveOptimalUtilisation,
+
+//                         minRepaymentAmount,
 
 //                         // fa12 token type - token contract address
 //                         tokenType,
@@ -253,6 +263,9 @@
 //                 const tokenId                               = 0;
 //                 const tokenDecimals                         = 6;
 
+//                 const oracleType                            = "oracle";
+//                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+
 //                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
 //                 const lpTokenId                             = 0;
 
@@ -264,8 +277,7 @@
 //                 const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
 //                 const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
-//                 // const contractParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
-//                 // console.log(JSON.stringify(contractParameterSchema,null,2));
+//                 const minRepaymentAmount                    = 10000;
 
 //                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
@@ -276,6 +288,9 @@
 //                         tokenName,
 //                         tokenDecimals,
 
+//                         oracleType,
+//                         oracleAddress,
+
 //                         lpTokenContractAddress,
 //                         lpTokenId,
                         
@@ -285,6 +300,8 @@
 //                         maxInterestRate,
 //                         interestRateBelowOptimalUtilisation,
 //                         interestRateAboveOptimalUtilisation,
+
+//                         minRepaymentAmount,
                         
 //                         // fa2 token type - token contract address + token id
 //                         tokenType,
@@ -347,6 +364,9 @@
 //                 const tokenType                             = "tez";
 //                 const tokenDecimals                         = 6;
 
+//                 const oracleType                            = "oracle";
+//                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+
 //                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
 //                 const lpTokenId                             = 0;
 
@@ -358,6 +378,8 @@
 //                 const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
 //                 const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
+//                 const minRepaymentAmount                    = 10000;
+
 //                 // check if loan token exists
 //                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
@@ -368,6 +390,9 @@
 //                         tokenName,
 //                         tokenDecimals,
 
+//                         oracleType,
+//                         oracleAddress,
+
 //                         lpTokenContractAddress,
 //                         lpTokenId,
                         
@@ -377,6 +402,8 @@
 //                         maxInterestRate,
 //                         interestRateBelowOptimalUtilisation,
 //                         interestRateAboveOptimalUtilisation,
+
+//                         minRepaymentAmount,
 
 //                         // fa12 token type - token contract address
 //                         tokenType
@@ -436,6 +463,9 @@
 //                 const tokenId                               = 0;
 //                 const tokenDecimals                         = 6;
 
+//                 const oracleType                            = "oracle";
+//                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+
 //                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
 //                 const lpTokenId                             = 0;
 
@@ -447,10 +477,15 @@
 //                 const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
 //                 const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
+//                 const minRepaymentAmount                    = 10000;
+
 //                 await chai.expect(lendingControllerInstance.methods.setLoanToken(
                         
 //                     tokenName,
 //                     tokenDecimals,
+
+//                     oracleType,
+//                     oracleAddress,
 
 //                     lpTokenContractAddress,
 //                     lpTokenId,
@@ -461,6 +496,8 @@
 //                     maxInterestRate,
 //                     interestRateBelowOptimalUtilisation,
 //                     interestRateAboveOptimalUtilisation,
+
+//                     minRepaymentAmount,
                     
 //                     // fa2 token type - token contract address + token id
 //                     tokenType,
