@@ -12,6 +12,7 @@ import { TreasuryViewStyle } from './Treasury.style'
 import { getPieChartData } from './helpers/calculateChartData'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
+import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
 
 type Props = {
   treasury: TreasuryType

@@ -26,6 +26,7 @@ type InputViewProps = {
   pinnedText?: string
   required?: boolean
   kind?: InputKind
+  className?: string
 }
 
 export const InputView = ({
@@ -45,11 +46,12 @@ export const InputView = ({
   pinnedText,
   kind,
   required,
+  className,
 }: InputViewProps) => {
   const classNames = `${kind} ${inputStatus !== undefined ? inputStatus : 'none'}`
 
   return (
-    <InputStyled id={'inputStyled'}>
+    <InputStyled className={className} id={'inputStyled'}>
       {icon && (
         <InputIcon>
           <use xlinkHref={`/icons/sprites.svg#${icon}`} />

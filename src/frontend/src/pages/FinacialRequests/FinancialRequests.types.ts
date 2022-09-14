@@ -1,9 +1,9 @@
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { PAGINATION_SIDE_LEFT, PAGINATION_SIDE_RIGHT } from './Pagination/pagination.consts'
 
-import { GovernanceFinancialRequestRecordGraphQL } from '../../utils/TypesAndInterfaces/Governance'
+import { GovernanceFinancialRequestGraphQL } from '../../utils/TypesAndInterfaces/Governance'
 
-export type FinancialRequestBody = GovernanceFinancialRequestRecordGraphQL
+export type FinancialRequestBody = GovernanceFinancialRequestGraphQL
 
 export type FRListProps = {
   listTitle: string

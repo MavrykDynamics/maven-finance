@@ -6,7 +6,7 @@ import { connect } from 'app/App.components/ConnectWallet/ConnectWallet.actions'
 import { votingRoundVote } from 'pages/Governance/Governance.actions'
 import { SUBMIT } from 'app/App.components/Button/Button.constants'
 
-import { GovernanceFinancialRequestRecordGraphQL } from '../../../utils/TypesAndInterfaces/Governance'
+import { GovernanceFinancialRequestGraphQL } from '../../../utils/TypesAndInterfaces/Governance'
 
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
@@ -27,7 +27,7 @@ type FRVotingProps = {
   isActiveVoting: boolean
   walletConnected: boolean
   loading: boolean
-  selectedRequest: GovernanceFinancialRequestRecordGraphQL
+  selectedRequest: GovernanceFinancialRequestGraphQL
 }
 
 const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }: FRVotingProps) => {

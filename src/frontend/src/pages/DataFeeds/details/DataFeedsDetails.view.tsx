@@ -57,8 +57,8 @@ const emptyContainer = (
 const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
   const arrOfOracleRecords = useCallback(
-    () => feed?.oracle_records.map(({ oracle_id }: { oracle_id: string }) => oracle_id) || [],
-    [feed?.oracle_records],
+    () => feed?.oracles.map(({ oracle_id }: { oracle_id: string }) => oracle_id) || [],
+    [feed?.oracles],
   )
   const oraclesForFeed = useMemo(
     () => oracles.filter((satellite) => arrOfOracleRecords().includes(satellite.address)),
