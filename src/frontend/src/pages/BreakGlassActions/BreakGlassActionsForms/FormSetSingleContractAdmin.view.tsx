@@ -16,7 +16,7 @@ import { FormStyled } from './BreakGlassActionsForm.style'
 import { setSingleContractAdmin } from '../BreakGlassActions.actions'
 
 const INIT_FORM = {
-  newAddress: '',
+  newAdminAddress: '',
   targetContract: '',
 }
 
@@ -25,20 +25,20 @@ export const FormSetSingleContractAdminView: FC = () => {
 
   const [form, setForm] = useState(INIT_FORM)
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    newAddress: '',
+    newAdminAddress: '',
     targetContract: '',
   })
 
-  const { newAddress, targetContract } = form;
+  const { newAdminAddress, targetContract } = form;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     try {
-      await dispatch(setSingleContractAdmin(newAddress, targetContract))
+      await dispatch(setSingleContractAdmin(newAdminAddress, targetContract))
       setForm(INIT_FORM)
       setFormInputStatus({
-        newAddress: '',
+        newAdminAddress: '',
         targetContract: '',
       })
     } catch (error) {
@@ -70,14 +70,14 @@ export const FormSetSingleContractAdminView: FC = () => {
             className="margin-bottom-20"
             type="text"
             required
-            value={newAddress}
-            name="newAddress"
+            value={newAdminAddress}
+            name="newAdminAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.newAddress}
+            inputStatus={formInputStatus.newAdminAddress}
           />
 
           <label>Target Contract</label>

@@ -16,7 +16,7 @@ import { FormStyled } from './BreakGlassActionsForm.style'
 import { setAllContractsAdmin } from '../BreakGlassActions.actions'
 
 const INIT_FORM = {
-  address: '',
+  newAdminAddress: '',
 };
 
 export const FormSetAllContractsAdminView: FC = () => {
@@ -24,19 +24,19 @@ export const FormSetAllContractsAdminView: FC = () => {
 
   const [form, setForm] = useState(INIT_FORM)
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    address: '',
+    newAdminAddress: '',
   })
 
-  const { address } = form;
+  const { newAdminAddress } = form;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     try {
-      await dispatch(setAllContractsAdmin(address))
+      await dispatch(setAllContractsAdmin(newAdminAddress))
       setForm(INIT_FORM)
       setFormInputStatus({
-        address: '',
+        newAdminAddress: '',
       })
     } catch (error) {
       console.error(error)
@@ -67,14 +67,14 @@ export const FormSetAllContractsAdminView: FC = () => {
           <Input
             type="text"
             required
-            value={address}
-            name="address"
+            value={newAdminAddress}
+            name="newAdminAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.address}
+            inputStatus={formInputStatus.newAdminAddress}
           />
         </div>
 

@@ -16,7 +16,7 @@ import { FormStyled } from './BreakGlassActionsForm.style'
 import { signAction } from '../BreakGlassActions.actions'
 
 const INIT_FORM = {
-  actionId: '',
+  breakGlassActionID: '',
 }
 
 export const FormSignActionView: FC = () => {
@@ -24,19 +24,19 @@ export const FormSignActionView: FC = () => {
 
   const [form, setForm] = useState(INIT_FORM)
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    actionId: '',
+    breakGlassActionID: '',
   })
 
-  const { actionId } = form;
+  const { breakGlassActionID } = form;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     try {
-      await dispatch(signAction(actionId))
+      await dispatch(signAction(breakGlassActionID))
       setForm(INIT_FORM)
       setFormInputStatus({
-        actionId: '',
+        breakGlassActionID: '',
       })
     } catch (error) {
       console.error(error)
@@ -67,14 +67,14 @@ export const FormSignActionView: FC = () => {
           <Input
             type="text"
             required
-            value={actionId}
-            name="actionId"
+            value={breakGlassActionID}
+            name="breakGlassActionID"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.actionId}
+            inputStatus={formInputStatus.breakGlassActionID}
           />
         </div>
 

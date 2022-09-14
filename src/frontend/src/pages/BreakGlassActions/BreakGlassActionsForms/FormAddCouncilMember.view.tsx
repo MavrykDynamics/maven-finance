@@ -18,10 +18,10 @@ import { FormStyled } from './BreakGlassActionsForm.style'
 import { addCouncilMember } from 'pages/BreakGlassActions/BreakGlassActions.actions'
 
 const INIT_FORM = {
-  address: '',
-  website: '',
-  name: '' ,
-  image: '',
+  memberAddress: '',
+  newMemberWebsite: '',
+  newMemberName: '' ,
+  newMemberImage: '',
 }
 
 export const FormAddCouncilMemberView: FC = () => {
@@ -31,26 +31,26 @@ export const FormAddCouncilMemberView: FC = () => {
   const [form, setForm] = useState(INIT_FORM)
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    address: '',
-    website: '',
-    name: '' ,
-    image: '',
+    memberAddress: '',
+    newMemberWebsite: '',
+    newMemberName: '' ,
+    newMemberImage: '',
   })
 
-  const { address, website, name, image } = form
+  const { memberAddress, newMemberWebsite, newMemberName, newMemberImage } = form
   const disabled = false
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     try {
-      await dispatch(addCouncilMember(address, name, website, image))
+      await dispatch(addCouncilMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage))
       setForm(INIT_FORM)
       setFormInputStatus({
-        address: '',
-        website: '',
-        name: '' ,
-        image: '',
+        memberAddress: '',
+        newMemberWebsite: '',
+        newMemberName: '' ,
+        newMemberImage: '',
       })
       setUploadKey(uploadKey + 1)
     } catch (error) {
@@ -87,14 +87,14 @@ export const FormAddCouncilMemberView: FC = () => {
             <Input
               type="text"
               required
-              value={address}
-              name="address"
+              value={memberAddress}
+              name="memberAddress"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
                 handleBlur(e)
               }}
               onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-              inputStatus={formInputStatus.address}
+              inputStatus={formInputStatus.memberAddress}
             />
           </div>
 
@@ -103,14 +103,14 @@ export const FormAddCouncilMemberView: FC = () => {
             <Input
               type="text"
               required
-              value={name}
-              name="name"
+              value={newMemberName}
+              name="newMemberName"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
                 handleBlur(e)
               }}
               onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-              inputStatus={formInputStatus.name}
+              inputStatus={formInputStatus.newMemberName}
             />
           </div>
 
@@ -119,14 +119,14 @@ export const FormAddCouncilMemberView: FC = () => {
             <Input
               type="text"
               required
-              value={website}
-              name="website"
+              value={newMemberWebsite}
+              name="newMemberWebsite"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
                 handleBlur(e)
               }}
               onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-              inputStatus={formInputStatus.website}
+              inputStatus={formInputStatus.newMemberWebsite}
             />
           </div>
         </div>
@@ -135,11 +135,11 @@ export const FormAddCouncilMemberView: FC = () => {
           disabled={disabled}
           key={uploadKey}
           typeFile="image"
-          imageIpfsUrl={image}
+          imageIpfsUrl={newMemberImage}
           className="form-ipfs"
           setIpfsImageUrl={(e: string) => {
-            setForm({ ...form, image: e })
-            setFormInputStatus({ ...formInputStatus, image: Boolean(e) ? 'success' : 'error' })
+            setForm({ ...form, newMemberImage: e })
+            setFormInputStatus({ ...formInputStatus, newMemberImage: Boolean(e) ? 'success' : 'error' })
           }}
           title={'Upload Profile Pic'}
         />
