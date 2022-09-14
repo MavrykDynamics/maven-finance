@@ -39,7 +39,6 @@ export const SatelliteListItem = ({
   undelegateCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
-  isExtendedListItem = false,
   isDetailsPage = false,
   className = '',
   children,
@@ -94,7 +93,7 @@ export const SatelliteListItem = ({
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
       <SatelliteCardInner>
         <div className="rows-wrapper">
-          <SatelliteCardTopRow isExtendedListItem={isExtendedListItem}>
+          <SatelliteCardTopRow isExtendedListItem={isDetailsPage}>
             <SideBySideImageAndText>
               <SatelliteProfileImageContainer>
                 <AvatarStyle>
@@ -115,7 +114,7 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {isExtendedListItem && !isSatelliteOracle ? (
+            {isDetailsPage && !isSatelliteOracle ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Your delegated MVK</SatelliteMainText>
                 <SatelliteSubText>
@@ -131,7 +130,7 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {isExtendedListItem && isSatelliteOracle ? (
+            {isDetailsPage && isSatelliteOracle ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Signed feeds</SatelliteMainText>
                 <SatelliteSubText>
@@ -141,7 +140,7 @@ export const SatelliteListItem = ({
             ) : null}
           </SatelliteCardTopRow>
 
-          <SatelliteCardTopRow isExtendedListItem={isExtendedListItem}>
+          <SatelliteCardTopRow isExtendedListItem={isDetailsPage}>
             <SatelliteProfileDetails>
               {!isDetailsPage && (
                 <RoutingButton
@@ -160,7 +159,7 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {(isExtendedListItem && isSatelliteOracle) || !isSatelliteOracle ? (
+            {(isDetailsPage && isSatelliteOracle) || !isSatelliteOracle ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Fee</SatelliteMainText>
                 <SatelliteSubText>
@@ -169,7 +168,7 @@ export const SatelliteListItem = ({
               </SatelliteTextGroup>
             ) : null}
 
-            {isExtendedListItem && !isSatelliteOracle ? (
+            {isDetailsPage && !isSatelliteOracle ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Count of delegators</SatelliteMainText>
                 <SatelliteSubText>

@@ -35,6 +35,7 @@ query GetGovernanceStorageQuery {
     governance_financial_request {
       executed
       expiration_datetime
+      execution_datetime
       id
       request_purpose
       request_type

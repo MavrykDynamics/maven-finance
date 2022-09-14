@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, CardHeader } from 'styles'
+import { Card, CardHeader, cyanColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -7,12 +7,17 @@ export const DoormanStatsStyled = styled(Card)`
   display: flex;
   flex-direction: column;
   padding: 25px 44px;
+  position: relative;
 
   &::after {
     content: '';
     display: block;
     width: 42px;
     height: 3px;
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
     background-color: ${({ theme }) => theme.cardBorderColor};
     margin-left: auto;
     margin-right: auto;
@@ -45,8 +50,6 @@ export const DoormanStatsGrid = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
-  margin-top: auto;
-
   > div {
     display: flex;
     justify-content: space-between;
@@ -65,9 +68,16 @@ export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
         margin-left: 4px;
 
         svg {
+          transition: 0.4s all;
           width: 14px;
           height: 14px;
           fill: ${({ theme }) => theme.headerColor};
+        }
+
+        &:hover {
+          svg {
+            fill: ${cyanColor};
+          }
         }
       }
     }

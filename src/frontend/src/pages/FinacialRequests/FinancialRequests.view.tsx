@@ -70,7 +70,11 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
 
         <div className="voting_ending">
           Voting {rightItemStatus !== ProposalStatus.ONGOING ? 'ended' : 'ending'} on{' '}
-          {getDate_MDHMTZ_Format(rightSideContent.expiration_datetime as string)}
+          {getDate_MDHMTZ_Format(
+            (rightItemStatus !== ProposalStatus.ONGOING
+              ? rightSideContent.execution_datetime
+              : rightSideContent.expiration_datetime) as string,
+          )}
         </div>
 
         <FRVoting
