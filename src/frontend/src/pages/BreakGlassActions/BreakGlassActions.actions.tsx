@@ -55,3 +55,46 @@ export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState:
     })
   }
 }
+
+// Set All Contracts Admin
+export const SET_ALL_CONTRACTS_ADMIN_REQUEST = 'SET_ALL_CONTRACTS_ADMIN_REQUEST'
+export const SET_ALL_CONTRACTS_ADMIN_RESULT = 'SET_ALL_CONTRACTS_ADMIN_RESULT'
+export const SET_ALL_CONTRACTS_ADMIN_ERROR = 'SET_ALL_CONTRACTS_ADMIN_ERROR'
+export const setAllContractsAdmin = (newAdminAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: SET_ALL_CONTRACTS_ADMIN_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.setSingleContractAdmin(newAdminAddress).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('propagateBreakGlass - ERROR ', error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+    dispatch({
+      type: PROPOGATE_BREAK_GLASS_ERROR,
+      error,
+    })
+  }
+}

@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -11,16 +12,38 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
 
+// actions
+import { setAllContractsAdmin } from '../BreakGlassActions.actions'
+
+const INIT_FORM = {
+  address: '',
+};
+
 export const FormSetAllContractsAdminView: FC = () => {
-  const [form, setForm] = useState({ address: '' })
+  const dispatch = useDispatch()
+
+  const [form, setForm] = useState(INIT_FORM)
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     address: '',
   })
 
   const { address } = form;
 
-  const handleClickButton = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    try {
+      await dispatch(setAllContractsAdmin(address))
+      setForm(INIT_FORM)
+      setFormInputStatus({
+        vesteeAddress: '',
+        totalAllocated: '',
+        cliffInMonths: '',
+        vestingInMonths: '',
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -40,7 +63,7 @@ export const FormSetAllContractsAdminView: FC = () => {
       <h1>Set All Contracts Admin</h1>
       <p>Please enter valid function parameters for adding a vestee</p>
 
-      <form className='form' onSubmit={handleClickButton}>
+      <form className='form' onSubmit={handleSubmit}>
         <div className="form-fields input-size-primary">
           <label>New Admin Address</label>
 
