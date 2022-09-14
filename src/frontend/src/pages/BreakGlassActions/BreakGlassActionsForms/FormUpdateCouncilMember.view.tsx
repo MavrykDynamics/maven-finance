@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -13,9 +14,21 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
 
+// actions
+import { updateCouncilMember } from '../BreakGlassActions.actions'
+
+const INIT_FORM = {
+  address: '',
+  website: '',
+  name: '' ,
+  image: '',
+}
+
 export const FormUpdateCouncilMemberView: FC = () => {
+  const dispatch = useDispatch()
+
   const [uploadKey, setUploadKey] = useState(1)
-  const [form, setForm] = useState({ address: '', website: '', name: '', image: '' })
+  const [form, setForm] = useState(INIT_FORM)
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     address: '',
@@ -27,8 +40,23 @@ export const FormUpdateCouncilMemberView: FC = () => {
   const { address, website, name, image } = form
   const disabled = false
 
-  const handleClickButton = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    try {
+      await dispatch(updateCouncilMember(address, name, website, image))
+      setForm(INIT_FORM)
+      setFormInputStatus({
+        address: '',
+        website: '',
+        name: '' ,
+        image: '',
+      })
+      setUploadKey(uploadKey + 1)
+    } catch (error) {
+      console.error(error)
+      setUploadKey(uploadKey + 1)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -52,7 +80,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
       <h1>Update Council Member Info</h1>
       <p>Please enter valid function parameters for adding council member info</p>
 
-      <form onSubmit={handleClickButton}>
+      <form onSubmit={handleSubmit}>
         <div className="form-fields in-two-columns">
           <div className='input-size-secondary margin-bottom-20'>
             <label>Council Member Address</label>

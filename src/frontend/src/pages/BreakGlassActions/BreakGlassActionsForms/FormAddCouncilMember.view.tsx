@@ -17,7 +17,7 @@ import { FormStyled } from './BreakGlassActionsForm.style'
 // actions
 import { addCouncilMember } from 'pages/BreakGlassActions/BreakGlassActions.actions'
 
-const FORM_INIT = {
+const INIT_FORM = {
   address: '',
   website: '',
   name: '' ,
@@ -28,7 +28,7 @@ export const FormAddCouncilMemberView: FC = () => {
   const dispatch = useDispatch()
 
   const [uploadKey, setUploadKey] = useState(1)
-  const [form, setForm] = useState(FORM_INIT)
+  const [form, setForm] = useState(INIT_FORM)
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     address: '',
@@ -45,7 +45,7 @@ export const FormAddCouncilMemberView: FC = () => {
 
     try {
       await dispatch(addCouncilMember(address, name, website, image))
-      setForm(FORM_INIT)
+      setForm(INIT_FORM)
       setFormInputStatus({
         address: '',
         website: '',
