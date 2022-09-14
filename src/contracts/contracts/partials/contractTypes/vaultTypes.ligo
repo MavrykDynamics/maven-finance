@@ -24,10 +24,14 @@ type vaultHandleType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
-type updateDepositorType is
+type updateDepositorAllowanceType is
     |   AllowAny        of bool
     |   AllowAccount    of bool * address
 
+type updateDepositorType is [@layout:comb] record [
+    allowance       : updateDepositorAllowanceType;
+    empty           : unit;
+]
 
 type delegateTezToBakerType is option(key_hash)
 type satelliteAddressType is address
