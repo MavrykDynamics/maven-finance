@@ -1,6 +1,7 @@
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import Icon from 'app/App.components/Icon/Icon.view'
+import { Timer } from 'app/App.components/Timer/Timer.controller'
 import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
@@ -60,7 +61,7 @@ export const FarmsTab = () => {
                 <div className="row-info">
                   <div className="name">Ends in: </div>
                   <div className="value">
-                    <span style={{ color: 'red' }}>need data</span>
+                    <Timer deadline={farmCardData.endsIn} />
                   </div>
                 </div>
               </div>
