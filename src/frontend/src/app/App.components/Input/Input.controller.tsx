@@ -19,6 +19,7 @@ type InputProps = {
   required?: boolean
   pinnedText?: string
   kind?: InputKind
+  className?: string
 }
 
 export const Input = ({ id = '', ...restIputProps }: InputProps) => {

@@ -6,7 +6,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { ProposalDataType, ProposalPaymentType } from '../../utils/TypesAndInterfaces/Governance'
+import type {
+  ProposalDataType,
+  ProposalRecordType,
+  CurrentRoundProposalsStorageType,
+} from '../../utils/TypesAndInterfaces/Governance'
+import type { Governance_Proposal_Payment } from '../../utils/generated/graphqlTypes'
 
 // actions
 import {
@@ -35,7 +40,6 @@ import Icon from '../../app/App.components/Icon/Icon.view'
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
 import { GovernancePhase } from '../../reducers/governance'
-import { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from './Governance.controller'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 import { Proposals } from './Proposals/Proposals.controller'
@@ -461,7 +465,7 @@ export const GovernanceView = ({
             <RightSideSubHeader>Meta-Data</RightSideSubHeader>
             {rightSideContent.proposalData?.length ? (
               <ol className="proposal-list">
-                {rightSideContent.proposalData.map((item: ProposalDataType, i: number) => {
+                {rightSideContent.proposalData.map((item, i: number) => {
                   const unique = `proposalDataItem${item.id}`
                   return (
                     <li key={item.id}>
@@ -515,8 +519,8 @@ export const GovernanceView = ({
                       <td>Amount</td>
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
-                    {rightSideContent.proposalPayments.map((item, i: number) => {
-                      const paymentType = normalizeTokenStandart(item.token_standard)
+                    {rightSideContent.proposalPayments.map((item: Governance_Proposal_Payment, i: number) => {
+                      const paymentType = normalizeTokenStandart(item.token)
 
                       const amount =
                         paymentType === 'MVK'
@@ -560,7 +564,7 @@ export const GovernanceView = ({
               </div>
             </article>
           ) : null}
-          {userIsSatellite && !isVisibleHistoryProposal ? (
+          {userIsSatellite && findUserCurrentRoundProposal && !isVisibleHistoryProposal ? (
             <div className="drop-proposal">
               <Button
                 icon="close-stroke"

@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { GovernanceProposalRecordGraphQL, ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
+import type { GovernanceProposalGraphQL, ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 
 export default function useGovernence(): {
   watingProposals: ProposalRecordType[]

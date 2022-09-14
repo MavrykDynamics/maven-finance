@@ -1,18 +1,18 @@
 import { MichelsonMap } from '@taquito/taquito'
-import type { Satellite_Record, Delegation } from '../generated/graphqlTypes'
-import { Governance_Proposal_Record, Maybe, Governance_Financial_Request_Record } from '../generated/graphqlTypes'
+import type { Satellite, Delegation } from '../generated/graphqlTypes'
+import { Governance_Proposal, Maybe, Governance_Financial_Request } from '../generated/graphqlTypes'
 
 import { FinancialRequestVote, ProposalVote } from './Governance'
 
 import { normalizeDelegationStorage } from '../../pages/Satellites/Satellites.helpers'
 
 export interface SatelliteProposalVotingHistory extends ProposalVote {
-  requestData: Maybe<Governance_Proposal_Record> | undefined
+  requestData: Maybe<Governance_Proposal> | undefined
   voteName?: string
 }
 
 export interface SatelliteFinancialRequestVotingHistory extends FinancialRequestVote {
-  requestData?: Maybe<Governance_Financial_Request_Record> | undefined
+  requestData?: Maybe<Governance_Financial_Request> | undefined
   voteName?: string
 }
 
@@ -84,5 +84,5 @@ export type SatelliteGovernanceTransfer = {
 }
 
 export type DelegationStorage = ReturnType<typeof normalizeDelegationStorage>
-export type SatelliteRecordGraphQl = Omit<Satellite_Record, '__typename'>
+export type SatelliteRecordGraphQl = Omit<Satellite, '__typename'>
 export type DelegationGraphQl = Omit<Delegation, '__typename'>

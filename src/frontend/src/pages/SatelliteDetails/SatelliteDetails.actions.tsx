@@ -31,7 +31,7 @@ export const getSatelliteByAddress =
       )
 
       const satelliteRecord = normalizeSatelliteRecord(
-        satelliteRecordFromIndexer?.satellite_record?.[0],
+        satelliteRecordFromIndexer?.satellite?.[0],
         userVotingHistoryIndexer?.mavryk_user?.[0],
       )
 

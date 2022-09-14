@@ -47,6 +47,7 @@ export type TreasuryBalanceType = {
   name: string
   symbol: string
   thumbnail_uri: string
+  usdValue: number
 }
 
 export type TreasuryChartType = Array<ChartSectorType>
