@@ -1,10 +1,6 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-<<<<<<< HEAD
 import { BLUE, CYAN, PRIMARY, SECONDARY, TRANSPARENT } from './TzAddress.constants'
-=======
-import { CYAN, PRIMARY, SECONDARY, TRANSPARENT } from './TzAddress.constants'
->>>>>>> front-dev
 
 export const TzAddressContainer = styled.div`
   display: flex;

@@ -41,7 +41,6 @@ export type FetchedTreasuryBalanceType = {
 export type TreasuryBalanceType = {
   rate: number
   balance: number
-  usdValue: number
   contract: string
   decimals: number
   name: string

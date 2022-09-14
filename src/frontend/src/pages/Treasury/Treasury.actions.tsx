@@ -100,11 +100,9 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
         .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
           const assetRate = metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]
           const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
-          const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
 
           return {
             contract: contract.address,
-            usdValue: coinsAmount * assetRate,
             usdValue: coinsAmount * assetRate,
             decimals: parseInt(metadata.decimals),
             name: metadata.name,
