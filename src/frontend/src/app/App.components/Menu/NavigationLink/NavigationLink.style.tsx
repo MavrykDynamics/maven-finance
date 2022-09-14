@@ -156,4 +156,20 @@ export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
 
       color: ${({ theme }) => theme.navLinkSubTitleActive};
     `}
+
+  &:hover {
+    &:before {
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: 0.3s all;
+      content: '';
+      width: 30px;
+      height: 1px;
+      background-color: ${({ theme }) => theme.navLinkSubTitleActive};
+    }
+
+    color: ${({ theme }) => theme.navLinkSubTitleActive};
+  }
 `

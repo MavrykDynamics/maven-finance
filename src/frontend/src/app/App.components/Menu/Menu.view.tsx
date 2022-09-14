@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { State } from 'reducers'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
@@ -43,12 +44,30 @@ export const SocialIcons = () => (
 
 export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewProps) => {
   const dispatch = useDispatch()
-  const [isExpanded, setExpanded] = useState<number>(0)
+  const { pathname } = useLocation()
+  const showSidebarOpened = useMedia('(min-width: 1400px)')
   const { sidebarOpened } = useSelector((state: State) => state.preferences)
 
-  const handleToggle = (id: number) => {
+  useEffect(() => {
+    if (showSidebarOpened || sidebarOpened) {
+      const expandedRouteSection = mainNavigationLinks.find(({ path, subPages = null }) => {
+        if (subPages) {
+          return subPages.find(({ subPath }) => `/${subPath}` === pathname)
+        }
+
+        return `/${path}` === pathname
+      })
+
+      setExpanded(expandedRouteSection?.id || 0)
+    } else {
+      setExpanded(0)
+    }
+  }, [pathname, showSidebarOpened, sidebarOpened])
+
+  const [isExpanded, setExpanded] = useState<number>(0)
+
+  const handleToggle = () => {
     dispatch(toggleSidebarCollapsing(true))
-    setExpanded(id === isExpanded ? 0 : id)
   }
 
   const burgerClickHandler = useCallback(() => {
@@ -88,7 +107,7 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
               )
             })}
           </MenuGrid>
-          <MenuFooter>
+          <MenuFooter className={`${sidebarOpened ? '' : 'menu-collapsed'}`}>
             <SocialIcons />
             MAVRYK App <p>v1.0</p>
           </MenuFooter>
