@@ -21,7 +21,7 @@ type NavigationLinkProps = {
   path: string
   icon?: string
   subPages?: SubNavigationRoute[]
-  handleToggle: (id: number) => void
+  handleToggle: () => void
   isExpanded: boolean
   isMobMenuExpanded: boolean
   accountPkh: string | undefined
@@ -53,7 +53,7 @@ export const NavigationLink = ({
 
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded })
 
-  const handleClick = () => handleToggle(id)
+  const handleClick = () => handleToggle()
 
   return (
     <>
