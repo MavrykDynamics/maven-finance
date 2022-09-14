@@ -82,7 +82,7 @@ export const SatelliteGovernanceCard = ({
 
   return (
     <Expand
-      className="expand-satellite-governance"
+      className="expand-governance"
       header={
         <>
           <SatelliteGovernanceCardTitleTextGroup>
