@@ -266,7 +266,7 @@ block {
                     // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
                     // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
                     const emptyWhitelistSet : set(address) = set[];
-                    const depositors : depositorsType = case updateDepositorParams of [
+                    const depositors : depositorsType = case updateDepositorParams.allowance of [
                         | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
                         | AllowAccount(_account) -> block {
                             const updateDepositors : depositorsType = case s.depositors of [
