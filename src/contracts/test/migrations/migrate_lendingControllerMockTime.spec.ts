@@ -236,6 +236,8 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
 
 
             // Token Pool Reward Contract
+            tokenPoolRewardStorage.mvkTokenAddress = mvkTokenAddress.address;
+            tokenPoolRewardStorage.governanceAddress = governanceAddress.address;
             tokenPoolReward = await TokenPoolReward.originate(
                 utils.tezos,
                 tokenPoolRewardStorage

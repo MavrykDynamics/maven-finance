@@ -603,36 +603,6 @@ block {
 // Vault Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* callVaultEntrypoint lambda *)
-// function lambdaCallVaultEntrypoint(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
-// block {
-
-//     var response : return := (nil, s);
-
-//     case lendingControllerLambdaAction of [
-      
-//         |   LambdaCallVaultEntrypoint(callVaultEntrypointParams) -> {
-
-//                 response := case callVaultEntrypointParams of [
-//                         // UpdateCollateralToken (_v)     -> updateCollateralToken(_v, s)
-//                     // |   CreateVault (_v)               -> createVault(_v, s)
-//                     |   CloseVault (_v)                -> closeVault(_v, s)
-//                     |   MarkForLiquidation (_v)        -> markForLiquidation(_v, s)
-//                     |   LiquidateVault (_v)            -> liquidateVault(_v, s)
-//                     // |   RegisterWithdrawal (_v)        -> registerWithdrawal(_v, s)
-//                     // |   RegisterDeposit (_v)           -> registerDeposit(_v, s)
-//                     |   Borrow (_v)                    -> borrow(_v, s)
-//                     |   Repay (_v)                     -> repay(_v, s)
-//                 ]
-
-//             }
-//         |   _ -> skip
-//     ]
-
-// } with response
-
-
-
 (* updateCollateralToken lambda *)
 function lambdaUpdateCollateralToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
@@ -1474,9 +1444,9 @@ block {
                 // ------------------------------------------------------------------
 
                 // if tez is to be withdrawn, check that Tezos amount should be the same as withdraw amount
-                if tokenName = "tez" then block {
-                    if mutezToNatural(Tezos.get_amount()) =/= withdrawalAmount then failwith(error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT) else skip;
-                } else skip;
+                // if tokenName = "tez" then block {
+                //     if mutezToNatural(Tezos.get_amount()) =/= withdrawalAmount then failwith(error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT) else skip;
+                // } else skip;
 
                 // get token collateral balance in vault, fail if none found
                 var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
@@ -1934,6 +1904,31 @@ block {
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Lambdas Begin
 // ------------------------------------------------------------------------------
+
+(* callVaultStakedMvkEntrypoint lambda *)
+function lambdaCallVaultStakedMvkAction(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
+block {
+
+    // var response : return := (nil, s);
+    var operations : list(operation) := nil;
+
+    case lendingControllerLambdaAction of [
+        |   LambdaCallVaultStakedMvkAction(_callVaultStakedMvkActionParams) -> {
+
+                // response := case callVaultStakedMvkActionParams of [
+                //     |   VaultDepositStakedMvk (_v)     -> vaultDepositStakedMvk(_v, s)
+                //     |   VaultWithdrawStakedMvk (_v)    -> vaultWithdrawStakedMvk(_v, s)
+                //     |   VaultLiquidateStakedMvk (_v)   -> vaultLiquidateStakedMvk(_v, s)
+                // ]
+                skip
+
+            }
+        |   _ -> skip
+    ]
+
+} with (operations, s)
+
+
 
 (* depositStakedMvk lambda *)
 // function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is

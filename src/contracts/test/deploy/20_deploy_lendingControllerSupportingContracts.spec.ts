@@ -168,6 +168,8 @@ describe('Lending Controller', async () => {
             
 
             // Token Pool Reward Contract
+            tokenPoolRewardStorage.mvkTokenAddress = mvkTokenAddress.address;
+            tokenPoolRewardStorage.governanceAddress = governanceAddress.address;
             tokenPoolReward = await TokenPoolReward.originate(
                 utils.tezos,
                 tokenPoolRewardStorage
