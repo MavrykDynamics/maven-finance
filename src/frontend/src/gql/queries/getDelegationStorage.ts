@@ -39,6 +39,12 @@ export const DELEGATION_STORAGE_QUERY = `
             aggregator_id
             id
             oracle_id
+            oracle {
+              aggregator_oracle_rewards {
+                reward
+                type
+              }
+            }
           }
           emergency_governance_votes {
             emergency_governance_record_id
