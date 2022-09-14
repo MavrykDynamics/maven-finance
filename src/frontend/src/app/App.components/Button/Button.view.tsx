@@ -11,9 +11,20 @@ type ButtonViewProps = {
   type?: ButtonTypes
   loading?: boolean
   disabled?: boolean
+  strokeWidth?: number
 }
 
-export const ButtonView = ({ text, icon, kind, onClick, type, loading, disabled, className = '' }: ButtonViewProps) => {
+export const ButtonView = ({
+  text,
+  icon,
+  kind,
+  onClick,
+  type,
+  loading,
+  disabled,
+  strokeWidth,
+  className = '',
+}: ButtonViewProps) => {
   const fullKind = `${kind} ${disabled ? 'disabled' : ''}`
   const buttonClasses = `${fullKind} ${loading ? 'loading' : ''} ${className}`
 
@@ -30,7 +41,7 @@ export const ButtonView = ({ text, icon, kind, onClick, type, loading, disabled,
         ) : (
           <>
             {icon && (
-              <ButtonIcon className={fullKind}>
+              <ButtonIcon className={fullKind} strokeWidth={strokeWidth}>
                 <use xlinkHref={`/icons/sprites.svg#${icon}`} />
               </ButtonIcon>
             )}

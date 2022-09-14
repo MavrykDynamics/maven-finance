@@ -7,6 +7,17 @@ export interface UserData {
   participationFeesPerShare: number
   satelliteMvkIsDelegatedTo: string
   isSatellite: boolean
+  // myDoormanRewardsData: UserDoormanRewardsData
+  // myFarmRewardsData: UserFarmRewardsData[]
+  mySatelliteRewardsData?: UserSatelliteRewardsData
+}
+
+export interface UserSatelliteRewardsData {
+  unpaid: number
+  paid: number
+  participationRewardsPerShare: number
+  satelliteAccumulatedRewardPerShare: number
+  myAvailableSatelliteRewards: number
 }
 
 export type UserType = {
