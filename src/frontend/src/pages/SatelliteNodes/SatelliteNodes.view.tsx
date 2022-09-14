@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
+
 import { State } from 'reducers'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
@@ -12,11 +13,9 @@ import SatteliteList from 'pages/Satellites/SatelliteList/SatellitesList.view'
 
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
-
-import { EmptyContainer } from 'app/App.style'
-import SatellitesSideBar from '../Satellites/SatellitesSideBar/SatellitesSideBar.controller'
-// styles
 import { Page, PageContent } from 'styles'
+import { EmptyContainer } from 'app/App.style'
+import SatellitesSideBar from 'pages/Satellites/SatellitesSideBar/SatellitesSideBar.controller'
 
 type OracleSatellitesViewProps = {
   handleSelect: (item: { text: string; value: string }) => void
@@ -60,6 +59,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
   return (
     <Page>
       <PageHeader page={'satellites'} />
+
       <PageContent>
         <div className="left-content-wrapper">
           <SatelliteSearchFilter>

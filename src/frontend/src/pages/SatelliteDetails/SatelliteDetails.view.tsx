@@ -88,9 +88,9 @@ export const SatelliteDetailsView = ({
           loading={loading}
           delegateCallback={delegateCallback}
           undelegateCallback={undelegateCallback}
+          claimRewardsCallback={(address: string) => console.log('claim rewards from: ', address)}
           userStakedBalance={myDelegatedMVK}
           satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
-          isExtendedListItem={true}
           isDetailsPage={true}
         >
           <SatelliteCardBottomRow>

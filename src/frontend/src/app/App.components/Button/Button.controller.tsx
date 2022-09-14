@@ -12,6 +12,7 @@ export type ButtonProps = {
   type?: ButtonTypes
   loading?: boolean
   disabled?: boolean
+  strokeWidth?: number
 }
 
 export const Button = ({
@@ -23,6 +24,7 @@ export const Button = ({
   loading,
   disabled,
   className,
+  strokeWidth,
 }: ButtonProps) => {
   return (
     <ButtonView
@@ -34,6 +36,7 @@ export const Button = ({
       type={type}
       loading={loading}
       disabled={disabled}
+      strokeWidth={strokeWidth}
     />
   )
 }

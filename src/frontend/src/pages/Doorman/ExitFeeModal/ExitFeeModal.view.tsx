@@ -111,7 +111,7 @@ export const ExitFeeModalView = ({
               </svg>
             </ModalClose>
             <ModalCardContent style={{ width: 586 }}>
-              <h1>Exit Fee</h1>
+              <h1>Unstake your MVK</h1>
               <ExitFeeModalContent>
                 <label>Amount to Unstake:</label>
                 <Input

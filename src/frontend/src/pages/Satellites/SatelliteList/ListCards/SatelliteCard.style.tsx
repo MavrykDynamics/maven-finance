@@ -167,6 +167,7 @@ export const SatelliteCardButtons = styled.div`
   padding-right: 24px;
   width: 204px;
   flex-shrink: 0;
+  justify-content: space-around;
 `
 
 export const SatelliteCardRow = styled.div<{ theme: MavrykTheme }>`

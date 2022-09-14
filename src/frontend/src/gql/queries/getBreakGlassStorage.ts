@@ -43,6 +43,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       deposit_paused
       withdraw_paused
       admin
+      last_updated_at
     }
     farm_factory {
       create_farm_paused
@@ -50,6 +51,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       untrack_farm_paused
       address
       admin
+      last_updated_at
     }
     delegation {
       delegate_to_satellite_paused
@@ -60,6 +62,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       update_satellite_record_paused
       address
       admin
+      last_updated_at
     }
     doorman {
       address
@@ -67,6 +70,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       farm_claimed_paused
       unstake_paused
       admin
+      last_updated_at
     }
     treasury {
       name
@@ -76,6 +80,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       address
       unstake_mvk_paused
       admin
+      last_updated_at
     }
     treasury_factory {
       create_treasury_paused
@@ -83,6 +88,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       track_treasury_paused
       untrack_treasury_paused
       admin
+      last_updated_at
     }
     aggregator {
       address
@@ -90,6 +96,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       withdraw_reward_smvk_paused
       withdraw_reward_xtz_paused
       admin
+      last_updated_at
     }
     aggregator_factory {
       address
@@ -99,6 +106,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       distribute_reward_smvk_paused
       create_aggregator_paused
       admin
+      last_updated_at
     }
   }
 `
