@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -14,17 +15,29 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
 
+// actions
+import { changeCouncilMember } from '../BreakGlassActions.actions'
+
 const itemsForDropDown = [
   {text: 'Choose', value: ''}
 ]
 
+const INIT_FORM = {
+  address: '',
+  website: '',
+  name: '' ,
+  image: '',
+}
+
 export const FormChangeCouncilMemberView: FC = () => {
+  const dispatch = useDispatch()
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
   const [uploadKey, setUploadKey] = useState(1)
-  const [form, setForm] = useState({ address: '', website: '', name: '', image: '' })
+  const [form, setForm] = useState(INIT_FORM)
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     address: '',
@@ -36,8 +49,25 @@ export const FormChangeCouncilMemberView: FC = () => {
   const { address, website, name, image } = form
   const disabled = false
 
-  const handleClickButton = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    try {
+      const newCouncilMemberAddress = chosenDdItem?.value || '';
+
+      await dispatch(changeCouncilMember(address, newCouncilMemberAddress, name, website, image))
+      setForm(INIT_FORM)
+      setFormInputStatus({
+        address: '',
+        website: '',
+        name: '' ,
+        image: '',
+      })
+      setUploadKey(uploadKey + 1)
+    } catch (error) {
+      console.error(error)
+      setUploadKey(uploadKey + 1)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -71,9 +101,9 @@ export const FormChangeCouncilMemberView: FC = () => {
       <h1>Change Council Member</h1>
       <p>Please enter valid function parameters for changing a council member</p>
 
-      <form onSubmit={handleClickButton}>
+      <form onSubmit={handleSubmit}>
         <div className='form-fields input-size-secondary margin-bottom-20'>
-          <label>Council Member Address</label>
+          <label>Choose Council Member to change</label>
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}

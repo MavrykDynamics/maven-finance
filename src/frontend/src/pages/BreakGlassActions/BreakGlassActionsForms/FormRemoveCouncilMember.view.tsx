@@ -18,7 +18,7 @@ export const FormRemoveCouncilMemberView: FC = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
-  const handleClickButton = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
   }
 
@@ -41,7 +41,7 @@ export const FormRemoveCouncilMemberView: FC = () => {
       <h1>Remove Council Member</h1>
       <p>Please enter valid function parameters for removing a council member</p>
 
-      <form className='form' onSubmit={handleClickButton}>
+      <form className='form' onSubmit={handleSubmit}>
         <div className="form-fields input-size-primary">
           <label>Choose Council Member to remove</label>
 
