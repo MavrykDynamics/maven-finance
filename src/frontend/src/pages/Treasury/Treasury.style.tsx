@@ -98,6 +98,10 @@ export const TreasuryViewStyle = styled(Card)`
 
     .asset-value {
       margin-top: 0;
+
+      p {
+        margin: 0;
+      }
     }
   }
 
@@ -113,6 +117,10 @@ export const TreasuryViewStyle = styled(Card)`
     color: ${cyanColor};
     margin: 0;
     margin-top: 4px;
+
+    p {
+      margin: 0;
+    }
   }
 
   .asset-lables {

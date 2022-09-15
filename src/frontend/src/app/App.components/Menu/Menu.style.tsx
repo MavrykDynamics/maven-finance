@@ -171,6 +171,14 @@ export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
     display: inline-block;
     font-weight: 500;
   }
+
+  &.menu-collapsed {
+    .social-wrapper {
+      align-items: center;
+      row-gap: 7px;
+      flex-direction: column;
+    }
+  }
 `
 
 export const MenuSpacerDiv = styled.div<{ height: number }>`
