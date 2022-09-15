@@ -39,14 +39,14 @@ export type FetchedTreasuryBalanceType = {
 }
 
 export type TreasuryBalanceType = {
-  rate: number
+  rate: number | null
   balance: number
   contract: string
   decimals: number
   name: string
   symbol: string
   thumbnail_uri: string
-  usdValue: number
+  usdValue: number | null
 }
 
 export type TreasuryChartType = Array<ChartSectorType>

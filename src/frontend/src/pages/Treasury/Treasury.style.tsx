@@ -51,7 +51,6 @@ export const TreasuryViewStyle = styled(Card)`
 
     .tzAddressToClick {
       font-size: 12px;
-      color: #86d4c9;
     }
   }
 

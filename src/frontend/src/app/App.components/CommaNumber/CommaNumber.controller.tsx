@@ -10,6 +10,7 @@ export const CommaNumber = ({
   className = '',
   showDecimal = true,
   svgKind = SECONDARY_COMMA_NUMBER,
+  useAccurateParsing = false,
 }: {
   value: number
   loading?: boolean
@@ -17,9 +18,20 @@ export const CommaNumber = ({
   beginningText?: string
   className?: string
   showDecimal?: boolean
+  useAccurateParsing?: boolean
   svgKind?: CommaNumberSvgKind
 }) => {
-  const numberWithCommas = value?.toLocaleString('en-US', { maximumFractionDigits: showDecimal ? DECIMALS_TO_SHOW : 0 })
+  let numberWithCommas = value?.toLocaleString('en-US', { maximumFractionDigits: showDecimal ? DECIMALS_TO_SHOW : 0 })
+
+  if (value.toString().includes('e')) {
+    numberWithCommas = value.toString()
+  }
+
+  if (useAccurateParsing) {
+    const [integers, decimals] = value.toString().split('.')
+    const modifiedInteger = Number(integers).toLocaleString('en-US')
+    numberWithCommas = `${modifiedInteger}.${decimals.substring(0, showDecimal ? DECIMALS_TO_SHOW : 0)}`
+  }
 
   return (
     <>
