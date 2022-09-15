@@ -22,6 +22,7 @@ async def on_council_origination(
     request_token_name_max_length       = int(council_origination.storage.config.requestTokenNameMaxLength)
     action_counter                      = int(council_origination.storage.actionCounter)
     council_members                     = council_origination.storage.councilMembers
+    timestamp                           = council_origination.data.timestamp
 
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
@@ -31,6 +32,7 @@ async def on_council_origination(
     council = models.Council(
         address                             = address,
         admin                               = admin,
+        last_updated_at                     = timestamp,
         governance                          = governance,
         threshold                           = threshold,
         action_expiry_days                  = action_expiry_days,

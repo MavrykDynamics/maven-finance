@@ -26,6 +26,7 @@ async def on_delegation_origination(
     unregister_as_satellite_paused      = delegation_origination.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
     update_satellite_record_paused      = delegation_origination.storage.breakGlassConfig.updateSatelliteRecordIsPaused
     distribute_reward_paused            = delegation_origination.storage.breakGlassConfig.distributeRewardIsPaused
+    timestamp                           = delegation_origination.data.timestamp
 
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
@@ -35,6 +36,7 @@ async def on_delegation_origination(
     delegation = models.Delegation(
         address                             = address,
         admin                               = admin,
+        last_updated_at                     = timestamp,
         governance                          = governance,
         minimum_smvk_balance                = minimum_smvk_balance,
         delegation_ratio                    = delegation_ratio,

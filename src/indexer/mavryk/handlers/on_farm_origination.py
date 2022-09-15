@@ -57,6 +57,7 @@ async def on_farm_origination(
         governance  = governance
     )
     farm.creation_timestamp              = creation_timestamp
+    farm.last_updated_at                 = creation_timestamp
     farm.name                            = name 
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite

@@ -27,6 +27,5 @@ class CreateVaultParameter(BaseModel):
         extra = Extra.forbid
 
     delegate: Optional[str]
-    metadata: str
     loanTokenName: str
     depositors: Union[Depositor, Depositor1]

@@ -18,6 +18,7 @@ async def on_mvk_origination(
     maximum_supply              = int(mvk_origination.storage.maximumSupply)
     inflation_rate              = int(mvk_origination.storage.inflationRate)
     next_inflation_timestamp    = parser.parse(mvk_origination.storage.nextInflationTimestamp)
+    timestamp                   = mvk_origination.data.timestamp
 
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
@@ -27,6 +28,7 @@ async def on_mvk_origination(
     mvk = models.MVKToken(
         address                     = mvk_address,
         admin                       = admin,
+        last_updated_at             = timestamp,
         governance                  = governance,
         total_supply                = total_supply,
         maximum_supply              = maximum_supply,

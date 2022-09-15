@@ -93,7 +93,7 @@ class LendingControllerVault(Model):
     loan_decimals                           = fields.SmallIntField(default=0)
     borrow_index                            = fields.BigIntField(default=0)
     last_updated_block_level                = fields.BigIntField(default=0)
-    last_updated_timestamp                  = fields.DatetimeField(null=True, auto_now=True)
+    last_updated_timestamp                  = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'lending_controller_vault'
