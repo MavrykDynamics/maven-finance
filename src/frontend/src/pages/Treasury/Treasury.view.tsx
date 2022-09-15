@@ -27,7 +27,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
       Number(
         treasury.balances
           .reduce((acc, treasuryBalanceObj) => {
-            acc += treasuryBalanceObj.balance * treasuryBalanceObj.rate
+            acc += treasuryBalanceObj.usdValue || 0
             return acc
           }, 0)
           .toFixed(3),
@@ -43,6 +43,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
     return treasury.balances.length
       ? treasury.balances.reduce<TreasuryChartType>((acc, item, idx) => {
           const tokenPersent = calcPersent(item.balance, reducedBalance)
+          const tokenRate = item.rate || 1
 
           if (tokenPersent < 10) {
             const smallValuesAccIdx = acc.findIndex((item) => item.groupedSmall)
@@ -52,12 +53,12 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
             const isHoveredPathAsset =
               hoveredPath &&
               treasury.balances.find(
-                (item) => hoveredPath === item.symbol && calcPersent(item.balance * item.rate, reducedBalance) < 10,
+                (item) => hoveredPath === item.symbol && calcPersent(item.balance * tokenRate, reducedBalance) < 10,
               )
 
             // if we don't have grouped assets object, create it
             if (!smallValuesAccObj) {
-              groupedSectorsValue += item.balance * item.rate
+              groupedSectorsValue += item.balance * tokenRate
               groupedSectorsColor = getAssetColor(idx)
               acc.push({
                 title: item.symbol,
@@ -66,14 +67,14 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                   : groupedSectorsValue + (reducedBalance / 100) * 1.5,
                 color: groupedSectorsColor,
                 segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
-                labelPersent: calcPersent(item.balance * item.rate, reducedBalance),
+                labelPersent: calcPersent(item.balance * tokenRate, reducedBalance),
                 groupedSmall: true,
               })
 
               return acc
             } else {
               // if we have grouped assets object and we have one more asset < 10%, just update it's title and balance in the acc
-              groupedSectorsValue += item.balance * item.rate
+              groupedSectorsValue += item.balance * tokenRate
 
               const newSmallValuesObj = {
                 ...smallValuesAccObj,
@@ -93,10 +94,10 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
           // if asset is > 10%
           acc.push({
             title: item.symbol,
-            value: item.balance * item.rate,
+            value: item.balance * tokenRate,
             color: getAssetColor(idx),
             segmentStroke: hoveredPath === item.symbol ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
-            labelPersent: calcPersent(item.balance * item.rate, reducedBalance),
+            labelPersent: calcPersent(item.balance * tokenRate, reducedBalance),
             groupedSmall: false,
           })
           return acc
@@ -146,7 +147,11 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                     <CommaNumber value={balanceValue.balance} />
                   </p>
                   <p className="asset-value right-text value">
-                    <CommaNumber beginningText="$" value={balanceValue.balance * balanceValue.rate} />
+                    {balanceValue.rate && balanceValue.usdValue ? (
+                      <CommaNumber beginningText="$" value={balanceValue.usdValue} />
+                    ) : (
+                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} />
+                    )}
                   </p>
                 </div>
               )
@@ -160,7 +165,8 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
       <div>
         <div className="asset-lables scroll-block">
           {treasury.balances.map((balanceValue) => {
-            const balanceSum = Number((balanceValue.balance * balanceValue.rate).toFixed(5))
+            const balanceSum = Number(balanceValue.usdValue)
+            const persentOfTheAsset = calcPersent(balanceSum, reducedBalance)
 
             return (
               <div
@@ -179,7 +185,13 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
               >
                 <p className="asset-lable-text">
                   {balanceValue.symbol}
-                  <span className="asset-persent">{calcPersent(balanceSum, reducedBalance).toFixed(3)}%</span>
+                  <span className="asset-persent">
+                    {persentOfTheAsset < 0.1 ? (
+                      '< 0.1 %'
+                    ) : (
+                      <CommaNumber endingText="%" value={persentOfTheAsset} useAccurateParsing />
+                    )}
+                  </span>
                 </p>
               </div>
             )

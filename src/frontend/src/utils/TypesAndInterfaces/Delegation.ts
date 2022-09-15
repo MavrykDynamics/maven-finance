@@ -57,7 +57,6 @@ export type DelegationConfig = {
 export type ParticipationMetrics = {
   pollParticipation: number
   proposalParticipation: number
-  communication: number
 }
 
 export interface DelegationBreakGlassConfigType {
