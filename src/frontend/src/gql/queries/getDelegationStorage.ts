@@ -39,6 +39,7 @@ export const DELEGATION_STORAGE_QUERY = `
             aggregator_id
             id
             oracle_id
+            last_updated_at
             aggregator {
               address
             }

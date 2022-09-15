@@ -95,7 +95,9 @@ export function normalizeSatelliteRecord(
       )
       return {
         ...rest,
-        active: false,
+        active: rest.last_updated_at
+          ? Date.now() - new Date(rest.last_updated_at).getTime() < 24 * 60 * 60 * 1000
+          : false,
         sMVKReward,
         XTZReward,
       }
@@ -112,11 +114,10 @@ export function normalizeSatelliteRecord(
     mvkBalance: calcWithoutPrecision(satelliteRecord?.user.mvk_balance),
     sMvkBalance: calcWithoutPrecision(satelliteRecord?.user.smvk_balance),
     name: satelliteRecord?.name || '',
-    satelliteFee: (satelliteRecord?.fee || 0) / 100, //- not exist
+    satelliteFee: (satelliteRecord?.fee || 0) / 100,
     status: satelliteRecord?.status,
     delegatorCount: satelliteRecord?.delegations.length,
     totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
-    // unregisteredDateTime: new Date(satelliteRecord?.unregistered_datetime), not exist
     unregisteredDateTime: new Date(0),
     proposalVotingHistory,
     financialRequestsVotes,
