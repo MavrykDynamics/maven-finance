@@ -38,6 +38,8 @@ export const tokenPoolRewardStorage : tokenPoolRewardStorageType = {
     whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
     generalContracts          : MichelsonMap.fromLiteral({}),
 
+    rewardsLedger             : MichelsonMap.fromLiteral({}),
+
     lambdaLedger              : MichelsonMap.fromLiteral({})
   
 };

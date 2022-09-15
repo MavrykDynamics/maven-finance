@@ -4,7 +4,8 @@
 
 
 type vaultFactoryBreakGlassConfigType is [@layout:comb] record [
-    createVaultIsPaused      : bool;
+    createVaultIsPaused     : bool;
+    empty                   : unit;
 ]
 
 
