@@ -1,5 +1,6 @@
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
+import CoinsIcons from 'app/App.components/Icon/CoinsIcons.view'
 import Icon from 'app/App.components/Icon/Icon.view'
 import { Timer } from 'app/App.components/Timer/Timer.controller'
 import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
@@ -23,7 +24,7 @@ const emptyContainer = (
 export const FarmsTab = () => {
   const { farmStorage } = useSelector((state: State) => state.farm)
   const history = useHistory()
-  const hasLiveFarms = farmStorage.some(({ isLive }) => isLive)
+  const hasLiveFarms = farmStorage.some(({ isLive }) => !isLive)
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_farmsTab_bg.png">
@@ -41,7 +42,7 @@ export const FarmsTab = () => {
       <FarmsContentStyled className="scroll-block">
         {hasLiveFarms
           ? farmStorage.map((farmCardData) => {
-              if (!farmCardData.isLive) return null
+              // if (!farmCardData.isLive) return null
 
               const apr = calculateAPR(farmCardData.currentRewardPerBlock, farmCardData.lpTokenBalance)
               return (
@@ -56,7 +57,7 @@ export const FarmsTab = () => {
                         <TzAddress tzAddress={farmCardData.address} hasIcon type={CYAN} />
                       </div>
 
-                      <Icon id="goldSilverCoinsMVK" />
+                      <CoinsIcons />
                     </div>
 
                     <div className="row-info">
