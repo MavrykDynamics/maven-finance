@@ -21,9 +21,8 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const numSatellites = satelliteLedger?.length || 0
   const dataPointsCount = useMemo(
     () =>
-      feeds?.filter(
-        (feed) => moment(Date.now()).diff(moment(feed?.last_completed_round_price_timestamp), 'minutes') <= 60,
-      ).length,
+      feeds?.filter((feed) => moment(Date.now()).diff(moment(feed?.last_completed_price_datetime), 'minutes') <= 60)
+        .length,
     [feeds],
   )
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)

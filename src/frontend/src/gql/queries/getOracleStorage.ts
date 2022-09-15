@@ -1,6 +1,6 @@
 export const ORACLE_STORAGE_QUERY = `
    query GetOracleDataFeeds {
-    aggregator {
+    aggregator(where: {aggregator_factory_id: {_is_null: false}}) {
       address
       admin
       aggregator_factory_id
@@ -20,6 +20,7 @@ export const ORACLE_STORAGE_QUERY = `
       reward_amount_xtz
       reward_amount_smvk
       per_thousand_deviation_trigger
+      pct_oracle_threshold
     }
     aggregator_factory {
       address

@@ -11,7 +11,7 @@ import { UserType } from '../../../utils/TypesAndInterfaces/User'
 import UserDetailsView from './UsersDetails.view'
 
 import { usersData } from '../users.const'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 const UserDetails = () => {
   const dispatch = useDispatch()
@@ -27,7 +27,7 @@ const UserDetails = () => {
     [selectedUser, feeds],
   )
 
-  const [filteredFeedsList, setFilteredFeedsList] = useState<Feed[]>(feedsForUser)
+  const [filteredFeedsList, setFilteredFeedsList] = useState<FeedGQL[]>(feedsForUser)
 
   useEffect(() => {
     setFilteredFeedsList(feeds)
@@ -38,7 +38,7 @@ const UserDetails = () => {
       sortValue = selectedOption.value
 
     if (sortValue !== '') {
-      setFilteredFeedsList((data: Feed[]) => {
+      setFilteredFeedsList((data: FeedGQL[]) => {
         const dataToSort = data ? [...data] : []
 
         dataToSort.sort((a, b) => {
