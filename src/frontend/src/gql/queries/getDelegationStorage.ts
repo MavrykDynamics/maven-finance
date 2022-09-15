@@ -39,6 +39,9 @@ export const DELEGATION_STORAGE_QUERY = `
             aggregator_id
             id
             oracle_id
+            aggregator {
+              address
+            }
             oracle {
               aggregator_oracle_rewards {
                 reward

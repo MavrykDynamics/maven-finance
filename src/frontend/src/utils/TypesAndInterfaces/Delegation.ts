@@ -41,7 +41,7 @@ export interface SatelliteRecord {
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
   emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
   satelliteActionVotes?: SatelliteFinancialRequestVotingHistory[]
-  oracleRecords: Array<{ active: boolean; oracle_id: string; sMVKReward: number; XTZReward: number }>
+  oracleRecords: Array<{ active: boolean; oracle_id: string; sMVKReward: number; XTZReward: number; aggregator: {address: string} }>
 }
 
 export type DelegationConfig = {

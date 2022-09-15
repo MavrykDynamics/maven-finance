@@ -23,6 +23,9 @@ export const SATELLITE_RECORDS_QUERY = `
           aggregator_id
           id
           oracle_id
+          aggregator {
+            address
+          }
           oracle {
             aggregator_oracle_rewards {
               reward

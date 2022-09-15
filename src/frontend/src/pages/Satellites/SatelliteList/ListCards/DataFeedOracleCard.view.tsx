@@ -9,7 +9,6 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 import { SatelliteItemStyle, SatelliteOracleStatusComponent } from './SatelliteCard.style'
 
-// TODO: date and answer
 export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const oracleStatusType = getOracleStatus(oracle, feeds)
