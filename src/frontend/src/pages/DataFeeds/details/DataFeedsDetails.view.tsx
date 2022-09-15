@@ -149,17 +149,19 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {getDate_MDY_Format(feed.last_completed_price_datetime || Date.now().toLocaleString())}
+                  {getDate_MDY_Format(feed.last_completed_price_datetime)}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  <Timer
-                    options={{
-                      showZeros: false,
-                      negativeColor: downColor,
-                      defaultColor: cyanColor,
-                    }}
-                    timestamp={new Date(feed.last_completed_price_datetime || Date.now()).getTime() + 1000 * 60 * 30}
-                  />
+                  {feed.last_completed_price_datetime ? (
+                    <Timer
+                      options={{
+                        showZeros: false,
+                        negativeColor: downColor,
+                        defaultColor: cyanColor,
+                      }}
+                      timestamp={new Date(feed.last_completed_price_datetime).getTime() + 1000 * 60 * 30}
+                    />
+                  ) : null}
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
@@ -168,14 +170,16 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} />
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  <Timer
-                    options={{
-                      showZeros: false,
-                      negativeColor: downColor,
-                      defaultColor: cyanColor,
-                    }}
-                    timestamp={new Date(feed.last_completed_price_datetime || Date.now()).getTime() + 1000 * 60 * 30}
-                  />
+                  {feed.last_completed_price_datetime ? (
+                    <Timer
+                      options={{
+                        showZeros: false,
+                        negativeColor: downColor,
+                        defaultColor: cyanColor,
+                      }}
+                      timestamp={new Date(feed.last_completed_price_datetime).getTime() + 1000 * 60 * 30}
+                    />
+                  ) : null}
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
