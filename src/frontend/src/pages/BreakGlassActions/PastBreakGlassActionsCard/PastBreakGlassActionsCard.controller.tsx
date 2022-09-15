@@ -18,7 +18,7 @@ import Expand from '../../../app/App.components/Expand/Expand.view'
 import { dropAction, voteForAction } from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
 
 // styles
-import { PastBreakGlassActionsCardCardDropDown, PastBreakGlassActionsCardTitleTextGroup } from './PastBreakGlassActionsCard.style'
+import { PastBreakGlassActionsCardCardDropDown as PastBreakGlassActionsCardDropDown, PastBreakGlassActionsCardTitleTextGroup } from './PastBreakGlassActionsCard.style'
 
 type Props = {
   targetId: string
@@ -113,34 +113,26 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
       }
       sufix={<StatusFlag status={statusFlag} text={statusFlag} />}
     >
-      <PastBreakGlassActionsCardCardDropDown>
-        <div>
+      <PastBreakGlassActionsCardDropDown>
+        <div className='main-block'>
           <div>
             <h3>Purpose</h3>
             <p className="purpose">{purpose}</p>
+
             {linkAddress ? (
               <Link className={'view-satellite'} to={`/satellite-details/${linkAddress}`}>
                 View Satellite
               </Link>
             ) : null}
           </div>
-          {statusFlag === ProposalStatus.ONGOING ? (
-            <Button
-              text="Drop Action"
-              className="brop-btn"
-              icon="close-stroke"
-              kind={'actionSecondary'}
-              onClick={handleClick}
-            />
-          ) : null}
-        </div>
-        <div className="voting-block">
-          <h3>Vote Statistics</h3>
-          <b className="voting-ends">
-            Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" /> {timeFormat}{' '}
-            CEST
-          </b>
-          <div className="voting-bar">
+
+          <div className="voting-block">
+            <h3>Vote Statistics</h3>
+            <b className="voting-ends">
+              Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" /> {timeFormat}{' '}
+              CEST
+            </b>
+
             <VotingBarBlockView
               yayVotesSmvkTotal={yayVotesSmvkTotal}
               nayVotesSmvkTotal={nayVotesSmvkTotal}
@@ -149,15 +141,26 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
               smvkPercentageForApproval={smvkPercentageForApproval}
             />
           </div>
-          {statusFlag === ProposalStatus.ONGOING ? (
-            <VotingButtonsContainer className="voting-buttons">
+        </div>
+
+        {statusFlag === ProposalStatus.ONGOING ? (
+          <VotingButtonsContainer className="voting-buttons">
+            <Button
+              text="Drop Action"
+              className="brop-btn"
+              icon="close-stroke"
+              kind={'actionSecondary'}
+              onClick={handleClick}
+            />
+
+            <div className='voting-buttons-right-block'>
               <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('yay')} kind={'votingFor'} />
               <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('pass')} kind={'votingAbstain'} />
               <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('nay')} kind={'votingAgainst'} />
-            </VotingButtonsContainer>
-          ) : null}
-        </div>
-      </PastBreakGlassActionsCardCardDropDown>
+            </div>
+          </VotingButtonsContainer>
+        ) : null}
+      </PastBreakGlassActionsCardDropDown>
     </Expand>
   )
 }

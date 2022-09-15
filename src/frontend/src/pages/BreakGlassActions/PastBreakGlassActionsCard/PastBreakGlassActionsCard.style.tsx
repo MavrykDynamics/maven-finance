@@ -49,26 +49,12 @@ export const PastBreakGlassActionsCardTitleTextGroup = styled.div<{ theme: Mavry
 
 export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
-  justify-content: space-between;
-  align-items: flex-start;
-  display: flex;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   cursor: pointer;
   overflow: hidden;
   position: relative;
-  padding: 20px 40px;
-
-  .purpose {
-    width: 540px;
-    word-break: break-all;
-  }
-
-  .description {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 37px;
-  }
+  padding: 20px 23.5px 40px 40px;
 
   h3 {
     margin: 0;
@@ -85,8 +71,8 @@ export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykT
   p,
   li {
     font-weight: 400;
-    font-size: 14px;
-    line-height: 21px;
+    font-size: 16px;
+    line-height: 24px;
     color: ${({ theme }) => theme.headerSkyColor};
     list-style: none;
   }
@@ -98,6 +84,23 @@ export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykT
     width: 100%;
     left: 0;
     top: 1px;
+  }
+
+  .main-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .purpose {
+    margin-bottom: 25px;
+    width: 540px;
+  }
+
+  .description {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 37px;
   }
 
   .accordion {
@@ -115,7 +118,6 @@ export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykT
 
   .brop-btn {
     width: 250px;
-    margin-top: 40px;
     display: block;
   }
 
@@ -129,13 +131,18 @@ export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykT
   }
 
   .voting-buttons {
-    margin-bottom: 20px;
-    margin-top: 64px;
+    display: flex;
     justify-content: space-between;
-    padding-top: 0;
+    padding-top: 34px;
+  }
+
+  .voting-buttons-right-block {
+    display: flex;
+    justify-content: space-between;
+    width: 440px;
 
     button {
-      width: 31%;
+      width: 136px;
     }
   }
 
@@ -144,8 +151,8 @@ export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykT
     margin-left: auto;
   }
 
-  .voting-bar {
-    margin-bottom: 54px;
+  .voting-container {
+    margin-bottom: 0;
   }
 
   .quorum-bar {
