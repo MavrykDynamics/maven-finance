@@ -13,7 +13,7 @@ export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
       <SatelliteItemStyle className="feed">
         <div className="item with-img">
           <CoinsLogo assetName={feed.token_1_symbol} />
-          <h5>FeedGQL</h5>
+          <h5>Feed</h5>
           <var>
             {feed.token_1_symbol}/{feed.token_0_symbol}
           </var>
@@ -32,11 +32,7 @@ export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
         </div>
         <div className="item">
           <h5>Date</h5>
-          <var>
-            {getDate_MDY_Format(
-              feed.last_completed_price_datetime || feed.last_updated_at || Date.now().toLocaleString(),
-            )}
-          </var>
+          <var>{getDate_MDY_Format(feed.last_completed_price_datetime)}</var>
         </div>
       </SatelliteItemStyle>
     </Link>
