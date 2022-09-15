@@ -108,7 +108,7 @@ export const OraclesTab = () => {
               <StatBlock>
                 <div className="name">Answer</div>
                 <div className="value">
-                  <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+                  <CommaNumber beginningText="$" value={feed.last_completed_price} />
                 </div>
               </StatBlock>
               <StatBlock>
@@ -119,7 +119,7 @@ export const OraclesTab = () => {
               </StatBlock>
               <StatBlock>
                 <div className="name">Date/Time</div>
-                <div className="value">{getDate_DMYHM_Format(feed.creation_timestamp)}</div>
+                <div className="value">{getDate_DMYHM_Format(feed.last_completed_price_datetime)}</div>
               </StatBlock>
             </div>
           ))}
