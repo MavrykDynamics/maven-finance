@@ -27,7 +27,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
       Number(
         treasury.balances
           .reduce((acc, treasuryBalanceObj) => {
-            acc += treasuryBalanceObj.balance * treasuryBalanceObj.rate
+            acc += treasuryBalanceObj.usdValue || 0
             return acc
           }, 0)
           .toFixed(3),
@@ -81,7 +81,11 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                     <CommaNumber value={balanceValue.balance} />
                   </p>
                   <p className="asset-value right-text value">
-                    <CommaNumber beginningText="$" value={balanceValue.balance * balanceValue.rate} />
+                    {balanceValue.rate && balanceValue.usdValue ? (
+                      <CommaNumber beginningText="$" value={balanceValue.usdValue} />
+                    ) : (
+                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} />
+                    )}
                   </p>
                 </div>
               )
@@ -95,7 +99,8 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
       <div>
         <div className="asset-lables scroll-block">
           {treasury.balances.map((balanceValue) => {
-            const balanceSum = Number((balanceValue.balance * balanceValue.rate).toFixed(5))
+            const balanceSum = Number(balanceValue.usdValue)
+            const persentOfTheAsset = calcPersent(balanceSum, reducedBalance)
 
             return (
               <div
@@ -114,7 +119,13 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
               >
                 <p className="asset-lable-text">
                   {balanceValue.symbol}
-                  <span className="asset-persent">{calcPersent(balanceSum, reducedBalance).toFixed(3)}%</span>
+                  <span className="asset-persent">
+                    {persentOfTheAsset < 0.1 ? (
+                      '< 0.1 %'
+                    ) : (
+                      <CommaNumber endingText="%" value={persentOfTheAsset} useAccurateParsing />
+                    )}
+                  </span>
                 </p>
               </div>
             )

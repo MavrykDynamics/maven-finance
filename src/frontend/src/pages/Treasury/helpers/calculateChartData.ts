@@ -13,7 +13,10 @@ export const getPieChartData = (
 
   return balances.length
     ? balances.reduce<TreasuryChartType>((acc, item, idx) => {
-        const tokenPersent = calcPersent(item.balance, reducedBalance)
+        // TODO: need this while some assets are test, and i can't fetch their rate
+        const tokenUsdValue = item.usdValue || 0
+
+        const tokenPersent = calcPersent(tokenUsdValue, reducedBalance)
 
         if (tokenPersent < 10) {
           const smallValuesAccIdx = acc.findIndex((item) => item.groupedSmall)
@@ -22,13 +25,11 @@ export const getPieChartData = (
           // calculating hover effect on segment
           const isHoveredPathAsset =
             hoveredPath &&
-            balances.find(
-              (item) => hoveredPath === item.symbol && calcPersent(item.balance * item.rate, reducedBalance) < 10,
-            )
+            balances.find((item) => hoveredPath === item.symbol && calcPersent(tokenUsdValue, reducedBalance) < 10)
 
           // if we don't have grouped assets object, create it
           if (!smallValuesAccObj) {
-            groupedSectorsValue += item.balance * item.rate
+            groupedSectorsValue += tokenUsdValue
             groupedSectorsColor = getAssetColor(idx)
             acc.push({
               title: item.symbol,
@@ -37,14 +38,14 @@ export const getPieChartData = (
                 : groupedSectorsValue + (reducedBalance / 100) * 1.5,
               color: groupedSectorsColor,
               segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
-              labelPersent: calcPersent(item.balance * item.rate, reducedBalance),
+              labelPersent: calcPersent(tokenUsdValue, reducedBalance),
               groupedSmall: true,
             })
 
             return acc
           } else {
             // if we have grouped assets object and we have one more asset < 10%, just update it's title and balance in the acc
-            groupedSectorsValue += item.balance * item.rate
+            groupedSectorsValue += tokenUsdValue
 
             const newSmallValuesObj = {
               ...smallValuesAccObj,
@@ -64,10 +65,10 @@ export const getPieChartData = (
         // if asset is > 10%
         acc.push({
           title: item.symbol,
-          value: item.balance * item.rate,
+          value: tokenUsdValue,
           color: getAssetColor(idx),
           segmentStroke: hoveredPath === item.symbol ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
-          labelPersent: calcPersent(item.balance * item.rate, reducedBalance),
+          labelPersent: calcPersent(tokenUsdValue, reducedBalance),
           groupedSmall: false,
         })
         return acc
