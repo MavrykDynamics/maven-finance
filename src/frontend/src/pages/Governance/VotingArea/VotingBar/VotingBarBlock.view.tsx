@@ -40,7 +40,7 @@ export const VotingBarBlockView = ({
   const quorumWidth = smvkPercentageForApproval / 100
 
   return (
-    <VotingContainer>
+    <VotingContainer className='voting-container'>
       <QuorumBar className="quorum-bar" width={quorumWidth}>
         Quorum <b>{quorumWidth.toFixed(2)}%</b>
       </QuorumBar>
