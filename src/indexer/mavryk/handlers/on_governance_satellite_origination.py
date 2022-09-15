@@ -17,7 +17,8 @@ async def on_governance_satellite_origination(
     gov_sat_duration_in_days    = int(governance_satellite_origination.storage.config.governanceSatelliteDurationInDays)
     gov_purpose_max_length      = int(governance_satellite_origination.storage.config.governancePurposeMaxLength)
     gov_sat_counter             = int(governance_satellite_origination.storage.governanceSatelliteCounter)
-    
+    timestamp                   = governance_satellite_origination.data.timestamp
+
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
     await governance.save();
@@ -26,6 +27,7 @@ async def on_governance_satellite_origination(
     governance_satellite = models.GovernanceSatellite(
         address                         = address,
         admin                           = admin,
+        last_updated_at                 = timestamp,
         governance                      = governance,
         gov_sat_approval_percentage     = gov_sat_approval_pct,
         gov_sat_duration_in_days        = gov_sat_duration_in_days,

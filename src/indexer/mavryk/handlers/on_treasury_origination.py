@@ -28,6 +28,7 @@ async def on_treasury_origination(
     treasury            = models.Treasury(
         address                         = treasury_address,
         admin                           = admin,
+        last_updated_at                 = creation_timestamp,
         governance                      = governance,
         creation_timestamp              = creation_timestamp,
         name                            = name,

@@ -95,11 +95,17 @@ contracts:
     address: KT1DM3EjTwYWrwZeLjQXMPcNDXdzrTVviq4H
     typename: token_sale
   lending_controller:
-    address: KT1SmxQufd5NxQ7CSdKG8R9oM8wCBm3WckHz
+    address: KT1D3aaW8aHNwpJnxDkuKvsPFPe4K4kjuhXr
     typename: lending_controller
+  token_pool_reward:
+    address: KT1NQDdhKg7mBQf35gVmUCjn6p64ciKmHT12
+    typename: token_pool_reward
   vault:
     address: KT1WmW3AouLMkmseLzohnjrqVgGXAvgRKHHR
     typename: vault
+  vault_factory:
+    address: KT1JbUVKSthe1qaxkh8KQdmohXbY8QP7gAih
+    typename: vault_factory
 
 templates:
   # Template for Farm
@@ -1629,6 +1635,68 @@ indexes:
         pattern:
           - destination: vault
             entrypoint: setLambda
+  # Vault Factory contract indexes
+  vault_factory:
+    kind: operation
+    datasource: tzkt_testnet
+    types:
+      - origination
+      - transaction
+    contracts:
+      - vault_factory
+      - treasury
+    handlers:
+      - callback: on_vault_factory_origination
+        pattern:
+          - type: origination
+            originated_contract: vault_factory
+      - callback: on_vault_factory_set_admin
+        pattern:
+          - destination: vault_factory
+            entrypoint: setAdmin
+      - callback: on_vault_factory_set_governance
+        pattern:
+          - destination: vault_factory
+            entrypoint: setGovernance
+      - callback: on_vault_factory_update_config
+        pattern:
+          - destination: vault_factory
+            entrypoint: updateConfig
+      - callback: on_vault_factory_update_general_contracts
+        pattern:
+          - destination: vault_factory
+            entrypoint: updateGeneralContracts
+      - callback: on_vault_factory_update_whitelist_contracts
+        pattern:
+          - destination: vault_factory
+            entrypoint: updateWhitelistContracts
+      - callback: on_vault_factory_pause_all
+        pattern:
+          - destination: vault_factory
+            entrypoint: pauseAll
+      - callback: on_vault_factory_unpause_all
+        pattern:
+          - destination: vault_factory
+            entrypoint: unpauseAll
+      - callback: on_vault_factory_toggle_pause_entrypoint
+        pattern:
+          - destination: vault_factory
+            entrypoint: togglePauseEntrypoint
+      - callback: on_vault_factory_create_vault
+        pattern:
+          - destination: vault_factory
+            entrypoint: createVault
+          - source: vault_factory
+            type: origination
+            similar_to: vault
+      - callback: on_vault_factory_set_lambda
+        pattern:
+          - destination: vault_factory
+            entrypoint: setLambda
+      - callback: on_vault_factory_set_product_lambda
+        pattern:
+          - destination: vault_factory
+            entrypoint: setProductLambda
   # Lending Controller contract indexes
   lending_controller:
     kind: operation
@@ -1695,10 +1763,10 @@ indexes:
         pattern:
           - destination: lending_controller
             entrypoint: updateCollateralToken
-      - callback: on_lending_controller_create_vault
+      - callback: on_lending_controller_register_vault_creation
         pattern:
           - destination: lending_controller
-            entrypoint: createVault
+            entrypoint: registerVaultCreation
       - callback: on_lending_controller_close_vault
         pattern:
           - destination: lending_controller
@@ -1727,27 +1795,33 @@ indexes:
         pattern:
           - destination: lending_controller
             entrypoint: repay
-      # - callback: on_lending_controller_vault_deposit_staked_mvk
+      # - callback: on_lending_controller_call_vault_staked_mvk_action
       #   pattern:
       #     - destination: lending_controller
-      #       entrypoint: vaultDepositStakedMvk
-      # - callback: on_lending_controller_vault_withdraw_staked_mvk
-      #   pattern:
-      #     - destination: lending_controller
-      #       entrypoint: vaultWithdrawStakedMvk
-      # - callback: on_lending_controller_vault_liquidate_staked_mvk
-      #   pattern:
-      #     - destination: lending_controller
-      #       entrypoint: vaultLiquidateStakedMvk
-      - callback: on_lending_controller_claim_rewards
-        pattern:
-          - destination: lending_controller
-            entrypoint: claimRewards
+      #       entrypoint: callVaultStakedMvkAction
       - callback: on_lending_controller_set_lambda
         pattern:
           - destination: lending_controller
             entrypoint: setLambda
-      - callback: on_lending_controller_set_product_lambda
+  # Token Pool Reward contract indexes
+  token_pool_reward:
+    kind: operation
+    datasource: tzkt_testnet
+    types:
+      - origination
+      - transaction
+    contracts:
+      - token_pool_reward
+    handlers:
+      - callback: on_token_pool_reward_origination
         pattern:
-          - destination: lending_controller
-            entrypoint: setProductLambda
+          - type: origination
+            originated_contract: token_pool_reward
+      - callback: on_token_pool_reward_update_rewards
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: updateRewards
+      - callback: on_token_pool_reward_claim_rewards
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: claimRewards

@@ -1,3 +1,4 @@
+from pickle import TRUE
 from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
@@ -8,7 +9,7 @@ from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContr
 class Treasury(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasuries', null=True)
     treasury_factory                        = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
-    creation_timestamp                      = fields.DatetimeField(auto_now_add=True)
+    creation_timestamp                      = fields.DatetimeField(null=True)
     name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
     mint_mvk_and_transfer_paused            = fields.BooleanField(default=False)

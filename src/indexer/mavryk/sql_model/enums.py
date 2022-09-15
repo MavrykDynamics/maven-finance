@@ -55,3 +55,7 @@ class OracleType(IntEnum):
 class RewardType(IntEnum):
     XTZ                 = 0
     SMVK                = 1
+
+class VaultAllowance(IntEnum):
+    ANY                 = 0
+    WHITELIST           = 1
