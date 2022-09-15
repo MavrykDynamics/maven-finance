@@ -5,26 +5,6 @@ export const DataFeedsStyled = styled.div`
   display: flex;
   flex-direction: column;
 
-  .on-svg-hover-info {
-    display: block;
-    font-size: 12px;
-    position: absolute;
-    bottom: 110%;
-    left: 0;
-    display: block;
-    width: fit-content;
-    min-width: 150px;
-    padding: 3px 5px;
-    border-radius: 7px;
-    line-height: 15px;
-    background: #160e3f;
-    border: 1px solid #503eaa;
-    color: #8d86eb;
-    opacity: 0;
-    transition: 0.5s all;
-    visibility: hidden;
-  }
-
   .top-section-wrapper {
     display: flex;
     justify-content: space-between;
@@ -44,6 +24,15 @@ export const DataFeedsStyled = styled.div`
         .name-part {
           padding-left: 55px;
           position: relative;
+
+          a {
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 18px;
+            color: #8d86eb;
+            display: flex;
+            align-items: center;
+          }
 
           .img-wrapper {
             position: absolute;
@@ -80,10 +69,10 @@ export const DataFeedsStyled = styled.div`
 
       .bottom {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1.2fr 1.1fr 1fr;
         grid-template-rows: minmax(auto, 85px);
         padding: 20px 40px 30px 40px;
-        column-gap: 70px;
+        column-gap: 60px;
         row-gap: 30px;
       }
     }
@@ -152,41 +141,14 @@ export const DataFeedInfoBlock = styled.div`
   min-height: 85px;
 `
 
-export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: number; svgContent?: string }>`
+export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: number }>`
   font-weight: ${({ fontWeidth }) => fontWeidth || 400};
   font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : '12px')};
-  line-height: 25px;
   color: #8d86eb;
-  position: relative;
-  width: fit-content;
   text-transform: capitalize;
-  cursor: pointer;
-  position: relative;
-
-  &:hover {
-    .on-svg-hover-info {
-      opacity: 1;
-      visibility: visible;
-    }
-  }
-
-  ${({ svgContent }) =>
-    svgContent
-      ? css`
-          &::before {
-            position: absolute;
-            right: -20px;
-            width: 15px;
-            height: 15px;
-            background-repeat: no-repeat;
-            background-size: cover;
-            top: 50%;
-            transform: translateY(-50%);
-            content: '';
-            ${svgContent}
-          }
-        `
-      : ''}
+  display: flex;
+  align-items: center;
+  padding: 2px 0 3px 0;
 
   &.margin-r {
     margin-right: 20px;
@@ -206,40 +168,13 @@ export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: numbe
   }
 `
 
-export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?: number; svgContent?: string }>`
+export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?: number }>`
   font-weight: ${({ fontWeidth }) => fontWeidth || 400};
   font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : '12px')};
-  line-height: 25px;
   color: #77a4f2;
-  position: relative;
-  width: fit-content;
-  position: relative;
-
-  &:hover {
-    .on-svg-hover-info {
-      opacity: 1;
-      visibility: visible;
-    }
-  }
-
-  ${({ svgContent }) =>
-    svgContent
-      ? css`
-          &::before {
-            position: absolute;
-            right: -20px;
-            width: 15px;
-            height: 15px;
-            background-repeat: no-repeat;
-            background-size: cover;
-            top: 50%;
-            transform: translateY(-50%);
-            content: '';
-            ${svgContent}
-            cursor: pointer;
-          }
-        `
-      : ''}
+  padding: 3px 0 4px 0;
+  display: flex;
+  align-items: center;
 
   &.title {
     margin: 0 auto;

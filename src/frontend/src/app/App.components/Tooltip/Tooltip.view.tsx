@@ -11,16 +11,18 @@ export const StyledTooltip = styled((props) => <Tooltip classes={{ popper: props
   }
 `
 
-export const TooltipStyled = styled.div`
+export const TooltipStyled = styled.div<{ defaultStrokeColor?: string }>`
   margin-left: 5px;
   cursor: pointer;
   position: relative;
-  display: flex;
+  display: inline;
+  width: 16px;
+  height: 16px;
 
   svg {
     width: 16px;
     height: 16px;
-    fill: #8d86eb;
+    fill: ${({ defaultStrokeColor }) => defaultStrokeColor || '#8d86eb'};
   }
 
   .text {
@@ -68,15 +70,17 @@ export const TooltipStyled = styled.div`
 
 export const CustomTooltip = ({
   text,
+  defaultStrokeColor,
   className = '',
   iconId,
 }: {
-  text: string
+  text?: string
+  defaultStrokeColor?: string
   className?: string
   iconId: 'info' | 'question'
 }) => (
-  <TooltipStyled className={className}>
+  <TooltipStyled className={className} defaultStrokeColor={defaultStrokeColor}>
     <Icon id={iconId} />
-    <div className="text">{text}</div>
+    {text && <div className="text">{text}</div>}
   </TooltipStyled>
 )

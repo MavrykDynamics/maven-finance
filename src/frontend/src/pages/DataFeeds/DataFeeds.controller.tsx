@@ -14,7 +14,7 @@ import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { FEEDS_ALL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 // styles
 import { Page } from 'styles'
@@ -51,15 +51,15 @@ export const DataFeeds = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [searchInputValue, setSearchInput] = useState('')
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
-  const [allSatellites, setAllSatellites] = useState<Feed[]>(oraclesStorage.feeds)
-  const [filteredSatelliteList, setFilteredSatelliteList] = useState<Feed[]>(oraclesStorage.feeds)
+  const [allSatellites, setAllSatellites] = useState<FeedGQL[]>(oraclesStorage.feeds)
+  const [filteredSatelliteList, setFilteredSatelliteList] = useState<FeedGQL[]>(oraclesStorage.feeds)
 
   const handleSelect = (selectedOption: DropdownItemType) => {
     const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
 
     if (sortValue !== '') {
-      setFilteredSatelliteList((data: Feed[]) => {
+      setFilteredSatelliteList((data: FeedGQL[]) => {
         const dataToSort = data ? [...data] : []
 
         dataToSort.sort((a, b) => {
@@ -86,10 +86,10 @@ export const DataFeeds = () => {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchQuery = e.target.value
-    let searchResult: Feed[] = []
+    let searchResult: FeedGQL[] = []
     if (searchQuery !== '') {
       searchResult = allSatellites.filter(
-        (item: Feed) =>
+        (item: FeedGQL) =>
           `${item.token_1_symbol}/${item.token_0_symbol}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.address.toLowerCase().includes(searchQuery.toLowerCase()),
       )
