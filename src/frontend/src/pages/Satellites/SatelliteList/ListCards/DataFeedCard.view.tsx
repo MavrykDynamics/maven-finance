@@ -1,20 +1,19 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
-import Icon from 'app/App.components/Icon/Icon.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 import { Link } from 'react-router-dom'
 
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
-export const DataFeedCard = ({ feed }: { feed: Feed }) => {
+export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
   return (
     <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle className="feed">
         <div className="item with-img">
           <CoinsLogo assetName={feed.token_1_symbol} />
-          <h5>Feed</h5>
+          <h5>FeedGQL</h5>
           <var>
             {feed.token_1_symbol}/{feed.token_0_symbol}
           </var>
@@ -22,7 +21,7 @@ export const DataFeedCard = ({ feed }: { feed: Feed }) => {
         <div className="item">
           <h5>Answer</h5>
           <var>
-            <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+            <CommaNumber beginningText="$" value={feed.last_completed_price} />
           </var>
         </div>
         <div className="item">
@@ -33,7 +32,11 @@ export const DataFeedCard = ({ feed }: { feed: Feed }) => {
         </div>
         <div className="item">
           <h5>Date</h5>
-          <var>{getDate_MDY_Format(feed.creation_timestamp)}</var>
+          <var>
+            {getDate_MDY_Format(
+              feed.last_completed_price_datetime || feed.last_updated_at || Date.now().toLocaleString(),
+            )}
+          </var>
         </div>
       </SatelliteItemStyle>
     </Link>

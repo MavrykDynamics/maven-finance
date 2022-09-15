@@ -4,7 +4,7 @@ import { SatelliteListItem } from './ListCards/SateliteCard.view'
 import { DataFeedCard } from './ListCards/DataFeedCard.view'
 
 // types
-import { Feed, SatellitesListProps } from '../helpers/Satellites.types'
+import { FeedGQL, SatellitesListProps } from '../helpers/Satellites.types'
 
 // styles
 import { FRListWrapper } from 'pages/FinacialRequests/FRList/FRList.styles'
@@ -39,9 +39,9 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
               />
             )
           case 'feeds':
-            return <DataFeedCard feed={item as Feed} key={item.address} />
+            return <DataFeedCard feed={item as FeedGQL} key={item.address} />
           case 'userFeeds':
-            return <UserDataFeedCard feed={item as Feed} key={item.address} />
+            return <UserDataFeedCard feed={item as FeedGQL} key={item.address} />
           case 'oracles':
             return <OracleCard oracle={item as SatelliteRecord} key={item.address} />
           default:

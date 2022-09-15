@@ -20,7 +20,7 @@ import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 // styles
@@ -41,7 +41,7 @@ import { cyanColor, downColor, Page, upColor } from 'styles'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 
 type FeedDetailsProps = {
-  feed: Feed | null
+  feed: FeedGQL | null
   isLoading: boolean
   oracles: Array<SatelliteRecord>
   registerFeedHandler: () => void
@@ -56,21 +56,20 @@ const emptyContainer = (
 
 const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
-  const arrOfOracleRecords = useCallback(
-    () => feed?.oracles.map(({ oracle_id }: { oracle_id: string }) => oracle_id) || [],
-    [feed?.oracles],
-  )
   const oraclesForFeed = useMemo(
-    () => oracles.filter((satellite) => arrOfOracleRecords().includes(satellite.address)),
-    [oracles, arrOfOracleRecords],
+    () =>
+      oracles.filter(({ oracleRecords }) =>
+        oracleRecords.find(({ aggregator: { address } }) => feed?.address === address),
+      ),
+    [oracles],
   )
 
-  const isTrustedAnswer = feed && feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
+  const isTrustedAnswer = feed && feed.last_completed_price_pct_oracle_resp >= feed.pct_oracle_threshold
   const heartbeatUpdateInfo =
-    moment(Date.now()).diff(moment(feed?.last_completed_round_price_timestamp), 'minutes') >= 30
+    moment(Date.now()).diff(moment(feed?.last_completed_price_datetime), 'minutes') >= 30
       ? `
   Price feed is outdated, missed the schedule price update at ${getDate_MDHMS_Format({
-    timestamp: new Date(feed?.last_completed_round_price_timestamp || '').getTime() + 1000 * 60 * 30,
+    timestamp: new Date(feed?.last_completed_price_datetime || '').getTime() + 1000 * 60 * 30,
   })}
   `
       : `
@@ -108,7 +107,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
               <div className="price-part">
                 <DataFeedValueText fontSize={22} fontWeidth={600}>
                   <Icon id={isTrustedAnswer ? 'trustShield' : 'notTrustedShield'} />
-                  <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+                  <CommaNumber beginningText="$" value={feed.last_completed_price} />
                 </DataFeedValueText>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} className="margin-r">
                   {isTrustedAnswer ? 'Trusted answer' : 'Not Trusted'}
@@ -143,10 +142,10 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   </div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  Minimum of {feed.percent_oracle_threshold}%
+                  Minimum of {feed.pct_oracle_threshold}%
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_round_pct_oracle_response}% / {feed.percent_oracle_threshold}%
+                  {feed.last_completed_price_pct_oracle_resp}% / {feed.pct_oracle_threshold}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
@@ -155,7 +154,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   <div className="on-svg-hover-info">Time since last answer was written on-chain</div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {getDate_MDY_Format(feed.last_completed_round_price_timestamp)}
+                  {getDate_MDY_Format(feed.last_completed_price_datetime || Date.now().toLocaleString())}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   <Timer
@@ -164,7 +163,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                       negativeColor: downColor,
                       defaultColor: cyanColor,
                     }}
-                    timestamp={new Date(feed.last_completed_round_price_timestamp).getTime() + 1000 * 60 * 30}
+                    timestamp={new Date(feed.last_completed_price_datetime || Date.now()).getTime() + 1000 * 60 * 30}
                   />
                 </DataFeedValueText>
               </DataFeedInfoBlock>
@@ -180,7 +179,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                       negativeColor: downColor,
                       defaultColor: cyanColor,
                     }}
-                    timestamp={new Date(feed.last_completed_round_price_timestamp).getTime() + 1000 * 60 * 30}
+                    timestamp={new Date(feed.last_completed_price_datetime || Date.now()).getTime() + 1000 * 60 * 30}
                   />
                 </DataFeedValueText>
               </DataFeedInfoBlock>

@@ -23,6 +23,9 @@ export const SATELLITE_RECORDS_QUERY = `
           aggregator_id
           id
           oracle_id
+          aggregator {
+            address
+          }
         }
         emergency_governance_votes {
           emergency_governance_record_id
