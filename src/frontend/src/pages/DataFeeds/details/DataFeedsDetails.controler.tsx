@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 
 // types
 import { State } from 'reducers'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 // view
 import DataFeedDetailsView from './DataFeedsDetails.view'
@@ -18,7 +18,7 @@ const DataFeedDetails = () => {
 
   let { feedId } = useParams<{ feedId: string }>()
 
-  let [selectedFeed, setSelectedFeed] = useState<null | Feed>(null)
+  let [selectedFeed, setSelectedFeed] = useState<null | FeedGQL>(null)
 
   useEffect(() => {
     setSelectedFeed(oraclesStorage.feeds.find((feed) => feed.address === feedId) || null)

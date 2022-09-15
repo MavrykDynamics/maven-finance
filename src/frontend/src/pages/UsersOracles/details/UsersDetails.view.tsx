@@ -3,7 +3,7 @@ import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.hel
 import { USER_DATA_FEEDS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 import { UserType } from '../../../utils/TypesAndInterfaces/User'
 
 // view
@@ -49,7 +49,7 @@ const UserDetailsView = ({
 }: {
   user: UserType | null
   isLoading: boolean
-  feeds: Feed[]
+  feeds: FeedGQL[]
   handleSelect: (e: DropdownItemType) => void
 }) => {
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))

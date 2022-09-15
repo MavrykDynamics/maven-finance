@@ -20,6 +20,7 @@ export const ORACLE_STORAGE_QUERY = `
       reward_amount_xtz
       reward_amount_smvk
       per_thousand_deviation_trigger
+      pct_oracle_threshold
     }
     aggregator_factory {
       address
