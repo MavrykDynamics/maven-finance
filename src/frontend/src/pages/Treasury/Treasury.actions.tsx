@@ -93,8 +93,12 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     const treasuryStorage = convertedStorage.treasuryAddresses.map((treasuryData: TreasuryGQLType, idx: number) => {
       const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
         .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
-          const assetRate = metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]
-          const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
+          // TODO: need this temporaty, cuz some coins can't be found wait for answer here: https://www.notion.so/Treasury-0700746c8daa4cae8c0f98a4bae7b7b8
+          const assetRate =
+            metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol] || MVK_EXCHANGE_RATE
+          const coinsAmount = parseFloat(balance) // / Math.pow(10, parseInt(metadata.decimals))
+
+          console.log('metadata.symbol', metadata.symbol, balance)
 
           return {
             contract: contract.address,
@@ -108,10 +112,13 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
           }
         })
         .concat(parsedsMVKAmount.find(({ contract }: TreasuryBalanceType) => contract === treasuryData.address) || [])
+        .filter((treasury: TreasuryBalanceType) => treasury.balance > 0)
         .sort(
           (asset1: TreasuryBalanceType, asset2: TreasuryBalanceType) =>
             asset2.balance * asset2.rate - asset1.balance * asset1.balance,
         )
+
+      console.log('tresuryTokensWithValidBalances', tresuryTokensWithValidBalances)
 
       return {
         ...treasuryData,

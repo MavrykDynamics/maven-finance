@@ -72,18 +72,17 @@ const getPastActionsList = (list: GovernanceSatelliteActionGraphQL[]): Governanc
 export const SatelliteGovernance = () => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { oraclesStorage } = useSelector((state: State) => state.oracles)
+  const {
+    delegationStorage: { satelliteLedger, oraclesAmount },
+  } = useSelector((state: State) => state.delegation)
   const { governanceSatelliteStorage } = useSelector((state: State) => state.governance)
-  const satelliteLedger = delegationStorage?.satelliteLedger
-  const { totalOracleNetworks } = oraclesStorage
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const satelliteLedgerActive = useMemo(
     () => satelliteLedger.filter((item) => item.status === SatelliteStatus.ACTIVE),
     [satelliteLedger],
   )
 
-  const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
+  const userIsSatellite = checkIfUserIsSatellite(accountPkh, satelliteLedger)
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
@@ -192,7 +191,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Total Oracle Networks</h3>
             <p className="info-content">
-              {totalOracleNetworks}{' '}
+              {oraclesAmount}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
