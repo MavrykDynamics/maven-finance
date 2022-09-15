@@ -24,7 +24,7 @@ const emptyContainer = (
 export const FarmsTab = () => {
   const { farmStorage } = useSelector((state: State) => state.farm)
   const history = useHistory()
-  const hasLiveFarms = farmStorage.some(({ isLive }) => !isLive)
+  const hasLiveFarms = farmStorage.some(({ isLive }) => isLive)
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_farmsTab_bg.png">
@@ -42,7 +42,7 @@ export const FarmsTab = () => {
       <FarmsContentStyled className="scroll-block">
         {hasLiveFarms
           ? farmStorage.map((farmCardData) => {
-              // if (!farmCardData.isLive) return null
+              if (!farmCardData.isLive) return null
 
               const apr = calculateAPR(farmCardData.currentRewardPerBlock, farmCardData.lpTokenBalance)
               return (
