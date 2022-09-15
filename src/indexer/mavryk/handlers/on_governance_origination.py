@@ -41,6 +41,7 @@ async def on_governance_origination(
     cycle_id                                = int(governance_origination.storage.cycleId)
     cycle_highest_voted_proposal_id         = int(governance_origination.storage.cycleHighestVotedProposalId )
     timelock_proposal_id                    = int(governance_origination.storage.timelockProposalId)
+    timestamp                               = governance_origination.data.timestamp
 
     # Current round
     governance_round_type = models.GovernanceRoundType.PROPOSAL
@@ -55,6 +56,7 @@ async def on_governance_origination(
     governance, _  = await models.Governance.get_or_create(address = address)
     governance.active                                  = True
     governance.admin                                   = admin
+    governance.last_updated_at                         = timestamp
     governance.address                                 = address
     governance.governance_proxy_address                = governance_proxy_address
     governance.success_reward                          = success_reward

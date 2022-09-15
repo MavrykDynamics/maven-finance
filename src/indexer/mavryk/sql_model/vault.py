@@ -1,4 +1,5 @@
 from dipdup.models import Model, fields
+from .enums import VaultAllowance
 from mavryk.sql_model.parents import ContractLambda, MavrykContract
 
 ###
@@ -7,6 +8,8 @@ from mavryk.sql_model.parents import ContractLambda, MavrykContract
 
 class Vault(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='vaults', null=True)
+    creation_timestamp                      = fields.DatetimeField(null=True)
+    allowance                               = fields.IntEnumField(enum_type=VaultAllowance, default=VaultAllowance.ANY)
 
     class Meta:
         table = 'vault'

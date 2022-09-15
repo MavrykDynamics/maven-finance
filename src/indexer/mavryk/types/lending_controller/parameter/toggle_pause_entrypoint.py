@@ -26,129 +26,122 @@ class TargetEntrypointItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    claimRewards: bool
+    closeVault: bool
 
 
 class TargetEntrypointItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    closeVault: bool
+    liquidateVault: bool
 
 
 class TargetEntrypointItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    createVault: bool
+    markForLiquidation: bool
 
 
 class TargetEntrypointItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    liquidateVault: bool
+    registerDeposit: bool
 
 
 class TargetEntrypointItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    markForLiquidation: bool
+    registerVaultCreation: bool
 
 
 class TargetEntrypointItem7(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    registerDeposit: bool
+    registerWithdrawal: bool
 
 
 class TargetEntrypointItem8(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    registerWithdrawal: bool
+    removeLiquidity: bool
 
 
 class TargetEntrypointItem9(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    removeLiquidity: bool
+    repay: bool
 
 
 class TargetEntrypointItem10(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    repay: bool
+    setLoanToken: bool
 
 
 class TargetEntrypointItem11(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    setLoanToken: bool
+    updateCollateralToken: bool
 
 
 class TargetEntrypointItem12(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    updateCollateralToken: bool
+    vaultDelegateMvkToSatellite: bool
 
 
 class TargetEntrypointItem13(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDelegateMvkToSatellite: bool
+    vaultDelegateTezToBaker: bool
 
 
 class TargetEntrypointItem14(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDelegateTezToBaker: bool
+    vaultDeposit: bool
 
 
 class TargetEntrypointItem15(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDeposit: bool
+    vaultDepositStakedMvk: bool
 
 
 class TargetEntrypointItem16(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDepositStakedMvk: bool
+    vaultEditDepositor: bool
 
 
 class TargetEntrypointItem17(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultEditDepositor: bool
+    vaultLiquidateStakedMvk: bool
 
 
 class TargetEntrypointItem18(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultLiquidateStakedMvk: bool
-
-
-class TargetEntrypointItem19(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     vaultWithdraw: bool
 
 
-class TargetEntrypointItem20(BaseModel):
+class TargetEntrypointItem19(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -180,6 +173,5 @@ class TogglePauseEntrypointParameter(BaseModel):
         TargetEntrypointItem17,
         TargetEntrypointItem18,
         TargetEntrypointItem19,
-        TargetEntrypointItem20,
     ]
     empty: Dict[str, Any]

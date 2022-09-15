@@ -23,6 +23,7 @@ async def on_emergency_governance_origination(
     vote_expiry_days                = int(emergency_governance_origination.storage.config.voteExpiryDays)
     current_emergency_record_id     = int(emergency_governance_origination.storage.currentEmergencyGovernanceId)
     next_emergency_record_id        = int(emergency_governance_origination.storage.nextEmergencyGovernanceId)
+    timestamp                       = emergency_governance_origination.data.timestamp
 
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
@@ -32,6 +33,7 @@ async def on_emergency_governance_origination(
     emergencyGovernance = models.EmergencyGovernance(
         address                         = address,
         admin                           = admin,
+        last_updated_at                 = timestamp,
         governance                      = governance,
         decimals                        = decimals,
         min_smvk_required_to_trigger    = min_smvk_required_to_trigger,
