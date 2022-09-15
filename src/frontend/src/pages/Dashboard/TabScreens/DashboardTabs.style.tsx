@@ -151,7 +151,7 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
     row-gap: 20px;
     .row {
       display: grid;
-      grid-template-columns: 1.2fr 0.9fr 1.5fr 1.2fr;
+      grid-template-columns: 1.2fr 1.1fr 1.3fr 1.2fr;
 
       .value {
         height: 22px;

@@ -67,7 +67,7 @@ export const getSummDepositedAmount = (farmAccounts: FarmAccountsType[]): number
 }
 
 export const getLvlTimestamp = async (blocksLvl: number) =>
-  await (await fetch(`https://api.tzkt.io/v1/blocks/${blocksLvl}/timestamp`)).json()
+  await (await fetch(`${process.env.REACT_APP_RPC_TZKT_API}/v1/blocks/${blocksLvl}/timestamp`)).json()
 
 export const MOCK_FARMS = [
   {
