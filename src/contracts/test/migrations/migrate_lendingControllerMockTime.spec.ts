@@ -34,7 +34,8 @@ import {
     AggregatorFactory,
     setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
 } from '../helpers/aggregatorFactoryHelper'
-import { LendingControllerMockTime, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerMockTimeHelper"
+import { LendingControllerMockTime, setLendingControllerLambdas } from "../helpers/lendingControllerMockTimeHelper"
+import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from "../helpers/vaultFactoryHelper"
 import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPoolRewardHelper"
 
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
@@ -50,6 +51,7 @@ import { lpStorage } from "../../storage/testLPTokenStorage"
 
 import { vaultStorage } from "../../storage/vaultStorage"
 import { lendingControllerMockTimeStorage } from "../../storage/lendingControllerMockTimeStorage"
+import { vaultFactoryStorage } from "../../storage/vaultFactoryStorage"
 import { tokenPoolRewardStorage } from "../../storage/tokenPoolRewardStorage"
 
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
@@ -78,6 +80,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
     var lpTokenPoolXtz                  : TokenPoolLpToken;
 
     var lendingControllerMockTime       : LendingControllerMockTime
+    var vaultFactory : VaultFactory
     var tokenPoolReward                 : TokenPoolReward
     
         
@@ -103,6 +106,17 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
 
             await saveContractAddress('lendingControllerMockTimeAddress', lendingControllerMockTime.contract.address)
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTime.contract.address)
+
+            //----------------------------
+            // Vault Factory
+            //----------------------------
+
+            vaultFactoryStorage.mvkTokenAddress     = mvkTokenAddress.address
+            vaultFactoryStorage.governanceAddress   = governanceAddress.address
+            vaultFactory = await VaultFactory.originate(utils.tezos,vaultFactoryStorage);
+
+            await saveContractAddress('vaultFactoryAddress', vaultFactory.contract.address)
+            console.log('Vault Factory Contract deployed at:', vaultFactory.contract.address)
 
 
             //----------------------------
@@ -261,11 +275,13 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             await setLendingControllerLambdas(tezos, lendingControllerMockTime.contract);
             console.log("Lending Controller Lambdas Setup")
 
+            // Vault Factory Lambdas
+            await setVaultFactoryLambdas(tezos, vaultFactory.contract);
+            console.log("Vault Factory Lambdas Setup")
 
-            // Lending Controller Setup Vault Lambdas
-            await setLendingControllerProductLambdas(tezos, lendingControllerMockTime.contract)
-            console.log("Lending Controller Vault Lambdas Setup")
-
+            // Vault Factory Setup Vault Lambdas
+            await setVaultFactoryProductLambdas(tezos, vaultFactory.contract)
+            console.log("Vault Factory - Vault Lambdas Setup")
 
             // Token Pool Reward Lambdas
             await setTokenPoolRewardLambdas(tezos, tokenPoolReward.contract);

@@ -4,7 +4,7 @@
         "name": "lambdaSetAdmin"
     },
     {
-        "index": 1,   
+        "index": 1,
         "name": "lambdaSetGovernance"
     },
     {
@@ -13,35 +13,34 @@
     },
     {
         "index": 3,
-        "name": "lambdaUpdateWhitelistContracts"
+        "name": "lambdaUpdateConfig"
     },
     {
         "index": 4,
-        "name": "lambdaUpdateGeneralContracts"
+        "name": "lambdaUpdateWhitelistContracts"
     },
     {
         "index": 5,
-        "name": "lambdaUpdateWhitelistTokenContracts"
+        "name": "lambdaUpdateGeneralContracts"
     },
     {
         "index": 6,
-        "name": "lambdaPauseAll"
+        "name": "lambdaMistakenTransfer"
     },
     {
         "index": 7,
-        "name": "lambdaUnpauseAll"
+        "name": "lambdaPauseAll"
     },
     {
         "index": 8,
-        "name": "lambdaTogglePauseEntrypoint"
+        "name": "lambdaUnpauseAll"
     },
     {
         "index": 9,
-        "name": "lambdaUpdateRewards"
+        "name": "lambdaTogglePauseEntrypoint"
     },
     {
         "index": 10,
-        "name": "lambdaClaimRewards"
-    }    
+        "name": "lambdaCreateVault"
+    }
 ]
-  

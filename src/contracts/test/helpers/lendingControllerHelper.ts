@@ -18,11 +18,6 @@ import lendingControllerLambdaIndex
     from '../../../contracts/contracts/partials/contractLambdas/lendingController/lendingControllerLambdaIndex.json';
 import lendingControllerLambdas from "../../build/lambdas/lendingControllerLambdas.json";
 
-import vaultLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/vault/vaultLambdaIndex.json';
-import vaultLambdas from "../../build/lambdas/vaultLambdas.json";
-
-
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
 type LendingControllerContractMethods<T extends ContractProvider | Wallet> = {
@@ -79,20 +74,6 @@ export const setLendingControllerLambdas = async (tezosToolkit: TezosToolkit, co
 
     }
 };
-
-
-export const setLendingControllerProductLambdas = async (tezosToolkit: TezosToolkit, contract: LendingControllerContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
-
-    vaultLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setProductLambda(name, vaultLambdas[index]))
-    });
-
-    const op = await batch.send()
-    await confirmOperation(tezosToolkit, op.opHash);
-}
-
 
 
 export class LendingController {

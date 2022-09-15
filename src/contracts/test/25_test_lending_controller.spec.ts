@@ -2756,7 +2756,7 @@
 //             const decimals           = 4;
 //             const reserveRatio       = 3000; // 30%
 
-//             const loanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+//             const loanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 //             const tokenPoolTotal      = loanTokenRecordView.tokenPoolTotal;
 //             const totalBorrowed       = loanTokenRecordView.totalBorrowed;
 //             const totalRemaining      = loanTokenRecordView.totalRemaining;
