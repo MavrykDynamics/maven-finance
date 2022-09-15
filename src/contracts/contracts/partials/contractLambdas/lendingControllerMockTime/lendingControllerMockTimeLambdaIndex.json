@@ -57,7 +57,7 @@
     },
     {
         "index": 14,
-        "name": "lambdaCreateVault"
+        "name": "lambdaRegisterVaultCreation"
     },
     {
         "index": 15,

@@ -16,7 +16,6 @@ export type lendingControllerStorageType = {
     whitelistTokenContracts     : MichelsonMap<MichelsonMapKey, unknown>;
 
     // token pool
-    rewardsLedger               : MichelsonMap<MichelsonMapKey, unknown>;
     tokenPoolDepositorLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 
     // vaults and owners

@@ -52,10 +52,7 @@ const breakGlassConfig = {
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : false,
     vaultWithdrawStakedMvkIsPaused      : false,
-    vaultLiquidateStakedMvkIsPaused     : false,
-
-    // Reward Entrypoints
-    claimRewardsIsPaused     : false,
+    vaultLiquidateStakedMvkIsPaused     : false
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -74,47 +71,6 @@ const metadata = MichelsonMap.fromLiteral({
         ).toString('hex'),
     })
 
-const usdtTokenType = {
-    fa2 : {
-        tokenContractAddress : zeroAddress,
-        tokenId : 0
-    }
-}
-const usdtRecord = {
-    tokenName                   : "usdt",
-    tokenContractAddress        : zeroAddress,
-    tokenType                   : usdtTokenType, 
-    tokenId                     : 0,
-    tokenDecimals               : 6,
-
-    lpTokensTotal               : 0,
-    lpTokenContractAddress      : zeroAddress,
-    lpTokenId                   : 0,
-
-    reserveRatio                : 30,  // percentage of token pool that should be kept as reserves for liquidity 
-    tokenPoolTotal              : 0,  // sum of totalBorrowed and totalRemaining
-    totalBorrowed               : 0,
-    totalRemaining              : 0,
-
-    utilisationRate                         : 0,
-    optimalUtilisationRate                  : 30,  // kink point
-    baseInterestRate                        : 10,  // base interest rate
-    maxInterestRate                         : 20,  // max interest rate
-    interestRateBelowOptimalUtilisation     : 10,  // interest rate below kink
-    interestRateAboveOptimalUtilisation     : 20,  // interest rate above kink
-
-    currentInterestRate         : 1,
-
-    lastUpdatedBlockLevel       : 0,
-
-    accumulatedRewardsPerShare  : 1,
-    borrowIndex                 : 1
-}
-
-const loanTokenLedger = MichelsonMap.fromLiteral({
-    "usdt" : usdtRecord
-})
-
 
 export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorageType = {
   
@@ -131,7 +87,6 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
     generalContracts                : MichelsonMap.fromLiteral({}),
     whitelistTokenContracts         : MichelsonMap.fromLiteral({}),
     
-    rewardsLedger                   : MichelsonMap.fromLiteral({}),
     tokenPoolDepositorLedger        : MichelsonMap.fromLiteral({}),
 
     vaults                          : MichelsonMap.fromLiteral({}),
@@ -139,7 +94,7 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
     ownerLedger                     : MichelsonMap.fromLiteral({}),
 
     collateralTokenLedger           : MichelsonMap.fromLiteral({}),
-    loanTokenLedger                 : loanTokenLedger,
+    loanTokenLedger                 : MichelsonMap.fromLiteral({}),
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
