@@ -1,6 +1,6 @@
 export const ORACLE_STORAGE_QUERY = `
    query GetOracleDataFeeds {
-    aggregator {
+    aggregator(where: {aggregator_factory_id: {_is_null: false}}) {
       address
       admin
       aggregator_factory_id
