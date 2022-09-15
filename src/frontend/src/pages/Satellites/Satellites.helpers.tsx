@@ -116,7 +116,17 @@ function convertToSatelliteRecords(satelliteRecordList: DelegationGraphQl['satel
     : []
 }
 
+function getOraclesAmount(satellites: SatelliteRecord[]) {
+  return satellites.reduce((acc, { oracleRecords }) => {
+    if (oracleRecords.length) {
+      acc += 1
+    }
+    return acc
+  }, 0)
+}
+
 export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl) {
+  const convertedSatellties = convertToSatelliteRecords(delegationStorage?.satellites)
   return {
     breakGlassConfig: {
       delegateToSatelliteIsPaused: delegationStorage?.delegate_to_satellite_paused,
@@ -136,7 +146,8 @@ export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl)
       satelliteWebsiteMaxLength: delegationStorage?.satellite_website_max_length,
     },
     delegateLedger: new MichelsonMap<string, DelegateRecord>(),
-    satelliteLedger: convertToSatelliteRecords(delegationStorage?.satellites),
+    satelliteLedger: convertedSatellties,
+    oraclesAmount: getOraclesAmount(convertedSatellties),
     numberActiveSatellites: delegationStorage?.max_satellites,
     totalDelegatedMVK: delegationStorage?.max_satellites,
   }

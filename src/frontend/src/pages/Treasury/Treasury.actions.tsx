@@ -94,40 +94,44 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     ).data
 
     // Map every treasury to combine treasury name, and divide balance by constant
-    const treasuryStorage = convertedStorage.treasuryAddresses.map((treasuryData: TreasuryGQLType, idx: number) => {
-      const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
-        .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
-          const assetRate = metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]
-          const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
+    const treasuryStorage = convertedStorage.treasuryAddresses
+      .map((treasuryData: TreasuryGQLType, idx: number) => {
+        const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
+          .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
+            const assetRate: number | null =
+              (metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]) || null
+            const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
 
-          return {
-            contract: contract.address,
-            usdValue: coinsAmount * assetRate,
-            decimals: parseInt(metadata.decimals),
-            name: metadata.name,
-            thumbnail_uri: metadata.thumbnailUri,
-            symbol: metadata.symbol,
-            balance: coinsAmount,
-            rate: assetRate,
-          }
-        })
-        .concat(parsedsMVKAmount.find(({ contract }: TreasuryBalanceType) => contract === treasuryData.address) || [])
-        .sort(
-          (asset1: TreasuryBalanceType, asset2: TreasuryBalanceType) =>
-            asset2.balance * asset2.rate - asset1.balance * asset1.balance,
-        )
+            return {
+              contract: contract.address,
+              usdValue: coinsAmount * (assetRate || 1),
+              decimals: parseInt(metadata.decimals),
+              name: metadata.name,
+              thumbnail_uri: metadata.thumbnailUri,
+              symbol: metadata.symbol,
+              balance: coinsAmount,
+              rate: assetRate,
+            }
+          })
+          .concat(parsedsMVKAmount.find(({ contract }: TreasuryBalanceType) => contract === treasuryData.address) || [])
+          .filter(({ balance }: TreasuryBalanceType) => balance > 0 || balance.toString().includes('e'))
+          .sort(
+            (asset1: TreasuryBalanceType, asset2: TreasuryBalanceType) =>
+              Number(asset2.balance) * Number(asset2.rate) - Number(asset1.balance) * Number(asset1.rate),
+          )
 
-      return {
-        ...treasuryData,
-        name:
-          treasuryData.name ||
-          `Treasury ${treasuryData.address.slice(0, 7)}...${treasuryData.address.slice(
-            treasuryData.address.length - 4,
-            treasuryData.address.length,
-          )}`,
-        balances: tresuryTokensWithValidBalances,
-      }
-    })
+        return {
+          ...treasuryData,
+          name:
+            treasuryData.name ||
+            `Treasury ${treasuryData.address.slice(0, 7)}...${treasuryData.address.slice(
+              treasuryData.address.length - 4,
+              treasuryData.address.length,
+            )}`,
+          balances: tresuryTokensWithValidBalances,
+        }
+      })
+      .filter(({ balances }) => Boolean(balances.length))
 
     dispatch({
       type: SET_TREASURY_STORAGE,

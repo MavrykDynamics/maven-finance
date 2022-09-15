@@ -65,6 +65,7 @@ const defaultDelegationStorage: DelegationStorage = {
     distributeRewardPaused: false,
   },
   numberActiveSatellites: 0,
+  oraclesAmount: 0,
   totalDelegatedMVK: 0,
 }
 const delegationDefaultState: DelegationState = {
@@ -89,7 +90,6 @@ const delegationDefaultState: DelegationState = {
   participationMetrics: {
     pollParticipation: 0,
     proposalParticipation: 0,
-    communication: 0,
   },
 }
 

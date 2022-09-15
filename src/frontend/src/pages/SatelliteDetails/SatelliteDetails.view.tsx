@@ -70,7 +70,6 @@ export const SatelliteDetailsView = ({
   userStakedBalanceInSatellite: myDelegatedMVK,
 }: SatelliteDetailsViewProps) => {
   const { satelliteId } = useParams<{ satelliteId: string }>()
-
   const { user } = useSelector((state: State) => state.user)
   const { participationMetrics } = useSelector((state: State) => state.delegation)
   const isSameId = satellite?.address === satelliteId
@@ -112,8 +111,6 @@ export const SatelliteDetailsView = ({
                   <p>{participationMetrics.pollParticipation}%</p>
                   <h5>Proposal participation</h5>
                   <p>{participationMetrics.proposalParticipation}%</p>
-                  <h5>Communication</h5>
-                  <p>{participationMetrics.communication}%</p>
                 </SatelliteMetricsBlock>
               </div>
 
