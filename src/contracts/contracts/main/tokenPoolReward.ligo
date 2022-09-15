@@ -19,6 +19,9 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Vault Types
+#include "../partials/contractTypes/vaultTypes.ligo"
+
 // Lending Controller Types
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
@@ -229,10 +232,13 @@ block {
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
         
     // get loan token record of user from Lending Controlelr contract
-    const getLoanTokenRecordOptView : option (loanTokenRecordType) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
+    const getLoanTokenRecordOptView : option (option (loanTokenRecordType)) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
     const loanTokenRecord : loanTokenRecordType = case getLoanTokenRecordOptView of [
-            Some (_record) -> _record
-        |   None           -> failwith (error_LOAN_TOKEN_RECORD_NOT_FOUND)
+            Some (_viewResult)  -> case _viewResult of [
+                    Some (_record)  -> _record
+                |   None            -> failwith (error_LOAN_TOKEN_RECORD_NOT_FOUND)
+            ]
+        |   None                -> failwith (error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
     ];
 
 } with loanTokenRecord
@@ -247,10 +253,13 @@ block {
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
         
     // get token pool depositor balalnce from Lending Controller contract
-    const getTokenPoolDepositorBalanceOptView : option (nat) = Tezos.call_view ("getTokenPoolDepositorBalanceOpt", userTokenNameKey, lendingControllerAddress);
+    const getTokenPoolDepositorBalanceOptView : option (option (nat)) = Tezos.call_view ("getTokenPoolDepositorBalanceOpt", userTokenNameKey, lendingControllerAddress);
     const tokenPoolDepositorbalance : nat = case getTokenPoolDepositorBalanceOptView of [
-            Some (_balance) -> _balance
-        |   None            -> 0n 
+            Some (_viewResult)  -> case _viewResult of [
+                    Some (_balance) -> _balance
+                |   None            -> 0n
+            ]
+        |   None                -> failwith(error_GET_TOKEN_POOL_DEPOSITOR_BALANCE_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) 
     ];
 
 } with tokenPoolDepositorbalance

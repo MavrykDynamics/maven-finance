@@ -24,8 +24,8 @@ import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAdd
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
 import vestingAddress from '../../deployments/vestingAddress.json';
 import treasuryAddress from '../../deployments/treasuryAddress.json';
-import mockFa12TokenAddress from '../../deployments/mockFa12TokenAddress.json';
-import mockFa2TokenAddress from '../../deployments/mockFa2TokenAddress.json';
+import mockFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
+import mockFa2TokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
 import farmFactoryAddress from '../../deployments/farmFactoryAddress.json'
 import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json'
 import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json'
@@ -236,6 +236,7 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial', governanceFinancialAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolRewardAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory', vaultFactoryAddress.address))
   
       // whitelist contracts
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('vaultFactory', vaultFactoryAddress.address))

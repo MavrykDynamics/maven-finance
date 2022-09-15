@@ -14,6 +14,8 @@ export type tokenPoolRewardStorageType = {
     whitelistTokenContracts   : MichelsonMap<MichelsonMapKey, unknown>;
     generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 
+    rewardsLedger             : MichelsonMap<MichelsonMapKey, unknown>;
+
     lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 
 }
