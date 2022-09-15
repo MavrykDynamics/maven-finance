@@ -145,13 +145,13 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
 
   .feeds-grid {
     margin-top: 20px;
-    max-width: 650px;
+    max-width: 720px;
     display: flex;
     flex-direction: column;
     row-gap: 20px;
     .row {
       display: grid;
-      grid-template-columns: 1.2fr 0.7fr 1.5fr 1.2fr;
+      grid-template-columns: 1.2fr 0.9fr 1.5fr 1.2fr;
 
       .value {
         height: 22px;

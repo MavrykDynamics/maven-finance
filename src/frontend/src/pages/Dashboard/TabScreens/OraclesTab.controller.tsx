@@ -19,47 +19,20 @@ export const OraclesTab = () => {
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { satelliteLedger = [] } = useSelector((state: State) => state.delegation.delegationStorage)
 
-  const oracleFeeds = feeds.length
+  const oracleFeeds = useMemo(() => feeds.length, [feeds])
   // TODO: extract is to mvkToken reducer in future?
-  const [xtzRate, setXTZRate] = useState(0)
   const popularFeeds = useMemo(() => feeds.splice(0, 3), [feeds])
-
-  useEffect(() => {
-    ;(async function fetchXtzRate() {
-      const xtzRate = (
-        await coinGeckoClient.simple.price({
-          ids: ['tezos'],
-          vs_currencies: ['usd'],
-        })
-      ).data
-
-      setXTZRate(xtzRate?.tezos?.usd || 0)
-    })()
-  }, [])
 
   const oracleRevardsTotal = useMemo(
     () =>
-      satelliteLedger.reduce(
-        (acc, { oracleRecords }) => {
-          if (oracleRecords.length) {
-            const { sMVKReward, XTZReward } = oracleRecords.reduce(
-              (acc, { sMVKReward = 0, XTZReward = 0 }) => {
-                acc.XTZReward += XTZReward
-                acc.sMVKReward += sMVKReward
-
-                return acc
-              },
-              { sMVKReward: 0, XTZReward: 0 },
-            )
-
-            acc.sMVKRewards += sMVKReward * exchangeRate
-            acc.XTZReward += XTZReward * xtzRate
-          }
-          return acc
-        },
-        { sMVKRewards: 0, XTZReward: 0 },
-      ),
-    [satelliteLedger],
+      satelliteLedger.reduce((acc, { oracleRecords }) => {
+        if (oracleRecords.length) {
+          const sMVKReward = oracleRecords.reduce((acc, { sMVKReward = 0 }) => (acc += sMVKReward), 0)
+          acc += sMVKReward * exchangeRate
+        }
+        return acc
+      }, 0),
+    [exchangeRate, satelliteLedger],
   )
 
   const history = useHistory()
@@ -82,7 +55,7 @@ export const OraclesTab = () => {
           <StatBlock>
             <div className="name">Total Oracle Rewards Paid</div>
             <div className="value">
-              <CommaNumber beginningText="$" value={oracleRevardsTotal.XTZReward | oracleRevardsTotal.sMVKRewards} />
+              <CommaNumber beginningText="$" value={oracleRevardsTotal} />
             </div>
           </StatBlock>
           <StatBlock>
