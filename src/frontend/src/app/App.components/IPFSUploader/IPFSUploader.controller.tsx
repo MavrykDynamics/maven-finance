@@ -20,7 +20,18 @@ type IPFSUploaderProps = {
   setFormInputStatus?: (obj: Record<string, unknown>) => void
 }
 
-const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' })
+const projectId = process.env.REACT_APP_IPFS_PROJECT_ID
+const projectSecret = process.env.REACT_APP_IPFS_API_KEY
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64')
+
+const client = create({
+  host: 'ipfs.infura.io',
+  port: 5001,
+  protocol: 'https',
+  headers: {
+      authorization: auth,
+  },
+})
 
 export const IPFSUploader = ({
   title,
@@ -42,7 +53,8 @@ export const IPFSUploader = ({
     try {
       setIsUploading(true)
       const added = await client.add(file)
-      const image = `https://ipfs.infura.io/ipfs/${added.path}`
+      const image = `https://infura-ipfs.io/ipfs/${added.path}`
+
       setIpfsImageUrl(image)
       setIsUploading(false)
     } catch (error) {
