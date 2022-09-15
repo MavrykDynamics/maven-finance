@@ -17,6 +17,7 @@ export const normalizeFarmStorage = (
       address: farmItem.address,
       name: farmItem.name,
       endsIn: endsIn,
+      isLive: Date.now() - new Date(endsIn).getTime() < 0,
       // TODO not exist in grapgQl
       lpTokenAddress: '',
       open: farmItem.open,

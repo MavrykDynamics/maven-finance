@@ -423,6 +423,10 @@ export const FarmsContentStyled = styled.div`
     }
   }
 
+  .empty-container {
+    margin-left: 150px;
+  }
+
   .card {
     width: 250px;
     flex: none;
