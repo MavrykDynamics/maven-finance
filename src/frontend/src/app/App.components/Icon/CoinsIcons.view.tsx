@@ -7,7 +7,7 @@ export const FarmCardTokenLogoContainer = styled.figure<{ theme: MavrykTheme }>`
   align-items: center;
   position: relative;
   margin: 0;
-  width: 50px;
+  width: 55px;
   > img {
     align-items: center;
     justify-content: center;
@@ -17,7 +17,7 @@ export const FarmCardTokenLogoContainer = styled.figure<{ theme: MavrykTheme }>`
 export const FarmCardFirstTokenIcon = styled.img<{ theme: MavrykTheme }>`
   height: 43px;
   width: 43px;
-  bottom: 5px;
+  bottom: 0px;
   right: -5px;
   align-self: flex-end;
   z-index: 1;
@@ -25,7 +25,7 @@ export const FarmCardFirstTokenIcon = styled.img<{ theme: MavrykTheme }>`
 export const FarmCardSecondTokenIcon = styled.img<{ theme: MavrykTheme }>`
   height: 30px;
   width: 30px;
-  top: -8px;
+  top: 0px;
   left: 0;
   align-self: flex-end;
 `
