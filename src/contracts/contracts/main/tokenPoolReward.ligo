@@ -19,8 +19,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// Token Pool Types
-#include "../partials/contractTypes/tokenPoolRewardTypes.ligo"
+// Lending Controller Types
+#include "../partials/contractTypes/lendingControllerTypes.ligo"
 
 // Token Pool Reward Types
 #include "../partials/contractTypes/tokenPoolRewardTypes.ligo"
@@ -47,7 +47,8 @@ type tokenPoolRewardAction is
     |   TogglePauseEntrypoint           of tokenPoolRewardTogglePauseEntrypointType
 
         // Rewards Entrypoints
-    |   OnClaimRewards                  of transferActionType
+    |   UpdateRewards                   of updateRewardsActionType
+    |   ClaimRewards                    of claimRewardsActionType
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -141,13 +142,139 @@ function checkNoAmount(const _p : unit) : unit is
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to check that the %onClaimRewards entrypoint is not paused
-function checkOnClaimRewardsIsNotPaused(var s : tokenPoolRewardStorageType) : unit is
-    if s.breakGlassConfig.onClaimRewardsIsPaused then failwith(error_ON_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_PAUSED)
+// helper function to check that the %updateRewards entrypoint is not paused
+function checkUpdateRewardsIsNotPaused(var s : tokenPoolRewardStorageType) : unit is
+    if s.breakGlassConfig.updateRewardsIsPaused then failwith(error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %claimRewards entrypoint is not paused
+function checkClaimRewardsIsNotPaused(var s : tokenPoolRewardStorageType) : unit is
+    if s.breakGlassConfig.claimRewardsIsPaused then failwith(error_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+(* get or create user rewards record *)
+function getOrCreateUserRewardsRecord(const userTokenNameKey : (address * string); const loanTokenAccumulatedRewardsPerShare : nat; const s : tokenPoolRewardStorageType) : rewardsRecordType is 
+block {
+
+    const userRewardsRecord : rewardsRecordType = case s.rewardsLedger[userTokenNameKey] of [
+            Some (_record) -> _record
+        |   None -> record [
+                unpaid          = 0n;
+                paid            = 0n;
+                rewardsPerShare = loanTokenAccumulatedRewardsPerShare;
+            ]
+    ];
+
+} with userRewardsRecord
+
+
+
+(* get user rewards record *)
+function getUserRewardsRecord(const userTokenNameKey : (address * string); const s : tokenPoolRewardStorageType) : rewardsRecordType is 
+block {
+
+    const userRewardsRecord : rewardsRecordType = case s.rewardsLedger[userTokenNameKey] of [
+            Some (_record) -> _record
+        |   None -> record [
+                unpaid          = 0n;
+                paid            = 0n;
+                rewardsPerShare = 0n;
+            ]
+    ];
+
+} with userRewardsRecord
+
+
+
+(* get user accrued rewards *)
+function calculateAccruedRewards(const tokenPoolDepositorBalance : nat; const userRewardsPerShare : nat; const loanTokenAccumulatedRewardsPerShare : nat) is 
+block {
+
+    var accruedRewards : nat := 0n;
+    if userRewardsPerShare < loanTokenAccumulatedRewardsPerShare then {
+        
+        const rewardsRatioDifference : nat = abs(loanTokenAccumulatedRewardsPerShare - userRewardsPerShare);
+        accruedRewards := (tokenPoolDepositorBalance * rewardsRatioDifference) / fixedPointAccuracy;
+
+    } else skip;
+
+} with accruedRewards
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+// ------------------------------------------------------------------------------
+// On-chain views to Lending Controller Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+(* Get loan token record from lending controller contract *)
+function getLoanTokenRecordFromLendingController(const loanTokenName : string; const s : tokenPoolRewardStorageType) : loanTokenRecordType is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+        
+    // get loan token record of user from Lending Controlelr contract
+    const getLoanTokenRecordOptView : option (loanTokenRecordType) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
+    const loanTokenRecord : loanTokenRecordType = case getLoanTokenRecordOptView of [
+            Some (_record) -> _record
+        |   None           -> failwith (error_LOAN_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+} with loanTokenRecord
+
+
+
+(* Get token pool depositor balance from lending controller contract *)
+function getTokenPoolDepositorBalanceFromLendingController(const userTokenNameKey : (address * string); const s : tokenPoolRewardStorageType) : nat is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+        
+    // get token pool depositor balalnce from Lending Controller contract
+    const getTokenPoolDepositorBalanceOptView : option (nat) = Tezos.call_view ("getTokenPoolDepositorBalanceOpt", userTokenNameKey, lendingControllerAddress);
+    const tokenPoolDepositorbalance : nat = case getTokenPoolDepositorBalanceOptView of [
+            Some (_balance) -> _balance
+        |   None            -> 0n 
+    ];
+
+} with tokenPoolDepositorbalance
+
+
+
+(* Get loan token ledger from lending controller contract *)
+function getLoanTokenLedgerFromLendingController(const s : tokenPoolRewardStorageType) : loanTokenLedgerType is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+        
+    // get loan token ledger from Lending Controller contract
+    const getLoanTokenLedgerView : option(loanTokenLedgerType) = Tezos.call_view ("getLoanTokenLedger", unit, lendingControllerAddress);
+    const loanTokenLedger : loanTokenLedgerType = case getLoanTokenLedgerView of [
+            Some (_ledger) -> _ledger
+        |   None            -> failwith(error_LOAN_TOKEN_LEDGER_NOT_FOUND)
+    ];
+
+} with loanTokenLedger
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -431,17 +558,36 @@ block{
 // Rewards Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(* onClaimRewards entrypoint *)
-function onClaimRewards(const onClaimRewardsParams : transferActionType; var s : tokenPoolRewardStorageType) : return is 
+(* updateRewards entrypoint *)
+function updateRewards(const updateRewardsParams : updateRewardsActionType; var s : tokenPoolRewardStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnClaimRewards"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateRewards"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init token pool lambda action
-    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaOnClaimRewards(onClaimRewardsParams);
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateRewards(updateRewardsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
+    
+} with response
+
+
+
+(* claimRewards entrypoint *)
+function claimRewards(const claimRewardsParams : claimRewardsActionType; var s : tokenPoolRewardStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaimRewards"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init token pool lambda action
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaClaimRewards(claimRewardsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
@@ -508,7 +654,8 @@ function main (const action : tokenPoolRewardAction; const s : tokenPoolRewardSt
         |   TogglePauseEntrypoint(parameters)           -> togglePauseEntrypoint(parameters, s)
 
             // Rewards Entrypoints
-        |   OnClaimRewards(parameters)                  -> onClaimRewards(parameters, s)
+        |   UpdateRewards(parameters)                   -> updateRewards(parameters, s)
+        |   ClaimRewards(parameters)                    -> claimRewards(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                       -> setLambda(parameters, s)

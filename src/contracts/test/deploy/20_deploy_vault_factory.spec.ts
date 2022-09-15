@@ -20,23 +20,23 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { LendingController, setLendingControllerLambdas } from '../helpers/lendingControllerHelper'
+import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from '../helpers/vaultFactoryHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { lendingControllerStorage } from '../../storage/lendingControllerStorage'
+import { vaultFactoryStorage } from '../../storage/vaultFactoryStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('Lending Controller', async () => {
+describe('Vault Factory', async () => {
   
     var tezos
     var utils: Utils
-    var lendingController: LendingController
+    var vaultFactory: VaultFactory
 
     const signerFactory = async (pk) => {
         await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -52,25 +52,29 @@ describe('Lending Controller', async () => {
             // Originate and deploy contracts
             //----------------------------
 
-            lendingControllerStorage.governanceAddress = governanceAddress.address
-            lendingControllerStorage.mvkTokenAddress   = mvkTokenAddress.address
-            lendingController = await LendingController.originate(
+            vaultFactoryStorage.governanceAddress = governanceAddress.address
+            vaultFactoryStorage.mvkTokenAddress   = mvkTokenAddress.address
+            vaultFactory = await VaultFactory.originate(
                 utils.tezos,
-                lendingControllerStorage
+                vaultFactoryStorage
             )
 
-            await saveContractAddress('lendingControllerAddress', lendingController.contract.address)
-            console.log('Lending Controller Contract deployed at:', lendingController.contract.address)
+            await saveContractAddress('vaultFactoryAddress', vaultFactory.contract.address)
+            console.log('Vault Factory Contract deployed at:', vaultFactory.contract.address)
 
             //----------------------------
             // Set Lambdas
             //----------------------------
 
-            tezos = lendingController.tezos
+            tezos = vaultFactory.tezos
 
-            // Lending Controller Lambdas
-            await setLendingControllerLambdas(tezos, lendingController.contract);
-            console.log("Lending Controller Lambdas Setup")
+            // Vault Factory Lambdas
+            await setVaultFactoryLambdas(tezos, vaultFactory.contract);
+            console.log("Vault Factory Lambdas Setup")
+
+            // Vault Factory Setup Vault Lambdas
+            await setVaultFactoryProductLambdas(tezos, vaultFactory.contract)
+            console.log("Vault Factory - Vault Lambdas Setup")
 
         } catch(e){
             

@@ -137,8 +137,11 @@ block {
         |   LambdaPauseAll(_parameters) -> {
                 
                 // set all pause configs to True
-                if s.breakGlassConfig.onClaimRewardsIsPaused then skip
-                else s.breakGlassConfig.onClaimRewardsIsPaused := True;
+                if s.breakGlassConfig.updateRewardsIsPaused then skip
+                else s.breakGlassConfig.updateRewardsIsPaused := True;
+
+                if s.breakGlassConfig.claimRewardsIsPaused then skip
+                else s.breakGlassConfig.claimRewardsIsPaused := True;
 
             }
         |   _ -> skip
@@ -159,7 +162,10 @@ block {
         |   LambdaUnpauseAll(_parameters) -> {
                 
                 // set all pause configs to False
-                if s.breakGlassConfig.onClaimRewardsIsPaused then s.breakGlassConfig.onClaimRewardsIsPaused := False
+                if s.breakGlassConfig.updateRewardsIsPaused then s.breakGlassConfig.updateRewardsIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.claimRewardsIsPaused then s.breakGlassConfig.claimRewardsIsPaused := False
                 else skip;
 
             }
@@ -181,9 +187,8 @@ block {
         |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                        OnClaimRewards (_v)   -> s.breakGlassConfig.onClaimRewardsIsPaused            := _v
-                    |   Empty (_v)            -> skip
-                    
+                    |    UpdateRewards (_v)  -> s.breakGlassConfig.updateRewardsIsPaused           := _v
+                    |    ClaimRewards (_v)   -> s.breakGlassConfig.claimRewardsIsPaused            := _v
                 ]
                 
             }
@@ -202,45 +207,129 @@ block {
 // Token Pool Reward Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  onClaimRewards lambda *)
-function lambdaOnClaimRewards(const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType; var s : tokenPoolRewardStorageType) : return is
+(*  updateRewards lambda *)
+function lambdaUpdateRewards(const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType; var s : tokenPoolRewardStorageType) : return is
 block {
 
     checkNoAmount(Unit);                       // entrypoint should not receive any tez amount    
     checkSenderIsLendingControllerContract(s); // check that sender is Lending Controller contract
-    checkOnClaimRewardsIsNotPaused(s);         // check that %onClaimRewards entrypoint is not paused (e.g. if glass broken)
+    checkUpdateRewardsIsNotPaused(s);          // check that %updaRetewards entrypoint is not paused (e.g. if glass broken)
 
     var operations : list(operation) := nil;
 
     case tokenPoolRewardLambdaAction of [
-        |   LambdaOnClaimRewards(onClaimRewardsParams) -> {
+        |   LambdaUpdateRewards(updateRewardsParams) -> {
 
-                const txs : list(transferDestinationType) = onClaimRewardsParams;
+                // init parameters
+                const loanTokenName     : string  = updateRewardsParams.loanTokenName;
+                const userAddress       : address = updateRewardsParams.userAddress;
+                const depositorBalance  : nat     = updateRewardsParams.depositorBalance;
+
+                // Make big map key - (userAddress, loanTokenName)
+                const userTokenNameKey : (address * string) = (userAddress, loanTokenName);
+
+                // Get loan token record from lending controller and accumulated rewards per share
+                const loanTokenRecord : loanTokenRecordType = getLoanTokenRecordFromLendingController(loanTokenName, s);
+                const loanTokenAccumulatedRewardsPerShare : nat = loanTokenRecord.accumulatedRewardsPerShare;            
+
+                // Get or create user's rewards record
+                var userRewardsRecord : rewardsRecordType := getOrCreateUserRewardsRecord(userTokenNameKey, loanTokenAccumulatedRewardsPerShare, s);
+                const userRewardsPerShare : nat = userRewardsRecord.rewardsPerShare;            
+
+                // Calculate user's accrued rewards - i.e. new unclaimed rewards
+                // - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
+                // - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
                 
-                const whitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
+                const accruedRewards      : nat = calculateAccruedRewards(depositorBalance, userRewardsPerShare, loanTokenAccumulatedRewardsPerShare);
 
-                function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
-                block {
+                // Update user's rewards record 
+                // - set rewardsPerShare to token's accumulatedRewardsPerShare
+                // - increment user's unpaid rewards by the calculated rewards
 
-                    const token        : tokenType        = destination.token;
-                    const to_          : address          = destination.to_;
-                    const amt          : tokenAmountType  = destination.amount;
-                    const from_        : address          = Tezos.get_self_address(); // treasury
+                userRewardsRecord.rewardsPerShare   := loanTokenAccumulatedRewardsPerShare;
+                userRewardsRecord.unpaid            := userRewardsRecord.unpaid + accruedRewards;
+                s.rewardsLedger[userTokenNameKey]   := userRewardsRecord;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  claimRewards lambda *)
+function lambdaClaimRewards(const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType; var s : tokenPoolRewardStorageType) : return is
+block {
+
+    checkNoAmount(Unit);                       // entrypoint should not receive any tez amount    
+    checkSenderIsLendingControllerContract(s); // check that sender is Lending Controller contract
+    checkClaimRewardsIsNotPaused(s);           // check that %claimRewards entrypoint is not paused (e.g. if glass broken)
+
+    var operations : list(operation) := nil;
+
+    case tokenPoolRewardLambdaAction of [
+        |   LambdaClaimRewards(claimRewardsParams) -> {
+
+                // init variables for convenience
+                const userAddress : address = claimRewardsParams.userAddress; 
+
+                // init transfer params
+                const to_    : address = userAddress;
+                const from_  : address = Tezos.get_self_address(); 
+
+                // Get loan token ledger from lending controller
+                const loanTokenLedger : loanTokenLedgerType = getLoanTokenLedgerFromLendingController(s);
+                
+                // loop through loan token ledger to get individual loan token records
+                for loanTokenName -> loanTokenRecord in map loanTokenLedger block {
+
+                    // init variables for convenience
+                    const userTokenNameKey : (address * string) = (userAddress, loanTokenName);
+                    const loanTokenAccumulatedRewardsPerShare : nat = loanTokenRecord.accumulatedRewardsPerShare; 
                     
-                    // Create transfer token operation
-                    // - check that token to be transferred are in the Whitelisted Token Contracts map
-                    const transferTokenOperation : operation = case token of [
-                        |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mutez)
-                        |   Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
-                        |   Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
-                    ];
+                    // get user rewards record if exist
+                    var userRewardsRecord : rewardsRecordType := getUserRewardsRecord(userTokenNameKey, s);
+                    const userRewardsPerShare : nat = userRewardsRecord.rewardsPerShare;            
 
-                    accumulator := transferTokenOperation # accumulator;
+                    // Get user's token pool depositor balance from lending controller
+                    const tokenPoolDepositorBalance : nat = getTokenPoolDepositorBalanceFromLendingController(userTokenNameKey, s);
 
-                } with accumulator;
+                    // Note: if user rewardsPerShare is 0, it means user does not have a rewards record for the loan token)
+                    if userRewardsPerShare > 0n then {
+                    
+                        // calculate user's accrued rewards
+                        const accruedRewards      : nat = calculateAccruedRewards(tokenPoolDepositorBalance, userRewardsPerShare, loanTokenAccumulatedRewardsPerShare);
 
-                const emptyOperation : list(operation) = list[];
-                operations := List.fold(transferAccumulator, txs, emptyOperation);
+                        // total amount to be claimed by user
+                        const totalUnpaidRewards  : nat = userRewardsRecord.unpaid + accruedRewards;
+
+                        // total paid rewards 
+                        const newPaidRewards      : nat = userRewardsRecord.paid + totalUnpaidRewards;
+
+                        // update storage
+                        userRewardsRecord.unpaid            := 0n;
+                        userRewardsRecord.paid              := newPaidRewards;
+                        userRewardsRecord.rewardsPerShare   := loanTokenAccumulatedRewardsPerShare;
+
+                        s.rewardsLedger[userTokenNameKey]   := userRewardsRecord;
+
+                        // create operation after storage has been updated to prevent any exploits
+                        // create operation to transfer unclaimed rewards
+                        const token : tokenType        = loanTokenRecord.tokenType;
+                        const amt   : tokenAmountType  = totalUnpaidRewards;
+
+                        const transferRewardOperation : operation = case token of [
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mutez)
+                            |   Fa12(token) -> transferFa12Token(from_, to_, amt, token)
+                            |   Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+                        ];
+
+                        operations := transferRewardOperation # operations;
+
+                    };
+
+                }
 
             }
         |   _ -> skip

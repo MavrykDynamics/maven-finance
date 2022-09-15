@@ -1367,7 +1367,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //         const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
 
     //         // get token pool stats
-    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
     //         const interestRateDecimals = (27 - 2); 
 
@@ -1431,7 +1431,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // get vault and loan token views, and storage
     //         const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
     //         const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -1467,7 +1467,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // On-chain views to vault and loan token
     //         const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
     //         const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
     //         const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
@@ -1654,7 +1654,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //         const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
 
     //         // get token pool stats
-    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
     //         const interestRateDecimals = (27 - 2); 
 
@@ -1718,7 +1718,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // get vault and loan token views, and storage
     //         const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
     //         const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -1754,7 +1754,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // On-chain views to vault and loan token
     //         const updatedVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             
     //         const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
     //         const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
@@ -1940,7 +1940,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //         const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
 
     //         // get token pool stats
-    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
     //         const interestRateDecimals = (27 - 2); 
 
@@ -2004,7 +2004,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // get vault and loan token views, and storage
     //         const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
     //         const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -2040,7 +2040,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // On-chain views to vault and loan token
     //         const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             
     //         const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
     //         const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
@@ -2225,7 +2225,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //         const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
 
     //         // get token pool stats
-    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
     //         const interestRateDecimals = (27 - 2); 
 
@@ -2289,7 +2289,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // get vault and loan token views, and storage
     //         const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
     //         const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -2325,7 +2325,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // On-chain views to vault and loan token
     //         const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
     //         const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
     //         const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
@@ -2515,7 +2515,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //         const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa2Ledger);
 
     //         // get token pool stats
-    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
     //         const interestRateDecimals = (27 - 2); 
 
@@ -2579,7 +2579,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // get vault and loan token views, and storage
     //         const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
     //         const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -2615,7 +2615,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // On-chain views to vault and loan token
     //         const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
     //         const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
     //         const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
@@ -2802,7 +2802,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //         const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa2Ledger);
 
     //         // get token pool stats
-    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
     //         const interestRateDecimals = (27 - 2); 
 
@@ -2866,7 +2866,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // get vault and loan token views, and storage
     //         const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
     //         const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -2902,7 +2902,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // On-chain views to vault and loan token
     //         const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
     //         const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
     //         const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
@@ -3089,7 +3089,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //         const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa2Ledger);
 
     //         // get token pool stats
-    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
     //         const interestRateDecimals = (27 - 2); 
 
@@ -3153,7 +3153,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // get vault and loan token views, and storage
     //         const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
     //         const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -3189,7 +3189,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // On-chain views to vault and loan token
     //         const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
     //         const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
     //         const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
@@ -3375,7 +3375,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     //         const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa2Ledger);
 
     //         // get token pool stats
-    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
     //         const interestRateDecimals = (27 - 2); 
 
@@ -3439,7 +3439,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // get vault and loan token views, and storage
     //         const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
     //         const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
     //         const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -3475,7 +3475,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
     //         // On-chain views to vault and loan token
     //         const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+    //         const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
     //         const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
     //         const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
@@ -3666,7 +3666,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const tokenPoolRewardInitialXtzBalance  = tokenPoolRewardXtzLedger.toNumber();
 
             // get token pool stats
-            const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
@@ -3715,7 +3715,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // get vault and loan token views, and storage
             const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-            const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
             const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
@@ -3751,7 +3751,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-            const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecord(loanTokenName).executeView({ viewCaller : bob.pkh});
+            const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
             const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
             const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
