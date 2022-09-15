@@ -70,7 +70,7 @@ export const OraclesTab = () => {
 
         <div className="feeds-grid">
           {popularFeeds.map((feed) => (
-            <div className="row">
+            <div className="row" key={feed.address}>
               <StatBlock className="icon-first">
                 <CoinsLogo assetName={feed.token_1_symbol} className="feed-token" />
                 <div className="name">Feed</div>
