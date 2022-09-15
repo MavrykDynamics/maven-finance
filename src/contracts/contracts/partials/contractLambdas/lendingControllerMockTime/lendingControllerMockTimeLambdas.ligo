@@ -182,8 +182,8 @@ block {
                 if s.breakGlassConfig.updateCollateralTokenIsPaused then skip
                 else s.breakGlassConfig.updateCollateralTokenIsPaused := True;
 
-                if s.breakGlassConfig.createVaultIsPaused then skip
-                else s.breakGlassConfig.createVaultIsPaused := True;
+                if s.breakGlassConfig.registerVaultCreationIsPaused then skip
+                else s.breakGlassConfig.registerVaultCreationIsPaused := True;
 
                 if s.breakGlassConfig.closeVaultIsPaused then skip
                 else s.breakGlassConfig.closeVaultIsPaused := True;
@@ -232,10 +232,6 @@ block {
                 if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then skip
                 else s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused := True;
 
-                // Reward Entrypoints
-                if s.breakGlassConfig.claimRewardsIsPaused then skip
-                else s.breakGlassConfig.claimRewardsIsPaused := True;
-
             }
         |   _ -> skip
     ];
@@ -272,7 +268,7 @@ block {
                 if s.breakGlassConfig.updateCollateralTokenIsPaused then s.breakGlassConfig.updateCollateralTokenIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.createVaultIsPaused then s.breakGlassConfig.createVaultIsPaused := False
+                if s.breakGlassConfig.registerVaultCreationIsPaused then s.breakGlassConfig.registerVaultCreationIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.closeVaultIsPaused then s.breakGlassConfig.closeVaultIsPaused := False
@@ -321,11 +317,6 @@ block {
 
                 if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused := False
                 else skip;
-
-                // Reward Entrypoints
-                if s.breakGlassConfig.claimRewardsIsPaused then s.breakGlassConfig.claimRewardsIsPaused := False
-                else skip;
-
             
             }
         |   _ -> skip
@@ -357,7 +348,7 @@ block {
 
                         // Lending Controller Vault Entrypoints
                     |   UpdateCollateralToken (_v)           -> s.breakGlassConfig.updateCollateralTokenIsPaused         := _v
-                    |   CreateVault (_v)                     -> s.breakGlassConfig.createVaultIsPaused                   := _v
+                    |   RegisterVaultCreation (_v)           -> s.breakGlassConfig.registerVaultCreationIsPaused         := _v
                     |   CloseVault (_v)                      -> s.breakGlassConfig.closeVaultIsPaused                    := _v
                     |   RegisterDeposit (_v)                 -> s.breakGlassConfig.registerDepositIsPaused               := _v
                     |   RegisterWithdrawal (_v)              -> s.breakGlassConfig.registerWithdrawalIsPaused            := _v
@@ -377,9 +368,6 @@ block {
                     |   VaultDepositStakedMvk (_v)           -> s.breakGlassConfig.vaultDepositStakedMvkIsPaused         := _v
                     |   VaultWithdrawStakedMvk (_v)          -> s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused        := _v
                     |   VaultLiquidateStakedMvk (_v)         -> s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused       := _v
-
-                        // Reward Entrypoints
-                    |   ClaimRewards (_v)                    -> s.breakGlassConfig.claimRewardsIsPaused                  := _v
 
                 ]
                 
@@ -479,7 +467,7 @@ block {
                 // ------------------------
 
                 // create or update user rewards for loan token
-                s := createOrUpdateUserRewards(initiator, loanTokenRecord, s);
+                // s := createOrUpdateUserRewards(initiator, loanTokenRecord, s);
 
                 // Make big map key - (userAddress, loanTokenName)
                 const userAddressLoanTokenKey : (address * string) = (initiator, loanTokenRecord.tokenName);
@@ -492,6 +480,14 @@ block {
 
                 // Update token pool depositor ledger
                 s.tokenPoolDepositorLedger[userAddressLoanTokenKey] := tokenPoolDepositorBalance + amount;
+
+                // -----------------------
+                // Update Rewards
+                // ------------------------
+                
+                // N.B. update rewards based on user's current token pool deposit balance, and not the updated balance
+                const updateRewardsOperation : operation = updateRewardsOperation(initiator, loanTokenName, tokenPoolDepositorBalance, s);
+                operations := updateRewardsOperation # operations;
 
             }
         |   _ -> skip
@@ -580,7 +576,7 @@ block {
                 // ------------------------
 
                 // create or update user rewards for loan token
-                s := createOrUpdateUserRewards(initiator, loanTokenRecord, s);
+                // s := createOrUpdateUserRewards(initiator, loanTokenRecord, s);
 
                 // Make big map key - (userAddress, loanTokenName)
                 const userAddressLoanTokenKey : (address * string) = (initiator, loanTokenRecord.tokenName);
@@ -592,8 +588,18 @@ block {
                 ];
 
                 // Update token pool depositor ledger
-                s.tokenPoolDepositorLedger[userAddressLoanTokenKey] := tokenPoolDepositorBalance + amount;
+                if amount > tokenPoolDepositorBalance then failwith(error_CANNOT_REMOVE_MORE_LIQUIDITY_THAN_BALANCE) else skip;
+                s.tokenPoolDepositorLedger[userAddressLoanTokenKey] := abs(tokenPoolDepositorBalance - amount);
+
+                // -----------------------
+                // Update Rewards
+                // ------------------------
                 
+                // N.B. update rewards based on user's current token pool deposit balance, and not the updated balance
+                const updateRewardsOperation : operation = updateRewardsOperation(initiator, loanTokenName, tokenPoolDepositorBalance, s);
+                operations := updateRewardsOperation # operations;
+
+
             }
         |   _ -> skip
     ];
@@ -662,81 +668,46 @@ block {
 
 
 
-(* createVault lambda *)
-function lambdaCreateVault(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+(* registerVaultCreation lambda *)
+function lambdaRegisterVaultCreation(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
     var operations : list(operation) := nil;
-
-    checkCreateVaultIsNotPaused(s);    // check that %createVault entrypoint is not paused (e.g. if glass broken)
+    checkRegisterVaultCreationIsNotPaused(s);    // check that %registerVaultCreation entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
-        |   LambdaCreateVault(createVaultParams) -> {
-                
-                // init loan token name
-                const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
-                const vaultOwner : address = Tezos.get_sender();
+        |   LambdaRegisterVaultCreation(registerVaultCreationParams) -> {
 
-                // Get loan token type
-                const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
+                // check sender is vault factory contract
+                checkSenderIsVaultFactoryContract(s);
+
+                // init params
+                const vaultOwner     : address = registerVaultCreationParams.vaultOwner;
+                const vaultId        : nat     = registerVaultCreationParams.vaultId;
+                const vaultAddress   : address = registerVaultCreationParams.vaultAddress;
+                const loanTokenName  : string  = registerVaultCreationParams.loanTokenName;
+
+                // make vault handle
+                const handle : vaultHandleType = record [
+                    id     = vaultId;
+                    owner  = vaultOwner;
+                ];
+
+                // Get loan token record
+                const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[loanTokenName] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // Get borrow index of token
                 const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
-
-                // get vault counter
-                const newVaultId : vaultIdType = s.vaultCounter;
                 
-                // make vault handle
-                const handle : vaultHandleType = record [
-                    id     = newVaultId;
-                    owner  = vaultOwner;
-                ];
-
-                // check if vault already exists
-                if Big_map.mem(handle, s.vaults) then failwith(error_VAULT_ALREADY_EXISTS) else skip;
-
-                // Prepare Vault Metadata
-                const vaultMetadata: metadataType = Big_map.literal (list [
-                    ("", Bytes.pack("tezos-storage:data"));
-                    ("data", createVaultParams.metadata);
-                ]); 
-
-                const vaultLambdaLedger : lambdaLedgerType = s.vaultLambdaLedger;
-
-                // params for vault with tez storage origination
-                const originateVaultStorage : vaultStorageType = record [
-                    admin                       = s.admin;
-                    metadata                    = vaultMetadata;
-                    governanceAddress           = s.governanceAddress;
-                    
-                    handle                      = handle;
-                    depositors                  = createVaultParams.depositors;
-
-                    lambdaLedger                = vaultLambdaLedger;
-                ];
-
-                // originate vault func
-                const vaultOrigination : (operation * address) = createVaultFunc(
-                    (None : option(key_hash)), 
-                    Tezos.get_amount(),
-                    originateVaultStorage
-                );
-
-                // add vaultWithTezOrigination operation to operations list
-                operations := vaultOrigination.0 # operations; 
-
-                // set collateral balance if tez is sent
+                // init empty collateral balance ledger map
                 var collateralBalanceLedgerMap : collateralBalanceLedgerType := map[];
-                if mutezToNatural(Tezos.get_amount()) > 0n then block {
-                    collateralBalanceLedgerMap["tez"] := mutezToNatural(Tezos.get_amount())
-                } else skip;
-
+                
                 // create vault record
                 const vault : vaultRecordType = createVaultRecord(
-                    vaultOrigination.1,             // vault address
+                    vaultAddress,                   // vault address
                     collateralBalanceLedgerMap,     // collateral balance ledger
                     loanTokenRecord.tokenName,      // loan token name
                     loanTokenRecord.tokenDecimals,  // loan token decimals
@@ -746,16 +717,12 @@ block {
                 // update controller storage with new vault
                 s.vaults := Big_map.update(handle, Some(vault), s.vaults);
 
-
                 // add new vault to owner's vault set
                 var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
                         Some (_set) -> _set
                     |   None        -> set []
                 ];
-                s.ownerLedger[vaultOwner] := Set.add(newVaultId, ownerVaultSet);
-
-                // increment vault counter 
-                s.vaultCounter            := s.vaultCounter + 1n;
+                s.ownerLedger[vaultOwner] := Set.add(vaultId, ownerVaultSet);
 
             }
         |   _ -> skip
@@ -1201,21 +1168,21 @@ block {
                 );
 
                 // Update rewards in Token Pool Contract
-                const updateRewardsParams : updateRewardsActionType = record [
-                    tokenName = vaultLoanTokenName;
-                    amount    = interestRewardPool;
-                ];
+                // const updateRewardsParams : updateRewardsActionType = record [
+                //     tokenName = vaultLoanTokenName;
+                //     amount    = interestRewardPool;
+                // ];
 
-                const updateRewardsInTokenPoolRewardContractOperation : operation = Tezos.transaction(
-                    updateRewardsParams,
-                    0mutez,
-                    getUpdateRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
-                );
+                // const updateRewardsInTokenPoolRewardContractOperation : operation = Tezos.transaction(
+                //     updateRewardsParams,
+                //     0mutez,
+                //     getUpdateRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
+                // );
 
                 operations := list[
                     sendInterestToTreasuryOperation;
                     sendInterestRewardToTokenPoolRewardContractOperation;
-                    updateRewardsInTokenPoolRewardContractOperation;
+                    // updateRewardsInTokenPoolRewardContractOperation;
                 ];
 
 
@@ -1972,311 +1939,8 @@ block {
 
 } with response
 
-
-
-(* depositStakedMvk lambda *)
-// function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-// block {
-    
-//     var operations : list(operation) := nil;
-//     checkVaultDepositStakedMvkIsNotPaused(s);    // check that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
-
-//     case lendingControllerLambdaAction of [
-//         |   LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams) -> {
-                
-//                 // init variables for convenience
-//                 const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
-//                 const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
-//                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-//                 const tokenName       : string            = "sMVK";
-
-//                 // Get Doorman Address from the General Contracts map on the Governance Contract
-//                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-//                 // check if token (sMVK) exists in collateral token ledger
-//                 checkCollateralTokenExists(tokenName, s);
-
-//                 // Make vault handle
-//                 const vaultHandle : vaultHandleType = record [
-//                     id     = vaultId;
-//                     owner  = vaultOwner;
-//                 ];
-
-//                 // Get vault if exists
-//                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-
-//                 const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType = record [
-//                     vaultOwner    = vaultOwner;
-//                     vaultAddress  = vault.address;
-//                     depositAmount = depositAmount;
-//                 ];
-    
-//                 // create operation to doorman to update balance of staked MVK from user to vault
-//                 const vaultDepositStakedMvkOperation : operation = Tezos.transaction(
-//                     onVaultDepositStakedMvkParams,
-//                     0tez,
-//                     getOnVaultDepositStakedMvkEntrypoint(doormanAddress)
-//                 );
-//                 operations := vaultDepositStakedMvkOperation # operations;
-                
-//                 // Get current vault staked MVK balance from Doorman contract
-//                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
-
-//                 // calculate new collateral balance
-//                 const newCollateralBalance : nat = currentVaultStakedMvkBalance + depositAmount;
-
-//                 // save and update new balance for collateral token
-//                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-//                 s.vaults[vaultHandle]                     := vault;
-                
-//             }
-//         |   _ -> skip
-//     ];
-
-// } with (operations, s)
-
-
-
-(* withdrawStakedMvk lambda *)
-// function lambdaVaultWithdrawStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-// block {
-    
-//     var operations : list(operation)  := nil;
-//     checkVaultWithdrawStakedMvkIsNotPaused(s);    // check that %vaultWithdrawStakedMvk entrypoint is not paused (e.g. if glass broken)
-
-//     case lendingControllerLambdaAction of [
-//         |   LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams) -> {
-                
-//                 // init variables for convenience
-//                 const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
-//                 const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
-//                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-//                 const tokenName       : string            = "sMVK";
-
-//                 // Get Doorman Address from the General Contracts map on the Governance Contract
-//                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-//                 // check if token (sMVK) exists in collateral token ledger
-//                 checkCollateralTokenExists(tokenName, s);
-
-//                 // Make vault handle
-//                 const vaultHandle : vaultHandleType = record [
-//                     id     = vaultId;
-//                     owner  = vaultOwner;
-//                 ];
-
-//                 // Get vault if exists
-//                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-
-//                 // Get current vault staked MVK balance from Doorman contract
-//                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
-
-//                 // calculate new collateral balance
-//                 if withdrawAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
-//                 const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - withdrawAmount);
-
-//                 const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType = record [
-//                     vaultOwner     = vaultOwner;
-//                     vaultAddress   = vault.address;
-//                     withdrawAmount = withdrawAmount;
-//                 ];
-
-//                 // create operation to doorman to update balance of staked MVK from user to vault
-//                 const onVaultWithdrawStakedMvkOperation : operation = Tezos.transaction(
-//                     onVaultWithdrawStakedMvkParams,
-//                     0tez,
-//                     getOnVaultWithdrawStakedMvkEntrypoint(doormanAddress)
-//                 );
-//                 operations := onVaultWithdrawStakedMvkOperation # operations;
-                
-//                 // save and update new balance for collateral token
-//                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-//                 s.vaults[vaultHandle]                     := vault;
-                
-//             }
-//         |   _ -> skip
-//     ];
-
-// } with (operations, s)
-
-
-
-(* liquidateStakedMvk lambda *)
-// function lambdaVaultLiquidateStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-// block {
-    
-//     // only callable from self (i.e. from LiquidateVault entrypoint, if owner of vault being liquidated has staked mvk as collateral)
-//     checkSenderIsSelf(unit);
-
-//     var operations : list(operation) := nil;
-//     checkVaultLiquidateStakedMvkIsNotPaused(s);    // check that %vaultLiquidateStakedMvk entrypoint is not paused (e.g. if glass broken)
-
-//     case lendingControllerLambdaAction of [
-//         |   LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams) -> {
-                
-//                 // init variables for convenience
-//                 const vaultId           : vaultIdType       = vaultLiquidateStakedMvkParams.vaultId;
-//                 const vaultOwner        : vaultOwnerType    = vaultLiquidateStakedMvkParams.vaultOwner;
-//                 const liquidator        : address            = vaultLiquidateStakedMvkParams.liquidator;
-//                 const liquidatedAmount  : nat               = vaultLiquidateStakedMvkParams.liquidatedAmount;
-//                 const tokenName         : string            = "sMVK";
-
-//                 // Get Doorman Address from the General Contracts map on the Governance Contract
-//                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-//                 // check if token (sMVK) exists in collateral token ledger
-//                 checkCollateralTokenExists(tokenName, s);
-
-//                 // Make vault handle
-//                 const vaultHandle : vaultHandleType = record [
-//                     id     = vaultId;
-//                     owner  = vaultOwner;
-//                 ];
-
-//                 // Get vault if exists
-//                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-                
-//                 // Get current vault staked MVK balance from Doorman contract
-//                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
-
-//                 // calculate new collateral balance
-//                 if liquidatedAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
-//                 const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - liquidatedAmount);
-
-//                 const onVaultLiquidateStakedMvkParams : onVaultLiquidateStakedMvkType = record [
-//                     vaultOwner       = vaultOwner;
-//                     vaultAddress     = vault.address;
-//                     liquidator       = liquidator;
-//                     liquidatedAmount = liquidatedAmount;
-//                 ];
-
-//                 // create operation to doorman to update balance of staked MVK from user to vault
-//                 const onVaultLiquidateStakedMvkOperation : operation = Tezos.transaction(
-//                     onVaultLiquidateStakedMvkParams,
-//                     0tez,
-//                     getOnVaultLiquidateStakedMvkEntrypoint(doormanAddress)
-//                 );
-//                 operations := onVaultLiquidateStakedMvkOperation # operations;
-                
-//                 // save and update new balance for collateral token in liquidated vault
-//                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-//                 s.vaults[vaultHandle]                     := vault;
-
-//             }
-//         |   _ -> skip
-//     ];
-
-// } with (operations, s)
-
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Lambdas End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Rewards Lambdas Begin
-// ------------------------------------------------------------------------------
-
-(* claimRewards lambda *)
-function lambdaClaimRewards(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
-
-    var operations : list(operation) := nil;
-    checkClaimRewardsIsNotPaused(s);    // check that %claimRewards entrypoint is not paused (e.g. if glass broken)
-
-    case lendingControllerLambdaAction of [
-        |   LambdaClaimRewards(claimRewardsParams) -> {
-                
-                // init variables for convenience
-                const userAddress : address = claimRewardsParams; 
-
-                // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
-                const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
-
-                // init transfer action list to be sent to Token Pool Reward Contract
-                var transferActionList : transferActionType := nil;
-
-                // loop to get loan token
-                for loanTokenName -> loanTokenRecord in map s.loanTokenLedger block {
-
-                    // init variables for convenience
-                    const userAddressLoanTokenKey : (address * string) = (userAddress, loanTokenName);
-                    const loanTokenAccumulatedRewardsPerShare : nat = loanTokenRecord.accumulatedRewardsPerShare; 
-                    
-                    // get user rewards record if exist
-                    var userRewardsRecord : rewardsRecordType := case s.rewardsLedger[userAddressLoanTokenKey] of [
-                            Some (_record) -> _record
-                        |   None -> record [
-                                unpaid          = 0n;
-                                paid            = 0n;
-                                rewardsPerShare = 0n;
-                            ]
-                    ];
-                    const userRewardsPerShare : nat = userRewardsRecord.rewardsPerShare;            
-
-                    // Get user depositor balance for token (i.e. liquidity provided for token)
-                    const tokenPoolDepositorBalance : nat = case Big_map.find_opt(userAddressLoanTokenKey, s.tokenPoolDepositorLedger) of [
-                            Some(_record) -> _record
-                        |   None          -> 0n
-                    ];
-
-                    // check that user rewardsPerShare is greater than 0 
-                    // (i.e. if user rewardsPerShare is 0, it means user does not have a rewards record for the loan token)
-                    if userRewardsPerShare > 0n then {
-
-                        // calculate difference in rewards per share 
-                        var accruedRewards : nat := 0n;
-                        if userRewardsPerShare < loanTokenAccumulatedRewardsPerShare then {
-                            
-                            const rewardsRatioDifference : nat = abs(loanTokenAccumulatedRewardsPerShare - userRewardsPerShare);
-                            accruedRewards := (tokenPoolDepositorBalance * rewardsRatioDifference) / fixedPointAccuracy;
-
-                        } else skip;
-
-                        // total amount to be claimed by user
-                        const totalUnpaidRewards  : nat = userRewardsRecord.unpaid + accruedRewards;
-
-                        // total paid rewards 
-                        const newPaidRewards      : nat = userRewardsRecord.paid + totalUnpaidRewards;
-
-                        // add to transfer list
-                        const transferDestinationRecord : transferDestinationType = record [
-                            to_     = userAddress;
-                            amount  = totalUnpaidRewards;
-                            token   = loanTokenRecord.tokenType;
-                        ];
-
-                        transferActionList := transferDestinationRecord # transferActionList;
-
-                        // update storage
-                        userRewardsRecord.unpaid            := 0n;
-                        userRewardsRecord.paid              := newPaidRewards;
-                        userRewardsRecord.rewardsPerShare   := loanTokenAccumulatedRewardsPerShare;
-
-                        s.rewardsLedger[userAddressLoanTokenKey] := userRewardsRecord;
-
-                    };
-
-                }; 
-
-                // operation to transfer rewards from Token Pool Reward contract to user
-                const transferRewardsFromTokenPoolRewardContract : operation = Tezos.transaction(
-                    transferActionList,
-                    0mutez,
-                    getOnClaimRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
-                );
-
-                operations := transferRewardsFromTokenPoolRewardContract # operations;
-
-            }
-        |   _ -> skip
-    ];
-
-} with (operations, s)
-
-// ------------------------------------------------------------------------------
-// Rewards Lambdas End
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------

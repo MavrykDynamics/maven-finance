@@ -35,6 +35,7 @@ import farmAddress from '../../deployments/farmAddress.json'
 import farmFA2Address from '../../deployments/farmFA2Address.json'
 import tokenSaleAddress from '../../deployments/tokenSaleAddress.json'
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json'
+import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json'
 import tokenPoolRewardAddress from '../../deployments/tokenPoolRewardAddress.json'
 
 // ------------------------------------------------------------------------------
@@ -76,6 +77,7 @@ describe('Linked contracts updates for Tests', async () => {
       const aggregatorInstance: any            = await utils.tezos.contract.at(aggregatorAddress.address);
       const aggregatorFactoryInstance: any     = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
       const lendingControllerInstance: any     = await utils.tezos.contract.at(lendingControllerAddress.address);
+      const vaultFactoryInstance: any          = await utils.tezos.contract.at(vaultFactoryAddress.address);
       const tokenPoolRewardInstance: any       = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
       
       //----------------------------
@@ -236,6 +238,7 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolRewardAddress.address))
   
       // whitelist contracts
+      .withContractCall(governanceInstance.methods.updateWhitelistContracts('vaultFactory', vaultFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('farmFactory', farmFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('treasuryFactory', treasuryFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateWhitelistContracts('aggregatorFactory', aggregatorFactoryAddress.address))

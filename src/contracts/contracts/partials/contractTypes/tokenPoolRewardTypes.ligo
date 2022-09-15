@@ -14,12 +14,18 @@ type tokenIdType        is nat;
 // Storage Types
 // ------------------------------------------------------------------------------
 
-
 type tokenPoolRewardBreakGlassConfigType is [@layout:comb] record [
-    onClaimRewardsIsPaused  : bool;
+    updateRewardsIsPaused   : bool;
+    claimRewardsIsPaused    : bool;
     empty                   : unit
 ]
 
+type rewardsRecordType is [@layout:comb] record[
+    unpaid            : nat;
+    paid              : nat;
+    rewardsPerShare   : nat;    
+]
+type rewardsLedgerType is big_map((address * string), rewardsRecordType)        // key - user address and token name e.g. USDT, EURL
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -27,14 +33,24 @@ type tokenPoolRewardBreakGlassConfigType is [@layout:comb] record [
 
 
 type tokenPoolRewardPausableEntrypointType is
-    |   OnClaimRewards              of bool
-    |   Empty                       of unit
+    |   UpdateRewards             of bool
+    |   ClaimRewards              of bool
     
 type tokenPoolRewardTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : tokenPoolRewardPausableEntrypointType;
     empty             : unit
 ];
 
+
+type updateRewardsActionType is [@layout:comb] record [
+    loanTokenName     : string;
+    userAddress       : address; 
+    depositorBalance  : nat; 
+]
+
+type claimRewardsActionType is [@layout:comb] record [
+    userAddress : address; 
+]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -58,7 +74,8 @@ type tokenPoolRewardLambdaActionType is
     |   LambdaTogglePauseEntrypoint     of tokenPoolRewardTogglePauseEntrypointType
 
         // Rewards Entrypoints
-    |   LambdaOnClaimRewards            of transferActionType
+    |   LambdaUpdateRewards             of updateRewardsActionType
+    |   LambdaClaimRewards              of claimRewardsActionType
     
 
 // ------------------------------------------------------------------------------
@@ -77,6 +94,8 @@ type tokenPoolRewardStorageType is [@layout:comb] record [
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType;
     whitelistTokenContracts     : whitelistTokenContractsType;      
+
+    rewardsLedger               : rewardsLedgerType;
 
     lambdaLedger                : lambdaLedgerType;   
 ]
