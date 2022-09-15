@@ -31,7 +31,6 @@ export type FeedGQL = Omit<Aggregator, '__typename'>
 export type InitialOracleStorageType = {
   feeds: Array<FeedGQL>
   feedsFactory: Array<FeedFactory>
-  totalOracleNetworks: number
 }
 
 export type SatelliteListItemProps = {

@@ -10,7 +10,6 @@ const oraclesDefaultState: OraclesState = {
   oraclesStorage: {
     feeds: [],
     feedsFactory: [],
-    totalOracleNetworks: 0,
   },
 }
 
