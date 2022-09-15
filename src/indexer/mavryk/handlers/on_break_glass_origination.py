@@ -22,6 +22,7 @@ async def on_break_glass_origination(
     glass_broken                        = break_glass_origination.storage.glassBroken
     action_counter                      = break_glass_origination.storage.actionCounter
     council_members                     = break_glass_origination.storage.councilMembers
+    timestamp                           = break_glass_origination.data.timestamp
 
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
@@ -31,6 +32,7 @@ async def on_break_glass_origination(
     break_glass  = models.BreakGlass(
         address                             = address,
         admin                               = admin,
+        last_updated_at                     = timestamp,
         governance                          = governance,
         threshold                           = threshold,
         action_expiry_days                  = action_expiry_days,

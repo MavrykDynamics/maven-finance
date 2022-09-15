@@ -23,6 +23,7 @@ async def on_token_sale_origination(
     ended                       = token_sale_origination.storage.tokenSaleHasEnded
     paused                      = token_sale_origination.storage.tokenSalePaused
     buy_options                 = token_sale_origination.storage.config.buyOptions
+    timestamp                   = token_sale_origination.data.timestamp
 
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
@@ -32,6 +33,7 @@ async def on_token_sale_origination(
     token_sale = models.TokenSale(
         address                                 = token_sale_address,
         admin                                   = admin,
+        last_updated_at                         = timestamp,
         governance                              = governance,
         vesting_period_duration_sec             = vesting_period_duration_sec,
         whitelist_start_timestamp               = whitelist_start_timestamp,

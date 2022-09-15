@@ -32,12 +32,11 @@ class BreakGlassConfig(BaseModel):
 
     addLiquidityIsPaused: bool
     borrowIsPaused: bool
-    claimRewardsIsPaused: bool
     closeVaultIsPaused: bool
-    createVaultIsPaused: bool
     liquidateVaultIsPaused: bool
     markForLiquidationIsPaused: bool
     registerDepositIsPaused: bool
+    registerVaultCreationIsPaused: bool
     registerWithdrawalIsPaused: bool
     removeLiquidityIsPaused: bool
     repayIsPaused: bool
@@ -61,40 +60,15 @@ class Key(BaseModel):
     string: str
 
 
-class Value(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    unpaid: str
-    paid: str
-    rewardsPerShare: str
-
-
-class RewardsLedgerItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Key
-    value: Value
-
-
-class Key1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    address: str
-    string: str
-
-
 class TokenPoolDepositorLedgerItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    key: Key1
+    key: Key
     value: str
 
 
-class Key2(BaseModel):
+class Key1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -102,7 +76,7 @@ class Key2(BaseModel):
     owner: str
 
 
-class Value1(BaseModel):
+class Value(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -123,8 +97,8 @@ class Vault(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    key: Key2
-    value: Value1
+    key: Key1
+    value: Value
 
 
 class TokenTypeItem(BaseModel):
@@ -239,13 +213,10 @@ class LendingControllerStorage(BaseModel):
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     whitelistTokenContracts: Dict[str, str]
-    rewardsLedger: List[RewardsLedgerItem]
     tokenPoolDepositorLedger: List[TokenPoolDepositorLedgerItem]
     vaults: List[Vault]
-    vaultCounter: str
     ownerLedger: Dict[str, List[str]]
     collateralTokenLedger: Dict[str, CollateralTokenLedger]
     loanTokenLedger: Dict[str, LoanTokenLedger]
     lambdaLedger: Dict[str, str]
-    vaultLambdaLedger: Dict[str, str]
     tempMap: Dict[str, str]

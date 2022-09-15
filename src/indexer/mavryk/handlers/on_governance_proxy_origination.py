@@ -13,6 +13,7 @@ async def on_governance_proxy_origination(
     governance_proxy_address    = governance_proxy_origination.data.originated_contract_address
     admin_address               = governance_proxy_origination.storage.admin
     governance_address          = governance_proxy_origination.storage.governanceAddress
+    timestamp                   = governance_proxy_origination.data.timestamp
 
     # Create record
     governance, _               = await models.Governance.get_or_create(
@@ -20,8 +21,9 @@ async def on_governance_proxy_origination(
     )
     await governance.save()
     governance_proxy            = models.GovernanceProxy(
-        address     = governance_proxy_address,
-        admin       = admin_address,
-        governance  = governance
+        address             = governance_proxy_address,
+        admin               = admin_address,
+        last_updated_at     = timestamp,
+        governance          = governance
     )
     await governance_proxy.save()

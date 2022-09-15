@@ -16,6 +16,7 @@ async def on_treasury_factory_origination(
     create_treasury_paused          = treasury_factory_origination.storage.breakGlassConfig.createTreasuryIsPaused
     track_treasury_paused           = treasury_factory_origination.storage.breakGlassConfig.trackTreasuryIsPaused
     untrack_treasury_paused         = treasury_factory_origination.storage.breakGlassConfig.untrackTreasuryIsPaused
+    timestamp                       = treasury_factory_origination.data.timestamp
 
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
@@ -25,6 +26,7 @@ async def on_treasury_factory_origination(
     treasury_factory = models.TreasuryFactory(
         address                         = address,
         admin                           = admin,
+        last_updated_at                 = timestamp,
         governance                      = governance,
         create_treasury_paused          = create_treasury_paused,
         track_treasury_paused           = track_treasury_paused,

@@ -16,7 +16,8 @@ async def on_governance_financial_origination(
     fin_req_approval_percentage = int(governance_financial_origination.storage.config.financialRequestApprovalPercentage)
     fin_req_duration_in_days    = int(governance_financial_origination.storage.config.financialRequestDurationInDays)
     fin_req_counter             = int(governance_financial_origination.storage.financialRequestCounter)
-    
+    timestamp                   = governance_financial_origination.data.timestamp
+
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
     await governance.save();
@@ -25,6 +26,7 @@ async def on_governance_financial_origination(
     governance_financial = models.GovernanceFinancial(
         address                     = address,
         admin                       = admin,
+        last_updated_at             = timestamp,
         governance                  = governance,
         fin_req_approval_percentage = fin_req_approval_percentage,
         fin_req_duration_in_days    = fin_req_duration_in_days,
