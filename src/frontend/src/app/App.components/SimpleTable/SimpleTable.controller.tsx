@@ -5,7 +5,7 @@ import { SimpletableStyled } from './SimpleTable.style'
 type TableProps = {
   className?: string
   colunmNames: Array<string>
-  data: Array<Record<string, string | number>>
+  data: Array<Record<string, string | number | null>>
   fieldsMapper: Array<{
     fieldName: string
     needCommaNumber?: boolean
@@ -32,7 +32,7 @@ export const SimpleTable = ({ colunmNames, data, fieldsMapper, className = '' }:
 
                 if (needCommaNumber) {
                   return (
-                    <div className="row-item" key={item[fieldName]}>
+                    <div className="row-item" key={item[fieldName] + fieldName}>
                       <CommaNumber {...propsToComponents} value={Number(item[fieldName])} />
                     </div>
                   )
@@ -40,14 +40,14 @@ export const SimpleTable = ({ colunmNames, data, fieldsMapper, className = '' }:
 
                 if (needTzAddress) {
                   return (
-                    <div className="row-item" key={item[fieldName]}>
+                    <div className="row-item" key={item[fieldName] + fieldName}>
                       <TzAddress hasIcon {...propsToComponents} tzAddress={String(item[fieldName])} />
                     </div>
                   )
                 }
 
                 return (
-                  <div className="row-item" key={item[fieldName]}>
+                  <div className="row-item" key={item[fieldName] + fieldName}>
                     {item[fieldName]}
                   </div>
                 )

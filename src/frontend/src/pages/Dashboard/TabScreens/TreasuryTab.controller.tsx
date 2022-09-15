@@ -40,14 +40,14 @@ export const TreasuryTab = () => {
         acc.push(balanceAsset)
       } else {
         acc[currentAssetIndex].balance += balanceAsset.balance
-        acc[currentAssetIndex].usdValue += balanceAsset.usdValue
+        acc[currentAssetIndex].usdValue = Number(acc[currentAssetIndex].usdValue) + 1
       }
     })
 
     return acc
   }, [] as Array<TreasuryBalanceType>)
 
-  const globalTreasury = treasuryAssets.reduce((acc, asset) => acc + asset.usdValue, 0)
+  const globalTreasury = treasuryAssets.reduce((acc, asset) => acc + (asset.usdValue || 0), 0)
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">

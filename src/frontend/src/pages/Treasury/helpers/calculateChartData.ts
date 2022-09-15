@@ -15,7 +15,6 @@ export const getPieChartData = (
     ? balances.reduce<TreasuryChartType>((acc, item, idx) => {
         // TODO: need this while some assets are test, and i can't fetch their rate
         const tokenUsdValue = item.usdValue || 0
-
         const tokenPersent = calcPersent(tokenUsdValue, reducedBalance)
 
         if (tokenPersent < 10) {
