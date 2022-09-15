@@ -21,15 +21,23 @@ export const fieldsMapper = [
   },
   {
     fieldName: 'usdValue',
-    needCommaNumber: true,
-    propsToComponents: {
-      beginningText: '$',
+    callback: (fieldName: string, value: unknown) => {
+      const { rate, symbol, usdValue } = value as TreasuryBalanceType
+      const obj = {
+        ...(rate ? { beginningText: '$' } : { endingText: symbol }),
+      }
+      return <CommaNumber {...obj} value={Number(usdValue)} />
     },
   },
 ]
 
 export const TreasuryTab = () => {
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
+  const {
+    vestingStorage: { totalVestedAmount, totalClaimedAmount },
+  } = useSelector((state: State) => state.vesting)
+
+  const amountOfTokens = totalVestedAmount + totalClaimedAmount
 
   const history = useHistory()
 
@@ -40,7 +48,7 @@ export const TreasuryTab = () => {
         acc.push(balanceAsset)
       } else {
         acc[currentAssetIndex].balance += balanceAsset.balance
-        acc[currentAssetIndex].usdValue = Number(acc[currentAssetIndex].usdValue) + 1
+        acc[currentAssetIndex].usdValue = (acc[currentAssetIndex].usdValue || 0) + (balanceAsset.usdValue || 0)
       }
     })
 
@@ -91,13 +99,17 @@ export const TreasuryTab = () => {
           <div>
             <BlockName>Token Vesting</BlockName>
 
-            <TreasuryVesting totalPersent={20} claimedColor={'navTitleColor'} totalColor={'primaryColor'}>
+            <TreasuryVesting
+              totalPersent={(totalVestedAmount / amountOfTokens || 0.5) * 100}
+              claimedColor={'navTitleColor'}
+              totalColor={'primaryColor'}
+            >
               <div className="vest-stat">
                 <div className="name">
                   <div className="color claimed" /> Tokens Claimed
                 </div>
                 <div className="value">
-                  <CommaNumber value={42342342} endingText="MVK" />
+                  <CommaNumber value={totalClaimedAmount} endingText="MVK" />
                 </div>
               </div>
 
@@ -106,16 +118,20 @@ export const TreasuryTab = () => {
                   <div className="color total" /> Total Vested
                 </div>
                 <div className="value">
-                  <CommaNumber value={42342342} endingText="MVK" />
+                  <CommaNumber value={totalVestedAmount} endingText="MVK" />
                 </div>
               </div>
 
               <div className="ratio">
                 <div className="claimed">
-                  <div className="hoverValue">Claimed tokens persent: {100 - 20}%</div>
+                  <div className="hoverValue">
+                    Claimed tokens persent: {(totalClaimedAmount / amountOfTokens || 0.5) * 100}%
+                  </div>
                 </div>
                 <div className="total">
-                  <div className="hoverValue">Total vested persent: {20}%</div>
+                  <div className="hoverValue">
+                    Total vested persent: {(totalVestedAmount / amountOfTokens || 0.5) * 100}%
+                  </div>
                 </div>
               </div>
             </TreasuryVesting>

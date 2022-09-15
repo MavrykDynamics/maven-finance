@@ -11,6 +11,7 @@ type TableProps = {
     needCommaNumber?: boolean
     needTzAddress?: boolean
     propsToComponents?: Record<string, unknown>
+    callback?: (fieldName: string, arg: unknown) => JSX.Element
   }>
 }
 
@@ -27,8 +28,16 @@ export const SimpleTable = ({ colunmNames, data, fieldsMapper, className = '' }:
         {data.map((item) => {
           return (
             <div className="row" key={item.id}>
-              {fieldsMapper.map(({ fieldName, needCommaNumber, needTzAddress, propsToComponents = {} }) => {
+              {fieldsMapper.map(({ fieldName, needCommaNumber, needTzAddress, callback, propsToComponents = {} }) => {
                 if (item?.[fieldName] === undefined) return null
+
+                if (callback) {
+                  return (
+                    <div className="row-item" key={item[fieldName] + fieldName}>
+                      {callback(fieldName, item)}
+                    </div>
+                  )
+                }
 
                 if (needCommaNumber) {
                   return (

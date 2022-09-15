@@ -19,8 +19,6 @@ export type mvkStatsType = {
   prevPrice: number
 }
 
-//TODO: add calculation for tvl value
-
 export type TabId = 'lending' | 'vaults' | 'satellites' | 'treasury' | 'farms' | 'oracles'
 const tabIds = ['lending', 'vaults', 'satellites', 'treasury', 'farms', 'oracles'] as const
 type TabIdTypes = typeof tabIds[number]
@@ -36,8 +34,18 @@ export const Dashboard = () => {
     mvkTokenStorage: { totalSupply, maximumTotalSupply },
   } = useSelector((state: State) => state.mvkToken)
   const { totalStakedMvk = 0 } = useSelector((state: State) => state.doorman)
+  const { treasuryStorage } = useSelector((state: State) => state.treasury)
 
   const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
+  const treasuryTVL = treasuryStorage.reduce((acc, { balances }) => {
+    balances.forEach((balanceAsset) => {
+      acc += balanceAsset.usdValue || 0
+    })
+    return acc
+  }, 0)
+
+  //TODO: add calculation for tvl value (farms, loans, vaults)
+  const tvlValue = totalStakedMvk * exchangeRate + treasuryTVL
 
   useEffect(() => {
     dispatch(fillTreasuryStorage())
@@ -57,7 +65,7 @@ export const Dashboard = () => {
   return (
     <Page>
       <PageHeader page={'dashboard'} />
-      <DashboardView tvl={0} mvkStatsBlock={mvkStatsBlock} activeTab={isValidId(tab) ? tab : 'lending'} />
+      <DashboardView tvl={tvlValue} mvkStatsBlock={mvkStatsBlock} activeTab={isValidId(tab) ? tab : 'lending'} />
     </Page>
   )
 }
