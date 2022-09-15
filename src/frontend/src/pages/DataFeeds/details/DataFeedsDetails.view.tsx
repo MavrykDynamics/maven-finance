@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 // consts, helpers
@@ -7,7 +7,6 @@ import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { usersData } from 'pages/UsersOracles/users.const'
 import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
-import { INFO_SVG_ENCODED, QUESTION_MARK_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
 // view
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { Button } from 'app/App.components/Button/Button.controller'
@@ -20,7 +19,7 @@ import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 // styles
@@ -35,13 +34,13 @@ import {
   UserSmallCard,
 } from './DataFeedsDetails.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
-import { InputErrorMessage } from 'app/App.components/Input/Input.style'
 import { EmptyContainer } from 'app/App.style'
 import { cyanColor, downColor, Page, upColor } from 'styles'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
+import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
 
 type FeedDetailsProps = {
-  feed: Feed | null
+  feed: FeedGQL | null
   isLoading: boolean
   oracles: Array<SatelliteRecord>
   registerFeedHandler: () => void
@@ -56,21 +55,20 @@ const emptyContainer = (
 
 const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
-  const arrOfOracleRecords = useCallback(
-    () => feed?.oracles.map(({ oracle_id }: { oracle_id: string }) => oracle_id) || [],
-    [feed?.oracles],
-  )
   const oraclesForFeed = useMemo(
-    () => oracles.filter((satellite) => arrOfOracleRecords().includes(satellite.address)),
-    [oracles, arrOfOracleRecords],
+    () =>
+      oracles.filter(({ oracleRecords }) =>
+        oracleRecords.find(({ aggregator: { address } }) => feed?.address === address),
+      ),
+    [oracles],
   )
 
-  const isTrustedAnswer = feed && feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
+  const isTrustedAnswer = feed && feed.last_completed_price_pct_oracle_resp >= feed.pct_oracle_threshold
   const heartbeatUpdateInfo =
-    moment(Date.now()).diff(moment(feed?.last_completed_round_price_timestamp), 'minutes') >= 30
+    moment(Date.now()).diff(moment(feed?.last_completed_price_datetime), 'minutes') >= 30
       ? `
   Price feed is outdated, missed the schedule price update at ${getDate_MDHMS_Format({
-    timestamp: new Date(feed?.last_completed_round_price_timestamp || '').getTime() + 1000 * 60 * 30,
+    timestamp: new Date(feed?.last_completed_price_datetime || '').getTime() + 1000 * 60 * 30,
   })}
   `
       : `
@@ -93,39 +91,34 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
                   {feed.token_1_symbol}/{feed.token_0_symbol}
                 </DataFeedsTitle>
-
                 <a href="https://mavryk.finance/litepaper" target="_blank" rel="noreferrer">
-                  <DataFeedsTitle
-                    svgContent={QUESTION_MARK_SVG_ENCODED}
-                    style={{
-                      textTransform: 'initial',
-                    }}
-                  >
-                    Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
-                  </DataFeedsTitle>
+                  Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
+                  <CustomTooltip iconId={'question'} />
                 </a>
               </div>
               <div className="price-part">
                 <DataFeedValueText fontSize={22} fontWeidth={600}>
                   <Icon id={isTrustedAnswer ? 'trustShield' : 'notTrustedShield'} />
-                  <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+                  <CommaNumber beginningText="$" value={feed.last_completed_price} />
                 </DataFeedValueText>
-                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} className="margin-r">
+                <DataFeedsTitle className="margin-r">
                   {isTrustedAnswer ? 'Trusted answer' : 'Not Trusted'}
-                  <div className="on-svg-hover-info">
-                    Answer is calculated in the smart contract and required a minimum of 60% of oracles to be trusted
-                  </div>
+                  <CustomTooltip
+                    text={`Answer is calculated in the smart contract and required a minimum of 60% of oracles to be trusted`}
+                    iconId={'info'}
+                  />
                 </DataFeedsTitle>
               </div>
             </div>
             <div className="bottom">
               <DataFeedInfoBlock>
-                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
+                <DataFeedsTitle fontSize={18} fontWeidth={600}>
                   Trigger parameters
-                  <div className="on-svg-hover-info">
-                    A new trusted answer is written when the off-chain data moves more than the deviation threshold or X
-                    seconds have passed since the last answer was written on-chain
-                  </div>
+                  <CustomTooltip
+                    text={`A new trusted answer is written when the off-chain data moves more than the deviation threshold or X
+                    seconds have passed since the last answer was written on-chain`}
+                    iconId={'info'}
+                  />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   Deviation threshold
@@ -135,59 +128,64 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
-                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
+                <DataFeedsTitle fontSize={18} fontWeidth={600}>
                   Oracle responses
-                  <div className="on-svg-hover-info">
-                    The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
-                    responses to be able to calculate a trusted answer.
-                  </div>
+                  <CustomTooltip
+                    text={`The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
+                    responses to be able to calculate a trusted answer.`}
+                    iconId={'info'}
+                  />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  Minimum of {feed.percent_oracle_threshold}%
+                  Minimum of {feed.pct_oracle_threshold}%
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_round_pct_oracle_response}% / {feed.percent_oracle_threshold}%
+                  {feed.last_completed_price_pct_oracle_resp}% / {feed.pct_oracle_threshold}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
-                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
+                <DataFeedsTitle fontSize={18} fontWeidth={600}>
                   Last update
-                  <div className="on-svg-hover-info">Time since last answer was written on-chain</div>
+                  <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {getDate_MDY_Format(feed.last_completed_round_price_timestamp)}
+                  {getDate_MDY_Format(feed.last_completed_price_datetime)}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  <Timer
-                    options={{
-                      showZeros: false,
-                      negativeColor: downColor,
-                      defaultColor: cyanColor,
-                    }}
-                    timestamp={new Date(feed.last_completed_round_price_timestamp).getTime() + 1000 * 60 * 30}
-                  />
+                  {feed.last_completed_price_datetime ? (
+                    <Timer
+                      options={{
+                        showZeros: false,
+                        negativeColor: downColor,
+                        defaultColor: cyanColor,
+                      }}
+                      timestamp={new Date(feed.last_completed_price_datetime).getTime() + 1000 * 60 * 30}
+                    />
+                  ) : null}
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
-                <DataFeedSubTitleText fontSize={14} fontWeidth={600} svgContent={INFO_SVG_ENCODED}>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   Heartbeat
-                  <div className="on-svg-hover-info">{heartbeatUpdateInfo}</div>
+                  <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} />
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  <Timer
-                    options={{
-                      showZeros: false,
-                      negativeColor: downColor,
-                      defaultColor: cyanColor,
-                    }}
-                    timestamp={new Date(feed.last_completed_round_price_timestamp).getTime() + 1000 * 60 * 30}
-                  />
+                  {feed.last_completed_price_datetime ? (
+                    <Timer
+                      options={{
+                        showZeros: false,
+                        negativeColor: downColor,
+                        defaultColor: cyanColor,
+                      }}
+                      timestamp={new Date(feed.last_completed_price_datetime).getTime() + 1000 * 60 * 30}
+                    />
+                  ) : null}
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
-                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
+                <DataFeedsTitle fontSize={18} fontWeidth={600}>
                   Decimals
-                  <div className="on-svg-hover-info">Countdown until the data is next written on-chain</div>
+                  <CustomTooltip text={`Countdown until the data is next written on-chain`} iconId={'info'} />
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {''.padEnd(feed.decimals, '0')}
@@ -222,12 +220,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                 </DataFeedsTitle>
               ) : null}
               <div className="info-wrapper">
-                <DataFeedsTitle
-                  svgContent={INFO_SVG_ENCODED}
-                  fontSize={14}
-                  fontWeidth={600}
-                  style={{ lineHeight: '100%' }}
-                >
+                <DataFeedsTitle fontSize={14} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   Contract address
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
@@ -235,13 +228,9 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                 </DataFeedValueText>
               </div>
               <div className="info-wrapper">
-                <DataFeedsTitle
-                  svgContent={INFO_SVG_ENCODED}
-                  fontSize={14}
-                  fontWeidth={600}
-                  style={{ lineHeight: '100%' }}
-                >
+                <DataFeedsTitle fontSize={14} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   ENS address
+                  <CustomTooltip iconId={'question'} />
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   eth-usd.data.eth

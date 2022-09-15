@@ -1,16 +1,16 @@
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 import { Link } from 'react-router-dom'
 
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
-export const UserDataFeedCard = ({ feed }: { feed: Feed }) => {
+export const UserDataFeedCard = ({ feed }: { feed: FeedGQL }) => {
   return (
     <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle className="userFeed">
         <div className="item">
-          <h5>Feed</h5>
+          <h5>FeedGQL</h5>
           <var>
             {feed.token_1_symbol}/{feed.token_0_symbol}
           </var>
@@ -24,18 +24,18 @@ export const UserDataFeedCard = ({ feed }: { feed: Feed }) => {
         </div>
 
         <div className="item">
-          <h5>Network</h5>
-          <var>{feed.network || ''}</var>
+          <h5>Network (fix)</h5>
+          <var>{'network'}</var>
         </div>
 
         <div className="item">
-          <h5>Category</h5>
-          <var>{feed.category || ''}</var>
+          <h5>Category (fix)</h5>
+          <var>{'category'}</var>
         </div>
 
         <div className="item">
           <h5>Date</h5>
-          <var>{getDate_MDY_Format(feed.creation_timestamp)}</var>
+          <var>{getDate_MDY_Format(feed.last_completed_price_datetime || Date.now().toLocaleString())}</var>
         </div>
       </SatelliteItemStyle>
     </Link>

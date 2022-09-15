@@ -57,11 +57,7 @@ export function normalizeOracle(storage: {
   aggregator_oracle: AggregatorOracleGraphQL[]
 }) {
   return {
-    feeds: storage?.aggregator.map((feed) => ({
-      ...feed,
-      category: 'Cryptocurrency (USD pairs)',
-      network: 'Tezos',
-    })),
+    feeds: storage?.aggregator,
     feedsFactory: storage?.aggregator_factory,
     totalOracleNetworks: storage?.aggregator
       ? storage?.aggregator?.reduce((acc, cur) => acc + cur.oracles?.length, 0)

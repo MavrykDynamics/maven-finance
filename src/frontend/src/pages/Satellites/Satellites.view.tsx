@@ -10,7 +10,7 @@ import { Page, PageContent } from 'styles'
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
-import { Feed } from './helpers/Satellites.types'
+import { FeedGQL } from './helpers/Satellites.types'
 // view
 import SatelliteList from './SatelliteList/SatellitesList.controller'
 import { InfoBlockWrapper } from './Satellites.style'
@@ -32,7 +32,7 @@ type OraclesViewProps = {
     undelegateCallback: () => void
   }
   dataFeedsData: {
-    items: Array<Feed>
+    items: Array<FeedGQL>
   }
 }
 

@@ -16,9 +16,7 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
   }
 
   &.feed {
-    display: flex;
-    justify-content: space-between;
-    padding-right: 50px;
+    grid-template-columns: 1fr 1.2fr 1.3fr 1fr;
   }
 
   .item {
@@ -122,7 +120,7 @@ export const SatelliteOracleStatusComponent = styled.div<{ statusType: 'responde
   font-size: 12px;
   line-height: 12px;
   text-align: center;
-  max-width: 110px;
+  max-width: 130px;
   color: ${({ statusType }) =>
     statusType === 'responded' ? '#27AE60' : statusType === 'noResponse' ? '#FF4343' : '#FFCA43'};
 `
