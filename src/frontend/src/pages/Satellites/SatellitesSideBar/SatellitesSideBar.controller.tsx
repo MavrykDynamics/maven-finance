@@ -10,14 +10,11 @@ import SatellitesSideBarView from './SatellitesSideBar.view'
 const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { delegationStorage, currentSatellite } = useSelector((state: State) => state.delegation)
+  const {
+    delegationStorage: { oraclesAmount, satelliteLedger },
+  } = useSelector((state: State) => state.delegation)
   const { feedsFactory, feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const { delegationAddress } = useSelector((state: State) => state.contractAddresses)
-  const {
-    oraclesStorage: { totalOracleNetworks },
-  } = useSelector((state: State) => state.oracles)
-
-  const satelliteLedger = delegationStorage?.satelliteLedger
   const numSatellites = satelliteLedger?.length || 0
   const dataPointsCount = useMemo(
     () =>
@@ -49,11 +46,10 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
       totalDelegatedMVK={totalDelegatedMVK}
       isButton={isButton}
       satelliteFactory={delegationAddress?.address || ''}
-      totalOracleNetworks={totalOracleNetworks}
+      totalOracleNetworks={oraclesAmount}
       infoBlockAddresses={{
         satellite: delegationAddress?.address || '',
         oracle: feedsFactory?.[0]?.address || '',
-        aggregator: feedsFactory?.[0]?.address || '',
       }}
       averageRevard={averageRevard}
       dataPointsCount={dataPointsCount}

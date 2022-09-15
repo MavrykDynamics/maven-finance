@@ -16,7 +16,6 @@ type OraclesSideBarProps = {
   infoBlockAddresses: {
     satellite: string
     oracle: string
-    aggregator: string
   }
 }
 
@@ -88,12 +87,6 @@ const SatellitesSideBarView = ({
           <h3>Oracle Contract</h3>
           <var>
             <TzAddress tzAddress={infoBlockAddresses.oracle} hasIcon={false} />
-          </var>
-        </SideBarItem>
-        <SideBarItem>
-          <h3>Aggregator Contract</h3>
-          <var>
-            <TzAddress tzAddress={infoBlockAddresses.aggregator} hasIcon={false} />
           </var>
         </SideBarItem>
       </SideBarSection>
