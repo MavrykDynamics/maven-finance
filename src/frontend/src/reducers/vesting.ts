@@ -1,4 +1,4 @@
-import { GET_TREASURY_STORAGE } from '../pages/Treasury/Treasury.actions'
+import { GET_VESTING_STORAGE } from './../pages/Treasury/Treasury.actions';
 import { VestingStorage } from '../utils/TypesAndInterfaces/Vesting'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
@@ -14,7 +14,7 @@ const VestingDefaultState: VestingState = {
 
 export function vesting(state = VestingDefaultState, action: Action) {
   switch (action.type) {
-    case GET_TREASURY_STORAGE:
+    case GET_VESTING_STORAGE:
       return {
         vestingStorage: action.vestingStorage,
       }
