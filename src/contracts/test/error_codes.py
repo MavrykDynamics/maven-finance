@@ -1020,6 +1020,8 @@ error_MAX_AMOUNT_CAP_EXCEEDED                                                   
 error_BUY_OPTION_NOT_FOUND                                                                              = 738
 error_USER_TOKEN_SALE_RECORD_NOT_FOUND                                                                  = 739
 
+error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 882
+error_GET_TOKEN_POOL_DEPOSITOR_BALANCE_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                = 883
 
 error_SET_ADMIN_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                             = 740
 error_UPDATE_METADATA_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                       = 741

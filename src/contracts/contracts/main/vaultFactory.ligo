@@ -185,10 +185,13 @@ block {
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
         
     // get loan token record of user from Lending Controlelr contract
-    const getLoanTokenRecordOptView : option (loanTokenRecordType) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
+    const getLoanTokenRecordOptView : option (option (loanTokenRecordType)) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
     const loanTokenRecord : loanTokenRecordType = case getLoanTokenRecordOptView of [
-            Some (_record) -> _record
-        |   None           -> failwith (error_LOAN_TOKEN_RECORD_NOT_FOUND)
+            Some (_viewResult)  -> case _viewResult of [
+                    Some (_record)  -> _record
+                |   None            -> failwith (error_LOAN_TOKEN_RECORD_NOT_FOUND)
+            ]
+        |   None                -> failwith (error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
     ];
 
 } with loanTokenRecord
