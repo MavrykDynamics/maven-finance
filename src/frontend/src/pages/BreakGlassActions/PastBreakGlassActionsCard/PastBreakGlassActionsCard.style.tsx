@@ -47,14 +47,18 @@ export const PastBreakGlassActionsCardTitleTextGroup = styled.div<{ theme: Mavry
   }
 `
 
-export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykTheme }>`
+export const PastBreakGlassActionsCardCardDropDown = styled.div<{
+  height: number;
+  theme: MavrykTheme;
+}>`
   width: 100%;
+  height: 0;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   cursor: pointer;
   overflow: hidden;
   position: relative;
-  padding: 20px 23.5px 40px 40px;
+  transition: height 0.3s ease-in-out; /* added */
 
   h3 {
     margin: 0;
@@ -84,6 +88,10 @@ export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykT
     width: 100%;
     left: 0;
     top: 1px;
+  }
+
+  .card {
+    padding: 20px 23.5px 40px 40px;
   }
 
   .main-block {
@@ -158,5 +166,13 @@ export const PastBreakGlassActionsCardCardDropDown = styled.div<{ theme: MavrykT
   .quorum-bar {
     margin-left: auto;
     margin-right: auto;
+  }
+
+  &.show {
+    height: ${({ height }) => height}px;
+  }
+
+  &.hide {
+    height: 0; /* changed */
   }
 `

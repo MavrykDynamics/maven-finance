@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useState, useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 /* @ts-ignore */
 import Time from 'react-pure-time'
@@ -55,6 +55,8 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
 }) => {
   const dispatch = useDispatch()
   const [expanded, setExpanded] = useState(false)
+  const [accordionHeight, setAccordionHeight] = useState(0)
+  const ref = useRef(null)
 
   const open = () => setExpanded(!expanded)
 
@@ -69,8 +71,13 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
   const timeNow = Date.now()
   const expirationDatetime = new Date(date).getTime()
   const isEndingVotingTime = expirationDatetime > timeNow
-
   const timeFormat = `${new Date(date).getHours()}:${new Date(date).getMinutes()}`
+
+  useEffect(() => {
+    // @ts-ignore
+    const getHeight = ref.current.scrollHeight
+    setAccordionHeight(getHeight)
+  }, [expanded])
 
   const statusFlag = executed
     ? ProposalStatus.EXECUTED
@@ -84,6 +91,7 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
 
   return (
     <Expand
+      onClick={open}
       className="expand-governance"
       header={
         <>
@@ -113,53 +121,55 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
       }
       sufix={<StatusFlag status={statusFlag} text={statusFlag} />}
     >
-      <PastBreakGlassActionsCardDropDown>
-        <div className='main-block'>
-          <div>
-            <h3>Purpose</h3>
-            <p className="purpose">{purpose}</p>
+      <PastBreakGlassActionsCardDropDown className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
+        <div className='card'>
+          <div className='main-block'>
+            <div>
+              <h3>Purpose</h3>
+              <p className="purpose">{purpose}</p>
 
-            {linkAddress ? (
-              <Link className={'view-satellite'} to={`/satellite-details/${linkAddress}`}>
-                View Satellite
-              </Link>
-            ) : null}
-          </div>
-
-          <div className="voting-block">
-            <h3>Vote Statistics</h3>
-            <b className="voting-ends">
-              Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" /> {timeFormat}{' '}
-              CEST
-            </b>
-
-            <VotingBarBlockView
-              yayVotesSmvkTotal={yayVotesSmvkTotal}
-              nayVotesSmvkTotal={nayVotesSmvkTotal}
-              passVoteSmvkTotal={passVoteSmvkTotal}
-              snapshotSmvkTotalSupply={snapshotSmvkTotalSupply}
-              smvkPercentageForApproval={smvkPercentageForApproval}
-            />
-          </div>
-        </div>
-
-        {statusFlag === ProposalStatus.ONGOING ? (
-          <VotingButtonsContainer className="voting-buttons">
-            <Button
-              text="Drop Action"
-              className="brop-btn"
-              icon="close-stroke"
-              kind={'actionSecondary'}
-              onClick={handleClick}
-            />
-
-            <div className='voting-buttons-right-block'>
-              <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('yay')} kind={'votingFor'} />
-              <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('pass')} kind={'votingAbstain'} />
-              <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('nay')} kind={'votingAgainst'} />
+              {linkAddress ? (
+                <Link className={'view-satellite'} to={`/satellite-details/${linkAddress}`}>
+                  View Satellite
+                </Link>
+              ) : null}
             </div>
-          </VotingButtonsContainer>
-        ) : null}
+
+            <div className="voting-block">
+              <h3>Vote Statistics</h3>
+              <b className="voting-ends">
+                Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" /> {timeFormat}{' '}
+                CEST
+              </b>
+
+              <VotingBarBlockView
+                yayVotesSmvkTotal={yayVotesSmvkTotal}
+                nayVotesSmvkTotal={nayVotesSmvkTotal}
+                passVoteSmvkTotal={passVoteSmvkTotal}
+                snapshotSmvkTotalSupply={snapshotSmvkTotalSupply}
+                smvkPercentageForApproval={smvkPercentageForApproval}
+              />
+            </div>
+          </div>
+
+          {statusFlag === ProposalStatus.ONGOING ? (
+            <VotingButtonsContainer className="voting-buttons">
+              <Button
+                text="Drop Action"
+                className="brop-btn"
+                icon="close-stroke"
+                kind={'actionSecondary'}
+                onClick={handleClick}
+              />
+
+              <div className='voting-buttons-right-block'>
+                <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('yay')} kind={'votingFor'} />
+                <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('pass')} kind={'votingAbstain'} />
+                <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('nay')} kind={'votingAgainst'} />
+              </div>
+            </VotingButtonsContainer>
+          ) : null}
+        </div>
       </PastBreakGlassActionsCardDropDown>
     </Expand>
   )
