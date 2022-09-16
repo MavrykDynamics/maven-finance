@@ -52,10 +52,10 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
     if (showSidebarOpened || sidebarOpened) {
       const expandedRouteSection = mainNavigationLinks.find(({ path, subPages = null }) => {
         if (subPages) {
-          return subPages.find(({ subPath }) => `/${subPath}` === pathname)
+          return subPages.find(({ subPath }) => `/${subPath.split(/[?#]/)[0]}` === pathname)
         }
 
-        return `/${path}` === pathname
+        return `/${path.split(/[?#]/)[0]}` === pathname
       })
 
       setExpanded(expandedRouteSection?.id || 0)
