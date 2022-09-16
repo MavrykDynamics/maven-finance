@@ -2,6 +2,14 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { State } from 'reducers'
 import type { AppDispatch, GetState } from '../../app/App.controller'
+import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
+
+// gql
+import {
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY,
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME,
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE,
+} from '../../gql/queries/getBreakGlassActionsStorage'
 
 export const breakGlassActions = {
   SET_ALL_CONTRACTS_ADMIN: 'SET_ALL_CONTRACTS_ADMIN',
@@ -11,6 +19,35 @@ export const breakGlassActions = {
   UPDATE_COUNCIL_MEMBER: 'UPDATE_COUNCIL_MEMBER',
   CHANGE_COUNCIL_MEMBER: 'CHANGE_COUNCIL_MEMBER',
   REMOVE_COUNCIL_MEMBER: 'REMOVE_COUNCIL_MEMBER',
+}
+
+// getBreakGlassCouncilMember
+export const GET_BREAK_GLASS_COUNCIL_MEMBER = 'GET_BREAK_GLASS_COUNCIL_MEMBER'
+export const getBreakGlassCouncilMember = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  try {
+    const breakGlassCouncilMember = await fetchFromIndexerWithPromise(
+      BREAK_GLASS_COUNCIL_MEMBER_QUERY,
+      BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME,
+      BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE,
+    )
+
+    await dispatch({
+      type: GET_BREAK_GLASS_COUNCIL_MEMBER,
+      breakGlassCouncilMember,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+
+    dispatch({
+      type: GET_BREAK_GLASS_COUNCIL_MEMBER,
+      error,
+    })
+  }
 }
 
 // Propagate Break Glass

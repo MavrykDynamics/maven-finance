@@ -20,6 +20,7 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
+import { GET_BREAK_GLASS_COUNCIL_MEMBER } from 'pages/BreakGlassActions/BreakGlassActions.actions'
 
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
@@ -58,6 +59,7 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
   const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = normalizeOracle(res[10])
+  const breakGlassCouncilMember = res[11]['break_glass_council_member'] //TODO: add normalize
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
   dispatch({
@@ -120,6 +122,7 @@ export const onStart = () => async (dispatch: Dispatch) => {
     pastProposals: governanceStorage.proposalLedger,
   })
   dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
+  dispatch({ type: GET_BREAK_GLASS_COUNCIL_MEMBER, breakGlassCouncilMember })
 }
 
 export const GET_CONTRACT_ADDRESSES = 'GET_CONTRACT_ADDRESSES'

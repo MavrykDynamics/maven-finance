@@ -32,6 +32,9 @@ import {
   ORACLE_STORAGE_QUERY,
   ORACLE_STORAGE_QUERY_NAME,
   ORACLE_STORAGE_QUERY_VARIABLE,
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY,
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME,
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE,
 } from './queries'
 
 async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, object | string>) {
@@ -137,5 +140,6 @@ export async function getInitialData() {
       GOVERNANCE_STORAGE_QUERY_VARIABLE,
     ),
     fetchFromIndexerWithPromise(ORACLE_STORAGE_QUERY, ORACLE_STORAGE_QUERY_NAME, ORACLE_STORAGE_QUERY_VARIABLE),
+    fetchFromIndexerWithPromise(BREAK_GLASS_COUNCIL_MEMBER_QUERY, BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME, BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE),
   ])
 }
