@@ -20,7 +20,6 @@ export const OraclesTab = () => {
   const { satelliteLedger = [] } = useSelector((state: State) => state.delegation.delegationStorage)
 
   const oracleFeeds = useMemo(() => feeds.length, [feeds])
-  // TODO: extract is to mvkToken reducer in future?
   const popularFeeds = useMemo(() => feeds.splice(0, 3), [feeds])
 
   const oracleRevardsTotal = useMemo(

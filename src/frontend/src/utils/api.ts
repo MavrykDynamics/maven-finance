@@ -31,5 +31,5 @@ export async function getTreasuryDataByAddress(treasuryAddress: string) {
     .then((response: { data: object }) => {
       return response.data
     })
-    .catch(() => null)
+    .catch((error: Error) => console.error('getTreasuryDataByAddress error: ', error))
 }
