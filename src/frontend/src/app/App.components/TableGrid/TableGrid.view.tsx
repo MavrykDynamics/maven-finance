@@ -9,6 +9,7 @@ import { PAYMENTS_TYPES } from '../../../pages/ProposalSubmission/StageThreeForm
 
 // types
 import type { TableListType } from './TableGrid.types'
+import type { ProposalPaymentType } from '../../../utils/TypesAndInterfaces/Governance'
 
 // style
 import { TableGridWrap } from './TableGrid.style'
@@ -21,11 +22,12 @@ import {
 type Props = {
   tableData: TableListType
   setTableData: (arg0: TableListType) => void
+  proposalPayments: ProposalPaymentType[] | undefined
 }
 
 const MAX_ROWS = 10
 
-export default function TableGrid({ tableData, setTableData }: Props) {
+export default function TableGrid({ tableData, setTableData, proposalPayments }: Props) {
   const [openDrop, setOpenDrop] = useState('')
 
   const isMaxRows = MAX_ROWS <= tableData.length

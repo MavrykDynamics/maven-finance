@@ -3,30 +3,49 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { ProposalDataType, ProposalPaymentType } from '../../../utils/TypesAndInterfaces/Governance'
+import type { ProposalPaymentType } from '../../../utils/TypesAndInterfaces/Governance'
 import { calcWithoutPrecision, calcWithoutMu } from '../../../utils/calcFunctions'
+import { Governance_Proposal_Payment } from '../../../utils/generated/graphqlTypes'
 
 // helpers
-import {
-  normalizeProposalStatus,
-  normalizeTokenStandart,
-  getShortByte,
-  getProposalStatusInfo,
-} from '../../Governance/Governance.helpers'
-
+import { normalizeTokenStandart } from '../../Governance/Governance.helpers'
 import {
   ProposalFinancialRequestForm,
   ProposalFinancialRequestInputStatus,
   ValidFinancialRequestForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
-import {
-  containsCode,
-  getFormErrors,
-  isJsonString,
-  validateFormAndThrowErrors,
-} from '../../../utils/validatorFunctions'
+import { isJsonString } from '../../../utils/validatorFunctions'
 import { submitFinancialRequestData } from '../ProposalSubmission.actions'
-import { StageThreeFormView } from './StageThreeForm.view'
+
+// components
+import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
+import { Button } from '../../../app/App.components/Button/Button.controller'
+import Icon from '../../../app/App.components/Icon/Icon.view'
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { lockProposal, deletePaymentData } from '../ProposalSubmission.actions'
+
+// const
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+
+// hooks
+import useGovernence from '../../Governance/UseGovernance'
+
+// styles
+import {
+  FormButtonContainer,
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+  FormTitleEntry,
+  FormTableGrid,
+  SubmissionStyled,
+} from '../ProposalSubmission.style'
+import { TableGridWrap } from '../../../app/App.components/TableGrid/TableGrid.style'
+import {
+  DropDownListContainer,
+  DropDownList,
+  DropDownListItem,
+} from '../../../app/App.components/DropDown/DropDown.style'
 
 type StageThreeFormProps = {
   locked: boolean
@@ -36,15 +55,14 @@ type StageThreeFormProps = {
 }
 
 export const PAYMENTS_TYPES = ['XTZ', 'MVK']
-
 const INIT_TABLE_HEADERS = ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)']
-
 const INIT_TABLE_DATA = [INIT_TABLE_HEADERS, ['', '', '', PAYMENTS_TYPES[0]]]
+const MAX_ROWS = 10
 
 export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPayments }: StageThreeFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
-  const isProposalRound = governancePhase === 'PROPOSAL'
+
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { fee } = governanceStorage
   const successReward = governanceStorage.config.successReward
@@ -60,6 +78,17 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
   const [formInputStatus, setFormInputStatus] = useState<ProposalFinancialRequestInputStatus>({
     financialData: '',
   })
+
+  const { watingProposals } = useGovernence()
+
+  const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
+  const disabled = !isProposalRound || !form.title
+
+  const handleLockProposal = () => {
+    if (proposalId) dispatch(lockProposal(proposalId, accountPkh as string))
+  }
+
+  const enebleSubmit = tableData.flat().every((item) => Boolean(item))
 
   const handleOnBlur = () => {
     const validityCheckResult = isJsonString(form.financialData?.jsonString ?? '')
@@ -104,20 +133,183 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
     }
   }
 
+  console.log('%c ||||| proposalPayments', 'color:yellowgreen', proposalPayments)
+  const [openDrop, setOpenDrop] = useState('')
+
+  const isMaxRows = MAX_ROWS <= tableData.length
+
+  const handleChangeData = (value: string, i: number, j: number) => {
+    const cloneTable = [...tableData]
+    cloneTable[i][j] = value
+    setTableData(cloneTable)
+    setOpenDrop('')
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, i: number, j: number) => {
+    const value = e.target.value
+    handleChangeData(value, i, j)
+  }
+
+  const handleAddRow = () => {
+    setOpenDrop('')
+    const newFillRow = ['', '', '', PAYMENTS_TYPES[0]]
+    setTableData([...tableData, newFillRow])
+  }
+
+  const handleDeleteRow = (id: number, existInServer: boolean, row: string[]) => {
+    // console.log('%c ||||| propose', 'color:yellowgreen', propose)
+    console.log('%c ||||| id', 'color:yellowgreen', id)
+    console.log('%c ||||| existInServer', 'color:yellowgreen', existInServer)
+    // const findOriginRow = proposalPayments?.find((item) => item.title === propose)
+
+    // console.log('%c ||||| findOriginRow', 'color:yellowgreen', findOriginRow)
+
+    if (existInServer) {
+      if (proposalId) dispatch(deletePaymentData(proposalId, row, accountPkh as string))
+    } else {
+      setOpenDrop('')
+      const newTable = tableData.filter((_, index) => index !== id)
+      setTableData(newTable)
+    }
+  }
+
+  const handleToggleDrop = (i: number, j: number) => {
+    if (openDrop) {
+      setOpenDrop('')
+    } else {
+      setOpenDrop(`${i}-${j}`)
+    }
+  }
+
   return (
-    <StageThreeFormView
-      locked={locked}
-      form={form}
-      fee={fee}
-      successReward={successReward}
-      setForm={setForm}
-      tableData={tableData}
-      setTableData={setTableData}
-      setTableJson={setTableJson}
-      formInputStatus={formInputStatus}
-      handleOnBlur={handleOnBlur}
-      handleSubmitFinancialRequestData={handleSubmitFinancialRequestData}
-      proposalId={proposalId}
-    />
+    <SubmissionStyled>
+      <FormHeaderGroup>
+        <h1>Stage 3</h1>
+        <StatusFlag
+          text={locked ? 'LOCKED' : 'UNLOCKED'}
+          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+        />
+        <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+          <Icon id="question" />
+        </a>
+      </FormHeaderGroup>
+      <FormTitleAndFeeContainer>
+        <FormTitleContainer>
+          <label>1 - Enter Proposal Title</label>
+          <FormTitleEntry>{form.title}</FormTitleEntry>
+        </FormTitleContainer>
+        <div>
+          <label>2 - Proposal Success Reward</label>
+          <FormTitleEntry>{successReward} MVK</FormTitleEntry>
+        </div>
+        <div>
+          <label>3 - Fee</label>
+          <FormTitleEntry>{fee} XTZ</FormTitleEntry>
+        </div>
+      </FormTitleAndFeeContainer>
+      <label>4 - Enter Proposal Data</label>
+      <FormTableGrid className={disabled ? 'disabled' : ''}>
+        <TableGridWrap>
+          <div className="table-wrap">
+            <table>
+              {tableData.map((row, i) => {
+                const existInServer = proposalPayments?.find((item) => item.title === row[1])
+                return (
+                  <tr key={i}>
+                    {row.map((colValue, j) => {
+                      const isFirstRow = i === 0
+                      const isLastColumn = !isFirstRow && j === 3
+                      const isOpen = openDrop === `${i}-${j}`
+
+                      const disabledInput = j === 1 && !!existInServer
+
+                      return (
+                        <td key={`${i}+${j}`}>
+                          {isFirstRow ? (
+                            colValue
+                          ) : !isLastColumn ? (
+                            <input
+                              onFocus={() => setOpenDrop('')}
+                              value={colValue}
+                              type={j === 2 ? 'number' : 'text'}
+                              disabled={disabledInput}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i, j)}
+                            />
+                          ) : (
+                            <div className="table-drop">
+                              <button onClick={() => handleToggleDrop(i, j)} className="table-drop-btn-cur">
+                                {colValue}
+                              </button>
+                              {isOpen && (
+                                <DropDownListContainer>
+                                  <DropDownList>
+                                    {PAYMENTS_TYPES.map((value, index) => {
+                                      const isActive = colValue === value
+                                      return (
+                                        <DropDownListItem
+                                          onClick={() => handleChangeData(value, i, j)}
+                                          key={Math.random()}
+                                        >
+                                          {value} {isActive ? <Icon id="check-stroke" /> : null}
+                                        </DropDownListItem>
+                                      )
+                                    })}
+                                  </DropDownList>
+                                </DropDownListContainer>
+                              )}
+                            </div>
+                          )}
+
+                          {isLastColumn && tableData.length > 2 ? (
+                            <div className="delete-button-wrap">
+                              <StyledTooltip placement="top" title="Delete row">
+                                <button
+                                  onClick={() => handleDeleteRow(i, !!existInServer, row)}
+                                  className="delete-button"
+                                >
+                                  <Icon id="delete" />
+                                </button>
+                              </StyledTooltip>
+                            </div>
+                          ) : null}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                )
+              })}
+            </table>
+          </div>
+          {!isMaxRows ? (
+            <StyledTooltip placement="top" title="Insert 1 row bottom">
+              <button className="btn-add-row" onClick={handleAddRow}>
+                +
+              </button>
+            </StyledTooltip>
+          ) : null}
+        </TableGridWrap>
+      </FormTableGrid>
+      <FormButtonContainer>
+        {!locked ? (
+          <Button
+            icon="lock"
+            className="lock"
+            text={'Lock Proposal'}
+            disabled={!proposalId || disabled}
+            onClick={handleLockProposal}
+            kind="actionSecondary"
+          />
+        ) : null}
+
+        <Button
+          icon="financial"
+          disabled={!enebleSubmit || disabled}
+          className="financial"
+          kind="actionPrimary"
+          text={'Submit Financial Request'}
+          onClick={handleSubmitFinancialRequestData}
+        />
+      </FormButtonContainer>
+    </SubmissionStyled>
   )
 }
