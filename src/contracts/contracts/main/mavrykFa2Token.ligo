@@ -1,11 +1,4 @@
 // ------------------------------------------------------------------------------
-// Error Codes
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
@@ -19,8 +12,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// General Contracts : generalContractsType, updateGeneralContractsParams
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// LP Token Types
+#include "../partials/contractTypes/mavrykFa2TokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -30,43 +23,20 @@ type action is
         SetAdmin                  of address
     |   SetGovernance             of address
     |   UpdateWhitelistContracts  of updateWhitelistContractsType
-    |   UpdateGeneralContracts    of updateGeneralContractsType
     |   MistakenTransfer          of transferActionType
 
         // FA2 Entrypoints
-    |   AssertMetadata            of assertMetadataType
     |   Transfer                  of fa2TransferType
     |   Balance_of                of balanceOfType
     |   Update_operators          of updateOperatorsType
-    |   Mint                      of mintType
+    |   AssertMetadata            of assertMetadataType
 
         // Additional Entrypoints (Token Supply Inflation)
-    |   UpdateInflationRate       of nat
-    |   TriggerInflation          of unit
+    |   MintOrBurn                of mintOrBurnType
 
 
-type return is list (operation) * mvkTokenStorageType
+type return is list (operation) * mavrykFa2TokenStorageType
 const noOperations : list (operation) = nil;
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Constants Begin
-//
-// ------------------------------------------------------------------------------
-
-const one_day        : int              = 86_400;
-const thirty_days    : int              = one_day * 30;
-const one_year       : int              = one_day * 365;
-
-// ------------------------------------------------------------------------------
-//
-// Constants End
-//
-// ------------------------------------------------------------------------------
-
-
 
 // ------------------------------------------------------------------------------
 //
@@ -78,14 +48,14 @@ const one_year       : int              = one_day * 365;
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : mvkTokenStorageType) : unit is
+function checkSenderIsAllowed(var s : mavrykFa2TokenStorageType) : unit is
     if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const store : mvkTokenStorageType) : unit is
-    if Tezos.get_sender() =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+function checkSenderIsAdmin(const s : mavrykFa2TokenStorageType) : unit is
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
@@ -96,17 +66,12 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 
-function checkSenderIsDoormanContract(const store : mvkTokenStorageType) : unit is
-if getContractAddressFromGovernanceContract("doorman", store.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND) =/= Tezos.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
-
-
-
-function checkSenderIsAdminOrGovernanceSatelliteContract(var store : mvkTokenStorageType) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavrykFa2TokenStorageType) : unit is
 block{
 
-  if Tezos.get_sender() = store.admin then skip
+  if Tezos.get_sender() = s.admin then skip
   else {
-    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", store.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
     
     if Tezos.get_sender() = governanceSatelliteAddress then skip
     else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -200,8 +165,6 @@ block{
 //
 // ------------------------------------------------------------------------------
 
-
-
 // ------------------------------------------------------------------------------
 //
 // Views Begin
@@ -209,49 +172,25 @@ block{
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var store : mvkTokenStorageType) : address is
+[@view] function getAdmin(const _ : unit; var store : mavrykFa2TokenStorageType) : address is
     store.admin
 
 
 
-(* get: general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const store : mvkTokenStorageType) : generalContractsType is
-    store.generalContracts
-
-
-
 (* get: whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const store : mvkTokenStorageType) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _ : unit; const store : mavrykFa2TokenStorageType) : whitelistContractsType is
     store.whitelistContracts
 
 
 
-(* get: inflation rate *)
-[@view] function getInflationRate(const _ : unit; const store : mvkTokenStorageType) : nat is
-    store.inflationRate
-
-
-
-(* get: next inflation timestamp *)
-[@view] function getNextInflationTimestamp(const _ : unit; const store : mvkTokenStorageType) : timestamp is
-    store.nextInflationTimestamp
-
-
-
 (* get: operator *)
-[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const store : mvkTokenStorageType) : option(unit) is
+[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const store : mavrykFa2TokenStorageType) : option(unit) is
     Big_map.find_opt(operator, store.operators)
 
 
 
-(* maximumSupply View *)
-[@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
-    store.maximumSupply
-
-
-
 (* get: balance View *)
-[@view] function get_balance(const userAndId : ownerType * nat; const store : mvkTokenStorageType) : tokenBalanceType is
+[@view] function get_balance(const userAndId : ownerType * nat; const store : mavrykFa2TokenStorageType) : tokenBalanceType is
     case Big_map.find_opt(userAndId.0, store.ledger) of [
             Some (_v) -> _v
         |   None      -> 0n
@@ -260,25 +199,25 @@ block{
 
 
 (* total_supply View *)
-[@view] function total_supply(const _tokenId : nat; const _store : mvkTokenStorageType) : tokenBalanceType is
+[@view] function total_supply(const _tokenId : nat; const _store : mavrykFa2TokenStorageType) : tokenBalanceType is
     _store.totalSupply
 
 
 
 (* all_tokens View *)
-[@view] function all_tokens(const _ : unit; const _store : mvkTokenStorageType) : list(nat) is
+[@view] function all_tokens(const _ : unit; const _store : mavrykFa2TokenStorageType) : list(nat) is
     list[0n]
 
 
 
 (* check if operator *)
-[@view] function is_operator(const operator : (ownerType * operatorType * nat); const store : mvkTokenStorageType) : bool is
+[@view] function is_operator(const operator : (ownerType * operatorType * nat); const store : mavrykFa2TokenStorageType) : bool is
     Big_map.mem(operator, store.operators)
 
 
 
 (* get: metadata *)
-[@view] function token_metadata(const tokenId : nat; const store : mvkTokenStorageType) : tokenMetadataInfoType is
+[@view] function token_metadata(const tokenId : nat; const store : mavrykFa2TokenStorageType) : tokenMetadataInfoType is
     case Big_map.find_opt(tokenId, store.token_metadata) of [
             Some (_metadata)  -> _metadata
         |   None -> record[
@@ -293,8 +232,6 @@ block{
 //
 // ------------------------------------------------------------------------------
 
-
-
 // ------------------------------------------------------------------------------
 //
 // Entrypoints Begin
@@ -306,59 +243,48 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var store : mvkTokenStorageType) : return is
+function setAdmin(const newAdminAddress : address; var s : mavrykFa2TokenStorageType) : return is
 block {
 
-  checkSenderIsAllowed(store);
-  store.admin := newAdminAddress;
+    checkSenderIsAllowed(s);
+    s.admin := newAdminAddress;
 
-} with (noOperations, store)
-
-
-
-(*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var store : mvkTokenStorageType) : return is
-block {
-    
-  checkSenderIsAllowed(store);
-  store.governanceAddress := newGovernanceAddress;
-
-} with (noOperations, store)
-
-
-
-(*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : mvkTokenStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s);
-    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-  
 } with (noOperations, s)
 
 
 
-(*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : mvkTokenStorageType) : return is
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : mavrykFa2TokenStorageType) : return is
 block {
-  
-    checkSenderIsAdmin(s);
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+    
+    checkSenderIsAllowed(s);
+    s.governanceAddress := newGovernanceAddress;
 
+} with (noOperations, s)
+
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsTypes : updateWhitelistContractsType; var s : mavrykFa2TokenStorageType) : return is
+block {
+
+    checkSenderIsAdmin(s);
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsTypes, s.whitelistContracts);
+  
 } with (noOperations, s)
 
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams : transferActionType; var store : mvkTokenStorageType) : return is
+function mistakenTransfer(const destinationTypes : transferActionType; var s : mavrykFa2TokenStorageType) : return is
 block {
 
     // Steps Overview:    
     // 1. Check that sender is admin or from the Governance Satellite Contract
-    // 2. Create and execute transfer operations based on the params sent
+    // 2. Create and execute transfer operations based on the parameters sent
 
     // Check if the sender is admin or the Governance Satellite Contract
-    checkSenderIsAdminOrGovernanceSatelliteContract(store);
+    checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
     // Operations list
     var operations : list(operation) := nil;
@@ -375,37 +301,35 @@ block {
 
         } with (transferTokenOperation # operationList);
     
-    operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+    operations  := List.fold_right(transferOperationFold, destinationTypes, operations)
 
-} with (operations, store)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
-
-
 
 // ------------------------------------------------------------------------------
 // FA2 Entrypoints Begin
 // ------------------------------------------------------------------------------
 
 (* assertMetadata entrypoint *)
-function assertMetadata(const assertMetadataParams : assertMetadataType; const store : mvkTokenStorageType) : return is
+function assertMetadata(const assertMetadataParams : assertMetadataType; const s : mavrykFa2TokenStorageType) : return is
 block{
 
     const metadataKey  : string  = assertMetadataParams.key;
     const metadataHash : bytes   = assertMetadataParams.hash;
-    case Big_map.find_opt(metadataKey, store.metadata) of [
+    case Big_map.find_opt(metadataKey, s.metadata) of [
             Some (v) -> if v =/= metadataHash then failwith("METADATA_HAS_A_WRONG_HASH") else skip
         |   None     -> failwith("METADATA_NOT_FOUND")
     ]
 
-} with (noOperations, store)
+} with (noOperations, s)
 
 
 
 (* transfer entrypoint *)
-function transfer(const transferParams : fa2TransferType; const store : mvkTokenStorageType) : return is
+function transfer(const transferParams : fa2TransferType; const s : mavrykFa2TokenStorageType) : return is
 block{
 
     function makeTransfer(const account : return; const transferParam : transfer) : return is
@@ -414,7 +338,7 @@ block{
             const owner : ownerType = transferParam.from_;
             const txs : list(transferDestination) = transferParam.txs;
             
-            function transferTokens(const accumulator : mvkTokenStorageType; const destination : transferDestination) : mvkTokenStorageType is
+            function transferTokens(const accumulator : mavrykFa2TokenStorageType; const destination : transferDestination) : mavrykFa2TokenStorageType is
             block {
 
                 const tokenId : tokenIdType = destination.token_id;
@@ -448,17 +372,17 @@ block{
             } with accumulator with record[ledger=updatedLedger];
 
             const updatedOperations : list(operation) = (nil: list(operation));
-            const updatedStorage : mvkTokenStorageType = List.fold(transferTokens, txs, account.1);
+            const updatedStorage : mavrykFa2TokenStorageType = List.fold(transferTokens, txs, account.1);
 
         } with (mergeOperations(updatedOperations,account.0), updatedStorage)
 
-} with List.fold(makeTransfer, transferParams, ((nil: list(operation)), store))
+} with List.fold(makeTransfer, transferParams, ((nil: list(operation)), s))
 
 
 
 
 (* balance_of entrypoint *)
-function balanceOf(const balanceOfParams : balanceOfType; const store : mvkTokenStorageType) : return is
+function balanceOf(const balanceOfParams : balanceOfType; const s : mavrykFa2TokenStorageType) : return is
 block{
 
     function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
@@ -466,7 +390,7 @@ block{
 
             const requestOwner : ownerType = request.owner;
             const tokenBalance : tokenBalanceType = 
-            case Big_map.find_opt(requestOwner, store.ledger) of [
+            case Big_map.find_opt(requestOwner, s.ledger) of [
                     Some (b) -> b
                 |   None     -> 0n
             ];
@@ -479,12 +403,12 @@ block{
       const responses  : list(balanceOfResponse) = List.map(retrieveBalance, requests);
       const operation  : operation = Tezos.transaction(responses, 0tez, callback);
 
-} with (list[operation],store)
+} with (list[operation],s)
 
 
 
 (* update_operators entrypoint *)
-function updateOperators(const updateOperatorsParams : updateOperatorsType; const store : mvkTokenStorageType) : return is
+function updateOperators(const updateOperatorsParams : updateOperatorsType; const s : mavrykFa2TokenStorageType) : return is
 block{
 
     var updatedOperators : operatorsType := List.fold(
@@ -495,90 +419,73 @@ block{
             ]
         ,
         updateOperatorsParams,
-        store.operators
+        s.operators
     )
 
-} with (noOperations, store with record[operators=updatedOperators])
-
-
-
-(* mint entrypoint *)
-function mint(const mintParams : mintType; var store : mvkTokenStorageType) : return is
-block {
-
-    const recipientAddress  : ownerType         = mintParams.0;
-    const mintedTokens      : tokenBalanceType  = mintParams.1;
-
-    // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) or Tezos.get_sender() = Tezos.get_self_address() then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
-
-    // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorageType
-    const tempTotalSupply : tokenBalanceType = store.totalSupply + mintedTokens;
-    if tempTotalSupply > store.maximumSupply then failwith(error_MAXIMUM_SUPPLY_EXCEEDED) 
-    else skip;
-
-    // Update sender's balance
-    const senderNewBalance : tokenBalanceType = get_balance((recipientAddress, 0n), store) + mintedTokens;
-
-    // Update mvkTokenStorageType
-    store.totalSupply := store.totalSupply + mintedTokens;
-    store.ledger := Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
-
-} with (noOperations, store)
+} with (noOperations, s with record[operators=updatedOperators])
 
 // ------------------------------------------------------------------------------
 // FA2 Entrypoints End
 // ------------------------------------------------------------------------------
 
-
-
 // ------------------------------------------------------------------------------
-// Additional Entrypoints (Token Supply Inflation) Begin 
+// Additional Entrypoints Begin 
 // ------------------------------------------------------------------------------
 
-(* updateInflationRate entrypoint *)
-function updateInflationRate(const newInflationRate : nat; var store : mvkTokenStorageType) : return is
+(* MintOrBurn Entrypoint *)
+function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mavrykFa2TokenStorageType) : return is
 block {
+
+    // check sender is from cfmm contract
+    if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+
+    const quantity        : int             = mintOrBurnParams.quantity;
+    const targetAddress   : address         = mintOrBurnParams.target;
+    const tokenId         : tokenIdType     = mintOrBurnParams.tokenId;
+    const tokenAmount     : nat             = abs(quantity);
+
+    // check token id
+    checkTokenId(tokenId);
     
-    checkSenderIsAdmin(store);
+    // get target balance    
+    const userBalance : tokenBalanceType    = get_balance((targetAddress, 0n), s);
 
-    // Update the inflation rate
-    if newInflationRate > 2000n then failwith(error_INFLATION_RATE_TOO_HIGH)
-    else store.inflationRate  := newInflationRate
+    if quantity < 0 then block {
+        // burn Token
 
-} with (noOperations, store)
+        (* Balance check *)
+        if userBalance < tokenAmount then
+        failwith("NotEnoughBalance")
+        else skip;
 
+        (* Update target balance *)
+        const targetNewBalance = abs(userBalance - tokenAmount);
+        const newTotalSupply : tokenBalanceType = abs(s.totalSupply - tokenAmount);
 
+        (* Update storage *)
+        const updatedLedger : ledgerType = Big_map.update(targetAddress, Some(targetNewBalance), s.ledger);
 
-(* triggerInflation entrypoint *)
-function triggerInflation(var store : mvkTokenStorageType) : return is
-block {
+        s.ledger       := updatedLedger;
+        s.totalSupply  := newTotalSupply;
+
+    } else block {
+        // mint Token
+
+        // Update target's balance
+        const targetNewBalance  : tokenBalanceType = userBalance + tokenAmount;
+        const newTotalSupply    : tokenBalanceType = s.totalSupply + tokenAmount;
+        
+        // Update storage
+        const updatedLedger     : ledgerType = Big_map.update(targetAddress, Some(targetNewBalance), s.ledger);
     
-    checkSenderIsAdmin(store);
+        s.ledger       := updatedLedger;
+        s.totalSupply  := newTotalSupply;
+    };
 
-    // Check inflation rate
-    const inflation : tokenBalanceType  = store.maximumSupply * store.inflationRate / 100_00n; // Apply the rate
-
-    // Calculate the percentage of minted MVK
-    const mintedMvkPercentage : nat     = store.totalSupply * 100_00n / store.maximumSupply;
-    
-    // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
-    // And at least 90% of the maximum supply has been minted
-    if store.nextInflationTimestamp < Tezos.get_now() and mintedMvkPercentage > 90_00n then {
-      
-      // Set the new maximumSupply
-      store.maximumSupply           := store.maximumSupply + inflation;
-
-      // Update the next change date
-      store.nextInflationTimestamp  := Tezos.get_now() + one_year;
-
-    }
-    else failwith(error_CANNOT_TRIGGER_INFLATION_NOW);
-
-} with (noOperations, store)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
-// Additional Entrypoints (Token Supply Inflation) End 
+// Additional Entrypoints End 
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
@@ -587,10 +494,8 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-
-
 (* main entrypoint *)
-function main (const action : action; const store : mvkTokenStorageType) : return is
+function main (const action : action; const s : mavrykFa2TokenStorageType) : return is
 block{
 
     checkNoAmount(Unit); // Check that sender didn't send any tezos while calling an entrypoint
@@ -600,22 +505,19 @@ block{
     case action of [
 
             // Housekeeping Entrypoints
-            SetAdmin (params)                   -> setAdmin(params, store)
-        |   SetGovernance (params)              -> setGovernance(params, store)
-        |   UpdateWhitelistContracts (params)   -> updateWhitelistContracts(params, store)
-        |   UpdateGeneralContracts (params)     -> updateGeneralContracts(params, store)
-        |   MistakenTransfer (params)           -> mistakenTransfer(params, store)
+            SetAdmin (parameters)                   -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)              -> setGovernance(parameters, s)
+        |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
+        |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
 
             // FA2 Entrypoints
-        |   AssertMetadata (params)             -> assertMetadata(params, store)
-        |   Transfer (params)                   -> transfer(params, store)
-        |   Balance_of (params)                 -> balanceOf(params, store)
-        |   Update_operators (params)           -> updateOperators(params, store)
-        |   Mint (params)                       -> mint(params, store)
+        |   Transfer (parameters)                   -> transfer(parameters, s)
+        |   Balance_of (parameters)                 -> balanceOf(parameters, s)
+        |   Update_operators (parameters)           -> updateOperators(parameters, s)
+        |   AssertMetadata (parameters)             -> assertMetadata(parameters, s)
 
             // Additional Entrypoints (Token Supply Inflation)
-        |   UpdateInflationRate (params)        -> updateInflationRate(params, store)
-        |   TriggerInflation (_params)          -> triggerInflation(store)
+        |   MintOrBurn (parameters)                 -> mintOrBurn(parameters, s)
 
     ]
 

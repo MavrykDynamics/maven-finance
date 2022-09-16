@@ -26,7 +26,7 @@ async def on_emergency_governance_trigger_emergency_control(
     smvk_required_for_trigger   = float(emergency_storage.stakedMvkRequiredForBreakGlass)
     start_timestamp             = emergency_storage.startDateTime
     start_level                 = int(emergency_storage.startLevel)
-    executed_timestamp          = emergency_storage.executedDateTime
+    execution_datetime          = emergency_storage.executedDateTime
     executedLevel               = int(emergency_storage.executedLevel)
     expiration_timestamp        = emergency_storage.expirationDateTime
     
@@ -55,10 +55,10 @@ async def on_emergency_governance_trigger_emergency_control(
         smvk_percentage_required        = smvk_percentage_required,
         smvk_required_for_trigger       = smvk_required_for_trigger,
         start_timestamp                 = start_timestamp,
-        executed_timestamp              = executed_timestamp,
+        execution_datetime              = execution_datetime,
         expiration_timestamp            = expiration_timestamp,
         start_level                     = start_level,
-        executed_level                  = executedLevel
+        execution_level                 = executedLevel
     )
     await emergency_record.save()
     

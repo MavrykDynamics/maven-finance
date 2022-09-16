@@ -20,8 +20,8 @@
 // import governanceAddress from '../deployments/governanceAddress.json';
 // import governanceFinancialAddress from '../deployments/governanceFinancialAddress.json';
 // import councilAddress from '../deployments/councilAddress.json';
-// import mockFa12TokenAddress  from '../deployments/mockFa12TokenAddress.json';
-// import mockFa2TokenAddress   from '../deployments/mockFa2TokenAddress.json';
+// import mavrykFa12TokenAddress  from '../deployments/mavrykFa12TokenAddress.json';
+// import mavrykFa2TokenAddress   from '../deployments/mavrykFa2TokenAddress.json';
 // import farmFactoryAddress   from '../deployments/farmFactoryAddress.json';
 // import treasuryAddress   from '../deployments/treasuryAddress.json';
 
@@ -34,8 +34,8 @@
 //     let governanceFinancialInstance;
 //     let vestingInstance;
 //     let councilInstance;
-//     let mockFa12TokenInstance;
-//     let mockFa2TokenInstance;
+//     let mavrykFa12TokenInstance;
+//     let mavrykFa2TokenInstance;
 //     let treasuryInstance;
 //     let governanceInstance;
 
@@ -45,8 +45,8 @@
 //     let governanceFinancialStorage;
 //     let vestingStorage;
 //     let councilStorage;
-//     let mockFa12TokenStorage;
-//     let mockFa2TokenStorage;
+//     let mavrykFa12TokenStorage;
+//     let mavrykFa2TokenStorage;
 //     let treasuryStorage;
 //     let governanceStorage;
     
@@ -66,8 +66,8 @@
 //         mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress.address);
 //         governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress.address);
 //         councilInstance                 = await utils.tezos.contract.at(councilAddress.address);
-//         mockFa12TokenInstance           = await utils.tezos.contract.at(mockFa12TokenAddress.address);
-//         mockFa2TokenInstance            = await utils.tezos.contract.at(mockFa2TokenAddress.address);
+//         mavrykFa12TokenInstance           = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
+//         mavrykFa2TokenInstance            = await utils.tezos.contract.at(mavrykFa2TokenAddress.address);
 //         treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
 //         governanceInstance              = await utils.tezos.contract.at(governanceAddress.address);
             
@@ -77,8 +77,8 @@
 //         mvkTokenStorage                 = await mvkTokenInstance.storage();
 //         governanceFinancialStorage      = await governanceFinancialInstance.storage();
 //         councilStorage                  = await councilInstance.storage();
-//         mockFa12TokenStorage            = await mockFa12TokenInstance.storage();
-//         mockFa2TokenStorage             = await mockFa2TokenInstance.storage();
+//         mavrykFa12TokenStorage            = await mavrykFa12TokenInstance.storage();
+//         mavrykFa2TokenStorage             = await mavrykFa2TokenInstance.storage();
 //         treasuryStorage                 = await treasuryInstance.storage();
 //         governanceStorage               = await governanceInstance.storage();
 
@@ -90,8 +90,8 @@
 //         console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
 //         console.log('Governance Contract deployed at:', governanceAddress.address);
 //         console.log('Council Contract deployed at:', councilInstance.address);
-//         console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
-//         console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
+//         console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+//         console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
 //         console.log('Bob address: ' + bob.pkh);
 //         console.log('Alice address: ' + alice.pkh);
 //         console.log('Eve address: ' + eve.pkh);
@@ -122,12 +122,12 @@
 //         ]).send();
 //         await malloryTransferMvkToCouncilOperation.confirmation();
 
-//         // Mallory transfers 250 Mock FA12 Tokens to Council
-//         const malloryTransferMockFa12ToCouncilOperation = await mockFa12TokenInstance.methods.transfer(mallory.pkh, councilContractAddress, 250000000).send();
-//         await malloryTransferMockFa12ToCouncilOperation.confirmation();
+//         // Mallory transfers 250 Mavryk FA12 Tokens to Council
+//         const malloryTransferMavrykFa12ToCouncilOperation = await mavrykFa12TokenInstance.methods.transfer(mallory.pkh, councilContractAddress, 250000000).send();
+//         await malloryTransferMavrykFa12ToCouncilOperation.confirmation();
 
-//         // Mallory transfers 250 Mock FA2 Tokens to Council
-//         const malloryTransferMockFa2ToCouncilOperation = await mockFa2TokenInstance.methods.transfer([
+//         // Mallory transfers 250 Mavryk FA2 Tokens to Council
+//         const malloryTransferMavrykFa2ToCouncilOperation = await mavrykFa2TokenInstance.methods.transfer([
 //             {
 //                 from_: mallory.pkh,
 //                 txs: [
@@ -139,7 +139,7 @@
 //                 ]
 //             }
 //         ]).send();
-//         await malloryTransferMockFa2ToCouncilOperation.confirmation();
+//         await malloryTransferMavrykFa2ToCouncilOperation.confirmation();
 
 
 //     });

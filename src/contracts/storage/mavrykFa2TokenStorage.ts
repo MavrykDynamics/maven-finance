@@ -2,13 +2,11 @@ import { MichelsonMap } from "@taquito/michelson-encoder";
 
 import { BigNumber } from "bignumber.js";
 import { Buffer } from "buffer";
-import { array } from "yargs";
+import { zeroAddress } from "../test/helpers/Utils";
 
 const { bob, alice, eve, mallory } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from "../test/helpers/Utils";
-
-import { mockFa2TokenStorageType } from "../test/types/mockFa2TokenStorageType";
+import { mavrykFa2TokenStorageType } from "../test/types/mavrykFa2TokenStorageType";
 
 const totalSupply   = 20000000000;
 const initialSupply = new BigNumber(totalSupply); // 20,000 MOCK FA2 Tokens in mu (10^6)
@@ -19,7 +17,7 @@ const metadata = MichelsonMap.fromLiteral({
     data: Buffer.from(
         JSON.stringify({
         version: 'v1.0.0',
-        description: 'MOCK FA2',
+        description: 'MAVRYK FA2',
         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
         source: {
             tools: ['Ligo', 'Flextesa'],
@@ -31,7 +29,7 @@ const metadata = MichelsonMap.fromLiteral({
         assets: [
             {
             symbol: Buffer.from('FA2').toString('hex'),
-            name: Buffer.from('MOCKFA2').toString('hex'),
+            name: Buffer.from('MAVRYKFA2').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
             icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
             shouldPreferSymbol: true,
@@ -55,7 +53,7 @@ const token_metadata = MichelsonMap.fromLiteral({
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA2').toString('hex'),
-            name: Buffer.from('MOCKFA2').toString('hex'),
+            name: Buffer.from('MAVRYKFA2').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
             icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
             shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
@@ -64,10 +62,14 @@ const token_metadata = MichelsonMap.fromLiteral({
     },
 })
 
-export const mockFa2TokenStorage: mockFa2TokenStorageType = {
+export const mavrykFa2TokenStorage: mavrykFa2TokenStorageType = {
     
     admin: bob.pkh,
     metadata: metadata,
+    governanceAddress: zeroAddress,
+
+    whitelistContracts:  MichelsonMap.fromLiteral({}),
+
     token_metadata: token_metadata,
     totalSupply: initialSupply,
     ledger: ledger,
