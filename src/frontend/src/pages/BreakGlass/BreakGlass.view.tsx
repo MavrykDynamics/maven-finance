@@ -49,10 +49,10 @@ export const BreakGlassView = ({
 
   const filteredBreakGlassStatuses = breakGlassStatuses
     ? selectedContract === ALL
-      ? breakGlassStatuses
+      ? breakGlassStatuses.filter(item => item.admin)
       : breakGlassStatuses?.filter((item) => {
           const type = item.type as string
-          return selectedContract === type
+          return item.admin && selectedContract === type
         })
     : []
 
