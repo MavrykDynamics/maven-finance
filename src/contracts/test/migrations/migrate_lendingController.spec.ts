@@ -23,6 +23,7 @@ import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer }
 // ------------------------------------------------------------------------------
 
 import governanceAddress from '../../deployments/governanceAddress.json';
+import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 
 // ------------------------------------------------------------------------------
@@ -36,10 +37,10 @@ import {
 } from '../helpers/aggregatorFactoryHelper'
 import { LendingController, setLendingControllerLambdas } from "../helpers/lendingControllerHelper"
 import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from "../helpers/vaultFactoryHelper"
-import { TokenPoolReward } from "../helpers/tokenPoolRewardHelper"
+import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPoolRewardHelper"
 
-import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
-import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
+import { MavrykFa12Token } from '../helpers/mavrykFa12TokenHelper'
+import { MavrykFa2Token } from '../helpers/mavrykFa2TokenHelper'
 import { TokenPoolLpToken } from "../helpers/tokenPoolLpTokenHelper"
 
 // ------------------------------------------------------------------------------
@@ -47,15 +48,14 @@ import { TokenPoolLpToken } from "../helpers/tokenPoolLpTokenHelper"
 // ------------------------------------------------------------------------------
 
 import { aggregatorStorage } from '../../storage/aggregatorStorage'
-import { lpStorage } from "../../storage/testLPTokenStorage"
 
 import { vaultStorage } from "../../storage/vaultStorage"
 import { lendingControllerStorage } from "../../storage/lendingControllerStorage"
 import { vaultFactoryStorage } from "../../storage/vaultFactoryStorage"
 import { tokenPoolRewardStorage } from "../../storage/tokenPoolRewardStorage"
 
-import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
-import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
+import { mavrykFa12TokenStorage } from '../../storage/mavrykFa12TokenStorage'
+import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
 import { tokenPoolLpTokenStorage } from "../../storage/tokenPoolLpTokenStorage"
 
 // ------------------------------------------------------------------------------
@@ -67,13 +67,14 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
   var utils: Utils
   
   let governanceInstance
+  let vaultFactoryInstance
 
   var mockUsdXtzAggregator : Aggregator;
   var mockUsdMockFa12TokenAggregator : Aggregator;
   var mockUsdMockFa2TokenAggregator : Aggregator;
 
-  var mockFa12Token : MockFa12Token
-  var mockFa2Token : MockFa2Token
+  var mockFa12Token : MavrykFa12Token
+  var mockFa2Token : MavrykFa2Token
   var lpTokenPoolMockFa12Token : TokenPoolLpToken;
   var lpTokenPoolMockFa2Token : TokenPoolLpToken;
   var lpTokenPoolXtz : TokenPoolLpToken;
@@ -119,12 +120,13 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         await saveContractAddress('vaultFactoryAddress', vaultFactory.contract.address)
         console.log('Vault Factory Contract deployed at:', vaultFactory.contract.address)
 
+
         //----------------------------
         // Mock FA12 Token
         //----------------------------
-        mockFa12Token = await MockFa12Token.originate(
+        mockFa12Token = await MavrykFa12Token.originate(
             utils.tezos,
-            mockFa12TokenStorage
+            mavrykFa12TokenStorage
         )
     
         await saveContractAddress('mockFa12TokenAddress', mockFa12Token.contract.address)
@@ -134,9 +136,9 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         //----------------------------
         // Mock FA2 Token
         //----------------------------
-        mockFa2Token = await MockFa2Token.originate(
+        mockFa2Token = await MavrykFa2Token.originate(
             utils.tezos,
-            mockFa2TokenStorage
+            mavrykFa2TokenStorage
         )
     
         await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
@@ -144,41 +146,45 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
     
 
         //----------------------------
-        // LP Token: Mock FA12 Token in Lending Controller Token Pool 
+        // LP Token for Mock FA12 Token in Lending Controller Token Pool 
+        // Note: LP Tokens follow the FA2 Token Standard
         //----------------------------
-        tokenPoolLpTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
+        mavrykFa2TokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
             "lendingController"     : lendingController.contract.address
         })
-        lpTokenPoolMockFa12Token = await TokenPoolLpToken.originate(
+        lpTokenPoolMockFa12Token = await MavrykFa2Token.originate(
             utils.tezos,
-            tokenPoolLpTokenStorage
+            mavrykFa2TokenStorage
         );
 
         await saveContractAddress("lpTokenPoolMockFa12TokenAddress", lpTokenPoolMockFa12Token.contract.address)
         console.log("LP Token Pool Mock Fa12 Token Contract deployed at:", lpTokenPoolMockFa12Token.contract.address);
 
+
         //----------------------------
-        // LP Token: Mock FA2 Token in Lending Controller Token Pool 
+        // LP Token for Mock FA2 Token in Lending Controller Token Pool 
         //----------------------------
-        lpTokenPoolMockFa2Token = await TokenPoolLpToken.originate(
+        lpTokenPoolMockFa2Token = await MavrykFa2Token.originate(
             utils.tezos,
-            tokenPoolLpTokenStorage
+            mavrykFa2TokenStorage
         );
     
         await saveContractAddress("lpTokenPoolMockFa2TokenAddress", lpTokenPoolMockFa2Token.contract.address)
         console.log("LP Token Pool Mock Fa2 Token Contract deployed at:", lpTokenPoolMockFa2Token.contract.address);
 
+
         //----------------------------
-        // LP Token: XTZ in Lending Controller Token Pool 
+        // LP Token for XTZ in Lending Controller Token Pool 
         //----------------------------
-        lpTokenPoolXtz= await TokenPoolLpToken.originate(
+        lpTokenPoolXtz= await MavrykFa2Token.originate(
             utils.tezos,
-            tokenPoolLpTokenStorage
+            mavrykFa2TokenStorage
         );
 
         await saveContractAddress("lpTokenPoolXtzAddress", lpTokenPoolXtz.contract.address)
         console.log("LP Token Pool XTZ Contract deployed at:", lpTokenPoolXtz.contract.address);
     
+
         //----------------------------
         // Mock USD/MockFA12 Token Aggregator Contract
         //----------------------------
@@ -247,6 +253,13 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
         console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
 
+
+        //----------------------------
+        // Token Pool Reward Contract
+        //----------------------------
+
+        tokenPoolRewardStorage.mvkTokenAddress   = mvkTokenAddress.address;
+        tokenPoolRewardStorage.governanceAddress = governanceAddress.address;
         tokenPoolReward = await TokenPoolReward.originate(
             utils.tezos,
             tokenPoolRewardStorage
@@ -278,7 +291,16 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         await setVaultFactoryProductLambdas(tezos, vaultFactory.contract)
         console.log("Vault Factory - Vault Lambdas Setup")
 
+        // Token Pool Reward Lambdas
+        await setTokenPoolRewardLambdas(tezos, tokenPoolReward.contract)
+        console.log("Token Pool Reward Lambdas Setup")
+
     
+        //----------------------------
+        // Update Contract Links and Relationships
+        //----------------------------
+
+
         // Governance Contract update general contracts
         governanceInstance = await utils.tezos.contract.at(governanceAddress.address);
     
@@ -288,13 +310,25 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
     
         // general contracts
         .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingController.contract.address))
-            //   .withContractCall(governance.contract.methods.updateGeneralContracts('tokenPoolReward', tokenPoolReward.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory', vaultFactory.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolReward.contract.address))
     
         const governanceContractsBatchOperation = await governanceContractsBatch.send()
         await confirmOperation(tezos, governanceContractsBatchOperation.opHash)
     
         console.log('Governance Contract - set general contract addresses [lendingController]')
-    
+
+
+        //----------------------------
+        // Set Vault Factory Admin to Governance Proxy 
+        //----------------------------
+
+
+        // Vault Factory Set Admin
+        vaultFactoryInstance = await utils.tezos.contract.at(vaultFactory.contract.address);
+        const vaultFactorySetAdminOperation = await vaultFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
+
+        await vaultFactorySetAdminOperation.confirmation();
 
     } catch(e){
       console.dir(e, {depth: 5})

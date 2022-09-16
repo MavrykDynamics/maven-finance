@@ -60,7 +60,7 @@ type lendingControllerBreakGlassConfigType is record [
     vaultDelegateMvkToSatelliteIsPaused     : bool;
     vaultWithdrawIsPaused                   : bool;
     vaultDepositIsPaused                    : bool;
-    vaultEditDepositorIsPaused              : bool;
+    vaultUpdateDepositorIsPaused            : bool;
 
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : bool;
@@ -151,10 +151,10 @@ type ownerLedgerType                is big_map(address, ownerVaultSetType)  // b
 // Action Types
 // ------------------------------------------------------------------------------
 
-type mintOrBurnParamsType is [@layout:comb] record [
-    quantity  : int;
-    target    : address;
-];
+// type mintOrBurnParamsType is [@layout:comb] record [
+//     quantity  : int;
+//     target    : address;
+// ];
 
 // (* Mint entrypoint inputs *)
 // type mintParamsType is (address * tokenBalanceType)
@@ -330,7 +330,7 @@ type lendingControllerPausableEntrypointType is
     |   VaultDelegateMvkToSatellite of bool
     |   VaultWithdraw               of bool
     |   VaultDeposit                of bool
-    |   VaultEditDepositor          of bool
+    |   VaultUpdateDepositor        of bool
 
         // Vault Staked MVK Entrypoints
     |   VaultDepositStakedMvk       of bool

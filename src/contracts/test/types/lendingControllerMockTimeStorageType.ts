@@ -3,7 +3,7 @@ import { BigNumber } from 'bignumber.js'
 
 export type lendingControllerMockTimeStorageType = {
 
-    admin                       : string;
+    admin                       : string; 
     tester                      : string;
     metadata                    : MichelsonMap<MichelsonMapKey, unknown>;    
     config                      : {};
