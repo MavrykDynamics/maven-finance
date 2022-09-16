@@ -1,7 +1,7 @@
 //styles
 import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
 // consts, helpers, actions
-import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, ACTION_SECONDARY, PRIMARY, SECONDARY } from 'app/App.components/Button/Button.constants'
 // view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
@@ -75,15 +75,26 @@ export const SatelliteListItem = ({
   const satelliteStatusColor = satellite.status === SatelliteStatus.BANNED ? DOWN : WARNING
   const showButtons = !isSatellite && satellite.status === SatelliteStatus.ACTIVE
 
-  const buttonToShow = userIsDelegatedToThisSatellite ? (
-    <Button
-      text="Undelegate"
-      icon="man-close"
-      kind={ACTION_SECONDARY}
-      loading={loading}
-      onClick={() => undelegateCallback()}
-      disabled={!ready}
-    />
+  const buttonToShow = satelliteUserIsDelegatedTo ? (
+    <>
+      <Button
+        text="Undelegate"
+        icon="man-close"
+        kind={ACTION_SECONDARY}
+        loading={loading}
+        onClick={() => undelegateCallback()}
+        disabled={!ready}
+      />
+      <Button
+        text="Claim Rewards"
+        icon="rewards"
+        kind={ACTION_PRIMARY}
+        loading={loading}
+        onClick={() => undelegateCallback()}
+        disabled={!ready}
+        strokeWidth={0.3}
+      />
+    </>
   ) : (
     <Button
       text="Delegate"
