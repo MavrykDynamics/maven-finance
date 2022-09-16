@@ -25,7 +25,7 @@
 // import breakGlassAddress from '../deployments/breakGlassAddress.json';
 // import vestingAddress from '../deployments/vestingAddress.json';
 // import treasuryAddress from '../deployments/treasuryAddress.json';
-// import lpTokenAddress from '../deployments/lpTokenAddress.json';
+// import mavrykFa12TokenAddress from '../deployments/mavrykFa12TokenAddress.json';
 // import farmFactoryAddress from '../deployments/farmFactoryAddress.json'
 // import treasuryFactoryAddress from '../deployments/treasuryFactoryAddress.json'
 // import governanceSatelliteAddress from '../deployments/governanceSatelliteAddress.json'
@@ -577,16 +577,16 @@
 //                 // Process data in batch and check which operation was executed last
 //                 const executeSingleDataBatch = await utils.tezos.wallet
 //                 .batch()
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
+//                 .withContractCall(governanceInstance.methods.processProposalSingleData(proposalId))
 //                 const processProposalSingleDataBatchOperation = await executeSingleDataBatch.send()
 //                 await processProposalSingleDataBatchOperation.confirmation()
 
@@ -1440,7 +1440,7 @@
 //                     12000,
 //                     100,
 //                     farmMetadataBase,
-//                     lpTokenAddress.address,
+//                     mavrykFa12TokenAddress.address,
 //                     0,
 //                     "fa12",
 //                 ).toTransferParams();
@@ -1558,7 +1558,7 @@
 //                     12000,
 //                     100,
 //                     farmMetadataBase,
-//                     lpTokenAddress.address,
+//                     mavrykFa12TokenAddress.address,
 //                     0,
 //                     "fa12",
 //                 ).toTransferParams();

@@ -16,7 +16,7 @@
 
 // import farmAddress from '../deployments/farmAddress.json';
 // import farmfactoryAddress from '../deployments/farmFactoryAddress.json';
-// import lpAddress from '../deployments/lpTokenAddress.json';
+// import lpAddress from '../deployments/mavrykFa12TokenAddress.json';
 // import mvkAddress from '../deployments/mvkTokenAddress.json';
 // import doormanAddress from '../deployments/doormanAddress.json';
 // import treasuryAddress from '../deployments/treasuryAddress.json';

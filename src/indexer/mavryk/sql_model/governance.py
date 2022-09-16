@@ -99,6 +99,7 @@ class GovernanceProposalRecord(Model):
     quorum_count                            = fields.BigIntField(default=0)
     quorum_smvk_total                       = fields.FloatField(default=0)
     start_datetime                          = fields.DatetimeField(null=True)
+    execution_datetime                      = fields.DatetimeField(null=True)
     cycle                                   = fields.BigIntField(default=0)
     current_cycle_start_level               = fields.BigIntField(default=0)
     current_cycle_end_level                 = fields.BigIntField(default=0)

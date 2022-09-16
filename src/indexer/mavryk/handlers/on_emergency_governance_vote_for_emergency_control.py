@@ -21,8 +21,8 @@ async def on_emergency_governance_vote_for_emergency_control(
     total_smvk_votes            = float(emergency_storage.totalStakedMvkVotes)
     smvk_amount                 = float(voter_storage.nat)
     executed                    = emergency_storage.executed
-    executed_datetime           = parser.parse(emergency_storage.executedDateTime)
-    executed_level              = int(emergency_storage.executedLevel)
+    execution_datetime          = parser.parse(emergency_storage.executedDateTime)
+    execution_level             = int(emergency_storage.executedLevel)
 
     # Create and update record
     emergency                   = await models.EmergencyGovernance.get(address  = emergency_address)
@@ -32,8 +32,8 @@ async def on_emergency_governance_vote_for_emergency_control(
     )
     emergency_record.total_smvk_votes      = total_smvk_votes
     emergency_record.executed              = executed
-    emergency_record.executed_timestamp    = executed_datetime
-    emergency_record.executed_level        = executed_level
+    emergency_record.execution_datetime    = execution_datetime
+    emergency_record.execution_level       = execution_level
     await emergency_record.save()
 
     voter, _                       = await models.MavrykUser.get_or_create(address  = voter_address)

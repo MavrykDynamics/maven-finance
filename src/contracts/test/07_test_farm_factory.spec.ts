@@ -10,7 +10,7 @@
 // import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 
 // import farmFactoryAddress from '../deployments/farmFactoryAddress.json';
-// import lpTokenAddress from '../deployments/lpTokenAddress.json';
+// import mavrykFa12TokenAddress from '../deployments/mavrykFa12TokenAddress.json';
 // import doormanAddress from '../deployments/doormanAddress.json';
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 // import { farmStorageType } from "./types/farmStorageType";
@@ -67,7 +67,7 @@
         
 //         farmFactoryInstance   = await utils.tezos.contract.at(farmFactoryAddress.address);
 //         farmFactoryStorage    = await farmFactoryInstance.storage();
-//         lpTokenInstance = await utils.tezos.contract.at(lpTokenAddress.address);
+//         lpTokenInstance = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
 //         lpTokenStorage    = await lpTokenInstance.storage();
 //         doormanInstance = await utils.tezos.contract.at(doormanAddress.address);
 //         doormanStorage    = await doormanInstance.storage();
@@ -99,7 +99,7 @@
 //                         12000,
 //                         100,
 //                         farmMetadataBase,
-//                         lpTokenAddress.address,
+//                         mavrykFa12TokenAddress.address,
 //                         0,
 //                         "fa12",
 //                     ).send();
@@ -113,7 +113,7 @@
 //                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
 //                     farmStorage                             = await farmInstance.storage();
 
-//                     assert.strictEqual(farmStorage.config.lpToken.tokenAddress, lpTokenAddress.address);
+//                     assert.strictEqual(farmStorage.config.lpToken.tokenAddress, mavrykFa12TokenAddress.address);
 //                     assert.equal(farmStorage.config.lpToken.tokenId, 0);
 //                     assert.equal(farmStorage.config.lpToken.tokenBalance.toNumber(), 0);
 //                     assert.equal(Object.keys(farmStorage.config.lpToken.tokenStandard)[0], "fa12");
@@ -138,7 +138,7 @@
 //                         12000,
 //                         0,
 //                         farmMetadataBase,
-//                         lpTokenAddress.address,
+//                         mavrykFa12TokenAddress.address,
 //                         0,
 //                         "fa12"
 //                     ).send()).to.be.rejected;
@@ -158,7 +158,7 @@
 //                         12000,
 //                         100,
 //                         farmMetadataBase,
-//                         lpTokenAddress.address,
+//                         mavrykFa12TokenAddress.address,
 //                         0,
 //                         "fa12"
 //                     ).send();
@@ -172,7 +172,7 @@
 //                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
 //                     farmStorage                             = await farmInstance.storage();
 
-//                     assert.strictEqual(farmStorage.config.lpToken.tokenAddress, lpTokenAddress.address);
+//                     assert.strictEqual(farmStorage.config.lpToken.tokenAddress, mavrykFa12TokenAddress.address);
 //                     assert.equal(farmStorage.config.lpToken.tokenId, 0);
 //                     assert.equal(farmStorage.config.lpToken.tokenBalance.toNumber(), 0);
 //                     assert.equal(Object.keys(farmStorage.config.lpToken.tokenStandard)[0], "fa12");
@@ -270,7 +270,7 @@
 //                         12000,
 //                         100,
 //                         farmMetadataBase,
-//                         lpTokenAddress.address,
+//                         mavrykFa12TokenAddress.address,
 //                         0,
 //                         "fa12"
 //                     ).send()).to.be.rejected;
@@ -366,7 +366,7 @@
 //                         12000,
 //                         100,
 //                         farmMetadataBase,
-//                         lpTokenAddress.address,
+//                         mavrykFa12TokenAddress.address,
 //                         0,
 //                         "fa12"
 //                     ).send();
@@ -488,7 +488,7 @@
 //                         12000,
 //                         100,
 //                         farmMetadataBase,
-//                         lpTokenAddress.address,
+//                         mavrykFa12TokenAddress.address,
 //                         0,
 //                         "fa12"
 //                     ).send()).to.be.rejected;
@@ -676,7 +676,7 @@
 //                         100,
 //                         12000,
 //                         farmMetadataBase,
-//                         lpTokenAddress.address,
+//                         mavrykFa12TokenAddress.address,
 //                         0,
 //                         "fa12"
 //                     ).send();

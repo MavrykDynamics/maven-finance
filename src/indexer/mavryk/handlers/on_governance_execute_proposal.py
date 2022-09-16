@@ -15,10 +15,12 @@ async def on_governance_execute_proposal(
     proposal_id         = int(execute_proposal.storage.timelockProposalId)
     proposal_storage    = execute_proposal.storage.proposalLedger[execute_proposal.storage.timelockProposalId]
     executed            = proposal_storage.executed
+    timestamp           = execute_proposal.data.timestamp
 
     # Update record
     proposal     = await models.GovernanceProposalRecord.get(
         id  = proposal_id
     )
-    proposal.executed   = executed
+    proposal.executed               = executed
+    proposal.execution_timestamp    = timestamp
     await proposal.save()
