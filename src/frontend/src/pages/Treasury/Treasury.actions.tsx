@@ -142,21 +142,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
 export const GET_VESTING_STORAGE = 'GET_VESTING_STORAGE'
 export const getVestingStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   try {
-    const state: State = getState()
-
-    // const contract = accountPkh
-    //   ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.vestingAddress?.address)
-    //   : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/')?.contract?.at(
-    //       state?.contractAddresses?.vestingAddress?.address,
-    //     )
-
-    // const storage = await contract?.storage()
-    // console.log('Printing out Vesting storage:\n', storage)
-
-    // dispatch({
-    //   type: GET_VESTING_STORAGE,
-    //   vestingStorage: storage,
-    // })
+    // TODO: implement it after clarification
   } catch (error) {
     console.log('%c ----- error getVestingStorage', 'color:red', error)
   }

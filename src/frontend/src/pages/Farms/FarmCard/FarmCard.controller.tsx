@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -215,9 +215,9 @@ export const FarmCard = ({
     </a>
   )
 
-  const expandCallback2 = () => {
+  const expandBlockCallback = useCallback(() => {
     expandCallback(farmAddress)
-  }
+  }, [])
 
   if (variant === 'vertical') {
     return (
@@ -237,7 +237,7 @@ export const FarmCard = ({
 
         <Expand
           className="vertical-expand"
-          onClickCallback={expandCallback2}
+          onClickCallback={expandBlockCallback}
           isExpandedByDefault={isOpenedCard}
           showText
           header={<></>}
@@ -253,7 +253,7 @@ export const FarmCard = ({
     <FarmCardStyled className={`contractCard  ${variant} ${isOpenedCard ? 'opened' : ''}`}>
       {questionLinkBlock}
       <Expand
-        onClickCallback={expandCallback2}
+        onClickCallback={expandBlockCallback}
         isExpandedByDefault={isOpenedCard}
         header={
           <>
