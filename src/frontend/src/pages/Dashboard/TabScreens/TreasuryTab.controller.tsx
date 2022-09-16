@@ -18,15 +18,18 @@ export const fieldsMapper = [
   {
     fieldName: 'balance',
     needCommaNumber: true,
+    propsToComponents: {
+      useAccurateParsing: true,
+    },
   },
   {
     fieldName: 'usdValue',
-    callback: (fieldName: string, value: unknown) => {
+    callback: (_: string, value: unknown) => {
       const { rate, symbol, usdValue } = value as TreasuryBalanceType
       const obj = {
         ...(rate ? { beginningText: '$' } : { endingText: symbol }),
       }
-      return <CommaNumber {...obj} value={Number(usdValue)} />
+      return <CommaNumber {...obj} value={Number(usdValue)} useAccurateParsing />
     },
   },
 ]
