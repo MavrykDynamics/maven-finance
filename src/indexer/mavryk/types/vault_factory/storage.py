@@ -16,6 +16,14 @@ class Config(BaseModel):
     empty: Dict[str, Any]
 
 
+class BreakGlassConfig(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    createVaultIsPaused: bool
+    empty: Dict[str, Any]
+
+
 class VaultFactoryStorage(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -28,7 +36,7 @@ class VaultFactoryStorage(BaseModel):
     governanceAddress: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
-    breakGlassConfig: bool
+    breakGlassConfig: BreakGlassConfig
     vaultCounter: str
     lambdaLedger: Dict[str, str]
     vaultLambdaLedger: Dict[str, str]

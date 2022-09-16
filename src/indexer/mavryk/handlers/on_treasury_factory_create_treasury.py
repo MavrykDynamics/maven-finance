@@ -53,7 +53,7 @@ async def on_treasury_factory_create_treasury(
     treasury.admin                           = admin
     treasury.name                            = name
     treasury.creation_timestamp              = creation_timestamp
-    treasury.treasury_factory                = treasury_factory
+    treasury.factory                         = treasury_factory
     treasury.transfer_paused                 = transfer_paused
     treasury.mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused
     treasury.stake_mvk_paused                = stake_mvk_paused

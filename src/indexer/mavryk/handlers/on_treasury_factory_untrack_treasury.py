@@ -18,5 +18,5 @@ async def on_treasury_factory_untrack_treasury(
         address = treasury_address
     )
     if treasury:
-        treasury.treasury_factory   = None
+        treasury.factory        = None
         await treasury.save()

@@ -8,6 +8,7 @@ from mavryk.sql_model.parents import ContractLambda, MavrykContract
 
 class Vault(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='vaults', null=True)
+    factory                                 = fields.ForeignKeyField('models.VaultFactory', related_name='vaults', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True)
     allowance                               = fields.IntEnumField(enum_type=VaultAllowance, default=VaultAllowance.ANY)
 

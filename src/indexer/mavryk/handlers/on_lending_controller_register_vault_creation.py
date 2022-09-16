@@ -8,4 +8,5 @@ async def on_lending_controller_register_vault_creation(
     ctx: HandlerContext,
     register_vault_creation: Transaction[RegisterVaultCreationParameter, LendingControllerStorage],
 ) -> None:
-    ...
+
+    breakpoint()
