@@ -23,7 +23,7 @@ import lendingControllerAddress from '../../deployments/lendingControllerAddress
 // ------------------------------------------------------------------------------
 
 import { Aggregator } from '../helpers/aggregatorHelper'
-import { TokenPoolLpToken } from "../helpers/tokenPoolLpTokenHelper"
+import { MavrykFa2Token } from "../helpers/mavrykFa2TokenHelper"
 import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPoolRewardHelper"
 
 // ------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPool
 // ------------------------------------------------------------------------------
 
 import { aggregatorStorage } from '../../storage/aggregatorStorage'
-import { tokenPoolLpTokenStorage } from '../../storage/tokenPoolLpTokenStorage'
+import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
 import { tokenPoolRewardStorage } from '../../storage/tokenPoolRewardStorage'
 
 // ------------------------------------------------------------------------------
@@ -41,9 +41,9 @@ import { tokenPoolRewardStorage } from '../../storage/tokenPoolRewardStorage'
 describe('Lending Controller', async () => {
   
     var utils: Utils
-    var lpTokenPoolMockFa12Token        : TokenPoolLpToken
-    var lpTokenPoolMockFa2Token         : TokenPoolLpToken
-    var lpTokenPoolXtz                  : TokenPoolLpToken
+    var lpTokenPoolMockFa12Token        : MavrykFa2Token
+    var lpTokenPoolMockFa2Token         : MavrykFa2Token
+    var lpTokenPoolXtz                  : MavrykFa2Token
 
     var mockUsdXtzAggregator            : Aggregator
     var mockUsdMockFa12TokenAggregator  : Aggregator
@@ -62,12 +62,12 @@ describe('Lending Controller', async () => {
             //----------------------------
 
             // LP Token for Mock FA12 Token in Lending Controller Token Pool 
-            tokenPoolLpTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
+            mavrykFa2TokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
                 "lendingController"     : lendingControllerAddress.address
             })
-            lpTokenPoolMockFa12Token = await TokenPoolLpToken.originate(
+            lpTokenPoolMockFa12Token = await MavrykFa2Token.originate(
                 utils.tezos,
-                tokenPoolLpTokenStorage
+                mavrykFa2TokenStorage
             );
         
             await saveContractAddress("lpTokenPoolMockFa12TokenAddress", lpTokenPoolMockFa12Token.contract.address)
@@ -76,9 +76,9 @@ describe('Lending Controller', async () => {
 
 
             // LP Token for Mock FA12 Token in Lending Controller Token Pool 
-            lpTokenPoolMockFa2Token = await TokenPoolLpToken.originate(
+            lpTokenPoolMockFa2Token = await MavrykFa2Token.originate(
                 utils.tezos,
-                tokenPoolLpTokenStorage
+                mavrykFa2TokenStorage
             );
         
             await saveContractAddress("lpTokenPoolMockFa2TokenAddress", lpTokenPoolMockFa2Token.contract.address)
@@ -87,9 +87,9 @@ describe('Lending Controller', async () => {
 
 
             // LP Token for XTZ in Lending Controller Token Pool 
-            lpTokenPoolXtz= await TokenPoolLpToken.originate(
+            lpTokenPoolXtz= await MavrykFa2Token.originate(
                 utils.tezos,
-                tokenPoolLpTokenStorage
+                mavrykFa2TokenStorage
             );
         
             await saveContractAddress("lpTokenPoolXtzAddress", lpTokenPoolXtz.contract.address)

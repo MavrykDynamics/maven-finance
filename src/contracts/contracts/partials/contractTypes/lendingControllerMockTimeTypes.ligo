@@ -1,9 +1,3 @@
-// Doorman Types
-#include "../contractTypes/doormanTypes.ligo"
-
-// Vault Types
-#include "../contractTypes/vaultTypes.ligo"
-
 // ------------------------------------------------------------------------------
 // Basic Types
 // ------------------------------------------------------------------------------
@@ -73,7 +67,7 @@ type lendingControllerBreakGlassConfigType is record [
     vaultDelegateMvkToSatelliteIsPaused     : bool;
     vaultWithdrawIsPaused                   : bool;
     vaultDepositIsPaused                    : bool;
-    vaultEditDepositorIsPaused              : bool;
+    vaultUpdateDepositorIsPaused            : bool;
 
 ]
 
@@ -342,7 +336,7 @@ type lendingControllerPausableEntrypointType is
     |   VaultDelegateMvkToSatellite of bool
     |   VaultWithdraw               of bool
     |   VaultDeposit                of bool
-    |   VaultEditDepositor          of bool
+    |   VaultUpdateDepositor        of bool
 
         // Vault Staked MVK Entrypoints
     |   VaultDepositStakedMvk       of bool
@@ -398,6 +392,10 @@ type lendingControllerLambdaActionType is
 
         // Vault Staked MVK Entrypoints   
     |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
+    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
+    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
+    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
+
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -287,7 +287,7 @@ block{
 
                 const vaultLambdaLedger : lambdaLedgerType = s.vaultLambdaLedger;
 
-                // params for vault with tez storage origination
+                // params for vault with storage origination
                 const originateVaultStorage : vaultStorageType = record [
                     admin                       = s.admin;
                     metadata                    = s.vaultMetadata;
@@ -299,20 +299,20 @@ block{
                     lambdaLedger                = vaultLambdaLedger;
                 ];
 
-                // originate vault func
+                // originate vault func with delegate option
                 const vaultOrigination : (operation * address) = createVaultFunc(
-                    (None : option(key_hash)), 
-                    0tez,
+                    (None : option(key_hash)),  
+                    0tez,                       
                     originateVaultStorage
                 );
 
                 // register vault creation operation in lending controller
                 const registerVaultCreationOperation : operation = registerVaultCreationOperation(
-                    vaultOwner, 
-                    newVaultId,
-                    vaultOrigination.1,
-                    vaultLoanTokenName,
-                    s
+                    vaultOwner,             // vault owner address
+                    newVaultId,             // vault id
+                    vaultOrigination.1,     // vault address
+                    vaultLoanTokenName,     // vault loan token name
+                    s                       // storage
                 ); 
 
                 // FILO (First-In, Last-Out) - originate vault first then register vault creation in lending controller
