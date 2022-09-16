@@ -1,5 +1,6 @@
 import React, { FC, useState, useMemo } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
@@ -84,6 +85,8 @@ const actionNameHandler = (name: string) => {
 
 export const BreakGlassActions: FC = () => {
   const dispatch = useDispatch()
+  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlassActions)
+
   const itemsForDropDown = useMemo(
     () => [
       ...Object.values(breakGlassActions).map((item) => {
