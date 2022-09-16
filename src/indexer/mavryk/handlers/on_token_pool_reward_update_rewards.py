@@ -8,4 +8,5 @@ async def on_token_pool_reward_update_rewards(
     ctx: HandlerContext,
     update_rewards: Transaction[UpdateRewardsParameter, TokenPoolRewardStorage],
 ) -> None:
-    ...
+    
+    breakpoint()

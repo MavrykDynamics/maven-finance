@@ -8,4 +8,5 @@ async def on_vault_factory_update_config(
     ctx: HandlerContext,
     update_config: Transaction[UpdateConfigParameter, VaultFactoryStorage],
 ) -> None:
-    ...
+
+    breakpoint()

@@ -68,10 +68,10 @@ async def on_aggregator_factory_create_aggregator(
     existing_aggregator         = await models.Aggregator.get_or_none(
         token_0_symbol      = token_0_symbol,
         token_1_symbol      = token_1_symbol,
-        aggregator_factory  = aggregator_factory
+        factory             = aggregator_factory
     )
     if existing_aggregator:
-        existing_aggregator.aggregator_factory  = None
+        existing_aggregator.factory  = None
         await existing_aggregator.save()
     aggregator, _               = await models.Aggregator.get_or_create(
         address     = aggregator_address
@@ -80,7 +80,7 @@ async def on_aggregator_factory_create_aggregator(
     aggregator.admin                                       = admin
     aggregator.token_0_symbol                              = token_0_symbol
     aggregator.token_1_symbol                              = token_1_symbol
-    aggregator.aggregator_factory                          = aggregator_factory
+    aggregator.factory                                     = aggregator_factory
     aggregator.creation_timestamp                          = creation_timestamp
     aggregator.name                                        = name
     aggregator.decimals                                    = decimals

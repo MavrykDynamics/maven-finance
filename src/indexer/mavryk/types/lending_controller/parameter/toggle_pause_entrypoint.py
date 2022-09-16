@@ -124,14 +124,14 @@ class TargetEntrypointItem16(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultEditDepositor: bool
+    vaultLiquidateStakedMvk: bool
 
 
 class TargetEntrypointItem17(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultLiquidateStakedMvk: bool
+    vaultUpdateDepositor: bool
 
 
 class TargetEntrypointItem18(BaseModel):

@@ -95,16 +95,16 @@ contracts:
     address: KT1DM3EjTwYWrwZeLjQXMPcNDXdzrTVviq4H
     typename: token_sale
   lending_controller:
-    address: KT1D3aaW8aHNwpJnxDkuKvsPFPe4K4kjuhXr
+    address: KT1KbGUZntAC5fxmVofkFe8PExLyP5Lzkj8e
     typename: lending_controller
   token_pool_reward:
-    address: KT1NQDdhKg7mBQf35gVmUCjn6p64ciKmHT12
+    address: KT1XXjA3QwXqRv5m2bB4Ymdzdg1NyWPVQDUg
     typename: token_pool_reward
   vault:
     address: KT1WmW3AouLMkmseLzohnjrqVgGXAvgRKHHR
     typename: vault
   vault_factory:
-    address: KT1JbUVKSthe1qaxkh8KQdmohXbY8QP7gAih
+    address: KT1UURdzeZ68iJxqj3T49AepiwXcB69bg5FU
     typename: vault_factory
 
 templates:
@@ -1817,6 +1817,38 @@ indexes:
         pattern:
           - type: origination
             originated_contract: token_pool_reward
+      - callback: on_token_pool_reward_set_admin
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: setAdmin
+      - callback: on_token_pool_reward_set_governance
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: setGovernance
+      - callback: on_token_pool_reward_update_whitelist_contracts
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: updateWhitelistContracts
+      - callback: on_token_pool_reward_update_general_contracts
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: updateGeneralContracts
+      - callback: on_token_pool_reward_update_whitelist_token_contracts
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: updateWhitelistTokenContracts
+      - callback: on_token_pool_reward_pause_all
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: pauseAll
+      - callback: on_token_pool_reward_unpause_all
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: unpauseAll
+      - callback: on_token_pool_reward_toggle_pause_entrypoint
+        pattern:
+          - destination: token_pool_reward
+            entrypoint: togglePauseEntrypoint
       - callback: on_token_pool_reward_update_rewards
         pattern:
           - destination: token_pool_reward
