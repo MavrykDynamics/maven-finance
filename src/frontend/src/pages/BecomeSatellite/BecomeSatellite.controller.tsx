@@ -34,6 +34,7 @@ export const BecomeSatellite = () => {
           sMvkBalance: 0,
           totalDelegatedAmount: 0,
           unregisteredDateTime: null,
+          delegationRatio: 0,
           delegatorCount: 0,
           oracleRecords: [],
         }
