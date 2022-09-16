@@ -9,17 +9,29 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+
+// helpers
+import { getShortTzAddress } from '../../../utils/tzAdress'
 
 // actions
 import { removeCouncilMember } from '../BreakGlassActions.actions'
 
-const itemsForDropDown = [
-  {text: 'Choose', value: ''}
-]
-
 export const FormRemoveCouncilMemberView: FC = () => {
   const dispatch = useDispatch()
+  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlassActions)
 
+  const itemsForDropDown = [
+    {text: 'Choose', value: ''},
+    ...breakGlassCouncilMember.map(((item) => {
+      return {
+        text: `${item.name} - ${getShortTzAddress(item.userId)}`,
+        value: item.userId,
+      }
+    }))
+  ]
+  
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
