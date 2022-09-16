@@ -57,6 +57,10 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     width: 100%;
     height: 100%;
     border: none;
+
+    &:disabled {
+      opacity: 0.6;
+    }
   }
 
   button {
