@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -18,9 +19,8 @@ import { FormStyled } from './BreakGlassActionsForm.style'
 // actions
 import { changeCouncilMember } from '../BreakGlassActions.actions'
 
-const itemsForDropDown = [
-  {text: 'Choose', value: ''}
-]
+// helpers
+import { getShortTzAddress } from '../../../utils/tzAdress'
 
 const INIT_FORM = {
   newCouncilMemberAddress: '',
@@ -31,10 +31,22 @@ const INIT_FORM = {
 
 export const FormChangeCouncilMemberView: FC = () => {
   const dispatch = useDispatch()
+  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlassActions)
+
+  const itemsForDropDown = [
+    {text: 'Choose', value: ''},
+    ...breakGlassCouncilMember.map(((item) => {
+      return {
+        text: `${item.name} - ${getShortTzAddress(item.userId)}`,
+        value: item.userId,
+      }
+    }))
+  ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  console.log("🚀 ~ file: FormChangeCouncilMember.view.tsx ~ line 49 ~ chosenDdItem", chosenDdItem)
 
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState(INIT_FORM)
