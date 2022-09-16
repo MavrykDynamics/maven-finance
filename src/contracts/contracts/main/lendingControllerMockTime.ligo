@@ -19,11 +19,17 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Mavryk FA2 Token Types 
+#include "../partials/contractTypes/mavrykFa2TokenTypes.ligo"
+
 // Doorman Types
 #include "../partials/contractTypes/doormanTypes.ligo"
 
 // Aggregator Types - for lastCompletedRoundPriceReturnType
 #include "../partials/contractTypes/aggregatorTypes.ligo"
+
+// Vault Types
+#include "../partials/contractTypes/vaultTypes.ligo"
 
 // Lending Controller Mock Time Types
 #include "../partials/contractTypes/lendingControllerMockTimeTypes.ligo"
@@ -404,35 +410,13 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
 
 
 
-// helper function to get %updateRewards entrypoint in Token Pool Contract
-function getUpdateRewardsEntrypointInTokenPoolRewardContract(const contractAddress : address) : contract(updateRewardsActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateRewards",
-        contractAddress) : option(contract(updateRewardsActionType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(updateRewardsActionType))
-        ];
-
-
-
 // helper function to get mintOrBurn entrypoint from LP Token contract
-function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
+function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnType) is
     case (Tezos.get_entrypoint_opt(
         "%mintOrBurn",
-        tokenContractAddress) : option(contract(mintOrBurnParamsType))) of [
+        tokenContractAddress) : option(contract(mintOrBurnType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith("Error. MintOrBurn entrypoint in LP Token contract not found") : contract(mintOrBurnParamsType))
-        ]
-
-
-
-// helper function to get burn entrypoint from LP Token contract
-function getLpTokenBurnEntrypoint(const tokenContractAddress : address) : contract(burnParamsType) is
-    case (Tezos.get_entrypoint_opt(
-        "%burn",
-        tokenContractAddress) : option(contract(burnParamsType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith("Error. Burn entrypoint in LP Token contract not found") : contract(burnParamsType))
+            |   None -> (failwith(error_MINT_OR_BURN_ENTRYPOINT_IN_LP_TOKEN_NOT_FOUND) : contract(mintOrBurnType))
         ]
 
 
@@ -485,26 +469,17 @@ block {
 
 
 
+// helper function to mint or burn LP Token
 function mintOrBurnLpToken(const target : address; const quantity : int; const lpTokenAddress : address) : operation is 
 block {
 
-    const mintOrBurnParams : mintOrBurnParamsType = record [
+    const mintOrBurnParams : mintOrBurnType = record [
         quantity = quantity;
+        tokenId  = 0n;          
         target   = target;
     ];
 
 } with (Tezos.transaction(mintOrBurnParams, 0mutez, getLpTokenMintOrBurnEntrypoint(lpTokenAddress) ) )
-
-
-
-function burnLpToken(const target : address; const amount : nat; const lpTokenAddress : address) : operation is 
-block {
-
-    const burnParams : burnParamsType = (target, amount)
-
-
-} with (Tezos.transaction(burnParams, 0mutez, getLpTokenBurnEntrypoint(lpTokenAddress) ) )
-
 
 
 
