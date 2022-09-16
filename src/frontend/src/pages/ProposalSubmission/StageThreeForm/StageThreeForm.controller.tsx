@@ -55,8 +55,8 @@ type StageThreeFormProps = {
 }
 
 export const PAYMENTS_TYPES = ['XTZ', 'MVK']
-const INIT_TABLE_HEADERS = ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)']
-const INIT_TABLE_DATA = [INIT_TABLE_HEADERS, ['', '', '', PAYMENTS_TYPES[0]]]
+const INIT_TABLE_HEADERS = ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)', '-', '-']
+const INIT_TABLE_DATA = [INIT_TABLE_HEADERS, ['', '', '', PAYMENTS_TYPES[0], '-', '-']]
 const MAX_ROWS = 10
 
 export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPayments }: StageThreeFormProps) => {
@@ -68,6 +68,7 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
   const successReward = governanceStorage.config.successReward
   const [tableData, setTableData] = useState(INIT_TABLE_DATA)
   const [tableJson, setTableJson] = useState('')
+
   const [form, setForm] = useState<ProposalFinancialRequestForm>({
     title: proposalTitle,
     financialData: { jsonString: tableJson },
@@ -89,6 +90,19 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
   }
 
   const enebleSubmit = tableData.flat().every((item) => Boolean(item))
+  const valueRows = tableData.filter((_, i) => i > 0)
+
+  console.log('%c ||||| valueRows', 'color:yellowgreen', valueRows)
+
+  const isAllRowsNotUpdate = valueRows.every((item) => item.includes('notUpdate'))
+
+  console.log('%c ||||| enebleSubmit', 'color:pink', enebleSubmit)
+  console.log('%c ||||| disabled', 'color:pink', disabled)
+  console.log('%c ||||| isAllRowsNotUpdate', 'color:pink', isAllRowsNotUpdate)
+
+  const disabledSubmitTable = !enebleSubmit || disabled || isAllRowsNotUpdate
+
+  console.log('%c ||||| disabledSubmitTable', 'color:yellowgreen', disabledSubmitTable)
 
   const handleOnBlur = () => {
     const validityCheckResult = isJsonString(form.financialData?.jsonString ?? '')
@@ -116,18 +130,22 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
 
   useEffect(() => {
     if (proposalPayments?.length) {
+      console.log('%c ||||| proposalPayments', 'color:yellowgreen', proposalPayments)
       const prepareTablePayments = proposalPayments.map((item) => {
+        console.log('%c ||||| item', 'color:red', item)
         const paymentType = normalizeTokenStandart(item.token)
         const amount =
           paymentType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
-        return [item.to__id, item.title, `${amount}`, paymentType]
+        return [item.to__id, item.title, `${amount}`, paymentType, item.id, 'notUpdate']
       }) as string[][]
       setTableData([INIT_TABLE_HEADERS, ...prepareTablePayments])
     }
   }, [proposalPayments])
 
   const handleSubmitFinancialRequestData = () => {
-    const submitData = tableData.filter((_, i) => i !== 0)
+    const submitData = tableData.filter((row, i) => i !== 0 && !row.includes('notUpdate'))
+
+    console.log('%c ||||| submitData', 'color:yellowgreen', submitData)
     if (proposalId) {
       dispatch(submitFinancialRequestData(proposalId, submitData, accountPkh as string))
     }
@@ -138,23 +156,41 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
 
   const isMaxRows = MAX_ROWS <= tableData.length
 
-  const handleChangeData = (value: string, i: number, j: number) => {
+  const handleChangeData = (value: string, i: number, j: number, id: number) => {
     const cloneTable = [...tableData]
     cloneTable[i][j] = value
+
+    proposalPayments?.forEach((item) => {
+      if (item.id === id) {
+        const currentRow = cloneTable[i]
+        const itemType = normalizeTokenStandart(item.token)
+        const amount = itemType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
+
+        const isSame =
+          currentRow[0] === item.to__id &&
+          currentRow[1] === item.title &&
+          itemType === currentRow[3] &&
+          amount === +currentRow[2]
+        cloneTable[i][5] = isSame ? 'notUpdate' : '-'
+      }
+    })
+
     setTableData(cloneTable)
     setOpenDrop('')
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, i: number, j: number) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, i: number, j: number, id: number) => {
     const value = e.target.value
-    handleChangeData(value, i, j)
+    handleChangeData(value, i, j, id)
   }
 
   const handleAddRow = () => {
     setOpenDrop('')
-    const newFillRow = ['', '', '', PAYMENTS_TYPES[0]]
+    const newFillRow = ['', '', '', PAYMENTS_TYPES[0], '-', '-']
     setTableData([...tableData, newFillRow])
   }
+
+  console.log('%c ||||| tableData', 'color:blue', tableData)
 
   const handleDeleteRow = (id: number, existInServer: boolean, row: string[]) => {
     // console.log('%c ||||| propose', 'color:yellowgreen', propose)
@@ -222,58 +258,61 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
                       const isOpen = openDrop === `${i}-${j}`
 
                       const disabledInput = j === 1 && !!existInServer
-
-                      return (
-                        <td key={`${i}+${j}`}>
-                          {isFirstRow ? (
-                            colValue
-                          ) : !isLastColumn ? (
-                            <input
-                              onFocus={() => setOpenDrop('')}
-                              value={colValue}
-                              type={j === 2 ? 'number' : 'text'}
-                              disabled={disabledInput}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i, j)}
-                            />
-                          ) : (
-                            <div className="table-drop">
-                              <button onClick={() => handleToggleDrop(i, j)} className="table-drop-btn-cur">
-                                {colValue}
-                              </button>
-                              {isOpen && (
-                                <DropDownListContainer>
-                                  <DropDownList>
-                                    {PAYMENTS_TYPES.map((value, index) => {
-                                      const isActive = colValue === value
-                                      return (
-                                        <DropDownListItem
-                                          onClick={() => handleChangeData(value, i, j)}
-                                          key={Math.random()}
-                                        >
-                                          {value} {isActive ? <Icon id="check-stroke" /> : null}
-                                        </DropDownListItem>
-                                      )
-                                    })}
-                                  </DropDownList>
-                                </DropDownListContainer>
-                              )}
-                            </div>
-                          )}
-
-                          {isLastColumn && tableData.length > 2 ? (
-                            <div className="delete-button-wrap">
-                              <StyledTooltip placement="top" title="Delete row">
-                                <button
-                                  onClick={() => handleDeleteRow(i, !!existInServer, row)}
-                                  className="delete-button"
-                                >
-                                  <Icon id="delete" />
+                      if (j < 4) {
+                        return (
+                          <td key={`${i}+${j}`}>
+                            {isFirstRow ? (
+                              colValue
+                            ) : !isLastColumn ? (
+                              <input
+                                onFocus={() => setOpenDrop('')}
+                                value={colValue}
+                                type={j === 2 ? 'number' : 'text'}
+                                disabled={disabledInput}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i, j, +row[4])}
+                              />
+                            ) : (
+                              <div className="table-drop">
+                                <button onClick={() => handleToggleDrop(i, j)} className="table-drop-btn-cur">
+                                  {colValue}
                                 </button>
-                              </StyledTooltip>
-                            </div>
-                          ) : null}
-                        </td>
-                      )
+                                {isOpen && (
+                                  <DropDownListContainer>
+                                    <DropDownList>
+                                      {PAYMENTS_TYPES.map((value, index) => {
+                                        const isActive = colValue === value
+                                        return (
+                                          <DropDownListItem
+                                            onClick={() => handleChangeData(value, i, j, +row[4])}
+                                            key={Math.random()}
+                                          >
+                                            {value} {isActive ? <Icon id="check-stroke" /> : null}
+                                          </DropDownListItem>
+                                        )
+                                      })}
+                                    </DropDownList>
+                                  </DropDownListContainer>
+                                )}
+                              </div>
+                            )}
+
+                            {isLastColumn && tableData.length > 2 ? (
+                              <div className="delete-button-wrap">
+                                <StyledTooltip placement="top" title="Delete row">
+                                  <button
+                                    onClick={() => handleDeleteRow(i, !!existInServer, row)}
+                                    className="delete-button"
+                                  >
+                                    <Icon id="delete" />
+                                  </button>
+                                </StyledTooltip>
+                              </div>
+                            ) : null}
+                          </td>
+                        )
+                      }
+
+                      return null
                     })}
                   </tr>
                 )
@@ -303,7 +342,7 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
 
         <Button
           icon="financial"
-          disabled={!enebleSubmit || disabled}
+          disabled={disabledSubmitTable}
           className="financial"
           kind="actionPrimary"
           text={'Submit Financial Request'}
