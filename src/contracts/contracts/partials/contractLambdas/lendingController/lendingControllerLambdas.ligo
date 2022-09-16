@@ -218,8 +218,8 @@ block {
                 if s.breakGlassConfig.vaultDepositIsPaused then skip
                 else s.breakGlassConfig.vaultDepositIsPaused := True;
 
-                if s.breakGlassConfig.vaultEditDepositorIsPaused then skip
-                else s.breakGlassConfig.vaultEditDepositorIsPaused := True;
+                if s.breakGlassConfig.vaultUpdateDepositorIsPaused then skip
+                else s.breakGlassConfig.vaultUpdateDepositorIsPaused := True;
 
                 // Vault Staked MVK Entrypoints
                 if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then skip
@@ -304,7 +304,7 @@ block {
                 if s.breakGlassConfig.vaultDepositIsPaused then s.breakGlassConfig.vaultDepositIsPaused := False
                 else skip;
             
-                if s.breakGlassConfig.vaultEditDepositorIsPaused then s.breakGlassConfig.vaultEditDepositorIsPaused := False
+                if s.breakGlassConfig.vaultUpdateDepositorIsPaused then s.breakGlassConfig.vaultUpdateDepositorIsPaused := False
                 else skip;
 
                 // Vault Staked MVK Entrypoints
@@ -361,7 +361,7 @@ block {
                     |   VaultDelegateMvkToSatellite (_v)     -> s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused   := _v
                     |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
                     |   VaultDeposit (_v)                    -> s.breakGlassConfig.vaultDepositIsPaused                  := _v
-                    |   VaultEditDepositor (_v)              -> s.breakGlassConfig.vaultEditDepositorIsPaused            := _v
+                    |   VaultUpdateDepositor (_v)            -> s.breakGlassConfig.vaultUpdateDepositorIsPaused          := _v
 
                         // Vault Staked MVK Entrypoints
                     |   VaultDepositStakedMvk (_v)           -> s.breakGlassConfig.vaultDepositStakedMvkIsPaused         := _v
@@ -535,16 +535,16 @@ block {
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
                 // burn LP Token operation
-                const burnLpTokenOperation : operation = burnLpToken(
-                    initiator,                  // current user
-                    lpTokensBurned,             // amount of LP Tokens to burn 
-                    lpTokenContractAddress      // LP Token address
-                );
-                operations := burnLpTokenOperation # operations;
+                // const burnLpTokenOperation : operation = burnLpToken(
+                //     initiator,                  // current user
+                //     lpTokensBurned,             // amount of LP Tokens to burn 
+                //     lpTokenContractAddress      // LP Token address
+                // );
+                // operations := burnLpTokenOperation # operations;
 
                 // burn LP Tokens and send to sender
-                // const burnLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, int(0n - amount), lpTokenContractAddress);
-                // operations := burnLpTokensTokensOperation # operations;
+                const burnLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, 0n - amount, lpTokenContractAddress);
+                operations := burnLpTokensTokensOperation # operations;
 
                 
                 // send tokens from token pool to initiator

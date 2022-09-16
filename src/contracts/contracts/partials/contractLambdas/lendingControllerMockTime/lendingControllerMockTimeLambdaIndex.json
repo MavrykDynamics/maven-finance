@@ -89,7 +89,18 @@
     },
     {
         "index": 22,
-        "name": "lambdaClaimRewards"
+        "name": "lambdaCallVaultStakedMvkAction"
+    },
+    {
+        "index": 23,
+        "name": "lambdaVaultDepositStakedMvk"
+    },
+    {
+        "index": 24,
+        "name": "lambdaVaultWithdrawStakedMvk"
+    },
+    {
+        "index": 25,
+        "name": "lambdaVaultLiquidateStakedMvk"
     }
-    
 ]
