@@ -77,10 +77,10 @@ export const CustomTooltip = ({
   text?: string
   defaultStrokeColor?: string
   className?: string
-  iconId?: 'info' | 'question'
+  iconId: 'info' | 'question'
 }) => (
   <TooltipStyled className={className} defaultStrokeColor={defaultStrokeColor}>
-    {iconId ? <Icon id={iconId} /> : null}
+    <Icon id={iconId} />
     {text && <div className="text">{text}</div>}
   </TooltipStyled>
 )
