@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -9,8 +10,6 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
-import { useSelector } from 'react-redux'
-import { State } from 'reducers'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
