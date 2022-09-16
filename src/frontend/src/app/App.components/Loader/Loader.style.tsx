@@ -1,4 +1,5 @@
-import styled from 'styled-components/macro'
+import styled, { keyframes } from 'styled-components/macro'
+import { MavrykTheme } from 'styles/interfaces'
 
 export const LoaderStyled = styled.div`
   display: flex;
@@ -139,4 +140,55 @@ export const LoaderStyled = styled.div`
   .loading__square:nth-of-type(7) {
     animation-delay: -10s;
   }
+`
+
+export const LoaderStyledWithBackdrop = styled.div<{ theme: MavrykTheme; backdropAlpha?: number }>`
+  position: fixed;
+  inset: 0;
+  transition: background-color 0.15s ease-in-out;
+  background-color: ${({ backdropAlpha }) => `rgba(8, 6, 40,  ${backdropAlpha || 0.5})`};
+  display: flex;
+  z-index: 12;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-weight: 600;
+  font-size: 18px;
+  color: ${({ theme }) => theme.valueColor};
+
+  figcaption {
+    margin-top: -30px;
+  }
+
+  /* .container {
+    padding: 12px 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid ${({ theme }) => theme.borderColor};
+    background: ${({ theme }) => theme.backgroundColor};
+    border-radius: 10px;
+  } */
+`
+
+const shine = keyframes`
+  from {
+    background-position: 200% center;
+  }
+`
+
+export const LoaderShineTextAnimation = styled.div<{ theme: MavrykTheme }>`
+  background-image: ${({ theme }) => theme.shineAnimationGradient};
+  background-size: auto auto;
+  background-clip: border-box;
+  background-size: 200% auto;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${shine} 2s linear infinite;
+  font-weight: 600;
+  font-size: 26px;
+  text-decoration: none;
+  white-space: nowrap;
 `

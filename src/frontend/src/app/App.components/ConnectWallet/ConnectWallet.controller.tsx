@@ -14,6 +14,8 @@ import WertIoPopup from './Wert/WertIoPopup'
 import { toggleSidebarCollapsing } from '../Menu/Menu.actions'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
+import { toggleLoader } from '../Loader/Loader.action'
+import { WERT_IO_LOADER } from 'utils/constants'
 
 type ConnectWalletProps = {
   className?: string
@@ -41,6 +43,10 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
     dispatch(disconnect())
   }
 
+  const wertLoaderToogler = (loader?: typeof WERT_IO_LOADER) => {
+    dispatch(toggleLoader(loader))
+  }
+
   const showWertIoErrorToaster = () => {
     dispatch(
       showToaster(
@@ -52,7 +58,8 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   }
 
   const mountWertWiget = (commodity: string) => {
-    const wertOptions = getWertOptions(commodity, setShowWertIoPopup, showWertIoErrorToaster)
+    wertLoaderToogler(WERT_IO_LOADER)
+    const wertOptions = getWertOptions(commodity, setShowWertIoPopup, showWertIoErrorToaster, wertLoaderToogler)
     const wertWidgetInstance = new WertWidget(wertOptions)
     wertWidgetInstance.mount()
   }
