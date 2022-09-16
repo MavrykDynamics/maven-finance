@@ -96,7 +96,7 @@ export const SatelliteGovernanceCard = ({
             <p className="inner first-big-letter">{getSeparateSnakeCase(governanceType)}</p>
           </SatelliteGovernanceCardTitleTextGroup>
           <SatelliteGovernanceCardTitleTextGroup>
-            <h3>Satellite</h3>
+            <h3>Target</h3>
             <div className="inner">
               <TzAddress tzAddress={satelliteId} hasIcon={false} />
             </div>
