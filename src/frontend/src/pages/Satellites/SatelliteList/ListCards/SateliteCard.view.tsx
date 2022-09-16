@@ -73,7 +73,7 @@ export const SatelliteListItem = ({
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
   const satelliteStatusColor = satellite.status === SatelliteStatus.BANNED ? DOWN : WARNING
-  const showButtons = !isSatellite && satellite.status === SatelliteStatus.ACTIVE
+  const isSatelliteInactive = satellite.status !== SatelliteStatus.ACTIVE
 
   const buttonToShow = satelliteUserIsDelegatedTo ? (
     <>
@@ -208,13 +208,13 @@ export const SatelliteListItem = ({
         </div>
 
         <SatelliteCardButtons>
-          {showButtons ? (
-            buttonToShow
-          ) : (
+          {isSatelliteInactive && (
             <div>
               <StatusFlag status={satelliteStatusColor} text={SatelliteStatus[satellite.status]} />
             </div>
           )}
+
+          {!isSatelliteInactive && !isSatellite && buttonToShow}
         </SatelliteCardButtons>
       </SatelliteCardInner>
 
