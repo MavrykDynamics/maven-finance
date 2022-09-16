@@ -188,6 +188,13 @@ query GetCurrentRoundProposalsQuery {
         to__id
         token_amount
         token_id
+        token {
+          address
+          decimals
+          type
+          token_id
+          name
+        }
       }
     }
   }
