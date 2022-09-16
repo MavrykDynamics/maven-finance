@@ -78,13 +78,13 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                 <div className="assets-block assets-block-map" key={balanceValue.contract}>
                   <p className="asset-name">{balanceValue.symbol}</p>
                   <p className="asset-value">
-                    <CommaNumber value={balanceValue.balance} />
+                    <CommaNumber value={balanceValue.balance} useAccurateParsing />
                   </p>
                   <p className="asset-value right-text value">
                     {balanceValue.rate && balanceValue.usdValue ? (
-                      <CommaNumber beginningText="$" value={balanceValue.usdValue} />
+                      <CommaNumber beginningText="$" value={balanceValue.usdValue} useAccurateParsing />
                     ) : (
-                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} />
+                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} useAccurateParsing />
                     )}
                   </p>
                 </div>

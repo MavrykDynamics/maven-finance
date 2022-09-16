@@ -40,6 +40,8 @@ export const SimpleTable = ({ colunmNames, data, fieldsMapper, className = '' }:
                 }
 
                 if (needCommaNumber) {
+                  console.log(propsToComponents, fieldName)
+
                   return (
                     <div className="row-item" key={item[fieldName] + fieldName}>
                       <CommaNumber {...propsToComponents} value={Number(item[fieldName])} />
