@@ -8,4 +8,5 @@ async def on_vault_factory_unpause_all(
     ctx: HandlerContext,
     unpause_all: Transaction[UnpauseAllParameter, VaultFactoryStorage],
 ) -> None:
-    ...
+
+    breakpoint()

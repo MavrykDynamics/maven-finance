@@ -81,7 +81,7 @@ async def on_farm_factory_create_farm(
     farm.admin                           = admin
     farm.name                            = name
     farm.creation_timestamp              = creation_timestamp 
-    farm.farm_factory                    = farm_factory
+    farm.factory                         = farm_factory
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite
     farm.lp_token                        = lp_token

@@ -1,18 +1,18 @@
 from mavryk.utils.persisters import persist_admin
-from mavryk.types.vault_factory.storage import VaultFactoryStorage
+from mavryk.types.token_pool_reward.storage import TokenPoolRewardStorage
+from mavryk.types.token_pool_reward.parameter.set_admin import SetAdminParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
-from mavryk.types.vault_factory.parameter.set_admin import SetAdminParameter
 import mavryk.models as models
 
-async def on_vault_factory_set_admin(
+async def on_token_pool_reward_set_admin(
     ctx: HandlerContext,
-    set_admin: Transaction[SetAdminParameter, VaultFactoryStorage],
+    set_admin: Transaction[SetAdminParameter, TokenPoolRewardStorage],
 ) -> None:
     
     # Get operation info
     target_contract = set_admin.data.target_address
-    contract        = await models.VaultFactory.get(address = target_contract)
+    contract        = await models.TokenPoolReward.get(address = target_contract)
 
     # Persist new admin
     await persist_admin(set_admin, contract)
