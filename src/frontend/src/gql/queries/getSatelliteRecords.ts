@@ -15,6 +15,9 @@ export const SATELLITE_RECORDS_QUERY = `
           smvk_balance
         }
       }
+      delegation {
+        delegation_ratio
+      }
       user {
         smvk_balance
         mvk_balance

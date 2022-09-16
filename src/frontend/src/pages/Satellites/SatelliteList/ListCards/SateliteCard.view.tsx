@@ -6,7 +6,7 @@ import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Butt
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { RoutingButton } from 'app/App.components/RoutingButton/RoutingButton.controller'
-import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
+import { DOWN, WARNING } from 'app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
@@ -14,6 +14,7 @@ import * as React from 'react'
 import { useSelector } from 'react-redux'
 // types
 import { State } from 'reducers'
+import { SatelliteStatus } from 'utils/TypesAndInterfaces/Delegation'
 
 import { SatelliteListItemProps } from '../../helpers/Satellites.types'
 import {
@@ -45,12 +46,14 @@ export const SatelliteListItem = ({
 }: SatelliteListItemProps) => {
   const totalDelegatedMVK = satellite.totalDelegatedAmount
   const sMvkBalance = satellite.sMvkBalance
+  const freesMVKSpace = Math.abs(sMvkBalance * satellite.delegationRatio - totalDelegatedMVK)
 
   const {
     governanceStorage: { proposalLedger },
   } = useSelector((state: State) => state.governance)
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const { isSatellite } = useSelector((state: State) => state.user.user)
+  const { ready } = useSelector((state: State) => state.wallet)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const isSatelliteOracle = satellite.oracleRecords.length
@@ -69,8 +72,9 @@ export const SatelliteListItem = ({
   )
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
+  const satelliteStatusColor = satellite.status === SatelliteStatus.BANNED ? DOWN : WARNING
+  const showButtons = !isSatellite && satellite.status === SatelliteStatus.ACTIVE
 
-  const showButtons = !isSatellite && satellite.status === 0
   const buttonToShow = userIsDelegatedToThisSatellite ? (
     <Button
       text="Undelegate"
@@ -78,6 +82,7 @@ export const SatelliteListItem = ({
       kind={ACTION_SECONDARY}
       loading={loading}
       onClick={() => undelegateCallback()}
+      disabled={!ready}
     />
   ) : (
     <Button
@@ -86,6 +91,7 @@ export const SatelliteListItem = ({
       kind={ACTION_PRIMARY}
       loading={loading}
       onClick={() => delegateCallback(satellite.address)}
+      disabled={!ready}
     />
   )
 
@@ -126,7 +132,7 @@ export const SatelliteListItem = ({
             <SatelliteTextGroup>
               <SatelliteMainText>Free sMVK Space</SatelliteMainText>
               <SatelliteSubText>
-                <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
+                <CommaNumber value={freesMVKSpace} />
               </SatelliteSubText>
             </SatelliteTextGroup>
 
@@ -195,7 +201,7 @@ export const SatelliteListItem = ({
             buttonToShow
           ) : (
             <div>
-              <StatusFlag status={DOWN} text={'INACTIVE'} />
+              <StatusFlag status={satelliteStatusColor} text={SatelliteStatus[satellite.status]} />
             </div>
           )}
         </SatelliteCardButtons>
