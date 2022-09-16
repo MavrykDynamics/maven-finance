@@ -8,4 +8,5 @@ async def on_vault_factory_toggle_pause_entrypoint(
     ctx: HandlerContext,
     toggle_pause_entrypoint: Transaction[TogglePauseEntrypointParameter, VaultFactoryStorage],
 ) -> None:
-    ...
+
+    breakpoint()

@@ -16,16 +16,22 @@ class LendingController(MavrykContract, Model):
     minimum_loan_treasury_share             = fields.SmallIntField(default=0)
     interest_treasury_share                 = fields.SmallIntField(default=0)
     decimals                                = fields.SmallIntField(default=0)
+    interest_rate_decimals                  = fields.SmallIntField(default=0)
     max_decimals_for_calculation            = fields.SmallIntField(default=0)
     max_vault_liquidation_pct               = fields.SmallIntField(default=0)
     liquidation_delay_in_minutes            = fields.BigIntField(default=0)
-    create_vault_paused                     = fields.BooleanField(default=False)
+    add_liquidity_paused                    = fields.BooleanField(default=False)
+    remove_liquidity_paused                 = fields.BooleanField(default=False)
+    register_vault_creation_paused          = fields.BooleanField(default=False)
     close_vault_paused                      = fields.BooleanField(default=False)
     register_deposit_paused                 = fields.BooleanField(default=False)
     register_withdrawal_paused              = fields.BooleanField(default=False)
     liquidate_vault_paused                  = fields.BooleanField(default=False)
+    mark_for_liquidation_paused             = fields.BooleanField(default=False)
     borrow_paused                           = fields.BooleanField(default=False)
     repay_paused                            = fields.BooleanField(default=False)
+    set_loan_token_paused                   = fields.BooleanField(default=False)
+    update_collateral_token_paused          = fields.BooleanField(default=False)
     vault_deposit_smvk_paused               = fields.BooleanField(default=False)
     vault_withdraw_smvk_paused              = fields.BooleanField(default=False)
     vault_liquidate_smvk_paused             = fields.BooleanField(default=False)
@@ -61,17 +67,6 @@ class LendingControllerWhitelistTokenContract(LinkedContract, Model):
 
     class Meta:
         table = 'lending_controller_whitelist_token_contract'
-
-class LendingControllerReward(Model):
-    id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='rewards', null=True)
-    token_name                              = fields.CharField(default="", max_length=36)
-    unpaid                                  = fields.FloatField(default=0.0)
-    paid                                    = fields.FloatField(default=0.0)
-    rewards_per_share                       = fields.FloatField(default=0.0)
-
-    class Meta:
-        table = 'lending_controller_reward'
 
 class LendingControllerVaultHandle(Model):
     id                                      = fields.BigIntField(pk=True, default=0)

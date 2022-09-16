@@ -46,8 +46,8 @@ class BreakGlassConfig(BaseModel):
     vaultDelegateTezToBakerIsPaused: bool
     vaultDepositIsPaused: bool
     vaultDepositStakedMvkIsPaused: bool
-    vaultEditDepositorIsPaused: bool
     vaultLiquidateStakedMvkIsPaused: bool
+    vaultUpdateDepositorIsPaused: bool
     vaultWithdrawIsPaused: bool
     vaultWithdrawStakedMvkIsPaused: bool
 
