@@ -38,7 +38,7 @@ const emptyContainer = (
 )
 
 const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: OracleSatellitesViewProps) => {
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
@@ -88,7 +88,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
 
           {satellitesList.length ? (
             <SatteliteList
-              loading={Boolean(loading)}
+              loading={loading}
               items={satellitesList}
               listType={'satellites'}
               name={SATELITES_NODES_LIST_NAME}

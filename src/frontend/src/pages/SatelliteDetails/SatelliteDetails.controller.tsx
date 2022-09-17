@@ -12,7 +12,7 @@ import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Sat
 
 export const SatelliteDetails = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
   const { currentSatellite } = useSelector((state: State) => state.delegation)
   const { user } = useSelector((state: State) => state.user)
 
@@ -34,7 +34,7 @@ export const SatelliteDetails = () => {
   return (
     <SatelliteDetailsView
       satellite={currentSatellite}
-      loading={Boolean(loading)}
+      loading={loading}
       delegateCallback={delegateCallback}
       undelegateCallback={undelegateCallback}
       userStakedBalanceInSatellite={user.mySMvkTokenBalance}

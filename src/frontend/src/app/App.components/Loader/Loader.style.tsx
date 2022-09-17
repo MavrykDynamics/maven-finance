@@ -159,16 +159,6 @@ export const LoaderStyledWithBackdrop = styled.div<{ theme: MavrykTheme; backdro
   figcaption {
     margin-top: -30px;
   }
-
-  /* .container {
-    padding: 12px 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid ${({ theme }) => theme.borderColor};
-    background: ${({ theme }) => theme.backgroundColor};
-    border-radius: 10px;
-  } */
 `
 
 const shine = keyframes`
