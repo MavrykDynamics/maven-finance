@@ -13,5 +13,5 @@ export const Modal = () => {
     dispatch(hideModal())
   }
 
-  return <ModalView kind={kind} loading={loading} cancelCallback={cancelCallback} showing={showing} />
+  return <ModalView kind={kind} loading={Boolean(loading)} cancelCallback={cancelCallback} showing={showing} />
 }

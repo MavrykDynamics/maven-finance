@@ -9,7 +9,7 @@ import { MenuView } from './Menu.view'
 
 export const Menu = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
   const { ready, accountPkh } = useSelector((state: State) => state.wallet)
 
   async function initialDispatches(accountPkh?: string) {

@@ -88,7 +88,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
 
           {satellitesList.length ? (
             <SatteliteList
-              loading={loading}
+              loading={Boolean(loading)}
               items={satellitesList}
               listType={'satellites'}
               name={SATELITES_NODES_LIST_NAME}

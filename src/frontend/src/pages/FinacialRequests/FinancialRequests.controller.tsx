@@ -17,7 +17,7 @@ import { FinancialRequestsView } from './FinancialRequests.view'
 
 export const FinancialRequests = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
 
   const { ready } = useSelector((state: State) => state.wallet)
   const {

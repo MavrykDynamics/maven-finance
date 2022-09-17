@@ -34,7 +34,7 @@ export const SatelliteDetails = () => {
   return (
     <SatelliteDetailsView
       satellite={currentSatellite}
-      loading={loading}
+      loading={Boolean(loading)}
       delegateCallback={delegateCallback}
       undelegateCallback={undelegateCallback}
       userStakedBalanceInSatellite={user.mySMvkTokenBalance}
