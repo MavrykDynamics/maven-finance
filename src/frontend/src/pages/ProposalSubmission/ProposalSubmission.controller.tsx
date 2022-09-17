@@ -21,7 +21,7 @@ export const ProposalSubmission = () => {
 
   return (
     <ProposalSubmissionView
-      loading={loading}
+      loading={Boolean(loading)}
       activeTab={activeTab}
       handleChangeTab={handleChangeTab}
       accountPkh={accountPkh}

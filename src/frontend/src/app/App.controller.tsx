@@ -28,7 +28,8 @@ export type GetState = typeof store.getState
 const AppContainer = () => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { changeNodePopupOpen, sidebarOpened, loader } = useSelector((state: State) => state.preferences)
+  const loader = useSelector((state: State) => state.loading)
+  const { changeNodePopupOpen, sidebarOpened } = useSelector((state: State) => state.preferences)
   const showSidebarOpened = useMedia('(min-width: 1400px)')
 
   useEffect(() => {

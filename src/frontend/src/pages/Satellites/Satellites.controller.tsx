@@ -54,7 +54,7 @@ const Satellites = () => {
 
   return (
     <SatellitesView
-      isLoading={loading}
+      isLoading={Boolean(loading)}
       tabsInfo={tabsInfo}
       delegateCallback={delegateCallback}
       oracleSatellitesData={{

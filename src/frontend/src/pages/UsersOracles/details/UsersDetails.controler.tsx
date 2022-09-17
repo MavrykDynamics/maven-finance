@@ -15,7 +15,7 @@ import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 const UserDetails = () => {
   const dispatch = useDispatch()
-  const isLoading = useSelector((state: State) => state.loading)
+  const isLoading = useSelector((state: State) => Boolean(state.loading))
 
   let { userId } = useParams<{ userId: string }>()
 
