@@ -5,7 +5,7 @@ import { State } from 'reducers'
 import { ProposalSubmissionView } from './ProposalSubmission.view'
 
 export const ProposalSubmission = () => {
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
   const [activeTab, setActiveTab] = useState<number>(1)
@@ -21,7 +21,7 @@ export const ProposalSubmission = () => {
 
   return (
     <ProposalSubmissionView
-      loading={Boolean(loading)}
+      loading={loading}
       activeTab={activeTab}
       handleChangeTab={handleChangeTab}
       accountPkh={accountPkh}
