@@ -23,10 +23,9 @@ export const Dashboard = () => {
 
   const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
   const treasuryTVL = treasuryStorage.reduce((acc, { balances }) => {
-    balances.forEach((balanceAsset) => {
-      acc += balanceAsset.usdValue || 0
-    })
-    return acc
+    return (acc += balances.reduce((balanceAcc, balanceAsset) => {
+      return (balanceAcc += balanceAsset.usdValue || 0)
+    }, 0))
   }, 0)
 
   //TODO: add calculation for tvl value (farms, loans, vaults)
