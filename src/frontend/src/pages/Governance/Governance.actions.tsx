@@ -48,8 +48,10 @@ export const getCurrentRoundProposals = () => async (dispatch: AppDispatch, getS
     CURRENT_ROUND_PROPOSALS_QUERY_NAME,
     CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE,
   )
-
+  console.log('%c ||||| storage.governance_proposal', 'color:yellowgreen', storage.governance_proposal)
   const currentRoundProposals = normalizeProposals(storage.governance_proposal)
+
+  console.log('%c ||||| currentRoundProposals', 'color:yellowgreen', currentRoundProposals)
 
   dispatch({
     type: GET_CURRENT_ROUND_PROPOSALS,

@@ -14,7 +14,7 @@ const DataFeedDetails = () => {
   const dispatch = useDispatch()
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
-  const isLoading = useSelector((state: State) => state.loading)
+  const isLoading = useSelector((state: State) => Boolean(state.loading))
 
   let { feedId } = useParams<{ feedId: string }>()
 
