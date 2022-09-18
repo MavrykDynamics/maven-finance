@@ -55,17 +55,22 @@ export const getFarmsContracts = () => async (dispatch: AppDispatch, getState: G
 export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
 export const getFarmStorage = () => async (dispatch: AppDispatch) => {
-  const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
-  const farmCardEndsIn = await getEndsInTimestampForFarmCards(storage?.farm)
+  try {
+    const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
+    const farmCardEndsIn = await getEndsInTimestampForFarmCards(storage?.farm)
 
-  const farmStorage = normalizeFarmStorage(storage?.farm, farmCardEndsIn)
+    const farmStorage = normalizeFarmStorage(storage?.farm, farmCardEndsIn)
 
-  await dispatch({
-    type: GET_FARM_STORAGE,
-    farmStorage,
-  })
+    await dispatch({
+      type: GET_FARM_STORAGE,
+      farmStorage,
+    })
 
-  await dispatch(getFarmsContracts())
+    await dispatch(getFarmsContracts())
+  } catch (e) {
+    dispatch(showToaster(ERROR, 'Error while fetching farms data', 'Please wait...'))
+    return
+  }
 }
 
 export const HARVEST_REQUEST = 'HARVEST_REQUEST'

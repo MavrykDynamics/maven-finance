@@ -3,11 +3,13 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { BlockName, StatBlock } from '../Dashboard.style'
+import { calcTreasuryAseetsToTableDataFormat } from '../Dashboard.utils'
 import { TabWrapperStyled, TreasuryContentStyled, TreasuryVesting } from './DashboardTabs.style'
 
 export const columnNames = ['Asset', 'Amount', 'USD Value']
@@ -41,21 +43,11 @@ export const TreasuryTab = () => {
 
   const history = useHistory()
 
-  const treasuryAssets = treasuryStorage.reduce((acc, { balances }) => {
-    balances.forEach((balanceAsset) => {
-      const currentAssetIndex = acc.findIndex((asset: TreasuryBalanceType) => asset.symbol === balanceAsset.symbol)
-      if (currentAssetIndex < 0) {
-        acc.push(balanceAsset)
-      } else {
-        acc[currentAssetIndex].balance += balanceAsset.balance
-        acc[currentAssetIndex].usdValue = (acc[currentAssetIndex].usdValue || 0) + (balanceAsset.usdValue || 0)
-      }
-    })
-
-    return acc
-  }, [] as Array<TreasuryBalanceType>)
-
-  const globalTreasury = treasuryAssets.reduce((acc, asset) => acc + (asset.usdValue || 0), 0)
+  const { assets, globalTreasury } = useMemo(
+    () => calcTreasuryAseetsToTableDataFormat(treasuryStorage),
+    [treasuryStorage],
+  )
+  const treasuryAssetsArray = Object.values(assets)
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">
@@ -91,7 +83,7 @@ export const TreasuryTab = () => {
 
             <SimpleTable
               colunmNames={columnNames}
-              data={treasuryAssets}
+              data={treasuryAssetsArray}
               fieldsMapper={fieldsMapper}
               className="dashboard-st"
             />

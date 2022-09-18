@@ -9,6 +9,7 @@ import { EmptyContainer } from 'app/App.style'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { calculateAPR } from 'pages/Farms/Frams.helpers'
 import qs from 'qs'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { State } from 'reducers'
@@ -24,7 +25,7 @@ const emptyContainer = (
 export const FarmsTab = () => {
   const { farmStorage } = useSelector((state: State) => state.farm)
   const history = useHistory()
-  const hasLiveFarms = farmStorage.some(({ isLive }) => isLive)
+  const hasLiveFarms = useMemo(() => farmStorage.some(({ isLive }) => isLive), [farmStorage])
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_farmsTab_bg.png">

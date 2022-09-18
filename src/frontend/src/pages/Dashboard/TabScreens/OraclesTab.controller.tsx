@@ -4,10 +4,9 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { BLUE } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import { coinGeckoClient } from 'app/App.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getDate_DMYHM_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { State } from 'reducers'
@@ -19,7 +18,7 @@ export const OraclesTab = () => {
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { satelliteLedger = [] } = useSelector((state: State) => state.delegation.delegationStorage)
 
-  const oracleFeeds = useMemo(() => feeds.length, [feeds])
+  const oracleFeeds = feeds.length
   const popularFeeds = useMemo(() => feeds.splice(0, 3), [feeds])
 
   const oracleRevardsTotal = useMemo(
