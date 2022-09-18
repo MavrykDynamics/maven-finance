@@ -1,4 +1,4 @@
-import { TabId } from '../Dashboard.controller'
+import { TabId } from '../Dashboard.utils'
 import { FarmsTab } from './FarmsTab.controller'
 import { LendingTab } from './LendingTab.controller'
 import { OraclesTab } from './OraclesTab.controller'

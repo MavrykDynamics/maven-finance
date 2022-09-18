@@ -129,6 +129,8 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       })
       .filter(({ balances }) => Boolean(balances.length))
 
+    console.log('treasuryStorage', treasuryStorage)
+
     dispatch({
       type: SET_TREASURY_STORAGE,
       treasuryStorage,

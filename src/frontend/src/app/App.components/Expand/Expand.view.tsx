@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // view
 import Icon from '../Icon/Icon.view'
@@ -27,8 +27,12 @@ export default function Expand({
   isExpandedByDefault = false,
   onClickCallback,
 }: Props) {
-  const [expanded, setExpanded] = useState<boolean>(isExpandedByDefault)
+  const [expanded, setExpanded] = useState<boolean>(false)
   const handleToggleExpand = () => setExpanded(!expanded)
+
+  useEffect(() => {
+    setExpanded(isExpandedByDefault)
+  }, [isExpandedByDefault])
 
   return (
     <ExpandStyled className={className}>

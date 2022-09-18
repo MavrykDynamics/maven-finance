@@ -11,6 +11,7 @@ import { useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { StatBlock, BlockName } from '../Dashboard.style'
+import { calcTreasuryAseetsToTableDataFormat } from '../Dashboard.utils'
 import { TabWrapperStyled, VaultsContentStyled } from './DashboardTabs.style'
 import { columnNames, fieldsMapper } from './TreasuryTab.controller'
 
@@ -21,25 +22,15 @@ export const VaultsTab = () => {
 
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
 
-  const treasuryAssets = treasuryStorage.reduce((acc, { balances }) => {
-    balances.forEach((balanceAsset) => {
-      const currentAssetIndex = acc.findIndex((asset: TreasuryBalanceType) => asset.symbol === balanceAsset.symbol)
-      if (currentAssetIndex < 0) {
-        acc.push(balanceAsset)
-      } else {
-        acc[currentAssetIndex].balance += balanceAsset.balance
-        acc[currentAssetIndex].usdValue = Number(acc[currentAssetIndex].usdValue) + 1
-      }
-    })
-
-    return acc
-  }, [] as Array<TreasuryBalanceType>)
-
-  const globalTreasury = treasuryAssets.reduce((acc, asset) => acc + (asset.usdValue || asset.balance * 1), 0)
+  const { assets, globalTreasury } = useMemo(
+    () => calcTreasuryAseetsToTableDataFormat(treasuryStorage),
+    [treasuryStorage],
+  )
+  const treasuryAssetsArray = Object.values(assets)
 
   const chartData = useMemo(() => {
-    return getPieChartData(treasuryAssets, globalTreasury, hoveredPath)
-  }, [hoveredPath, globalTreasury, treasuryAssets])
+    return getPieChartData(treasuryAssetsArray, globalTreasury, hoveredPath)
+  }, [hoveredPath, globalTreasury, treasuryAssetsArray])
 
   return (
     <TabWrapperStyled className="vaults">
@@ -82,7 +73,7 @@ export const VaultsTab = () => {
 
             <SimpleTable
               colunmNames={columnNames}
-              data={treasuryAssets}
+              data={treasuryAssetsArray}
               fieldsMapper={fieldsMapper}
               className="dashboard-st vaults"
             />
@@ -98,7 +89,7 @@ export const VaultsTab = () => {
             <PieChartView chartData={chartData} />
 
             <div className="asset-lables scroll-block">
-              {treasuryAssets.map((balanceValue) => (
+              {treasuryAssetsArray.map((balanceValue) => (
                 <div
                   style={{
                     background: `linear-gradient(90deg,${

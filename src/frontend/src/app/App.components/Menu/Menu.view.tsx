@@ -12,6 +12,8 @@ import { MenuTopBar } from './MenuTopBar/MenuTopBar.controller'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
 
+import { matchPath } from 'react-router'
+
 type MenuViewProps = {
   loading: boolean
   accountPkh?: string
@@ -50,33 +52,37 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
 
   useEffect(() => {
     if (showSidebarOpened || sidebarOpened) {
-      const expandedRouteSection = mainNavigationLinks.find(({ path, subPages = null }) => {
+      const selectedMainRoute = mainNavigationLinks.find(({ routePath = '', subPages = null }) => {
         if (subPages) {
-          return subPages.find(({ subPath }) => `/${subPath.split(/[?#]/)[0]}` === pathname)
+          return subPages.find(({ routeSubPath = '' }) =>
+            matchPath(pathname, { path: routeSubPath, exact: true, strict: true }),
+          )
         }
 
-        return `/${path.split(/[?#]/)[0]}` === pathname
+        return matchPath(pathname, { path: routePath, exact: true, strict: true })
       })
 
-      setExpanded(expandedRouteSection?.id || 0)
+      setSelectedMainLink(selectedMainRoute?.id || 0)
+      setShowSubPages(Boolean(selectedMainRoute?.subPages))
     } else {
-      setExpanded(0)
+      setSelectedMainLink(0)
     }
   }, [pathname, showSidebarOpened, sidebarOpened])
 
-  const [isExpanded, setExpanded] = useState<number>(0)
+  const [selectedMainLink, setSelectedMainLink] = useState<number>(0)
+  const [showSubPages, setShowSubPages] = useState<boolean>(false)
 
   const handleToggle = () => {
-    dispatch(toggleSidebarCollapsing(true))
+    setShowSubPages(!showSubPages)
   }
 
   const burgerClickHandler = useCallback(() => {
-    setExpanded(0)
+    setSelectedMainLink(0)
     dispatch(toggleSidebarCollapsing())
   }, [])
 
   const sidebarBackdropClickHandler = useCallback(() => {
-    setExpanded(0)
+    setSelectedMainLink(0)
     dispatch(toggleSidebarCollapsing(false))
   }, [])
 
@@ -99,8 +105,9 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
                 <NavigationLink
                   key={navigationLink.id}
                   handleToggle={handleToggle}
-                  isExpanded={navigationLink.id === isExpanded}
+                  selectedMainLink={navigationLink.id === selectedMainLink}
                   isMobMenuExpanded={sidebarOpened}
+                  showSubPages={showSubPages}
                   accountPkh={accountPkh}
                   {...navigationLink}
                 />
