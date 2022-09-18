@@ -37,7 +37,6 @@ export const calcTreasuryAseetsToTableDataFormat = (
   treasuryData.reduce(
     (acc, { balances }) => {
       balances.forEach((balanceAsset) => {
-        console.log(acc.assets, balanceAsset)
 
         if (acc.assets[balanceAsset.symbol]) {
           acc.assets[balanceAsset.symbol].balance += balanceAsset.balance

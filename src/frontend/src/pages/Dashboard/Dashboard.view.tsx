@@ -12,7 +12,6 @@ import {
   TREASURY_TAB_ID,
   VAULTS_TAB_ID,
 } from './Dashboard.utils'
-import { DashboardTab } from './TabScreens/DashboardTab.controller'
 import { FarmsTab } from './TabScreens/FarmsTab.controller'
 import { LendingTab } from './TabScreens/LendingTab.controller'
 import { OraclesTab } from './TabScreens/OraclesTab.controller'

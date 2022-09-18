@@ -5,7 +5,7 @@ import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controll
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { BlockName, StatBlock } from '../Dashboard.style'
@@ -53,13 +53,9 @@ export const TreasuryTab = () => {
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">
       <div className="top">
         <BGTitle>Treasury</BGTitle>
-        <Button
-          text="Treasury"
-          icon="treasury"
-          kind={ACTION_PRIMARY}
-          className="noStroke"
-          onClick={() => history.push('/treasury')}
-        />
+        <Link to="/treasury">
+          <Button text="Treasury" icon="treasury" kind={ACTION_PRIMARY} className="noStroke" />
+        </Link>
       </div>
 
       <TreasuryContentStyled>

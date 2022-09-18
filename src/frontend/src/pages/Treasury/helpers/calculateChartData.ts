@@ -42,23 +42,23 @@ export const getPieChartData = (
             })
 
             return acc
-          } else {
-            // if we have grouped assets object and we have one more asset < 10%, just update it's title and balance in the acc
-            groupedSectorsValue += tokenUsdValue
-
-            const newSmallValuesObj = {
-              ...smallValuesAccObj,
-              title: `${smallValuesAccObj.title}, ${item.symbol}`,
-              value: isHoveredPathAsset
-                ? (reducedBalance / 100) * 20
-                : groupedSectorsValue + (reducedBalance / 100) * 1.5,
-              labelPersent: calcPersent(groupedSectorsValue, reducedBalance),
-              segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
-            }
-
-            acc.splice(smallValuesAccIdx, 1, newSmallValuesObj)
-            return acc
           }
+
+          // if we have grouped assets object and we have one more asset < 10%, just update it's title and balance in the acc
+          groupedSectorsValue += tokenUsdValue
+
+          const newSmallValuesObj = {
+            ...smallValuesAccObj,
+            title: `${smallValuesAccObj.title}, ${item.symbol}`,
+            value: isHoveredPathAsset
+              ? (reducedBalance / 100) * 20
+              : groupedSectorsValue + (reducedBalance / 100) * 1.5,
+            labelPersent: calcPersent(groupedSectorsValue, reducedBalance),
+            segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+          }
+
+          acc.splice(smallValuesAccIdx, 1, newSmallValuesObj)
+          return acc
         }
 
         // if asset is > 10%

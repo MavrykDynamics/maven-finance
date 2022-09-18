@@ -1,7 +1,6 @@
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import CoinsIcons from 'app/App.components/Icon/CoinsIcons.view'
-import Icon from 'app/App.components/Icon/Icon.view'
 import { Timer } from 'app/App.components/Timer/Timer.controller'
 import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
@@ -11,7 +10,7 @@ import { calculateAPR } from 'pages/Farms/Frams.helpers'
 import qs from 'qs'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Link, useHistory } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { FarmsContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 
@@ -24,20 +23,15 @@ const emptyContainer = (
 
 export const FarmsTab = () => {
   const { farmStorage } = useSelector((state: State) => state.farm)
-  const history = useHistory()
   const hasLiveFarms = useMemo(() => farmStorage.some(({ isLive }) => isLive), [farmStorage])
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_farmsTab_bg.png">
       <div className="top">
         <BGTitle>Yield Farms</BGTitle>
-        <Button
-          text="Farms"
-          icon="plant"
-          kind={ACTION_PRIMARY}
-          className="noStroke"
-          onClick={() => history.push('/yield-farms')}
-        />
+        <Link to="/yield-farms">
+          <Button text="Farms" icon="plant" kind={ACTION_PRIMARY} className="noStroke" />
+        </Link>
       </div>
 
       <FarmsContentStyled className="scroll-block">
