@@ -18,7 +18,7 @@ const Satellites = () => {
     delegationStorage: { satelliteLedger = [] },
   } = useSelector((state: State) => state.delegation)
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
   const { user } = useSelector((state: State) => state.user)
   const dispatch = useDispatch()
 

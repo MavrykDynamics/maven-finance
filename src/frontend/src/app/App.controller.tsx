@@ -1,6 +1,5 @@
 import { TempleWallet } from '@temple-wallet/dapp'
 import { useCallback, useEffect } from 'react'
-import Lottie from 'react-lottie'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { AnyAction } from 'redux'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,13 +13,13 @@ import { Menu } from './App.components/Menu/Menu.controller'
 import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
 import { Toaster } from './App.components/Toaster/Toaster.controller'
 import { configureStore } from './App.store'
-import { AppStyled, LoaderStyled } from './App.style'
-import animationData from './ship-loop.json'
+import { AppStyled } from './App.style'
 import { getGovernanceStorage } from '../../src/pages/Governance/Governance.actions'
 import { PopupChangeNode } from './App.components/SettingsPopup/SettingsPopup.controller'
 import { toggleRPCNodePopup } from './App.components/SettingsPopup/SettingsPopup.actions'
 import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
 import { useMedia } from 'react-use'
+import Loader from './App.components/Loader/Loader.view'
 
 export const { store, persistor } = configureStore({})
 export type AppDispatch = ThunkDispatch<State, unknown, AnyAction>
@@ -29,7 +28,7 @@ export type GetState = typeof store.getState
 const AppContainer = () => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const loading = useSelector((state: State) => state.loading)
+  const loader = useSelector((state: State) => state.loading)
   const { changeNodePopupOpen, sidebarOpened } = useSelector((state: State) => state.preferences)
   const showSidebarOpened = useMedia('(min-width: 1400px)')
 
@@ -48,30 +47,11 @@ const AppContainer = () => {
 
   const closeModalHandler = useCallback(() => dispatch(toggleRPCNodePopup(false)), [])
 
-  const animation = JSON.parse(JSON.stringify(animationData))
-  const shipLoopOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animation,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  }
-
   return (
     <Router>
       <ProgressBar />
       <AppStyled isExpandedMenu={sidebarOpened}>
-        {loading ? (
-          <LoaderStyled>
-            <figure>
-              <div>
-                <Lottie width={250} height={200} options={shipLoopOptions} isClickToPauseDisabled={true} />
-              </div>
-              <figcaption>Loading...</figcaption>
-            </figure>
-          </LoaderStyled>
-        ) : null}
+        {loader ? <Loader loaderType={loader} /> : null}
         <Menu />
         <PopupChangeNode isModalOpened={changeNodePopupOpen} closeModal={closeModalHandler} />
         <AppRoutes />
