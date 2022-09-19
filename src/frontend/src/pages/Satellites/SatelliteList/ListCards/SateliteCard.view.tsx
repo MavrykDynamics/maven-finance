@@ -46,7 +46,7 @@ export const SatelliteListItem = ({
 }: SatelliteListItemProps) => {
   const totalDelegatedMVK = satellite.totalDelegatedAmount
   const sMvkBalance = satellite.sMvkBalance
-  const freesMVKSpace = Math.abs(sMvkBalance * satellite.delegationRatio - totalDelegatedMVK)
+  const freesMVKSpace = Math.max(sMvkBalance * satellite.delegationRatio - totalDelegatedMVK, 0)
 
   const {
     governanceStorage: { proposalLedger },
