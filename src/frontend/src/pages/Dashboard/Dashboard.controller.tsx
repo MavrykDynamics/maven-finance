@@ -1,33 +1,18 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import qs from 'qs'
 import { useEffect } from 'react'
-import { fillTreasuryStorage, getVestingStorage } from '../Treasury/Treasury.actions'
+import { fillTreasuryStorage } from '../Treasury/Treasury.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { DashboardView } from './Dashboard.view'
-import { useLocation } from 'react-router'
+import { useParams } from 'react-router'
 import { getFarmStorage } from 'pages/Farms/Farms.actions'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
-
-export type mvkStatsType = {
-  marketCap: number
-  stakedMvk: number
-  circuatingSupply: number
-  maxSupply: number
-  livePrice: number
-  prevPrice: number
-}
-
-export type TabId = 'lending' | 'vaults' | 'satellites' | 'treasury' | 'farms' | 'oracles'
-const tabIds = ['lending', 'vaults', 'satellites', 'treasury', 'farms', 'oracles'] as const
-type TabIdTypes = typeof tabIds[number]
-const isValidId = (x: any): x is TabIdTypes => tabIds.includes(x)
+import { mvkStatsType, isValidId, LENDING_TAB_ID } from './Dashboard.utils'
 
 export const Dashboard = () => {
   const dispatch = useDispatch()
-  const { search } = useLocation()
-  const { tab = 'lending' } = qs.parse(search, { ignoreQueryPrefix: true }) as { tab?: string }
+  const { tabId } = useParams<{ tabId: string }>()
 
   const {
     exchangeRate,
@@ -38,10 +23,9 @@ export const Dashboard = () => {
 
   const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
   const treasuryTVL = treasuryStorage.reduce((acc, { balances }) => {
-    balances.forEach((balanceAsset) => {
-      acc += balanceAsset.usdValue || 0
-    })
-    return acc
+    return (acc += balances.reduce((balanceAcc, balanceAsset) => {
+      return (balanceAcc += balanceAsset.usdValue || 0)
+    }, 0))
   }, 0)
 
   //TODO: add calculation for tvl value (farms, loans, vaults)
@@ -65,7 +49,11 @@ export const Dashboard = () => {
   return (
     <Page>
       <PageHeader page={'dashboard'} />
-      <DashboardView tvl={tvlValue} mvkStatsBlock={mvkStatsBlock} activeTab={isValidId(tab) ? tab : 'lending'} />
+      <DashboardView
+        tvl={tvlValue}
+        mvkStatsBlock={mvkStatsBlock}
+        activeTab={isValidId(tabId) ? tabId : LENDING_TAB_ID}
+      />
     </Page>
   )
 }

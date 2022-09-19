@@ -1,9 +1,23 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
-import { Link } from 'react-router-dom'
-import { mvkStatsType, TabId } from './Dashboard.controller'
+import { Link, Redirect, Route, Switch } from 'react-router-dom'
 import { DashboardStyled, StatBlock } from './Dashboard.style'
-import { DashboardTab } from './TabScreens/DashboardTab.controller'
+import {
+  FARMS_TAB_ID,
+  LENDING_TAB_ID,
+  mvkStatsType,
+  ORACLES_TAB_ID,
+  SATELLITES_TAB_ID,
+  TabId,
+  TREASURY_TAB_ID,
+  VAULTS_TAB_ID,
+} from './Dashboard.utils'
+import { FarmsTab } from './TabScreens/FarmsTab.controller'
+import { LendingTab } from './TabScreens/LendingTab.controller'
+import { OraclesTab } from './TabScreens/OraclesTab.controller'
+import { SatellitesTab } from './TabScreens/SatellitesTab.controller'
+import { TreasuryTab } from './TabScreens/TreasuryTab.controller'
+import { VaultsTab } from './TabScreens/VaultsTab.controller'
 
 export const DashboardView = ({
   tvl,
@@ -68,27 +82,47 @@ export const DashboardView = ({
       </div>
 
       <div className="dashboard-navigation">
-        <Link to={'/dashboard?tab=lending'} className={activeTab === 'lending' ? 'selected' : ''}>
+        <Link to={`/dashboard/${LENDING_TAB_ID}`} className={activeTab === LENDING_TAB_ID ? 'selected' : ''}>
           Lending
         </Link>
-        <Link to={'/dashboard?tab=vaults'} className={activeTab === 'vaults' ? 'selected' : ''}>
+        <Link to={`/dashboard/${VAULTS_TAB_ID}`} className={activeTab === VAULTS_TAB_ID ? 'selected' : ''}>
           Vaults
         </Link>
-        <Link to={'/dashboard?tab=satellites'} className={activeTab === 'satellites' ? 'selected' : ''}>
+        <Link to={`/dashboard/${SATELLITES_TAB_ID}`} className={activeTab === SATELLITES_TAB_ID ? 'selected' : ''}>
           Satellites
         </Link>
-        <Link to={'/dashboard?tab=treasury'} className={activeTab === 'treasury' ? 'selected' : ''}>
+        <Link to={`/dashboard/${TREASURY_TAB_ID}`} className={activeTab === TREASURY_TAB_ID ? 'selected' : ''}>
           Treasury
         </Link>
-        <Link to={'/dashboard?tab=farms'} className={activeTab === 'farms' ? 'selected' : ''}>
+        <Link to={`/dashboard/${FARMS_TAB_ID}`} className={activeTab === FARMS_TAB_ID ? 'selected' : ''}>
           Farms
         </Link>
-        <Link to={'/dashboard?tab=oracles'} className={activeTab === 'oracles' ? 'selected' : ''}>
+        <Link to={`/dashboard/${ORACLES_TAB_ID}`} className={activeTab === ORACLES_TAB_ID ? 'selected' : ''}>
           Oracles
         </Link>
       </div>
 
-      <DashboardTab activeTab={activeTab} />
+      <Switch>
+        <Route exact path={`/dashboard/${FARMS_TAB_ID}`}>
+          <FarmsTab />
+        </Route>
+        <Route exact path={`/dashboard/${VAULTS_TAB_ID}`}>
+          <VaultsTab />
+        </Route>
+        <Route exact path={`/dashboard/${SATELLITES_TAB_ID}`}>
+          <SatellitesTab />
+        </Route>
+        <Route exact path={`/dashboard/${ORACLES_TAB_ID}`}>
+          <OraclesTab />
+        </Route>
+        <Route exact path={`/dashboard/${TREASURY_TAB_ID}`}>
+          <TreasuryTab />
+        </Route>
+        <Route path={`/dashboard/${LENDING_TAB_ID}`}>
+          <LendingTab />
+        </Route>
+        <Redirect to={`/dashboard/${LENDING_TAB_ID}`} />
+      </Switch>
     </DashboardStyled>
   )
 }

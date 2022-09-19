@@ -19,8 +19,10 @@ export const SimpleTable = ({ colunmNames, data, fieldsMapper, className = '' }:
   return (
     <SimpletableStyled className={`simple-table ${className}`}>
       <div className="row column-names">
-        {colunmNames.map((name) => (
-          <div className="row-item">{name}</div>
+        {colunmNames.map((name, idx) => (
+          <div className="row-item" key={`${name}-${idx}`}>
+            {name}
+          </div>
         ))}
       </div>
 

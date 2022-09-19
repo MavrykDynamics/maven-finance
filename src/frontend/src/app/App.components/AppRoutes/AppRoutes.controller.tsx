@@ -38,7 +38,7 @@ export const AppRoutes = () => {
       <Route exact path="/">
         <Doorman />
       </Route>
-      <Route exact path="/dashboard">
+      <Route exact path="/dashboard/:tabId">
         <Dashboard />
       </Route>
       <Route exact path="/dashboard-personal">
