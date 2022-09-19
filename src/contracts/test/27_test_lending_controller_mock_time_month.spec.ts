@@ -679,6 +679,9 @@ describe("Lending Controller (Mock Time) tests", async () => {
                 const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
+                const oracleType                            = "oracle";
+                const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
                 const lpTokenId                             = 0;
 
@@ -696,6 +699,9 @@ describe("Lending Controller (Mock Time) tests", async () => {
                         
                     tokenName,
                     tokenDecimals,
+
+                    oracleType,
+                    oracleAddress,
 
                     lpTokenContractAddress,
                     lpTokenId,
@@ -1241,35 +1247,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
-
-            // const vaultMetadataBase = Buffer.from(
-            //     JSON.stringify({
-            //         name: 'EVE VAULT',
-            //         description: 'MAVRYK Vault Contract',
-            //         version: 'v1.0.0',
-            //         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            //     }),
-            //     'ascii',
-            // ).toString('hex');
-
-            // user (eve) creates a new vault with no tez
-            // const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
-            //     eve.pkh,                // delegate to
-            //     vaultMetadataBase,      // metadata
-            //     loanTokenName,          // loan token type
-            //     depositors,             // depositors type
-            // ).send();
-            // await userCreatesNewVaultOperation.confirmation();
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
@@ -1320,9 +1308,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,                 
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1344,10 +1331,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,    
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -1535,35 +1520,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
             
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
-
-            // const vaultMetadataBase = Buffer.from(
-            //     JSON.stringify({
-            //         name: 'EVE VAULT',
-            //         description: 'MAVRYK Vault Contract',
-            //         version: 'v1.0.0',
-            //         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            //     }),
-            //     'ascii',
-            // ).toString('hex');
-
-            // user (eve) creates a new vault with no tez
-            // const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
-            //     eve.pkh,                // delegate to
-            //     vaultMetadataBase,      // metadata
-            //     loanTokenName,          // loan token type
-            //     depositors,             // depositors type
-            // ).send();
-            // await userCreatesNewVaultOperation.confirmation();
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
@@ -1614,9 +1581,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,    
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1638,10 +1604,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,      
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -1828,35 +1792,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
-
-            // const vaultMetadataBase = Buffer.from(
-            //     JSON.stringify({
-            //         name: 'EVE VAULT',
-            //         description: 'MAVRYK Vault Contract',
-            //         version: 'v1.0.0',
-            //         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            //     }),
-            //     'ascii',
-            // ).toString('hex');
-
-            // user (eve) creates a new vault with no tez
-            // const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
-            //     eve.pkh,                // delegate to
-            //     vaultMetadataBase,      // metadata
-            //     loanTokenName,          // loan token type
-            //     depositors,             // depositors type
-            // ).send();
-            // await userCreatesNewVaultOperation.confirmation();
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
@@ -1907,9 +1853,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,           
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1931,10 +1876,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,   
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -2122,35 +2065,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
-
-            // const vaultMetadataBase = Buffer.from(
-            //     JSON.stringify({
-            //         name: 'EVE VAULT',
-            //         description: 'MAVRYK Vault Contract',
-            //         version: 'v1.0.0',
-            //         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            //     }),
-            //     'ascii',
-            // ).toString('hex');
-
-            // user (eve) creates a new vault with no tez
-            // const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
-            //     eve.pkh,                // delegate to
-            //     vaultMetadataBase,      // metadata
-            //     loanTokenName,          // loan token type
-            //     depositors,             // depositors type
-            // ).send();
-            // await userCreatesNewVaultOperation.confirmation();
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
@@ -2201,9 +2126,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,       
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2225,10 +2149,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,  
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -2417,35 +2339,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
-
-            // const vaultMetadataBase = Buffer.from(
-            //     JSON.stringify({
-            //         name: 'EVE VAULT',
-            //         description: 'MAVRYK Vault Contract',
-            //         version: 'v1.0.0',
-            //         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            //     }),
-            //     'ascii',
-            // ).toString('hex');
-
-            // user (eve) creates a new vault with no tez
-            // const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
-            //     eve.pkh,                // delegate to
-            //     vaultMetadataBase,      // metadata
-            //     loanTokenName,          // loan token type
-            //     depositors,             // depositors type
-            // ).send();
-            // await userCreatesNewVaultOperation.confirmation();
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
@@ -2496,9 +2400,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,               
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2520,10 +2423,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,  
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -2711,35 +2612,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
-
-            // const vaultMetadataBase = Buffer.from(
-            //     JSON.stringify({
-            //         name: 'EVE VAULT',
-            //         description: 'MAVRYK Vault Contract',
-            //         version: 'v1.0.0',
-            //         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            //     }),
-            //     'ascii',
-            // ).toString('hex');
-
-            // user (eve) creates a new vault with no tez
-            // const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
-            //     eve.pkh,                // delegate to
-            //     vaultMetadataBase,      // metadata
-            //     loanTokenName,          // loan token type
-            //     depositors,             // depositors type
-            // ).send();
-            // await userCreatesNewVaultOperation.confirmation();
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
@@ -2790,9 +2673,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,         
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2814,10 +2696,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,      
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -3005,35 +2885,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
-
-            // const vaultMetadataBase = Buffer.from(
-            //     JSON.stringify({
-            //         name: 'EVE VAULT',
-            //         description: 'MAVRYK Vault Contract',
-            //         version: 'v1.0.0',
-            //         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            //     }),
-            //     'ascii',
-            // ).toString('hex');
-
-            // user (eve) creates a new vault with no tez
-            // const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
-            //     eve.pkh,                // delegate to
-            //     vaultMetadataBase,      // metadata
-            //     loanTokenName,          // loan token type
-            //     depositors,             // depositors type
-            // ).send();
-            // await userCreatesNewVaultOperation.confirmation();
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
@@ -3084,9 +2946,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,           
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3108,10 +2969,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,      
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -3298,35 +3157,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
-
-            // const vaultMetadataBase = Buffer.from(
-            //     JSON.stringify({
-            //         name: 'EVE VAULT',
-            //         description: 'MAVRYK Vault Contract',
-            //         version: 'v1.0.0',
-            //         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            //     }),
-            //     'ascii',
-            // ).toString('hex');
-
-            // user (eve) creates a new vault with no tez
-            // const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
-            //     eve.pkh,                // delegate to
-            //     vaultMetadataBase,      // metadata
-            //     loanTokenName,          // loan token type
-            //     depositors,             // depositors type
-            // ).send();
-            // await userCreatesNewVaultOperation.confirmation();
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 eve.pkh,                // delegate to
@@ -3377,9 +3218,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,            
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3401,10 +3241,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,          
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -3596,12 +3434,13 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
@@ -3657,9 +3496,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,            
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3681,10 +3519,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,         
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -3856,12 +3692,13 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
@@ -3917,9 +3754,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,                
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3941,10 +3777,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,                 
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -4117,12 +3951,13 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
@@ -4178,9 +4013,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,                
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -4202,10 +4036,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,             
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -4377,12 +4209,13 @@ describe("Lending Controller (Mock Time) tests", async () => {
             // init variables
             await signerFactory(eve.sk);
             const lendingControllerStorage = await lendingControllerInstance.storage();
+            const vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = lendingControllerStorage.vaultCounter;
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
@@ -4438,9 +4271,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,               
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -4462,10 +4294,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,                  
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 

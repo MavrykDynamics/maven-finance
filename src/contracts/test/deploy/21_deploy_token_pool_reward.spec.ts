@@ -20,23 +20,23 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { VaultFactory, setVaultFactoryLambdas, setVaultFactoryProductLambdas } from '../helpers/vaultFactoryHelper'
+import { TokenPoolReward, setTokenPoolRewardLambdas } from '../helpers/tokenPoolRewardHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { vaultFactoryStorage } from '../../storage/vaultFactoryStorage'
+import { tokenPoolRewardStorage } from '../../storage/tokenPoolRewardStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('Vault Factory', async () => {
+describe('Token Pool Reward', async () => {
   
     var tezos
     var utils: Utils
-    var vaultFactory: VaultFactory
+    var tokenPoolReward: TokenPoolReward
 
     const signerFactory = async (pk) => {
         await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -52,29 +52,25 @@ describe('Vault Factory', async () => {
             // Originate and deploy contracts
             //----------------------------
 
-            vaultFactoryStorage.governanceAddress = governanceAddress.address
-            vaultFactoryStorage.mvkTokenAddress   = mvkTokenAddress.address
-            vaultFactory = await VaultFactory.originate(
+            tokenPoolRewardStorage.governanceAddress = governanceAddress.address
+            tokenPoolRewardStorage.mvkTokenAddress   = mvkTokenAddress.address
+            tokenPoolReward = await TokenPoolReward.originate(
                 utils.tezos,
-                vaultFactoryStorage
+                tokenPoolRewardStorage
             )
 
-            await saveContractAddress('vaultFactoryAddress', vaultFactory.contract.address)
-            console.log('Vault Factory Contract deployed at:', vaultFactory.contract.address)
+            await saveContractAddress('tokenPoolRewardAddress', tokenPoolReward.contract.address)
+            console.log('Token Pool Reward Contract deployed at:', tokenPoolReward.contract.address)
 
             //----------------------------
             // Set Lambdas
             //----------------------------
 
-            tezos = vaultFactory.tezos
+            tezos = tokenPoolReward.tezos
 
-            // Vault Factory Lambdas
-            await setVaultFactoryLambdas(tezos, vaultFactory.contract);
-            console.log("Vault Factory Lambdas Setup")
-
-            // Vault Factory Setup Vault Lambdas
-            await setVaultFactoryProductLambdas(tezos, vaultFactory.contract)
-            console.log("Vault Factory - Vault Lambdas Setup")
+            // Token Pool Reward Lambdas
+            await setTokenPoolRewardLambdas(tezos, tokenPoolReward.contract);
+            console.log("Token Pool Reward Lambdas Setup")
 
         } catch(e){
             
@@ -84,7 +80,7 @@ describe('Vault Factory', async () => {
 
     })
 
-    it(`vault factory contract deployed`, async () => {
+    it(`token pool reward contract deployed`, async () => {
         try {
         
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
