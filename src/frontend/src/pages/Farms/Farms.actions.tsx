@@ -57,8 +57,7 @@ export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
 export const getFarmStorage = () => async (dispatch: AppDispatch) => {
   try {
     const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
-
-    const farmStorage = normalizeFarmStorage(storage?.farm)
+    const farmStorage = await normalizeFarmStorage(storage?.farm)
 
     await dispatch({
       type: GET_FARM_STORAGE,
