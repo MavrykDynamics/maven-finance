@@ -43,6 +43,23 @@ export const TreasuryTab = () => {
 
   const { assetsBalances, globalTreasuryTVL } = useMemo(() => reduceTreasuryAssets(treasuryStorage), [treasuryStorage])
 
+  const mostAssetsTreasury = useMemo(
+    () =>
+      treasuryStorage.reduce(
+        (acc, treasury) => {
+          if (treasury.balances.length > acc.assetsCount) {
+            acc.treasuryName = treasury.name
+            acc.assetsCount = treasury.balances.length
+            acc.treasuryTVL = treasury.treasuryTVL
+          }
+
+          return acc
+        },
+        { treasuryName: '', assetsCount: 0, treasuryTVL: 0 },
+      ),
+    [treasuryStorage],
+  )
+
   return (
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">
       <div className="top">
@@ -60,12 +77,14 @@ export const TreasuryTab = () => {
               <CommaNumber endingText="USD" value={globalTreasuryTVL} />
             </div>
           </StatBlock>
-          <StatBlock>
-            <div className="name">Development Treasury</div>
-            <div className="value">
-              <CommaNumber endingText="USD" value={124141} />
-            </div>
-          </StatBlock>
+          {mostAssetsTreasury && (
+            <StatBlock>
+              <div className="name">{mostAssetsTreasury.treasuryName}</div>
+              <div className="value">
+                <CommaNumber endingText="USD" value={mostAssetsTreasury.treasuryTVL} />
+              </div>
+            </StatBlock>
+          )}
         </div>
         <div className="container">
           <div>
