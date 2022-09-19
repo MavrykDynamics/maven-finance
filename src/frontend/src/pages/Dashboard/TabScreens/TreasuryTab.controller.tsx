@@ -3,13 +3,13 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { reduceTreasuryAssets } from 'pages/Treasury/Treasury.helpers'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { BlockName, StatBlock } from '../Dashboard.style'
-import { calcTreasuryAseetsToTableDataFormat } from '../Dashboard.utils'
 import { TabWrapperStyled, TreasuryContentStyled, TreasuryVesting } from './DashboardTabs.style'
 
 export const columnNames = ['Asset', 'Amount', 'USD Value']
@@ -41,13 +41,7 @@ export const TreasuryTab = () => {
 
   const amountOfTokens = totalVestedAmount + totalClaimedAmount
 
-  const history = useHistory()
-
-  const { assets, globalTreasury } = useMemo(
-    () => calcTreasuryAseetsToTableDataFormat(treasuryStorage),
-    [treasuryStorage],
-  )
-  const treasuryAssetsArray = Object.values(assets)
+  const { assetsBalances, globalTreasuryTVL } = useMemo(() => reduceTreasuryAssets(treasuryStorage), [treasuryStorage])
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">
@@ -63,7 +57,7 @@ export const TreasuryTab = () => {
           <StatBlock>
             <div className="name">Global Treasury</div>
             <div className="value">
-              <CommaNumber endingText="USD" value={globalTreasury} />
+              <CommaNumber endingText="USD" value={globalTreasuryTVL} />
             </div>
           </StatBlock>
           <StatBlock>
@@ -79,7 +73,7 @@ export const TreasuryTab = () => {
 
             <SimpleTable
               colunmNames={columnNames}
-              data={treasuryAssetsArray}
+              data={assetsBalances}
               fieldsMapper={fieldsMapper}
               className="dashboard-st"
             />
