@@ -1,5 +1,7 @@
 import React, { FC, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+import { useLocation } from 'react-router'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
@@ -9,7 +11,14 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreakGlassActionsCard.controller'
 import { breakGlassActions } from './BreakGlassActions.actions'
 import { BreakGlassActionsForm } from './BreakGlassActionsForms/BreakGlassActionsForm.controller'
-import { State } from 'reducers'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+
+// helpers
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import {
+  calculateSlicePositions,
+  BREAK_GLASS_ACTONS_LIST_NAME,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // actions
 import { propagateBreakGlass } from './BreakGlassActions.actions'
@@ -85,7 +94,10 @@ const actionNameHandler = (name: string) => {
 
 export const BreakGlassActions: FC = () => {
   const dispatch = useDispatch()
+  const { search } = useLocation()
   const { breakGlassAction } = useSelector((state: State) => state.breakGlassActions)
+
+  const currentPage = getPageNumber(search, BREAK_GLASS_ACTONS_LIST_NAME)
 
   const itemsForDropDown = useMemo(
     () => [
@@ -116,6 +128,11 @@ export const BreakGlassActions: FC = () => {
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
   }
+
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_ACTONS_LIST_NAME)
+    return mock?.slice(from, to)
+  }, [currentPage, mock])
 
   return (
     <Page>
@@ -155,9 +172,11 @@ export const BreakGlassActions: FC = () => {
       <PastBreakGlassActions>
         <h1>Past Break Glass Actions</h1>
 
-        {mock.map((item) => {
+        {paginatedItemsList.map((item) => {
           return <PastBreakGlassActionsCard key={item.id} {...item}  />
         })}
+
+        <Pagination itemsCount={mock?.length} listName={BREAK_GLASS_ACTONS_LIST_NAME} />
       </PastBreakGlassActions>
     </Page>
   )
