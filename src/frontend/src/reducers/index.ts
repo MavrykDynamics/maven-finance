@@ -20,7 +20,7 @@ import { modal, ModalState } from './modal'
 import { user, UserState } from './user'
 import { contractAddresses, ContractAddressesState } from './contractAddresses'
 import { oracles, OraclesState } from './oracles'
-import { breakGlassActions, BreakGlassActionsState } from './breakGlassActions'
+import { breakGlassActions, BreakGlassActionsState,  } from './breakGlassActions'
 
 export const reducers = combineReducers({
   loading,

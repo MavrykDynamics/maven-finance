@@ -46,7 +46,6 @@ export const FormChangeCouncilMemberView: FC = () => {
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
-  console.log("🚀 ~ file: FormChangeCouncilMember.view.tsx ~ line 49 ~ chosenDdItem", chosenDdItem)
 
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState(INIT_FORM)

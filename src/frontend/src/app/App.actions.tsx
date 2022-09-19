@@ -20,7 +20,7 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
-import { GET_BREAK_GLASS_COUNCIL_MEMBER } from 'pages/BreakGlassActions/BreakGlassActions.actions'
+import { GET_BREAK_GLASS_COUNCIL_MEMBER, GET_BREAK_GLASS_ACTION } from 'pages/BreakGlassActions/BreakGlassActions.actions'
 
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
@@ -31,7 +31,7 @@ import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/Emerg
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
 import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
-import { normalizeBreakGlassActions } from 'pages/BreakGlassActions/BreakGlassActions.helpers'
+import { normalizeBreakGlassCouncilMember, normalizeBreakGlassAction } from 'pages/BreakGlassActions/BreakGlassActions.helpers'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: Dispatch) => {
@@ -60,7 +60,8 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
   const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = normalizeOracle(res[10])
-  const breakGlassCouncilMember = normalizeBreakGlassActions(res[11])
+  const breakGlassCouncilMember = normalizeBreakGlassCouncilMember(res[11])
+  const breakGlassAction = normalizeBreakGlassAction(res[12])
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
   dispatch({
@@ -124,6 +125,7 @@ export const onStart = () => async (dispatch: Dispatch) => {
   })
   dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
   dispatch({ type: GET_BREAK_GLASS_COUNCIL_MEMBER, breakGlassCouncilMember })
+  dispatch({ type: GET_BREAK_GLASS_ACTION, breakGlassAction })
 }
 
 export const GET_CONTRACT_ADDRESSES = 'GET_CONTRACT_ADDRESSES'

@@ -1,5 +1,5 @@
 import React, { FC, useState, useMemo } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
@@ -9,6 +9,7 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreakGlassActionsCard.controller'
 import { breakGlassActions } from './BreakGlassActions.actions'
 import { BreakGlassActionsForm } from './BreakGlassActionsForms/BreakGlassActionsForm.controller'
+import { State } from 'reducers'
 
 // actions
 import { propagateBreakGlass } from './BreakGlassActions.actions'
@@ -84,6 +85,7 @@ const actionNameHandler = (name: string) => {
 
 export const BreakGlassActions: FC = () => {
   const dispatch = useDispatch()
+  const { breakGlassAction } = useSelector((state: State) => state.breakGlassActions)
 
   const itemsForDropDown = useMemo(
     () => [
