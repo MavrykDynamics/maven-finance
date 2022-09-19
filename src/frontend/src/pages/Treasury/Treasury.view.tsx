@@ -120,11 +120,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                 <p className="asset-lable-text">
                   {balanceValue.symbol}
                   <span className="asset-persent">
-                    {persentOfTheAsset < 0.1 ? (
-                      '< 0.1 %'
-                    ) : (
-                      <CommaNumber endingText="%" value={persentOfTheAsset} useAccurateParsing />
-                    )}
+                    {persentOfTheAsset < 0.1 ? '< 0.1 %' : <CommaNumber endingText="%" value={persentOfTheAsset} />}
                   </span>
                 </p>
               </div>
