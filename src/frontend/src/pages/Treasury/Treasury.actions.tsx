@@ -7,7 +7,7 @@ import {
   TREASURY_STORAGE_QUERY_NAME,
   TREASURY_STORAGE_QUERY_VARIABLE,
 } from 'gql/queries/getTreasuryStorage'
-import { getTreasuryDataByAddress } from 'utils/api'
+import { getTreasuryAssetsByAddress } from 'utils/api'
 import { FetchedTreasuryBalanceType, TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
@@ -61,7 +61,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     const getTreasuryCallbacks = convertedStorage.treasuryAddresses.map(
       ({ address }: { address: string }) =>
         () =>
-          getTreasuryDataByAddress(address),
+          getTreasuryAssetsByAddress(address),
     )
 
     // Await promises from upper
@@ -100,14 +100,14 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
         const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
           .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
             const assetRate: number | null =
-              (metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]) || null
+              (metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]?.usd) || null
             const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
             const usdValue = coinsAmount * (assetRate || 1)
 
             treasuryTVL += usdValue
 
             return {
-              contract: contract.address,
+              contract: contract?.address,
               usdValue: usdValue,
               decimals: parseInt(metadata.decimals),
               name: metadata.name,

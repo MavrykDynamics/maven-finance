@@ -25,11 +25,25 @@ export async function getChainInfo() {
   })
 }
 
-export async function getTreasuryDataByAddress(treasuryAddress: string) {
-  return await axios
-    .get(`https://api.${network}.tzkt.io/v1/tokens/balances?account.eq=${treasuryAddress}`)
-    .then((response: { data: object }) => {
-      return response.data
-    })
-    .catch((error: Error) => console.error('getTreasuryDataByAddress error: ', error))
+export async function getTreasuryAssetsByAddress(treasuryAddress: string) {
+  try {
+    const treasuryAssets =
+      (await axios.get(`https://api.${network}.tzkt.io/v1/tokens/balances?account.eq=${treasuryAddress}`)).data ?? []
+
+    const xtzTreasuryAsset = (await axios.get(`https://api.${network}.tzkt.io/v1/accounts/${treasuryAddress}/balance`))
+      .data
+
+    const xtzAssetObject = {
+      account: { address: treasuryAddress },
+      balance: xtzTreasuryAsset,
+      token: {
+        metadata: { symbol: 'tezos', name: 'XTZ', decimals: 6 },
+      },
+    }
+
+    return [...treasuryAssets, xtzAssetObject]
+  } catch (e) {
+    console.error('getTreasuryAssetsByAddress error: ', e)
+    return []
+  }
 }
