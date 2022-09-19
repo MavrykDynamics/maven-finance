@@ -1,4 +1,10 @@
-export const getWertOptions = (commodity: string, setPopupActive: (open: boolean) => void, showErrorToast: () => void) => ({
+import { WERT_IO_LOADER } from './../../../../utils/constants'
+export const getWertOptions = (
+  commodity: string,
+  setPopupActive: (open: boolean) => void,
+  showErrorToast: () => void,
+  hideLoader: () => void,
+) => ({
   partner_id: '01G0MCBQFJE47YZ0SECRKM81CD',
   commodity,
   origin: 'https://sandbox.wert.io',
@@ -19,11 +25,15 @@ export const getWertOptions = (commodity: string, setPopupActive: (open: boolean
   height: 600,
   width: 400,
   listeners: {
-    loaded: () => setPopupActive(true),
+    loaded: () => {
+      hideLoader()
+      setPopupActive(true)
+    },
     error: () => {
+      hideLoader()
       showErrorToast()
       setPopupActive(false)
     },
-    close: () => setPopupActive(false)
+    close: () => setPopupActive(false),
   },
 })

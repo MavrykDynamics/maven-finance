@@ -5,7 +5,7 @@ import { hideModal } from './Modal.actions'
 
 export const Modal = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
   const { kind } = useSelector((state: State) => state.modal)
   const { showing } = useSelector((state: State) => state.modal)
 

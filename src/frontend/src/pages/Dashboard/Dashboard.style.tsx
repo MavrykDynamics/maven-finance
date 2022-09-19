@@ -27,7 +27,7 @@ export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
     }
 
     .tvlBlock {
-      background: url('images/dashboard/dashboardTVLbg.png'), ${({ theme }) => theme.dashboardTvlGradient};
+      background-image: url('/images/dashboard/dashboardTVLbg.png?v=0'), ${({ theme }) => theme.dashboardTvlGradient};
       background-size: cover;
       background-repeat: no-repeat;
 

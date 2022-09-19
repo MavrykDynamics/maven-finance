@@ -29,7 +29,7 @@ export type VoteStatistics = {
 }
 export const Governance = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
 
   const { watingProposals, waitingForPaymentToBeProcessed } = useGovernence()
 
