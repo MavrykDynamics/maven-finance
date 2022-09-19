@@ -15,7 +15,7 @@ export const DoormanStatsStyled = styled(Card)`
     width: 42px;
     height: 3px;
     position: absolute;
-    bottom: 20repx;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     background-color: ${({ theme }) => theme.cardBorderColor};
