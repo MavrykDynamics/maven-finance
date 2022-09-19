@@ -26,8 +26,7 @@ export const CommaNumber = ({
   useAccurateParsing?: boolean
   svgKind?: CommaNumberSvgKind
 }) => {
-  const decimalsShow = useAccurateParsing ? ACCURATE_DECIMALS_TO_SHOW : DECIMALS_TO_SHOW
-  let numberWithCommas = value?.toLocaleString('en-US', { maximumFractionDigits: showDecimal ? decimalsShow : 0 })
+  let numberWithCommas = value?.toLocaleString('en-US', { maximumFractionDigits: showDecimal ? DECIMALS_TO_SHOW : 0 })
   let titleForNumber = undefined
 
   // it's exponential number if e-7 it will scientific notation, every that are < -7 normal notation
