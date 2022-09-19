@@ -2,17 +2,17 @@
 import { FarmStorage, FarmAccountsType, FarmGraphQL } from '../../utils/TypesAndInterfaces/Farm'
 
 // helpers
-import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
+import { getContractBigmapKeys } from 'utils/api'
 
-export const normalizeFarmStorage = (
-  farmList: FarmGraphQL[],
-  farmCardsEndtime: Array<{ endsIn: string; address: string }>,
-) => {
+export const normalizeFarmStorage = async (farmList: FarmGraphQL[]) => {
   if (!farmList?.length) return []
 
-  return farmList.map((farmItem: FarmGraphQL, idx: number) => {
-    const endsIn = farmCardsEndtime[idx].endsIn
+  const farmCardEndsIn = await getEndsInTimestampForFarmCards(farmList)
+  const farmLPTokensInfo = await getLPTokensInfo(farmList)
 
+  return farmList.map((farmItem: FarmGraphQL, idx: number) => {
+    const endsIn = farmCardEndsIn[idx].endsIn
+    const lpMetadata = farmLPTokensInfo[idx]
     return {
       address: farmItem.address,
       name: farmItem.name,
@@ -34,10 +34,15 @@ export const normalizeFarmStorage = (
       // accumulatedMvkPerShare: calcWithoutPrecision(farmItem.accumulated_mvk_per_share), TODO not exist in grapgQl
       accumulatedMvkPerShare: 0,
       lastBlockUpdate: farmItem.last_block_update,
-      // lpBalance: calcWithoutPrecision(farmItem.lp_balance), TODO not exist in grapgQl
-      lpBalance: 0,
-      // lpToken: farmItem.lp_token, TODO not exist in grapgQl
-      lpToken: '',
+      lpBalance: farmItem.lp_token_balance / Math.pow(10, farmItem.lp_token?.decimals ?? 0),
+      lpToken1: {
+        symbol: lpMetadata.liquidityPairToken.token0.symbol[0],
+        address: lpMetadata.liquidityPairToken.token0.tokenAddress[0],
+      },
+      lpToken2: {
+        symbol: lpMetadata.liquidityPairToken.token1.symbol[0],
+        address: lpMetadata.liquidityPairToken.token1.tokenAddress[0],
+      },
       // rewardPerBlock: calcWithoutPrecision(farmItem.reward_per_block), TODO not exist in grapgQl
       rewardPerBlock: 0,
       // rewardsFromTreasury: farmItem.rewards_from_treasury, TODO not exist in grapgQl
@@ -65,6 +70,31 @@ export const getEndsInTimestampForFarmCards = async (farmList: FarmGraphQL[]) =>
     )
   } catch (e: unknown) {
     console.error('getEndsInTimestampForFarmCards fetching error: ', e)
+    return []
+  }
+}
+
+export async function getFarmMetadata(farmAddress: string) {
+  const farmMetadata = await getContractBigmapKeys(farmAddress, 'metadata')
+  const targetMetadataItem =
+    farmMetadata.filter((farmItem: any) => {
+      const output = Buffer.from(farmItem.value, 'hex').toString()
+      return !output.endsWith('tezos-storage:data')
+    })[0] || {}
+  const targetFarmMetadataValue = Buffer.from(targetMetadataItem.value, 'hex').toString()
+  return JSON.parse(targetFarmMetadataValue)
+}
+
+export const getLPTokensInfo = async (farmList: FarmGraphQL[]) => {
+  try {
+    return await Promise.all(
+      farmList.map(async (farmCard: { address: string }) => {
+        const lpTokenInfo = await getFarmMetadata(farmCard.address)
+        return typeof lpTokenInfo === 'string' ? JSON.parse(lpTokenInfo) : lpTokenInfo
+      }),
+    )
+  } catch (e: unknown) {
+    console.error('getLPTokensInfo fetching error: ', e)
     return []
   }
 }

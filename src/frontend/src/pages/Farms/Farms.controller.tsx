@@ -60,10 +60,6 @@ export const Farms = () => {
   }
 
   useEffect(() => {
-    dispatch(getFarmStorage())
-  }, [dispatch])
-
-  useEffect(() => {
     const filterStakedOnly = toggleChecked
       ? farmStorage.filter(
           (item) => item.farmAccounts?.length && item.farmAccounts.some((account) => account?.deposited_amount > 0),
