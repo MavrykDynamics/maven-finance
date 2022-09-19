@@ -117,6 +117,7 @@ type loanTokenRecordType is [@layout:comb] record [
     borrowIndex                             : nat;
 
     minRepaymentAmount                      : nat; 
+    isPaused                                : bool;
 ]
 
 type loanTokenLedgerType is map(string, loanTokenRecordType)
@@ -150,18 +151,6 @@ type ownerLedgerType                is big_map(address, ownerVaultSetType)  // b
 // ------------------------------------------------------------------------------
 // Action Types
 // ------------------------------------------------------------------------------
-
-// type mintOrBurnParamsType is [@layout:comb] record [
-//     quantity  : int;
-//     target    : address;
-// ];
-
-// (* Mint entrypoint inputs *)
-// type mintParamsType is (address * tokenBalanceType)
-
-// (* Burn entrypoint inputs *)
-type burnParamsType is (address * tokenBalanceType)
-
 
 type addLiquidityActionType is [@layout:comb] record [
     loanTokenName  : string;

@@ -9,7 +9,8 @@ import { zeroAddress } from "../test/helpers/Utils";
 import { tokenPoolRewardStorageType } from "../test/types/tokenPoolRewardStorageType";
 
 const breakGlassConfig = {
-    onClaimRewardsIsPaused : false,
+    updateRewardsIsPaused : false,
+    claimRewardsIsPaused  : false,
 }
 
 const metadata = MichelsonMap.fromLiteral({

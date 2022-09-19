@@ -538,6 +538,7 @@ block {
         borrowIndex                         = fixedPointAccuracy;
 
         minRepaymentAmount                  = minRepaymentAmount;
+        isPaused                            = False;
 
     ];
 
@@ -659,7 +660,7 @@ block {
 
 
 // helper function withdraw from vault
-function withdrawFromVaultOperation(const to_ : address; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
+function withdrawFromVaultOperation(const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
 block {
 
     const withdrawFromVaultOperation : operation = case token of [
@@ -667,9 +668,8 @@ block {
         |   Tez(_tez) -> {
 
                 const withdrawTezOperationParams : withdrawType = record [
-                    to_      = to_; 
-                    amount   = amount;
-                    token    = Tez(_tez);
+                    amount     = amount;
+                    tokenName  = tokenName;
                 ];
                 
                 const withdrawTezOperation : operation = Tezos.transaction(
@@ -683,9 +683,8 @@ block {
         |   Fa12(_token) -> {
 
                 const withdrawFa12OperationParams : withdrawType = record [
-                    to_      = to_; 
-                    amount   = amount;
-                    token    = Fa12(_token);
+                    amount     = amount;
+                    tokenName  = tokenName;
                 ];
 
                 const withdrawFa12Operation : operation = Tezos.transaction(
@@ -699,9 +698,8 @@ block {
         |   Fa2(_token) -> {
 
                 const withdrawFa2OperationParams : withdrawType = record [
-                    to_      = to_; 
-                    amount   = amount;
-                    token    = Fa2(_token);
+                    amount     = amount;
+                    tokenName  = tokenName;
                 ];
 
                 const withdrawFa2Operation : operation = Tezos.transaction(
@@ -1330,9 +1328,47 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+// Some views commented out to reduce contract size of lendingControllerMockTime (which is slightly larger than lendingController)
+
+(* View: get admin *)
+// [@view] function getAdmin(const _ : unit; var s : lendingControllerStorageType) : address is
+//     s.admin
+
+
+
+(* View: get config *)
+// [@view] function getConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerConfigType is
+//     s.config
+
+
+
+(* View: get break glass config *)
+// [@view] function getBreakGlassConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerBreakGlassConfigType is
+//     s.breakGlassConfig
+
+
+
+(* View: get Governance address *)
+// [@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
+//     s.governanceAddress
+
+
+
+// (* View: get whitelist contracts *)
+// [@view] function getWhitelistContracts(const _ : unit; var s : lendingControllerStorageType) : whitelistContractsType is
+//     s.whitelistContracts
+
+
+
+// (* View: get general contracts *)
+// [@view] function getGeneralContracts(const _ : unit; var s : lendingControllerStorageType) : generalContractsType is
+//     s.generalContracts
+
+
+
 (* View: get token in collateral token ledger *)
-[@view] function getColTokenRecordByNameOpt(const tokenName : string; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
-    Map.find_opt(tokenName, s.collateralTokenLedger)
+// [@view] function getColTokenRecordByNameOpt(const tokenName : string; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
+//     Map.find_opt(tokenName, s.collateralTokenLedger)
 
 
 
@@ -1364,20 +1400,14 @@ block {
 
 
 (* View: get owned vaults by user *)
-[@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; const s : lendingControllerStorageType) : option(ownerVaultSetType) is
-    Big_map.find_opt(ownerAddress, s.ownerLedger)
+// [@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; const s : lendingControllerStorageType) : option(ownerVaultSetType) is
+//     Big_map.find_opt(ownerAddress, s.ownerLedger)
 
 
 
 (* View: get vault by handle *)
 [@view] function getVaultOpt(const vaultHandle : vaultHandleType; const s : lendingControllerStorageType) : option(vaultRecordType) is
     Big_map.find_opt(vaultHandle, s.vaults)
-
-
-
-(* View: get contract address - e.g. find delegation address to pass to vault for delegating MVK to satellite  *)
-[@view] function getContractAddressOpt(const contractName : string; const s : lendingControllerStorageType) : option(address) is
-    Map.find_opt(contractName, s.generalContracts)
 
 
 

@@ -797,6 +797,7 @@ block {
                             // for other collateral token types besides sMVK
                             const withdrawTokenOperation : operation = withdrawFromVaultOperation(
                                 vaultOwner,                         // to_
+                                tokenName,                          // token name
                                 tokenBalance,                       // token amount to be withdrawn
                                 collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
@@ -1042,6 +1043,7 @@ block {
                         // send tokens from vault to liquidator
                         const sendTokensFromVaultToLiquidatorOperation : operation = withdrawFromVaultOperation(
                             liquidator,                         // to_
+                            tokenName,                          // token name
                             liquidatorTokenQuantityTotal,       // token amount to be withdrawn
                             collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                             vault.address                       // vault address
@@ -1065,6 +1067,7 @@ block {
                         // send tokens from vault to treasury
                         const sendTokensFromVaultToTreasuryOperation : operation = withdrawFromVaultOperation(
                             treasuryAddress,                    // to_
+                            tokenName,                          // token name
                             treasuryTokenQuantityTotal,         // token amount to be withdrawn
                             collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                             vault.address                       // vault address

@@ -538,6 +538,7 @@ block {
         borrowIndex                         = fixedPointAccuracy;
 
         minRepaymentAmount                  = minRepaymentAmount;
+        isPaused                            = False;
 
     ];
 
@@ -662,17 +663,16 @@ block {
 
 
 // helper function withdraw from vault
-function withdrawFromVaultOperation(const to_ : address; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
+function withdrawFromVaultOperation(const to_ : address; const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
 block {
 
     const withdrawFromVaultOperation : operation = case token of [
         
         |   Tez(_tez) -> {
 
-                const withdrawTezOperationParams : withdrawType = record [
-                    to_      = to_; 
-                    amount   = amount;
-                    token    = Tez(_tez);
+                const withdrawTezOperationParams : withdrawType = record [                    
+                    amount     = amount;
+                    tokenName  = tokenName;
                 ];
                 
                 const withdrawTezOperation : operation = Tezos.transaction(
@@ -686,9 +686,8 @@ block {
         |   Fa12(_token) -> {
 
                 const withdrawFa12OperationParams : withdrawType = record [
-                    to_      = to_; 
-                    amount   = amount;
-                    token    = Fa12(_token);
+                    amount     = amount;
+                    tokenName  = tokenName;
                 ];
 
                 const withdrawFa12Operation : operation = Tezos.transaction(
@@ -702,9 +701,8 @@ block {
         |   Fa2(_token) -> {
 
                 const withdrawFa2OperationParams : withdrawType = record [
-                    to_      = to_; 
-                    amount   = amount;
-                    token    = Fa2(_token);
+                    amount     = amount;
+                    tokenName  = tokenName;
                 ];
 
                 const withdrawFa2Operation : operation = Tezos.transaction(
@@ -1208,6 +1206,42 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin *)
+[@view] function getAdmin(const _ : unit; var s : lendingControllerStorageType) : address is
+    s.admin
+
+
+
+(* View: get config *)
+[@view] function getConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerConfigType is
+    s.config
+
+
+
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerBreakGlassConfigType is
+    s.breakGlassConfig
+
+
+
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
+    s.governanceAddress
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _ : unit; var s : lendingControllerStorageType) : whitelistContractsType is
+    s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _ : unit; var s : lendingControllerStorageType) : generalContractsType is
+    s.generalContracts
+
+
+
 (* View: get token in collateral token ledger *)
 [@view] function getColTokenRecordByNameOpt(const tokenName : string; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
     Map.find_opt(tokenName, s.collateralTokenLedger)
@@ -1253,16 +1287,21 @@ block {
 
 
 
-(* View: get contract address - e.g. find delegation address to pass to vault for delegating MVK to satellite  *)
-[@view] function getContractAddressOpt(const contractName : string; const s : lendingControllerStorageType) : option(address) is
-    Map.find_opt(contractName, s.generalContracts)
-
-
-
 (* View: get token pool depositor balance *)
 [@view] function getTokenPoolDepositorBalanceOpt(const userTokenNameKey : (address * string); const s : lendingControllerStorageType) : option(nat) is
     Big_map.find_opt(userTokenNameKey, s.tokenPoolDepositorLedger)
 
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName : string; var s : lendingControllerStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _ : unit; var s : lendingControllerStorageType) : lambdaLedgerType is
+    s.lambdaLedger
 // ------------------------------------------------------------------------------
 //
 // Views End

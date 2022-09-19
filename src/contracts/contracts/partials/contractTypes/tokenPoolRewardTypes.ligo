@@ -17,7 +17,6 @@ type tokenIdType        is nat;
 type tokenPoolRewardBreakGlassConfigType is [@layout:comb] record [
     updateRewardsIsPaused   : bool;
     claimRewardsIsPaused    : bool;
-    empty                   : unit
 ]
 
 type rewardsRecordType is [@layout:comb] record[

@@ -16,13 +16,16 @@ type depositorsType is
   | Whitelist of set(address)
 
 type vaultHandleType is [@layout:comb] record [
-    id      : nat;
-    owner   : address;
+    id      : nat;          // vault id
+    owner   : address;      // vault owner
 ]
 
 // ------------------------------------------------------------------------------
 // Action Types
 // ------------------------------------------------------------------------------
+
+type delegateTezToBakerType is option(key_hash)
+type satelliteAddressType is address
 
 type updateDepositorAllowanceType is
     |   AllowAny        of bool
@@ -33,19 +36,14 @@ type updateDepositorType is [@layout:comb] record [
     empty           : unit;
 ]
 
-type delegateTezToBakerType is option(key_hash)
-type satelliteAddressType is address
-
-type withdrawType is transferDestinationType
+type withdrawType  is [@layout:comb] record [
+    amount          : nat;
+    tokenName       : string
+]
 
 type depositType  is [@layout:comb] record [
     amount          : nat;
-    token           : tokenType;
-]
-
-type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
-    tokenContractAddress  : address;
-    tokenName             : string;
+    tokenName       : string
 ]
 
 // ------------------------------------------------------------------------------

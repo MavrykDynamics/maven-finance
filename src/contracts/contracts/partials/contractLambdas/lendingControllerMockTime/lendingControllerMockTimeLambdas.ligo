@@ -541,14 +541,6 @@ block {
                 if amount > loanTotalRemaining then failwith(error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE) else skip;
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
-                // burn LP Token operation
-                // const burnLpTokenOperation : operation = burnLpToken(
-                //     initiator,                  // current user
-                //     lpTokensBurned,             // amount of LP Tokens to burn 
-                //     lpTokenContractAddress      // LP Token address
-                // );
-                // operations := burnLpTokenOperation # operations;
-
                 // burn LP Tokens and send to sender
                 const burnLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, 0n - amount, lpTokenContractAddress);
                 operations := burnLpTokensTokensOperation # operations;
@@ -578,9 +570,6 @@ block {
                 // -----------------------
                 // Update Rewards
                 // ------------------------
-
-                // create or update user rewards for loan token
-                // s := createOrUpdateUserRewards(initiator, loanTokenRecord, s);
 
                 // Make big map key - (userAddress, loanTokenName)
                 const userAddressLoanTokenKey : (address * string) = (initiator, loanTokenRecord.tokenName);
@@ -811,6 +800,7 @@ block {
                             // for other collateral token types besides sMVK
                             const withdrawTokenOperation : operation = withdrawFromVaultOperation(
                                 vaultOwner,                         // to_
+                                tokenName,                          // token name
                                 tokenBalance,                       // token amount to be withdrawn
                                 collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
@@ -1057,6 +1047,7 @@ block {
                         // send tokens from vault to liquidator
                         const sendTokensFromVaultToLiquidatorOperation : operation = withdrawFromVaultOperation(
                             liquidator,                         // to_
+                            tokenName,                          // token name
                             liquidatorTokenQuantityTotal,       // token amount to be withdrawn
                             collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                             vault.address                       // vault address
@@ -1080,6 +1071,7 @@ block {
                         // send tokens from vault to treasury
                         const sendTokensFromVaultToTreasuryOperation : operation = withdrawFromVaultOperation(
                             treasuryAddress,                    // to_
+                            tokenName,                          // token name
                             treasuryTokenQuantityTotal,         // token amount to be withdrawn
                             collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                             vault.address                       // vault address
