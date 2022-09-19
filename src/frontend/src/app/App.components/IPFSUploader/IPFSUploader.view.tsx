@@ -1,4 +1,4 @@
-import React, { Ref } from 'react'
+import React, { Ref, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // types
@@ -49,17 +49,22 @@ export const IPFSUploaderView = ({
   className,
 }: IPFSUploaderViewProps) => {
   const dispatch = useDispatch()
-  const isTypeFileImage = typeFile === 'image'
 
+  const [uploadIsFailed, setUploadIsFailed] = useState(false)
+
+  const isTypeFileImage = typeFile === 'image'
   const isUploadedDocument = imageIpfsUrl && !isTypeFileImage && !isUploading
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
 
     const fileSize = e.target?.files?.[0]?.size / 1024 / 1024 // in MiB
+
     if (fileSize <= IMG_MAX_SIZE) {
+      setUploadIsFailed(false)
       handleUpload(e.target.files[0])
     } else {
+      setUploadIsFailed(true)
       dispatch(showToaster(INFO, 'File is too big!', `Max size is ${IMG_MAX_SIZE}MB`))
     }
   }
@@ -79,13 +84,13 @@ export const IPFSUploaderView = ({
               id="uploader"
               type="file"
               disabled={disabled || isUploading}
-              accept={isTypeFileImage ? 'image/*' : '*'}
+              accept={isTypeFileImage ? 'image/*, .pdf' : '*'}
               // required
               ref={inputFile}
               onChange={handleChange}
               onBlur={onBlur}
             />
-            <UploadIconContainer onClick={handleIconClick}>
+            <UploadIconContainer uploadIsFailed={uploadIsFailed} onClick={handleIconClick}>
               {imageIpfsUrl && !isUploading ? (
                 <>
                   {isTypeFileImage ? (
@@ -115,7 +120,7 @@ export const IPFSUploaderView = ({
                     )}
                   </div>
                   <figcaption>Upload {isTypeFileImage ? 'picture' : 'document'}</figcaption>
-                  <small>{`max size is ${IMG_MAX_SIZE}MB`}</small>
+                  <small className='tip'>{`Supports: PNG. JPG. PDF. Max size is ${IMG_MAX_SIZE}MB`}</small>
                 </figure>
               )}
             </UploadIconContainer>
