@@ -1,7 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
 
 import { MavrykTheme } from '../../../styles/interfaces'
-import { primaryColor, headerColor, cyanColor } from 'styles'
+import { primaryColor, headerColor, cyanColor, downColor } from 'styles'
 
 export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 5px;
@@ -84,7 +84,10 @@ export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
+export const UploadIconContainer = styled.div<{
+  uploadIsFailed: boolean,
+  theme: MavrykTheme
+}>`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -112,6 +115,10 @@ export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
       font-size: 10px;
       line-height: 10px;
       color: ${primaryColor};
+    }
+
+    .tip {
+      color: ${({ uploadIsFailed }) => uploadIsFailed && downColor};
     }
   }
 
