@@ -83,6 +83,8 @@ block {
     case vaultLambdaAction of [
         |   LambdaDelegateTezToBaker(delegateParams) -> {
 
+                checkVaultDelegateTezToBakerIsNotPaused(s);
+
                 // set new delegate only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_TEZ_TO_BAKER) 
                 else skip; 
@@ -107,6 +109,8 @@ block {
 
     case vaultLambdaAction of [
         |   LambdaDelegateMvkToSat(satelliteAddress) -> {
+
+                checkVaultDelegateMvkToSatIsNotPaused(s);
 
                 // set new delegate only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_MVK_TO_SATELLITE) 
@@ -141,9 +145,17 @@ block {
     case vaultLambdaAction of [
         |   LambdaWithdraw(withdrawParams) -> {
 
+                checkVaultWithdrawIsNotPaused(s);
+
                 // withdraw operation
                 const amount     : nat        = withdrawParams.amount;
-                const tokenType  : tokenType  = withdrawParams.token;
+                const tokenName  : string     = withdrawParams.tokenName;
+
+                // get collateral token record from Lending Controller through on-chain view
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
+
+                // get collateral token's token type
+                const tokenType : tokenType = collateralTokenRecord.tokenType;
 
                 // Get Lending Controller Address from the General Contracts map on the Governance Contract
                 const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
@@ -155,6 +167,7 @@ block {
                     // register withdrawal in Lending Controller
                     const registerWithdrawalOperation : operation = registerWithdrawalInLendingController(
                         amount,       // amount
+                        tokenName,    // tokenName
                         tokenType,    // tokenType
                         s             // storage
                     );
@@ -205,9 +218,17 @@ block {
     case vaultLambdaAction of [
         |   LambdaDeposit(depositParams) -> {
 
+                checkVaultDepositIsNotPaused(s);
+
                 // init deposit operation params
                 const amount     : nat        = depositParams.amount;
-                const tokenType  : tokenType  = depositParams.token;
+                const tokenName  : string     = depositParams.tokenName;
+
+                // get collateral token record from Lending Controller through on-chain view
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
+
+                // get collateral token's token type
+                const tokenType : tokenType = collateralTokenRecord.tokenType;
 
                 // check if sender is owner
                 var isOwnerCheck : bool := False;
@@ -225,6 +246,7 @@ block {
                     // register deposit in Lending Controller
                     const registerDepositOperation : operation = registerDepositInLendingController(
                         amount,       // amount
+                        tokenName,    // tokenName
                         tokenType,    // tokenType
                         s             // storage
                     );
@@ -258,6 +280,8 @@ block {
 
     case vaultLambdaAction of [
         |   LambdaUpdateDepositor(updateDepositorParams) -> {
+
+                checkVaultUpdateDepositorIsNotPaused(s);
 
                 // set new depositor only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 

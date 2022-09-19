@@ -24,7 +24,6 @@ import lendingControllerAddress from '../../deployments/lendingControllerAddress
 
 import { Aggregator } from '../helpers/aggregatorHelper'
 import { MavrykFa2Token } from "../helpers/mavrykFa2TokenHelper"
-import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPoolRewardHelper"
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -32,7 +31,6 @@ import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPool
 
 import { aggregatorStorage } from '../../storage/aggregatorStorage'
 import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
-import { tokenPoolRewardStorage } from '../../storage/tokenPoolRewardStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -49,7 +47,6 @@ describe('Lending Controller', async () => {
     var mockUsdMockFa12TokenAggregator  : Aggregator
     var mockUsdMockFa2TokenAggregator   : Aggregator
 
-    var tokenPoolReward                 : TokenPoolReward
     var tezos
 
     before('setup', async () => {
@@ -164,30 +161,6 @@ describe('Lending Controller', async () => {
             )
             await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
             console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
-
-            
-
-            // Token Pool Reward Contract
-            tokenPoolRewardStorage.governanceAddress    = governanceAddress.address;
-            tokenPoolRewardStorage.mvkTokenAddress      = mvkTokenAddress.address;
-            tokenPoolReward = await TokenPoolReward.originate(
-                utils.tezos,
-                tokenPoolRewardStorage
-            )
-            await saveContractAddress('tokenPoolRewardAddress', tokenPoolReward.contract.address)
-            console.log('Token Pool Reward Contract deployed at:', tokenPoolReward.contract.address)
-
-
-            //----------------------------
-            // Set Lambdas
-            //----------------------------
-
-            tezos = tokenPoolReward.tezos
-
-            // Token Pool Reward Lambdas
-            await setTokenPoolRewardLambdas(tezos, tokenPoolReward.contract);
-            console.log("Token Pool Reward Lambdas Setup")
-          
           
         } catch(e){
         console.dir(e, {depth: 5})

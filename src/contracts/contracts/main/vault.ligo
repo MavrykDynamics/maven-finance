@@ -150,18 +150,36 @@ function getDelegateToSatelliteEntrypoint(const contractAddress : address) : con
 // Contract Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get collateral token record from Lending Controller through on-chain view
-function getCollateralTokenRecord(const tokenContractAddress : address; const s : vaultStorageType) : collateralTokenRecordType is 
+// helper function to get break glass config from lending controller 
+function getBreakGlassConfigFromLendingController(const s : vaultStorageType) : lendingControllerBreakGlassConfigType is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    // get break glass config from lending controller
+    const getBreakGlassConfigView : option (lendingControllerBreakGlassConfigType) = Tezos.call_view ("getBreakGlassConfig", unit, lendingControllerAddress);
+    const breakGlassConfig : lendingControllerBreakGlassConfigType = case getBreakGlassConfigView of [
+            Some (_breakGlassConfig) -> _breakGlassConfig
+        |   None                     -> failwith(error_BREAK_GLASS_CONFIG_NOT_FOUND_IN_LENDING_CONTROLLER)
+    ];
+
+} with breakGlassConfig
+
+
+
+// helper function to get collateral token record by name from Lending Controller through on-chain view
+function getCollateralTokenRecordByName(const tokenName : string; const s : vaultStorageType) : collateralTokenRecordType is 
 block {
 
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
     const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
     // check collateral token contract address exists in Lending Controller collateral token ledger
-    const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByAddressOpt", tokenContractAddress, lendingControllerAddress);
+    const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByNameOpt", tokenName, lendingControllerAddress);
     const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
             Some (_opt)    -> _opt
-        |   None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND)
+        |   None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_NAME_OPT_VIEW_NOT_FOUND)
     ];
     const collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
             Some(_record)  -> _record
@@ -169,81 +187,6 @@ block {
     ];
 
 } with collateralTokenRecord
-
-
-
-// helper function to register deposit in lending controller
-function registerDepositInLendingController(const amount : nat; const tokenType : tokenType; const s : vaultStorageType) : operation is 
-block {
-
-    // Get Lending Controller Address from the General Contracts map on the Governance Contract
-    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
-
-    const registerDepositOperation : operation = case tokenType of [
-
-        |   Tez(_tez) -> block{
-
-                // create register deposit params
-                const registerDepositParams : registerDepositActionType = record [
-                    handle          = s.handle;
-                    amount          = amount;
-                    tokenName       = "tez";
-                ];
-                
-                // create register deposit operation
-                const registerDepositOperation : operation = Tezos.transaction(
-                    registerDepositParams,
-                    0mutez,
-                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
-                );
-
-            } with registerDepositOperation
-
-        |   Fa12(token) -> block{
-
-                // get collateral token record from Lending Controller
-                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecord(token, s);
-
-                // create register deposit params
-                const registerDepositParams : registerDepositActionType = record [
-                    handle          = s.handle;
-                    amount          = amount;
-                    tokenName       = collateralTokenRecord.tokenName;
-                ];
-                    
-                // create register deposit operation
-                const registerDepositOperation : operation = Tezos.transaction(
-                    registerDepositParams,
-                    0mutez,
-                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
-                );
-
-            } with registerDepositOperation
-
-        |   Fa2(token) -> block{
-
-                // get collateral token record from Lending Controller
-                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecord(token.tokenContractAddress, s);
-
-                // create register deposit params
-                const registerDepositParams : registerDepositActionType = record [
-                    handle          = s.handle;
-                    amount          = amount;
-                    tokenName       = collateralTokenRecord.tokenName;
-                ];
-                    
-                // create register deposit operation
-                const registerDepositOperation : operation = Tezos.transaction(
-                    registerDepositParams,
-                    0mutez,
-                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
-                );
-
-            } with registerDepositOperation
-
-    ];
-
-} with registerDepositOperation
 
 
 
@@ -267,8 +210,77 @@ block {
 
 
 
+// helper function to register deposit in lending controller
+function registerDepositInLendingController(const amount : nat; const tokenName : string; const tokenType : tokenType; const s : vaultStorageType) : operation is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    const registerDepositOperation : operation = case tokenType of [
+
+        |   Tez(_tez) -> block{
+
+                // create register deposit params
+                const registerDepositParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = tokenName;
+                ];
+                
+                // create register deposit operation
+                const registerDepositOperation : operation = Tezos.transaction(
+                    registerDepositParams,
+                    0mutez,
+                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerDepositOperation
+
+        |   Fa12(_token) -> block{
+
+                // create register deposit params
+                const registerDepositParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = tokenName;
+                ];
+                    
+                // create register deposit operation
+                const registerDepositOperation : operation = Tezos.transaction(
+                    registerDepositParams,
+                    0mutez,
+                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerDepositOperation
+
+        |   Fa2(_token) -> block{
+
+                // create register deposit params
+                const registerDepositParams : registerDepositActionType = record [
+                    handle          = s.handle;
+                    amount          = amount;
+                    tokenName       = tokenName;
+                ];
+                    
+                // create register deposit operation
+                const registerDepositOperation : operation = Tezos.transaction(
+                    registerDepositParams,
+                    0mutez,
+                    getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
+                );
+
+            } with registerDepositOperation
+
+    ];
+
+} with registerDepositOperation
+
+
+
 // helper function to register withdrawal in lending controller
-function registerWithdrawalInLendingController(const amount : nat; const tokenType : tokenType; const s : vaultStorageType) : operation is 
+function registerWithdrawalInLendingController(const amount : nat; const tokenName : string; const tokenType : tokenType; const s : vaultStorageType) : operation is 
 block {
 
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
@@ -282,7 +294,7 @@ block {
                 const registerWithdrawalParams : registerDepositActionType = record [
                     handle          = s.handle;
                     amount          = amount;
-                    tokenName       = "tez";
+                    tokenName       = tokenName;
                 ];
                 
                 // create register withdrawal operation
@@ -294,16 +306,13 @@ block {
 
             } with registerWithdrawalOperation
 
-        |   Fa12(token) -> block{
-
-                // get collateral token record from Lending Controller
-                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecord(token, s);
+        |   Fa12(_token) -> block{
 
                 // create register deposit params
                 const registerWithdrawalParams : registerDepositActionType = record [
                     handle          = s.handle;
                     amount          = amount;
-                    tokenName       = collateralTokenRecord.tokenName;
+                    tokenName       = tokenName;
                 ];
                     
                 // create register deposit operation
@@ -315,16 +324,13 @@ block {
 
             } with registerWithdrawalOperation
 
-        |   Fa2(token) -> block{
-
-                // get collateral token record from Lending Controller
-                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecord(token.tokenContractAddress, s);
+        |   Fa2(_token) -> block{
 
                 // create register deposit params
                 const registerWithdrawalParams : registerDepositActionType = record [
                     handle          = s.handle;
                     amount          = amount;
-                    tokenName       = collateralTokenRecord.tokenName;
+                    tokenName       = tokenName;
                 ];
                     
                 // create register deposit operation
@@ -344,6 +350,73 @@ block {
 // Contract Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to check that vaultDelegateTezToBaker is not paused in Lending Controller
+function checkVaultDelegateTezToBakerIsNotPaused(var s : vaultStorageType) : unit is
+block {
+
+    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+
+    const checkEntrypointPaused : unit = if breakGlassConfig.vaultDelegateTezToBakerIsPaused then failwith(error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+
+} with checkEntrypointPaused
+    
+
+
+// helper function to check that vaultDelegateMvkToSat is not paused in Lending Controller
+function checkVaultDelegateMvkToSatIsNotPaused(var s : vaultStorageType) : unit is
+block {
+
+    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+
+    const checkEntrypointPaused : unit = if breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then failwith(error_VAULT_DELEGATE_MVK_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+
+} with checkEntrypointPaused
+    
+
+
+// helper function to check that vaultWithdraw is not paused in Lending Controller
+function checkVaultWithdrawIsNotPaused(var s : vaultStorageType) : unit is
+block {
+
+    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+
+    const checkEntrypointPaused : unit = if breakGlassConfig.vaultWithdrawIsPaused then failwith(error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+
+} with checkEntrypointPaused
+
+
+
+// helper function to check that %vaultDeposit is not paused
+function checkVaultDepositIsNotPaused(var s : vaultStorageType) : unit is
+block {
+
+    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+
+    const checkEntrypointPaused : unit = if breakGlassConfig.vaultDepositIsPaused then failwith(error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+
+} with checkEntrypointPaused
+
+
+
+// helper function to check that the vaultUpdateDepositor entrypoint is not paused in Lending Controller
+function checkVaultUpdateDepositorIsNotPaused(var s : vaultStorageType) : unit is
+block {
+
+    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+
+    const checkEntrypointPaused : unit = if breakGlassConfig.vaultUpdateDepositorIsPaused then failwith(error_VAULT_UPDATE_DEPOSITOR_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+
+} with checkEntrypointPaused
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
 
 
 
@@ -397,7 +470,39 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin *)
+[@view] function getAdmin(const _ : unit; var s : vaultStorageType) : address is
+    s.admin
 
+
+
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; var s : vaultStorageType) : address is
+    s.governanceAddress
+
+
+
+(* View: get vault handle *)
+[@view] function getVaultHandle(const _ : unit; var s : vaultStorageType) : vaultHandleType is
+    s.handle
+
+
+
+(* View: get vault depositors *)
+[@view] function getVaultDepositors(const _ : unit; var s : vaultStorageType) : depositorsType is
+    s.depositors
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName : string; var s : vaultStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _ : unit; var s : vaultStorageType) : lambdaLedgerType is
+    s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //
