@@ -117,6 +117,12 @@ export const UploadIconContainer = styled.div<{
       color: ${primaryColor};
     }
 
+    figcaption {
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 22px;
+    }
+
     .tip {
       color: ${({ uploadIsFailed }) => uploadIsFailed && downColor};
     }
