@@ -45,7 +45,7 @@ const emptyContainer = (
 // TODO: filters after category field will be implemented
 export const DataFeeds = () => {
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)

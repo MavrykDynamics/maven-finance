@@ -14,24 +14,6 @@ export const AppStyled = styled.div<{ theme: MavrykTheme; isExpandedMenu?: boole
   }
 `
 
-export const LoaderStyled = styled.div<{ theme: MavrykTheme }>`
-  position: fixed;
-  inset: 0;
-  transition: background-color 0.15s ease-in-out;
-  background-color: #08062880;
-  display: flex;
-  z-index: 12;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  font-weight: 600;
-  font-size: 18px;
-  color: ${({ theme }) => theme.valueColor};
-
-  figcaption {
-    margin-top: -30px;
-  }
-`
 export const AppBg = styled.div<{ theme: MavrykTheme }>`
   position: fixed;
   top: 0;
