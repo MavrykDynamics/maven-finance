@@ -19,11 +19,13 @@ import { PopupChangeNode } from './App.components/SettingsPopup/SettingsPopup.co
 import { toggleRPCNodePopup } from './App.components/SettingsPopup/SettingsPopup.actions'
 import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
 import { useMedia } from 'react-use'
+import CoinGecko from 'coingecko-api'
 import Loader from './App.components/Loader/Loader.view'
 
 export const { store, persistor } = configureStore({})
 export type AppDispatch = ThunkDispatch<State, unknown, AnyAction>
 export type GetState = typeof store.getState
+export const coinGeckoClient = new CoinGecko()
 
 const AppContainer = () => {
   const dispatch = useDispatch()

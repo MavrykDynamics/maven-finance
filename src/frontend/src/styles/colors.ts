@@ -53,12 +53,16 @@ export const dark = {
   placeholderColor: '#7068AA',
   primaryColor: '#7068AA',
   secondaryColor: '#73d7c3',
+  dataColor: '#77a4f2',
+  blockNameTitleColor: silverColor,
+  dashboardTextColor: '#D0CFD9',
   upColor,
   downColor,
   warningColor,
   selectedColor,
   connectWalletBackgroundColor: '#50508E',
   navLinkBackgroundActive: 'linear-gradient(90deg, #38237c 0%, rgba(80, 80, 142, 0) 100%)',
+  dashboardTvlGradient: 'linear-gradient(180deg, #160e3f 3.55%, #26185c 83.47%, #321f71 103.84%)',
   shineAnimationGradient: `linear-gradient(to right, ${headerColor} 0, ${cyanColor} 10%, ${headerColor} 20%)`,
   boxShadowColor: 'rgba(136, 209, 195, 0.3)',
 }
@@ -66,7 +70,7 @@ export const dark = {
 export const light = {
   backgroundColor: lightColor,
   containerColor: whiteColor,
-  navTitleColor: textsColor,
+  navTitleColor: cyanColor,
   navIconColor: cyanColor,
   footerColor: textsColor,
   navLinkTextActive: textsColor,
@@ -81,8 +85,10 @@ export const light = {
 
   borderColor: '#4F457C',
   textColor: '#29264C',
+  dataColor: '#77a4f2',
   subTextColor: '#7E8794',
   backgroundTextColor: '#F7F9FD',
+  blockNameTitleColor: silverColor,
   placeholderColor: '#F7F9FD',
   primaryColor: '#7068AA',
   secondaryColor: '#73d7c3',
@@ -94,13 +100,14 @@ export const light = {
   connectWalletBackgroundColor: '#EEEAF4',
   shineAnimationGradient: `linear-gradient(to right, ${headerColor} 0, ${cyanColor} 10%, ${headerColor} 20%)`,
   navLinkBackgroundActive: 'linear-gradient(90deg, rgba(134, 212, 201, 0.5) 0%, rgba(134, 212, 201, 0) 100%);',
+  dashboardTvlGradient: 'linear-gradient(180deg, #160e3f 3.55%, #26185c 83.47%, #321f71 103.84%)',
   boxShadowColor: 'rgba(112, 104, 170, 0.3)',
 }
 
 export const space = {
   backgroundColor: lightColor,
   containerColor: whiteColor,
-  navTitleColor: textsColor,
+  navTitleColor: cyanColor,
   navIconColor: cyanColor,
   footerColor: textsColor,
   navLinkTextActive: textsColor,
@@ -115,7 +122,9 @@ export const space = {
 
   borderColor: '#4F457C',
   textColor: '#29264C',
+  blockNameTitleColor: silverColor,
   subTextColor: '#7E8794',
+  dataColor: '#77a4f2',
   backgroundTextColor: '#F7F9FD',
   placeholderColor: '#F7F9FD',
   primaryColor: '#7068AA',
@@ -128,6 +137,7 @@ export const space = {
   connectWalletBackgroundColor: '#EEEAF4',
   shineAnimationGradient: `linear-gradient(to right, ${headerColor} 0, ${cyanColor} 10%, ${headerColor} 20%)`,
   navLinkBackgroundActive: 'linear-gradient(90deg, rgba(134, 212, 201, 0.5) 0%, rgba(134, 212, 201, 0) 100%);',
+  dashboardTvlGradient: 'linear-gradient(180deg, #160e3f 3.55%, #26185c 83.47%, #321f71 103.84%)',
   boxShadowColor: 'rgba(112, 104, 170, 0.3)',
 }
 

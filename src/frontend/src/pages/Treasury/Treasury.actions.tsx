@@ -11,12 +11,8 @@ import { getTreasuryDataByAddress } from 'utils/api'
 import { FetchedTreasuryBalanceType, TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
-import { TezosToolkit } from '@taquito/taquito'
-import CoinGecko from 'coingecko-api'
 import { normalizeTreasury } from './Treasury.helpers'
-import type { AppDispatch, GetState } from '../../app/App.controller'
-
-const coinGeckoClient = new CoinGecko()
+import { AppDispatch, coinGeckoClient, GetState } from '../../app/App.controller'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
@@ -51,7 +47,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
         return {
           balance: smvk_balance,
           usdValue: smvk_balance * MVK_EXCHANGE_RATE,
-          decimals: 6,
+          decimals: 9,
           contract: address,
           name: 'Staked MAVRYK',
           symbol: 'sMVK',
@@ -133,6 +129,8 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       })
       .filter(({ balances }) => Boolean(balances.length))
 
+    console.log('treasuryStorage', treasuryStorage)
+
     dispatch({
       type: SET_TREASURY_STORAGE,
       treasuryStorage,
@@ -146,21 +144,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
 export const GET_VESTING_STORAGE = 'GET_VESTING_STORAGE'
 export const getVestingStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
   try {
-    const state: State = getState()
-
-    const contract = accountPkh
-      ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.vestingAddress?.address)
-      : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/')?.contract?.at(
-          state?.contractAddresses?.vestingAddress?.address,
-        )
-
-    const storage = await contract?.storage()
-    console.log('Printing out Vesting storage:\n', storage)
-
-    dispatch({
-      type: GET_VESTING_STORAGE,
-      vestingStorage: storage,
-    })
+    // TODO: implement it after clarification
   } catch (error) {
     console.log('%c ----- error getVestingStorage', 'color:red', error)
   }

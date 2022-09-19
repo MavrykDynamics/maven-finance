@@ -1,10 +1,10 @@
 import { State } from '../../reducers'
 
 // types
-import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+import { FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
 
 //helpers
-import { normalizeFarmStorage } from './Frams.helpers'
+import { getEndsInTimestampForFarmCards, normalizeFarmStorage } from './Frams.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
@@ -55,15 +55,22 @@ export const getFarmsContracts = () => async (dispatch: AppDispatch, getState: G
 export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
 export const getFarmStorage = () => async (dispatch: AppDispatch) => {
-  const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
-  const farmStorage = normalizeFarmStorage(storage?.farm)
+  try {
+    const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
+    const farmCardEndsIn = await getEndsInTimestampForFarmCards(storage?.farm)
 
-  await dispatch({
-    type: GET_FARM_STORAGE,
-    farmStorage,
-  })
+    const farmStorage = normalizeFarmStorage(storage?.farm, farmCardEndsIn)
 
-  await dispatch(getFarmsContracts())
+    await dispatch({
+      type: GET_FARM_STORAGE,
+      farmStorage,
+    })
+
+    await dispatch(getFarmsContracts())
+  } catch (e) {
+    dispatch(showToaster(ERROR, 'Error while fetching farms data', 'Please wait...'))
+    return
+  }
 }
 
 export const HARVEST_REQUEST = 'HARVEST_REQUEST'

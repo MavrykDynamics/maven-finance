@@ -69,8 +69,12 @@ export const getRequestStatus = (request: GovernanceFinancialRequestGraphQL) => 
   }
 }
 
+// TODO: use another lib and refactor this functions
 export const getDate_MDHMTZ_Format = (time?: string | null) =>
   time ? moment(new Date(time)).format('MMMM Do hh:mm Z') : null
+
+export const getDate_DMYHM_Format = (time?: string | null) =>
+  time ? moment(new Date(time)).format('Do MMM YYYY / HH:mm') : null
 
 export const getDate_MDY_Format = (time?: string | null) => (time ? moment(new Date(time)).format('MMM Do, Y') : null)
 
