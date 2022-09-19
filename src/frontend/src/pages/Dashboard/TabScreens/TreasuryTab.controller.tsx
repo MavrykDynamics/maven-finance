@@ -80,7 +80,7 @@ export const TreasuryTab = () => {
               <CommaNumber endingText="USD" value={globalTreasuryTVL} />
             </div>
           </StatBlock>
-          {mostAssetsTreasury && (
+          {mostAssetsTreasury.treasuryName && mostAssetsTreasury.treasuryTVL && (
             <StatBlock>
               <div className="name">{mostAssetsTreasury.treasuryName}</div>
               <div className="value">
