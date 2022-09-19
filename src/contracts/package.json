@@ -46,8 +46,8 @@
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 900000",
     "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
     "test-full-m1": "yarn compile-m1 && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
-    "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
-    "test-single-file": "ts-mocha --bail --timeout 300000 --paths",
+    "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 900000",
+    "test-single-file": "ts-mocha --bail --timeout 900000 --paths",
     "pytest": "yarn migrate && pytest -s",
     "pytest-only": "pytest -s",
     "clean": "rm -rf ./build && rm -rf contracts/compiled && rm -rf ./deployments"

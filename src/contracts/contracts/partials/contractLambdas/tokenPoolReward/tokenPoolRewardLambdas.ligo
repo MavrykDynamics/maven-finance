@@ -263,7 +263,6 @@ function lambdaClaimRewards(const tokenPoolRewardLambdaAction : tokenPoolRewardL
 block {
 
     checkNoAmount(Unit);                       // entrypoint should not receive any tez amount    
-    checkSenderIsLendingControllerContract(s); // check that sender is Lending Controller contract
     checkClaimRewardsIsNotPaused(s);           // check that %claimRewards entrypoint is not paused (e.g. if glass broken)
 
     var operations : list(operation) := nil;
