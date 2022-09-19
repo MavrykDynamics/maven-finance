@@ -27,11 +27,11 @@ export const CommaNumber = ({
     numberWithCommas = value.toString()
   }
 
-  if (useAccurateParsing) {
-    const [integers, decimals] = value.toString().split('.')
-    const modifiedInteger = Number(integers).toLocaleString('en-US')
-    numberWithCommas = `${modifiedInteger}.${decimals.substring(0, showDecimal ? DECIMALS_TO_SHOW : 0)}`
-  }
+  // if (useAccurateParsing) {
+  //   const [integers, decimals] = value.toString().split('.')
+  //   const modifiedInteger = Number(integers).toLocaleString('en-US')
+  //   numberWithCommas = `${modifiedInteger}.${decimals.substring(0, showDecimal ? DECIMALS_TO_SHOW : 0)}`
+  // }
 
   return (
     <>

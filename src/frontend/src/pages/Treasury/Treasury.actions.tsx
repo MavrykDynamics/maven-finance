@@ -42,7 +42,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     )
 
     // Parse sMVK amount for each treasury, to make this structure usable
-    const parsedsMVKAmount = sMVKAmounts.mavryk_user?.map(
+    const parsedsMVKAmount: TreasuryBalanceType[] = sMVKAmounts.mavryk_user?.map(
       ({ smvk_balance, address }: { smvk_balance: number; address: string }): TreasuryBalanceType => {
         return {
           balance: smvk_balance,
@@ -92,15 +92,23 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     // Map every treasury to combine treasury name, and divide balance by constant
     const treasuryStorage = convertedStorage.treasuryAddresses
       .map((treasuryData: TreasuryGQLType, idx: number) => {
+        let treasuryTVL = 0
+        const sMVKAmount = parsedsMVKAmount.find(
+          ({ contract }: TreasuryBalanceType) => contract === treasuryData.address,
+        )
+
         const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
           .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
             const assetRate: number | null =
               (metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]) || null
             const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
+            const usdValue = coinsAmount * (assetRate || 1)
+
+            treasuryTVL += usdValue
 
             return {
               contract: contract.address,
-              usdValue: coinsAmount * (assetRate || 1),
+              usdValue: usdValue,
               decimals: parseInt(metadata.decimals),
               name: metadata.name,
               thumbnail_uri: metadata.thumbnailUri,
@@ -109,12 +117,14 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
               rate: assetRate,
             }
           })
-          .concat(parsedsMVKAmount.find(({ contract }: TreasuryBalanceType) => contract === treasuryData.address) || [])
+          .concat(sMVKAmount || [])
           .filter(({ balance }: TreasuryBalanceType) => balance > 0 || balance.toString().includes('e'))
           .sort(
             (asset1: TreasuryBalanceType, asset2: TreasuryBalanceType) =>
               Number(asset2.balance) * Number(asset2.rate) - Number(asset1.balance) * Number(asset1.rate),
           )
+
+        treasuryTVL += sMVKAmount?.usdValue || 0
 
         return {
           ...treasuryData,
@@ -125,11 +135,10 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
               treasuryData.address.length,
             )}`,
           balances: tresuryTokensWithValidBalances,
+          treasuryTVL,
         }
       })
       .filter(({ balances }) => Boolean(balances.length))
-
-    console.log('treasuryStorage', treasuryStorage)
 
     dispatch({
       type: SET_TREASURY_STORAGE,
