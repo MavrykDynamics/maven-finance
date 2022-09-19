@@ -27,9 +27,9 @@ export const SimpleTable = ({ colunmNames, data, fieldsMapper, className = '' }:
       </div>
 
       <div className="table-content scroll-block">
-        {data.map((item) => {
+        {data.map((item, idx) => {
           return (
-            <div className="row" key={item.id}>
+            <div className="row" key={`${item.id}-${idx}`}>
               {fieldsMapper.map(({ fieldName, needCommaNumber, needTzAddress, callback, propsToComponents = {} }) => {
                 if (item?.[fieldName] === undefined) return null
 
@@ -42,6 +42,8 @@ export const SimpleTable = ({ colunmNames, data, fieldsMapper, className = '' }:
                 }
 
                 if (needCommaNumber) {
+                  console.log(propsToComponents, fieldName)
+
                   return (
                     <div className="row-item" key={item[fieldName] + fieldName}>
                       <CommaNumber {...propsToComponents} value={Number(item[fieldName])} />
