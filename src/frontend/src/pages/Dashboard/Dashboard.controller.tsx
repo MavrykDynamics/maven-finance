@@ -1,29 +1,59 @@
-import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect } from 'react'
-import { DashboardStyled } from './Dashboard.style'
-import { getVestingStorage } from '../Treasury/Treasury.actions'
+import { fillTreasuryStorage } from '../Treasury/Treasury.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { DashboardView } from './Dashboard.view'
+import { useParams } from 'react-router'
+import { getFarmStorage } from 'pages/Farms/Farms.actions'
+import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
+import { mvkStatsType, isValidId, LENDING_TAB_ID } from './Dashboard.utils'
 
 export const Dashboard = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { councilStorage } = useSelector((state: State) => state.council)
-  const { vestingStorage } = useSelector((state: State) => state.vesting)
+  const { tabId } = useParams<{ tabId: string }>()
+
+  const {
+    exchangeRate,
+    mvkTokenStorage: { totalSupply, maximumTotalSupply },
+  } = useSelector((state: State) => state.mvkToken)
+  const { totalStakedMvk = 0 } = useSelector((state: State) => state.doorman)
+  const { treasuryStorage } = useSelector((state: State) => state.treasury)
+
+  const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
+  const treasuryTVL = treasuryStorage.reduce((acc, { balances }) => {
+    return (acc += balances.reduce((balanceAcc, balanceAsset) => {
+      return (balanceAcc += balanceAsset.usdValue || 0)
+    }, 0))
+  }, 0)
+
+  //TODO: add calculation for tvl value (farms, loans, vaults)
+  const tvlValue = totalStakedMvk * exchangeRate + treasuryTVL
 
   useEffect(() => {
-    dispatch(getVestingStorage())
+    dispatch(fillTreasuryStorage())
+    dispatch(getFarmStorage())
+    dispatch(getDelegationStorage())
   }, [dispatch])
+
+  const mvkStatsBlock: mvkStatsType = {
+    marketCap: marketCapValue,
+    stakedMvk: totalStakedMvk,
+    circuatingSupply: totalSupply,
+    maxSupply: maximumTotalSupply,
+    livePrice: exchangeRate,
+    prevPrice: exchangeRate - 0.1,
+  }
 
   return (
     <Page>
-      <DashboardStyled>
-        <PageHeader page={'dashboard'} />
-        <div>Here on the Dashboard Page</div>
-      </DashboardStyled>
+      <PageHeader page={'dashboard'} />
+      <DashboardView
+        tvl={tvlValue}
+        mvkStatsBlock={mvkStatsBlock}
+        activeTab={isValidId(tabId) ? tabId : LENDING_TAB_ID}
+      />
     </Page>
   )
 }

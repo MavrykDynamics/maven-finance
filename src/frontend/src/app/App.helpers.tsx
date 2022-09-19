@@ -40,6 +40,7 @@ export function normalizeVestingStorage(storage: VestingGraphQL | null) {
   return {
     address: storage?.address || '',
     totalVestedAmount: storage?.total_vested_amount ?? 0,
+    totalClaimedAmount: storage?.vestees_aggregate.aggregate?.sum?.total_claimed ?? 0,
   }
 }
 

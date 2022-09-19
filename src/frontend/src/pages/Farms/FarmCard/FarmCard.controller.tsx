@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -43,6 +43,8 @@ type FarmCardProps = {
   variant: FarmsViewVariantType
   totalLiquidity: number
   depositAmount: number
+  isOpenedCard: boolean
+  expandCallback: (address: string) => void
 }
 export const FarmCard = ({
   farmAddress,
@@ -56,8 +58,10 @@ export const FarmCard = ({
   variant,
   name,
   lpTokenBalance,
+  isOpenedCard,
   currentRewardPerBlock,
   depositAmount,
+  expandCallback,
 }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -211,9 +215,16 @@ export const FarmCard = ({
     </a>
   )
 
+  const expandBlockCallback = useCallback(() => {
+    expandCallback(farmAddress)
+  }, [])
+
   if (variant === 'vertical') {
     return (
-      <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion} ${variant}`}>
+      <FarmCardStyled
+        key={lpTokenAddress}
+        className={`contractCard accordion} ${variant} ${isOpenedCard ? 'opened' : ''}`}
+      >
         {questionLinkBlock}
         {logoHeaderContent}
         <div className="farm-info-vertical">
@@ -224,7 +235,13 @@ export const FarmCard = ({
         <div className="vertical-harvest">{harvestBlock}</div>
         <div className="vertical-harvest">{farmingBlock}</div>
 
-        <Expand className="vertical-expand" showText header={<></>}>
+        <Expand
+          className="vertical-expand"
+          onClickCallback={expandBlockCallback}
+          isExpandedByDefault={isOpenedCard}
+          showText
+          header={<></>}
+        >
           {linksBlock}
         </Expand>
         {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
@@ -233,9 +250,11 @@ export const FarmCard = ({
   }
 
   return (
-    <FarmCardStyled className={`contractCard  ${variant}`}>
+    <FarmCardStyled className={`contractCard  ${variant} ${isOpenedCard ? 'opened' : ''}`}>
       {questionLinkBlock}
       <Expand
+        onClickCallback={expandBlockCallback}
+        isExpandedByDefault={isOpenedCard}
         header={
           <>
             {logoHeaderContent}

@@ -74,19 +74,38 @@ export function normalizeSatelliteRecord(
       })
     : []
 
-  const oracleRecords = (satelliteRecord?.user?.aggregator_oracles || []).map(({ oracle, ...rest }) => {
-    return {
-      ...rest,
-      // @ts-ignore
-      sMVKReward: oracle?.aggregator_oracle_rewards_smvk?.[0]?.smvk || 0,
-      // @ts-ignore
-      XTZReward: oracle?.aggregator_oracle_rewards_xtz?.[0]?.xtz || 0,
-    }
-  })
+  const oracleRecords = (satelliteRecord?.user?.aggregator_oracles || []).map(
+    ({ oracle: { aggregator_oracle_rewards }, ...rest }) => {
+      const { sMVKReward, XTZReward } = aggregator_oracle_rewards.reduce(
+        (acc, reward) => {
+          if (reward.type === 0) {
+            acc.XTZReward += reward.reward
+          }
+
+          if (reward.type === 1) {
+            acc.sMVKReward += reward.reward
+          }
+
+          return acc
+        },
+        {
+          sMVKReward: 0,
+          XTZReward: 0,
+        },
+      )
+      return {
+        ...rest,
+        active: rest.last_updated_at
+          ? Date.now() - new Date(rest.last_updated_at).getTime() < 24 * 60 * 60 * 1000
+          : false,
+        sMVKReward,
+        XTZReward,
+      }
+    },
+  )
 
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord?.user_id || '',
-    // @ts-ignore
     oracleRecords,
     description: satelliteRecord?.description || '',
     website: satelliteRecord?.website || '',
@@ -95,11 +114,10 @@ export function normalizeSatelliteRecord(
     mvkBalance: calcWithoutPrecision(satelliteRecord?.user.mvk_balance),
     sMvkBalance: calcWithoutPrecision(satelliteRecord?.user.smvk_balance),
     name: satelliteRecord?.name || '',
-    satelliteFee: (satelliteRecord?.fee || 0) / 100, //- not exist
+    satelliteFee: (satelliteRecord?.fee || 0) / 100,
     status: satelliteRecord?.status,
     delegatorCount: satelliteRecord?.delegations.length,
     totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
-    // unregisteredDateTime: new Date(satelliteRecord?.unregistered_datetime), not exist
     unregisteredDateTime: new Date(0),
     proposalVotingHistory,
     financialRequestsVotes,

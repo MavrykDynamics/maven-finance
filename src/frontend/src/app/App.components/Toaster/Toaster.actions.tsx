@@ -7,6 +7,7 @@ export const showToaster =
   (status: string, title: string, message: string, timeout: number = 4000) =>
   (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
+
     if (!state.toaster.showing) {
       dispatch({
         type: SHOW_TOASTER,

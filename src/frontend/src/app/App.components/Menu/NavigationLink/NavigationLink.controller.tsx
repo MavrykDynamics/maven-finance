@@ -12,7 +12,7 @@ import {
 import Icon from 'app/App.components/Icon/Icon.view'
 import useCollapse from 'react-collapsed'
 import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, matchPath } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 
 type NavigationLinkProps = {
@@ -22,7 +22,8 @@ type NavigationLinkProps = {
   icon?: string
   subPages?: SubNavigationRoute[]
   handleToggle: () => void
-  isExpanded: boolean
+  selectedMainLink: boolean
+  showSubPages: boolean
   isMobMenuExpanded: boolean
   accountPkh: string | undefined
 }
@@ -34,55 +35,56 @@ export const NavigationLink = ({
   icon,
   subPages,
   handleToggle,
-  isExpanded,
+  selectedMainLink,
+  showSubPages,
   isMobMenuExpanded,
   accountPkh,
 }: NavigationLinkProps) => {
-  const key = `${path.substring(1)}-${id}`
-
   const location = useLocation()
 
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
-  const mainPagePaths = [path].concat(subPages ? subPages.map(({ subPath }) => subPath) : [])
 
-  const splittedPathname = location.pathname.split('/').slice(1)
-
-  const mainLinkSelected = mainPagePaths.some((path) => splittedPathname.includes(path))
-
-  const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded })
-
+  // TODO: clarify it with Sam
+  const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: selectedMainLink })
   const handleClick = () => handleToggle()
 
-  return (
-    <>
-      {subPages ? (
-        <NavigationLinkContainer
-          className={'collapsible'}
-          selected={mainLinkSelected}
+  const mainLink = (
+    <Link to={`/${path}`}>
+      {icon && (
+        <NavigationLinkIcon selected={selectedMainLink} className="navLinkIcon">
+          <Icon id={icon} />
+        </NavigationLinkIcon>
+      )}
+      <div className="navLinkTitle">{title}</div>
+    </Link>
+  )
+
+  if (subPages) {
+    return (
+      <NavigationLinkContainer
+        className={'collapsible'}
+        selected={selectedMainLink}
+        isMobMenuExpanded={isMobMenuExpanded}
+        key={id}
+      >
+        <NavigationLinkItem
+          selected={selectedMainLink}
           isMobMenuExpanded={isMobMenuExpanded}
-          key={key}
+          className="header"
+          {...getToggleProps({ onClick: handleClick })}
         >
-          <NavigationLinkItem
-            selected={mainLinkSelected}
-            isMobMenuExpanded={isMobMenuExpanded}
-            className="header"
-            {...getToggleProps({ onClick: handleClick })}
-          >
-            <Link to={`/${path}`}>
-              {icon && (
-                <NavigationLinkIcon selected={mainLinkSelected} className="navLinkIcon">
-                  <Icon id={icon} />
-                </NavigationLinkIcon>
-              )}
-              <div className="navLinkTitle">{title}</div>
-            </Link>
-          </NavigationLinkItem>
+          {mainLink}
+        </NavigationLinkItem>
+        {showSubPages && (
           <div {...getCollapseProps()}>
             <NavigationSubLinks className="content">
               {subPages.map((subNavLink: SubNavigationRoute) => {
                 const key = String(subNavLink.id)
-                const selectedSubLink = location.pathname === `/${subNavLink.subPath}`
+                const selectedSubLink = Boolean(
+                  matchPath(location.pathname, { path: subNavLink.routeSubPath, exact: true, strict: true }),
+                )
+
                 if (subNavLink.requires) {
                   const { isSatellite, isVestee } = subNavLink.requires
                   let accountIsAuthorized = false
@@ -121,26 +123,21 @@ export const NavigationLink = ({
               })}
             </NavigationSubLinks>
           </div>
-        </NavigationLinkContainer>
-      ) : (
-        <NavigationLinkContainer
-          key={key}
-          selected={mainLinkSelected}
-          isMobMenuExpanded={isMobMenuExpanded}
-          onClick={handleClick}
-        >
-          <NavigationLinkItem selected={mainLinkSelected} isMobMenuExpanded={isMobMenuExpanded}>
-            <Link to={`/${path}`}>
-              {icon && (
-                <NavigationLinkIcon selected={mainLinkSelected} className="navLinkIcon">
-                  <Icon id={icon} />
-                </NavigationLinkIcon>
-              )}
-              <div className="navLinkTitle">{title}</div>
-            </Link>
-          </NavigationLinkItem>
-        </NavigationLinkContainer>
-      )}
-    </>
+        )}
+      </NavigationLinkContainer>
+    )
+  }
+
+  return (
+    <NavigationLinkContainer
+      key={id}
+      selected={selectedMainLink}
+      isMobMenuExpanded={isMobMenuExpanded}
+      onClick={handleClick}
+    >
+      <NavigationLinkItem selected={selectedMainLink} isMobMenuExpanded={isMobMenuExpanded}>
+        {mainLink}
+      </NavigationLinkItem>
+    </NavigationLinkContainer>
   )
 }
