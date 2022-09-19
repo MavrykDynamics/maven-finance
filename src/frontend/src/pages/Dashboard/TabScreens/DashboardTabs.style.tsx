@@ -7,7 +7,7 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
   position: relative;
 
   background: ${({ backgroundImage, theme }) =>
-    backgroundImage ? `url(images/dashboard/${backgroundImage}), ${theme.containerColor}` : theme.containerColor};
+    backgroundImage ? `url(/images/dashboard/${backgroundImage}), ${theme.containerColor}` : theme.containerColor};
   background-size: auto;
   background-repeat: no-repeat;
   background-position: right bottom;

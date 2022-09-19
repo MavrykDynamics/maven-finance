@@ -13,7 +13,7 @@ import { proposalRoundVote, votingRoundVote } from '../Governance/Governance.act
 
 export const EmergencyGovernance = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
   const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)

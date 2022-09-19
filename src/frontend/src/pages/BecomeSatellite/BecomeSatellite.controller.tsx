@@ -12,7 +12,7 @@ import { BecomeSatelliteView } from './BecomeSatellite.view'
 
 export const BecomeSatellite = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
+  const loading = useSelector((state: State) => Boolean(state.loading))
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
