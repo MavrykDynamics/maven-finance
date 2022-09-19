@@ -9,6 +9,9 @@ import {
   BREAK_GLASS_COUNCIL_MEMBER_QUERY,
   BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME,
   BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE,
+  BREAK_GLASS_ACTION_QUERY,
+  BREAK_GLASS_ACTION_QUERY_NAME,
+  BREAK_GLASS_ACTION_QUERY_VARIABLE,
 } from '../../gql/queries/getBreakGlassActionsStorage'
 
 export const breakGlassActions = {
@@ -19,6 +22,35 @@ export const breakGlassActions = {
   UPDATE_COUNCIL_MEMBER: 'UPDATE_COUNCIL_MEMBER',
   CHANGE_COUNCIL_MEMBER: 'CHANGE_COUNCIL_MEMBER',
   REMOVE_COUNCIL_MEMBER: 'REMOVE_COUNCIL_MEMBER',
+}
+
+// GetBreakGlassAction
+export const GET_BREAK_GLASS_ACTION = 'GET_BREAK_GLASS_ACTION'
+export const getBreakGlassAction = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  try {
+    const breakGlassAction = await fetchFromIndexerWithPromise(
+      BREAK_GLASS_ACTION_QUERY,
+      BREAK_GLASS_ACTION_QUERY_NAME,
+      BREAK_GLASS_ACTION_QUERY_VARIABLE,
+    )
+
+    await dispatch({
+      type: GET_BREAK_GLASS_ACTION,
+      breakGlassAction: breakGlassAction,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+
+    dispatch({
+      type: GET_BREAK_GLASS_ACTION,
+      error,
+    })
+  }
 }
 
 // getBreakGlassCouncilMember
