@@ -86,6 +86,7 @@ export const IPFSUploader = ({
       disabled={disabled}
       listNumber={listNumber}
       imageIpfsUrl={imageIpfsUrl}
+      setIpfsImageUrl={setIpfsImageUrl}
       imageOk={imageOk}
       isUploading={isUploading}
       inputFile={inputFile}
