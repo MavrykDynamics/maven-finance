@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 // helpers, actions
 import { distinctRequestsByExecuting, getDate_MDHMTZ_Format, getRequestStatus } from './FinancialRequests.helpers'
@@ -6,6 +6,7 @@ import {
   ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST,
   PAST_REQUESTS_FINANCIAL_REQUESTS_LIST,
 } from './Pagination/pagination.consts'
+import { votingRoundVote } from 'pages/Governance/Governance.actions'
 
 // types
 import { FinancialRequestBody } from './FinancialRequests.types'
@@ -38,6 +39,9 @@ import {
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { EmptyContainer } from 'app/App.style'
 import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
+import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
+import { PRECISION_NUMBER } from 'utils/constants'
+import { useDispatch } from 'react-redux'
 
 type FinancialRequestsViewProps = {
   ready: boolean
@@ -46,6 +50,7 @@ type FinancialRequestsViewProps = {
 }
 
 export const FinancialRequestsView = ({ ready, loading, financialRequestsList = [] }: FinancialRequestsViewProps) => {
+  const dispatch = useDispatch()
   const [rightSideContent, setRightSideContent] = useState(financialRequestsList[0])
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
@@ -58,6 +63,66 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
   const tokenName = normalizeTokenStandart(rightSideContent?.token)
+
+  // Voting data & handlers
+  const [votingStats, setVoteStatistics] = useState({
+    forVotesMVKTotal: 0,
+    againstVotesMVKTotal: 0,
+    abstainVotesMVKTotal: 0,
+    unusedVotesMVKTotal: 0,
+    quorum: 0,
+  })
+
+  useEffect(() => {
+    setVoteStatistics({
+      forVotesMVKTotal: rightSideContent.yay_vote_smvk_total / PRECISION_NUMBER,
+      againstVotesMVKTotal: rightSideContent.nay_vote_smvk_total / PRECISION_NUMBER,
+      abstainVotesMVKTotal: rightSideContent.pass_vote_smvk_total / PRECISION_NUMBER,
+      unusedVotesMVKTotal: Math.round(
+        rightSideContent.snapshot_smvk_total_supply / PRECISION_NUMBER -
+          rightSideContent.yay_vote_smvk_total / PRECISION_NUMBER -
+          rightSideContent.pass_vote_smvk_total / PRECISION_NUMBER -
+          rightSideContent.nay_vote_smvk_total / PRECISION_NUMBER,
+      ),
+      quorum: rightSideContent.smvk_percentage_for_approval / 100,
+    })
+  }, [rightSideContent])
+
+  console.log('rightSideContent', rightSideContent, votingStats)
+
+  const handleVotingRoundVote = (vote: string | number) => {
+    let voteType
+    switch (vote) {
+      case 'FOR':
+        voteType = 'yay'
+        setVoteStatistics({
+          ...votingStats,
+          forVotesMVKTotal: +votingStats.forVotesMVKTotal + 1,
+          unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
+        })
+        break
+      case 'AGAINST':
+        voteType = 'nay'
+        setVoteStatistics({
+          ...votingStats,
+          againstVotesMVKTotal: votingStats.againstVotesMVKTotal + 1,
+          unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
+        })
+        break
+      case 'ABSTAIN':
+        voteType = 'abstain'
+        setVoteStatistics({
+          ...votingStats,
+          abstainVotesMVKTotal: votingStats.abstainVotesMVKTotal + 1,
+          unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
+        })
+        break
+      default:
+        return
+    }
+
+    dispatch(votingRoundVote(voteType))
+  }
 
   const RightSideBlock = () =>
     rightSideContent ? (
@@ -82,6 +147,16 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
           walletConnected={ready}
           loading={loading}
           selectedRequest={rightSideContent}
+        />
+
+        <VotingArea
+          selectedProposal={{
+            passVoteMvkTotal: 0,
+            id: '',
+          }}
+          voteStatistics={votingStats}
+          isVotingActive={rightItemStatus === ProposalStatus.ONGOING}
+          handleVote={handleVotingRoundVote}
         />
 
         <hr />
