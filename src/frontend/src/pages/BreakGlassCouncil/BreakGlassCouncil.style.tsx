@@ -19,6 +19,11 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
 
   .right-block {
     width: 309px;
+
+    & > h1 {
+      margin-top: 53px;
+      margin-bottom: 10px;
+    }
   }
 
   .pending-signature {
@@ -33,7 +38,7 @@ export const ReviewPastCouncilActionsCard = styled(Card)<{ theme: MavrykTheme }>
   height: 201px;
 
   h2 {
-    margin: 0 auto;
+    text-align: center;
     margin-bottom: 42px;
     font-weight: 600;
     font-size: 16px;

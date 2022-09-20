@@ -80,6 +80,9 @@ export const BreakGlassCouncil: FC = () => {
               onClick={() => {}}
             />
           </ReviewPastCouncilActionsCard>
+
+          <h1>Break Glass Council</h1>
+          
         </div>
       </BreakGlassCouncilStyled>
     </Page>
