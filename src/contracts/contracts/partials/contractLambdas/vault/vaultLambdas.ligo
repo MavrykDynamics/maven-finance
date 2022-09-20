@@ -83,7 +83,7 @@ block {
     case vaultLambdaAction of [
         |   LambdaDelegateTezToBaker(delegateParams) -> {
 
-                checkVaultDelegateTezToBakerIsNotPaused(s);
+                // checkVaultDelegateTezToBakerIsNotPaused(s);
 
                 // set new delegate only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_TEZ_TO_BAKER) 
@@ -110,7 +110,7 @@ block {
     case vaultLambdaAction of [
         |   LambdaDelegateMvkToSat(satelliteAddress) -> {
 
-                checkVaultDelegateMvkToSatIsNotPaused(s);
+                // checkVaultDelegateMvkToSatIsNotPaused(s);
 
                 // set new delegate only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_MVK_TO_SATELLITE) 
@@ -127,6 +127,71 @@ block {
                 );
 
                 operations := delegateToSatelliteOperation # operations;
+                
+            }   
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* deposit lambda *)
+function lambdaDeposit(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case vaultLambdaAction of [
+        |   LambdaDeposit(depositParams) -> {
+
+                checkVaultDepositIsNotPaused(s);
+
+                // init deposit operation params
+                const amount     : nat        = depositParams.amount;
+                const tokenName  : string     = depositParams.tokenName;
+
+                // get collateral token record from Lending Controller through on-chain view
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
+
+                // get collateral token's token type
+                const tokenType : tokenType = collateralTokenRecord.tokenType;
+
+                // check if sender is owner
+                var isOwnerCheck : bool := False;
+                if Tezos.get_sender() = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
+
+                // check if sender is a whitelisted depositor
+                const isAbleToDeposit : bool = case s.depositors of [
+                    | Any                    -> True
+                    | Whitelist(_depositors) -> _depositors contains Tezos.get_sender()
+                ];
+                
+                // check that sender is either the vault owner or a depositor
+                if isOwnerCheck = True or isAbleToDeposit = True then block {
+
+                    // register deposit in Lending Controller
+                    const registerDepositOperation : operation = registerDepositInLendingController(
+                        amount,       // amount
+                        tokenName,    // tokenName
+                        tokenType,    // tokenType
+                        s             // storage
+                    );
+
+                    // process deposit from sender to vault
+                    const processVaultDepositOperation : operation = processVaultTransfer(
+                        Tezos.get_sender(),         // from_
+                        Tezos.get_self_address(),   // to_
+                        amount,                     // amount
+                        tokenType                   // tokenType
+                    );
+
+                    operations := list[
+                        registerDepositOperation; 
+                        processVaultDepositOperation
+                    ];
+
+                } else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT);
                 
             }   
         |   _ -> skip
@@ -209,20 +274,22 @@ block {
 
 
 
-(* deposit lambda *)
-function lambdaDeposit(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* onLiquidate lambda *)
+function lambdaOnLiquidate(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case vaultLambdaAction of [
-        |   LambdaDeposit(depositParams) -> {
+        |   LambdaOnLiquidate(onLiquidateParams) -> {
 
-                checkVaultDepositIsNotPaused(s);
+                checkVaultOnLiquidateIsNotPaused(s);
+                checkSenderIsLendingControllerContract(s);
 
-                // init deposit operation params
-                const amount     : nat        = depositParams.amount;
-                const tokenName  : string     = depositParams.tokenName;
+                // onLiquidate operation
+                const receiver   : address    = onLiquidateParams.receiver;
+                const amount     : nat        = onLiquidateParams.amount;
+                const tokenName  : string     = onLiquidateParams.tokenName;
 
                 // get collateral token record from Lending Controller through on-chain view
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
@@ -230,42 +297,16 @@ block {
                 // get collateral token's token type
                 const tokenType : tokenType = collateralTokenRecord.tokenType;
 
-                // check if sender is owner
-                var isOwnerCheck : bool := False;
-                if Tezos.get_sender() = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
+                // process withdrawal from vault to liquidator
+                const processVaultWithdrawalOperation : operation = processVaultTransfer(
+                    Tezos.get_self_address(),   // from_
+                    receiver,                   // to_
+                    amount,                     // amount
+                    tokenType                   // tokenType
+                );
 
-                // check if sender is a whitelisted depositor
-                const isAbleToDeposit : bool = case s.depositors of [
-                    | Any                    -> True
-                    | Whitelist(_depositors) -> _depositors contains Tezos.get_sender()
-                ];
-                
-                // check that sender is either the vault owner or a depositor
-                if isOwnerCheck = True or isAbleToDeposit = True then block {
+                operations := processVaultWithdrawalOperation # operations;
 
-                    // register deposit in Lending Controller
-                    const registerDepositOperation : operation = registerDepositInLendingController(
-                        amount,       // amount
-                        tokenName,    // tokenName
-                        tokenType,    // tokenType
-                        s             // storage
-                    );
-
-                    // process deposit from sender to vault
-                    const processVaultDepositOperation : operation = processVaultTransfer(
-                        Tezos.get_sender(),         // from_
-                        Tezos.get_self_address(),   // to_
-                        amount,                     // amount
-                        tokenType                   // tokenType
-                    );
-
-                    operations := list[
-                        registerDepositOperation; 
-                        processVaultDepositOperation
-                    ];
-
-                } else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT);
-                
             }   
         |   _ -> skip
     ];
@@ -281,7 +322,7 @@ block {
     case vaultLambdaAction of [
         |   LambdaUpdateDepositor(updateDepositorParams) -> {
 
-                checkVaultUpdateDepositorIsNotPaused(s);
+                // checkVaultUpdateDepositorIsNotPaused(s);
 
                 // set new depositor only if sender is the vault owner
                 if Tezos.get_sender() =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
