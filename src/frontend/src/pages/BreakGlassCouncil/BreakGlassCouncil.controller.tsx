@@ -2,11 +2,14 @@ import React, { FC } from 'react'
 
 // components
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { Button } from 'app/App.components/Button/Button.controller'
 import { PendingSignatureCard } from './PendingSignatureCard/PendingSignatureCard.controller'
 
+// helpers
+import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
+
 // styles
-import { Page } from 'styles'
-import { BreakGlassCouncilStyled } from './BreakGlassCouncil.style'
+import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard } from './BreakGlassCouncil.style'
 
 // TODO: change mock to valid data
 const mock = [
@@ -67,7 +70,17 @@ export const BreakGlassCouncil: FC = () => {
           </div>
         </div>
 
-        <div className='right-block'></div>
+        <div className='right-block'>
+          <ReviewPastCouncilActionsCard>
+            <h2>Review Past Council Actions</h2>
+
+            <Button
+              text="Review"
+              kind={ACTION_SECONDARY}
+              onClick={() => {}}
+            />
+          </ReviewPastCouncilActionsCard>
+        </div>
       </BreakGlassCouncilStyled>
     </Page>
   )

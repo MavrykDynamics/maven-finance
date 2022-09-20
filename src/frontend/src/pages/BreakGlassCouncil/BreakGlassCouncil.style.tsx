@@ -1,7 +1,13 @@
 import styled from "styled-components/macro"
-import { Card, royalPurpleColor, textsColor, headerColor } from "styles"
+import { Page as PageBase, Card, royalPurpleColor, textsColor, headerColor, skyColor } from "styles"
 
 import { MavrykTheme } from "../../styles/interfaces";
+
+export const Page = styled(PageBase)`
+  & > h1 {
+    margin-bottom: 11px;
+  }
+`
 
 export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -22,5 +28,16 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const ReviewPastCouncilActionsCard = styled(Card)<{ theme: MavrykTheme }>`
-  
+  padding: 60px 30px 30px 30px;
+  margin: 0;
+  height: 201px;
+
+  h2 {
+    margin: 0 auto;
+    margin-bottom: 42px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 16px;
+    color: ${skyColor}
+  }
 `
