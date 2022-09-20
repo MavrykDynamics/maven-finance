@@ -36,7 +36,7 @@ export const BREAK_GLASS_STORAGE_QUERY_VARIABLE = {}
 
 export const BREAK_GLASS_STATUS_QUERY = `
   query GetBreakGlassStatusQuery {
-    farm {
+    farm(where: {admin: {_neq: ""}}) {
       name
       address
       claim_paused
@@ -45,7 +45,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       admin
       last_updated_at
     }
-    farm_factory {
+    farm_factory(where: {admin: {_neq: ""}}) {
       create_farm_paused
       track_farm_paused
       untrack_farm_paused
@@ -53,7 +53,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       admin
       last_updated_at
     }
-    delegation {
+    delegation(where: {admin: {_neq: ""}}) {
       delegate_to_satellite_paused
       distribute_reward_paused
       register_as_satellite_paused
@@ -64,7 +64,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       admin
       last_updated_at
     }
-    doorman {
+    doorman(where: {admin: {_neq: ""}}) {
       address
       compound_paused
       farm_claimed_paused
@@ -72,7 +72,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       admin
       last_updated_at
     }
-    treasury {
+    treasury(where: {admin: {_neq: ""}}) {
       name
       mint_mvk_and_transfer_paused
       stake_mvk_paused
@@ -82,7 +82,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       admin
       last_updated_at
     }
-    treasury_factory {
+    treasury_factory(where: {admin: {_neq: ""}}) {
       create_treasury_paused
       address
       track_treasury_paused
@@ -90,7 +90,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       admin
       last_updated_at
     }
-    aggregator {
+    aggregator(where: {admin: {_neq: ""}}) {
       address
       name
       withdraw_reward_smvk_paused
@@ -98,7 +98,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       admin
       last_updated_at
     }
-    aggregator_factory {
+    aggregator_factory(where: {admin: {_neq: ""}}) {
       address
       untrack_aggregator_paused
       track_aggregator_paused
