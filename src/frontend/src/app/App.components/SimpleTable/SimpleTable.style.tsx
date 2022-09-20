@@ -72,6 +72,10 @@ export const SimpletableStyled = styled.div<{ theme: MavrykTheme }>`
     max-height: 140px;
     overflow-y: auto;
     row-gap: 17px;
+
+    .row-item {
+      text-transform: uppercase;
+    }
   }
 
   &.dashboard-st {
