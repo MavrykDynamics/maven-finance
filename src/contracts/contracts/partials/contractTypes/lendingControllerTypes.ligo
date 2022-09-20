@@ -56,11 +56,12 @@ type lendingControllerBreakGlassConfigType is record [
     repayIsPaused                       : bool;
 
     // Vault Entrypoints
-    vaultDelegateTezToBakerIsPaused         : bool; 
-    vaultDelegateMvkToSatelliteIsPaused     : bool;
-    vaultWithdrawIsPaused                   : bool;
+    // vaultDelegateTezToBakerIsPaused         : bool; 
+    // vaultDelegateMvkToSatelliteIsPaused     : bool;
     vaultDepositIsPaused                    : bool;
-    vaultUpdateDepositorIsPaused            : bool;
+    vaultWithdrawIsPaused                   : bool;
+    vaultOnLiquidateIsPaused                : bool;
+    // vaultUpdateDepositorIsPaused            : bool;
 
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : bool;
@@ -99,24 +100,24 @@ type loanTokenRecordType is [@layout:comb] record [
     lpTokenContractAddress                  : address;
     lpTokenId                               : nat;
 
-    reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
     tokenPoolTotal                          : nat;  // sum of totalBorrowed and totalRemaining
     totalBorrowed                           : nat; 
     totalRemaining                          : nat; 
 
+    reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
     utilisationRate                         : nat;
     optimalUtilisationRate                  : nat;  // kink point
     baseInterestRate                        : nat;  // base interest rate
     maxInterestRate                         : nat;  // max interest rate
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
+    minRepaymentAmount                      : nat; 
 
     currentInterestRate                     : nat;
     lastUpdatedBlockLevel                   : nat; 
     accumulatedRewardsPerShare              : nat;
     borrowIndex                             : nat;
 
-    minRepaymentAmount                      : nat; 
     isPaused                                : bool;
 ]
 
@@ -202,13 +203,11 @@ type setLoanTokenActionType is [@layout:comb] record [
     lpTokenId                               : nat;
 
     reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
-    
     optimalUtilisationRate                  : nat;  // kink point
     baseInterestRate                        : nat;  // base interest rate
     maxInterestRate                         : nat;  // max interest rate
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
-
     minRepaymentAmount                      : nat; 
 
     // variants at the end for taquito 
@@ -315,11 +314,12 @@ type lendingControllerPausableEntrypointType is
     |   Repay                       of bool
 
         // Vault Entrypoints
-    |   VaultDelegateTezToBaker     of bool
-    |   VaultDelegateMvkToSatellite of bool
-    |   VaultWithdraw               of bool
+    // |   VaultDelegateTezToBaker     of bool
+    // |   VaultDelegateMvkToSatellite of bool
     |   VaultDeposit                of bool
-    |   VaultUpdateDepositor        of bool
+    |   VaultWithdraw               of bool
+    |   VaultOnLiquidate            of bool
+    // |   VaultUpdateDepositor        of bool
 
         // Vault Staked MVK Entrypoints
     |   VaultDepositStakedMvk       of bool
@@ -374,10 +374,10 @@ type lendingControllerLambdaActionType is
     |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
-    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
-    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
-    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
+    // |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
+    // |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
+    // |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
+    // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
 
 // ------------------------------------------------------------------------------
 // Storage

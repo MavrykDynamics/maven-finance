@@ -74,7 +74,7 @@ type lendingControllerAction is
     |   Repay                           of repayActionType
 
         // Vault Staked MVK Entrypoints  
-    |   CallVaultStakedMvkAction        of callVaultStakedMvkActionType  
+    // |   CallVaultStakedMvkAction        of callVaultStakedMvkActionType  
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -353,6 +353,16 @@ function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(wit
             |   None -> (failwith(error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(withdrawType))
         ]
 
+
+
+// helper function to get %onLiquidate entrypoint in a Vault Contract
+function getVaultOnLiquidateEntrypoint(const vaultAddress : address) : contract(onLiquidateType) is
+    case (Tezos.get_entrypoint_opt(
+        "%onLiquidate",
+        vaultAddress) : option(contract(onLiquidateType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(onLiquidateType))
+        ]
 
 
 // helper function to get %delegateTez entrypoint in a Vault Contract
@@ -663,7 +673,7 @@ block {
 
 
 // helper function withdraw from vault
-function withdrawFromVaultOperation(const to_ : address; const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
+function withdrawFromVaultOperation(const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
 block {
 
     const withdrawFromVaultOperation : operation = case token of [
@@ -715,6 +725,65 @@ block {
     ];
 
 } with withdrawFromVaultOperation
+
+
+
+// helper function liquidate from vault
+function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
+block {
+
+    const liquidateFromVaultOperation : operation = case token of [
+        
+        |   Tez(_tez) -> {
+
+                const liquidateTezOperationParams : onLiquidateType = record [                    
+                    receiver   = receiver;
+                    amount     = amount;
+                    tokenName  = tokenName;
+                ];
+                
+                const liquidateTezOperation : operation = Tezos.transaction(
+                    liquidateTezOperationParams,
+                    0mutez,
+                    getVaultOnLiquidateEntrypoint(vaultAddress)
+                );
+            
+            } with liquidateTezOperation
+
+        |   Fa12(_token) -> {
+
+                const liquidateFa12OperationParams : onLiquidateType = record [
+                    receiver   = receiver;
+                    amount     = amount;
+                    tokenName  = tokenName;
+                ];
+
+                const liquidateFa12Operation : operation = Tezos.transaction(
+                    liquidateFa12OperationParams,
+                    0mutez,
+                    getVaultOnLiquidateEntrypoint(vaultAddress)
+                );
+
+            } with liquidateFa12Operation
+
+        |   Fa2(_token) -> {
+
+                const liquidateFa2OperationParams : onLiquidateType = record [
+                    receiver   = receiver;
+                    amount     = amount;
+                    tokenName  = tokenName;
+                ];
+
+                const liquidateFa2Operation : operation = Tezos.transaction(
+                    liquidateFa2OperationParams,
+                    0mutez,
+                    getVaultOnLiquidateEntrypoint(vaultAddress)
+                );
+
+            } with liquidateFa2Operation
+    ];
+
+} with liquidateFromVaultOperation
 
 
 
@@ -1773,22 +1842,22 @@ block {
 // ------------------------------------------------------------------------------
 
 (* callVaultStakedMvkAction entrypoint *)
-function callVaultStakedMvkAction(const callVaultStakedMvkActionParams : callVaultStakedMvkActionType; var s : lendingControllerStorageType) : return is 
-block {
+// function callVaultStakedMvkAction(const callVaultStakedMvkActionParams : callVaultStakedMvkActionType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCallVaultStakedMvkAction"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCallVaultStakedMvkAction"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init lending controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams);
+//     // init lending controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
-    // const response:return = (nil, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+//     // const response:return = (nil, s);
 
-} with response
+// } with response
 
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Entrypoints End
@@ -1863,7 +1932,7 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   Repay(parameters)                             -> repay(parameters, s)
 
             // Vault Staked MVK Entrypoints   
-        |   CallVaultStakedMvkAction(parameters)          -> callVaultStakedMvkAction(parameters, s)
+        // |   CallVaultStakedMvkAction(parameters)          -> callVaultStakedMvkAction(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    

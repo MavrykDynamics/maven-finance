@@ -207,20 +207,23 @@ block {
                 else s.breakGlassConfig.repayIsPaused := True;
 
                 // Vault Entrypoints
-                if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then skip
-                else s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := True;
+                // if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then skip
+                // else s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := True;
 
-                if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then skip
-                else s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.vaultWithdrawIsPaused then skip
-                else s.breakGlassConfig.vaultWithdrawIsPaused := True;
+                // if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then skip
+                // else s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := True;
 
                 if s.breakGlassConfig.vaultDepositIsPaused then skip
                 else s.breakGlassConfig.vaultDepositIsPaused := True;
 
-                if s.breakGlassConfig.vaultUpdateDepositorIsPaused then skip
-                else s.breakGlassConfig.vaultUpdateDepositorIsPaused := True;
+                if s.breakGlassConfig.vaultWithdrawIsPaused then skip
+                else s.breakGlassConfig.vaultWithdrawIsPaused := True;
+
+                if s.breakGlassConfig.vaultOnLiquidateIsPaused then skip
+                else s.breakGlassConfig.vaultOnLiquidateIsPaused := True;
+
+                // if s.breakGlassConfig.vaultUpdateDepositorIsPaused then skip
+                // else s.breakGlassConfig.vaultUpdateDepositorIsPaused := True;
 
                 // Vault Staked MVK Entrypoints
                 if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then skip
@@ -293,20 +296,23 @@ block {
                 else skip;
 
                 // Vault Entrypoints
-                if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := False
-                else skip;
+                // if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := False
+                // else skip;
 
-                if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := False
+                // if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := False
+                // else skip;
+
+                if s.breakGlassConfig.vaultDepositIsPaused then s.breakGlassConfig.vaultDepositIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.vaultWithdrawIsPaused then s.breakGlassConfig.vaultWithdrawIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.vaultDepositIsPaused then s.breakGlassConfig.vaultDepositIsPaused := False
+                if s.breakGlassConfig.vaultOnLiquidateIsPaused then s.breakGlassConfig.vaultOnLiquidateIsPaused := False
                 else skip;
             
-                if s.breakGlassConfig.vaultUpdateDepositorIsPaused then s.breakGlassConfig.vaultUpdateDepositorIsPaused := False
-                else skip;
+                // if s.breakGlassConfig.vaultUpdateDepositorIsPaused then s.breakGlassConfig.vaultUpdateDepositorIsPaused := False
+                // else skip;
 
                 // Vault Staked MVK Entrypoints
                 if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then s.breakGlassConfig.vaultDepositStakedMvkIsPaused := False
@@ -358,11 +364,12 @@ block {
                     |   Repay (_v)                           -> s.breakGlassConfig.repayIsPaused                         := _v
 
                         // Vault Entrypoints
-                    |   VaultDelegateTezToBaker (_v)         -> s.breakGlassConfig.vaultDelegateTezToBakerIsPaused       := _v
-                    |   VaultDelegateMvkToSatellite (_v)     -> s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused   := _v
-                    |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
+                    // |   VaultDelegateTezToBaker (_v)         -> s.breakGlassConfig.vaultDelegateTezToBakerIsPaused       := _v
+                    // |   VaultDelegateMvkToSatellite (_v)     -> s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused   := _v
                     |   VaultDeposit (_v)                    -> s.breakGlassConfig.vaultDepositIsPaused                  := _v
-                    |   VaultUpdateDepositor (_v)            -> s.breakGlassConfig.vaultUpdateDepositorIsPaused          := _v
+                    |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
+                    |   VaultOnLiquidate (_v)                -> s.breakGlassConfig.vaultOnLiquidateIsPaused              := _v
+                    // |   VaultUpdateDepositor (_v)            -> s.breakGlassConfig.vaultUpdateDepositorIsPaused          := _v
 
                         // Vault Staked MVK Entrypoints
                     |   VaultDepositStakedMvk (_v)           -> s.breakGlassConfig.vaultDepositStakedMvkIsPaused         := _v
@@ -798,7 +805,7 @@ block {
                         } else block {
 
                             // for other collateral token types besides sMVK
-                            const withdrawTokenOperation : operation = withdrawFromVaultOperation(
+                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
                                 vaultOwner,                         // to_
                                 tokenName,                          // token name
                                 tokenBalance,                       // token amount to be withdrawn
@@ -851,8 +858,11 @@ block {
                 const vaultId     : vaultIdType      = markForLiquidationParams.vaultId;
                 const vaultOwner  : vaultOwnerType   = markForLiquidationParams.vaultOwner;
 
-                const currentTimestamp        : timestamp   = Tezos.get_now();
-                const liquidationDelayInMins  : int         = int(s.config.liquidationDelayInMins);
+                // const currentTimestamp        : timestamp   = Tezos.get_now();
+                const liquidationDelayInMins  : nat         = s.config.liquidationDelayInMins;
+
+                const mockLevel                     : nat = s.config.mockLevel;
+                const liquidationDelayInBlockLevel  : nat = liquidationDelayInMins * blocksPerMinute; 
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -864,8 +874,11 @@ block {
                 var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
                 
                 // get vault liquidation timestamps
-                const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
-                const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
+                // const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
+                // const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
+
+                const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
+                const timeWhenVaultCanBeLiquidated    : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
 
                 // check if vault is liquidatable
                 if isLiquidatable(vault, s) 
@@ -873,9 +886,9 @@ block {
                 else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
 
                 // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
-                if currentTimestamp < timeWhenVaultCanBeLiquidated 
+                if mockLevel < timeWhenVaultCanBeLiquidated 
                 then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
-                else vault.markedForLiquidationTimestamp := currentTimestamp;
+                else vault.markedForLiquidationLevel := mockLevel;
 
                 // update vault storage
                 s.vaults[vaultHandle] := vault;
@@ -903,13 +916,16 @@ block {
                 const vaultOwner        : address   = liquidateVaultParams.vaultOwner;
                 const amount            : nat       = liquidateVaultParams.amount;
                 const liquidator        : address   = Tezos.get_sender();
-                const currentTimestamp  : timestamp = Tezos.get_now();
+                // const currentTimestamp  : timestamp = Tezos.get_now();
 
                 // config variables
                 const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
                 const adminLiquidationFeePercent    : nat  = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
                 const maxDecimalsForCalculation     : nat  = s.config.maxDecimalsForCalculation;
-                const liquidationDelayInMins        : int  = int(s.config.liquidationDelayInMins);
+                const liquidationDelayInMins        : nat  = s.config.liquidationDelayInMins;
+
+                const mockLevel                     : nat = s.config.mockLevel;
+                const liquidationDelayInBlockLevel  : nat = liquidationDelayInMins * blocksPerMinute; 
 
                 // calculate final amounts to be liquidated
                 const liquidationIncentive          : nat = ((liquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
@@ -940,8 +956,10 @@ block {
                 var vaultBorrowIndex                : nat    := vault.borrowIndex;
 
                 // get vault liquidation timestamps
-                const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
-                const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
+                // const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
+                // const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
+                const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
+                const timeWhenVaultCanBeLiquidated    : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
 
                 // ------------------------------------------------------------------
                 // Check collaterization and update interest rates
@@ -953,7 +971,7 @@ block {
                 else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
 
                 // check if sufficient time has passed since vault was marked for liquidation
-                if currentTimestamp < timeWhenVaultCanBeLiquidated
+                if mockLevel < timeWhenVaultCanBeLiquidated 
                 then failwith(error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED)
                 else skip;
 
@@ -1045,8 +1063,8 @@ block {
                         var newTokenCollateralBalance : nat := abs(tokenBalance - liquidatorTokenQuantityTotal);
 
                         // send tokens from vault to liquidator
-                        const sendTokensFromVaultToLiquidatorOperation : operation = withdrawFromVaultOperation(
-                            liquidator,                         // to_
+                        const sendTokensFromVaultToLiquidatorOperation : operation = liquidateFromVaultOperation(
+                            liquidator,                         // receiver (i.e. to_)
                             tokenName,                          // token name
                             liquidatorTokenQuantityTotal,       // token amount to be withdrawn
                             collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
@@ -1069,8 +1087,8 @@ block {
                         newTokenCollateralBalance := abs(tokenBalance - treasuryTokenQuantityTotal);
 
                         // send tokens from vault to treasury
-                        const sendTokensFromVaultToTreasuryOperation : operation = withdrawFromVaultOperation(
-                            treasuryAddress,                    // to_
+                        const sendTokensFromVaultToTreasuryOperation : operation = liquidateFromVaultOperation(
+                            treasuryAddress,                    // receiver (i.e. to_)
                             tokenName,                          // token name
                             treasuryTokenQuantityTotal,         // token amount to be withdrawn
                             collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
