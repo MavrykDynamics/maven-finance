@@ -1,13 +1,13 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
-const { bob, oracleMaintainer, oracle0, oracle1, oracle2 } = require('../scripts/sandbox/accounts')
+const { bob, oracleMaintainer } = require('../scripts/sandbox/accounts')
+const {oracles} = require('../scripts/sandbox/oracles')
 
 import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 import governanceAddress from '../deployments/governanceAddress.json';
-import { string } from 'yargs';
 
 const breakGlassConfig = {
     updateDataIsPaused                 : false,
@@ -39,12 +39,11 @@ const metadata = MichelsonMap.fromLiteral({
     ).toString('hex'),
 })
 
-// const oracleAddresses = MichelsonMap.fromLiteral({
-//   [oracleMaintainer.pkh]  : true,
-//   [oracle0.pkh]           : true,
-//   [oracle1.pkh]           : true,
-//   [oracle2.pkh]           : true,
-// });
+const oraclesMap = {};
+
+for (const oracle of oracles) {
+    oraclesMap[oracle.pkh] = true
+}
 
 const oracleAddresses = MichelsonMap.fromLiteral({});
 
