@@ -355,6 +355,17 @@ function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(wit
 
 
 
+// helper function to get %onLiquidate entrypoint in a Vault Contract
+function getVaultOnLiquidateEntrypoint(const vaultAddress : address) : contract(onLiquidateType) is
+    case (Tezos.get_entrypoint_opt(
+        "%onLiquidate",
+        vaultAddress) : option(contract(onLiquidateType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(onLiquidateType))
+        ]
+
+
+
 // helper function to get %vaultDelegateTez entrypoint in a Vault Contract
 function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(delegateTezToBakerType) is
     case (Tezos.get_entrypoint_opt(
@@ -565,7 +576,8 @@ block {
         lastUpdatedBlockLevel       = Tezos.get_level();
         lastUpdatedTimestamp        = Tezos.get_now();
 
-        markedForLiquidationTimestamp = defaultTimestamp;
+        // markedForLiquidationTimestamp = defaultTimestamp;
+        markedForLiquidationLevel   = 0n;
     ];
     
 } with vaultRecord
@@ -714,6 +726,63 @@ block {
 } with withdrawFromVaultOperation
 
 
+
+// helper function liquidate from vault
+function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
+block {
+
+    const liquidateFromVaultOperation : operation = case token of [
+        
+        |   Tez(_tez) -> {
+
+                const liquidateTezOperationParams : onLiquidateType = record [                    
+                    receiver   = receiver;
+                    amount     = amount;
+                    tokenName  = tokenName;
+                ];
+                
+                const liquidateTezOperation : operation = Tezos.transaction(
+                    liquidateTezOperationParams,
+                    0mutez,
+                    getVaultOnLiquidateEntrypoint(vaultAddress)
+                );
+            
+            } with liquidateTezOperation
+
+        |   Fa12(_token) -> {
+
+                const liquidateFa12OperationParams : onLiquidateType = record [
+                    receiver   = receiver;
+                    amount     = amount;
+                    tokenName  = tokenName;
+                ];
+
+                const liquidateFa12Operation : operation = Tezos.transaction(
+                    liquidateFa12OperationParams,
+                    0mutez,
+                    getVaultOnLiquidateEntrypoint(vaultAddress)
+                );
+
+            } with liquidateFa12Operation
+
+        |   Fa2(_token) -> {
+
+                const liquidateFa2OperationParams : onLiquidateType = record [
+                    receiver   = receiver;
+                    amount     = amount;
+                    tokenName  = tokenName;
+                ];
+
+                const liquidateFa2Operation : operation = Tezos.transaction(
+                    liquidateFa2OperationParams,
+                    0mutez,
+                    getVaultOnLiquidateEntrypoint(vaultAddress)
+                );
+
+            } with liquidateFa2Operation
+    ];
+
+} with liquidateFromVaultOperation
 
 
 

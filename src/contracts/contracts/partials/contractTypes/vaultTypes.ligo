@@ -46,6 +46,13 @@ type depositType  is [@layout:comb] record [
     tokenName       : string
 ]
 
+type onLiquidateType  is [@layout:comb] record [
+    receiver        : address;
+    amount          : nat;
+    tokenName       : string
+]
+
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -61,8 +68,9 @@ type vaultLambdaActionType is
         // Vault Entrypoints
     |   LambdaDelegateTezToBaker         of delegateTezToBakerType
     |   LambdaDelegateMvkToSat           of satelliteAddressType
-    |   LambdaWithdraw                   of withdrawType
     |   LambdaDeposit                    of depositType 
+    |   LambdaWithdraw                   of withdrawType
+    |   LambdaOnLiquidate                of onLiquidateType 
     |   LambdaUpdateDepositor            of updateDepositorType
 
 

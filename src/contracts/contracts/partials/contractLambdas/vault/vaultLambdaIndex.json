@@ -21,14 +21,18 @@
     },
     {
         "index": 5,
-        "name": "lambdaWithdraw"
-    },
-    {
-        "index": 6,
         "name": "lambdaDeposit"
     },
     {
+        "index": 6,
+        "name": "lambdaWithdraw"
+    },
+    {
         "index": 7,
+        "name": "lambdaOnLiquidate"
+    },
+    {
+        "index": 8,
         "name": "lambdaUpdateDepositor"
     }
 ]

@@ -223,14 +223,14 @@ export const compileContract = async (
                 res.push(JSON.parse(michelson).bytes)
         
                 console.log(lambda.index + 1 + '. ' + lambda.name + ' successfully compiled.')
-                }
-        
-                if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
-                    fs.mkdirSync(`${env.buildDir}/lambdas`)
-                }
-        
-                fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res))
-        
+            }
+    
+            if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
+                fs.mkdirSync(`${env.buildDir}/lambdas`)
+            }
+    
+            fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res))
+    
         } catch (e) {
 
         console.error(e)

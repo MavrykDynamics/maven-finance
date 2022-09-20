@@ -57,17 +57,18 @@ type lendingControllerBreakGlassConfigType is record [
     borrowIsPaused                      : bool;
     repayIsPaused                       : bool;
 
+    // Vault Entrypoints
+    // vaultDelegateTezToBakerIsPaused         : bool; 
+    // vaultDelegateMvkToSatelliteIsPaused     : bool;
+    vaultDepositIsPaused                    : bool;
+    vaultWithdrawIsPaused                   : bool;
+    vaultOnLiquidateIsPaused                : bool;
+    // vaultUpdateDepositorIsPaused            : bool;
+
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : bool;
     vaultWithdrawStakedMvkIsPaused      : bool;
     vaultLiquidateStakedMvkIsPaused     : bool;
-
-    // Vault Entrypoints
-    vaultDelegateTezToBakerIsPaused         : bool; 
-    vaultDelegateMvkToSatelliteIsPaused     : bool;
-    vaultWithdrawIsPaused                   : bool;
-    vaultDepositIsPaused                    : bool;
-    vaultUpdateDepositorIsPaused            : bool;
 
 ]
 
@@ -101,24 +102,24 @@ type loanTokenRecordType is [@layout:comb] record [
     lpTokenContractAddress                  : address;
     lpTokenId                               : nat;
 
-    reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
     tokenPoolTotal                          : nat;  // sum of totalBorrowed and totalRemaining
     totalBorrowed                           : nat; 
     totalRemaining                          : nat; 
 
+    reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
     utilisationRate                         : nat;
     optimalUtilisationRate                  : nat;  // kink point
     baseInterestRate                        : nat;  // base interest rate
     maxInterestRate                         : nat;  // max interest rate
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
+    minRepaymentAmount                      : nat; 
 
     currentInterestRate                     : nat;
     lastUpdatedBlockLevel                   : nat; 
     accumulatedRewardsPerShare              : nat;
     borrowIndex                             : nat;
 
-    minRepaymentAmount                      : nat; 
     isPaused                                : bool;
 ]
 
@@ -142,7 +143,8 @@ type vaultRecordType is [@layout:comb] record [
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
     lastUpdatedTimestamp        : timestamp;                     // timestamp of when vault was last updated
 
-    markedForLiquidationTimestamp  : timestamp;                  // timestamp of when vault was marked for liquidation
+    // markedForLiquidationTimestamp  : timestamp;                  // timestamp of when vault was marked for liquidation
+    markedForLiquidationLevel      : nat;                        // block level of when vault was marked for liquidation
     
 ]
 
@@ -321,11 +323,12 @@ type lendingControllerPausableEntrypointType is
     |   Repay                       of bool
 
         // Vault Entrypoints
-    |   VaultDelegateTezToBaker     of bool
-    |   VaultDelegateMvkToSatellite of bool
-    |   VaultWithdraw               of bool
+    // |   VaultDelegateTezToBaker     of bool
+    // |   VaultDelegateMvkToSatellite of bool
     |   VaultDeposit                of bool
-    |   VaultUpdateDepositor        of bool
+    |   VaultWithdraw               of bool
+    |   VaultOnLiquidate            of bool
+    // |   VaultUpdateDepositor        of bool
 
         // Vault Staked MVK Entrypoints
     |   VaultDepositStakedMvk       of bool
