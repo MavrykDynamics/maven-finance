@@ -1,4 +1,4 @@
-import { BreakGlassCouncilMemberGraphQL, BreakGlassActionGraphQL } from "utils/TypesAndInterfaces/BreakGlassActions"
+import { BreakGlassCouncilMemberGraphQL, BreakGlassActionGraphQL } from "utils/TypesAndInterfaces/BreakGlass"
 
 type BreakGlassCouncilMemberProps = {
   break_glass_council_member: BreakGlassCouncilMemberGraphQL[]

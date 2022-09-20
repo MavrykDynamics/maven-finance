@@ -95,8 +95,7 @@ const actionNameHandler = (name: string) => {
 export const BreakGlassActions: FC = () => {
   const dispatch = useDispatch()
   const { search } = useLocation()
-  const { breakGlassAction } = useSelector((state: State) => state.breakGlassActions)
-
+  const { breakGlassAction } = useSelector((state: State) => state.breakGlass)
   const currentPage = getPageNumber(search, BREAK_GLASS_ACTONS_LIST_NAME)
 
   const itemsForDropDown = useMemo(
