@@ -51,7 +51,7 @@ export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: row;
 
-  > div:not(.text):not(.voting-tooltip) {
+  > div {
     height: 100%;
     min-width: 5%;
     display: flex;
@@ -59,7 +59,7 @@ export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
     align-items: flex-start;
     position: relative;
 
-    > div:not(.text):not(.voting-tooltip) {
+    > div:not(.voting-tooltip) {
       font-size: 12px;
       margin-top: 14px;
       position: absolute;
