@@ -15,6 +15,10 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
 
   .left-block {
     width: 751px;
+
+    & > h1 {
+      margin-bottom: 11px;
+    }
   }
 
   .right-block {
