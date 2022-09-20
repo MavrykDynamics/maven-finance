@@ -31,7 +31,7 @@ const INIT_FORM = {
 
 export const FormChangeCouncilMemberView: FC = () => {
   const dispatch = useDispatch()
-  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlassActions)
+  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 
   const itemsForDropDown = [
     {text: 'Choose', value: ''},
