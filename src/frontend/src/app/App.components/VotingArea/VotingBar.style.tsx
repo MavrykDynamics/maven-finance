@@ -51,7 +51,7 @@ export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: row;
 
-  > div {
+  > div:not(.text):not(.voting-tooltip) {
     height: 100%;
     min-width: 5%;
     display: flex;
@@ -59,7 +59,7 @@ export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
     align-items: flex-start;
     position: relative;
 
-    > div {
+    > div:not(.text):not(.voting-tooltip) {
       font-size: 12px;
       margin-top: 14px;
       position: absolute;
@@ -78,6 +78,14 @@ export const VotingFor = styled.div<{ width: number; theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.upColor};
   color: ${({ theme }) => theme.upColor};
   animation: ${dropShadow} 10s ease-in-out 0s infinite normal forwards;
+  cursor: pointer;
+
+  &:hover {
+    .text {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
 `
 
 export const VotingAgainst = styled.div<{ width: number; theme: MavrykTheme }>`
@@ -85,14 +93,38 @@ export const VotingAgainst = styled.div<{ width: number; theme: MavrykTheme }>`
   width: ${({ width }) => width}%;
   background-color: ${({ theme }) => theme.downColor};
   color: ${({ theme }) => theme.downColor};
+  cursor: pointer;
+
+  &:hover {
+    .text {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
 `
 export const VotingAbstention = styled.div<{ width: number; theme: MavrykTheme }>`
   width: ${({ width }) => width}%;
   background-color: ${skyColor};
   color: ${skyColor};
+  cursor: pointer;
+
+  &:hover {
+    .text {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
 `
 export const NotYetVoted = styled.div<{ width: number; theme: MavrykTheme }>`
   width: ${({ width }) => width}%;
   background-color: ${({ theme }) => theme.selectedColor};
   color: ${subTextColor};
+  cursor: pointer;
+
+  &:hover {
+    .text {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
 `
