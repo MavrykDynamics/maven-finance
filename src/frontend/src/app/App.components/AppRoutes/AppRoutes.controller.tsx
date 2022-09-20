@@ -14,6 +14,7 @@ import { BecomeSatellite } from '../../../pages/BecomeSatellite/BecomeSatellite.
 import { BreakGlass } from '../../../pages/BreakGlass/BreakGlass.controller'
 import { Council } from '../../../pages/Council/Council.controller'
 import { BreakGlassActions } from 'pages/BreakGlassActions/BreakGlassActions.controller'
+import { BreakGlassCouncil } from 'pages/BreakGlassCouncil/BreakGlassCouncil.controller'
 import { Dashboard } from '../../../pages/Dashboard/Dashboard.controller'
 import { Doorman } from '../../../pages/Doorman/Doorman.controller'
 import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
@@ -82,6 +83,9 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/mavryk-council">
         <Council />
+      </Route>
+      <Route exact path="/break-glass-council">
+        <BreakGlassCouncil />
       </Route>
       <Route exact path="/break-glass-actions">
         <BreakGlassActions />
