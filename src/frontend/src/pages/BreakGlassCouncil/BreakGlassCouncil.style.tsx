@@ -14,25 +14,31 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
   justify-content: space-between;
 
   .left-block {
-    width: 751px;
+    width: 750px;
 
     & > h1 {
       margin-bottom: 11px;
     }
+
+    .pending {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .pending-items {
+      width: 750px;
+    }
   }
 
   .right-block {
-    width: 309px;
+    width: 310px;
 
     & > h1 {
       margin-top: 53px;
       margin-bottom: 10px;
     }
-  }
-
-  .pending-signature {
-    display: flex;
-    justify-content: space-between;
   }
 `
 
