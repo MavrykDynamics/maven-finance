@@ -102,6 +102,13 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         protectedRoute: false,
       },
       {
+        id: 38374,
+        subTitle: 'Break Glass Council',
+        subPath: 'break-glass-council',
+        routeSubPath: '/break-glass-council',
+        protectedRoute: true,
+      },
+      {
         id: 38375,
         subTitle: 'Break Glass Actions',
         subPath: 'break-glass-actions',
