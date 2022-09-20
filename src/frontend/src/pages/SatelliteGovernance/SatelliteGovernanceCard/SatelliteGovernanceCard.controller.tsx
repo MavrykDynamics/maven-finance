@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 /* @ts-ignore */
 import Time from 'react-pure-time'
@@ -17,6 +17,8 @@ import Expand from '../../../app/App.components/Expand/Expand.view'
 import { dropAction, voteForAction } from '../SatelliteGovernance.actions'
 
 import { SatelliteGovernanceCardDropDown, SatelliteGovernanceCardTitleTextGroup } from './SatelliteGovernanceCard.style'
+import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
+import { PRECISION_NUMBER } from 'utils/constants'
 
 type Props = {
   satelliteId: string
@@ -80,6 +82,22 @@ export const SatelliteGovernanceCard = ({
     ? ProposalStatus.DEFEATED
     : ProposalStatus.ACTIVE
 
+  const voteStatistic = useMemo(
+    () => ({
+      forVotesMVKTotal: yayVotesSmvkTotal / PRECISION_NUMBER,
+      againstVotesMVKTotal: nayVotesSmvkTotal / PRECISION_NUMBER,
+      abstainVotesMVKTotal: passVoteSmvkTotal / PRECISION_NUMBER,
+      unusedVotesMVKTotal: Math.round(
+        snapshotSmvkTotalSupply / PRECISION_NUMBER -
+          yayVotesSmvkTotal / PRECISION_NUMBER -
+          nayVotesSmvkTotal / PRECISION_NUMBER -
+          passVoteSmvkTotal / PRECISION_NUMBER,
+      ),
+      quorum: smvkPercentageForApproval / 100,
+    }),
+    [yayVotesSmvkTotal, nayVotesSmvkTotal, passVoteSmvkTotal, snapshotSmvkTotalSupply, smvkPercentageForApproval],
+  )
+
   return (
     <Expand
       className="expand-satellite-governance"
@@ -136,6 +154,14 @@ export const SatelliteGovernanceCard = ({
             Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" /> {timeFormat}{' '}
             CEST
           </b>
+
+          <VotingArea
+            voteStatistics={voteStatistic}
+            isVotingActive={statusFlag === ProposalStatus.ONGOING}
+            handleVote={handleVotingRoundVote}
+          />
+
+          {/* TODO: remove old component */}
           <div className="voting-bar">
             <VotingBarBlockView
               yayVotesSmvkTotal={yayVotesSmvkTotal}
