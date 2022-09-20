@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 /* @ts-ignore */
@@ -19,6 +19,8 @@ import {
   EGovHistoryCardTitleTextGroup,
   EGovHistoryCardTopSection,
 } from './EGovHistoryCard.style'
+import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
+import { PRECISION_NUMBER } from 'utils/constants'
 
 type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceStorage['emergencyGovernanceLedger'][0]
@@ -40,6 +42,17 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
   const status = emergencyGovernance.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
 
   const currentData = emergencyGovernance.startTimestamp
+
+  const votingStatistic = useMemo(
+    () => ({
+      forVotesMVKTotal: emergencyGovernance.totalsMvkVotes,
+      unusedVotesMVKTotal: Math.round((totalStakedMvk ?? 0 / PRECISION_NUMBER) - emergencyGovernance.totalsMvkVotes),
+      quorum: emergencyGovernance?.sMvkPercentageRequired ?? 0,
+    }),
+    [emergencyGovernance?.sMvkPercentageRequired, emergencyGovernance.totalsMvkVotes, totalStakedMvk],
+  )
+
+  console.log(votingStatistic)
 
   return (
     <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
@@ -83,6 +96,12 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
             <p>{emergencyGovernance.description}</p>
           </div>
           <div>
+            <VotingArea
+              voteStatistics={votingStatistic}
+              isVotingActive={false}
+              handleVote={() => null}
+              quorumText="Percentage Required"
+            />
             <EGovVoting
               totalStakedMvk={totalStakedMvk ?? 0}
               totalsMvkVotes={emergencyGovernance.totalsMvkVotes}

@@ -90,7 +90,7 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
 
   console.log('rightSideContent', rightSideContent, votingStats)
 
-  const handleVotingRoundVote = (vote: string | number) => {
+  const handleVotingRoundVote = (vote: string) => {
     let voteType
     switch (vote) {
       case 'FOR':
@@ -150,10 +150,6 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
         />
 
         <VotingArea
-          selectedProposal={{
-            passVoteMvkTotal: 0,
-            id: '',
-          }}
           voteStatistics={votingStats}
           isVotingActive={rightItemStatus === ProposalStatus.ONGOING}
           handleVote={handleVotingRoundVote}
