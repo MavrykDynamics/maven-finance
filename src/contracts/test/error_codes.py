@@ -1128,10 +1128,11 @@ error_SET_GOVERNANCE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                     
 error_UPDATE_METADATA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                            = 805
 error_DELEGATE_TEZ_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                      = 806
 error_VAULT_DELEGATE_MVK_TO_SATELLITE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                            = 807
-error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                   = 808
-error_VAULT_DEPOSIT_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                              = 809
-error_VAULT_UPDATE_DEPOSITOR_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                     = 810
-error_SET_LAMBDA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                 = 811
+error_VAULT_DEPOSIT_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                              = 808
+error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                   = 809
+error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                               = 810
+error_VAULT_UPDATE_DEPOSITOR_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                     = 811
+error_SET_LAMBDA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                 = 812
 
 
 
@@ -1141,113 +1142,116 @@ error_SET_LAMBDA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                         
 
 
 
-error_VAULT_FACTORY_CONTRACT_NOT_FOUND                                                                  = 812
-error_ONLY_VAULT_FACTORY_CONTRACT_ALLOWED                                                               = 813
+error_VAULT_FACTORY_CONTRACT_NOT_FOUND                                                                  = 813
+error_ONLY_VAULT_FACTORY_CONTRACT_ALLOWED                                                               = 814
 
-error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED                                          = 814
-error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                       = 815
-
-
+error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED                                          = 815
+error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                       = 816
 
 
 
 
 
 
-error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                                             = 816
-
-error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED                                                          = 817
-
-error_VAULT_ALREADY_EXISTS                                                                              = 818
-error_VAULT_CONTRACT_NOT_FOUND                                                                          = 819
-error_VAULT_ID_ALREADY_USED                                                                             = 820
-error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 821
-error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 822
-error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 823
-error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 824
-error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 825
-error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 826
-error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 827
-error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 828
-error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 829
-error_LOAN_INTEREST_MISCALCULATION                                                                      = 830
-error_LOAN_OUTSTANDING_IS_NOT_ZERO                                                                      = 831
-error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                       = 832
 
 
-error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 833
-error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                    = 834
-error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 835
-error_UPDATE_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                          = 836
-error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                          = 837
-error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                      = 838
-error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 839
-error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                              = 840
-error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                             = 841
-error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                  = 842
-error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                           = 843
-error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                            = 844
-error_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                         = 845
-error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                        = 846
-error_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                       = 847
+error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                                             = 817
 
-error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 848
-error_VAULT_DELEGATE_MVK_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 849
-error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                              = 850
+error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED                                                          = 818
+
+error_VAULT_ALREADY_EXISTS                                                                              = 819
+error_VAULT_CONTRACT_NOT_FOUND                                                                          = 820
+error_VAULT_ID_ALREADY_USED                                                                             = 821
+error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 822
+error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 823
+error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 824
+error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 825
+error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 826
+error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 827
+error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 828
+error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 829
+error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 830
+error_LOAN_INTEREST_MISCALCULATION                                                                      = 831
+error_LOAN_OUTSTANDING_IS_NOT_ZERO                                                                      = 832
+error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                       = 833
+
+
+error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 834
+error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                    = 835
+error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 836
+error_UPDATE_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                          = 837
+error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                          = 838
+error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                      = 839
+error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 840
+error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                              = 841
+error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                             = 842
+error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                  = 843
+error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                           = 844
+error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                            = 845
+error_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                         = 846
+error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                        = 847
+error_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                       = 848
+
+error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 849
+error_VAULT_DELEGATE_MVK_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 850
 error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                               = 851
-error_VAULT_UPDATE_DEPOSITOR_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                      = 852
+error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                              = 852
+error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                          = 853
+error_VAULT_UPDATE_DEPOSITOR_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                      = 854
 
-error_CLAIM_REWARDS_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                    = 853
-
-
-error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                              = 854
-error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 855
-error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                       = 856
-
-error_GET_VAULT_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                       = 857
-
-error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 858
-error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 859
-error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 860
-error_LOAN_TOKEN_ALREADY_EXISTS                                                                         = 861
-error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 862
-error_LOAN_TOKEN_LEDGER_NOT_FOUND                                                                       = 863
-error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 864
-error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 865
-error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 866
-
-error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT                                                    = 867
-error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                                = 868
-error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED                                                     = 869
-
-error_VAULT_IS_NOT_UNDERCOLLATERIZED                                                                    = 870
-error_VAULT_IS_NOT_LIQUIDATABLE                                                                         = 871
-error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION                                                     = 872
-error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED                                                               = 873
-
-error_OWNER_VAULT_SET_DOES_NOT_EXIST                                                                    = 874
-
-error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 875
-
-error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS                                                   = 876
-error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE                                                               = 877
-error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE                                                           = 878
-
-error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 879
-
-error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                               = 880
-
-error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION                                                           = 881
-error_REBASE_DECIMALS_OUT_OF_BOUNDS                                                                     = 882
-
-error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL                                           = 883
-error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE                                               = 884
-
-error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL                        = 885
-
-error_CANNOT_REMOVE_MORE_LIQUIDITY_THAN_BALANCE                                                         = 886
-error_MINT_OR_BURN_ENTRYPOINT_IN_LP_TOKEN_NOT_FOUND                                                     = 887
-error_BREAK_GLASS_CONFIG_NOT_FOUND_IN_LENDING_CONTROLLER                                                = 888
+error_CLAIM_REWARDS_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                    = 855
 
 
+error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                              = 856
+error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 857
+error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                       = 858
+
+error_GET_VAULT_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                       = 859
+
+error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 860
+error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 861
+error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 862
+error_LOAN_TOKEN_ALREADY_EXISTS                                                                         = 863
+error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 864
+error_LOAN_TOKEN_LEDGER_NOT_FOUND                                                                       = 865
+error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 866
+error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 867
+error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 868
+
+error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT                                                    = 869
+error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                                = 870
+error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED                                                     = 871
+
+error_VAULT_IS_NOT_UNDERCOLLATERIZED                                                                    = 872
+error_VAULT_IS_NOT_LIQUIDATABLE                                                                         = 873
+error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION                                                     = 874
+error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED                                                               = 875
+
+error_OWNER_VAULT_SET_DOES_NOT_EXIST                                                                    = 876
+
+error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 877
+error_GET_COL_TOKEN_RECORD_BY_NAME_OPT_VIEW_NOT_FOUND                                                   = 878
+
+error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS                                                   = 879
+error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE                                                               = 880
+error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE                                                           = 881
+
+error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 882
+
+error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                               = 883
+
+error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION                                                           = 884
+error_REBASE_DECIMALS_OUT_OF_BOUNDS                                                                     = 885
+
+error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL                                           = 886
+error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE                                               = 887
+
+error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL                        = 888
+
+error_CANNOT_REMOVE_MORE_LIQUIDITY_THAN_BALANCE                                                         = 889
+error_MINT_OR_BURN_ENTRYPOINT_IN_LP_TOKEN_NOT_FOUND                                                     = 890
+error_BREAK_GLASS_CONFIG_NOT_FOUND_IN_LENDING_CONTROLLER                                                = 891
+
+error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 892
+error_GET_TOKEN_POOL_DEPOSITOR_BALANCE_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                = 893
 

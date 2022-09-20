@@ -41,7 +41,6 @@ import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPool
 
 import { MavrykFa12Token } from '../helpers/mavrykFa12TokenHelper'
 import { MavrykFa2Token } from '../helpers/mavrykFa2TokenHelper'
-import { TokenPoolLpToken } from "../helpers/tokenPoolLpTokenHelper"
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -56,7 +55,6 @@ import { tokenPoolRewardStorage } from "../../storage/tokenPoolRewardStorage"
 
 import { mavrykFa12TokenStorage } from '../../storage/mavrykFa12TokenStorage'
 import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
-import { tokenPoolLpTokenStorage } from "../../storage/tokenPoolLpTokenStorage"
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -69,19 +67,19 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
   let governanceInstance
   let vaultFactoryInstance
 
-  var mockUsdXtzAggregator : Aggregator;
-  var mockUsdMockFa12TokenAggregator : Aggregator;
-  var mockUsdMockFa2TokenAggregator : Aggregator;
+  var mockUsdXtzAggregator              : Aggregator;
+  var mockUsdMockFa12TokenAggregator    : Aggregator;
+  var mockUsdMockFa2TokenAggregator     : Aggregator;
 
-  var mockFa12Token : MavrykFa12Token
-  var mockFa2Token : MavrykFa2Token
-  var lpTokenPoolMockFa12Token : TokenPoolLpToken;
-  var lpTokenPoolMockFa2Token : TokenPoolLpToken;
-  var lpTokenPoolXtz : TokenPoolLpToken;
+  var mockFa12Token                     : MavrykFa12Token
+  var mockFa2Token                      : MavrykFa2Token
+  var lpTokenPoolMockFa12Token          : MavrykFa2Token;
+  var lpTokenPoolMockFa2Token           : MavrykFa2Token;
+  var lpTokenPoolXtz                    : MavrykFa2Token;
 
-  var lendingController : LendingController
-  var vaultFactory : VaultFactory
-  var tokenPoolReward : TokenPoolReward
+  var lendingController                 : LendingController
+  var vaultFactory                      : VaultFactory
+  var tokenPoolReward                   : TokenPoolReward
   
   var tezos
   
@@ -273,11 +271,11 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         tezos = lendingController.tezos
         await signerFactory(bob.sk);
 
-        console.log('====== set lambdas ======')
-    
         //----------------------------
         // Set Lambdas
         //----------------------------
+        
+        console.log('====== set lambdas ======')
 
         // Lending Controller Lambdas
         await setLendingControllerLambdas(tezos, lendingController.contract);

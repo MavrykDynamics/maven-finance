@@ -206,20 +206,23 @@ block {
                 else s.breakGlassConfig.repayIsPaused := True;
 
                 // Vault Entrypoints
-                if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then skip
-                else s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := True;
+                // if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then skip
+                // else s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := True;
 
-                if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then skip
-                else s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := True;
-
-                if s.breakGlassConfig.vaultWithdrawIsPaused then skip
-                else s.breakGlassConfig.vaultWithdrawIsPaused := True;
+                // if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then skip
+                // else s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := True;
 
                 if s.breakGlassConfig.vaultDepositIsPaused then skip
                 else s.breakGlassConfig.vaultDepositIsPaused := True;
 
-                if s.breakGlassConfig.vaultUpdateDepositorIsPaused then skip
-                else s.breakGlassConfig.vaultUpdateDepositorIsPaused := True;
+                if s.breakGlassConfig.vaultWithdrawIsPaused then skip
+                else s.breakGlassConfig.vaultWithdrawIsPaused := True;
+
+                if s.breakGlassConfig.vaultOnLiquidateIsPaused then skip
+                else s.breakGlassConfig.vaultOnLiquidateIsPaused := True;
+
+                // if s.breakGlassConfig.vaultUpdateDepositorIsPaused then skip
+                // else s.breakGlassConfig.vaultUpdateDepositorIsPaused := True;
 
                 // Vault Staked MVK Entrypoints
                 if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then skip
@@ -292,20 +295,23 @@ block {
                 else skip;
 
                 // Vault Entrypoints
-                if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := False
-                else skip;
+                // if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := False
+                // else skip;
 
-                if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := False
+                // if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := False
+                // else skip;
+
+                if s.breakGlassConfig.vaultDepositIsPaused then s.breakGlassConfig.vaultDepositIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.vaultWithdrawIsPaused then s.breakGlassConfig.vaultWithdrawIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.vaultDepositIsPaused then s.breakGlassConfig.vaultDepositIsPaused := False
+                if s.breakGlassConfig.vaultOnLiquidateIsPaused then s.breakGlassConfig.vaultOnLiquidateIsPaused := False
                 else skip;
-            
-                if s.breakGlassConfig.vaultUpdateDepositorIsPaused then s.breakGlassConfig.vaultUpdateDepositorIsPaused := False
-                else skip;
+
+                // if s.breakGlassConfig.vaultUpdateDepositorIsPaused then s.breakGlassConfig.vaultUpdateDepositorIsPaused := False
+                // else skip;
 
                 // Vault Staked MVK Entrypoints
                 if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then s.breakGlassConfig.vaultDepositStakedMvkIsPaused := False
@@ -357,11 +363,12 @@ block {
                     |   Repay (_v)                           -> s.breakGlassConfig.repayIsPaused                         := _v
 
                         // Vault Entrypoints
-                    |   VaultDelegateTezToBaker (_v)         -> s.breakGlassConfig.vaultDelegateTezToBakerIsPaused       := _v
-                    |   VaultDelegateMvkToSatellite (_v)     -> s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused   := _v
-                    |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
+                    // |   VaultDelegateTezToBaker (_v)         -> s.breakGlassConfig.vaultDelegateTezToBakerIsPaused       := _v
+                    // |   VaultDelegateMvkToSatellite (_v)     -> s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused   := _v
                     |   VaultDeposit (_v)                    -> s.breakGlassConfig.vaultDepositIsPaused                  := _v
-                    |   VaultUpdateDepositor (_v)            -> s.breakGlassConfig.vaultUpdateDepositorIsPaused          := _v
+                    |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
+                    |   VaultOnLiquidate (_v)                -> s.breakGlassConfig.vaultOnLiquidateIsPaused              := _v
+                    // |   VaultUpdateDepositor (_v)            -> s.breakGlassConfig.vaultUpdateDepositorIsPaused          := _v
 
                         // Vault Staked MVK Entrypoints
                     |   VaultDepositStakedMvk (_v)           -> s.breakGlassConfig.vaultDepositStakedMvkIsPaused         := _v
@@ -796,7 +803,6 @@ block {
 
                             // for other collateral token types besides sMVK
                             const withdrawTokenOperation : operation = withdrawFromVaultOperation(
-                                vaultOwner,                         // to_
                                 tokenName,                          // token name
                                 tokenBalance,                       // token amount to be withdrawn
                                 collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
@@ -1041,8 +1047,8 @@ block {
                         var newTokenCollateralBalance : nat := abs(tokenBalance - liquidatorTokenQuantityTotal);
 
                         // send tokens from vault to liquidator
-                        const sendTokensFromVaultToLiquidatorOperation : operation = withdrawFromVaultOperation(
-                            liquidator,                         // to_
+                        const sendTokensFromVaultToLiquidatorOperation : operation = liquidateFromVaultOperation(
+                            liquidator,                         // receiver (i.e. to_)
                             tokenName,                          // token name
                             liquidatorTokenQuantityTotal,       // token amount to be withdrawn
                             collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
@@ -1065,8 +1071,8 @@ block {
                         newTokenCollateralBalance := abs(tokenBalance - treasuryTokenQuantityTotal);
 
                         // send tokens from vault to treasury
-                        const sendTokensFromVaultToTreasuryOperation : operation = withdrawFromVaultOperation(
-                            treasuryAddress,                    // to_
+                        const sendTokensFromVaultToTreasuryOperation : operation = liquidateFromVaultOperation(
+                            treasuryAddress,                    // receiver (i.e. to_)
                             tokenName,                          // token name
                             treasuryTokenQuantityTotal,         // token amount to be withdrawn
                             collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
@@ -1876,234 +1882,234 @@ block {
 // ------------------------------------------------------------------------------
 
 // (* callVaultStakedMvkEntrypoint lambda *)
-function lambdaCallVaultStakedMvkAction(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
-block {
+// function lambdaCallVaultStakedMvkAction(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case lendingControllerLambdaAction of [
-        |   LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams) -> {
+//     case lendingControllerLambdaAction of [
+//         |   LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams) -> {
 
-                const lambdaName : string = case callVaultStakedMvkActionParams of [
-                    |   VaultDepositStakedMvk (_v)     -> "lambdaVaultDepositStakedMvk"
-                    |   VaultWithdrawStakedMvk (_v)    -> "lambdaVaultWithdrawStakedMvk"
-                    |   VaultLiquidateStakedMvk (_v)   -> "lambdaVaultLiquidateStakedMvk"
-                ];
+//                 const lambdaName : string = case callVaultStakedMvkActionParams of [
+//                     |   VaultDepositStakedMvk (_v)     -> "lambdaVaultDepositStakedMvk"
+//                     |   VaultWithdrawStakedMvk (_v)    -> "lambdaVaultWithdrawStakedMvk"
+//                     |   VaultLiquidateStakedMvk (_v)   -> "lambdaVaultLiquidateStakedMvk"
+//                 ];
 
-                // Get entrypoint lambda as bytes
-                const lambdaBytes : bytes = case s.lambdaLedger[lambdaName] of [
-                    |   Some(_v) -> _v
-                    |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-                ];
+//                 // Get entrypoint lambda as bytes
+//                 const lambdaBytes : bytes = case s.lambdaLedger[lambdaName] of [
+//                     |   Some(_v) -> _v
+//                     |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//                 ];
 
-                const res : return = case (Bytes.unpack(lambdaBytes) : option(lendingControllerUnpackLambdaFunctionType)) of [
-                    |   Some(f) -> f(lendingControllerLambdaAction, s)
-                    |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-                ];
+//                 const res : return = case (Bytes.unpack(lambdaBytes) : option(lendingControllerUnpackLambdaFunctionType)) of [
+//                     |   Some(f) -> f(lendingControllerLambdaAction, s)
+//                     |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+//                 ];
 
-                operations := res.0;
+//                 operations := res.0;
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-(* depositStakedMvk lambda *)
-function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
+// (* depositStakedMvk lambda *)
+// function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+// block {
     
-    var operations : list(operation) := nil;
-    checkVaultDepositStakedMvkIsNotPaused(s);    // check that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
+//     var operations : list(operation) := nil;
+//     checkVaultDepositStakedMvkIsNotPaused(s);    // check that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
 
-    case lendingControllerLambdaAction of [
-        |   LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams) -> {
+//     case lendingControllerLambdaAction of [
+//         |   LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams) -> {
                 
-                // init variables for convenience
-                const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
-                const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
-                const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "sMVK";
+//                 // init variables for convenience
+//                 const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
+//                 const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
+//                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
+//                 const tokenName       : string            = "sMVK";
 
-                // Get Doorman Address from the General Contracts map on the Governance Contract
-                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+//                 // Get Doorman Address from the General Contracts map on the Governance Contract
+//                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-                // check if token (sMVK) exists in collateral token ledger
-                checkCollateralTokenExists(tokenName, s);
+//                 // check if token (sMVK) exists in collateral token ledger
+//                 checkCollateralTokenExists(tokenName, s);
 
-                // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+//                 // Make vault handle
+//                 const vaultHandle : vaultHandleType = record [
+//                     id     = vaultId;
+//                     owner  = vaultOwner;
+//                 ];
 
-                // Get vault if exists
-                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+//                 // Get vault if exists
+//                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
-                const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType = record [
-                    vaultOwner    = vaultOwner;
-                    vaultAddress  = vault.address;
-                    depositAmount = depositAmount;
-                ];
+//                 const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType = record [
+//                     vaultOwner    = vaultOwner;
+//                     vaultAddress  = vault.address;
+//                     depositAmount = depositAmount;
+//                 ];
     
-                // create operation to doorman to update balance of staked MVK from user to vault
-                const vaultDepositStakedMvkOperation : operation = Tezos.transaction(
-                    onVaultDepositStakedMvkParams,
-                    0tez,
-                    getOnVaultDepositStakedMvkEntrypoint(doormanAddress)
-                );
-                operations := vaultDepositStakedMvkOperation # operations;
+//                 // create operation to doorman to update balance of staked MVK from user to vault
+//                 const vaultDepositStakedMvkOperation : operation = Tezos.transaction(
+//                     onVaultDepositStakedMvkParams,
+//                     0tez,
+//                     getOnVaultDepositStakedMvkEntrypoint(doormanAddress)
+//                 );
+//                 operations := vaultDepositStakedMvkOperation # operations;
                 
-                // Get current vault staked MVK balance from Doorman contract
-                const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
+//                 // Get current vault staked MVK balance from Doorman contract
+//                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
 
-                // calculate new collateral balance
-                const newCollateralBalance : nat = currentVaultStakedMvkBalance + depositAmount;
+//                 // calculate new collateral balance
+//                 const newCollateralBalance : nat = currentVaultStakedMvkBalance + depositAmount;
 
-                // save and update new balance for collateral token
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
+//                 // save and update new balance for collateral token
+//                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+//                 s.vaults[vaultHandle]                     := vault;
                 
-            }
-        |   _ -> skip
-    ];
+//             }
+//         |   _ -> skip
+//     ];
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-(* withdrawStakedMvk lambda *)
-function lambdaVaultWithdrawStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
+// (* withdrawStakedMvk lambda *)
+// function lambdaVaultWithdrawStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+// block {
     
-    var operations : list(operation)  := nil;
-    checkVaultWithdrawStakedMvkIsNotPaused(s);    // check that %vaultWithdrawStakedMvk entrypoint is not paused (e.g. if glass broken)
+//     var operations : list(operation)  := nil;
+//     checkVaultWithdrawStakedMvkIsNotPaused(s);    // check that %vaultWithdrawStakedMvk entrypoint is not paused (e.g. if glass broken)
 
-    case lendingControllerLambdaAction of [
-        |   LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams) -> {
+//     case lendingControllerLambdaAction of [
+//         |   LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams) -> {
                 
-                // init variables for convenience
-                const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
-                const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
-                const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "sMVK";
+//                 // init variables for convenience
+//                 const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
+//                 const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
+//                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
+//                 const tokenName       : string            = "sMVK";
 
-                // Get Doorman Address from the General Contracts map on the Governance Contract
-                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+//                 // Get Doorman Address from the General Contracts map on the Governance Contract
+//                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-                // check if token (sMVK) exists in collateral token ledger
-                checkCollateralTokenExists(tokenName, s);
+//                 // check if token (sMVK) exists in collateral token ledger
+//                 checkCollateralTokenExists(tokenName, s);
 
-                // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+//                 // Make vault handle
+//                 const vaultHandle : vaultHandleType = record [
+//                     id     = vaultId;
+//                     owner  = vaultOwner;
+//                 ];
 
-                // Get vault if exists
-                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+//                 // Get vault if exists
+//                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
-                // Get current vault staked MVK balance from Doorman contract
-                const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
+//                 // Get current vault staked MVK balance from Doorman contract
+//                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
 
-                // calculate new collateral balance
-                if withdrawAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
-                const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - withdrawAmount);
+//                 // calculate new collateral balance
+//                 if withdrawAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
+//                 const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - withdrawAmount);
 
-                const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType = record [
-                    vaultOwner     = vaultOwner;
-                    vaultAddress   = vault.address;
-                    withdrawAmount = withdrawAmount;
-                ];
+//                 const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType = record [
+//                     vaultOwner     = vaultOwner;
+//                     vaultAddress   = vault.address;
+//                     withdrawAmount = withdrawAmount;
+//                 ];
 
-                // create operation to doorman to update balance of staked MVK from user to vault
-                const onVaultWithdrawStakedMvkOperation : operation = Tezos.transaction(
-                    onVaultWithdrawStakedMvkParams,
-                    0tez,
-                    getOnVaultWithdrawStakedMvkEntrypoint(doormanAddress)
-                );
-                operations := onVaultWithdrawStakedMvkOperation # operations;
+//                 // create operation to doorman to update balance of staked MVK from user to vault
+//                 const onVaultWithdrawStakedMvkOperation : operation = Tezos.transaction(
+//                     onVaultWithdrawStakedMvkParams,
+//                     0tez,
+//                     getOnVaultWithdrawStakedMvkEntrypoint(doormanAddress)
+//                 );
+//                 operations := onVaultWithdrawStakedMvkOperation # operations;
                 
-                // save and update new balance for collateral token
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
+//                 // save and update new balance for collateral token
+//                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+//                 s.vaults[vaultHandle]                     := vault;
                 
-            }
-        |   _ -> skip
-    ];
+//             }
+//         |   _ -> skip
+//     ];
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
-(* liquidateStakedMvk lambda *)
-function lambdaVaultLiquidateStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
+// (* liquidateStakedMvk lambda *)
+// function lambdaVaultLiquidateStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+// block {
     
-    // only callable from self (i.e. from LiquidateVault entrypoint, if owner of vault being liquidated has staked mvk as collateral)
-    checkSenderIsSelf(unit);
+//     // only callable from self (i.e. from LiquidateVault entrypoint, if owner of vault being liquidated has staked mvk as collateral)
+//     checkSenderIsSelf(unit);
 
-    var operations : list(operation) := nil;
-    // checkVaultLiquidateStakedMvkIsNotPaused(s);    // check that %vaultLiquidateStakedMvk entrypoint is not paused (e.g. if glass broken)
+//     var operations : list(operation) := nil;
+//     // checkVaultLiquidateStakedMvkIsNotPaused(s);    // check that %vaultLiquidateStakedMvk entrypoint is not paused (e.g. if glass broken)
 
-    case lendingControllerLambdaAction of [
-        |   LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams) -> {
+//     case lendingControllerLambdaAction of [
+//         |   LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams) -> {
                 
-                // init variables for convenience
-                const vaultId           : vaultIdType       = vaultLiquidateStakedMvkParams.vaultId;
-                const vaultOwner        : vaultOwnerType    = vaultLiquidateStakedMvkParams.vaultOwner;
-                const liquidator        : address            = vaultLiquidateStakedMvkParams.liquidator;
-                const liquidatedAmount  : nat               = vaultLiquidateStakedMvkParams.liquidatedAmount;
-                const tokenName         : string            = "sMVK";
+//                 // init variables for convenience
+//                 const vaultId           : vaultIdType       = vaultLiquidateStakedMvkParams.vaultId;
+//                 const vaultOwner        : vaultOwnerType    = vaultLiquidateStakedMvkParams.vaultOwner;
+//                 const liquidator        : address            = vaultLiquidateStakedMvkParams.liquidator;
+//                 const liquidatedAmount  : nat               = vaultLiquidateStakedMvkParams.liquidatedAmount;
+//                 const tokenName         : string            = "sMVK";
 
-                // Get Doorman Address from the General Contracts map on the Governance Contract
-                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+//                 // Get Doorman Address from the General Contracts map on the Governance Contract
+//                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-                // check if token (sMVK) exists in collateral token ledger
-                checkCollateralTokenExists(tokenName, s);
+//                 // check if token (sMVK) exists in collateral token ledger
+//                 checkCollateralTokenExists(tokenName, s);
 
-                // Make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
+//                 // Make vault handle
+//                 const vaultHandle : vaultHandleType = record [
+//                     id     = vaultId;
+//                     owner  = vaultOwner;
+//                 ];
 
-                // Get vault if exists
-                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+//                 // Get vault if exists
+//                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
                 
-                // Get current vault staked MVK balance from Doorman contract
-                const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
+//                 // Get current vault staked MVK balance from Doorman contract
+//                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
 
-                // calculate new collateral balance
-                if liquidatedAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
-                const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - liquidatedAmount);
+//                 // calculate new collateral balance
+//                 if liquidatedAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
+//                 const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - liquidatedAmount);
 
-                const onVaultLiquidateStakedMvkParams : onVaultLiquidateStakedMvkType = record [
-                    vaultOwner       = vaultOwner;
-                    vaultAddress     = vault.address;
-                    liquidator       = liquidator;
-                    liquidatedAmount = liquidatedAmount;
-                ];
+//                 const onVaultLiquidateStakedMvkParams : onVaultLiquidateStakedMvkType = record [
+//                     vaultOwner       = vaultOwner;
+//                     vaultAddress     = vault.address;
+//                     liquidator       = liquidator;
+//                     liquidatedAmount = liquidatedAmount;
+//                 ];
 
-                // create operation to doorman to update balance of staked MVK from user to vault
-                const onVaultLiquidateStakedMvkOperation : operation = Tezos.transaction(
-                    onVaultLiquidateStakedMvkParams,
-                    0tez,
-                    getOnVaultLiquidateStakedMvkEntrypoint(doormanAddress)
-                );
-                operations := onVaultLiquidateStakedMvkOperation # operations;
+//                 // create operation to doorman to update balance of staked MVK from user to vault
+//                 const onVaultLiquidateStakedMvkOperation : operation = Tezos.transaction(
+//                     onVaultLiquidateStakedMvkParams,
+//                     0tez,
+//                     getOnVaultLiquidateStakedMvkEntrypoint(doormanAddress)
+//                 );
+//                 operations := onVaultLiquidateStakedMvkOperation # operations;
                 
-                // save and update new balance for collateral token in liquidated vault
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
+//                 // save and update new balance for collateral token in liquidated vault
+//                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+//                 s.vaults[vaultHandle]                     := vault;
 
-            }
-        |   _ -> skip
-    ];
+//             }
+//         |   _ -> skip
+//     ];
 
-} with (operations, s)
+// } with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Lambdas End

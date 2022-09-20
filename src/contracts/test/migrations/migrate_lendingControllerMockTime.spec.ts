@@ -79,7 +79,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
     var lpTokenPoolXtz                  : MavrykFa2Token;
 
     var lendingControllerMockTime       : LendingControllerMockTime
-    var vaultFactory : VaultFactory
+    var vaultFactory                    : VaultFactory
     var tokenPoolReward                 : TokenPoolReward
     
         
@@ -271,12 +271,12 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
     
             tezos = lendingControllerMockTime.tezos
             await signerFactory(bob.sk);
-
-            console.log('====== set lambdas ======')
         
             //----------------------------
             // Set Lambdas
             //----------------------------
+
+            console.log('====== set lambdas ======')
 
             // Lending Controller Lambdas
             await setLendingControllerLambdas(tezos, lendingControllerMockTime.contract);
@@ -316,9 +316,11 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
         
             console.log('Governance Contract - set general contract addresses [lendingController, tokenPoolReward]')
 
+            
             //----------------------------
             // Set Vault Factory Admin to Governance Proxy 
             //----------------------------
+
 
             // Vault Factory Set Admin
             vaultFactoryInstance = await utils.tezos.contract.at(vaultFactory.contract.address);

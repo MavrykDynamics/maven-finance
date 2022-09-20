@@ -39,8 +39,9 @@ type vaultActionType is
         // Vault Entrypoints
     |   DelegateTezToBaker              of delegateTezToBakerType
     |   DelegateMvkToSatellite          of satelliteAddressType
-    |   Withdraw                        of withdrawType
     |   Deposit                         of depositType 
+    |   Withdraw                        of withdrawType
+    |   OnLiquidate                     of onLiquidateType
     |   UpdateDepositor                 of updateDepositorType
   
         // Lambda Entrypoints
@@ -75,6 +76,20 @@ function checkSenderIsAllowed(var s : vaultStorageType) : unit is
 function checkSenderIsAdmin(const s : vaultStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
+
+
+
+// Allowed Senders: Lending Controller Contract
+function checkSenderIsLendingControllerContract(var s : vaultStorageType) : unit is
+block{
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    if (Tezos.get_sender() = lendingControllerAddress) then skip
+    else failwith(error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED);
+
+} with unit
 
 
 
@@ -357,39 +372,27 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to check that vaultDelegateTezToBaker is not paused in Lending Controller
-function checkVaultDelegateTezToBakerIsNotPaused(var s : vaultStorageType) : unit is
-block {
+// function checkVaultDelegateTezToBakerIsNotPaused(var s : vaultStorageType) : unit is
+// block {
 
-    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+//     const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
 
-    const checkEntrypointPaused : unit = if breakGlassConfig.vaultDelegateTezToBakerIsPaused then failwith(error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+//     const checkEntrypointPaused : unit = if breakGlassConfig.vaultDelegateTezToBakerIsPaused then failwith(error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
 
-} with checkEntrypointPaused
+// } with checkEntrypointPaused
     
 
 
 // helper function to check that vaultDelegateMvkToSat is not paused in Lending Controller
-function checkVaultDelegateMvkToSatIsNotPaused(var s : vaultStorageType) : unit is
-block {
+// function checkVaultDelegateMvkToSatIsNotPaused(var s : vaultStorageType) : unit is
+// block {
 
-    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+//     const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
 
-    const checkEntrypointPaused : unit = if breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then failwith(error_VAULT_DELEGATE_MVK_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+//     const checkEntrypointPaused : unit = if breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then failwith(error_VAULT_DELEGATE_MVK_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
 
-} with checkEntrypointPaused
+// } with checkEntrypointPaused
     
-
-
-// helper function to check that vaultWithdraw is not paused in Lending Controller
-function checkVaultWithdrawIsNotPaused(var s : vaultStorageType) : unit is
-block {
-
-    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
-
-    const checkEntrypointPaused : unit = if breakGlassConfig.vaultWithdrawIsPaused then failwith(error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
-
-} with checkEntrypointPaused
-
 
 
 // helper function to check that %vaultDeposit is not paused
@@ -404,15 +407,39 @@ block {
 
 
 
-// helper function to check that the vaultUpdateDepositor entrypoint is not paused in Lending Controller
-function checkVaultUpdateDepositorIsNotPaused(var s : vaultStorageType) : unit is
+// helper function to check that vaultWithdraw is not paused in Lending Controller
+function checkVaultWithdrawIsNotPaused(var s : vaultStorageType) : unit is
 block {
 
     const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
 
-    const checkEntrypointPaused : unit = if breakGlassConfig.vaultUpdateDepositorIsPaused then failwith(error_VAULT_UPDATE_DEPOSITOR_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+    const checkEntrypointPaused : unit = if breakGlassConfig.vaultWithdrawIsPaused then failwith(error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
 
 } with checkEntrypointPaused
+
+
+
+// helper function to check that vaultOnLiquidate is not paused in Lending Controller
+function checkVaultOnLiquidateIsNotPaused(var s : vaultStorageType) : unit is
+block {
+
+    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+
+    const checkEntrypointPaused : unit = if breakGlassConfig.vaultOnLiquidateIsPaused then failwith(error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+
+} with checkEntrypointPaused
+
+
+
+// helper function to check that the vaultUpdateDepositor entrypoint is not paused in Lending Controller
+// function checkVaultUpdateDepositorIsNotPaused(var s : vaultStorageType) : unit is
+// block {
+
+//     const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
+
+//     const checkEntrypointPaused : unit = if breakGlassConfig.vaultUpdateDepositorIsPaused then failwith(error_VAULT_UPDATE_DEPOSITOR_IN_LENDING_CONTROLLER_CONTRACT_PAUSED) else unit;
+
+// } with checkEntrypointPaused
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End
@@ -626,6 +653,24 @@ block {
 
 
 
+(* deposit entrypoint *)
+function deposit(const depositParams : depositType; var s : vaultStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDeposit"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const vaultLambdaAction : vaultLambdaActionType = LambdaDeposit(depositParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
+
+} with response
+
+
 
 (* withdraw entrypoint *)
 function withdraw(const withdrawParams : withdrawType; var s : vaultStorageType) : return is 
@@ -646,17 +691,17 @@ block {
 
 
 
-(* deposit entrypoint *)
-function deposit(const depositParams : depositType; var s : vaultStorageType) : return is 
+(* onLiquidate entrypoint *)
+function onLiquidate(const onLiquidateParams : onLiquidateType; var s : vaultStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDeposit"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnLiquidate"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaDeposit(depositParams);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaOnLiquidate(onLiquidateParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
@@ -732,8 +777,9 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
             // Vault Entrypoints 
         |   DelegateTezToBaker(parameters)               -> delegateTezToBaker(parameters, s)
         |   DelegateMvkToSatellite(parameters)           -> delegateMvkToSatellite(parameters, s)
-        |   Withdraw(parameters)                         -> withdraw(parameters, s)
         |   Deposit(parameters)                          -> deposit(parameters, s)
+        |   Withdraw(parameters)                         -> withdraw(parameters, s)
+        |   OnLiquidate(parameters)                      -> onLiquidate(parameters, s)
         |   UpdateDepositor(parameters)                  -> updateDepositor(parameters, s)
 
             // Lambda Entrypoints
