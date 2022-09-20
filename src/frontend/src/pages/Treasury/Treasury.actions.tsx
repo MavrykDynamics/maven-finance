@@ -82,12 +82,23 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     }, new Set<string>())
 
     // Fetching rates for every asset in treasury
-    const treasuryAssetsPrices = (
-      await coinGeckoClient.simple.price({
-        ids: Array.from(arrayOfAssetsSymbols),
-        vs_currencies: ['usd'],
-      })
-    ).data
+    const treasuryAssetsFetchedData = (
+      await Promise.allSettled(
+        Array.from(arrayOfAssetsSymbols).map((symbol) => coinGeckoClient.coins.fetch(symbol, {})),
+      )
+    ).reduce((acc, promiseResult) => {
+      const {
+        value: { data, success },
+      } = promiseResult as any
+      if (success) {
+        const symbol = data.symbol
+        const rate = data.market_data.current_price.usd
+
+        acc[data.id] = { rate, symbol }
+      }
+
+      return acc
+    }, {} as Record<string, { rate: number; symbol: string }>)
 
     // Map every treasury to combine treasury name, and divide balance by constant
     const treasuryStorage = convertedStorage.treasuryAddresses
@@ -98,25 +109,32 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
         )
 
         const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
-          .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
-            const assetRate: number | null =
-              (metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]?.usd) || null
-            const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
-            const usdValue = coinsAmount * (assetRate || 1)
+          .map(
+            ({
+              token: {
+                metadata: { symbol, name, decimals, thumbnailUri },
+                contract,
+              },
+              balance,
+            }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
+              const assetRate = symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsFetchedData[symbol]?.rate
+              const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(decimals))
+              const usdValue = coinsAmount * (assetRate ?? 1)
 
-            treasuryTVL += usdValue
+              treasuryTVL += usdValue
 
-            return {
-              contract: contract?.address,
-              usdValue: usdValue,
-              decimals: parseInt(metadata.decimals),
-              name: metadata.name,
-              thumbnail_uri: metadata.thumbnailUri,
-              symbol: metadata.symbol,
-              balance: coinsAmount,
-              rate: assetRate,
-            }
-          })
+              return {
+                contract: contract?.address,
+                usdValue: usdValue,
+                decimals: parseInt(decimals),
+                name: name,
+                thumbnail_uri: thumbnailUri,
+                symbol: treasuryAssetsFetchedData[symbol]?.symbol ?? symbol,
+                balance: coinsAmount,
+                rate: assetRate,
+              }
+            },
+          )
           .concat(sMVKAmount || [])
           .filter(({ balance }: TreasuryBalanceType) => balance > 0 || balance.toString().includes('e'))
           .sort(
