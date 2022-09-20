@@ -56,7 +56,7 @@ export const IPFSUploaderView = ({
   const [isDocument, setIsDocument] = useState(false)
   const [fileName, setFileName] = useState('')
   const isTypeFileImage = typeFile === 'image'
-  const isUploadedDocument = imageIpfsUrl && isDocument && !isUploading
+  const isUploaded = imageIpfsUrl && !isUploading
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return
@@ -144,7 +144,7 @@ export const IPFSUploaderView = ({
                 </figure>
               )}
             </UploadIconContainer>
-            {isUploadedDocument ? 
+            {isUploaded ? 
             <div onClick={handleDelete}>
               <Icon className="delete-icon" id="delete" /> 
             </div> :null}
