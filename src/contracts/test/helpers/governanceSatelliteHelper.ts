@@ -21,6 +21,7 @@ import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods
 
 type GovernanceSatelliteContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
+    addOracleToAggregator: (oracleAddress: string, aggregatorAddress: string, purpose: string) => ContractMethod<T>;
 };
 
 type GovernanceSatelliteContractMethodObject<T extends ContractProvider | Wallet> =
@@ -32,7 +33,7 @@ type GovernanceSatelliteOnChainViews = {
     decimals: () => OnChainView;
 };
 
-type GovernanceSatelliteContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+export type GovernanceSatelliteContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
     GovernanceSatelliteContractMethods<T>,
     GovernanceSatelliteContractMethodObject<T>,
     GovernanceSatelliteViews,

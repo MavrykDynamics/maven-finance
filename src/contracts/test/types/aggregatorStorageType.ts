@@ -7,7 +7,6 @@ export type aggregatorStorageType = {
     admin                     : string;
     metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
     name                      : string;
-    
     config                    : {
         decimals                            : BigNumber;
         alphaPercentPerThousand             : BigNumber;
@@ -26,6 +25,7 @@ export type aggregatorStorageType = {
         withdrawRewardStakedMvkIsPaused     : boolean;
     };
 
+    trackedAggregators        : MichelsonMap<{ 0: string; 1: string }, string>
     mvkTokenAddress           : string;
     governanceAddress         : string;
 

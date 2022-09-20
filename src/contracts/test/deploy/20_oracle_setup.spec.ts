@@ -10,7 +10,8 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
+import {bob, oracleMaintainer} from '../../scripts/sandbox/accounts'
+import {oracles} from '../../scripts/sandbox/oracles'
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -45,17 +46,16 @@ describe('Aggregator Factory', async () => {
       if(utils.network != "development"){
   
           console.log("Setup Oracles")
-  
-          const oracleMap = MichelsonMap.fromLiteral({
-            [oracle0.pkh] : true,
-            [oracle1.pkh] : true,
-            [oracle2.pkh] : true,
-            // [oracle3.pkh]: true,
-            // [oracle4.pkh]: true,
-          }) as MichelsonMap<
-              string,
-              boolean
-              >
+
+          const oraclesMap = {};
+
+          for (const oracle of oracles) {
+              oraclesMap[oracle.pkh] = true
+          }
+
+          const oracleMap: MichelsonMap<string,
+              boolean> = MichelsonMap.fromLiteral(oraclesMap)
+
 
             const aggregatorMetadataBase = Buffer.from(
                 JSON.stringify({
@@ -81,8 +81,8 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(2),             // numberBlocksDelay
                   
                   new BigNumber(60),            // percentOracleThreshold
-                  
-  
+
+
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
@@ -103,7 +103,7 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(2),             // numberBlocksDelay
                   
                   new BigNumber(60),            // percentOracleThreshold
-                                    
+
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
@@ -124,7 +124,7 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(2),             // numberBlocksDelay
                   
                   new BigNumber(60),            // percentOracleThreshold
-                                    
+
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   

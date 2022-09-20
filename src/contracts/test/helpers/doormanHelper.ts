@@ -18,6 +18,7 @@ import doormanLambdaIndex
     from '../../../contracts/contracts/partials/contractLambdas/doorman/doormanLambdaIndex.json';
 import doormanLambdas from "../../build/lambdas/doormanLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
+import {BigNumber} from "bignumber.js";
 
 type DoormanContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
@@ -28,6 +29,9 @@ type DoormanContractMethods<T extends ContractProvider | Wallet> = {
     updateGeneralContracts: (
         generalContractName       : string,
         generalContractAddress    : string
+    ) => ContractMethod<T>;
+    stake: (
+        amount                    : BigNumber
     ) => ContractMethod<T>;
 };
 
@@ -40,7 +44,7 @@ type DoormanOnChainViews = {
     decimals: () => OnChainView;
 };
 
-type DoormanContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+export type DoormanContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
     DoormanContractMethods<T>,
     DoormanContractMethodObject<T>,
     DoormanViews,
