@@ -68,7 +68,7 @@ type AggregatorOnChainViews = {
     [key: string]: OnChainView
 };
 
-type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+export type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
     AggregatorFactoryContractMethods<T>,
     AggregatorFactoryContractMethodObject<T>,
     AggregatorViews,

@@ -18,6 +18,7 @@ import delegationLambdaIndex
     from '../../../contracts/contracts/partials/contractLambdas/delegation/delegationLambdaIndex.json';
 import delegationLambdas from "../../build/lambdas/delegationLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
+import {BigNumber} from "bignumber.js";
 
 type DelegationContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
@@ -28,6 +29,13 @@ type DelegationContractMethods<T extends ContractProvider | Wallet> = {
     updateGeneralContracts: (
         generalContractName       : string,
         generalContractAddress    : string
+    ) => ContractMethod<T>;
+    registerAsSatellite: (
+        name                      : string,
+        description               : string,
+        image                     : string,
+        website                   : string,
+        satelliteFee              : BigNumber
     ) => ContractMethod<T>;
 };
 
@@ -40,7 +48,7 @@ type DelegationOnChainViews = {
     decimals: () => OnChainView;
 };
 
-type DelegationContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+export type DelegationContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
     DelegationContractMethods<T>,
     DelegationContractMethodObject<T>,
     DelegationViews,
@@ -64,12 +72,12 @@ export class Delegation {
     contract: DelegationContractAbstraction;
     storage: delegationStorageType;
     tezos: TezosToolkit;
-  
+
     constructor(contract: DelegationContractAbstraction, tezos: TezosToolkit) {
         this.contract = contract;
         this.tezos = tezos;
     }
-  
+
     static async init(
         delegationContractAddress: string,
         tezos: TezosToolkit
@@ -83,7 +91,7 @@ export class Delegation {
     static async originate(
         tezos: TezosToolkit,
         storage: delegationStorageType
-    ): Promise<Delegation> {       
+    ): Promise<Delegation> {
 
         const artifacts: any = JSON.parse(
             fs.readFileSync(`${env.buildDir}/delegation.json`).toString()
@@ -98,9 +106,9 @@ export class Delegation {
                 console.log('error no hash')
                 return null;
             });
-  
+
         await confirmOperation(tezos, operation.hash);
-  
+
         return new Delegation(
             await tezos.contract.at(operation.contractAddress),
             tezos
