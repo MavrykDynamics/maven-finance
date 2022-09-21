@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { Card, cyanColor, headerColor, boxShadowColor, skyColor } from 'styles'
+import { Card, cyanColor, headerColor, boxShadowColor, skyColor, upColor, downColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
 export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
@@ -177,6 +177,23 @@ export const SatelliteCardRow = styled.div<{ theme: MavrykTheme }>`
   line-height: 12px;
   color: ${({ theme }) => theme.headerColor};
   border-top: 1px solid ${({ theme }) => theme.cardBorderColor};
+
+  span {
+    font-weight: 700;
+    font-size: 14px;
+
+    &.voting-yes {
+      color: ${upColor};
+    }
+
+    &.voting-no {
+      color: ${downColor};
+    }
+
+    &.voting-pass {
+      color: ${skyColor};
+    }
+  }
 `
 
 export const SatelliteProfileImageContainer = styled.div`
