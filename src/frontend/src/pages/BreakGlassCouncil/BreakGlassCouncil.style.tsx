@@ -56,3 +56,22 @@ export const ReviewPastCouncilActionsCard = styled(Card)<{ theme: MavrykTheme }>
     color: ${skyColor}
   }
 `
+export const GoBack = styled(Card)`
+  display: flex;
+  align-items: center;
+  padding: 0 26px;
+  height: 75px;
+
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 21px;
+  color: ${headerColor};
+  cursor: pointer;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: ${headerColor};
+    margin-right: 8px;
+  }
+`
