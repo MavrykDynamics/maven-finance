@@ -12,6 +12,7 @@ import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
 import * as React from 'react'
 import { useSelector } from 'react-redux'
+
 // types
 import { State } from 'reducers'
 
@@ -31,6 +32,18 @@ import {
   SatelliteTextGroup,
   SideBySideImageAndText,
 } from './SatelliteCard.style'
+
+const renderVotingHistoryItem = (vote: number) => {
+  switch (vote){
+    case 1:
+      return <span className='voting-yes'>"YES"</span>
+    case 2: 
+      return <span className='voting-pass'>"PASS"</span>
+    
+    default:
+      return <span className='voting-no'>"NO"</span>
+  }
+}
 
 export const SatelliteListItem = ({
   satellite,
@@ -54,6 +67,10 @@ export const SatelliteListItem = ({
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const isSatelliteOracle = satellite.oracleRecords.length
+
+  const currentlySupportingProposalVote = satellite.proposalVotingHistory?.length
+  ? satellite.proposalVotingHistory[0].vote
+  : null
 
   const currentlySupportingProposalId = satellite.proposalVotingHistory?.length
     ? satellite.proposalVotingHistory[0].proposalId
@@ -203,12 +220,10 @@ export const SatelliteListItem = ({
 
       {children ? (
         children
-      ) : currentlySupportingProposal ? (
+      ) : currentlySupportingProposal?.id && currentlySupportingProposalVote && (
         <SatelliteCardRow>
-          Currently supporting Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}
+          <div>Voted {renderVotingHistoryItem(currentlySupportingProposalVote)} on current Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}</div>
         </SatelliteCardRow>
-      ) : (
-        <SatelliteCardRow>Considering</SatelliteCardRow>
       )}
     </SatelliteCard>
   )

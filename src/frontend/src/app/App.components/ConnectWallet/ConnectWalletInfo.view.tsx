@@ -10,7 +10,7 @@ import Icon from '../Icon/Icon.view'
 // view
 import { ConnectWallet } from './ConnectWallet.controller'
 
-import { ConnectWalletInfoStyled, ConnectWalletClose } from './ConnectWallet.style'
+import { ConnectWalletInfoStyled, ConnectWalletClose, ButtonBar } from './ConnectWallet.style'
 
 export default function ConnectWalletInfo() {
   const { ready } = useSelector((state: State) => state.wallet)
@@ -27,10 +27,14 @@ export default function ConnectWalletInfo() {
         Connect your wallet to see your personal up-to-date data and be able to make transactions. If you don’t have a
         wallet, please click on the button on the right and install it.
       </p>
-      <ConnectWallet />
-      <ConnectWalletClose onClick={() => setIsClose(true)}>
-        <Icon className="close-connect-wallet" id="error" />
-      </ConnectWalletClose>
+
+      <ButtonBar>
+        <ConnectWallet className='connect-wallet'/>
+
+        <ConnectWalletClose onClick={() => setIsClose(true)}>
+          <Icon className="close-connect-wallet" id="error" />
+        </ConnectWalletClose>
+      </ButtonBar>
     </ConnectWalletInfoStyled>
   )
 }
