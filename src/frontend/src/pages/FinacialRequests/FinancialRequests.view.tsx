@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // helpers, actions
 import { distinctRequestsByExecuting, getDate_MDHMTZ_Format, getRequestStatus } from './FinancialRequests.helpers'
@@ -6,25 +7,21 @@ import {
   ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST,
   PAST_REQUESTS_FINANCIAL_REQUESTS_LIST,
 } from './Pagination/pagination.consts'
+import { PRECISION_NUMBER } from 'utils/constants'
+import { normalizeTokenStandart } from 'pages/Governance/Governance.helpers'
+import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 import { votingRoundVote } from 'pages/Governance/Governance.actions'
 
 // types
-import { FinancialRequestBody } from './FinancialRequests.types'
+import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { GovernanceFinancialRequestGraphQL } from '../../utils/TypesAndInterfaces/Governance'
-// helpers
-import {
-  normalizeProposalStatus,
-  normalizeTokenStandart,
-  getShortByte,
-  getProposalStatusInfo,
-} from 'pages/Governance/Governance.helpers'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
+import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
 import FRList from './FRList/FRList.view'
-import FRVoting from './FRVoting/FRVoting.view'
 
 // styles
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
@@ -36,20 +33,13 @@ import {
   InfoBlockListValue,
   InfoBlockTitle,
 } from './FinancialRequests.style'
-import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { EmptyContainer } from 'app/App.style'
-import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
-import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
-import { PRECISION_NUMBER } from 'utils/constants'
-import { useDispatch } from 'react-redux'
 
 type FinancialRequestsViewProps = {
-  ready: boolean
-  loading: boolean
   financialRequestsList: GovernanceFinancialRequestGraphQL[]
 }
 
-export const FinancialRequestsView = ({ ready, loading, financialRequestsList = [] }: FinancialRequestsViewProps) => {
+export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialRequestsViewProps) => {
   const dispatch = useDispatch()
   const [rightSideContent, setRightSideContent] = useState(financialRequestsList[0])
 
@@ -141,13 +131,6 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
               : rightSideContent.expiration_datetime) as string,
           )}
         </div>
-
-        <FRVoting
-          isActiveVoting={rightItemStatus === ProposalStatus.ONGOING}
-          walletConnected={ready}
-          loading={loading}
-          selectedRequest={rightSideContent}
-        />
 
         <VotingArea
           voteStatistics={votingStats}

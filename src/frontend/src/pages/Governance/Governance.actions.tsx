@@ -262,15 +262,17 @@ export const startVotingRound = () => async (dispatch: AppDispatch, getState: Ge
 export const getTimestampByLevel = async (level: number): Promise<string> => {
   if (level) {
     try {
-      const result = await fetch(`https://api.ghostnet.tzkt.io/v1/blocks/${level}/`, {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-          Accept: 'application/json',
-        },
-      })
-      const res = await result.json()
-      return res.timestamp
+      const timestamp = await (
+        await fetch(`https://api.ghostnet.tzkt.io/v1/blocks/${level}/timestamp`, {
+          method: 'GET',
+          headers: {
+            'Content-type': 'application/json',
+            Accept: 'application/json',
+          },
+        })
+      ).json()
+
+      return timestamp
     } catch (error) {
       console.error('getTimestampByLevel', error)
     }

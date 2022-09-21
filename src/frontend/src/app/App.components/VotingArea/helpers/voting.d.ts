@@ -12,7 +12,7 @@ export type VotingProps = {
   voteStatistics: VoteStatistics
   isVotingActive: boolean
   showVotingButtons?: boolean
-  handleVote: (vote: string) => void
+  handleVote?: (vote: string) => void
   quorumText?: string
 }
 

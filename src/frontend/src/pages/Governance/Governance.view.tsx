@@ -6,50 +6,36 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type {
-  ProposalDataType,
-  ProposalRecordType,
-  CurrentRoundProposalsStorageType,
-} from '../../utils/TypesAndInterfaces/Governance'
+import type { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
 import type { Governance_Proposal_Payment } from '../../utils/generated/graphqlTypes'
+import { VoteStatistics } from 'app/App.components/VotingArea/helpers/voting'
 
 // actions
-import {
-  getGovernanceStorage,
-  proposalRoundVote,
-  votingRoundVote,
-  getCurrentRoundProposals,
-  getTimestampByLevel,
-  processProposalPayment,
-} from './Governance.actions'
+import { proposalRoundVote, getTimestampByLevel, processProposalPayment } from './Governance.actions'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
-import {
-  VotingArea as VotinAreaNew,
-  VotingProposalsArea,
-} from '../../app/App.components/VotingArea/VotingArea.controller'
+import { VotingProposalsArea } from '../../app/App.components/VotingArea/VotingArea.controller'
 
 // helpers
-import {
-  normalizeProposalStatus,
-  normalizeTokenStandart,
-  getShortByte,
-  getProposalStatusInfo,
-} from './Governance.helpers'
+import { normalizeTokenStandart, getShortByte, getProposalStatusInfo } from './Governance.helpers'
 import { calcWithoutPrecision, calcWithoutMu } from '../../utils/calcFunctions'
+import {
+  WAITING_PROPOSALS_LIST_NAME,
+  WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME,
+  ONGOING_VOTING_PROPOSALS_LIST_NAME,
+  ONGOING_PROPOSALS_LIST_NAME,
+  NEXT_PROPOSALS_LIST_NAME,
+  HISTORY_PROPOSALS_LIST_NAME,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { PRECISION_NUMBER } from 'utils/constants'
+import { dropProposal } from '../ProposalSubmission/ProposalSubmission.actions'
 
 // components
 import Icon from '../../app/App.components/Icon/Icon.view'
-
-// view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
 import { GovernancePhase } from '../../reducers/governance'
-import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 import { Proposals } from './Proposals/Proposals.controller'
-import { VotingArea } from './VotingArea/VotingArea.controller'
-import { calcTimeToBlock } from '../../utils/calcFunctions'
 import { Button } from 'app/App.components/Button/Button.controller'
-import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 
 // styles
 import {
@@ -63,17 +49,6 @@ import {
 import { EmptyContainer } from '../../app/App.style'
 import { InfoBlock } from '../../app/App.components/Info/info.style'
 import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
-import {
-  WAITING_PROPOSALS_LIST_NAME,
-  WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME,
-  ONGOING_VOTING_PROPOSALS_LIST_NAME,
-  ONGOING_PROPOSALS_LIST_NAME,
-  NEXT_PROPOSALS_LIST_NAME,
-  HISTORY_PROPOSALS_LIST_NAME,
-} from 'pages/FinacialRequests/Pagination/pagination.consts'
-import { dropProposal } from '../ProposalSubmission/ProposalSubmission.actions'
-import { VoteStatistics } from 'app/App.components/VotingArea/helpers/voting'
-import { PRECISION_NUMBER } from 'utils/constants'
 
 type GovernanceViewProps = {
   ready: boolean
@@ -89,6 +64,13 @@ type GovernanceViewProps = {
   handleExecuteProposal: (arg: number) => void
   timeLeftInPhase: Date | number
 }
+
+const emptyContainer = (
+  <EmptyContainer>
+    <img src="/images/not-found.svg" alt=" No proposals to show" />
+    <figcaption> No proposals to show</figcaption>
+  </EmptyContainer>
+)
 
 export const GovernanceView = ({
   ready,
@@ -123,15 +105,7 @@ export const GovernanceView = ({
   const isVotingRound = governancePhase === 'VOTING'
   const isTimeLockRound = governancePhase === 'TIME_LOCK'
 
-  const [voteStatistics, setVoteStatistics] = useState<any>({
-    abstainVotesMVKTotal: 0,
-    againstVotesMVKTotal: 0,
-    forVotesMVKTotal: 0,
-    passVotesMVKTotal: 0,
-    unusedVotesMVKTotal: 0,
-  })
-
-  const [voteStatistics2, setVoteStatistics2] = useState<VoteStatistics>({
+  const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
     abstainVotesMVKTotal: 0,
     againstVotesMVKTotal: 0,
     forVotesMVKTotal: 0,
@@ -140,24 +114,13 @@ export const GovernanceView = ({
   })
 
   useEffect(() => {
-    setVoteStatistics({
-      abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
-      againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
-      forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
-      passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
-      unusedVotesMVKTotal:
-        mvkTokenStorage.totalSupply -
-        (rightSideContent?.abstainMvkTotal ?? 0) +
-        (rightSideContent?.downvoteMvkTotal ?? 0) +
-        (rightSideContent?.upvoteMvkTotal ?? 0),
-    })
     if (rightSideContent) {
-      setVoteStatistics2({
+      setVoteStatistics({
         abstainVotesMVKTotal: Number(rightSideContent.abstainMvkTotal),
         againstVotesMVKTotal: Number(rightSideContent.downvoteMvkTotal),
         forVotesMVKTotal: Number(rightSideContent.upvoteMvkTotal),
         unusedVotesMVKTotal: Math.round(
-          rightSideContent.quorumMvkTotal -
+          rightSideContent.quorumMvkTotal / PRECISION_NUMBER -
             rightSideContent.abstainMvkTotal -
             rightSideContent.downvoteMvkTotal -
             rightSideContent.upvoteMvkTotal,
@@ -165,55 +128,17 @@ export const GovernanceView = ({
         quorum: rightSideContent.minQuorumPercentage,
       })
     }
-  }, [mvkTokenStorage.totalSupply, rightSideContent])
+  }, [rightSideContent])
 
   const handleProposalRoundVote = (proposalId: number) => {
     console.log('Here in Proposal round vote', proposalId)
     //TODO: Adjust for the number of votes / voting power each satellite has
     setVoteStatistics({
       ...voteStatistics,
-      passVotesMVKTotal: voteStatistics.passVotesMVKTotal + 1,
-    })
-    setVoteStatistics2({
-      ...voteStatistics2,
-      unusedVotesMVKTotal: voteStatistics2.unusedVotesMVKTotal - 1,
-      forVotesMVKTotal: voteStatistics2.forVotesMVKTotal + 1,
+      unusedVotesMVKTotal: voteStatistics.unusedVotesMVKTotal - 1,
+      forVotesMVKTotal: voteStatistics.forVotesMVKTotal + 1,
     })
     dispatch(proposalRoundVote(proposalId))
-  }
-  const handleVotingRoundVote = (vote: string) => {
-    console.log('Here in Vote for Proposal', vote)
-    //TODO: Adjust for the number of votes / voting power each satellite has
-    let voteType
-    switch (vote) {
-      case 'FOR':
-        voteType = 'yay'
-        setVoteStatistics({
-          ...voteStatistics,
-          forVotesMVKTotal: voteStatistics.forVotesMVKTotal + 1,
-        })
-        break
-      case 'AGAINST':
-        voteType = 'nay'
-        setVoteStatistics({
-          ...voteStatistics,
-          againstVotesMVKTotal: voteStatistics.againstVotesMVKTotal + 1,
-        })
-        break
-      case 'ABSTAIN':
-      default:
-        voteType = 'abstain'
-        setVoteStatistics({
-          ...voteStatistics,
-          abstainVotesMVKTotal: voteStatistics.abstainVotesMVKTotal + 1,
-        })
-        break
-    }
-    setVoteStatistics({
-      ...voteStatistics,
-      unusedVotesMVKTotal: voteStatistics.unusedVotesMVKTotal - 1,
-    })
-    dispatch(votingRoundVote(voteType))
   }
 
   const handleClickProcessPayment = () => {
@@ -226,13 +151,6 @@ export const GovernanceView = ({
     }
   }
 
-  const emptyContainer = (
-    <EmptyContainer>
-      <img src="/images/not-found.svg" alt=" No proposals to show" />
-      <figcaption> No proposals to show</figcaption>
-    </EmptyContainer>
-  )
-
   const isVisibleOngoingVoting =
     !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'VOTING'
   const isVisibleOngoingTimeLock =
@@ -240,8 +158,6 @@ export const GovernanceView = ({
   const isVisibleNextProposal =
     !onProposalHistoryPage && Boolean(nextProposals?.length) && governancePhase === 'PROPOSAL'
   const isVisibleHistoryProposal = onProposalHistoryPage && Boolean(pastProposals?.length)
-  const isExecuted = rightSideContent?.executed
-  const isMinusLeftTime = timeLeftInPhase <= 0
 
   const [visibleLists, setVisibleLists] = useState<Record<string, boolean>>({
     wating: false,
@@ -429,7 +345,7 @@ export const GovernanceView = ({
 
           <div className="voting-proposal">
             <VotingProposalsArea
-              voteStatistics={voteStatistics2}
+              voteStatistics={voteStatistics}
               currentProposalStage={{
                 isPastProposals: isVisibleHistoryProposal,
                 isTimeLock: isVisibleOngoingTimeLock,
@@ -439,18 +355,6 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
             />
 
-            <VotingArea
-              ready={ready}
-              loading={loading}
-              accountPkh={accountPkh}
-              handleProposalRoundVote={handleProposalRoundVote}
-              handleVotingRoundVote={handleVotingRoundVote}
-              selectedProposal={rightSideContent}
-              voteStatistics={voteStatistics}
-              isVisibleHistoryProposal={isVisibleHistoryProposal}
-              isAbleToMakeProposalRoundVote={isAbleToMakeProposalRoundVote}
-              isEndedVotingTime={isEndedVotingTime}
-            />
             {isExecuteProposal ? (
               <Button
                 className="execute-proposal"
