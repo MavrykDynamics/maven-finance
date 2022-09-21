@@ -7,7 +7,7 @@ import {
   TREASURY_STORAGE_QUERY_NAME,
   TREASURY_STORAGE_QUERY_VARIABLE,
 } from 'gql/queries/getTreasuryStorage'
-import { getTreasuryDataByAddress } from 'utils/api'
+import { getTreasuryAssetsByAddress } from 'utils/api'
 import { FetchedTreasuryBalanceType, TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
@@ -42,7 +42,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     )
 
     // Parse sMVK amount for each treasury, to make this structure usable
-    const parsedsMVKAmount = sMVKAmounts.mavryk_user?.map(
+    const parsedsMVKAmount: TreasuryBalanceType[] = sMVKAmounts.mavryk_user?.map(
       ({ smvk_balance, address }: { smvk_balance: number; address: string }): TreasuryBalanceType => {
         return {
           balance: smvk_balance,
@@ -61,7 +61,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     const getTreasuryCallbacks = convertedStorage.treasuryAddresses.map(
       ({ address }: { address: string }) =>
         () =>
-          getTreasuryDataByAddress(address),
+          getTreasuryAssetsByAddress(address),
     )
 
     // Await promises from upper
@@ -82,39 +82,67 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
     }, new Set<string>())
 
     // Fetching rates for every asset in treasury
-    const treasuryAssetsPrices = (
-      await coinGeckoClient.simple.price({
-        ids: Array.from(arrayOfAssetsSymbols),
-        vs_currencies: ['usd'],
-      })
-    ).data
+    const treasuryAssetsFetchedData = (
+      await Promise.allSettled(
+        Array.from(arrayOfAssetsSymbols).map((symbol) => coinGeckoClient.coins.fetch(symbol, {})),
+      )
+    ).reduce((acc, promiseResult) => {
+      const {
+        value: { data, success },
+      } = promiseResult as any
+      if (success) {
+        const symbol = data.symbol
+        const rate = data.market_data.current_price.usd
+
+        acc[data.id] = { rate, symbol }
+      }
+
+      return acc
+    }, {} as Record<string, { rate: number; symbol: string }>)
 
     // Map every treasury to combine treasury name, and divide balance by constant
     const treasuryStorage = convertedStorage.treasuryAddresses
       .map((treasuryData: TreasuryGQLType, idx: number) => {
-        const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
-          .map(({ token: { metadata, contract }, balance }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
-            const assetRate: number | null =
-              (metadata.symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsPrices[metadata.symbol]) || null
-            const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(metadata.decimals))
+        let treasuryTVL = 0
+        const sMVKAmount = parsedsMVKAmount.find(
+          ({ contract }: TreasuryBalanceType) => contract === treasuryData.address,
+        )
 
-            return {
-              contract: contract.address,
-              usdValue: coinsAmount * (assetRate || 1),
-              decimals: parseInt(metadata.decimals),
-              name: metadata.name,
-              thumbnail_uri: metadata.thumbnailUri,
-              symbol: metadata.symbol,
-              balance: coinsAmount,
-              rate: assetRate,
-            }
-          })
-          .concat(parsedsMVKAmount.find(({ contract }: TreasuryBalanceType) => contract === treasuryData.address) || [])
+        const tresuryTokensWithValidBalances = fetchedTheasuryData[idx]
+          .map(
+            ({
+              token: {
+                metadata: { symbol, name, decimals, thumbnailUri },
+                contract,
+              },
+              balance,
+            }: FetchedTreasuryBalanceType): TreasuryBalanceType => {
+              const assetRate = symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsFetchedData[symbol]?.rate
+              const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(decimals))
+              const usdValue = coinsAmount * (assetRate ?? 1)
+
+              treasuryTVL += usdValue
+
+              return {
+                contract: contract?.address,
+                usdValue: usdValue,
+                decimals: parseInt(decimals),
+                name: name,
+                thumbnail_uri: thumbnailUri,
+                symbol: treasuryAssetsFetchedData[symbol]?.symbol ?? symbol,
+                balance: coinsAmount,
+                rate: assetRate,
+              }
+            },
+          )
+          .concat(sMVKAmount || [])
           .filter(({ balance }: TreasuryBalanceType) => balance > 0 || balance.toString().includes('e'))
           .sort(
             (asset1: TreasuryBalanceType, asset2: TreasuryBalanceType) =>
               Number(asset2.balance) * Number(asset2.rate) - Number(asset1.balance) * Number(asset1.rate),
           )
+
+        treasuryTVL += sMVKAmount?.usdValue || 0
 
         return {
           ...treasuryData,
@@ -125,11 +153,10 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
               treasuryData.address.length,
             )}`,
           balances: tresuryTokensWithValidBalances,
+          treasuryTVL,
         }
       })
       .filter(({ balances }) => Boolean(balances.length))
-
-    console.log('treasuryStorage', treasuryStorage)
 
     dispatch({
       type: SET_TREASURY_STORAGE,
