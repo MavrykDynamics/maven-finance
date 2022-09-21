@@ -76,15 +76,15 @@ export const FormStyled = styled.div`
   }
 
   .input-size-primary {
-    width: 515px;
+    width: 400px;
   }
 
   .input-size-secondary {
-    width: 480px;
+    width: 330px;
   }
 
   .input-size-tertiary {
-    width: 550px;
+    width: 360px;
   }
 
   .in-two-columns {
