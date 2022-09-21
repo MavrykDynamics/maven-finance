@@ -78,8 +78,6 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
     })
   }, [rightSideContent])
 
-  console.log('rightSideContent', rightSideContent, votingStats)
-
   const handleVotingRoundVote = (vote: string) => {
     let voteType
     switch (vote) {
