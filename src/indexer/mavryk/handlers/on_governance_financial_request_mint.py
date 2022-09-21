@@ -11,4 +11,4 @@ async def on_governance_financial_request_mint(
 ) -> None:
     
     # Persist request
-    await persist_financial_request(request_mint)
+    await persist_financial_request(ctx, request_mint)

@@ -3,17 +3,9 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Union
 
 from pydantic import BaseModel, Extra
-
-
-class OracleAddresses(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    oraclePublicKey: str
-    oraclePeerId: str
 
 
 class AggregatorConfig(BaseModel):
@@ -21,11 +13,10 @@ class AggregatorConfig(BaseModel):
         extra = Extra.forbid
 
     decimals: str
-    alphaPercentPerThousand: str
+    numberBlocksDelay: str
     deviationTriggerBanDuration: str
     perThousandDeviationTrigger: str
     percentOracleThreshold: str
-    heartBeatSeconds: str
     requestRateDeviationDepositFee: str
     deviationRewardStakedMvk: str
     deviationRewardAmountXtz: str
@@ -41,6 +32,7 @@ class CreateAggregatorParameter(BaseModel):
     string_1: str
     name: str
     addToGeneralContracts: bool
-    oracleAddresses: Dict[str, OracleAddresses]
+    oracleAddresses: Dict[str, bool]
     aggregatorConfig: AggregatorConfig
-    metadata: str
+    maintainer: str
+    metadata: Union[int, Dict[str, str]]

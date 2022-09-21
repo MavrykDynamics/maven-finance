@@ -4,6 +4,36 @@ from mavryk.types.governance_satellite.storage import TokenItem as fa12, TokenIt
 
 ###
 #
+# PERSIST METADATA
+#
+###
+async def persist_token_metadata(ctx, token_address, token_id='0'):
+    network                     = ctx.datasource.network
+    metadata_datasource_name    = 'metadata_' + network.lower()
+    metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
+    token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
+    if token_metadata:
+        await ctx.update_token_metadata(
+            network     = network,
+            address     = token_address,
+            token_id    = token_id,
+            metadata    = token_metadata
+        )
+
+async def persist_contract_metadata(ctx, contract_address):
+    network                     = ctx.datasource.network
+    metadata_datasource_name    = 'metadata_' + network.lower()
+    metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
+    contract_metadata           = await metadata_datasource.get_contract_metadata(contract_address)
+    if contract_metadata:
+        await ctx.update_contract_metadata(
+            network     = network,
+            address     = contract_address,
+            metadata    = contract_metadata
+        )
+
+###
+#
 # PERSIST ACTIONS
 #
 ###
@@ -187,7 +217,7 @@ async def persist_break_glass_action(action):
             )
             await breakGlassActionRecordSigner.save()
 
-async def persist_financial_request(action):
+async def persist_financial_request(ctx, action):
     # Get operation values
     financialAddress        = action.data.target_address
     requestLedger           = action.storage.financialRequestLedger
@@ -235,21 +265,12 @@ async def persist_financial_request(action):
             )
             await treasury.save()
 
-            token_standard  = models.TokenType.OTHER
-            if token_type == "FA2":
-                token_standard  = models.TokenType.FA2
-            elif token_type == "FA12":
-                token_standard  = models.TokenType.FA12
-            elif token_type == "XTZ":
-                token_standard  = models.TokenType.XTZ
-
-            token, _        = await models.Token.get_or_create(
-                address     = token_contract_address,
-                token_id    = token_id,
-                type        = token_standard
+            # Persist Token Metadata
+            await persist_token_metadata(
+                ctx=ctx,
+                token_address=token_contract_address,
+                token_id=str(token_id)
             )
-            token.name      = token_name
-            await token.save()
 
             requester, _            = await models.MavrykUser.get_or_create(
                 address = requesterAddress
@@ -263,7 +284,7 @@ async def persist_financial_request(action):
                 status                          = statusType,
                 key_hash                        = key_hash,
                 executed                        = executed,
-                token                           = token,
+                token_address                   = token_contract_address,
                 token_amount                    = token_amount,
                 request_purpose                 = request_purpose,
                 yay_vote_smvk_total             = yay_vote_smvk_total,
@@ -277,7 +298,7 @@ async def persist_financial_request(action):
             )
             await requestRecord.save()
 
-async def persist_governance_satellite_action(action):
+async def persist_governance_satellite_action(ctx, action):
     # Get operation values
     governance_satellite_address        = action.data.target_address
     action_ledger                       = action.storage.governanceSatelliteActionLedger
@@ -368,7 +389,6 @@ async def persist_governance_satellite_action(action):
 
             for value in transfer_list:
                 token_id                = 0
-                token_type              = models.TokenType.OTHER
                 token_contract_address  = ""
                 amount                  = float(value.amount)
                 to_                     = value.to_
@@ -379,25 +399,23 @@ async def persist_governance_satellite_action(action):
                 await receiver.save()
 
                 if type(value.token) == fa12:
-                    token_type              = models.TokenType.FA12
                     token_contract_address  = value.token.fa12
                 elif type(value.token) == fa2:
-                    token_type              = models.TokenType.FA2
                     token_id                = int(value.token.fa2.tokenId)
                     token_contract_address  = value.token.fa2.tokenContractAddress
                 elif type(value.token) == tez:
-                    token_type  = models.TokenType.XTZ
+                    token_contract_address  = "XTZ"
 
-                token, _        = await models.Token.get_or_create(
-                    address     = token_contract_address,
-                    token_id    = token_id,
-                    type        = token_type
+                # Persist Token Metadata
+                await persist_token_metadata(
+                    ctx=ctx,
+                    token_address=token_contract_address,
+                    token_id=str(token_id)
                 )
-                await token.save()
                     
                 governance_satellite_action_record_transfer = models.GovernanceSatelliteActionTransfer(
                     governance_satellite_action     = action_record,
-                    token                           = token,
+                    token_address                   = token_contract_address,
                     to_                             = receiver,
                     amount                          = amount
                 )
@@ -410,7 +428,7 @@ async def persist_governance_satellite_action(action):
 # PERSIST CONTRACTS
 #
 ###
-async def persist_linked_contract(contract_class, linked_contract_class, update_linked_contracts):
+async def persist_linked_contract(contract_class, linked_contract_class, update_linked_contracts, ctx=None):
     # Get operation info
     target_address          = update_linked_contracts.data.target_address
     contract                = await contract_class.get(
@@ -420,18 +438,24 @@ async def persist_linked_contract(contract_class, linked_contract_class, update_
     contract_address        = ""
     contract_name           = ""
     contract_in_storage     = False
-    if hasattr(update_linked_contracts.parameter, "generalContractAddress"):
+    entrypoint_name         = update_linked_contracts.data.entrypoint
+    if entrypoint_name == "updateGeneralContracts":
         contract_address        = update_linked_contracts.parameter.generalContractAddress
         contract_name           = update_linked_contracts.parameter.generalContractName
         contract_in_storage     = contract_name in update_linked_contracts.storage.generalContracts
-    elif hasattr(update_linked_contracts.parameter, "whitelistContractAddress"):
+    elif entrypoint_name == "updateWhitelistContracts":
         contract_address        = update_linked_contracts.parameter.whitelistContractAddress
         contract_name           = update_linked_contracts.parameter.whitelistContractName
         contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistContracts
-    elif hasattr(update_linked_contracts.parameter, "whitelistTokenContractAddress"):
-        contract_address        = update_linked_contracts.parameter.whitelistTokenContractAddress
-        contract_name           = update_linked_contracts.parameter.whitelistTokenContractName
+    elif entrypoint_name == "updateWhitelistTokenContracts":
+        contract_address        = update_linked_contracts.parameter.tokenContractAddress
+        contract_name           = update_linked_contracts.parameter.tokenContractName
         contract_in_storage     = contract_name in update_linked_contracts.storage.whitelistTokenContracts
+        if ctx:
+            await persist_token_metadata(
+                ctx=ctx,
+                token_address=contract_address,
+            )
    
     # Update general contracts record
     linked_contract, _ = await linked_contract_class.get_or_create(

@@ -1,5 +1,7 @@
 
+from importlib.metadata import metadata
 from dipdup.context import HandlerContext
+from ..utils.persisters import persist_token_metadata
 from mavryk.types.mvk.storage import MvkStorage
 from dipdup.models import Origination
 from dateutil import parser 
@@ -19,6 +21,12 @@ async def on_mvk_origination(
     inflation_rate              = int(mvk_origination.storage.inflationRate)
     next_inflation_timestamp    = parser.parse(mvk_origination.storage.nextInflationTimestamp)
     timestamp                   = mvk_origination.data.timestamp
+
+    # Persist token metadata
+    await persist_token_metadata(
+        ctx=ctx,
+        token_address=mvk_address
+    )
 
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)

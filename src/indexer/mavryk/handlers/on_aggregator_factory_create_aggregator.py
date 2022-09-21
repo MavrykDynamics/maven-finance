@@ -2,6 +2,7 @@
 from dipdup.models import Transaction
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.aggregator_factory.parameter.create_aggregator import CreateAggregatorParameter
 from mavryk.types.aggregator_factory.storage import AggregatorFactoryStorage
 from mavryk.types.aggregator.storage import AggregatorStorage
@@ -56,6 +57,12 @@ async def on_aggregator_factory_create_aggregator(
         values=dict(
             aggregator_contract=aggregator_address + 'contract'
         )
+    )
+
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=aggregator_address
     )
 
     # Create record

@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import Dict, Union
+
 from pydantic import BaseModel, Extra
 
 
@@ -12,4 +14,4 @@ class CreateTreasuryParameter(BaseModel):
 
     name: str
     addToGeneralContracts: bool
-    metadata: str
+    metadata: Union[int, Dict[str, str]]

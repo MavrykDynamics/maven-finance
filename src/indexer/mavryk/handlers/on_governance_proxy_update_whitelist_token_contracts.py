@@ -12,4 +12,4 @@ async def on_governance_proxy_update_whitelist_token_contracts(
 ) -> None:
 
     # Perists general contract
-    await persist_linked_contract(models.GovernanceProxy, models.GovernanceProxyWhitelistTokenContract, update_whitelist_token_contracts)
+    await persist_linked_contract(models.GovernanceProxy, models.GovernanceProxyWhitelistTokenContract, update_whitelist_token_contracts, ctx)

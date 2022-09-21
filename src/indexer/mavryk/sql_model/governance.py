@@ -122,7 +122,7 @@ class GovernanceProposalPayment(Model):
     id                                      = fields.BigIntField(pk=True)
     record_internal_id                      = fields.SmallIntField(default=0)
     governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='payments')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposals_payments_token', null=True)
+    token_address                           = fields.CharField(max_length=36, default="")
     title                                   = fields.TextField(default="")
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_payments', null=True)
     token_amount                            = fields.FloatField(default=0.0)

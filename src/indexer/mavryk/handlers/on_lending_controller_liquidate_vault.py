@@ -9,4 +9,7 @@ async def on_lending_controller_liquidate_vault(
     liquidate_vault: Transaction[LiquidateVaultParameter, LendingControllerStorage],
 ) -> None:
 
-    breakpoint()
+    # TODO: Implement
+    # Get operation info
+    # breakpoint()
+    ...

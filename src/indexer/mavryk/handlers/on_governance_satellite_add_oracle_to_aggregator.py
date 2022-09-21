@@ -11,4 +11,4 @@ async def on_governance_satellite_add_oracle_to_aggregator(
 ) -> None:
 
     # Get operation info
-    await persist_governance_satellite_action(add_oracle_to_aggregator)
+    await persist_governance_satellite_action(ctx, add_oracle_to_aggregator)

@@ -34,7 +34,8 @@ class TokenPoolRewardWhitelistTokenContract(LinkedContract, Model):
 class TokenPoolRewardReward(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     token_pool_reward                       = fields.ForeignKeyField('models.TokenPoolReward', related_name='rewards', null=True)
-    token_name                              = fields.CharField(default="", max_length=36)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='token_pool_reward_rewards', null=True)
+    lending_controller_loan_token           = fields.ForeignKeyField('models.LendingControllerLoanToken', related_name='token_pool_reward_rewards', null=True)
     unpaid                                  = fields.FloatField(default=0.0)
     paid                                    = fields.FloatField(default=0.0)
     rewards_per_share                       = fields.FloatField(default=0.0)

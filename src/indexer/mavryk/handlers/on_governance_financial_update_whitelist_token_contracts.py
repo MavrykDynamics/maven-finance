@@ -12,4 +12,4 @@ async def on_governance_financial_update_whitelist_token_contracts(
 ) -> None:
     
     # Persist whitelist token contract
-    await persist_linked_contract(models.GovernanceFinancial, models.GovernanceFinancialWhitelistTokenContract, update_whitelist_token_contracts)
+    await persist_linked_contract(models.GovernanceFinancial, models.GovernanceFinancialWhitelistTokenContract, update_whitelist_token_contracts, ctx)

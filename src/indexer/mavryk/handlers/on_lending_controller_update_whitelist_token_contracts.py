@@ -12,4 +12,4 @@ async def on_lending_controller_update_whitelist_token_contracts(
 ) -> None:
 
     # Persist whitelist contract
-    await persist_linked_contract(models.LendingController, models.LendingControllerWhitelistTokenContract, update_whitelist_token_contracts)
+    await persist_linked_contract(models.LendingController, models.LendingControllerWhitelistTokenContract, update_whitelist_token_contracts, ctx)

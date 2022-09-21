@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
@@ -43,6 +44,12 @@ async def on_governance_origination(
     timelock_proposal_id                    = int(governance_origination.storage.timelockProposalId)
     timestamp                               = governance_origination.data.timestamp
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=address
+    )
+    
     # Current round
     governance_round_type = models.GovernanceRoundType.PROPOSAL
     if type(current_round) == proposal:

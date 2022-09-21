@@ -44,7 +44,7 @@ class GovernanceFinancialRequest(Model):
     governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='requests')
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_requests')
     requester                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_requester')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests_token', null=True)
+    token_address                           = fields.CharField(max_length=36, default="")
     request_type                            = fields.CharField(max_length=255)
     status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE)
     executed                                = fields.BooleanField()
