@@ -6,6 +6,7 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPastAction.view'
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { CouncilPendingView } from '../Council/CouncilPending/CouncilPending.view'
+import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.view'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
@@ -66,7 +67,7 @@ const mockCards = [
     parameters: [],
   },
 ]
-// TODO: change mock to valid data
+
 const mockHistory = [
   {
     execution_datetime: `${new Date()}`,
@@ -91,6 +92,33 @@ const mockHistory = [
     signers_count: 4,
     num_council_members: 2,
     council_id: '1',
+  },
+]
+
+const mockMembers = [
+  {
+    id: 1,
+    image: 'https://icatcare.org/app/uploads/2018/07/Thinking-of-getting-a-cat.png',
+    name: 'Cat',
+    user_id: 'jfdsafkjnadfkdasfasf',
+    website: 'cat site',
+    openModal: () => {},
+  },
+  {
+    id: 2,
+    image: 'https://icatcare.org/app/uploads/2018/07/Thinking-of-getting-a-cat.png',
+    name: 'Cat',
+    user_id: 'fkldsajlfnasadsf',
+    website: 'cat site',
+    openModal: () => {},
+  },
+  {
+    id: 3,
+    image: 'https://icatcare.org/app/uploads/2018/07/Thinking-of-getting-a-cat.png',
+    name: 'Cat',
+    user_id: 'asdkgjbkjfadsafkml',
+    website: 'cat site',
+    openModal: () => {},
   },
 ]
 
@@ -149,6 +177,16 @@ export const BreakGlassCouncil: FC = () => {
 
           <h1>Break Glass Council</h1>
           
+          {mockMembers.map((item) => (
+            <CouncilMemberView
+              key={item.id}
+              image={item.image}
+              name={item.name}
+              user_id={item.user_id}
+              website={item.website}
+              openModal={item.openModal}
+            />
+          ))}
         </div>
       </BreakGlassCouncilStyled>
     </Page>

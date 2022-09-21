@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
-import { Card, downColor, upColor, skyColor, headerColor, cyanColor } from 'styles'
+import { CardHover, downColor, upColor, skyColor, headerColor, cyanColor } from 'styles'
 
-export const CouncilPastActionStyled = styled(Card)`
+export const CouncilPastActionStyled = styled(CardHover)`
   margin: 0;
   margin-bottom: 10px;
   display: grid;
