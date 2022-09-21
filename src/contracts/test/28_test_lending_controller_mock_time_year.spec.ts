@@ -4,6 +4,7 @@ import assert, { ok, rejects, strictEqual } from "assert";
 import { Utils, zeroAddress, TEZ } from "./helpers/Utils";
 import fs from "fs";
 import { confirmOperation } from "../scripts/confirmation";
+import * as lendingHelper from "./helpers/lendingHelpers"
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -37,7 +38,7 @@ import tokenPoolRewardAddress from '../deployments/tokenPoolRewardAddress.json';
 import vaultFactoryAddress from '../deployments/vaultFactoryAddress.json';
 import { vaultStorageType } from "./types/vaultStorageType"
 
-describe("Lending Controller (Mock Time) tests", async () => {
+describe("Lending Controller (Mock Time - One Year) tests", async () => {
     
     var utils: Utils
 
@@ -46,9 +47,15 @@ describe("Lending Controller (Mock Time) tests", async () => {
     var eveVaultSet = []
     var malloryVaultSet = [] 
 
-    const oneDayLevelBlocks = 4320
-    const oneMonthLevelBlocks = 129600
-    const oneYearLevelBlocks = 1576800
+    // 20 seconds blocks
+    // const oneDayLevelBlocks = 4320
+    // const oneMonthLevelBlocks = 129600
+    // const oneYearLevelBlocks = 1576800 // 365 days
+
+    // 3 seconds blocks (docker sandbox)
+    const oneDayLevelBlocks   = 28800
+    const oneMonthLevelBlocks = 864000
+    const oneYearLevelBlocks  = 10512000 // 365 days
 
     const secondsInYears = 31536000
     const fixedPointAccuracy = 10**27
@@ -105,147 +112,6 @@ describe("Lending Controller (Mock Time) tests", async () => {
         // console.log("STUDIED: ", actual)
         return actual <= greaterLimit && actual >= lowerLimit
     }
-
-
-    const calculateCompoundedInterest = (interestRate, lastUpdatedBlockLevel, blockLevel) => {
-
-        let interestRateOverSecondsInYear = Math.floor(interestRate / secondsInYears)
-        let exp = blockLevel - lastUpdatedBlockLevel
-
-        let expMinusOne = exp - 1
-        let expMinusTwo = exp - 2
-
-        let basePowerTwo = Math.floor((interestRateOverSecondsInYear ** 2) / (secondsInYears ** 2))
-        let basePowerThree = Math.floor((interestRateOverSecondsInYear ** 3) / (secondsInYears ** 3))
-
-        let firstTerm  = Math.floor(exp * interestRateOverSecondsInYear)
-        let secondTerm = Math.floor((exp * expMinusOne * basePowerTwo) / 2)
-        let thirdTerm  = Math.floor((exp * expMinusOne * expMinusTwo * basePowerThree) / 6)
-
-        let compoundedInterest = fixedPointAccuracy + firstTerm + secondTerm + thirdTerm
-
-        return compoundedInterest
-
-    }
-
-
-    const calculateUtilisationRate = (tokenPoolTotal, totalBorrowed) => {
-
-        let utilisationRate = Math.floor(totalBorrowed / tokenPoolTotal)
-        return utilisationRate
-
-    }
-    
-
-    const calculateCurrentInterestRate = (utilisationRate, optimalUtilisationRate, baseInterestRate, interestRateBelowOptimalUtilisation, interestRateAboveOptimalUtilisation) => {
-
-        let currentInterestRate
-        let firstTerm = baseInterestRate
-
-        if(utilisationRate > optimalUtilisationRate){
-
-            let secondTerm = interestRateBelowOptimalUtilisation
-
-            let utilisationRateLessOptimalRate = utilisationRate - optimalUtilisationRate
-            let coefficientDenominator = fixedPointAccuracy - optimalUtilisationRate
-
-            let thirdTerm = Math.floor((utilisationRateLessOptimalRate / coefficientDenominator) * interestRateAboveOptimalUtilisation)
-
-            currentInterestRate = firstTerm + secondTerm + thirdTerm
-
-        } else {
-
-            let secondTermCoefficient = Math.floor(utilisationRate / optimalUtilisationRate)
-            let secondTerm = Math.floor(secondTermCoefficient * interestRateBelowOptimalUtilisation)
-
-            currentInterestRate = firstTerm + secondTerm
-        }
-
-        return currentInterestRate
-    }
-
-
-    const calculateBorrowIndex = (compoundedInterest, currentBorrowIndex) => {
-        return Math.floor((currentBorrowIndex * compoundedInterest) / fixedPointAccuracy)
-    }
-
-
-    const calculateAccruedInterest = (currentLoanOutstandingTotal, vaultBorrowIndex, tokenBorrowIndex) => {
-
-        let newLoanOutstandingTotal = 0
-        
-        if(currentLoanOutstandingTotal > 0){
-            if(vaultBorrowIndex > 0){
-                newLoanOutstandingTotal = Math.floor((currentLoanOutstandingTotal * tokenBorrowIndex) / vaultBorrowIndex)
-            }
-        }
-
-        return newLoanOutstandingTotal
-    }
-
-    const calculateInterestTreasuryShare = (interestTreasuryShare, totalInterestPaid) => {
-        let interestSentToTreasury = Math.floor((totalInterestPaid * interestTreasuryShare) / 10000);
-        return interestSentToTreasury
-    }
-
-
-    const rebaseTokenValue = (tokenValueRaw, rebaseDecimals) => {
-        return tokenValueRaw * (10 ** rebaseDecimals);
-    }
-
-
-    const calculateVaultCollateralValue = (collateralBalanceLedger) => {
-        
-        let mockFa12Balance             = collateralBalanceLedger.get('mockFa12') == undefined ? 0 : collateralBalanceLedger.get('mockFa12');
-        let mockFa2Balance              = collateralBalanceLedger.get('mockFa2')  == undefined ? 0 : collateralBalanceLedger.get('mockFa2');
-        let xtzBalance                  = collateralBalanceLedger.get('tez')      == undefined ? 0 : collateralBalanceLedger.get('tez');
-
-        let mockFa12TokenPrice          = tokenOracles.find(o => o.name === "mockFa12").price;
-        let mockFa2TokenPrice           = tokenOracles.find(o => o.name === "mockFa2").price;
-        let tezPrice                    = tokenOracles.find(o => o.name === "tez").price;
-
-        let mockFa12TokenPriceDecimals  = tokenOracles.find(o => o.name === "mockFa12").priceDecimals;
-        let mockFa2TokenPriceDecimals   = tokenOracles.find(o => o.name === "mockFa2").priceDecimals;
-        let tezPriceDecimals            = tokenOracles.find(o => o.name === "tez").priceDecimals;
-
-        let mockFa12TokenDecimals       = tokenOracles.find(o => o.name === "mockFa12").tokenDecimals;
-        let mockFa2TokenDecimals        = tokenOracles.find(o => o.name === "mockFa2").tokenDecimals;
-        let tezTokenDecimals            = tokenOracles.find(o => o.name === "tez").tokenDecimals;
-
-        // rebased to no decimals (Math.floor to simulate smart contract division)
-        let vaultMockFa12TokenValue     = Math.floor(Math.floor(mockFa12Balance / (10 ** mockFa12TokenDecimals)) * mockFa12TokenPrice) / (10 ** mockFa12TokenPriceDecimals);
-        let vaultMockFa2TokenValue      = Math.floor(Math.floor(mockFa2Balance  / (10 ** mockFa2TokenDecimals))  * mockFa2TokenPrice)  / (10 ** mockFa2TokenPriceDecimals);
-        let vaultXtzValue               = Math.floor(Math.floor(xtzBalance      / (10 ** tezTokenDecimals))      * tezPrice)           / (10 ** tezPriceDecimals);
-        
-        let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultXtzValue;
-
-        return vaultCollateralValue
-    }
-
-
-    const isUnderCollaterized = (collateralRatio, loanOutstandingTotal, vaultCollateralValue) => {
-        let maxLoanValue = (vaultCollateralValue * collateralRatio) / 1000;
-        if(loanOutstandingTotal > maxLoanValue){
-            // is under collaterized (not enough collateral for loans)
-            return true;
-        } else {
-            // is over collaterized (enough collateral for loans)
-            return false;
-        }
-    }
-
-
-    const isLiquidatable = (liquidationRatio, loanOutstandingTotal, vaultCollateralValue) => {
-        let liquidationThresholdValue = (vaultCollateralValue * liquidationRatio) / 1000;
-        if(loanOutstandingTotal > liquidationThresholdValue){
-            // is liquidatable
-            return true;
-        } else {
-            // is not liquidatable
-            return false;
-        }
-    }
-
 
     // End Helper Functions
 
@@ -1227,7 +1093,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
     // 
     // Test: repay
     //
-    describe('%repay mockFA12 Tokens - mock time tests (1 month)', function () {
+    describe('%repay mockFA12 Tokens - mock time tests (1 year)', function () {
 
         it('user (eve) can repay debt - Mock FA12 Token  - mock one year - utilisation rate below optimal utilisation rate - repayment greater than interest', async () => {
 
@@ -1308,9 +1174,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,                 
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1332,10 +1197,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,    
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -1474,7 +1337,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -1485,21 +1348,21 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -1584,9 +1447,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,    
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1608,10 +1470,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,      
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -1750,7 +1610,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -1761,21 +1621,21 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -1859,9 +1719,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,           
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -1883,10 +1742,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,   
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -2025,7 +1882,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -2036,21 +1893,21 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -2135,9 +1992,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,       
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2159,10 +2015,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,  
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -2299,7 +2153,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -2310,28 +2164,28 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardMockFa12TokenBalance, tokenPoolRewardInitialMockFa12TokenBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
     })
 
 
-    describe('%repay mockFA2 Tokens - mock time tests (1 month)', function () {
+    describe('%repay mockFA2 Tokens - mock time tests (1 year)', function () {
 
         it('user (eve) can repay debt - Mock FA2 Token  - mock one year - utilisation rate below optimal utilisation rate - repayment greater than interest', async () => {
 
@@ -2412,9 +2266,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,               
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2436,10 +2289,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,  
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -2578,7 +2429,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -2589,21 +2440,22 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
+
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -2688,9 +2540,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,         
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2712,10 +2563,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,      
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -2854,7 +2703,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -2865,21 +2714,21 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -2964,9 +2813,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,           
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -2988,10 +2836,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,      
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -3130,7 +2976,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -3141,21 +2987,21 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -3239,9 +3085,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,            
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3263,10 +3108,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,          
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -3405,7 +3248,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -3416,21 +3259,21 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, treasuryInitialMockFa2TokenBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardMockFa2TokenBalance, tokenPoolRewardInitialMockFa2TokenBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -3438,7 +3281,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
 
 
-    describe('%repay TEZ - mock time tests (1 month)', function () {
+    describe('%repay TEZ - mock time tests (1 year)', function () {
 
         it('user (eve) can repay debt - TEZ  - mock one year - utilisation rate below optimal utilisation rate - repayment greater than interest', async () => {
 
@@ -3520,9 +3363,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,            
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3544,10 +3386,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,         
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -3671,7 +3511,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -3682,21 +3522,23 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
-            assert.equal(updatedEveXtzBalance, eveInitialXtzBalance - repayAmount);
+            
+            // account for minor gas cost difference
+            assert.equal(almostEqual(updatedEveXtzBalance, eveInitialXtzBalance - repayAmount, 0.0001), true);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -3781,9 +3623,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,                
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -3805,10 +3646,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,                 
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -3932,7 +3771,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -3943,21 +3782,23 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
-            assert.equal(updatedEveXtzBalance, eveInitialXtzBalance - repayAmount);
+
+            // account for minor gas cost difference
+            assert.equal(almostEqual(updatedEveXtzBalance, eveInitialXtzBalance - repayAmount, 0.0001), true);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -4043,9 +3884,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,                
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -4067,10 +3907,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,             
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -4194,7 +4032,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -4205,21 +4043,23 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
-            assert.equal(updatedEveXtzBalance, eveInitialXtzBalance - repayAmount);
+            
+            // account for minor gas cost difference
+            assert.equal(almostEqual(updatedEveXtzBalance, eveInitialXtzBalance - repayAmount, 0.0001), true);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
@@ -4304,9 +4144,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA12 tokens into vault
             const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
-                mockFa12DepositAmount,                 // amt
-                "fa12",                                // token type 
-                mockFa12TokenAddress.address           // mockFa12 Token address 
+                mockFa12DepositAmount,               
+                "mockFa12"
             ).send();
             await eveDepositMockFa12TokenOperation.confirmation();
 
@@ -4328,10 +4167,8 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             // eve deposits mock FA2 tokens into vault
             const eveDepositTokenOperation = await vaultInstance.methods.deposit(
-                mockFa2DepositAmount,                  // amt
-                "fa2",                                 // token
-                mockFa2TokenAddress.address,           // mock FA2 Token address 
-                0                                      // token id
+                mockFa2DepositAmount,                  
+                "mockFa2"
             ).send();
             await eveDepositTokenOperation.confirmation();
 
@@ -4455,7 +4292,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
             
-            const loanOutstandingWithAccruedInterest      = calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
             // check if repayAmount covers whole or partial of total interest 
@@ -4466,26 +4303,26 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-            const interestTreasuryShare                   = calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+            const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewardPoolShare);
 
-            assert.equal(parseInt(updatedLoanOutstandingTotal), finalLoanOutstandingTotal);
-            assert.equal(parseInt(updatedLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
-            assert.equal(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal);
+            assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(parseInt(updatedLoanInterestTotal), finalLoanInterestTotal, 0.0001), true);
             assert.equal(parseInt(afterRepaymentVaultBorrowIndex), parseInt(afterRepaymentTokenBorrowIndex));
-            assert.equal(updatedEveXtzBalance, eveInitialXtzBalance - repayAmount);
+            
+            // account for minor gas cost difference
+            assert.equal(almostEqual(updatedEveXtzBalance, eveInitialXtzBalance - repayAmount, 0.0001), true);
 
             // check treasury fees and interest to token pool reward contract
-            assert.equal(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare)
-            assert.equal(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewardPoolShare)
+            assert.equal(almostEqual(updatedTreasuryXtzBalance, treasuryInitialXtzBalance + interestTreasuryShare, 0.0001), true);
+            assert.equal(almostEqual(updatedTokenPoolRewardXtzBalance, tokenPoolRewardInitialXtzBalance + interestRewardPoolShare, 0.0001), true);
 
         })
 
-
     })
-
 
 });

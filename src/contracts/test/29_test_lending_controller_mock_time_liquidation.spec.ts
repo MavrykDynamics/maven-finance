@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../env";
-import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory, oscar, trudy } from "../scripts/sandbox/accounts";
 
 import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
@@ -207,6 +207,9 @@ describe("Lending Controller (Mock Time) tests", async () => {
         console.log('Alice address: ' + alice.pkh);
         console.log('Bob address: '   + bob.pkh);
         console.log('Eve address: '   + eve.pkh);
+        console.log('Mallory address: ' + mallory.pkh);
+        console.log('Oscar address: ' + oscar.pkh);
+        console.log('Trudy address: ' + trudy.pkh);
 
     });
 
@@ -1255,6 +1258,17 @@ describe("Lending Controller (Mock Time) tests", async () => {
             const failMarkVaultForLiquidationTwice = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
             await chai.expect(failMarkVaultForLiquidationTwice.send()).to.be.rejected;
 
+            // get vault and loan token views, and storage
+            const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
+            const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
+            const beforeRepaymentStorage = await lendingControllerInstance.storage();
+
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+
             // ----------------------------------------------------------------------------------------------
             // After marked for liquidation: set block level ahead by half of liquidationDelayinMins
             // ----------------------------------------------------------------------------------------------
@@ -1270,7 +1284,7 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             const mockTwoLendingControllerStorage   = await lendingControllerInstance.storage();
             const mockTwoVault                      = await mockTwoLendingControllerStorage.vaults.get(vaultHandle);
-            const mockTwoBlockLevel          = mockTwoVault.lastUpdatedBlockLevel;
+            const mockTwoBlockLevel                 = mockTwoVault.lastUpdatedBlockLevel;
 
             const minutesPassed  = 60; 
             const newMockTwoBlockLevel = parseInt(mockOneBlockLevel) + (minutesPassed * oneMinuteLevelBlocks);
@@ -1283,7 +1297,31 @@ describe("Lending Controller (Mock Time) tests", async () => {
 
             assert.equal(updatedMockTwoLevel, newMockTwoBlockLevel);
 
-            console.log('   - time set to 6 months ahead: ' + mockTwoBlockLevel + ' to ' + newMockTwoBlockLevel);
+            console.log('   - time set to 2 hours ahead: ' + mockTwoBlockLevel + ' to ' + newMockTwoBlockLevel);
+
+            // ----------------------------------------------------------------------------------------------
+            // Liquidate Vault
+            // ----------------------------------------------------------------------------------------------
+
+            await signerFactory(oscar.sk); // different user than the one who marked the vault for liquidation
+
+            // On-chain views to vault and loan token
+            const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
+            const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
+
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            
+            const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
+            const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
+            
+            console.log("updatedLoanOutstandingTotal: " + updatedLoanOutstandingTotal);
+            console.log("updatedLoanPrincipalTotal: " + updatedLoanPrincipalTotal);
+            console.log("updatedLoanInterestTotal: " + updatedLoanInterestTotal);
 
 
         })

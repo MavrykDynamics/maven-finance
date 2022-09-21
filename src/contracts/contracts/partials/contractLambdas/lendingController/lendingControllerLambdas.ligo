@@ -348,6 +348,7 @@ block {
 
                         // Lending Controller Token Pool Entrypoints
                     |   SetLoanToken (_v)                    -> s.breakGlassConfig.setLoanTokenIsPaused                  := _v
+                    |   UpdateLoanToken (_v)                 -> s.breakGlassConfig.updateLoanTokenIsPaused               := _v
                     |   AddLiquidity (_v)                    -> s.breakGlassConfig.addLiquidityIsPaused                  := _v
                     |   RemoveLiquidity (_v)                 -> s.breakGlassConfig.removeLiquidityIsPaused               := _v
 
@@ -410,6 +411,46 @@ block {
                 
                 // update loan token ledger
                 s.loanTokenLedger[setLoanTokenParams.tokenName] := createLoanTokenRecord(setLoanTokenParams);
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* updateLoanToken lambda *)
+function lambdaUpdateLoanToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);                // entrypoint should not receive any tez amount  
+    checkSenderIsAllowed(s);            // check that sender is admin or the Governance Contract address
+    checkUpdateLoanTokenIsNotPaused(s);    // check that %updateLoanToken entrypoint is not paused (e.g. if glass broken)
+
+    case lendingControllerLambdaAction of [
+        |   LambdaUpdateLoanToken(updateLoanTokenParams) -> {
+                
+                // init parameters
+                const loanTokenName : string = updateLoanTokenParams.tokenName;
+                
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                ];
+
+                loanTokenRecord.oracleType                          := updateLoanTokenParams.oracleType;
+                loanTokenRecord.oracleAddress                       := updateLoanTokenParams.oracleAddress;
+
+                loanTokenRecord.reserveRatio                         := updateLoanTokenParams.reserveRatio;
+                loanTokenRecord.baseInterestRate                     := updateLoanTokenParams.baseInterestRate;
+                loanTokenRecord.maxInterestRate                      := updateLoanTokenParams.maxInterestRate;
+                loanTokenRecord.interestRateBelowOptimalUtilisation  := updateLoanTokenParams.interestRateBelowOptimalUtilisation;
+                loanTokenRecord.interestRateAboveOptimalUtilisation  := updateLoanTokenParams.interestRateAboveOptimalUtilisation;
+                loanTokenRecord.minRepaymentAmount                   := updateLoanTokenParams.minRepaymentAmount;
+                
+                // update storage
+                s.loanTokenLedger[loanTokenName] := loanTokenRecord;
 
             }
         |   _ -> skip
@@ -853,8 +894,9 @@ block {
                 const vaultId     : vaultIdType      = markForLiquidationParams.vaultId;
                 const vaultOwner  : vaultOwnerType   = markForLiquidationParams.vaultOwner;
 
-                const currentTimestamp        : timestamp   = Tezos.get_now();
-                const liquidationDelayInMins  : int         = int(s.config.liquidationDelayInMins);
+                const currentBlockLevel             : nat = Tezos.get_level();
+                const liquidationDelayInMins        : nat = s.config.liquidationDelayInMins;
+                const liquidationDelayInBlockLevel  : nat = liquidationDelayInMins * blocksPerMinute; 
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -866,8 +908,8 @@ block {
                 var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
                 
                 // get vault liquidation timestamps
-                const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
-                const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
+                const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
+                const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
 
                 // check if vault is liquidatable
                 if isLiquidatable(vault, s) 
@@ -875,9 +917,9 @@ block {
                 else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
 
                 // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
-                if currentTimestamp < timeWhenVaultCanBeLiquidated 
+                if currentBlockLevel < levelWhenVaultCanBeLiquidated 
                 then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
-                else vault.markedForLiquidationTimestamp := currentTimestamp;
+                else vault.markedForLiquidationLevel := currentBlockLevel;
 
                 // update vault storage
                 s.vaults[vaultHandle] := vault;
@@ -901,17 +943,19 @@ block {
         |   LambdaLiquidateVault(liquidateVaultParams) -> {
                 
                 // init variables                 
-                const vaultId           : nat       = liquidateVaultParams.vaultId;
-                const vaultOwner        : address   = liquidateVaultParams.vaultOwner;
-                const amount            : nat       = liquidateVaultParams.amount;
-                const liquidator        : address   = Tezos.get_sender();
-                const currentTimestamp  : timestamp = Tezos.get_now();
+                const vaultId            : nat       = liquidateVaultParams.vaultId;
+                const vaultOwner         : address   = liquidateVaultParams.vaultOwner;
+                const amount             : nat       = liquidateVaultParams.amount;
+                const liquidator         : address   = Tezos.get_sender();
+                const currentBlockLevel  : nat       = Tezos.get_level();
 
                 // config variables
                 const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
                 const adminLiquidationFeePercent    : nat  = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
                 const maxDecimalsForCalculation     : nat  = s.config.maxDecimalsForCalculation;
-                const liquidationDelayInMins        : int  = int(s.config.liquidationDelayInMins);
+
+                const liquidationDelayInMins        : nat = s.config.liquidationDelayInMins;
+                const liquidationDelayInBlockLevel  : nat = liquidationDelayInMins * blocksPerMinute; 
 
                 // calculate final amounts to be liquidated
                 const liquidationIncentive          : nat = ((liquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
@@ -942,8 +986,8 @@ block {
                 var vaultBorrowIndex                : nat    := vault.borrowIndex;
 
                 // get vault liquidation timestamps
-                const vaultMarkedForLiquidationTimestamp  : timestamp = vault.markedForLiquidationTimestamp;
-                const timeWhenVaultCanBeLiquidated        : timestamp = vaultMarkedForLiquidationTimestamp + liquidationDelayInMins;
+                const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
+                const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
 
                 // ------------------------------------------------------------------
                 // Check collaterization and update interest rates
@@ -955,7 +999,7 @@ block {
                 else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
 
                 // check if sufficient time has passed since vault was marked for liquidation
-                if currentTimestamp < timeWhenVaultCanBeLiquidated
+                if currentBlockLevel < levelWhenVaultCanBeLiquidated
                 then failwith(error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED)
                 else skip;
 
@@ -1091,7 +1135,6 @@ block {
 
                 };
 
-
                 // ------------------------------------------------------------------
                 // Update Interest Records
                 // ------------------------------------------------------------------
@@ -1165,24 +1208,11 @@ block {
                     loanTokenRecord.tokenType       // token type
                 );
 
-                // Update rewards in Token Pool Contract
-                // const updateRewardsParams : updateRewardsActionType = record [
-                //     tokenName = vaultLoanTokenName;
-                //     amount    = interestRewardPool;
-                // ];
-
-                // const updateRewardsInTokenPoolRewardContractOperation : operation = Tezos.transaction(
-                //     updateRewardsParams,
-                //     0mutez,
-                //     getUpdateRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
-                // );
 
                 operations := list[
                     sendInterestToTreasuryOperation;
                     sendInterestRewardToTokenPoolRewardContractOperation;
-                    // updateRewardsInTokenPoolRewardContractOperation;
                 ];
-
 
                 // ------------------------------------------------------------------
                 // Process Repayment
@@ -1687,11 +1717,15 @@ block {
                 ];
 
                 // Get loan token parameters
-                const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
-                const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
-                const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
-                const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
-                const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
+                const tokenPoolTotal      : nat         = loanTokenRecord.tokenPoolTotal;
+                const totalBorrowed       : nat         = loanTokenRecord.totalBorrowed;
+                const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
+                const tokenBorrowIndex    : nat         = loanTokenRecord.borrowIndex;
+                const minRepaymentAmount  : nat         = loanTokenRecord.minRepaymentAmount;
+                const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
+
+                // check that minimum repayment amount is reached
+                if initialRepaymentAmount < minRepaymentAmount then failwith(error_MIN_REPAYMENT_AMOUNT_NOT_REACHED) else skip;
 
                 // ------------------------------------------------------------------
                 // Get current user borrow index

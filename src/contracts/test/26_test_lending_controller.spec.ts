@@ -3138,6 +3138,40 @@ describe("Lending Controller tests", async () => {
 
         })
 
+
+        it('user (eve) should not be able to repay less than the min repayment amount', async () => {
+
+            await signerFactory(eve.sk);
+        
+            const mockFa12LoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("mockFa12").executeView({ viewCaller : bob.pkh});
+            const mockFa2LoanTokenRecordView  = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("mockFa2").executeView({ viewCaller : bob.pkh});
+            const tezLoanTokenRecordView      = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("tez").executeView({ viewCaller : bob.pkh});
+
+            const mockFa12LoanTokenMinRepaymentAmount = mockFa12LoanTokenRecordView.minRepaymentAmount;
+            const mockFa2LoanTokenMinRepaymentAmount  = mockFa2LoanTokenRecordView.minRepaymentAmount;
+            const tezLoanTokenMinRepaymentAmount      = tezLoanTokenRecordView.minRepaymentAmount;
+
+            const belowMinRepaymentAmountForMockFa12LoanToken = mockFa12LoanTokenMinRepaymentAmount / 2;
+            const belowMinRepaymentAmountForMockFa2LoanToken  = mockFa2LoanTokenMinRepaymentAmount  / 2;
+            const belowMinRepaymentAmountForTezLoanToken      = tezLoanTokenMinRepaymentAmount      / 2;
+
+            // mock fa12 token vault
+            const mockFa12VaultId = eveVaultSet[0]; // vault with mock FA12 loan token
+            const failEveRepayMockFa12Operation = lendingControllerInstance.methods.repay(mockFa12VaultId, belowMinRepaymentAmountForMockFa12LoanToken);
+            await chai.expect(failEveRepayMockFa12Operation.send()).to.be.rejected;
+
+            // mock fa12 token vault
+            const mockFa2VaultId = eveVaultSet[1]; // vault with mock FA2 loan token
+            const failEveRepayMockFa2Operation = lendingControllerInstance.methods.repay(mockFa2VaultId, belowMinRepaymentAmountForMockFa2LoanToken);
+            await chai.expect(failEveRepayMockFa2Operation.send()).to.be.rejected;
+
+            // tez vault
+            const tezVaultId         = eveVaultSet[2]; // vault with tez loan token
+            const failEveRepayTezOperation = lendingControllerInstance.methods.repay(tezVaultId, belowMinRepaymentAmountForTezLoanToken);
+            await chai.expect(failEveRepayTezOperation.send({ mutez : true, amount : belowMinRepaymentAmountForTezLoanToken })).to.be.rejected;        
+
+        })
+
     })
 
 
@@ -3345,14 +3379,14 @@ describe("Lending Controller tests", async () => {
             const failSetNewAdminOperation = await lendingControllerInstance.methods.setAdmin(governanceProxyAddress.address);
             await chai.expect(failSetNewAdminOperation.send()).to.be.rejected;    
 
-            // withdraw operation
+            // withdraw operation - mockFa12 token
             const failWithdrawTestTokenOneOperation  = await eveVaultInstance.methods.withdraw(
                 withdrawAmount,                 
                 testTokenNameOne                            
             );
             await chai.expect(failWithdrawTestTokenOneOperation.send()).to.be.rejected;
 
-            // withdraw operation
+            // withdraw operation - mockFa2 token
             const failWithdrawTestTokenTwoOperation  = await eveVaultInstance.methods.withdraw(
                 withdrawAmount,                 
                 testTokenNameTwo                            
@@ -3378,10 +3412,8 @@ describe("Lending Controller tests", async () => {
             const vault                                = await lendingControllerStorage.vaults.get(vaultHandle);
             const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
 
-            const withdrawAmount = initialVaultCollateralTokenBalance + 1000000; 
-            console.log("initialVaultCollateralTokenBalance: " + initialVaultCollateralTokenBalance);
-            console.log("withdrawAmount: " + withdrawAmount);
-
+            const withdrawAmount = parseInt(initialVaultCollateralTokenBalance) + 1000000; 
+            
             // get vault contract
             const vaultAddress     = vault.address;
             const eveVaultInstance = await utils.tezos.contract.at(vaultAddress);
@@ -3397,8 +3429,6 @@ describe("Lending Controller tests", async () => {
             await chai.expect(failWithdrawTestTokenOneOperation.send()).to.be.rejected;
 
         });
-
-
 
     })
 
