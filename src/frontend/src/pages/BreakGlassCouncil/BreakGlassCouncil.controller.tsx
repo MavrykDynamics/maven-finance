@@ -2,6 +2,7 @@ import React, { FC, useState, useMemo } from 'react'
 import { useLocation } from 'react-router'
 
 // components
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPastAction.view'
@@ -10,6 +11,7 @@ import { CouncilPendingView } from '../Council/CouncilPending/CouncilPending.vie
 import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
@@ -21,7 +23,7 @@ import {
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 
 // styles
-import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack } from './BreakGlassCouncil.style'
+import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack, AvaliableActions } from './BreakGlassCouncil.style'
 
 // TODO: change mock to valid data
 const mockCards = [
@@ -131,12 +133,46 @@ const mockMembers = [
   },
 ]
 
+const actionNameHandler = (name: string) => {
+  return name
+    .split('_')
+    .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
+    .join(' ')
+}
+
 export const BreakGlassCouncil: FC = () => {
+  const { search } = useLocation()
+
+  const itemsForDropDown = useMemo(
+    () => [
+      ...Object.values(actions).map((item) => {
+        return {
+          text: actionNameHandler(item),
+          value: item,
+        }
+      }),
+    ],
+    [],
+  )
+
+  const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
+  const [ddIsOpen, setDdIsOpen] = useState(false)
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+
   const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(true)
 
-  const { search } = useLocation()
+  const handleClickDropdown = () => {
+    setDdIsOpen(!ddIsOpen)
+  }
+
+  const handleClickDropdownItem = (e: string) => {
+    const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
+    setChosenDdItem(chosenItem)
+    setDdIsOpen(!ddIsOpen)
+  }
+
   const currentPage = getPageNumber(
     search, isGoBack ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME
   )
@@ -208,6 +244,25 @@ export const BreakGlassCouncil: FC = () => {
             />
           </> : 
           <>
+             <AvaliableActions>
+              <div className="top-bar">
+                <h1 className="top-bar-title">Available Actions</h1>
+
+                <div className="dropdown-size">
+                  <DropDown
+                    clickOnDropDown={handleClickDropdown}
+                    placeholder={ddItems[0]}
+                    isOpen={ddIsOpen}
+                    itemSelected={chosenDdItem?.text}
+                    items={ddItems}
+                    clickOnItem={(e) => handleClickDropdownItem(e)}
+                  />
+                </div>
+              </div>
+
+              <BreakGlassCouncilForm action={chosenDdItem?.value} />
+            </AvaliableActions>
+
             <h1>My Past Council Actions</h1>
             {paginatedMyPastCouncilActions.map((item) => (
               <CouncilPastActionView

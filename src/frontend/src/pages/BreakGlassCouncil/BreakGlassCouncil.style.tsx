@@ -36,7 +36,7 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
     width: 310px;
 
     & > h1 {
-      margin-top: 53px;
+      margin-top: 30px;
       margin-bottom: 10px;
     }
   }
@@ -45,6 +45,7 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
 export const ReviewPastCouncilActionsCard = styled(Card)<{ theme: MavrykTheme }>`
   padding: 60px 30px 30px 30px;
   margin: 0;
+  margin-bottom: 23px;
   height: 201px;
 
   h2 {
@@ -56,6 +57,7 @@ export const ReviewPastCouncilActionsCard = styled(Card)<{ theme: MavrykTheme }>
     color: ${skyColor}
   }
 `
+
 export const GoBack = styled(Card)`
   display: flex;
   align-items: center;
@@ -73,5 +75,31 @@ export const GoBack = styled(Card)`
     height: 16px;
     stroke: ${headerColor};
     margin-right: 8px;
+  }
+`
+
+export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
+  padding: 0;
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px 0 30px;
+    height: 75px;
+
+    border-bottom: 1px solid ${royalPurpleColor};
+  }
+
+  .top-bar-title {
+    margin: 0;
+
+    &::after{
+      display: none;
+    }
+  }
+
+  .dropdown-size {
+    width: 450px;
   }
 `
