@@ -17,6 +17,7 @@ import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/Dr
 import { Page } from 'styles'
 import { TreasuryActiveStyle, TreasurySelectStyle } from './Treasury.style'
 import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
+import { reduceTreasuryAssets } from './Treasury.helpers'
 
 export const Treasury = () => {
   const dispatch = useDispatch()
@@ -60,18 +61,18 @@ export const Treasury = () => {
     handleSelect(chosenItem)
   }
 
-  const globalTreasuryData = treasuryStorage.reduce(
-    (acc: TreasuryType, treasury: TreasuryType) => {
-      acc.balances = acc.balances.concat(treasury.balances)
-      return acc
-    },
-    { name: 'Global Treasury TVL', balances: [], address: '', total: 0 } as TreasuryType,
-  )
+  const { assetsBalances, globalTreasuryTVL } = useMemo(() => reduceTreasuryAssets(treasuryStorage), [treasuryStorage])
+  const globalTreasury = {
+    name: 'Global Treasury TVL',
+    balances: assetsBalances,
+    address: '',
+    treasuryTVL: globalTreasuryTVL,
+  }
 
   return (
     <Page>
       <PageHeader page={'treasury'} />
-      <TreasuryView treasury={globalTreasuryData} isGlobal factoryAddress={treasuryFactoryAddress} />
+      <TreasuryView treasury={globalTreasury} isGlobal factoryAddress={treasuryFactoryAddress} />
       <TreasuryActiveStyle>
         <TreasurySelectStyle isSelectedTreasury={Boolean(chosenDdItem?.value)}>
           <h2>Active Treasuries</h2>

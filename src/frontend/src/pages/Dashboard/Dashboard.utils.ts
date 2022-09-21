@@ -1,4 +1,3 @@
-import { TreasuryBalanceType, TreasuryType } from './../../utils/TypesAndInterfaces/Treasury'
 export type mvkStatsType = {
   marketCap: number
   stakedMvk: number
@@ -30,25 +29,3 @@ export const isValidId = (x: string): x is TabId =>
   x === SATELLITES_TAB_ID ||
   x === ORACLES_TAB_ID ||
   x === TREASURY_TAB_ID
-
-export const calcTreasuryAseetsToTableDataFormat = (
-  treasuryData: TreasuryType[],
-): { assets: Record<string, TreasuryBalanceType>; globalTreasury: number } =>
-  treasuryData.reduce(
-    (acc, { balances }) => {
-      balances.forEach((balanceAsset) => {
-
-        if (acc.assets[balanceAsset.symbol]) {
-          acc.assets[balanceAsset.symbol].balance += balanceAsset.balance
-          acc.assets[balanceAsset.symbol].usdValue += Number(balanceAsset.usdValue)
-        } else {
-          acc.assets[balanceAsset.symbol] = balanceAsset
-        }
-
-        acc.globalTreasury += balanceAsset.usdValue
-      })
-
-      return acc
-    },
-    { assets: {}, globalTreasury: 0 } as { assets: Record<string, TreasuryBalanceType>; globalTreasury: number },
-  )
