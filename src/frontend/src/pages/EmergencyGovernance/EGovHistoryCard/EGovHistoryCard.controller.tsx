@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 /* @ts-ignore */
 import Time from 'react-pure-time'
@@ -9,8 +9,10 @@ import type { EmergencyGovernanceStorage } from '../../../utils/TypesAndInterfac
 // view
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
-import { EGovVoting } from './EGovVoting.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
+
+import { PRECISION_NUMBER } from 'utils/constants'
 
 import {
   EGovHistoryArrowButton,
@@ -19,8 +21,6 @@ import {
   EGovHistoryCardTitleTextGroup,
   EGovHistoryCardTopSection,
 } from './EGovHistoryCard.style'
-import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
-import { PRECISION_NUMBER } from 'utils/constants'
 
 type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceStorage['emergencyGovernanceLedger'][0]
@@ -43,6 +43,8 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
 
   const currentData = emergencyGovernance.startTimestamp
 
+  console.log('emergencyGovernance', emergencyGovernance)
+
   const votingStatistic = useMemo(
     () => ({
       forVotesMVKTotal: emergencyGovernance.totalsMvkVotes,
@@ -51,8 +53,6 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
     }),
     [emergencyGovernance?.sMvkPercentageRequired, emergencyGovernance.totalsMvkVotes, totalStakedMvk],
   )
-
-  console.log(votingStatistic)
 
   return (
     <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
@@ -96,17 +96,7 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
             <p>{emergencyGovernance.description}</p>
           </div>
           <div>
-            <VotingArea
-              voteStatistics={votingStatistic}
-              isVotingActive={false}
-              handleVote={() => null}
-              quorumText="Percentage Required"
-            />
-            <EGovVoting
-              totalStakedMvk={totalStakedMvk ?? 0}
-              totalsMvkVotes={emergencyGovernance.totalsMvkVotes}
-              sMvkPercentageRequired={emergencyGovernance?.sMvkPercentageRequired ?? 0}
-            />
+            <VotingArea voteStatistics={votingStatistic} isVotingActive={false} quorumText="Percentage Required" />
           </div>
         </div>
       </EGovHistoryCardDropDown>

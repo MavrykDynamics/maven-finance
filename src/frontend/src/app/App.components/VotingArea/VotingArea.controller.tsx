@@ -31,7 +31,7 @@ export const VotingArea = ({
   )
 
   const votingButtons = accountPkh ? (
-    isUserSatellite ? (
+    isUserSatellite && handleVote ? (
       <VotingButtonsContainer>
         <Button text={'Vote YES'} onClick={() => handleVote('FOR')} type={SUBMIT} kind={'votingFor'} />
         <Button text={'Vote PASS'} onClick={() => handleVote('ABSTAIN')} type={SUBMIT} kind={'votingAbstain'} />

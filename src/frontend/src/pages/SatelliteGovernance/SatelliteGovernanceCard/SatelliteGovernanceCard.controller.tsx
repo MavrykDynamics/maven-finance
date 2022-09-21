@@ -9,8 +9,6 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { getSeparateSnakeCase } from '../../../utils/parse'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
-import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
 import Expand from '../../../app/App.components/Expand/Expand.view'
 
 // action
@@ -160,24 +158,6 @@ export const SatelliteGovernanceCard = ({
             isVotingActive={statusFlag === ProposalStatus.ONGOING}
             handleVote={handleVotingRoundVote}
           />
-
-          {/* TODO: remove old component */}
-          <div className="voting-bar">
-            <VotingBarBlockView
-              yayVotesSmvkTotal={yayVotesSmvkTotal}
-              nayVotesSmvkTotal={nayVotesSmvkTotal}
-              passVoteSmvkTotal={passVoteSmvkTotal}
-              snapshotSmvkTotalSupply={snapshotSmvkTotalSupply}
-              smvkPercentageForApproval={smvkPercentageForApproval}
-            />
-          </div>
-          {statusFlag === ProposalStatus.ONGOING ? (
-            <VotingButtonsContainer className="voting-buttons">
-              <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('yay')} kind={'votingFor'} />
-              <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('pass')} kind={'votingAbstain'} />
-              <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('nay')} kind={'votingAgainst'} />
-            </VotingButtonsContainer>
-          ) : null}
         </div>
       </SatelliteGovernanceCardDropDown>
     </Expand>
