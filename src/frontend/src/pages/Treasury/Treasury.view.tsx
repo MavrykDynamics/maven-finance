@@ -78,13 +78,13 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                 <div className="assets-block assets-block-map" key={balanceValue.contract}>
                   <p className="asset-name">{balanceValue.symbol}</p>
                   <p className="asset-value">
-                    <CommaNumber value={balanceValue.balance} />
+                    <CommaNumber value={balanceValue.balance} useAccurateParsing />
                   </p>
                   <p className="asset-value right-text value">
                     {balanceValue.rate && balanceValue.usdValue ? (
-                      <CommaNumber beginningText="$" value={balanceValue.usdValue} />
+                      <CommaNumber beginningText="$" value={balanceValue.usdValue} useAccurateParsing />
                     ) : (
-                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} />
+                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} useAccurateParsing />
                     )}
                   </p>
                 </div>
@@ -120,11 +120,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                 <p className="asset-lable-text">
                   {balanceValue.symbol}
                   <span className="asset-persent">
-                    {persentOfTheAsset < 0.1 ? (
-                      '< 0.1 %'
-                    ) : (
-                      <CommaNumber endingText="%" value={persentOfTheAsset} useAccurateParsing />
-                    )}
+                    {persentOfTheAsset < 0.1 ? '< 0.1 %' : <CommaNumber endingText="%" value={persentOfTheAsset} />}
                   </span>
                 </p>
               </div>
