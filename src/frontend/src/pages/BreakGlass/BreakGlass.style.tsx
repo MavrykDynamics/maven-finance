@@ -132,7 +132,7 @@ export const BGWhitelist = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
 
 export const BGTitle = styled.h1<{ theme: MavrykTheme }>`
   color: ${headerColor};
-  font-weight: 700;
-  font-size: 24px;
+  font-weight: 600;
+  font-size: 16px;
   margin: 0;
 `
