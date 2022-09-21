@@ -4,7 +4,7 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Link, useHistory } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { StatBlock } from '../Dashboard.style'
@@ -13,8 +13,6 @@ import { SatellitesContentStyled, TabWrapperStyled } from './DashboardTabs.style
 export const SatellitesTab = () => {
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
 
-  const history = useHistory()
-
   const satellitesInfo = satelliteLedger.reduce(
     (acc, satellite: SatelliteRecord) => {
       if (satellite.status !== 0) return acc
@@ -22,8 +20,11 @@ export const SatellitesTab = () => {
       acc.activeSatellites += 1
       acc.avgFee += satellite.satelliteFee
       acc.avgStakedMVK += satellite.sMvkBalance
-      acc.partisipationRate += satellite.participation
-      acc.avgFreesMVKSpace += satellite.sMvkBalance - satellite.totalDelegatedAmount
+      acc.partisipationRate += satellite.participation || 0
+      acc.avgFreesMVKSpace += Math.max(
+        satellite.sMvkBalance * satellite.delegationRatio - satellite.totalDelegatedAmount,
+        0,
+      )
       acc.avgDelegatedsMVK += satellite.sMvkBalance + satellite.totalDelegatedAmount
 
       return acc

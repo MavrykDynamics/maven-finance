@@ -32,6 +32,9 @@ export const DELEGATION_STORAGE_QUERY = `
             smvk_balance
           }
         }
+        delegation {
+          delegation_ratio
+        }
         user {
           smvk_balance
           mvk_balance
