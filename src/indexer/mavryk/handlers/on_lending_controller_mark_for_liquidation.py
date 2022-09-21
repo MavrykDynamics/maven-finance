@@ -9,4 +9,7 @@ async def on_lending_controller_mark_for_liquidation(
     mark_for_liquidation: Transaction[MarkForLiquidationParameter, LendingControllerStorage],
 ) -> None:
 
-    breakpoint()
+    # TODO: Implement
+    # Get operation info
+    # breakpoint()
+    ...

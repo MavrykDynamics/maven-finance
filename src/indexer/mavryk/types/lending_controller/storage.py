@@ -42,12 +42,10 @@ class BreakGlassConfig(BaseModel):
     repayIsPaused: bool
     setLoanTokenIsPaused: bool
     updateCollateralTokenIsPaused: bool
-    vaultDelegateMvkToSatelliteIsPaused: bool
-    vaultDelegateTezToBakerIsPaused: bool
     vaultDepositIsPaused: bool
     vaultDepositStakedMvkIsPaused: bool
     vaultLiquidateStakedMvkIsPaused: bool
-    vaultUpdateDepositorIsPaused: bool
+    vaultOnLiquidateIsPaused: bool
     vaultWithdrawIsPaused: bool
     vaultWithdrawStakedMvkIsPaused: bool
 
@@ -183,21 +181,22 @@ class LoanTokenLedger(BaseModel):
     lpTokensTotal: str
     lpTokenContractAddress: str
     lpTokenId: str
-    reserveRatio: str
     tokenPoolTotal: str
     totalBorrowed: str
     totalRemaining: str
+    reserveRatio: str
     utilisationRate: str
     optimalUtilisationRate: str
     baseInterestRate: str
     maxInterestRate: str
     interestRateBelowOptimalUtilisation: str
     interestRateAboveOptimalUtilisation: str
+    minRepaymentAmount: str
     currentInterestRate: str
     lastUpdatedBlockLevel: str
     accumulatedRewardsPerShare: str
     borrowIndex: str
-    minRepaymentAmount: str
+    isPaused: bool
 
 
 class LendingControllerStorage(BaseModel):

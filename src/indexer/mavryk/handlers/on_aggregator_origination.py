@@ -1,5 +1,6 @@
 
 from dipdup.models import Origination
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.aggregator.storage import AggregatorStorage
 from dipdup.context import HandlerContext
 import mavryk.models as models
@@ -36,6 +37,12 @@ async def on_aggregator_origination(
     last_completed_price_pct_oracle_resp        = int(aggregator_origination.storage.lastCompletedPrice.percentOracleResponse)
     last_completed_price_datetime               = parser.parse(aggregator_origination.storage.lastCompletedPrice.priceDateTime)
     oracles                                     = aggregator_origination.storage.oracleAddresses
+
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=address
+    )
 
     # Get or create governance record
     governance, _                   = await models.Governance.get_or_create(address = governance_address)

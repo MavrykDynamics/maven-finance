@@ -3,10 +3,21 @@ from mavryk.types.vault_factory.storage import VaultFactoryStorage
 from mavryk.types.vault_factory.parameter.unpause_all import UnpauseAllParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
+import mavryk.models as models
 
 async def on_vault_factory_unpause_all(
     ctx: HandlerContext,
     unpause_all: Transaction[UnpauseAllParameter, VaultFactoryStorage],
 ) -> None:
 
-    breakpoint()
+    # Get operation info
+    vault_factory_address   = unpause_all.data.target_address
+    create_vault_paused     = unpause_all.storage.breakGlassConfig.createVaultIsPaused
+
+    # Update record
+    vault_factory           = await models.VaultFactory.get(
+        address = vault_factory_address
+    )
+    vault_factory.create_vault_paused   = create_vault_paused
+    await vault_factory.save()
+

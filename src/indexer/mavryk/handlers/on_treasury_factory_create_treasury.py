@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
 from mavryk.types.treasury_factory.parameter.create_treasury import CreateTreasuryParameter
@@ -37,6 +38,12 @@ async def on_treasury_factory_create_treasury(
         values=dict(
             treasury_contract=treasury_address + 'contract'
         )
+    )
+
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=treasury_address
     )
 
     # Create record

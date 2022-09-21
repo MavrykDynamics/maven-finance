@@ -11,4 +11,4 @@ async def on_governance_financial_set_contract_baker(
 ) -> None:
     
     # Persist request
-    await persist_financial_request(set_contract_baker)
+    await persist_financial_request(ctx, set_contract_baker)

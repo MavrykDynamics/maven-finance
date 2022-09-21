@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -14,7 +14,6 @@ class BreakGlassConfig(BaseModel):
 
     updateRewardsIsPaused: bool
     claimRewardsIsPaused: bool
-    empty: Dict[str, Any]
 
 
 class Key(BaseModel):

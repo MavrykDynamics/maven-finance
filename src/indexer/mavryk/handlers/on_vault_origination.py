@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.vault.storage import VaultStorage, Depositor as Any, Depositor1 as Whitelist
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
@@ -21,6 +22,12 @@ async def on_vault_origination(
         allowance_type  = models.VaultAllowance.ANY
     elif type(depositors) == Whitelist:
         allowance_type  = models.VaultAllowance.WHITELIST
+    
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=vault_address
+    )
     
     # Create vault record
     governance, _       = await models.Governance.get_or_create(
