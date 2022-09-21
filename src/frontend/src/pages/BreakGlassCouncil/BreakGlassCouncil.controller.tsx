@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 
 // components
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
@@ -7,12 +7,13 @@ import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPa
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { CouncilPendingView } from '../Council/CouncilPending/CouncilPending.view'
 import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.view'
+import Icon from '../../app/App.components/Icon/Icon.view'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
 
 // styles
-import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard } from './BreakGlassCouncil.style'
+import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack } from './BreakGlassCouncil.style'
 
 // TODO: change mock to valid data
 const mockCards = [
@@ -123,16 +124,30 @@ const mockMembers = [
 ]
 
 export const BreakGlassCouncil: FC = () => {
+  const [isGoBack, setIsGoBack] = useState(false)
+  const [sliderKey, setSliderKey] = useState(1)
+  const [isPendingSignature, setIsPendingSignature] = useState(true)
+
   return (
     <Page>
       <PageHeader page={'break glass council'} />
-      <h1>Pending Signature</h1>
+      {isGoBack && (<GoBack
+        onClick={() => {
+          setIsPendingSignature(true)
+          setIsGoBack(false)
+        }}
+      >
+        <Icon id="arrow-left-stroke" />
+        Back to Member Dashboard
+      </GoBack>)}
+
+      {isPendingSignature && <h1>Pending Signature</h1>}
 
       <BreakGlassCouncilStyled>
         <div className='left-block'>
-          <article className="pending">
+          {isPendingSignature && (<article className="pending">
             <div className="pending-items">
-              <Carousel itemLength={mockCards.length} key={1} >
+              <Carousel itemLength={mockCards.length} key={sliderKey}>
                 {mockCards.map((item) => (
                   <CouncilPendingView
                     execution_datetime={item.execution_datetime}
@@ -148,7 +163,7 @@ export const BreakGlassCouncil: FC = () => {
                 ))}
               </Carousel>
             </div>
-          </article>
+          </article>)}
 
           <h1>My Past Council Actions</h1>
 
@@ -165,15 +180,18 @@ export const BreakGlassCouncil: FC = () => {
         </div>
 
         <div className='right-block'>
-          <ReviewPastCouncilActionsCard>
+          {!isGoBack && (<ReviewPastCouncilActionsCard>
             <h2>Review Past Council Actions</h2>
 
             <Button
               text="Review"
               kind={ACTION_SECONDARY}
-              onClick={() => {}}
+              onClick={() => {
+                setIsGoBack(true)
+                setIsPendingSignature(false)
+              }}
             />
-          </ReviewPastCouncilActionsCard>
+          </ReviewPastCouncilActionsCard>)}
 
           <h1>Break Glass Council</h1>
           
