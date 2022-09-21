@@ -165,18 +165,33 @@ export const BreakGlassCouncil: FC = () => {
             </div>
           </article>)}
 
-          <h1>My Past Council Actions</h1>
-
-          {mockHistory.map((item) => (
-            <CouncilPastActionView
-              execution_datetime={item.execution_datetime}
-              key={item.id}
-              action_type={item.action_type}
-              signers_count={item.signers_count}
-              num_council_members={item.num_council_members}
-              council_id={item.council_id}
-            />
-          ))}
+          {isGoBack ? 
+          <>
+            <h1>Past Break Glass Council Actions</h1>
+            {[...mockHistory, ...mockHistory].map((item) => (
+              <CouncilPastActionView
+                execution_datetime={item.execution_datetime}
+                key={item.id}
+                action_type={item.action_type}
+                signers_count={item.signers_count}
+                num_council_members={item.num_council_members}
+                council_id={item.council_id}
+              />
+            ))}
+          </> : 
+          <>
+            <h1>My Past Council Actions</h1>
+            {mockHistory.map((item) => (
+              <CouncilPastActionView
+                execution_datetime={item.execution_datetime}
+                key={item.id}
+                action_type={item.action_type}
+                signers_count={item.signers_count}
+                num_council_members={item.num_council_members}
+                council_id={item.council_id}
+              />
+            ))}
+          </>}
         </div>
 
         <div className='right-block'>
