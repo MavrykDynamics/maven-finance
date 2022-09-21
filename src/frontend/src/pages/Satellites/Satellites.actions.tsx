@@ -23,8 +23,8 @@ export const getDelegationStorage = () => async (dispatch: AppDispatch, getState
       delegationStorage,
     })
   } catch (error) {
+    console.error('getDelegationStorage error: ', error)
     if (error instanceof Error) {
-      console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
       dispatch({
         type: GET_DELEGATION_STORAGE,
