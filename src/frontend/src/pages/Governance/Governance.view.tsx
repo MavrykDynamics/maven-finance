@@ -151,19 +151,20 @@ export const GovernanceView = ({
         (rightSideContent?.downvoteMvkTotal ?? 0) +
         (rightSideContent?.upvoteMvkTotal ?? 0),
     })
-
-    setVoteStatistics2({
-      abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
-      againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
-      forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
-      unusedVotesMVKTotal: Math.round(
-        (rightSideContent?.quorumMvkTotal ?? 0) -
-          (rightSideContent?.abstainMvkTotal ?? 0) -
-          (rightSideContent?.downvoteMvkTotal ?? 0) -
-          (rightSideContent?.upvoteMvkTotal ?? 0),
-      ),
-      quorum: rightSideContent?.minQuorumPercentage ?? 0,
-    })
+    if (rightSideContent) {
+      setVoteStatistics2({
+        abstainVotesMVKTotal: Number(rightSideContent.abstainMvkTotal),
+        againstVotesMVKTotal: Number(rightSideContent.downvoteMvkTotal),
+        forVotesMVKTotal: Number(rightSideContent.upvoteMvkTotal),
+        unusedVotesMVKTotal: Math.round(
+          rightSideContent.quorumMvkTotal -
+            rightSideContent.abstainMvkTotal -
+            rightSideContent.downvoteMvkTotal -
+            rightSideContent.upvoteMvkTotal,
+        ),
+        quorum: rightSideContent.minQuorumPercentage,
+      })
+    }
   }, [mvkTokenStorage.totalSupply, rightSideContent])
 
   const handleProposalRoundVote = (proposalId: number) => {
@@ -172,6 +173,11 @@ export const GovernanceView = ({
     setVoteStatistics({
       ...voteStatistics,
       passVotesMVKTotal: voteStatistics.passVotesMVKTotal + 1,
+    })
+    setVoteStatistics2({
+      ...voteStatistics2,
+      unusedVotesMVKTotal: voteStatistics2.unusedVotesMVKTotal - 1,
+      forVotesMVKTotal: voteStatistics2.forVotesMVKTotal + 1,
     })
     dispatch(proposalRoundVote(proposalId))
   }
@@ -217,35 +223,8 @@ export const GovernanceView = ({
   const _handleItemSelect = (chosenProposal: ProposalRecordType | undefined) => {
     if (chosenProposal) {
       setRightSideContent(chosenProposal)
-      if (chosenProposal.passVoteMvkTotal) {
-        setVoteStatistics({
-          passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-          forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
-          againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
-          abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
-          unusedVotesMVKTotal:
-            mvkTokenStorage.totalSupply -
-            (chosenProposal?.abstainMvkTotal ?? 0) +
-            (chosenProposal?.downvoteMvkTotal ?? 0) +
-            (chosenProposal?.upvoteMvkTotal ?? 0),
-        })
-
-        setVoteStatistics2({
-          abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
-          againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
-          forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
-          unusedVotesMVKTotal:
-            (rightSideContent?.quorumMvkTotal ?? 0) -
-            (rightSideContent?.abstainMvkTotal ?? 0) +
-            (rightSideContent?.downvoteMvkTotal ?? 0) +
-            (rightSideContent?.upvoteMvkTotal ?? 0),
-          quorum: rightSideContent?.minQuorumPercentage ?? 0,
-        })
-      }
     }
   }
-
-  console.log('voteStatistics2', voteStatistics2)
 
   const emptyContainer = (
     <EmptyContainer>
