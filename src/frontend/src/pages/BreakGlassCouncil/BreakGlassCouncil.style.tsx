@@ -94,12 +94,16 @@ export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
   .top-bar-title {
     margin: 0;
 
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 22px;
+
     &::after{
       display: none;
     }
   }
 
   .dropdown-size {
-    width: 450px;
+    width: 440px;
   }
 `
