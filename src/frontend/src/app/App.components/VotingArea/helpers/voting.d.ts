@@ -1,3 +1,5 @@
+import type {ProposalRecordType} from 'utils/TypesAndInterfaces/Governance'
+
 export type VoteStatistics = {
   forVotesMVKTotal: number
   againstVotesMVKTotal?: number
@@ -7,18 +9,23 @@ export type VoteStatistics = {
 }
 
 export type VotingProps = {
-  isVisibleHistoryProposal?: boolean
-  selectedProposal?: {
-    passVoteMvkTotal: number
-    id: number | string
-  }
-  isAbleToMakeProposalRoundVote?: boolean
-
   voteStatistics: VoteStatistics
   isVotingActive: boolean
   showVotingButtons?: boolean
   handleVote: (vote: string) => void
   quorumText?: string
+}
+
+export type VotingProposalsProps = {
+  voteStatistics: VoteStatistics
+  selectedProposal: ProposalRecordType
+  currentProposalStage: {
+    isPastProposals: boolean,
+    isTimeLock: boolean
+    isAbleToMakeProposalRoundVote: boolean
+  }
+  isAbleToMakeProposalRoundVote?: boolean
+  handleProposalVote: (vote: number) => void
 }
 
 export type VotingBarProps = {

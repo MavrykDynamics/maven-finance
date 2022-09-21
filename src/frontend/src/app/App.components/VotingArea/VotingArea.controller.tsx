@@ -1,30 +1,29 @@
 import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
-// types
+// types, constants, helpers
 import { State } from 'reducers'
-import { calcWithoutPrecision } from 'utils/calcFunctions'
-import { PRECISION_NUMBER } from 'utils/constants'
 import { SUBMIT } from '../Button/Button.constants'
-import { Button } from '../Button/Button.controller'
-import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import { VotingProps } from './helpers/voting'
-import { VotingAreaStyled, VotingButtonsContainer } from './VotingArea.style'
-import { VotingBar } from './VotingBar.controller'
+import { VotingProposalsProps, VotingProps } from './helpers/voting'
 
 // styles
+import { VotingAreaStyled, VotingButtonsContainer } from './VotingArea.style'
+
+// view
+import { VotingBar } from './VotingBar.controller'
+import { Button } from '../Button/Button.controller'
+import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
+import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
 
 export const VotingArea = ({
-  selectedProposal,
   showVotingButtons = true,
   handleVote,
   isVotingActive,
   quorumText,
   voteStatistics,
 }: VotingProps) => {
-  const { governancePhase } = useSelector((state: State) => state.governance)
-  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
 
   const isUserSatellite = useMemo(
     () => Boolean(satelliteLedger.find(({ address }) => address === accountPkh)),
@@ -32,11 +31,13 @@ export const VotingArea = ({
   )
 
   const votingButtons = accountPkh ? (
-    <VotingButtonsContainer>
-      <Button text={'Vote YES'} onClick={() => handleVote('FOR')} type={SUBMIT} kind={'votingFor'} />
-      <Button text={'Vote PASS'} onClick={() => handleVote('ABSTAIN')} type={SUBMIT} kind={'votingAbstain'} />
-      <Button text={'Vote NO'} onClick={() => handleVote('AGAINST')} type={SUBMIT} kind={'votingAgainst'} />
-    </VotingButtonsContainer>
+    isUserSatellite ? (
+      <VotingButtonsContainer>
+        <Button text={'Vote YES'} onClick={() => handleVote('FOR')} type={SUBMIT} kind={'votingFor'} />
+        <Button text={'Vote PASS'} onClick={() => handleVote('ABSTAIN')} type={SUBMIT} kind={'votingAbstain'} />
+        <Button text={'Vote NO'} onClick={() => handleVote('AGAINST')} type={SUBMIT} kind={'votingAgainst'} />
+      </VotingButtonsContainer>
+    ) : null
   ) : (
     <ConnectWallet />
   )
@@ -47,4 +48,62 @@ export const VotingArea = ({
       {isVotingActive && showVotingButtons ? votingButtons : null}
     </VotingAreaStyled>
   )
+}
+
+export const VotingProposalsArea = ({
+  selectedProposal,
+  handleProposalVote,
+  voteStatistics,
+  currentProposalStage: { isPastProposals, isTimeLock, isAbleToMakeProposalRoundVote },
+}: VotingProposalsProps) => {
+  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+
+  const isUserSatellite = useMemo(
+    () => Boolean(satelliteLedger.find(({ address }) => address === accountPkh)),
+    [accountPkh, satelliteLedger],
+  )
+
+  if (isPastProposals) {
+    return <VotingBar voteStatistics={voteStatistics} />
+  }
+
+  if (isTimeLock && !accountPkh) {
+    return (
+      <VotingAreaStyled>
+        <div className="voted-block">
+          <CommaNumber className="voted-label" value={selectedProposal.upvoteMvkTotal} endingText={'voted MVK'} />
+          <ConnectWallet />
+        </div>
+      </VotingAreaStyled>
+    )
+  }
+
+  if (isTimeLock && !isUserSatellite && accountPkh) {
+    return (
+      <VotingAreaStyled>
+        <div className="voted-block">
+          <CommaNumber className="voted-label" value={selectedProposal.upvoteMvkTotal} endingText={'voted MVK'} />
+        </div>
+      </VotingAreaStyled>
+    )
+  }
+
+  if (isAbleToMakeProposalRoundVote) {
+    return (
+      <VotingAreaStyled>
+        <div className="voted-block">
+          <CommaNumber className="voted-label" value={selectedProposal.upvoteMvkTotal} endingText={'voted MVK'} />
+          <Button
+            text={'Vote for this Proposal'}
+            onClick={() => handleProposalVote(Number(selectedProposal.id))}
+            type={SUBMIT}
+            kind="actionPrimary"
+          />
+        </div>
+      </VotingAreaStyled>
+    )
+  }
+
+  return null
 }

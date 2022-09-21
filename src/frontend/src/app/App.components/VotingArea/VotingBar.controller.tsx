@@ -1,4 +1,3 @@
-import { Tooltip } from 'recharts'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import { CustomTooltip } from '../Tooltip/Tooltip.view'
 import { VotingBarProps } from './helpers/voting'
@@ -18,10 +17,17 @@ export const VotingBar = ({
 }: VotingBarProps) => {
   const totalVotes = forVotesMVKTotal + (againstVotesMVKTotal ?? 0) + (abstainVotesMVKTotal ?? 0) + unusedVotesMVKTotal
 
-  const forVotesWidth = (forVotesMVKTotal / totalVotes) * 100
-  const againstVotesWidth = ((againstVotesMVKTotal ?? 0) / totalVotes) * 100
-  const abstainingVotesWidth = ((abstainVotesMVKTotal ?? 0) / totalVotes) * 100
-  const unusedVotesWidth = (unusedVotesMVKTotal / totalVotes) * 100
+  let forVotesWidth = (forVotesMVKTotal / totalVotes) * 100
+  let againstVotesWidth = ((againstVotesMVKTotal ?? 0) / totalVotes) * 100
+  let abstainingVotesWidth = ((abstainVotesMVKTotal ?? 0) / totalVotes) * 100
+  let unusedVotesWidth = (unusedVotesMVKTotal / totalVotes) * 100
+
+  if (totalVotes === 0) {
+    forVotesWidth = 25
+    againstVotesWidth = 25
+    abstainingVotesWidth = 25
+    unusedVotesWidth = 25
+  }
 
   return (
     <VotingContainer>
