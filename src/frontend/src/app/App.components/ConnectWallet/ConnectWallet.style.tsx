@@ -404,7 +404,7 @@ export const ButtonBar = styled.div`
   display: flex;
   align-items: center;
 
-  div {
+  .connect-wallet {
     margin: 0;
   }
 `
