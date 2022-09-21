@@ -17,7 +17,7 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import {
   calculateSlicePositions,
-  BREAK_GLASS_ACTONS_LIST_NAME,
+  BREAK_GLASS_ACTIONS_LIST_NAME,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // actions
@@ -96,7 +96,7 @@ export const BreakGlassActions: FC = () => {
   const dispatch = useDispatch()
   const { search } = useLocation()
   const { breakGlassAction } = useSelector((state: State) => state.breakGlass)
-  const currentPage = getPageNumber(search, BREAK_GLASS_ACTONS_LIST_NAME)
+  const currentPage = getPageNumber(search, BREAK_GLASS_ACTIONS_LIST_NAME)
 
   const itemsForDropDown = useMemo(
     () => [
@@ -129,7 +129,7 @@ export const BreakGlassActions: FC = () => {
   }
 
   const paginatedItemsList = useMemo(() => {
-    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_ACTONS_LIST_NAME)
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_ACTIONS_LIST_NAME)
     return mock?.slice(from, to)
   }, [currentPage, mock])
 
@@ -175,7 +175,7 @@ export const BreakGlassActions: FC = () => {
           return <PastBreakGlassActionsCard key={item.id} {...item}  />
         })}
 
-        <Pagination itemsCount={mock?.length} listName={BREAK_GLASS_ACTONS_LIST_NAME} />
+        <Pagination itemsCount={mock?.length} listName={BREAK_GLASS_ACTIONS_LIST_NAME} />
       </PastBreakGlassActions>
     </Page>
   )

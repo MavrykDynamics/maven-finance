@@ -14,8 +14,8 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
 import { 
-  BREAK_GLASS_PAST_COUNCIL_ACTIONS, 
-  BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS,
+  BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME, 
+  BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   calculateSlicePositions,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
@@ -138,16 +138,16 @@ export const BreakGlassCouncil: FC = () => {
 
   const { search } = useLocation()
   const currentPage = getPageNumber(
-    search, isGoBack ? BREAK_GLASS_PAST_COUNCIL_ACTIONS : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS
+    search, isGoBack ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME
   )
 
   const paginatedMyPastCouncilActions= useMemo(() => {
-    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS)
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME)
     return mockHistory?.slice(from, to)
   }, [currentPage, mockHistory])
 
   const paginatedPastBreakGlassCouncilActions= useMemo(() => {
-    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_PAST_COUNCIL_ACTIONS)
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME)
     return mockHistory?.slice(from, to)
   }, [currentPage, mockHistory])
 
@@ -204,7 +204,7 @@ export const BreakGlassCouncil: FC = () => {
 
             <Pagination
               itemsCount={mockHistory.length}
-              listName={BREAK_GLASS_PAST_COUNCIL_ACTIONS}
+              listName={BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME}
             />
           </> : 
           <>
@@ -222,7 +222,7 @@ export const BreakGlassCouncil: FC = () => {
 
             <Pagination
               itemsCount={mockHistory.length}
-              listName={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS}
+              listName={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME}
             />  
           </>}
         </div>
