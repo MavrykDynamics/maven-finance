@@ -31,7 +31,8 @@ import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/Emerg
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
 import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
-import { normalizeBreakGlassCouncilMember, normalizeBreakGlassAction } from 'pages/BreakGlassActions/BreakGlassActions.helpers'
+import { normalizeBreakGlassAction } from 'pages/BreakGlassActions/BreakGlassActions.helpers'
+import { normalizeBreakGlassCouncilMember } from 'pages/BreakGlassCouncil/BreakGlassCouncil.helpers'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: Dispatch) => {
