@@ -72,7 +72,8 @@ const delegationDefaultState: DelegationState = {
   delegationStorage: defaultDelegationStorage,
   amount: 0,
   currentSatellite: {
-    status: SatelliteStatus.INACTIVE,
+    status: SatelliteStatus.SUSPENDED,
+    delegationRatio: 0,
     address: '',
     description: '',
     website: '',

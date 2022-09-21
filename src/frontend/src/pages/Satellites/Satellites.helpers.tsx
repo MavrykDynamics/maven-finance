@@ -116,6 +116,7 @@ export function normalizeSatelliteRecord(
     name: satelliteRecord?.name || '',
     satelliteFee: (satelliteRecord?.fee || 0) / 100,
     status: satelliteRecord?.status,
+    delegationRatio: satelliteRecord?.delegation?.delegation_ratio / 10 ?? 0,
     delegatorCount: satelliteRecord?.delegations.length,
     totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
     unregisteredDateTime: new Date(0),

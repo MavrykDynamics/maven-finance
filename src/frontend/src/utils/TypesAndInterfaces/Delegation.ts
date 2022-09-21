@@ -20,7 +20,12 @@ export enum SatelliteStatus {
   ACTIVE = 0,
   SUSPENDED = 1,
   BANNED = 2,
-  INACTIVE = 3,
+}
+
+export const SatelliteStatusToText = {
+  0: 'Active',
+  1: 'Suspended',
+  2: 'Banned',
 }
 
 export interface SatelliteRecord {
@@ -33,6 +38,7 @@ export interface SatelliteRecord {
   satelliteFee: number
   delegatorCount: number
   status: SatelliteStatus
+  delegationRatio: number
   mvkBalance: number
   sMvkBalance: number
   totalDelegatedAmount: number
@@ -41,7 +47,13 @@ export interface SatelliteRecord {
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
   emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
   satelliteActionVotes?: SatelliteFinancialRequestVotingHistory[]
-  oracleRecords: Array<{ active: boolean; oracle_id: string; sMVKReward: number; XTZReward: number; aggregator: {address: string} }>
+  oracleRecords: Array<{
+    active: boolean
+    oracle_id: string
+    sMVKReward: number
+    XTZReward: number
+    aggregator: { address: string }
+  }>
 }
 
 export type DelegationConfig = {
