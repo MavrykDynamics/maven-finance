@@ -13,7 +13,7 @@ type Props = {
   action?: string;
 }
 
-const actions = {
+export const actions = {
   SET_ALL_CONTRACTS_ADMIN: 'SET_ALL_CONTRACTS_ADMIN',
   SET_SINGLE_CONTRACT_ADMIN: 'SET_SINGLE_CONTRACT_ADMIN',
   SIGN_ACTION: 'SIGN_ACTION',
