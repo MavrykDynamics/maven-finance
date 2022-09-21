@@ -60,8 +60,8 @@ export const submitProposal =
       await dispatch(getDelegationStorage())
       await dispatch(getCurrentRoundProposals())
     } catch (error) {
+      console.error('submitProposal error:', error)
       if (error instanceof Error) {
-        console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
       dispatch({

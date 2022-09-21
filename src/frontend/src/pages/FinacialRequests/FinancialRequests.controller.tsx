@@ -9,17 +9,15 @@ import { getGovernanceStorage } from '../Governance/Governance.actions'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { FinancialRequestsView } from './FinancialRequests.view'
 import { GovernanceTopBar } from 'pages/Governance/GovernanceTopBar/GovernanceTopBar.controller'
 
 //styles
 import { Page } from 'styles'
-import { FinancialRequestsView } from './FinancialRequests.view'
 
 export const FinancialRequests = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
 
-  const { ready } = useSelector((state: State) => state.wallet)
   const {
     governanceStorage: { financialRequestLedger },
     governancePhase,
@@ -33,9 +31,7 @@ export const FinancialRequests = () => {
     <Page>
       <PageHeader page={'financial requests'} />
       <GovernanceTopBar governancePhase={governancePhase} />
-      {financialRequestLedger?.length ? (
-        <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
-      ) : null}
+      {financialRequestLedger?.length ? <FinancialRequestsView financialRequestsList={financialRequestLedger} /> : null}
     </Page>
   )
 }

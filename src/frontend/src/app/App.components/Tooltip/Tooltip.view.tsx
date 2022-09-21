@@ -66,6 +66,14 @@ export const TooltipStyled = styled.div<{ defaultStrokeColor?: string }>`
       fill: ${cyanColor};
     }
   }
+
+  &.voting-tooltip {
+    margin: 0;
+    width: 100%;
+    .text {
+      bottom: 250%;
+    }
+  }
 `
 
 export const CustomTooltip = ({
@@ -73,14 +81,17 @@ export const CustomTooltip = ({
   defaultStrokeColor,
   className = '',
   iconId,
+  children,
 }: {
+  children?: JSX.Element
   text?: string
   defaultStrokeColor?: string
   className?: string
-  iconId: 'info' | 'question'
+  iconId?: 'info' | 'question'
 }) => (
   <TooltipStyled className={className} defaultStrokeColor={defaultStrokeColor}>
-    <Icon id={iconId} />
+    {iconId ? <Icon id={iconId} /> : null}
     {text && <div className="text">{text}</div>}
+    {children}
   </TooltipStyled>
 )
