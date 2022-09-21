@@ -11,4 +11,4 @@ async def on_governance_satellite_ban_satellite(
 ) -> None:
 
     # Get operation info
-    await persist_governance_satellite_action(ban_satellite)
+    await persist_governance_satellite_action(ctx, ban_satellite)

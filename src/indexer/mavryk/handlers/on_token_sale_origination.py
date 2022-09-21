@@ -1,5 +1,6 @@
 
 from dipdup.models import Origination
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.token_sale.storage import TokenSaleStorage
 from dipdup.context import HandlerContext
 import mavryk.models as models
@@ -25,6 +26,12 @@ async def on_token_sale_origination(
     buy_options                 = token_sale_origination.storage.config.buyOptions
     timestamp                   = token_sale_origination.data.timestamp
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=token_sale_address
+    )
+    
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
     await governance.save();

@@ -48,5 +48,5 @@ class CreateFarmParameter(BaseModel):
     forceRewardFromTransfer: bool
     infinite: bool
     plannedRewards: PlannedRewards
-    metadata: str
+    metadata: Union[int, Dict[str, str]]
     lpToken: LpToken

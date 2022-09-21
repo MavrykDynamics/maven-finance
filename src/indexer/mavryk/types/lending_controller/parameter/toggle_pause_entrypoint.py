@@ -96,52 +96,38 @@ class TargetEntrypointItem12(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDelegateMvkToSatellite: bool
+    vaultDeposit: bool
 
 
 class TargetEntrypointItem13(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDelegateTezToBaker: bool
+    vaultDepositStakedMvk: bool
 
 
 class TargetEntrypointItem14(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDeposit: bool
+    vaultLiquidateStakedMvk: bool
 
 
 class TargetEntrypointItem15(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultDepositStakedMvk: bool
+    vaultOnLiquidate: bool
 
 
 class TargetEntrypointItem16(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultLiquidateStakedMvk: bool
-
-
-class TargetEntrypointItem17(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    vaultUpdateDepositor: bool
-
-
-class TargetEntrypointItem18(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     vaultWithdraw: bool
 
 
-class TargetEntrypointItem19(BaseModel):
+class TargetEntrypointItem17(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -171,7 +157,5 @@ class TogglePauseEntrypointParameter(BaseModel):
         TargetEntrypointItem15,
         TargetEntrypointItem16,
         TargetEntrypointItem17,
-        TargetEntrypointItem18,
-        TargetEntrypointItem19,
     ]
     empty: Dict[str, Any]

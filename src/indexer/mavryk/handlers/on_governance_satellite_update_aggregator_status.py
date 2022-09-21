@@ -11,4 +11,4 @@ async def on_governance_satellite_update_aggregator_status(
 ) -> None:
 
     # Get operation info
-    await persist_governance_satellite_action(update_aggregator_status)
+    await persist_governance_satellite_action(ctx, update_aggregator_status)

@@ -1,6 +1,7 @@
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.governance_proxy.storage import GovernanceProxyStorage
 import mavryk.models as models
 
@@ -15,6 +16,12 @@ async def on_governance_proxy_origination(
     governance_address          = governance_proxy_origination.storage.governanceAddress
     timestamp                   = governance_proxy_origination.data.timestamp
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=governance_proxy_address
+    )
+    
     # Create record
     governance, _               = await models.Governance.get_or_create(
         address = governance_address
