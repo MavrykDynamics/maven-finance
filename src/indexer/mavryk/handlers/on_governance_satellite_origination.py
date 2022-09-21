@@ -1,5 +1,6 @@
 
 from dipdup.models import Origination
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
 from dipdup.context import HandlerContext
 import mavryk.models as models
@@ -19,6 +20,12 @@ async def on_governance_satellite_origination(
     gov_sat_counter             = int(governance_satellite_origination.storage.governanceSatelliteCounter)
     timestamp                   = governance_satellite_origination.data.timestamp
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=address
+    )
+    
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
     await governance.save();

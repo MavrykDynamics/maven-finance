@@ -1,6 +1,7 @@
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.lending_controller.storage import LendingControllerStorage
 import mavryk.models as models
 
@@ -41,12 +42,15 @@ async def on_lending_controller_origination(
     vault_deposit_smvk_paused               = lending_controller_origination.storage.breakGlassConfig.vaultDepositStakedMvkIsPaused
     vault_withdraw_smvk_paused              = lending_controller_origination.storage.breakGlassConfig.vaultWithdrawStakedMvkIsPaused
     vault_liquidate_smvk_paused             = lending_controller_origination.storage.breakGlassConfig.vaultLiquidateStakedMvkIsPaused
-    vault_delegate_tez_to_baker_paused      = lending_controller_origination.storage.breakGlassConfig.vaultDelegateTezToBakerIsPaused
-    vault_delegate_mvk_to_satellite_paused  = lending_controller_origination.storage.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused
     vault_deposit_paused                    = lending_controller_origination.storage.breakGlassConfig.vaultDepositIsPaused
     vault_withdraw_paused                   = lending_controller_origination.storage.breakGlassConfig.vaultWithdrawIsPaused
-    vault_update_depositor_paused           = lending_controller_origination.storage.breakGlassConfig.vaultUpdateDepositorIsPaused
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=lending_controller_address
+    )
+    
     # Create record
     governance, _       = await models.Governance.get_or_create(
         address = governance_address
@@ -84,10 +88,7 @@ async def on_lending_controller_origination(
         vault_deposit_smvk_paused               = vault_deposit_smvk_paused,
         vault_withdraw_smvk_paused              = vault_withdraw_smvk_paused,
         vault_liquidate_smvk_paused             = vault_liquidate_smvk_paused,
-        vault_delegate_tez_to_baker_paused      = vault_delegate_tez_to_baker_paused,
-        vault_delegate_mvk_to_satellite_paused  = vault_delegate_mvk_to_satellite_paused,
         vault_deposit_paused                    = vault_deposit_paused,
-        vault_withdraw_paused                   = vault_withdraw_paused,
-        vault_update_depositor_paused           = vault_update_depositor_paused
+        vault_withdraw_paused                   = vault_withdraw_paused
     )
     await lending_controller.save()

@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.token_pool_reward.storage import TokenPoolRewardStorage
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
@@ -17,6 +18,12 @@ async def on_token_pool_reward_origination(
     claim_reward_paused         = token_pool_reward_origination.storage.breakGlassConfig.claimRewardsIsPaused
     timestamp                   = token_pool_reward_origination.data.timestamp
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=token_pool_reward_address
+    )
+    
     # Create record
     governance, _               = await models.Governance.get_or_create(
         address = governance_address

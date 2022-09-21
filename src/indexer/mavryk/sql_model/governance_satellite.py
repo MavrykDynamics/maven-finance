@@ -78,7 +78,7 @@ class GovernanceSatelliteActionParameter(Model):
 class GovernanceSatelliteActionTransfer(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='transfers')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_satellite_action_transfer_tokens', null=True)
+    token_address                           = fields.CharField(max_length=36, default="")
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_transfer_receiver')
     amount                                  = fields.BigIntField(default=0)
 

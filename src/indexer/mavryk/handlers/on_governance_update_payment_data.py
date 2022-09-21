@@ -1,5 +1,6 @@
 
 from lib2to3.pgen2 import token
+from mavryk.utils.persisters import persist_token_metadata
 from mavryk.types.governance.parameter.update_payment_data import UpdatePaymentDataParameter, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
 from dipdup.models import Transaction
 from mavryk.types.governance.storage import GovernanceStorage
@@ -25,27 +26,25 @@ async def on_governance_update_payment_data(
     # Fill parameters depending on the token type
     token_address       = ""
     token_id            = 0
-    token_standard      = models.TokenType.OTHER
     if type(token) == fa12:
-        token_standard  = models.TokenType.FA12
         token_address   = token.fa12
     elif type(token) == fa2:
-        token_standard  = models.TokenType.FA2
         token_address   = token.fa2.tokenContractAddress
         token_id        = int(token.fa2.tokenId)
     elif type(token) == tez:
-        token_standard  = models.TokenType.XTZ
+        token_address   = "XTZ"
+
+    # Persist Token Metadata
+    await persist_token_metadata(
+        ctx=ctx,
+        token_address=token_address,
+        token_id=str(token_id)
+    )
 
     # Update or create record
     user, _         = await models.MavrykUser.get_or_create(address = receiver_address)
     await user.save()
     governance      = await models.Governance.get(address   = governance_address)
-    token, _        = await models.Token.get_or_create(
-        address     = token_address,
-        token_id    = token_id,
-        type        = token_standard
-    )
-    await token.save()
     proposal        = await models.GovernanceProposal.get(
         id                  = proposal_id,
         governance          = governance
@@ -54,7 +53,7 @@ async def on_governance_update_payment_data(
         governance_proposal         = proposal,
         title                       = title,
         to_                         = user,
-        token                       = token
+        token_address               = token_address
     )
     # Delete record if it already exists, else update or add it
     if payment_record:
@@ -71,6 +70,6 @@ async def on_governance_update_payment_data(
             title                       = title
         )
         payment_record.to_                         = user
-        payment_record.token                       = token
+        payment_record.token_address               = token_address
         payment_record.token_amount                = amount
         await payment_record.save()

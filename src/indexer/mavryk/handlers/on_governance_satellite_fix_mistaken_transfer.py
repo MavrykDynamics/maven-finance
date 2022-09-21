@@ -11,4 +11,4 @@ async def on_governance_satellite_fix_mistaken_transfer(
 ) -> None:
 
     # Get operation info
-    await persist_governance_satellite_action(fix_mistaken_transfer)
+    await persist_governance_satellite_action(ctx, fix_mistaken_transfer)
