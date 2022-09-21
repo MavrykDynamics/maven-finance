@@ -81,7 +81,7 @@ spec:
       #           secretKeyRef:
       #             name: indexer
       #             key: HASURA_GRAPHQL_ADMIN_SECRET
-      #       - name: TZKT_TESTNET_URL
+      #       - name: TZKT_GHOSTNET_URL
       #         value: https://api.ghostnet.tzkt.io
       #       - name: TZKT_MAINNET_URL
       #         value: https://api.tzkt.io
@@ -124,7 +124,7 @@ spec:
                 secretKeyRef:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
-            - name: TZKT_TESTNET_URL
+            - name: TZKT_GHOSTNET_URL
               value: https://api.ghostnet.tzkt.io
             - name: TZKT_MAINNET_URL
               value: https://api.tzkt.io
@@ -172,6 +172,7 @@ data:
       update_interval: 5
       
     advanced:
+      metadata_interface: True
       reindex:
         manual: wipe
         migration: exception
@@ -180,9 +181,17 @@ data:
         schema_modified: wipe
 
     datasources:
-      tzkt_testnet:
+      metadata_mainnet:
+        kind: metadata
+        url: https://metadata.dipdup.net
+        network: mainnet
+      metadata_ghostnet:
+        kind: metadata
+        url: https://metadata.dipdup.net
+        network: ghostnet
+      tzkt_ghostnet:
         kind: tzkt
-        url: ${TZKT_TESTNET_URL:-changeme}
+        url: ${TZKT_GHOSTNET_URL:-changeme}
       tzkt_mainnet:
         kind: tzkt
         url: ${TZKT_MAINNET_URL:-changeme}
