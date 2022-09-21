@@ -41,6 +41,7 @@ type lendingControllerBreakGlassConfigType is record [
     
     // Lending Controller Token Pool Entrypoints
     setLoanTokenIsPaused                : bool;
+    updateLoanTokenIsPaused             : bool;
     addLiquidityIsPaused                : bool;
     removeLiquidityIsPaused             : bool;
 
@@ -141,7 +142,7 @@ type vaultRecordType is [@layout:comb] record [
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
     lastUpdatedTimestamp        : timestamp;                     // timestamp of when vault was last updated
 
-    markedForLiquidationTimestamp  : timestamp;                  // timestamp of when vault was marked for liquidation
+    markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
     
 ]
 
@@ -212,6 +213,23 @@ type setLoanTokenActionType is [@layout:comb] record [
 
     // variants at the end for taquito 
     tokenType                               : tokenType; 
+]
+
+
+type updateLoanTokenActionType is [@layout:comb] record [
+
+    tokenName                               : string;
+
+    oracleType                              : string;
+    oracleAddress                           : address;
+
+    reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
+    optimalUtilisationRate                  : nat;  // kink point
+    baseInterestRate                        : nat;  // base interest rate
+    maxInterestRate                         : nat;  // max interest rate
+    interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
+    interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
+    minRepaymentAmount                      : nat; 
 ]
 
 
@@ -299,6 +317,7 @@ type lendingControllerPausableEntrypointType is
 
         // Lending Controller Token Pool Entrypoints
     |   SetLoanToken                of bool
+    |   UpdateLoanToken             of bool
     |   AddLiquidity                of bool
     |   RemoveLiquidity             of bool
 
@@ -359,6 +378,7 @@ type lendingControllerLambdaActionType is
 
         // Token Pool Entrypoints
     |   LambdaSetLoanToken                    of setLoanTokenActionType  
+    |   LambdaUpdateLoanToken                 of updateLoanTokenActionType  
     |   LambdaAddLiquidity                    of addLiquidityActionType
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
