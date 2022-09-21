@@ -43,8 +43,6 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
 
   const currentData = emergencyGovernance.startTimestamp
 
-  console.log('emergencyGovernance', emergencyGovernance)
-
   const votingStatistic = useMemo(
     () => ({
       forVotesMVKTotal: emergencyGovernance.totalsMvkVotes,
