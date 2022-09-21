@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.13.0
+    tag: v0.15.0
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -21,7 +21,7 @@ dipdup:
         address: KT1WESG5zjPWpTJvupm1HbaGSZG1YpNNHrk9
         typename: mvk
       governance_proxy:
-        address: KT1QBMFDBpJYknJffETnodXQDmUivbrDY6BQ
+        address: KT1CzDracF6x27PxVJi3LnaS4JgB8UFumDME
         typename: governance_proxy
       governance:
         address: KT1UhppqfnxScFsTaEvwLVjbCjrTA8B9Twt3
@@ -33,7 +33,7 @@ dipdup:
         address: KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH #KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH
         typename: farm
       farm_factory:
-        address: KT1XLw5Wvr145MKhUqXNSeAQRrKzCFL7pa3C
+        address: KT1PCebAQ23sH1qmNAEtnRim3d64X6EsfP7M
         typename: farm_factory
       delegation:
         address: KT1F9GLKRNH3Bvz91BMoKqm7DcUagbZNmvLE
@@ -60,31 +60,36 @@ dipdup:
         address: KT1NdZrQhWh8xMhnsVvAqiFTvTXDQR9RqTEH
         typename: aggregator
       aggregator_factory:
-        address: KT1HYM7uGvfQ6B6v5QX8FXYLupAVebeJjwZs
+        address: KT1Xje3DoJgF1su1mnrcMRmZVxZYvrsV7Cyw
         typename: aggregator_factory
       treasury:
         address: KT1RahUBbjVuhS8BsLjcMRMmfijZMABmf5Ws
         typename: treasury
       treasury_factory:
-        address: KT197SwRzhE3zkmWxKYyV5r3FuYrbwVB7kM9
+        address: KT1Teq1CvwtVEfaghvmPhTbmfzKkM5KxQNmm
         typename: treasury_factory
       token_sale:
         address: KT1DM3EjTwYWrwZeLjQXMPcNDXdzrTVviq4H
         typename: token_sale
-      # lending_controller:
-      #   address:
-      #   typename: lending_controller
-      # vault:
-      #   address:
-      #   typename: vault
+      lending_controller:
+        address: KT1Ue69eWZuVSMoL48xTEYUygtEUyupERyzy
+        typename: lending_controller
+      token_pool_reward:
+        address: KT19kSXhbQiEsHDsWB59GfCCEWvGy1cXpVED
+        typename: token_pool_reward
+      vault:
+        address: KT1AtXxxxetVTB8mqSNikhxwG6BJM9cjktim
+        typename: vault
+      vault_factory:
+        address: KT1GXPY2pU8bd5za9WUgSGmyV33ZizXKDXEE
+        typename: vault_factory
 
     templates:
       # Template for Farm
       farm_template:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
-          - origination
           - transaction
         contracts:
           - <farm_contract>
@@ -144,9 +149,8 @@ dipdup:
       # Template for Treasury
       treasury_template:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
-          - origination
           - transaction
         contracts:
           - <treasury_contract>
@@ -190,9 +194,8 @@ dipdup:
       # Template for Aggregator
       aggregator_template:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
-          - origination
           - transaction
         contracts:
           - <aggregator_contract>
@@ -257,43 +260,38 @@ dipdup:
             pattern:
               - destination: <aggregator_contract>
                 entrypoint: setLambda
-      # # Template for Vault
-      # vault:
-      #   kind: operation
-      #   datasource: tzkt_testnet
-      #   types:
-      #     - origination
-      #     - transaction
-      #   contracts:
-      #     - <vault_contract>
-      #   handlers:
-      #     - callback: on_vault_origination
-      #       pattern:
-      #         - type: origination
-      #           originated_contract: <vault_contract>
-      #     - callback: on_vault_set_admin
-      #       pattern:
-      #         - destination: <vault_contract>
-      #           entrypoint: setAdmin
-      #     - callback: on_vault_set_governance
-      #       pattern:
-      #         - destination: <vault_contract>
-      #           entrypoint: setGovernance
-      #     - callback: on_vault_update_depositor
-      #       pattern:
-      #         - destination: <vault_contract>
-      #           entrypoint: updateDepositor
-      #     - callback: on_vault_set_lambda
-      #       pattern:
-      #         - destination: <vault_contract>
-      #           entrypoint: setLambda
+      # Template for Vault
+      vault_template:
+        kind: operation
+        datasource: tzkt_ghostnet
+        types:
+          - transaction
+        contracts:
+          - <vault_contract>
+        handlers:
+          - callback: on_vault_set_admin
+            pattern:
+              - destination: <vault_contract>
+                entrypoint: setAdmin
+          - callback: on_vault_set_governance
+            pattern:
+              - destination: <vault_contract>
+                entrypoint: setGovernance
+          - callback: on_vault_update_depositor
+            pattern:
+              - destination: <vault_contract>
+                entrypoint: updateDepositor
+          - callback: on_vault_set_lambda
+            pattern:
+              - destination: <vault_contract>
+                entrypoint: setLambda
 
     indexes:
       # BIGMAP INDEXES
       # Governance Satellite snapshot big_map index
       governance_satellite_snapshot:
         kind: big_map
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         skip_history: never
         handlers:
           - callback: on_governance_snapshot_ledger_update
@@ -333,7 +331,7 @@ dipdup:
       # MVK Token contract indexes
       mvk:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -383,7 +381,7 @@ dipdup:
       # Governance Proxy contract indexes
       governance_proxy:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -425,7 +423,7 @@ dipdup:
       # Governance contract indexes
       governance:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -515,7 +513,7 @@ dipdup:
       # Doorman contract indexes
       doorman:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -588,7 +586,7 @@ dipdup:
       # Farm contract indexes
       farm:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -658,7 +656,7 @@ dipdup:
       # Farm Factory contract indexes
       farm_factory:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -728,7 +726,7 @@ dipdup:
       # Delegation contract indexes
       delegation:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -810,7 +808,7 @@ dipdup:
       # Vesting contract indexes
       vesting:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -864,7 +862,7 @@ dipdup:
       # Emergency Governance contract indexes
       emergency_governance:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -914,7 +912,7 @@ dipdup:
       # Council contract indexes
       council:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1016,7 +1014,7 @@ dipdup:
       # Break Glass contract indexes
       break_glass:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1106,7 +1104,7 @@ dipdup:
       # Governance Financial contract indexes
       governance_financial:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1168,7 +1166,7 @@ dipdup:
       # Governance Satellite contract indexes
       governance_satellite:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1250,7 +1248,7 @@ dipdup:
       # Aggregator contract indexes
       aggregator:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1324,7 +1322,7 @@ dipdup:
       # Aggregator Factory contract indexes
       aggregator_factory:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1393,7 +1391,7 @@ dipdup:
       # Treasury contract indexes
       treasury:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1447,7 +1445,7 @@ dipdup:
       # Treasury Factory contract indexes
       treasury_factory:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1521,7 +1519,7 @@ dipdup:
       # Token sale contract indexes
       token_sale:
         kind: operation
-        datasource: tzkt_testnet
+        datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
@@ -1576,146 +1574,254 @@ dipdup:
             pattern:
               - destination: token_sale
                 entrypoint: claimTokens
-      # # Vault contract indexes
-      # vault:
-      #   kind: operation
-      #   datasource: tzkt_testnet
-      #   types:
-      #     - origination
-      #     - transaction
-      #   contracts:
-      #     - vault
-      #   handlers:
-      #     - callback: on_vault_origination
-      #       pattern:
-      #         - type: origination
-      #           originated_contract: vault
-      #     - callback: on_vault_set_admin
-      #       pattern:
-      #         - destination: vault
-      #           entrypoint: setAdmin
-      #     - callback: on_vault_set_governance
-      #       pattern:
-      #         - destination: vault
-      #           entrypoint: setGovernance
-      #     - callback: on_vault_update_depositor
-      #       pattern:
-      #         - destination: vault
-      #           entrypoint: updateDepositor
-      #     - callback: on_vault_set_lambda
-      #       pattern:
-      #         - destination: vault
-      #           entrypoint: setLambda
-      # # Lending Controller contract indexes
-      # lending_controller:
-      #   kind: operation
-      #   datasource: tzkt_testnet
-      #   types:
-      #     - origination
-      #     - transaction
-      #   contracts:
-      #     - lending_controller
-      #   handlers:
-      #     - callback: on_lending_controller_origination
-      #       pattern:
-      #         - type: origination
-      #           originated_contract: lending_controller
-      #     - callback: on_lending_controller_set_admin
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: setAdmin
-      #     - callback: on_lending_controller_set_governance
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: setGovernance
-      #     - callback: on_lending_controller_update_config
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: updateConfig
-      #     - callback: on_lending_controller_update_config
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: updateConfig
-      #     - callback: on_lending_controller_update_whitelist_contracts
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: updateWhitelistContracts
-      #     - callback: on_lending_controller_update_general_contracts
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: updateGeneralContracts
-      #     - callback: on_lending_controller_update_whitelist_token_contracts
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: updateWhitelistTokenContracts
-      #     - callback: on_lending_controller_pause_all
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: pauseAll
-      #     - callback: on_lending_controller_unpause_all
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: unpauseAll
-      #     - callback: on_lending_controller_toggle_pause_entrypoint
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: togglePauseEntrypoint
-      #     - callback: on_lending_controller_set_loan_token
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: setLoanToken
-      #     - callback: on_lending_controller_add_liquidity
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: addLiquidity
-      #     - callback: on_lending_controller_remove_liquidity
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: removeLiquidity
-      #     - callback: on_lending_controller_update_collateral_token
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: updateCollateralToken
-      #     - callback: on_lending_controller_create_vault
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: createVault
-      #     - callback: on_lending_controller_close_vault
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: closeVault
-      #     - callback: on_lending_controller_register_deposit
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: registerDeposit
-      #     - callback: on_lending_controller_register_withdrawal
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: registerWithdrawal
-      #     - callback: on_lending_controller_mark_for_liquidation
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: markForLiquidation
-      #     - callback: on_lending_controller_borrow
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: borrow
-      #     - callback: on_lending_controller_vault_deposit_staked_mvk
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: vaultDepositStakedMvk
-      #     - callback: on_lending_controller_vault_liquidate_staked_mvk
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: vaultLiquidateStakedMvk
-      #     - callback: on_lending_controller_set_lambda
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: setLambda
-      #     - callback: on_lending_controller_set_product_lambda
-      #       pattern:
-      #         - destination: lending_controller
-      #           entrypoint: setProductLambda
+      # Vault contract indexes
+      vault:
+        kind: operation
+        datasource: tzkt_ghostnet
+        types:
+          - origination
+          - transaction
+        contracts:
+          - vault
+        handlers:
+          - callback: on_vault_origination
+            pattern:
+              - type: origination
+                originated_contract: vault
+          - callback: on_vault_set_admin
+            pattern:
+              - destination: vault
+                entrypoint: setAdmin
+          - callback: on_vault_set_governance
+            pattern:
+              - destination: vault
+                entrypoint: setGovernance
+          - callback: on_vault_update_depositor
+            pattern:
+              - destination: vault
+                entrypoint: updateDepositor
+          - callback: on_vault_set_lambda
+            pattern:
+              - destination: vault
+                entrypoint: setLambda
+      # Vault Factory contract indexes
+      vault_factory:
+        kind: operation
+        datasource: tzkt_ghostnet
+        types:
+          - origination
+          - transaction
+        contracts:
+          - vault_factory
+          - treasury
+        handlers:
+          - callback: on_vault_factory_origination
+            pattern:
+              - type: origination
+                originated_contract: vault_factory
+          - callback: on_vault_factory_set_admin
+            pattern:
+              - destination: vault_factory
+                entrypoint: setAdmin
+          - callback: on_vault_factory_set_governance
+            pattern:
+              - destination: vault_factory
+                entrypoint: setGovernance
+          - callback: on_vault_factory_update_config
+            pattern:
+              - destination: vault_factory
+                entrypoint: updateConfig
+          - callback: on_vault_factory_update_general_contracts
+            pattern:
+              - destination: vault_factory
+                entrypoint: updateGeneralContracts
+          - callback: on_vault_factory_update_whitelist_contracts
+            pattern:
+              - destination: vault_factory
+                entrypoint: updateWhitelistContracts
+          - callback: on_vault_factory_pause_all
+            pattern:
+              - destination: vault_factory
+                entrypoint: pauseAll
+          - callback: on_vault_factory_unpause_all
+            pattern:
+              - destination: vault_factory
+                entrypoint: unpauseAll
+          - callback: on_vault_factory_toggle_pause_entrypoint
+            pattern:
+              - destination: vault_factory
+                entrypoint: togglePauseEntrypoint
+          - callback: on_vault_factory_create_vault
+            pattern:
+              - destination: vault_factory
+                entrypoint: createVault
+              - source: vault_factory
+                type: origination
+                similar_to: vault
+          - callback: on_vault_factory_set_lambda
+            pattern:
+              - destination: vault_factory
+                entrypoint: setLambda
+          - callback: on_vault_factory_set_product_lambda
+            pattern:
+              - destination: vault_factory
+                entrypoint: setProductLambda
+      # Lending Controller contract indexes
+      lending_controller:
+        kind: operation
+        datasource: tzkt_ghostnet
+        types:
+          - origination
+          - transaction
+        contracts:
+          - lending_controller
+        handlers:
+          - callback: on_lending_controller_origination
+            pattern:
+              - type: origination
+                originated_contract: lending_controller
+          - callback: on_lending_controller_set_admin
+            pattern:
+              - destination: lending_controller
+                entrypoint: setAdmin
+          - callback: on_lending_controller_set_governance
+            pattern:
+              - destination: lending_controller
+                entrypoint: setGovernance
+          - callback: on_lending_controller_update_config
+            pattern:
+              - destination: lending_controller
+                entrypoint: updateConfig
+          - callback: on_lending_controller_update_whitelist_contracts
+            pattern:
+              - destination: lending_controller
+                entrypoint: updateWhitelistContracts
+          - callback: on_lending_controller_update_general_contracts
+            pattern:
+              - destination: lending_controller
+                entrypoint: updateGeneralContracts
+          - callback: on_lending_controller_update_whitelist_token_contracts
+            pattern:
+              - destination: lending_controller
+                entrypoint: updateWhitelistTokenContracts
+          - callback: on_lending_controller_pause_all
+            pattern:
+              - destination: lending_controller
+                entrypoint: pauseAll
+          - callback: on_lending_controller_unpause_all
+            pattern:
+              - destination: lending_controller
+                entrypoint: unpauseAll
+          - callback: on_lending_controller_toggle_pause_entrypoint
+            pattern:
+              - destination: lending_controller
+                entrypoint: togglePauseEntrypoint
+          - callback: on_lending_controller_set_loan_token
+            pattern:
+              - destination: lending_controller
+                entrypoint: setLoanToken
+          - callback: on_lending_controller_add_liquidity
+            pattern:
+              - destination: lending_controller
+                entrypoint: addLiquidity
+          - callback: on_lending_controller_remove_liquidity
+            pattern:
+              - destination: lending_controller
+                entrypoint: removeLiquidity
+          - callback: on_lending_controller_update_collateral_token
+            pattern:
+              - destination: lending_controller
+                entrypoint: updateCollateralToken
+          - callback: on_lending_controller_register_vault_creation
+            pattern:
+              - destination: lending_controller
+                entrypoint: registerVaultCreation
+          - callback: on_lending_controller_close_vault
+            pattern:
+              - destination: lending_controller
+                entrypoint: closeVault
+          - callback: on_lending_controller_register_deposit
+            pattern:
+              - destination: lending_controller
+                entrypoint: registerDeposit
+          - callback: on_lending_controller_register_withdrawal
+            pattern:
+              - destination: lending_controller
+                entrypoint: registerWithdrawal
+          - callback: on_lending_controller_mark_for_liquidation
+            pattern:
+              - destination: lending_controller
+                entrypoint: markForLiquidation
+          - callback: on_lending_controller_liquidate_vault
+            pattern:
+              - destination: lending_controller
+                entrypoint: liquidateVault
+          - callback: on_lending_controller_borrow
+            pattern:
+              - destination: lending_controller
+                entrypoint: borrow
+          - callback: on_lending_controller_repay
+            pattern:
+              - destination: lending_controller
+                entrypoint: repay
+          - callback: on_lending_controller_set_lambda
+            pattern:
+              - destination: lending_controller
+                entrypoint: setLambda
+      # Token Pool Reward contract indexes
+      token_pool_reward:
+        kind: operation
+        datasource: tzkt_ghostnet
+        types:
+          - origination
+          - transaction
+        contracts:
+          - token_pool_reward
+        handlers:
+          - callback: on_token_pool_reward_origination
+            pattern:
+              - type: origination
+                originated_contract: token_pool_reward
+          - callback: on_token_pool_reward_set_admin
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: setAdmin
+          - callback: on_token_pool_reward_set_governance
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: setGovernance
+          - callback: on_token_pool_reward_update_whitelist_contracts
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: updateWhitelistContracts
+          - callback: on_token_pool_reward_update_general_contracts
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: updateGeneralContracts
+          - callback: on_token_pool_reward_update_whitelist_token_contracts
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: updateWhitelistTokenContracts
+          - callback: on_token_pool_reward_pause_all
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: pauseAll
+          - callback: on_token_pool_reward_unpause_all
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: unpauseAll
+          - callback: on_token_pool_reward_toggle_pause_entrypoint
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: togglePauseEntrypoint
+          - callback: on_token_pool_reward_update_rewards
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: updateRewards
+          - callback: on_token_pool_reward_claim_rewards
+            pattern:
+              - destination: token_pool_reward
+                entrypoint: claimRewards
 
 hasura:
   ingress:
