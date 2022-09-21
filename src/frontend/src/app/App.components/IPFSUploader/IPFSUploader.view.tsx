@@ -1,4 +1,4 @@
-import React, { Ref } from 'react'
+import React, { Ref, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // types
@@ -23,6 +23,7 @@ type IPFSUploaderViewProps = {
   typeFile: IPFSUploaderTypeFile
   listNumber?: number
   imageIpfsUrl: string
+  setIpfsImageUrl: (imageUrl: string) => void
   imageOk: boolean
   disabled?: boolean
   isUploading: boolean
@@ -40,6 +41,7 @@ export const IPFSUploaderView = ({
   typeFile,
   listNumber,
   imageIpfsUrl,
+  setIpfsImageUrl,
   isUploading,
   inputFile,
   disabled,
@@ -49,19 +51,42 @@ export const IPFSUploaderView = ({
   className,
 }: IPFSUploaderViewProps) => {
   const dispatch = useDispatch()
-  const isTypeFileImage = typeFile === 'image'
 
-  const isUploadedDocument = imageIpfsUrl && !isTypeFileImage && !isUploading
+  const [uploadIsFailed, setUploadIsFailed] = useState(false)
+  const [isDocument, setIsDocument] = useState(false)
+  const [fileName, setFileName] = useState('')
+  const isTypeFileImage = typeFile === 'image'
+  const isUploaded = imageIpfsUrl && !isUploading
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return
+    if (!e.target.files?.length) return
 
-    const fileSize = e.target?.files?.[0]?.size / 1024 / 1024 // in MiB
+    const file = e.target?.files?.[0]
+    const fileSize = file?.size / 1024 / 1024 // in MiB
+    const { name } = file
+    
     if (fileSize <= IMG_MAX_SIZE) {
+      setUploadIsFailed(false)
       handleUpload(e.target.files[0])
     } else {
+      setUploadIsFailed(true)
       dispatch(showToaster(INFO, 'File is too big!', `Max size is ${IMG_MAX_SIZE}MB`))
     }
+
+    // check file type
+    if (file?.type.toLowerCase().includes('pdf')) {
+      setIsDocument(true)
+      setFileName(name)
+    } else {
+      setIsDocument(false)
+    }
+  }
+
+  const handleDelete = () => {
+    setUploadIsFailed(false)
+    setIsDocument(false)
+    setFileName('')
+    setIpfsImageUrl('')
   }
 
   return (
@@ -79,30 +104,30 @@ export const IPFSUploaderView = ({
               id="uploader"
               type="file"
               disabled={disabled || isUploading}
-              accept={isTypeFileImage ? 'image/*' : '*'}
+              accept={'.jpeg, .png, .pdf'}
               // required
               ref={inputFile}
               onChange={handleChange}
               onBlur={onBlur}
             />
-            <UploadIconContainer onClick={handleIconClick}>
+            <UploadIconContainer uploadIsFailed={uploadIsFailed} onClick={handleIconClick}>
               {imageIpfsUrl && !isUploading ? (
                 <>
-                  {isTypeFileImage ? (
-                    <IpfsUploadedImageContainer>
-                      <img className="uploaded-image" src={imageIpfsUrl} alt="" />
-                      <div className="pencil-wrap">
-                        <Icon id="pencil-stroke" />
-                      </div>
-                    </IpfsUploadedImageContainer>
-                  ) : (
+                  {isDocument ? (
                     <figure className="upload-figure">
                       <div className="icon-wrap">
                         <Icon className="upload-icon" id="upload" />
                       </div>
-                      <figcaption>Document uploaded</figcaption>
+                      <figcaption>{fileName}</figcaption>
                       <small></small>
                     </figure>
+                  ) : (
+                    <IpfsUploadedImageContainer>
+                      <img className="uploaded-image" src={imageIpfsUrl} alt="" />
+                      <div className="pencil-wrap">
+                      <Icon id="pencil-stroke" />
+                      </div>
+                    </IpfsUploadedImageContainer>
                   )}
                 </>
               ) : (
@@ -115,11 +140,14 @@ export const IPFSUploaderView = ({
                     )}
                   </div>
                   <figcaption>Upload {isTypeFileImage ? 'picture' : 'document'}</figcaption>
-                  <small>{`max size is ${IMG_MAX_SIZE}MB`}</small>
+                  <small className='tip'>{`Supports: PNG. JPG. PDF. Max size is ${IMG_MAX_SIZE}MB`}</small>
                 </figure>
               )}
             </UploadIconContainer>
-            {isUploadedDocument ? <Icon className="delete-icon" id="delete" /> : null}
+            {isUploaded ? 
+            <div onClick={handleDelete}>
+              <Icon className="delete-icon" id="delete" /> 
+            </div> :null}
           </div>
         </UploaderFileSelector>
       </div>

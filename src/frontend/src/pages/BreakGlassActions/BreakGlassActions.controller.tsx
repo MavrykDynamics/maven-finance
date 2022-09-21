@@ -1,5 +1,7 @@
 import React, { FC, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+import { useLocation } from 'react-router'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
@@ -9,6 +11,14 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { PastBreakGlassActionsCard } from './PastBreakGlassActionsCard/PastBreakGlassActionsCard.controller'
 import { breakGlassActions } from './BreakGlassActions.actions'
 import { BreakGlassActionsForm } from './BreakGlassActionsForms/BreakGlassActionsForm.controller'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+
+// helpers
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import {
+  calculateSlicePositions,
+  BREAK_GLASS_ACTONS_LIST_NAME,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // actions
 import { propagateBreakGlass } from './BreakGlassActions.actions'
@@ -20,39 +30,58 @@ import { PropagateBreakGlassCard, BreakGlassActionsCard, PastBreakGlassActions }
 // TODO: change mock to valid data
 const mock = [
   {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: true,
+    targetId: 'jfdasjklfklsakljf',
+    initiatorId: 'dsafknkasdkfj',
+    date: `${new Date()}`,
+    executed: true,
+    status: 1,
     id: 1,
+    purpose: `Satellite tz1V...8HAJ has acted in good faith and wishes 
+              to return to being an active part of governance following their usage 
+              of inappropiate images as their satellite image`,
+    governanceType: 'Set All Contracts Admin',
+    linkAddress: 'fkdsnjkfnads',
+    smvkPercentageForApproval: 1,
+    yayVotesSmvkTotal: 233,
+    nayVotesSmvkTotal: 342432,
+    passVoteSmvkTotal: 4423,
+    snapshotSmvkTotalSupply: 324,
   },
   {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: true,
+    targetId: 'jfdasjklfklsakljf',
+    initiatorId: 'dsafknkasdkfj',
+    date: `${new Date()}`,
+    executed: false,
+    status: 2,
     id: 2,
+    purpose: `Satellite tz1V...8HAJ has acted in good faith and wishes 
+              to return to being an active part of governance following their usage 
+              of inappropiate images as their satellite image`,
+    governanceType: 'Set All Contracts Admin',
+    linkAddress: 'fkdsnjkfnads',
+    smvkPercentageForApproval: 1,
+    yayVotesSmvkTotal: 32,
+    nayVotesSmvkTotal: 34243232,
+    passVoteSmvkTotal: 4423,
+    snapshotSmvkTotalSupply: 324,
   },
   {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: true,
+    targetId: 'jfdasjklfklsakljf',
+    initiatorId: 'dsafknkasdkfj',
+    date: `${new Date()}`,
+    executed: true,
+    status: 3,
     id: 3,
-  },
-  {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: true,
-    id: 4,
-  },
-  {
-    date: new Date(),
-    action: 'Set all contracts admin',
-    target: 'fkjsdakh...dfss',
-    button: false,
-    id: 5,
+    purpose: `Satellite tz1V...8HAJ has acted in good faith and wishes 
+              to return to being an active part of governance following their usage 
+              of inappropiate images as their satellite image`,
+    governanceType: 'Set All Contracts Admin',
+    linkAddress: 'fkdsnjkfnads',
+    smvkPercentageForApproval: 1,
+    yayVotesSmvkTotal: 233,
+    nayVotesSmvkTotal: 342,
+    passVoteSmvkTotal: 23,
+    snapshotSmvkTotalSupply: 324,
   },
 ]
 
@@ -65,6 +94,10 @@ const actionNameHandler = (name: string) => {
 
 export const BreakGlassActions: FC = () => {
   const dispatch = useDispatch()
+  const { search } = useLocation()
+  const { breakGlassAction } = useSelector((state: State) => state.breakGlass)
+  const currentPage = getPageNumber(search, BREAK_GLASS_ACTONS_LIST_NAME)
+
   const itemsForDropDown = useMemo(
     () => [
       ...Object.values(breakGlassActions).map((item) => {
@@ -94,6 +127,11 @@ export const BreakGlassActions: FC = () => {
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
   }
+
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_ACTONS_LIST_NAME)
+    return mock?.slice(from, to)
+  }, [currentPage, mock])
 
   return (
     <Page>
@@ -133,10 +171,11 @@ export const BreakGlassActions: FC = () => {
       <PastBreakGlassActions>
         <h1>Past Break Glass Actions</h1>
 
-        {mock.map((item) => {
-          const { id, ...props } = item
-          return <PastBreakGlassActionsCard key={id} {...props} />
+        {paginatedItemsList.map((item) => {
+          return <PastBreakGlassActionsCard key={item.id} {...item}  />
         })}
+
+        <Pagination itemsCount={mock?.length} listName={BREAK_GLASS_ACTONS_LIST_NAME} />
       </PastBreakGlassActions>
     </Page>
   )

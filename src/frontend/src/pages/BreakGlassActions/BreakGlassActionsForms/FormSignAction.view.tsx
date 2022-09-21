@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -11,16 +12,35 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
 
+// actions
+import { signAction } from '../BreakGlassActions.actions'
+
+const INIT_FORM = {
+  breakGlassActionID: '',
+}
+
 export const FormSignActionView: FC = () => {
-  const [form, setForm] = useState({ actionId: '' })
+  const dispatch = useDispatch()
+
+  const [form, setForm] = useState(INIT_FORM)
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    actionId: '',
+    breakGlassActionID: '',
   })
 
-  const { actionId } = form;
+  const { breakGlassActionID } = form;
 
-  const handleClickButton = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    try {
+      await dispatch(signAction(breakGlassActionID))
+      setForm(INIT_FORM)
+      setFormInputStatus({
+        breakGlassActionID: '',
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -40,21 +60,21 @@ export const FormSignActionView: FC = () => {
       <h1>Sign Action</h1>
       <p>Please enter valid function parameters for sign action</p>
 
-      <form className='form' onSubmit={handleClickButton}>
+      <form className='form' onSubmit={handleSubmit}>
         <div className="form-fields input-size-primary">
           <label>Break Glass Action ID</label>
 
           <Input
             type="text"
             required
-            value={actionId}
-            name="actionId"
+            value={breakGlassActionID}
+            name="breakGlassActionID"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.actionId}
+            inputStatus={formInputStatus.breakGlassActionID}
           />
         </div>
 
