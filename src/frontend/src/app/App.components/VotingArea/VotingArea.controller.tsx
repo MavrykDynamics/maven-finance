@@ -72,7 +72,7 @@ export const VotingProposalsArea = ({
     return (
       <VotingAreaStyled>
         <div className="voted-block">
-          <CommaNumber className="voted-label" value={selectedProposal.upvoteMvkTotal} endingText={'voted MVK'} />
+          <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
           <ConnectWallet />
         </div>
       </VotingAreaStyled>
@@ -83,7 +83,7 @@ export const VotingProposalsArea = ({
     return (
       <VotingAreaStyled>
         <div className="voted-block">
-          <CommaNumber className="voted-label" value={selectedProposal.upvoteMvkTotal} endingText={'voted MVK'} />
+          <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
         </div>
       </VotingAreaStyled>
     )
@@ -93,7 +93,7 @@ export const VotingProposalsArea = ({
     return (
       <VotingAreaStyled>
         <div className="voted-block">
-          <CommaNumber className="voted-label" value={selectedProposal.upvoteMvkTotal} endingText={'voted MVK'} />
+          <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
           <Button
             text={'Vote for this Proposal'}
             onClick={() => handleProposalVote(Number(selectedProposal.id))}

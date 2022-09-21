@@ -17,46 +17,50 @@ export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
 export const SET_PAST_PROPOSALS = 'SET_PAST_PROPOSALS'
 export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
+  try {
+    const storage = await fetchFromIndexer(
+      GOVERNANCE_STORAGE_QUERY,
+      GOVERNANCE_STORAGE_QUERY_NAME,
+      GOVERNANCE_STORAGE_QUERY_VARIABLE,
+    )
 
-  const storage = await fetchFromIndexer(
-    GOVERNANCE_STORAGE_QUERY,
-    GOVERNANCE_STORAGE_QUERY_NAME,
-    GOVERNANCE_STORAGE_QUERY_VARIABLE,
-  )
+    const convertedStorage = normalizeGovernanceStorage(storage)
 
-  const convertedStorage = normalizeGovernanceStorage(storage)
+    dispatch({
+      type: GET_GOVERNANCE_STORAGE,
+      governanceStorage: convertedStorage,
+    })
 
-  dispatch({
-    type: GET_GOVERNANCE_STORAGE,
-    governanceStorage: convertedStorage,
-  })
-
-  dispatch({
-    type: SET_GOVERNANCE_PHASE,
-    phase: convertedStorage.currentRound,
-  })
-  dispatch({ type: SET_PAST_PROPOSALS, pastProposals: convertedStorage.proposalLedger })
+    dispatch({
+      type: SET_GOVERNANCE_PHASE,
+      phase: convertedStorage.currentRound,
+    })
+    dispatch({ type: SET_PAST_PROPOSALS, pastProposals: convertedStorage.proposalLedger })
+  } catch (e) {
+    console.error('getGovernanceStorage error: ', e)
+  }
 }
 
 export const GET_CURRENT_ROUND_PROPOSALS = 'GET_CURRENT_ROUND_PROPOSALS'
 export const getCurrentRoundProposals = () => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
+  try {
+    const storage = await fetchFromIndexer(
+      CURRENT_ROUND_PROPOSALS_QUERY,
+      CURRENT_ROUND_PROPOSALS_QUERY_NAME,
+      CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE,
+    )
+    console.log('%c ||||| storage.governance_proposal', 'color:yellowgreen', storage.governance_proposal)
+    const currentRoundProposals = normalizeProposals(storage.governance_proposal)
 
-  const storage = await fetchFromIndexer(
-    CURRENT_ROUND_PROPOSALS_QUERY,
-    CURRENT_ROUND_PROPOSALS_QUERY_NAME,
-    CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE,
-  )
-  console.log('%c ||||| storage.governance_proposal', 'color:yellowgreen', storage.governance_proposal)
-  const currentRoundProposals = normalizeProposals(storage.governance_proposal)
+    console.log('%c ||||| currentRoundProposals', 'color:yellowgreen', currentRoundProposals)
 
-  console.log('%c ||||| currentRoundProposals', 'color:yellowgreen', currentRoundProposals)
-
-  dispatch({
-    type: GET_CURRENT_ROUND_PROPOSALS,
-    currentRoundProposals,
-  })
+    dispatch({
+      type: GET_CURRENT_ROUND_PROPOSALS,
+      currentRoundProposals,
+    })
+  } catch (e) {
+    console.error('getCurrentRoundProposals error: ', e)
+  }
 }
 
 export const PROPOSAL_ROUND_VOTING_REQUEST = 'PROPOSAL_ROUND_VOTING_REQUEST'
@@ -97,8 +101,9 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: AppDis
 
     dispatch(getGovernanceStorage())
   } catch (error) {
+    console.error('proposalRoundVote error: ', error)
+
     if (error instanceof Error) {
-      console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
     dispatch({
