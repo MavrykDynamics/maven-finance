@@ -50,6 +50,6 @@ export type FarmContractType = {
   codeHash: number
 }
 
-export type FarmStorage = ReturnType<typeof normalizeFarmStorage>
+export type FarmStorage = Awaited<ReturnType<typeof normalizeFarmStorage>>
 
 export type FarmGraphQL = Omit<Farm, '__typename'>
