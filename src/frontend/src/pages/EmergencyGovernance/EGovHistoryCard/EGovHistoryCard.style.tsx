@@ -1,13 +1,7 @@
-import styled from "styled-components/macro";
-import {
-  Card,
-  royalPurpleColor,
-  cyanColor,
-  boxShadowColor,
-  CardHover,
-} from "styles";
+import styled from 'styled-components/macro'
+import { Card, royalPurpleColor, cyanColor, boxShadowColor, CardHover } from 'styles'
 
-import { MavrykTheme } from "../../../styles/interfaces";
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const EGovHistoryCardStyled = styled(CardHover)`
   width: 100%;
@@ -17,17 +11,17 @@ export const EGovHistoryCardStyled = styled(CardHover)`
   padding: 0;
   cursor: pointer;
   overflow: hidden;
-`;
+`
 export const EGovHistoryCardTopSection = styled.div<{
-  height: number;
-  theme: MavrykTheme;
+  height: number
+  theme: MavrykTheme
 }>`
   width: 100%;
   display: grid;
   grid-template-columns: 180px 260px 150px auto 130px;
   padding: 20px 40px;
   padding-right: 26px;
-`;
+`
 
 export const EGovHistoryArrowButton = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
@@ -42,7 +36,7 @@ export const EGovHistoryArrowButton = styled.div<{ theme: MavrykTheme }>`
     stroke-width: 5px;
     fill: none;
   }
-`;
+`
 
 export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -80,11 +74,11 @@ export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
     margin-left: auto;
     justify-content: center;
   }
-`;
+`
 
 export const EGovHistoryCardDropDown = styled.div<{
-  height: number;
-  theme: MavrykTheme;
+  height: number
+  theme: MavrykTheme
 }>`
   width: 100%;
   height: 0;
@@ -121,7 +115,7 @@ export const EGovHistoryCardDropDown = styled.div<{
   }
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     border-top: 1px solid ${royalPurpleColor};
     width: 100%;
@@ -141,6 +135,12 @@ export const EGovHistoryCardDropDown = styled.div<{
     aside {
       margin-top: 20px;
       margin-bottom: 32px;
+
+      > div {
+        .text {
+          transform: translateX(-40%);
+        }
+      }
     }
   }
 
@@ -150,4 +150,4 @@ export const EGovHistoryCardDropDown = styled.div<{
   &.hide {
     height: 0; /* changed */
   }
-`;
+`

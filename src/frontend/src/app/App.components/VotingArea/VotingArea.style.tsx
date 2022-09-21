@@ -9,6 +9,7 @@ export const VotingAreaStyled = styled.article`
   align-items: center;
   font-weight: 600;
   margin-bottom: 48px;
+  flex-direction: column;
 
   > button {
     max-width: 40%;
@@ -33,10 +34,6 @@ export const VotingAreaStyled = styled.article`
     font-size: 18px;
     line-height: 18px;
   }
-
-  &.FRVoting {
-    margin-bottom: 24px;
-  }
 `
 
 export const VotingButtonsContainer = styled.div`
@@ -50,6 +47,7 @@ export const VotingButtonsContainer = styled.div`
     width: 29%;
   }
 
+  // TODO: check if need it
   &.PROPOSAL {
     > button {
       width: 40%;
