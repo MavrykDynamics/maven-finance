@@ -1,16 +1,20 @@
-import { getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { State } from 'reducers'
-import { toggleRPCNodePopup } from '../SettingsPopup/SettingsPopup.actions'
 
-import { getHeadData } from './Menu.actions'
+// view
 import { MenuView } from './Menu.view'
+
+// actions
+import { getHeadData } from './Menu.actions'
+import { toggleRPCNodePopup } from '../SettingsPopup/SettingsPopup.actions'
+import { getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
+
+// types
+import { State } from 'reducers'
 
 export const Menu = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
-  const { ready, accountPkh } = useSelector((state: State) => state.wallet)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
 
   async function initialDispatches(accountPkh?: string) {
     if (accountPkh) {
@@ -26,12 +30,5 @@ export const Menu = () => {
 
   const openChangeNodePopup = useCallback(() => dispatch(toggleRPCNodePopup(true)), [])
 
-  return (
-    <MenuView
-      loading={loading}
-      accountPkh={accountPkh}
-      ready={ready}
-      openChangeNodePopupHandler={openChangeNodePopup}
-    />
-  )
+  return <MenuView accountPkh={accountPkh} openChangeNodePopupHandler={openChangeNodePopup} />
 }

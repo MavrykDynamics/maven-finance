@@ -1,6 +1,14 @@
+import React, { useEffect, useMemo, useState } from 'react'
+import useCollapse from 'react-collapsed'
+import { useSelector } from 'react-redux'
+import { Link, matchPath } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+
+// types
 import { State } from '../../../../reducers'
-import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
 import { SubNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
+
+// styles
 import {
   NavigationLinkContainer,
   NavigationLinkIcon,
@@ -9,11 +17,20 @@ import {
   SubLinkText,
   SubNavLink,
 } from './NavigationLink.style'
+
+// costants
+import { isSubLinkShown } from './NavigationLink.constants'
+
+// view
 import Icon from 'app/App.components/Icon/Icon.view'
-import useCollapse from 'react-collapsed'
-import { useSelector } from 'react-redux'
-import { Link, matchPath } from 'react-router-dom'
-import { useLocation } from 'react-router-dom'
+
+const Sublink = ({ subNavLink, isSelected }: { subNavLink: SubNavigationRoute; isSelected: boolean }) => (
+  <SubNavLink>
+    <Link to={`/${subNavLink.subPath}`}>
+      <SubLinkText selected={isSelected}>{subNavLink.subTitle}</SubLinkText>
+    </Link>
+  </SubNavLink>
+)
 
 type NavigationLinkProps = {
   title: string
@@ -21,11 +38,9 @@ type NavigationLinkProps = {
   path: string
   icon?: string
   subPages?: SubNavigationRoute[]
-  handleToggle: () => void
-  selectedMainLink: boolean
-  showSubPages: boolean
+  selectedMainLink: number
   isMobMenuExpanded: boolean
-  accountPkh: string | undefined
+  accountPkh?: string
 }
 
 export const NavigationLink = ({
@@ -34,25 +49,35 @@ export const NavigationLink = ({
   path,
   icon,
   subPages,
-  handleToggle,
   selectedMainLink,
-  showSubPages,
   isMobMenuExpanded,
   accountPkh,
 }: NavigationLinkProps) => {
   const location = useLocation()
+  const {
+    delegationStorage: { satelliteLedger },
+  } = useSelector((state: State) => state.delegation)
 
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const satelliteLedger = delegationStorage?.satelliteLedger
+  const [showSubPages, setShowSubPages] = useState<boolean>(false)
 
-  // TODO: clarify it with Sam
-  const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: selectedMainLink })
-  const handleClick = () => handleToggle()
+  const isMainLinkDisabled = useMemo(() => {
+    const paths = [path].concat(subPages?.map(({ subPath }) => subPath) || [])
+    return paths.find((path) => Boolean(matchPath(location.pathname, { path: `/${path}`, exact: true, strict: true })))
+  }, [location.pathname])
+
+  useEffect(() => {
+    setShowSubPages(id === selectedMainLink)
+  }, [selectedMainLink])
+
+  const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: showSubPages })
 
   const mainLink = (
-    <Link to={`/${path}`}>
+    <Link
+      to={`/${path}`}
+      onClick={(e: React.MouseEvent | React.TouchEvent) => isMainLinkDisabled && e.preventDefault()}
+    >
       {icon && (
-        <NavigationLinkIcon selected={selectedMainLink} className="navLinkIcon">
+        <NavigationLinkIcon selected={selectedMainLink === id} className="navLinkIcon">
           <Icon id={icon} />
         </NavigationLinkIcon>
       )}
@@ -64,15 +89,15 @@ export const NavigationLink = ({
     return (
       <NavigationLinkContainer
         className={'collapsible'}
-        selected={selectedMainLink}
+        selected={selectedMainLink === id}
         isMobMenuExpanded={isMobMenuExpanded}
         key={id}
       >
         <NavigationLinkItem
-          selected={selectedMainLink}
+          selected={selectedMainLink === id}
           isMobMenuExpanded={isMobMenuExpanded}
           className="header"
-          {...getToggleProps({ onClick: handleClick })}
+          {...getToggleProps({ onClick: () => setShowSubPages(!showSubPages) })}
         >
           {mainLink}
         </NavigationLinkItem>
@@ -80,46 +105,14 @@ export const NavigationLink = ({
           <div {...getCollapseProps()}>
             <NavigationSubLinks className="content">
               {subPages.map((subNavLink: SubNavigationRoute) => {
-                const key = String(subNavLink.id)
                 const selectedSubLink = Boolean(
                   matchPath(location.pathname, { path: subNavLink.routeSubPath, exact: true, strict: true }),
                 )
+                const showSublink = isSubLinkShown(subNavLink, satelliteLedger, accountPkh)
 
-                if (subNavLink.requires) {
-                  const { isSatellite, isVestee } = subNavLink.requires
-                  let accountIsAuthorized = false
-
-                  if (isSatellite) {
-                    const accountPkhIsSatellite = satelliteLedger?.filter(
-                      (satellite: SatelliteRecord) => satellite.address === accountPkh,
-                    )[0]
-                    accountIsAuthorized = accountPkhIsSatellite !== undefined
-                  } else if (isVestee) {
-                    const accountPkhIsSatellite = satelliteLedger?.filter(
-                      (satellite: SatelliteRecord) => satellite.address === accountPkh,
-                    )[0]
-                    accountIsAuthorized = accountPkhIsSatellite !== undefined
-                  }
-                  if (accountIsAuthorized) {
-                    return (
-                      <SubNavLink key={key}>
-                        <Link to={`/${subNavLink.subPath}`}>
-                          <SubLinkText selected={selectedSubLink}>{subNavLink.subTitle}</SubLinkText>
-                        </Link>
-                      </SubNavLink>
-                    )
-                  }
-
-                  return null
-                } else {
-                  return (
-                    <SubNavLink key={key}>
-                      <Link to={`/${subNavLink.subPath}`}>
-                        <SubLinkText selected={selectedSubLink}>{subNavLink.subTitle}</SubLinkText>
-                      </Link>
-                    </SubNavLink>
-                  )
-                }
+                return showSublink ? (
+                  <Sublink key={subNavLink.id} subNavLink={subNavLink} isSelected={selectedSubLink} />
+                ) : null
               })}
             </NavigationSubLinks>
           </div>
@@ -129,13 +122,8 @@ export const NavigationLink = ({
   }
 
   return (
-    <NavigationLinkContainer
-      key={id}
-      selected={selectedMainLink}
-      isMobMenuExpanded={isMobMenuExpanded}
-      onClick={handleClick}
-    >
-      <NavigationLinkItem selected={selectedMainLink} isMobMenuExpanded={isMobMenuExpanded}>
+    <NavigationLinkContainer key={id} selected={selectedMainLink === id} isMobMenuExpanded={isMobMenuExpanded}>
+      <NavigationLinkItem selected={selectedMainLink === id} isMobMenuExpanded={isMobMenuExpanded}>
         {mainLink}
       </NavigationLinkItem>
     </NavigationLinkContainer>
