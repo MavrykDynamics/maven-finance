@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -11,17 +12,38 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 // styles
 import { FormStyled } from './BreakGlassActionsForm.style'
 
+// actions
+import { setSingleContractAdmin } from '../BreakGlassActions.actions'
+
+const INIT_FORM = {
+  newAdminAddress: '',
+  targetContract: '',
+}
+
 export const FormSetSingleContractAdminView: FC = () => {
-  const [form, setForm] = useState({ newAddress: '', targetContract: '' })
+  const dispatch = useDispatch()
+
+  const [form, setForm] = useState(INIT_FORM)
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    newAddress: '',
+    newAdminAddress: '',
     targetContract: '',
   })
 
-  const { newAddress, targetContract } = form;
+  const { newAdminAddress, targetContract } = form;
 
-  const handleClickButton = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    try {
+      await dispatch(setSingleContractAdmin(newAdminAddress, targetContract))
+      setForm(INIT_FORM)
+      setFormInputStatus({
+        newAdminAddress: '',
+        targetContract: '',
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -41,21 +63,21 @@ export const FormSetSingleContractAdminView: FC = () => {
       <h1>Set Single Contract Admin</h1>
       <p>Please enter valid function parameters for adding a vestee</p>
 
-      <form className='form' onSubmit={handleClickButton}>
+      <form className='form' onSubmit={handleSubmit}>
         <div className="form-fields input-size-primary">
           <label>New Admin Address</label>
           <Input
             className="margin-bottom-20"
             type="text"
             required
-            value={newAddress}
-            name="newAddress"
+            value={newAdminAddress}
+            name="newAdminAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.newAddress}
+            inputStatus={formInputStatus.newAdminAddress}
           />
 
           <label>Target Contract</label>

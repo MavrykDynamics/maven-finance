@@ -15,7 +15,7 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 import { FormStyled } from './BreakGlassActionsForm.style'
 
 // actions
-import { addCouncilMember } from 'pages/BreakGlassActions/BreakGlassActions.actions'
+import { updateCouncilMember } from '../BreakGlassActions.actions'
 
 const INIT_FORM = {
   memberAddress: '',
@@ -24,7 +24,7 @@ const INIT_FORM = {
   newMemberImage: '',
 }
 
-export const FormAddCouncilMemberView: FC = () => {
+export const FormUpdateCouncilMemberView: FC = () => {
   const dispatch = useDispatch()
 
   const [uploadKey, setUploadKey] = useState(1)
@@ -44,7 +44,7 @@ export const FormAddCouncilMemberView: FC = () => {
     e.preventDefault()
 
     try {
-      await dispatch(addCouncilMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage))
+      await dispatch(updateCouncilMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage))
       setForm(INIT_FORM)
       setFormInputStatus({
         memberAddress: '',
@@ -77,8 +77,8 @@ export const FormAddCouncilMemberView: FC = () => {
         <Icon id="question" />
       </a>
 
-      <h1>Add Council Member</h1>
-      <p>Please enter valid function parameters for adding a council member</p>
+      <h1>Update Council Member Info</h1>
+      <p>Please enter valid function parameters for adding council member info</p>
 
       <form onSubmit={handleSubmit}>
         <div className="form-fields in-two-columns">
@@ -147,9 +147,9 @@ export const FormAddCouncilMemberView: FC = () => {
         <div className='align-to-right'>
           <Button
             className="stroke-01"
-            text={'Add Council Member'}
+            text={'Update Council Member'}
             kind={ACTION_PRIMARY}
-            icon={'plus'}
+            icon={'upload'}
             type="submit"
           />
         </div>
