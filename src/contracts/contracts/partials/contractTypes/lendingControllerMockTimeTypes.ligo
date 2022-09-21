@@ -43,6 +43,7 @@ type lendingControllerBreakGlassConfigType is record [
     
     // Lending Controller Token Pool Entrypoints
     setLoanTokenIsPaused                : bool;
+    updateLoanTokenIsPaused             : bool;
     addLiquidityIsPaused                : bool;
     removeLiquidityIsPaused             : bool;
 
@@ -222,6 +223,23 @@ type setLoanTokenActionType is [@layout:comb] record [
 ]
 
 
+type updateLoanTokenActionType is [@layout:comb] record [
+
+    tokenName                               : string;
+
+    oracleType                              : string;
+    oracleAddress                           : address;
+
+    reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
+    optimalUtilisationRate                  : nat;  // kink point
+    baseInterestRate                        : nat;  // base interest rate
+    maxInterestRate                         : nat;  // max interest rate
+    interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
+    interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
+    minRepaymentAmount                      : nat; 
+]
+
+
 type updateCollateralTokenActionType is [@layout:comb] record [
 
     tokenName               : string;
@@ -308,6 +326,7 @@ type lendingControllerPausableEntrypointType is
 
         // Lending Controller Token Pool Entrypoints
     |   SetLoanToken                of bool
+    |   UpdateLoanToken             of bool
     |   AddLiquidity                of bool
     |   RemoveLiquidity             of bool
 
@@ -368,6 +387,7 @@ type lendingControllerLambdaActionType is
 
         // Token Pool Entrypoints
     |   LambdaSetLoanToken                    of setLoanTokenActionType  
+    |   LambdaUpdateLoanToken                 of updateLoanTokenActionType  
     |   LambdaAddLiquidity                    of addLiquidityActionType
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
@@ -383,10 +403,10 @@ type lendingControllerLambdaActionType is
     |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
-    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
-    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
-    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
+    // |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
+    // |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
+    // |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
+    // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
 
 
 // ------------------------------------------------------------------------------

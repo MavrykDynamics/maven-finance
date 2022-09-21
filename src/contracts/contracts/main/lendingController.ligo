@@ -59,6 +59,7 @@ type lendingControllerAction is
 
         // Token Pool Entrypoints
     |   SetLoanToken                    of setLoanTokenActionType
+    |   UpdateLoanToken                 of updateLoanTokenActionType
     |   AddLiquidity                    of addLiquidityActionType
     |   RemoveLiquidity                 of removeLiquidityActionType 
 
@@ -126,8 +127,8 @@ const fpa10e5 : nat = 1_000_00n;                                // 10^5
 const fpa10e4 : nat = 1_000_0n;                                 // 10^4
 const fpa10e3 : nat = 1_000n;                                   // 10^3
 
-// const minBlockTime              : nat   = Tezos.get_min_block_time();
-// const blocksPerMinute           : nat   = 60n / minBlockTime;
+const minBlockTime              : nat   = Tezos.get_min_block_time();
+const blocksPerMinute           : nat   = 60n / minBlockTime;
 // const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
 // const blocksPerYear             : nat   = blocksPerDay * 365n;
 
@@ -229,6 +230,13 @@ function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
 // helper function to check that the %setLoanToken entrypoint is not paused
 function checkSetLoanTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
     if s.breakGlassConfig.setLoanTokenIsPaused then failwith(error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %updatLoanToken entrypoint is not paused
+function checkUpdateLoanTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.updateLoanTokenIsPaused then failwith(error_UPDATE_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
     else unit;
 
 
@@ -575,7 +583,7 @@ block {
         lastUpdatedBlockLevel       = Tezos.get_level();
         lastUpdatedTimestamp        = Tezos.get_now();
 
-        markedForLiquidationTimestamp = defaultTimestamp;
+        markedForLiquidationLevel   = 0n;
     ];
     
 } with vaultRecord
@@ -851,70 +859,6 @@ block {
 
 
 
-// helper function to rebase loan token decimals
-function rebaseLoanTokenValue(const tokenValueRaw : nat; const rebaseDecimals : nat) : nat is 
-block {
-
-    var tokenValueRebased : nat := tokenValueRaw;
-
-    if rebaseDecimals = 1n then 
-        tokenValueRebased := tokenValueRebased * 10n
-    else if rebaseDecimals = 2n then 
-        tokenValueRebased := tokenValueRebased * 100n 
-    else if rebaseDecimals = 3n then 
-        tokenValueRebased := tokenValueRebased * 1000n 
-    else if rebaseDecimals = 4n then 
-        tokenValueRebased := tokenValueRebased * fpa10e4  
-    else if rebaseDecimals = 5n then 
-        tokenValueRebased := tokenValueRebased * fpa10e5
-    else if rebaseDecimals = 6n then 
-        tokenValueRebased := tokenValueRebased * fpa10e6
-    else if rebaseDecimals = 7n then 
-        tokenValueRebased := tokenValueRebased * fpa10e7
-    else if rebaseDecimals = 8n then 
-        tokenValueRebased := tokenValueRebased * fpa10e8
-    else if rebaseDecimals = 9n then 
-        tokenValueRebased := tokenValueRebased * fpa10e9
-    else if rebaseDecimals = 10n then 
-        tokenValueRebased := tokenValueRebased * fpa10e10
-    else if rebaseDecimals = 11n then 
-        tokenValueRebased := tokenValueRebased * fpa10e11
-    else if rebaseDecimals = 12n then 
-        tokenValueRebased := tokenValueRebased * fpa10e12
-    else if rebaseDecimals = 13n then 
-        tokenValueRebased := tokenValueRebased * fpa10e13
-    else if rebaseDecimals = 14n then 
-        tokenValueRebased := tokenValueRebased * fpa10e14
-    else if rebaseDecimals = 15n then 
-        tokenValueRebased := tokenValueRebased * fpa10e15
-    else if rebaseDecimals = 16n then 
-        tokenValueRebased := tokenValueRebased * fpa10e16
-    else if rebaseDecimals = 17n then 
-        tokenValueRebased := tokenValueRebased * fpa10e17
-    else if rebaseDecimals = 18n then 
-        tokenValueRebased := tokenValueRebased * fpa10e18
-    else if rebaseDecimals = 19n then 
-        tokenValueRebased := tokenValueRebased * fpa10e19
-    else if rebaseDecimals = 20n then 
-        tokenValueRebased := tokenValueRebased * fpa10e20
-    else if rebaseDecimals = 21n then 
-        tokenValueRebased := tokenValueRebased * fpa10e21
-    else if rebaseDecimals = 22n then 
-        tokenValueRebased := tokenValueRebased * fpa10e22
-    else if rebaseDecimals = 23n then 
-        tokenValueRebased := tokenValueRebased * fpa10e23
-    else if rebaseDecimals = 24n then 
-        tokenValueRebased := tokenValueRebased * fpa10e24
-    else if rebaseDecimals = 25n then 
-        tokenValueRebased := tokenValueRebased * fpa10e25
-    else if rebaseDecimals = 26n then 
-        tokenValueRebased := tokenValueRebased * fpa10e26
-    else failwith(error_REBASE_DECIMALS_OUT_OF_BOUNDS);    
-
-} with tokenValueRebased
-
-
-
 // helper function to get token last completed round price from oracle
 function getTokenLastCompletedRoundPriceFromOracle(const oracleAddress : address) : lastCompletedRoundPriceReturnType is 
 block {
@@ -930,7 +874,7 @@ block {
 
 
 
-// helper function to calculate token value rebased (to max decimals 1e32)
+// helper function to calculate collateral token value rebased (to max decimals 1e32)
 function calculateCollateralTokenValueRebased(const tokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
 block {
 
@@ -947,6 +891,39 @@ block {
     const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
     const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
     const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
+
+    // calculate required number of decimals to rebase each token to the same unit for comparison
+    // assuming most token decimals are 6, and most price decimals from oracle is 8 - (upper limit of 32 decimals)
+    if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
+    const rebaseDecimals : nat  = abs(maxDecimalsForCalculation - (tokenDecimals + priceDecimals));
+
+    // calculate raw value of collateral balance
+    const tokenValueRaw : nat = tokenBalance * tokenPrice;
+
+    // rebase token value to 1e32 (or 10^32)
+    const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);                
+
+} with tokenValueRebased
+
+
+
+// helper function to calculate loan token value rebased (to max decimals 1e32)
+function calculateLoanTokenValueRebased(const tokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
+block {
+
+    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
+
+    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[tokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+    // get last completed round price of token from Oracle view
+    const loanTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(loanTokenRecord.oracleAddress);
+    
+    const tokenDecimals    : nat  = loanTokenRecord.tokenDecimals; 
+    const priceDecimals    : nat  = loanTokenLastCompletedRoundPrice.decimals;
+    const tokenPrice       : nat  = loanTokenLastCompletedRoundPrice.price;            
 
     // calculate required number of decimals to rebase each token to the same unit for comparison
     // assuming most token decimals are 6, and most price decimals from oracle is 8 - (upper limit of 32 decimals)
@@ -990,20 +967,15 @@ function isUnderCollaterized(const vault : vaultRecordType; var s : lendingContr
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
-    const loanOutstandingTotal       : nat  = vault.loanOutstandingTotal;    
-    const loanDecimals               : nat  = vault.loanDecimals;
-    const collateralRatio            : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
-    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation;
+    const loanOutstandingTotal       : nat    = vault.loanOutstandingTotal;    
+    const loanTokenName              : string = vault.loanToken;
+    const collateralRatio            : nat    = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
 
-    // calculate loan outstanding rebase decimals (difference from max decimals 1e32)
-    const loanOutstandingRebaseDecimals : nat = abs(maxDecimalsForCalculation - loanDecimals);
-
-    // calculate loan outstanding rebased (1e32 or 10^32)
-    // todo: rebase EUR, Tez, to USD 
-    const loanOutstandingRebased : nat = rebaseTokenValue(loanOutstandingTotal, loanOutstandingRebaseDecimals);  
+    // calculate loan outstanding value rebased
+    const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
 
     // check is vault is under collaterized based on collateral ratio
     const isUnderCollaterized : bool = vaultCollateralValueRebased < (collateralRatio * loanOutstandingRebased) / 1000n;
@@ -1017,20 +989,15 @@ function isLiquidatable(const vault : vaultRecordType; var s : lendingController
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
-    const loanOutstandingTotal       : nat  = vault.loanOutstandingTotal;    
-    const loanDecimals               : nat  = vault.loanDecimals;
-    const liquidationRatio           : nat  = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
-    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation;
+    const loanOutstandingTotal       : nat    = vault.loanOutstandingTotal;    
+    const loanTokenName              : string = vault.loanToken;
+    const liquidationRatio           : nat    = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
 
-    // calculate loan outstanding rebase decimals (difference from max decimals 1e32)
-    const loanOutstandingRebaseDecimals : nat = abs(maxDecimalsForCalculation - loanDecimals);
-
-    // calculate loan outstanding rebased (1e32 or 10^32)
-    // todo: rebase EUR, Tez, to USD 
-    const loanOutstandingRebased : nat = rebaseTokenValue(loanOutstandingTotal, loanOutstandingRebaseDecimals);  
+    // calculate loan outstanding value rebased
+    const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
 
     // check is vault is liquidatable based on liquidation ratio
     const isLiquidatable : bool = vaultCollateralValueRebased < (liquidationRatio * loanOutstandingRebased) / 1000n;
@@ -1615,6 +1582,25 @@ block {
 
 
 
+(* updateLoanToken entrypoint *)
+function updateLoanToken(const updateLoanTokenParams : updateLoanTokenActionType; var s : lendingControllerStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateLoanToken"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateLoanToken(updateLoanTokenParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+
+
 (* addLiquidity entrypoint *)
 function addLiquidity(const addLiquidityParams : addLiquidityActionType; var s : lendingControllerStorageType) : return is 
 block {
@@ -1917,6 +1903,7 @@ function main (const action : lendingControllerAction; const s : lendingControll
 
             // Token Pool Entrypoints
         |   SetLoanToken(parameters)                      -> setLoanToken(parameters, s)
+        |   UpdateLoanToken(parameters)                   -> updateLoanToken(parameters, s)
         |   AddLiquidity(parameters)                      -> addLiquidity(parameters, s)
         |   RemoveLiquidity(parameters)                   -> removeLiquidity(parameters, s)
         
