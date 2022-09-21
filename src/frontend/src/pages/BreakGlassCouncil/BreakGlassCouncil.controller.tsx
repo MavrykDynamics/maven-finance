@@ -1,4 +1,5 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useState, useMemo } from 'react'
+import { useLocation } from 'react-router'
 
 // components
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
@@ -8,9 +9,16 @@ import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { CouncilPendingView } from '../Council/CouncilPending/CouncilPending.view'
 import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
+import { 
+  BREAK_GLASS_PAST_COUNCIL_ACTIONS, 
+  BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS,
+  calculateSlicePositions,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 
 // styles
 import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack } from './BreakGlassCouncil.style'
@@ -128,6 +136,21 @@ export const BreakGlassCouncil: FC = () => {
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(true)
 
+  const { search } = useLocation()
+  const currentPage = getPageNumber(
+    search, isGoBack ? BREAK_GLASS_PAST_COUNCIL_ACTIONS : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS
+  )
+
+  const paginatedMyPastCouncilActions= useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS)
+    return mockHistory?.slice(from, to)
+  }, [currentPage, mockHistory])
+
+  const paginatedPastBreakGlassCouncilActions= useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_PAST_COUNCIL_ACTIONS)
+    return mockHistory?.slice(from, to)
+  }, [currentPage, mockHistory])
+
   return (
     <Page>
       <PageHeader page={'break glass council'} />
@@ -168,7 +191,7 @@ export const BreakGlassCouncil: FC = () => {
           {isGoBack ? 
           <>
             <h1>Past Break Glass Council Actions</h1>
-            {[...mockHistory, ...mockHistory].map((item) => (
+            {paginatedPastBreakGlassCouncilActions.map((item) => (
               <CouncilPastActionView
                 execution_datetime={item.execution_datetime}
                 key={item.id}
@@ -178,10 +201,15 @@ export const BreakGlassCouncil: FC = () => {
                 council_id={item.council_id}
               />
             ))}
+
+            <Pagination
+              itemsCount={mockHistory.length}
+              listName={BREAK_GLASS_PAST_COUNCIL_ACTIONS}
+            />
           </> : 
           <>
             <h1>My Past Council Actions</h1>
-            {mockHistory.map((item) => (
+            {paginatedMyPastCouncilActions.map((item) => (
               <CouncilPastActionView
                 execution_datetime={item.execution_datetime}
                 key={item.id}
@@ -191,6 +219,11 @@ export const BreakGlassCouncil: FC = () => {
                 council_id={item.council_id}
               />
             ))}
+
+            <Pagination
+              itemsCount={mockHistory.length}
+              listName={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS}
+            />  
           </>}
         </div>
 
