@@ -93,7 +93,6 @@ export const GovernanceView = ({
   const [votingEnding, setVotingEnding] = useState<string>('')
   const [visibleMeta, setVisibleMeta] = useState<string>('')
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
-  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
 
   const findUserCurrentRoundProposal = useMemo(
