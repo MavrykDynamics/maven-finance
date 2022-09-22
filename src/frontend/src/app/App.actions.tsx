@@ -64,7 +64,7 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const oraclesStorage = normalizeOracle(res[10])
   const breakGlassCouncilMember = normalizeBreakGlassCouncilMember(res[11])
   const breakGlassAction = normalizeBreakGlassAction(res[12])
-  const pastBreakGlassCouncilAction = res[13] // TODO: add normalizeBreakGlassAction
+  const pastBreakGlassCouncilAction = normalizeBreakGlassAction(res[13])
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
   dispatch({
