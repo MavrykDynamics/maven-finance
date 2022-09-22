@@ -27,13 +27,16 @@ import {
 } from './SatelliteDetails.style'
 import { EmptyContainer } from '../../app/App.style'
 import { SatelliteListItem } from 'pages/Satellites/SatelliteList/ListCards/SateliteCard.view'
+import { UserSatelliteRewardsData } from 'utils/TypesAndInterfaces/User'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (address: string) => void
   undelegateCallback: () => void
+  claimRewardsCallback: () => void
   userStakedBalanceInSatellite: number
+  userSatelliteReward: UserSatelliteRewardsData
 }
 
 const renderVotingHistoryItem = (item: SatelliteProposalVotingHistory | SatelliteFinancialRequestVotingHistory) => {
@@ -67,7 +70,9 @@ export const SatelliteDetailsView = ({
   loading,
   delegateCallback,
   undelegateCallback,
+  claimRewardsCallback,
   userStakedBalanceInSatellite: myDelegatedMVK,
+  userSatelliteReward,
 }: SatelliteDetailsViewProps) => {
   const { satelliteId } = useParams<{ satelliteId: string }>()
   const { user } = useSelector((state: State) => state.user)
@@ -84,13 +89,13 @@ export const SatelliteDetailsView = ({
       ) : isSatellite ? (
         <SatelliteListItem
           satellite={satellite}
-          loading={loading}
           delegateCallback={delegateCallback}
           undelegateCallback={undelegateCallback}
-          claimRewardsCallback={(address: string) => console.log('claim rewards from: ', address)}
+          claimRewardsCallback={claimRewardsCallback}
           userStakedBalance={myDelegatedMVK}
           satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
           isDetailsPage={true}
+          userHasSatelliteRewards={userSatelliteReward.myAvailableSatelliteRewards > 0}
         >
           <SatelliteCardBottomRow>
             <SatelliteDescrBlock>
