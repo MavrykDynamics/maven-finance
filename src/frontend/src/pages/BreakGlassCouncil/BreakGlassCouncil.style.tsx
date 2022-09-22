@@ -1,5 +1,6 @@
 import styled from "styled-components/macro"
 import { Page as PageBase, Card, royalPurpleColor, textsColor, headerColor, skyColor } from "styles"
+import ModalPopupBase from '../../app/App.components/Modal/ModalPopup.view'
 
 import { MavrykTheme } from "../../styles/interfaces";
 
@@ -106,4 +107,8 @@ export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
   .dropdown-size {
     width: 440px;
   }
+`
+
+export const ModalPopup = styled(ModalPopupBase)`
+  padding: 0;
 `
