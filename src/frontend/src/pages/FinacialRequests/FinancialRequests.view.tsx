@@ -112,6 +112,8 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
     dispatch(votingRoundVote(voteType))
   }
 
+  console.log('rightSideContent', rightSideContent)
+
   const RightSideBlock = () =>
     rightSideContent ? (
       <FinancialRequestsRightContainer>
@@ -124,9 +126,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
         <div className="voting_ending">
           Voting {rightItemStatus !== ProposalStatus.ONGOING ? 'ended' : 'ending'} on{' '}
           {getDate_MDHMTZ_Format(
-            (rightItemStatus !== ProposalStatus.ONGOING
-              ? rightSideContent.execution_datetime
-              : rightSideContent.expiration_datetime) as string,
+            (rightSideContent.execution_datetime || rightSideContent.expiration_datetime) as string,
           )}
         </div>
 
