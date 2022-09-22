@@ -1,4 +1,3 @@
-import moment from 'moment'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -38,6 +37,7 @@ import { cyanColor, downColor, Page, upColor } from 'styles'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
 import { parseData } from 'utils/time'
+import dayjs from 'dayjs'
 
 type FeedDetailsProps = {
   feed: FeedGQL | null
@@ -65,7 +65,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
 
   const isTrustedAnswer = feed && feed.last_completed_price_pct_oracle_resp >= feed.pct_oracle_threshold
   const heartbeatUpdateInfo =
-    moment(Date.now()).diff(moment(feed?.last_completed_price_datetime), 'minutes') >= 30
+    dayjs(Date.now()).diff(dayjs(feed?.last_completed_price_datetime), 'minutes') >= 30
       ? `
   Price feed is outdated, missed the schedule price update at ${parseData({
     time: new Date(feed?.last_completed_price_datetime || '').getTime() + 1000 * 60 * 30,
