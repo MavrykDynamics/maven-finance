@@ -1,5 +1,4 @@
 // consts, helpers
-import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { USER_DATA_FEEDS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
@@ -20,6 +19,7 @@ import { DropDown, DropdownItemType } from 'app/App.components/DropDown/DropDown
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
 import { useState } from 'react'
+import { parseData } from 'utils/time'
 
 const emptyContainer = (
   <EmptyContainer>
@@ -113,7 +113,7 @@ const UserDetailsView = ({
 
             <div className="item">
               <h5>User since</h5>
-              <var>{getDate_MDY_Format(user.creationDate as string)}</var>
+              <var>{parseData({ time: user.creationDate, timeFormat: 'MMM DD, YYYY' })}</var>
             </div>
           </div>
         </div>

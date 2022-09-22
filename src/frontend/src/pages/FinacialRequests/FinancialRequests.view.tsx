@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // helpers, actions
-import { distinctRequestsByExecuting, getDate_MDHMTZ_Format, getRequestStatus } from './FinancialRequests.helpers'
+import { distinctRequestsByExecuting, getRequestStatus } from './FinancialRequests.helpers'
 import {
   ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST,
   PAST_REQUESTS_FINANCIAL_REQUESTS_LIST,
@@ -34,6 +34,7 @@ import {
   InfoBlockTitle,
 } from './FinancialRequests.style'
 import { EmptyContainer } from 'app/App.style'
+import { parseData } from 'utils/time'
 
 type FinancialRequestsViewProps = {
   financialRequestsList: GovernanceFinancialRequestGraphQL[]
@@ -112,8 +113,6 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
     dispatch(votingRoundVote(voteType))
   }
 
-  console.log('rightSideContent', rightSideContent)
-
   const RightSideBlock = () =>
     rightSideContent ? (
       <FinancialRequestsRightContainer>
@@ -125,9 +124,10 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
 
         <div className="voting_ending">
           Voting {rightItemStatus !== ProposalStatus.ONGOING ? 'ended' : 'ending'} on{' '}
-          {getDate_MDHMTZ_Format(
-            (rightSideContent.execution_datetime || rightSideContent.expiration_datetime) as string,
-          )}
+          {parseData({
+            time: rightSideContent.execution_datetime || rightSideContent.expiration_datetime,
+            timeFormat: 'MMM DD, HH:mm:ss',
+          })}
         </div>
 
         <VotingArea
@@ -190,7 +190,9 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
 
         <div className="info_section">
           <InfoBlockTitle>Date Requested</InfoBlockTitle>
-          <InfoBlockDescr>{getDate_MDHMTZ_Format(rightSideContent.requested_datetime as string)}</InfoBlockDescr>
+          <InfoBlockDescr>
+            {parseData({ time: rightSideContent.requested_datetime, timeFormat: 'MMM DD, HH:mm:ss' })}
+          </InfoBlockDescr>
         </div>
 
         <div className="info_section">

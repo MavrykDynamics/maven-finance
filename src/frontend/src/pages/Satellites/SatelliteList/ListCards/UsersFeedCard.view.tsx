@@ -1,7 +1,7 @@
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 import { Link } from 'react-router-dom'
+import { parseData } from 'utils/time'
 
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
@@ -35,7 +35,7 @@ export const UserDataFeedCard = ({ feed }: { feed: FeedGQL }) => {
 
         <div className="item">
           <h5>Date</h5>
-          <var>{getDate_MDY_Format(feed.last_completed_price_datetime || Date.now().toLocaleString())}</var>
+          <var>{parseData({ time: feed.last_completed_price_datetime, timeFormat: 'MMM DD, YYYY' })}</var>
         </div>
       </SatelliteItemStyle>
     </Link>
