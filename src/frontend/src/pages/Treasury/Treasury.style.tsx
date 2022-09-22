@@ -84,6 +84,7 @@ export const TreasuryViewStyle = styled(Card)`
     color: ${skyColor};
     margin: 0;
     margin-top: 4px;
+    text-transform: uppercase;
   }
 
   .assets-block-tvl {

@@ -22,22 +22,9 @@ type Props = {
 export default function TreasuryView({ treasury, isGlobal = false, factoryAddress = '' }: Props) {
   const [hoveredPath, setHoveredPath] = useState<null | string>(null)
 
-  const reducedBalance = useMemo(
-    () =>
-      Number(
-        treasury.balances
-          .reduce((acc, treasuryBalanceObj) => {
-            acc += treasuryBalanceObj.usdValue || 0
-            return acc
-          }, 0)
-          .toFixed(3),
-      ),
-    [treasury.balances],
-  )
-
   const chartData = useMemo(() => {
-    return getPieChartData(treasury.balances, reducedBalance, hoveredPath)
-  }, [hoveredPath, reducedBalance, treasury.balances])
+    return getPieChartData(treasury.balances, treasury.treasuryTVL, hoveredPath)
+  }, [hoveredPath, treasury.treasuryTVL, treasury.balances])
 
   return (
     <TreasuryViewStyle>
@@ -46,7 +33,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
           {treasury.name ? <h1 title={treasury.name}>{treasury.name}</h1> : null}
           {isGlobal ? (
             <var>
-              <CommaNumber beginningText="$" value={reducedBalance} />
+              <CommaNumber beginningText="$" value={treasury.treasuryTVL} />
             </var>
           ) : null}
         </header>
@@ -61,7 +48,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
             <div className="assets-block assets-block-tvl">
               <p className="asset-name">TVL</p>
               <p className="asset-value">
-                <CommaNumber beginningText="$" value={reducedBalance} />
+                <CommaNumber beginningText="$" value={treasury.treasuryTVL} />
               </p>
               <div />
             </div>
@@ -75,16 +62,16 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
           <div style={{ paddingRight: treasury?.balances?.length > 4 ? 16 : 0 }} className="assets-map scroll-block">
             {treasury.balances.map((balanceValue) => {
               return (
-                <div className="assets-block assets-block-map" key={balanceValue.contract}>
+                <div className="assets-block assets-block-map" key={balanceValue.contract + balanceValue.symbol}>
                   <p className="asset-name">{balanceValue.symbol}</p>
                   <p className="asset-value">
-                    <CommaNumber value={balanceValue.balance} />
+                    <CommaNumber value={balanceValue.balance} useAccurateParsing />
                   </p>
                   <p className="asset-value right-text value">
                     {balanceValue.rate && balanceValue.usdValue ? (
-                      <CommaNumber beginningText="$" value={balanceValue.usdValue} />
+                      <CommaNumber beginningText="$" value={balanceValue.usdValue} useAccurateParsing />
                     ) : (
-                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} />
+                      <CommaNumber endingText={balanceValue.symbol} value={balanceValue.balance} useAccurateParsing />
                     )}
                   </p>
                 </div>
@@ -100,7 +87,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
         <div className="asset-lables scroll-block">
           {treasury.balances.map((balanceValue) => {
             const balanceSum = Number(balanceValue.usdValue)
-            const persentOfTheAsset = calcPersent(balanceSum, reducedBalance)
+            const persentOfTheAsset = calcPersent(balanceSum, treasury.treasuryTVL)
 
             return (
               <div
@@ -115,16 +102,12 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                   setHoveredPath(balanceValue.symbol)
                 }}
                 onMouseLeave={() => setHoveredPath(null)}
-                key={balanceValue.contract}
+                key={balanceValue.contract + balanceValue.symbol}
               >
                 <p className="asset-lable-text">
                   {balanceValue.symbol}
                   <span className="asset-persent">
-                    {persentOfTheAsset < 0.1 ? (
-                      '< 0.1 %'
-                    ) : (
-                      <CommaNumber endingText="%" value={persentOfTheAsset} useAccurateParsing />
-                    )}
+                    {persentOfTheAsset < 0.1 ? '< 0.1 %' : <CommaNumber endingText="%" value={persentOfTheAsset} />}
                   </span>
                 </p>
               </div>

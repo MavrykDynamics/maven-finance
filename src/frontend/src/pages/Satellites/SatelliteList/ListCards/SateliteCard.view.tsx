@@ -1,19 +1,21 @@
 //styles
 import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
 // consts, helpers, actions
-import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, ACTION_SECONDARY, PRIMARY, SECONDARY } from 'app/App.components/Button/Button.constants'
 // view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { RoutingButton } from 'app/App.components/RoutingButton/RoutingButton.controller'
-import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
+import { DOWN, WARNING } from 'app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
 import * as React from 'react'
 import { useSelector } from 'react-redux'
+
 // types
 import { State } from 'reducers'
+import { SatelliteStatus } from 'utils/TypesAndInterfaces/Delegation'
 
 import { SatelliteListItemProps } from '../../helpers/Satellites.types'
 import {
@@ -32,6 +34,18 @@ import {
   SideBySideImageAndText,
 } from './SatelliteCard.style'
 
+const renderVotingHistoryItem = (vote: number) => {
+  switch (vote){
+    case 1:
+      return <span className='voting-yes'>"YES"</span>
+    case 2: 
+      return <span className='voting-pass'>"PASS"</span>
+    
+    default:
+      return <span className='voting-no'>"NO"</span>
+  }
+}
+
 export const SatelliteListItem = ({
   satellite,
   loading,
@@ -45,15 +59,21 @@ export const SatelliteListItem = ({
 }: SatelliteListItemProps) => {
   const totalDelegatedMVK = satellite.totalDelegatedAmount
   const sMvkBalance = satellite.sMvkBalance
+  const freesMVKSpace = Math.max(sMvkBalance * satellite.delegationRatio - totalDelegatedMVK, 0)
 
   const {
     governanceStorage: { proposalLedger },
   } = useSelector((state: State) => state.governance)
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const { isSatellite } = useSelector((state: State) => state.user.user)
+  const { ready } = useSelector((state: State) => state.wallet)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const isSatelliteOracle = satellite.oracleRecords.length
+
+  const currentlySupportingProposalVote = satellite.proposalVotingHistory?.length
+  ? satellite.proposalVotingHistory[0].vote
+  : null
 
   const currentlySupportingProposalId = satellite.proposalVotingHistory?.length
     ? satellite.proposalVotingHistory[0].proposalId
@@ -69,16 +89,29 @@ export const SatelliteListItem = ({
   )
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
+  const satelliteStatusColor = satellite.status === SatelliteStatus.BANNED ? DOWN : WARNING
+  const isSatelliteInactive = satellite.status !== SatelliteStatus.ACTIVE
 
-  const showButtons = !isSatellite && satellite.status === 0
-  const buttonToShow = userIsDelegatedToThisSatellite ? (
-    <Button
-      text="Undelegate"
-      icon="man-close"
-      kind={ACTION_SECONDARY}
-      loading={loading}
-      onClick={() => undelegateCallback()}
-    />
+  const buttonToShow = satelliteUserIsDelegatedTo ? (
+    <>
+      <Button
+        text="Undelegate"
+        icon="man-close"
+        kind={ACTION_SECONDARY}
+        loading={loading}
+        onClick={() => undelegateCallback()}
+        disabled={!ready}
+      />
+      <Button
+        text="Claim Rewards"
+        icon="rewards"
+        kind={ACTION_PRIMARY}
+        loading={loading}
+        onClick={() => undelegateCallback()}
+        disabled={!ready}
+        strokeWidth={0.3}
+      />
+    </>
   ) : (
     <Button
       text="Delegate"
@@ -86,6 +119,7 @@ export const SatelliteListItem = ({
       kind={ACTION_PRIMARY}
       loading={loading}
       onClick={() => delegateCallback(satellite.address)}
+      disabled={!ready}
     />
   )
 
@@ -126,7 +160,7 @@ export const SatelliteListItem = ({
             <SatelliteTextGroup>
               <SatelliteMainText>Free sMVK Space</SatelliteMainText>
               <SatelliteSubText>
-                <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
+                <CommaNumber value={freesMVKSpace} />
               </SatelliteSubText>
             </SatelliteTextGroup>
 
@@ -191,24 +225,22 @@ export const SatelliteListItem = ({
         </div>
 
         <SatelliteCardButtons>
-          {showButtons ? (
-            buttonToShow
-          ) : (
+          {isSatelliteInactive && (
             <div>
-              <StatusFlag status={DOWN} text={'INACTIVE'} />
+              <StatusFlag status={satelliteStatusColor} text={SatelliteStatus[satellite.status]} />
             </div>
           )}
+
+          {!isSatelliteInactive && !isSatellite && buttonToShow}
         </SatelliteCardButtons>
       </SatelliteCardInner>
 
       {children ? (
         children
-      ) : currentlySupportingProposal ? (
+      ) : currentlySupportingProposal?.id && currentlySupportingProposalVote && (
         <SatelliteCardRow>
-          Currently supporting Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}
+          <div>Voted {renderVotingHistoryItem(currentlySupportingProposalVote)} on current Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}</div>
         </SatelliteCardRow>
-      ) : (
-        <SatelliteCardRow>Considering</SatelliteCardRow>
       )}
     </SatelliteCard>
   )

@@ -3,13 +3,13 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { reduceTreasuryAssets } from 'pages/Treasury/Treasury.helpers'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { State } from 'reducers'
 import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
 import { BlockName, StatBlock } from '../Dashboard.style'
-import { calcTreasuryAseetsToTableDataFormat } from '../Dashboard.utils'
 import { TabWrapperStyled, TreasuryContentStyled, TreasuryVesting } from './DashboardTabs.style'
 
 export const columnNames = ['Asset', 'Amount', 'USD Value']
@@ -20,15 +20,18 @@ export const fieldsMapper = [
   {
     fieldName: 'balance',
     needCommaNumber: true,
+    propsToComponents: {
+      useAccurateParsing: true,
+    },
   },
   {
     fieldName: 'usdValue',
-    callback: (fieldName: string, value: unknown) => {
+    callback: (_: string, value: unknown) => {
       const { rate, symbol, usdValue } = value as TreasuryBalanceType
       const obj = {
         ...(rate ? { beginningText: '$' } : { endingText: symbol }),
       }
-      return <CommaNumber {...obj} value={Number(usdValue)} />
+      return <CommaNumber {...obj} value={Number(usdValue)} useAccurateParsing />
     },
   },
 ]
@@ -41,13 +44,24 @@ export const TreasuryTab = () => {
 
   const amountOfTokens = totalVestedAmount + totalClaimedAmount
 
-  const history = useHistory()
+  const { assetsBalances, globalTreasuryTVL } = useMemo(() => reduceTreasuryAssets(treasuryStorage), [treasuryStorage])
 
-  const { assets, globalTreasury } = useMemo(
-    () => calcTreasuryAseetsToTableDataFormat(treasuryStorage),
+  const mostAssetsTreasury = useMemo(
+    () =>
+      treasuryStorage.reduce(
+        (acc, treasury) => {
+          if (treasury.balances.length > acc.assetsCount) {
+            acc.treasuryName = treasury.name
+            acc.assetsCount = treasury.balances.length
+            acc.treasuryTVL = treasury.treasuryTVL
+          }
+
+          return acc
+        },
+        { treasuryName: '', assetsCount: 0, treasuryTVL: 0 },
+      ),
     [treasuryStorage],
   )
-  const treasuryAssetsArray = Object.values(assets)
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">
@@ -63,15 +77,17 @@ export const TreasuryTab = () => {
           <StatBlock>
             <div className="name">Global Treasury</div>
             <div className="value">
-              <CommaNumber endingText="USD" value={globalTreasury} />
+              <CommaNumber endingText="USD" value={globalTreasuryTVL} />
             </div>
           </StatBlock>
-          <StatBlock>
-            <div className="name">Development Treasury</div>
-            <div className="value">
-              <CommaNumber endingText="USD" value={124141} />
-            </div>
-          </StatBlock>
+          {mostAssetsTreasury.treasuryName && mostAssetsTreasury.treasuryTVL && (
+            <StatBlock>
+              <div className="name">{mostAssetsTreasury.treasuryName}</div>
+              <div className="value">
+                <CommaNumber endingText="USD" value={mostAssetsTreasury.treasuryTVL} />
+              </div>
+            </StatBlock>
+          )}
         </div>
         <div className="container">
           <div>
@@ -79,7 +95,7 @@ export const TreasuryTab = () => {
 
             <SimpleTable
               colunmNames={columnNames}
-              data={treasuryAssetsArray}
+              data={assetsBalances}
               fieldsMapper={fieldsMapper}
               className="dashboard-st"
             />

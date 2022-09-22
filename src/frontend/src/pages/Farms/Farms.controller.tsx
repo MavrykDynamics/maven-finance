@@ -1,14 +1,12 @@
 // type
-import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+import { FarmStorage } from '../../utils/TypesAndInterfaces/Farm'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import { useCallback, useEffect, useState } from 'react'
-import { getFarmStorage } from './Farms.actions'
+import { useEffect, useState } from 'react'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { Page } from 'styles'
 import { FarmTopBar } from './FarmTopBar/FarmTopBar.controller'
-import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { FarmCard } from './FarmCard/FarmCard.controller'
 import { Modal } from '../../app/App.components/Modal/Modal.controller'
 
@@ -18,7 +16,6 @@ import { calculateAPR, getSummDepositedAmount } from './Frams.helpers'
 // styles
 import { FarmsStyled } from './Farms.style'
 import { EmptyContainer as EmptyList } from 'app/App.style'
-import { MOCK_FARMS } from './Frams.helpers'
 import { useHistory, useLocation } from 'react-router-dom'
 import qs from 'qs'
 
@@ -58,10 +55,6 @@ export const Farms = () => {
     const stringifiedQP = qs.stringify({ openedCards: arrayOfCards })
     history.push(`${pathname}?${stringifiedQP}`)
   }
-
-  useEffect(() => {
-    dispatch(getFarmStorage())
-  }, [dispatch])
 
   useEffect(() => {
     const filterStakedOnly = toggleChecked

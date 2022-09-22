@@ -5,12 +5,12 @@ import PieChartView from 'app/App.components/PieСhart/PieСhart.view'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getPieChartData } from 'pages/Treasury/helpers/calculateChartData'
+import { reduceTreasuryAssets } from 'pages/Treasury/Treasury.helpers'
 import React, { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { StatBlock, BlockName } from '../Dashboard.style'
-import { calcTreasuryAseetsToTableDataFormat } from '../Dashboard.utils'
 import { TabWrapperStyled, VaultsContentStyled } from './DashboardTabs.style'
 import { columnNames, fieldsMapper } from './TreasuryTab.controller'
 
@@ -19,15 +19,11 @@ export const VaultsTab = () => {
 
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
 
-  const { assets, globalTreasury } = useMemo(
-    () => calcTreasuryAseetsToTableDataFormat(treasuryStorage),
-    [treasuryStorage],
-  )
-  const treasuryAssetsArray = Object.values(assets)
+  const { assetsBalances, globalTreasuryTVL } = useMemo(() => reduceTreasuryAssets(treasuryStorage), [treasuryStorage])
 
   const chartData = useMemo(() => {
-    return getPieChartData(treasuryAssetsArray, globalTreasury, hoveredPath)
-  }, [hoveredPath, globalTreasury, treasuryAssetsArray])
+    return getPieChartData(assetsBalances, globalTreasuryTVL, hoveredPath)
+  }, [hoveredPath, assetsBalances, globalTreasuryTVL])
 
   return (
     <TabWrapperStyled className="vaults">
@@ -66,7 +62,7 @@ export const VaultsTab = () => {
 
             <SimpleTable
               colunmNames={columnNames}
-              data={treasuryAssetsArray}
+              data={assetsBalances}
               fieldsMapper={fieldsMapper}
               className="dashboard-st vaults"
             />
@@ -82,7 +78,7 @@ export const VaultsTab = () => {
             <PieChartView chartData={chartData} />
 
             <div className="asset-lables scroll-block">
-              {treasuryAssetsArray.map((balanceValue) => (
+              {assetsBalances.map((balanceValue) => (
                 <div
                   style={{
                     background: `linear-gradient(90deg,${
