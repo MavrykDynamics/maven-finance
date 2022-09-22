@@ -1,7 +1,8 @@
-import React, { FC, useState, useMemo } from 'react'
+import React, { FC, useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useLocation } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 // components
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
@@ -95,8 +96,12 @@ const actionNameHandler = (name: string) => {
 export const BreakGlassActions: FC = () => {
   const dispatch = useDispatch()
   const { search } = useLocation()
-  const { breakGlassAction } = useSelector((state: State) => state.breakGlass)
+  const history = useHistory()
+  const { breakGlassAction, breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const currentPage = getPageNumber(search, BREAK_GLASS_ACTIONS_LIST_NAME)
+
+  const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
 
   const itemsForDropDown = useMemo(
     () => [
@@ -132,6 +137,12 @@ export const BreakGlassActions: FC = () => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_ACTIONS_LIST_NAME)
     return mock?.slice(from, to)
   }, [currentPage, mock])
+
+  useEffect(() => {
+    if (!isUserInBreakCouncilMember) {
+      history.push('/break-glass-council')
+    }
+  }, [history, isUserInBreakCouncilMember])
 
   return (
     <Page>

@@ -57,11 +57,17 @@ export const NavigationLink = ({
   const {
     delegationStorage: { satelliteLedger },
   } = useSelector((state: State) => state.delegation)
+  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 
   const [showSubPages, setShowSubPages] = useState<boolean>(false)
 
+  const isGovernance = title === 'Governance'
+  const isBreakGlassCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
+  // do not show Break Glass Actions if you do not Break Glass Council Member
+  const filteredSubPages = !isBreakGlassCouncilMember && isGovernance ? subPages?.filter((item) => item.subTitle !== 'Break Glass Actions') : subPages
+
   const isMainLinkDisabled = useMemo(() => {
-    const paths = [path].concat(subPages?.map(({ subPath }) => subPath) || [])
+    const paths = [path].concat(filteredSubPages?.map(({ subPath }) => subPath) || [])
     return paths.find((path) => Boolean(matchPath(location.pathname, { path: `/${path}`, exact: true, strict: true })))
   }, [location.pathname])
 
@@ -85,7 +91,7 @@ export const NavigationLink = ({
     </Link>
   )
 
-  if (subPages) {
+  if (filteredSubPages) {
     return (
       <NavigationLinkContainer
         className={'collapsible'}
@@ -104,7 +110,7 @@ export const NavigationLink = ({
         {showSubPages && (
           <div {...getCollapseProps()}>
             <NavigationSubLinks className="content">
-              {subPages.map((subNavLink: SubNavigationRoute) => {
+              {filteredSubPages.map((subNavLink: SubNavigationRoute) => {
                 const selectedSubLink = Boolean(
                   matchPath(location.pathname, { path: subNavLink.routeSubPath, exact: true, strict: true }),
                 )
