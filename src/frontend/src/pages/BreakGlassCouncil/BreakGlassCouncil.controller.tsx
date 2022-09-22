@@ -1,4 +1,4 @@
-import React, { FC, useState, useMemo } from 'react'
+import React, { FC, useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useLocation } from 'react-router'
@@ -120,6 +120,7 @@ const actionNameHandler = (name: string) => {
 export const BreakGlassCouncil: FC = () => {
   const dispatch = useDispatch()
   const { search } = useLocation()
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
   
   const itemsForDropDown = useMemo(
@@ -141,8 +142,8 @@ export const BreakGlassCouncil: FC = () => {
   const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(true)
-
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
+  const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
@@ -172,10 +173,14 @@ export const BreakGlassCouncil: FC = () => {
     return mockHistory?.slice(from, to)
   }, [currentPage, mockHistory])
 
+  useEffect(() => {
+    accountPkh ? setIsGoBack(false) : setIsGoBack(true)
+  }, [accountPkh])
+
   return (
     <Page>
       <PageHeader page={'break glass council'} />
-      {isGoBack && (<GoBack
+      {isGoBack && accountPkh && (<GoBack
         onClick={() => {
           setIsPendingSignature(true)
           setIsGoBack(false)
@@ -185,11 +190,11 @@ export const BreakGlassCouncil: FC = () => {
         Back to Member Dashboard
       </GoBack>)}
 
-      {isPendingSignature && <h1>Pending Signature</h1>}
+      {isPendingSignature && isUserInBreakCouncilMember && <h1>Pending Signature</h1>}
 
       <BreakGlassCouncilStyled>
         <div className='left-block'>
-          {isPendingSignature && (<article className="pending">
+          {isPendingSignature && isUserInBreakCouncilMember && (<article className="pending">
             <div className="pending-items">
               <Carousel itemLength={mockCards.length} key={sliderKey}>
                 {mockCards.map((item) => (
