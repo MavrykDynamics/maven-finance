@@ -355,12 +355,6 @@ block {
                     withdrawRewardStakedMvkIsPaused     = False;
                 ];
 
-                // Prepare Aggregator Metadata
-                const aggregatorMetadata: metadataType = Big_map.literal (list [
-                    ("", Bytes.pack("tezos-storage:data"));
-                    ("data", createAggregatorParams.2.metadata);
-                ]); 
-
                 // Validate name input does not exceed max length
                 const aggregatorName : string = createAggregatorParams.2.name;
                 if String.length(aggregatorName) > s.config.aggregatorNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -369,7 +363,7 @@ block {
                 const originatedaggregatorStorageType : aggregatorStorageType = record [
 
                     admin                     = s.admin;                                      // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
-                    metadata                  = aggregatorMetadata;
+                    metadata                  = createAggregatorParams.2.metadata;
                     name                      = aggregatorName;
                     config                    = createAggregatorParams.2.aggregatorConfig;
                     breakGlassConfig          = aggregatorBreakGlassConfig;

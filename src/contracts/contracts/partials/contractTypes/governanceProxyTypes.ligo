@@ -137,6 +137,33 @@ type toggleDelegationEntrypointType is [@layout:comb] record [
     empty                     : unit;
 ]
 
+type createFarmProxyType is [@layout:comb] record [
+    name                     : string;
+    addToGeneralContracts    : bool;
+    forceRewardFromTransfer  : bool;
+    infinite                 : bool;
+    plannedRewards           : farmPlannedRewardsType;
+    metadata                 : map(string, bytes);
+    lpToken                  : farmLpTokenType;
+]
+
+type createTreasuryProxyType is [@layout:comb] record[
+    name                    : string;
+    addToGeneralContracts   : bool;
+    metadata                : map(string, bytes);
+]
+
+
+type createAggregatorParamsProxyType is string * string * [@layout:comb] record[
+    name                    : string;
+    addToGeneralContracts   : bool;
+
+    oracleAddresses         : oracleAddressesType;
+    
+    aggregatorConfig        : aggregatorConfigType;
+    maintainer              : address;
+    metadata                : map(string, bytes);
+];
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -190,13 +217,13 @@ type executeActionParamsType is
     |   UpdateWhitelistDevelopersSet       of (address)
     |   SetGovernanceProxy                 of (address)
 
-    |   CreateFarm                         of createFarmType
+    |   CreateFarm                         of createFarmProxyType
     |   TrackFarm                          of (address)
     |   UntrackFarm                        of (address)
     |   InitFarm                           of (targetFarmInitType)
     |   CloseFarm                          of (address)
 
-    |   CreateTreasury                     of createTreasuryType
+    |   CreateTreasury                     of createTreasuryProxyType
     |   TrackTreasury                      of (address)
     |   UntrackTreasury                    of (address)
     |   TransferTreasury                   of targetTreasuryTransferType
@@ -205,7 +232,7 @@ type executeActionParamsType is
     |   StakeMvkTreasury                   of stakeTreasuryType
     |   UnstakeMvkTreasury                 of unstakeTreasuryType
 
-    |   CreateAggregator                   of createAggregatorParamsType
+    |   CreateAggregator                   of createAggregatorParamsProxyType
     |   TrackAggregator                    of trackAggregatorParamsType
     |   UntrackAggregator                  of untrackAggregatorParamsType
     |   SetAggregatorMaintainer            of setAggregatorMaintainerType

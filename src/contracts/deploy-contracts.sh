@@ -1,5 +1,10 @@
 #!/bin/bash
 
+trap ctrl_c INT
+ctrl_c() {
+     exit
+}
+
 ts-mocha --paths test/deploy/00*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/01*.spec.ts --bail --timeout 9000000 && \
 ts-mocha --paths test/deploy/02*.spec.ts --bail --timeout 9000000 && \

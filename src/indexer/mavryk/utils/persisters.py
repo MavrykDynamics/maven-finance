@@ -19,6 +19,19 @@ async def persist_token_metadata(ctx, token_address, token_id='0'):
             token_id    = token_id,
             metadata    = token_metadata
         )
+    else:
+        # TODO: Remove in prod
+        # Check for mainnet as well
+        metadata_datasource_name    = 'metadata_mainnet'
+        metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
+        token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
+        if token_metadata:
+            await ctx.update_token_metadata(
+                network     = "mainnet",
+                address     = token_address,
+                token_id    = token_id,
+                metadata    = token_metadata
+            )
 
 async def persist_contract_metadata(ctx, contract_address):
     network                     = ctx.datasource.network

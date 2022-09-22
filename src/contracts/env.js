@@ -17,7 +17,7 @@ module.exports = {
   michelsonBuildDir : "contracts/compiled",
   migrationsDir: "migrations",
   contractsDir: "contracts/main",
-  ligoVersion: "0.50.0",
+  ligoVersion: "0.51.0",
   network: "development",
   networks: {
     development: {

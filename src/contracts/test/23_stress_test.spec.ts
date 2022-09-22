@@ -620,27 +620,35 @@
 //     //             const proposalIpfs          = "ipfs://QM123456789";
 //     //             const proposalSourceCode    = "Proposal Source Code";
 
-//     //             const farmMetadataBase = Buffer.from(
-//     //                 JSON.stringify({
-//     //                 name: 'MAVRYK PLENTY-USDTz Farm',
-//     //                 description: 'MAVRYK Farm Contract',
-//     //                 version: 'v1.0.0',
-//     //                 liquidityPairToken: {
-//     //                     tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-//     //                     origin: ['Plenty'],
-//     //                     token0: {
-//     //                         symbol: ['PLENTY'],
-//     //                         tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+//     //             const farmMetadataBase = MichelsonMap.fromLiteral({
+//     //                 '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+//     //                 data: Buffer.from(
+//     //                     JSON.stringify({
+//     //                     name: "MAVRYK USDT.e-USDC.e Farm",
+//     //                     description: "Mavryk Farm Contract for USDT.e-USDC.e",
+//     //                     version: "v1.0.0",
+//     //                     liquidityPairToken: {
+//     //                         tokenAddress: ["KT1CDeAxaiqbA5aMkPMmqqYXxqgfFwocJHza"],
+//     //                         origin: ["Mavryk Finance"],
+//     //                         symbol: ["MLP"],
+//     //                         thumbnailUri: "https://infura-ipfs.io/ipfs/QmaazYGXFxbLvdVBUkxkprsZuBpQeraMWyUkU1gGsigiYm",
+//     //                         decimals: 15,
+//     //                         token0: {
+//     //                             symbol: ["USDT.e"],
+//     //                             tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
+//     //                             thumbnailUri: "https://infura-ipfs.io/ipfs/QmdQ4R6TtBe75wSVEsLfRDtAn36Bv2zLAHyVe1cuLYeyfK"
+//     //                         },
+//     //                         token1: {
+//     //                             symbol: ["USDC.e"],
+//     //                             tokenAddress: ["KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"],
+//     //                             thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
+//     //                         }
 //     //                     },
-//     //                     token1: {
-//     //                         symbol: ['USDtz'],
-//     //                         tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-//     //                     }
-//     //                 },
-//     //                 authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-//     //                 }),
-//     //                 'ascii',
-//     //             ).toString('hex')
+//     //                     authors: ["MAVRYK Dev Team <contact@mavryk.finance>"]
+//     //                     }),
+//     //                     'ascii',
+//     //                 ).toString('hex'),
+//     //             })
 
 //     //             // Create a farm compiled params
 //     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(

@@ -204,14 +204,17 @@
 
 //             const oracleMap = MichelsonMap.fromLiteral({});
 
-//             const aggregatorMetadataBase = Buffer.from(
-//                 JSON.stringify({
+//             const aggregatorMetadataBase = MichelsonMap.fromLiteral({
+//                 '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+//                 data: Buffer.from(
+//                     JSON.stringify({
 //                     name: 'MAVRYK Aggregator Contract',
 //                     version: 'v1.0.0',
 //                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-//                 }),
-//                 'ascii',
-//                 ).toString('hex')
+//                     }),
+//                     'ascii',
+//                 ).toString('hex'),
+//             })
 
 //             // Setup Aggregators
 //             const createAggregatorsBatch = await utils.tezos.wallet
