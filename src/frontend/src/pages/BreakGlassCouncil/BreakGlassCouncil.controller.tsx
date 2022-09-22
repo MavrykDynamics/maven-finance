@@ -14,7 +14,6 @@ import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.vie
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
-import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
 import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
 
 // helpers
@@ -27,7 +26,7 @@ import {
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 
 // styles
-import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack, AvaliableActions } from './BreakGlassCouncil.style'
+import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack, AvaliableActions, ModalPopup } from './BreakGlassCouncil.style'
 
 // TODO: change mock to valid data
 const mockCards = [
@@ -301,7 +300,7 @@ export const BreakGlassCouncil: FC = () => {
         </div>
       </BreakGlassCouncilStyled>
       {isUpdateCouncilMemberInfo ? (
-        <ModalPopup width={800} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
+        <ModalPopup width={750} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
           <FormUpdateCouncilMemberView />
         </ModalPopup>
       ) : null}
