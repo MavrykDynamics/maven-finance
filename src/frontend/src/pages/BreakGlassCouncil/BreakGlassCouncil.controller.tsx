@@ -295,6 +295,7 @@ export const BreakGlassCouncil: FC = () => {
               user_id={item.userId}
               website={item.website}
               openModal={handleOpenleModal}
+              showUpdateInfo={isUserInBreakCouncilMember}
             />
           ))}
         </div>

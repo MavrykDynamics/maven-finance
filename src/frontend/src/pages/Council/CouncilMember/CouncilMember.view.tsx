@@ -15,12 +15,12 @@ type Props = {
   user_id: string
   website: string
   openModal: () => void
+  showUpdateInfo?: boolean
 }
 
 export const CouncilMemberView = (props: Props) => {
-  console.log("🚀 ~ file: CouncilMember.view.tsx ~ line 21 ~ CouncilMemberView ~ props", props)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { image, name, user_id, website, openModal } = props
+  const { image, name, user_id, website, openModal, showUpdateInfo = true } = props
   const href = website?.length ? website : `/satellites/satellite-details/${user_id}`
 
   const isMe = user_id === accountPkh
@@ -42,7 +42,7 @@ export const CouncilMemberView = (props: Props) => {
           {user_id ? <TzAddress tzAddress={user_id} hasIcon={false} /> : null}
         </figcaption>
       </div>
-      {isMe ? (
+      {isMe && showUpdateInfo ? (
         <Button text="Update Info" className="fill" icon="spiner" kind="actionSecondary" onClick={openModal} />
       ) : null}
     </CouncilMemberStyled>
