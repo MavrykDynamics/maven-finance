@@ -119,7 +119,7 @@ export async function getFarmMetadata(farmAddress: string) {
 
     return parsedMetadataValue
   } catch (e) {
-    console.error('getFarmMetadata error: ', e)
+    // console.error('getFarmMetadata error: ', e)
 
     return {
       liquidityPairToken: {
