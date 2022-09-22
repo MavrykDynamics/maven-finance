@@ -9,12 +9,14 @@ import { SatelliteDetailsView } from './SatelliteDetails.view'
 
 import { getSatelliteByAddress } from './SatelliteDetails.actions'
 import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
+import { rewardsCompound } from 'pages/Doorman/Doorman.actions'
 
 export const SatelliteDetails = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => Boolean(state.loading))
   const { currentSatellite } = useSelector((state: State) => state.delegation)
   const { user } = useSelector((state: State) => state.user)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
 
   let { satelliteId } = useParams<{ satelliteId: string }>()
 
@@ -31,12 +33,20 @@ export const SatelliteDetails = () => {
     dispatch(undelegate())
   }
 
+  const handleClaimRewards = () => {
+    if (accountPkh) {
+      dispatch(rewardsCompound(accountPkh))
+    }
+  }
+
   return (
     <SatelliteDetailsView
       satellite={currentSatellite}
+      userSatelliteReward={user.mySatelliteRewardsData}
       loading={loading}
       delegateCallback={delegateCallback}
       undelegateCallback={undelegateCallback}
+      claimRewardsCallback={handleClaimRewards}
       userStakedBalanceInSatellite={user.mySMvkTokenBalance}
     />
   )

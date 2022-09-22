@@ -31,7 +31,6 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
                 className={additionalClassName}
                 satellite={item as SatelliteRecord}
                 key={item.address}
-                loading={loading}
                 delegateCallback={additionaldata?.delegateCallback as (arg0: string) => void}
                 undelegateCallback={additionaldata?.undelegateCallback as () => void}
                 userStakedBalance={(additionaldata?.userStakedBalance as number) || 0}
