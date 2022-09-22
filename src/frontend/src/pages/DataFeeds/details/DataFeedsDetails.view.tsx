@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 // consts, helpers
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { usersData } from 'pages/UsersOracles/users.const'
-import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 // view
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
@@ -38,6 +37,7 @@ import { EmptyContainer } from 'app/App.style'
 import { cyanColor, downColor, Page, upColor } from 'styles'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
+import { parseData } from 'utils/time'
 
 type FeedDetailsProps = {
   feed: FeedGQL | null
@@ -67,8 +67,9 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
   const heartbeatUpdateInfo =
     moment(Date.now()).diff(moment(feed?.last_completed_price_datetime), 'minutes') >= 30
       ? `
-  Price feed is outdated, missed the schedule price update at ${getDate_MDHMS_Format({
-    timestamp: new Date(feed?.last_completed_price_datetime || '').getTime() + 1000 * 60 * 30,
+  Price feed is outdated, missed the schedule price update at ${parseData({
+    time: new Date(feed?.last_completed_price_datetime || '').getTime() + 1000 * 60 * 30,
+    timeFormat: 'MMM DD, HH:mm:ss',
   })}
   `
       : `
@@ -149,7 +150,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {getDate_MDY_Format(feed.last_completed_price_datetime)}
+                  {parseData({ time: feed.last_completed_price_datetime, timeFormat: 'MMM DD, YYYY' })}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {feed.last_completed_price_datetime ? (
