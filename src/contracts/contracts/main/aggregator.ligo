@@ -638,7 +638,7 @@ block {
 
 
 (* View: get last completed price *)
-[@view] function getLastCompletedRPrice (const _ : unit ; const s : aggregatorStorageType) : lastCompletedPriceReturnType is block {
+[@view] function getLastCompletedPrice (const _ : unit ; const s : aggregatorStorageType) : lastCompletedPriceReturnType is block {
     const withDecimal : lastCompletedPriceReturnType = record [
         price                 = s.lastCompletedPrice.price;
         percentOracleResponse = s.lastCompletedPrice.percentOracleResponse;
@@ -689,7 +689,7 @@ block {
 // Housekeeping Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  addOracle entrypoint  *)
+(*  default entrypoint  *)
 function default(const s : aggregatorStorageType) : return is
 block {
     skip
