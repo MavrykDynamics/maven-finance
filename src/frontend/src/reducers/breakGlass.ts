@@ -4,7 +4,8 @@ import {
   GET_BREAK_GLASS_STATUS,
   GET_WHITELIST_DEV,
 } from '../pages/BreakGlass/BreakGlass.actions'
-import { GET_BREAK_GLASS_COUNCIL_MEMBER, GET_BREAK_GLASS_ACTION } from '../pages/BreakGlassActions/BreakGlassActions.actions'
+import { GET_BREAK_GLASS_ACTION } from '../pages/BreakGlassActions/BreakGlassActions.actions'
+import { GET_PAST_BREAK_GLASS_COUNCIL_ACTION, GET_BREAK_GLASS_COUNCIL_MEMBER } from 'pages/BreakGlassCouncil/BreakGlassCouncil.actions'
 import { BreakGlassStorage, BreakGlassStatusStorage, WhitelistDevStorage, BreakGlassCouncilMember, BreakGlassAction } from '../utils/TypesAndInterfaces/BreakGlass'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
@@ -15,6 +16,7 @@ export interface BreakGlassState {
   whitelistDev: WhitelistDevStorage
   breakGlassCouncilMember: BreakGlassCouncilMember
   breakGlassAction: BreakGlassAction
+  pastBreakGlassCouncilAction: BreakGlassAction
 }
 
 const defaultBreakGlassStorage: BreakGlassStorage = {
@@ -38,6 +40,7 @@ const breakGlassDefaultState: BreakGlassState = {
   breakGlassStatus: [],
   whitelistDev: '',
   breakGlassCouncilMember: [],
+  pastBreakGlassCouncilAction: [],
   breakGlassAction: [],
 }
 
@@ -72,6 +75,11 @@ export function breakGlass(state = breakGlassDefaultState, action: Action) {
       return {
         ...state,
         breakGlassAction: action.breakGlassAction,
+      }
+    case GET_PAST_BREAK_GLASS_COUNCIL_ACTION:
+      return {
+        ...state,
+        pastBreakGlassCouncilAction: action.pastBreakGlassCouncilAction,
       }
     default:
       return state
