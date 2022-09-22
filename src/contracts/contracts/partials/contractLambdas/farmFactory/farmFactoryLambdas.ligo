@@ -366,10 +366,6 @@ block{
                 ];
 
                 // Prepare Farm Metadata
-                const farmMetadata: metadataType = Big_map.literal (list [
-                    ("", Bytes.pack("tezos-storage:data"));
-                    ("data", createFarmParams.metadata);
-                ]); 
                 const farmLambdaLedger : lambdaLedgerType = s.farmLambdaLedger;
 
                 // Check whether the farm is infinite or its total blocks has been set
@@ -381,7 +377,7 @@ block{
                     admin                       = s.admin;                   // admin will be the Farm Factory admin (i.e. Governance Proxy contract)
                     mvkTokenAddress             = s.mvkTokenAddress;
                     governanceAddress           = s.governanceAddress;
-                    metadata                    = farmMetadata;
+                    metadata                    = createFarmParams.metadata;
 
                     name                        = createFarmParams.name;
                     config                      = farmConfig;
