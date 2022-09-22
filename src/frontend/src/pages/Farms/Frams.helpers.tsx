@@ -102,12 +102,32 @@ export const getLPTokensInfo = async (farmList: FarmGraphQL[]) => {
 }
 
 export async function getFarmMetadata(farmAddress: string) {
-  const farmMetadata = await getContractBigmapKeys(farmAddress, 'metadata')
-  const targetMetadataItem =
-    farmMetadata.filter((farmItem: any) => {
-      const output = Buffer.from(farmItem.value, 'hex').toString()
-      return !output.endsWith('tezos-storage:data')
-    })[0] || {}
-  const targetFarmMetadataValue = Buffer.from(targetMetadataItem.value, 'hex').toString()
-  return JSON.parse(targetFarmMetadataValue)
+  try {
+    const farmMetadata = await getContractBigmapKeys(farmAddress, 'metadata')
+    const targetMetadataItem =
+      farmMetadata.filter((farmItem: any) => {
+        const output = Buffer.from(farmItem.value, 'hex').toString()
+        return !output.endsWith('tezos-storage:data')
+      })[0] || {}
+    const targetFarmMetadataValue = Buffer.from(targetMetadataItem.value, 'hex').toString()
+
+    console.log('targetFarmMetadataValue', targetFarmMetadataValue, farmAddress)
+
+    const parsedMetadataValue = JSON.parse(targetFarmMetadataValue)
+
+    if (!parsedMetadataValue['liquidityPairToken']) {
+      throw new Error(`invalid farm metadata: ${farmAddress}`)
+    }
+
+    return parsedMetadataValue
+  } catch (e) {
+    console.error('getFarmMetadata error: ', e)
+
+    return {
+      liquidityPairToken: {
+        token0: { symbol: [''], tokenAddress: [''] },
+        token1: { symbol: [''], tokenAddress: [''] },
+      },
+    }
+  }
 }
