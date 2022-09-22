@@ -290,7 +290,7 @@ export const BreakGlassCouncil: FC = () => {
           {breakGlassCouncilMember.map((item) => (
             <CouncilMemberView
               key={item.id}
-              image={item.image}
+              image={item.image || item.name}
               name={item.name}
               user_id={item.userId}
               website={item.website}
