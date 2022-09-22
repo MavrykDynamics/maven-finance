@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, useRef } from 'react'
+import { FC, useState, useEffect, useRef, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 /* @ts-ignore */
 import Time from 'react-pure-time'
@@ -10,9 +10,11 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { getSeparateSnakeCase } from '../../../utils/parse'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
-import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
 import Expand from '../../../app/App.components/Expand/Expand.view'
+import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
+
+// helpers
+import { PRECISION_NUMBER } from 'utils/constants'
 
 // action
 import { dropAction, voteForAction } from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
@@ -89,6 +91,23 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
     ? ProposalStatus.DEFEATED
     : ProposalStatus.ACTIVE
 
+  
+  const voteStatistic = useMemo(
+    () => ({
+      forVotesMVKTotal: yayVotesSmvkTotal / PRECISION_NUMBER,
+      againstVotesMVKTotal: nayVotesSmvkTotal / PRECISION_NUMBER,
+      abstainVotesMVKTotal: passVoteSmvkTotal / PRECISION_NUMBER,
+      unusedVotesMVKTotal: Math.round(
+        snapshotSmvkTotalSupply / PRECISION_NUMBER -
+          yayVotesSmvkTotal / PRECISION_NUMBER -
+          nayVotesSmvkTotal / PRECISION_NUMBER -
+          passVoteSmvkTotal / PRECISION_NUMBER,
+      ),
+      quorum: smvkPercentageForApproval / 100,
+    }),
+    [yayVotesSmvkTotal, nayVotesSmvkTotal, passVoteSmvkTotal, snapshotSmvkTotalSupply, smvkPercentageForApproval],
+  )
+
   return (
     <Expand
       onClick={open}
@@ -142,18 +161,16 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
                 CEST
               </b>
 
-              <VotingBarBlockView
-                yayVotesSmvkTotal={yayVotesSmvkTotal}
-                nayVotesSmvkTotal={nayVotesSmvkTotal}
-                passVoteSmvkTotal={passVoteSmvkTotal}
-                snapshotSmvkTotalSupply={snapshotSmvkTotalSupply}
-                smvkPercentageForApproval={smvkPercentageForApproval}
+              <VotingArea
+                voteStatistics={voteStatistic}
+                isVotingActive={statusFlag === ProposalStatus.ONGOING}
+                handleVote={handleVotingRoundVote}
               />
             </div>
           </div>
 
           {statusFlag === ProposalStatus.ONGOING ? (
-            <VotingButtonsContainer className="voting-buttons">
+            <div className="voting-buttons">
               <Button
                 text="Drop Action"
                 className="brop-btn"
@@ -167,7 +184,7 @@ export const PastBreakGlassActionsCard: FC<Props> = ({
                 <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('pass')} kind={'votingAbstain'} />
                 <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('nay')} kind={'votingAgainst'} />
               </div>
-            </VotingButtonsContainer>
+            </div>
           ) : null}
         </div>
       </PastBreakGlassActionsCardDropDown>
