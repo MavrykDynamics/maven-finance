@@ -16,8 +16,10 @@ export const BREAK_GLASS_COUNCIL_MEMBER_QUERY = `
 export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME = 'GetPastBreakGlassCouncilActions'
 export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE = {}
 
+const curentDate = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`
+
 export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY = `
-  query GetPastBreakGlassCouncilActions($_lt: timestamptz = "") {
+  query GetPastBreakGlassCouncilActions($_lt: timestamptz = "${curentDate}") {
     break_glass_action(where: {expiration_datetime: {_lt: $_lt}, _or: {executed: {_eq: true}}}) {
       action_type
       break_glass_id

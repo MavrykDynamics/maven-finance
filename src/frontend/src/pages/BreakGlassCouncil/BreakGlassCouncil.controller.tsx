@@ -120,7 +120,7 @@ export const BreakGlassCouncil: FC = () => {
   const dispatch = useDispatch()
   const { search } = useLocation()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
+  const { breakGlassCouncilMember, pastBreakGlassCouncilAction } = useSelector((state: State) => state.breakGlass)
   
   const itemsForDropDown = useMemo(
     () => [
@@ -169,8 +169,8 @@ export const BreakGlassCouncil: FC = () => {
 
   const paginatedPastBreakGlassCouncilActions= useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME)
-    return mockHistory?.slice(from, to)
-  }, [currentPage, mockHistory])
+    return pastBreakGlassCouncilAction?.slice(from, to)
+  }, [currentPage, pastBreakGlassCouncilAction])
 
   useEffect(() => {
     accountPkh ? setIsGoBack(false) : setIsGoBack(true)
@@ -218,17 +218,17 @@ export const BreakGlassCouncil: FC = () => {
             <h1>Past Break Glass Council Actions</h1>
             {paginatedPastBreakGlassCouncilActions.map((item) => (
               <CouncilPastActionView
-                execution_datetime={item.execution_datetime}
+                execution_datetime={String(item.executionDatetime)}
                 key={item.id}
-                action_type={item.action_type}
-                signers_count={item.signers_count}
-                num_council_members={item.num_council_members}
-                council_id={item.council_id}
+                action_type={item.actionType}
+                signers_count={item.signersCount}
+                num_council_members={breakGlassCouncilMember.length}
+                council_id={item.breakGlassId}
               />
             ))}
 
             <Pagination
-              itemsCount={mockHistory.length}
+              itemsCount={pastBreakGlassCouncilAction.length}
               listName={BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME}
             />
           </> : 
