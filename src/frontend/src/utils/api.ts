@@ -27,11 +27,10 @@ export async function getChainInfo() {
 
 export async function getTreasuryAssetsByAddress(treasuryAddress: string) {
   try {
-    const treasuryAssets =
-      (await axios.get(`https://api.${network}.tzkt.io/v1/tokens/balances?account.eq=${treasuryAddress}`)).data ?? []
-
-    const xtzTreasuryAsset = (await axios.get(`https://api.${network}.tzkt.io/v1/accounts/${treasuryAddress}/balance`))
-      .data
+    const [{ data: treasuryAssets }, { data: xtzTreasuryAsset }] = await Promise.all([
+      axios.get(`https://api.${network}.tzkt.io/v1/tokens/balances?account.eq=${treasuryAddress}`),
+      axios.get(`https://api.${network}.tzkt.io/v1/accounts/${treasuryAddress}/balance`),
+    ])
 
     const xtzAssetObject = {
       account: { address: treasuryAddress },
@@ -41,7 +40,7 @@ export async function getTreasuryAssetsByAddress(treasuryAddress: string) {
       },
     }
 
-    return [...treasuryAssets, xtzAssetObject]
+    return [...treasuryAssets].concat(xtzTreasuryAsset ? [xtzAssetObject] : [])
   } catch (e) {
     console.error('getTreasuryAssetsByAddress error: ', e)
     return []

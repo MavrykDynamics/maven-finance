@@ -10,7 +10,6 @@ import {
 import { getTreasuryAssetsByAddress } from 'utils/api'
 import { FetchedTreasuryBalanceType, TreasuryBalanceType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
-import { State } from '../../reducers'
 import { normalizeTreasury } from './Treasury.helpers'
 import { AppDispatch, coinGeckoClient, GetState } from '../../app/App.controller'
 
@@ -86,7 +85,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       await Promise.allSettled(
         Array.from(arrayOfAssetsSymbols).map((symbol) => coinGeckoClient.coins.fetch(symbol, {})),
       )
-    ).reduce((acc, promiseResult) => {
+    ).reduce<Record<string, { rate: number; symbol: string }>>((acc, promiseResult) => {
       const {
         value: { data, success },
       } = promiseResult as any
@@ -98,12 +97,11 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
       }
 
       return acc
-    }, {} as Record<string, { rate: number; symbol: string }>)
+    }, {})
 
     // Map every treasury to combine treasury name, and divide balance by constant
     const treasuryStorage = convertedStorage.treasuryAddresses
       .map((treasuryData: TreasuryGQLType, idx: number) => {
-        let treasuryTVL = 0
         const sMVKAmount = parsedsMVKAmount.find(
           ({ contract }: TreasuryBalanceType) => contract === treasuryData.address,
         )
@@ -120,8 +118,6 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
               const assetRate = symbol === 'MVK' ? MVK_EXCHANGE_RATE : treasuryAssetsFetchedData[symbol]?.rate
               const coinsAmount = parseFloat(balance) / Math.pow(10, parseInt(decimals))
               const usdValue = coinsAmount * (assetRate ?? 1)
-
-              treasuryTVL += usdValue
 
               return {
                 contract: contract?.address,
@@ -142,7 +138,7 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
               Number(asset2.balance) * Number(asset2.rate) - Number(asset1.balance) * Number(asset1.rate),
           )
 
-        treasuryTVL += sMVKAmount?.usdValue || 0
+        const treasuryTVL = tresuryTokensWithValidBalances.reduce<number>((acc, { usdValue }) => (acc += usdValue), 0)
 
         return {
           ...treasuryData,
