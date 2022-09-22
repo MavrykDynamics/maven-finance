@@ -361,12 +361,6 @@ block{
                     unstakeMvkIsPaused         = False;
                 ];
 
-                // Prepare Treasury Metadata
-                const treasuryMetadata: metadataType = Big_map.literal (list [
-                    ("", Bytes.pack("tezos-storage:data"));
-                    ("data", createTreasuryParams.metadata)
-                ]);
-
                 // Init Treasury lambdas (stored on Treasury Factory)
                 const treasuryLambdaLedger : lambdaLedgerType = s.treasuryLambdaLedger;
 
@@ -374,7 +368,7 @@ block{
                 const originatedTreasuryStorage : treasuryStorageType = record [
                     
                     admin                     = s.admin;                         // admin will be the Treasury Factory admin (i.e. Governance Proxy contract)
-                    metadata                  = treasuryMetadata;
+                    metadata                  = createTreasuryParams.metadata;
                     name                      = createTreasuryParams.name;
 
                     mvkTokenAddress           = s.mvkTokenAddress;

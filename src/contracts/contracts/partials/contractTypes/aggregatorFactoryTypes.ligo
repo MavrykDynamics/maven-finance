@@ -23,8 +23,7 @@ type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
-
-type createAggregatorParamsType is string * string * [@layout:comb] record[
+type aggregatorStorageParamsType is [@layout:comb] record[
     name                    : string;
     addToGeneralContracts   : bool;
 
@@ -33,6 +32,8 @@ type createAggregatorParamsType is string * string * [@layout:comb] record[
     aggregatorConfig        : aggregatorConfigType;
     metadata                : bytes;
 ];
+
+type createAggregatorParamsType is string * string * aggregatorStorageParamsType;
 
 
 type registerAggregatorActionType is [@layout:comb] record [

@@ -825,10 +825,25 @@ block {
 
     case executeAction of [
       
-        |   CreateFarm(createFarmParams) -> {
+        |   CreateFarm(createFarmProxyParams) -> {
 
                 // Find and get farmFactory contract address from the generalContracts map
                 const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
+
+                // Init farm params
+                var farmMetadata : metadataType          := (Big_map.empty: metadataType);
+                for key -> value in map createFarmProxyParams.metadata block {
+                    farmMetadata    := Big_map.update(key, Some(value), farmMetadata);
+                };
+                const createFarmParams : createFarmType  = record[
+                    name                     = createFarmProxyParams.name;
+                    addToGeneralContracts    = createFarmProxyParams.addToGeneralContracts;
+                    forceRewardFromTransfer  = createFarmProxyParams.forceRewardFromTransfer;
+                    infinite                 = createFarmProxyParams.infinite;
+                    plannedRewards           = createFarmProxyParams.plannedRewards;
+                    metadata                 = farmMetadata;
+                    lpToken                  = createFarmProxyParams.lpToken;
+                ];
 
                 // Find and get createFarm entrypoint of farmFactory contract
                 const createFarmEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1018,10 +1033,21 @@ block {
 
     case executeAction of [
       
-        |   CreateTreasury(createTreasuryParams) -> {
+        |   CreateTreasury(createTreasuryProxyParams) -> {
 
                 // Find and get treasuryFactory contract address from the generalContracts map
                 const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+
+                // Init treasury params
+                var treasuryMetadata : metadataType             := (Big_map.empty: metadataType);
+                for key -> value in map createTreasuryProxyParams.metadata block {
+                    treasuryMetadata    := Big_map.update(key, Some(value), treasuryMetadata);
+                };
+                const createTreasuryParams : createTreasuryType = record[
+                    name                    = createTreasuryProxyParams.name;
+                    addToGeneralContracts   = createTreasuryProxyParams.addToGeneralContracts;
+                    metadata                = treasuryMetadata;
+                ];
 
                 // Find and get createTreasury entrypoint of treasuryFactory contract
                 const createTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1339,10 +1365,27 @@ block {
 
     case executeAction of [
       
-        |   CreateAggregator(createAggregatorParams) -> {
+        |   CreateAggregator(createAggregatorProxyParams) -> {
 
                 // Find and get aggregatorFactory contract address
                 const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
+
+                // Init aggregator params
+                var aggregatorMetadata : metadataType             := (Big_map.empty: metadataType);
+                for key -> value in map createAggregatorProxyParams.2.metadata block {
+                    aggregatorMetadata    := Big_map.update(key, Some(value), aggregatorMetadata);
+                };
+                const aggregatorStorageParams : aggregatorStorageParamsType = record[
+                    name                    = createAggregatorProxyParams.2.name;
+                    addToGeneralContracts   = createAggregatorProxyParams.2.addToGeneralContracts;
+
+                    oracleAddresses         = createAggregatorProxyParams.2.oracleAddresses;
+                    
+                    aggregatorConfig        = createAggregatorProxyParams.2.aggregatorConfig;
+                    maintainer              = createAggregatorProxyParams.2.maintainer;
+                    metadata                = aggregatorMetadata;
+                ];
+                const createAggregatorParams : createAggregatorParamsType = (createAggregatorProxyParams.0, createAggregatorProxyParams.1, aggregatorStorageParams);
 
                 // Find and get createAggregator entrypoint of aggregatorFactory contract
                 const createAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
