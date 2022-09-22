@@ -111,8 +111,6 @@ export async function getFarmMetadata(farmAddress: string) {
       })[0] || {}
     const targetFarmMetadataValue = Buffer.from(targetMetadataItem.value, 'hex').toString()
 
-    console.log('targetFarmMetadataValue', targetFarmMetadataValue, farmAddress)
-
     const parsedMetadataValue = JSON.parse(targetFarmMetadataValue)
 
     if (!parsedMetadataValue['liquidityPairToken']) {
