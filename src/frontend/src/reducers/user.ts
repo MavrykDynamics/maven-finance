@@ -14,6 +14,20 @@ const defaultUser: UserData = {
   participationFeesPerShare: 0,
   satelliteMvkIsDelegatedTo: '',
   isSatellite: false,
+  myDoormanRewardsData: {
+    generalAccumulatedFeesPerShare: 0,
+    generalUnclaimedRewards: 0,
+    myAvailableDoormanRewards: 0,
+    myParticipationFeesPerShare: 0,
+  },
+  myFarmRewardsData: {},
+  mySatelliteRewardsData: {
+    myAvailableSatelliteRewards: 0,
+    paid: 0,
+    participationRewardsPerShare: 0,
+    satelliteAccumulatedRewardPerShare: 0,
+    unpaid: 0,
+  },
 }
 const userDefaultState: UserState = {
   type: GET_USER_DATA,
