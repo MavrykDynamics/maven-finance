@@ -35,12 +35,12 @@ export const normalizeFarmStorage = async (farmList: FarmGraphQL[]) => {
       // TODO: find appropriate value in gql
       lpTokenAddress: '',
       lpToken1: {
-        symbol: lpMetadata.liquidityPairToken.token0.symbol[0],
-        address: lpMetadata.liquidityPairToken.token0.tokenAddress[0],
+        symbol: lpMetadata?.liquidityPairToken?.token0?.symbol[0],
+        address: lpMetadata?.liquidityPairToken?.token0?.tokenAddress[0],
       },
       lpToken2: {
-        symbol: lpMetadata.liquidityPairToken.token1.symbol[0],
-        address: lpMetadata.liquidityPairToken.token1.tokenAddress[0],
+        symbol: lpMetadata?.liquidityPairToken?.token1?.symbol[0],
+        address: lpMetadata?.liquidityPairToken?.token1?.tokenAddress[0],
       },
       rewardPerBlock: 0,
       rewardsFromTreasury: false,
