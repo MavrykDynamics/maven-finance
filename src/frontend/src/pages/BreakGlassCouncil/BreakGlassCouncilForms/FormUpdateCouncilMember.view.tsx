@@ -44,7 +44,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
     e.preventDefault()
 
     try {
-      await dispatch(updateCouncilMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage))
+      await dispatch(updateCouncilMember(newMemberName, newMemberWebsite, newMemberImage))
       setForm(INIT_FORM)
       setFormInputStatus({
         memberAddress: '',
