@@ -17,11 +17,9 @@ import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 
 export const Doorman = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { doormanStorage, totalStakedMvk } = useSelector((state: State) => state.doorman)
-  const { user } = useSelector((state: State) => state.user)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+  const { totalStakedMvk } = useSelector((state: State) => state.doorman)
 
   // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   // const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
@@ -50,14 +48,7 @@ export const Doorman = () => {
     <Page>
       <ExitFeeModal />
       <PageHeader page={'doorman'} />
-      <StakeUnstakeView
-        myMvkTokenBalance={user?.myMvkTokenBalance}
-        userStakeBalance={user?.mySMvkTokenBalance}
-        stakeCallback={stakeCallback}
-        unstakeCallback={unstakeCallback}
-        loading={false}
-        accountPkh={accountPkh}
-      />
+      <StakeUnstakeView stakeCallback={stakeCallback} unstakeCallback={unstakeCallback} />
       <DoormanInfoStyled>
         <Chart list={chartList} header="MVK Staking analysis" />
         <DoormanStatsView
