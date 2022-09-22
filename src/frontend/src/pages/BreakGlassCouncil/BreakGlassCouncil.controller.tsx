@@ -1,4 +1,6 @@
 import React, { FC, useState, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 import { useLocation } from 'react-router'
 
 // components
@@ -12,6 +14,8 @@ import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.vie
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
+import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
+import { CouncilFormUpdateCouncilMemberInfo } from '../Council/CouncilForms/CouncilFormUpdateCouncilMemberInfo.view'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
@@ -141,8 +145,10 @@ const actionNameHandler = (name: string) => {
 }
 
 export const BreakGlassCouncil: FC = () => {
+  const dispatch = useDispatch()
   const { search } = useLocation()
-
+  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
+  
   const itemsForDropDown = useMemo(
     () => [
       ...Object.values(actions).map((item) => {
@@ -162,6 +168,8 @@ export const BreakGlassCouncil: FC = () => {
   const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(true)
+
+  const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -298,18 +306,23 @@ export const BreakGlassCouncil: FC = () => {
 
           <h1>Break Glass Council</h1>
           
-          {mockMembers.map((item) => (
+          {breakGlassCouncilMember.map((item) => (
             <CouncilMemberView
               key={item.id}
               image={item.image}
               name={item.name}
-              user_id={item.user_id}
+              user_id={item.userId}
               website={item.website}
-              openModal={item.openModal}
+              openModal={() => {}}
             />
           ))}
         </div>
       </BreakGlassCouncilStyled>
+      {isUpdateCouncilMemberInfo ? (
+        <ModalPopup width={750} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
+          <CouncilFormUpdateCouncilMemberInfo />
+        </ModalPopup>
+      ) : null}
     </Page>
   )
 }
