@@ -18,6 +18,7 @@ type Props = {
 }
 
 export const CouncilMemberView = (props: Props) => {
+  console.log("🚀 ~ file: CouncilMember.view.tsx ~ line 21 ~ CouncilMemberView ~ props", props)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { image, name, user_id, website, openModal } = props
   const href = website?.length ? website : `/satellites/satellite-details/${user_id}`
