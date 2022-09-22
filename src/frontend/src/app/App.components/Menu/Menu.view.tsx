@@ -1,23 +1,27 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { State } from 'reducers'
-
-import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
-import Icon from '../Icon/Icon.view'
-import { toggleSidebarCollapsing } from './Menu.actions'
-import { MenuFooter, MenuGrid, MenuSidebarContent, MenuSidebarStyled } from './Menu.style'
-import { MenuTopBar } from './MenuTopBar/MenuTopBar.controller'
-import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
-import { NavigationLink } from './NavigationLink/NavigationLink.controller'
-
 import { matchPath } from 'react-router'
 
+// view
+import Icon from '../Icon/Icon.view'
+import { MenuTopBar } from './MenuTopBar/MenuTopBar.controller'
+import { NavigationLink } from './NavigationLink/NavigationLink.controller'
+
+// types
+import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
+
+// styles
+import { MenuFooter, MenuGrid, MenuSidebarContent, MenuSidebarStyled } from './Menu.style'
+
+// helpers, costants
+import { toggleSidebarCollapsing } from './Menu.actions'
+import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
+
 type MenuViewProps = {
-  loading: boolean
   accountPkh?: string
-  ready: boolean
   openChangeNodePopupHandler: () => void
 }
 
@@ -63,18 +67,12 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
       })
 
       setSelectedMainLink(selectedMainRoute?.id || 0)
-      setShowSubPages(Boolean(selectedMainRoute?.subPages))
     } else {
       setSelectedMainLink(0)
     }
   }, [pathname, showSidebarOpened, sidebarOpened])
 
   const [selectedMainLink, setSelectedMainLink] = useState<number>(0)
-  const [showSubPages, setShowSubPages] = useState<boolean>(false)
-
-  const handleToggle = () => {
-    setShowSubPages(!showSubPages)
-  }
 
   const burgerClickHandler = useCallback(() => {
     setSelectedMainLink(0)
@@ -104,10 +102,8 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
               return (
                 <NavigationLink
                   key={navigationLink.id}
-                  handleToggle={handleToggle}
-                  selectedMainLink={navigationLink.id === selectedMainLink}
+                  selectedMainLink={selectedMainLink}
                   isMobMenuExpanded={sidebarOpened}
-                  showSubPages={showSubPages}
                   accountPkh={accountPkh}
                   {...navigationLink}
                 />

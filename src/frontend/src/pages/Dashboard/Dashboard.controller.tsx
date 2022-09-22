@@ -20,6 +20,7 @@ export const Dashboard = () => {
   } = useSelector((state: State) => state.mvkToken)
   const { totalStakedMvk = 0 } = useSelector((state: State) => state.doorman)
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
+  const { farmStorage } = useSelector((state: State) => state.farm)
 
   const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
   const treasuryTVL = treasuryStorage.reduce((acc, { balances }) => {
@@ -28,12 +29,16 @@ export const Dashboard = () => {
     }, 0))
   }, 0)
 
-  //TODO: add calculation for tvl value (farms, loans, vaults)
-  const tvlValue = totalStakedMvk * exchangeRate + treasuryTVL
+  // TODO: check this calculation with sam
+  const farmsTVL = farmStorage.reduce((acc, farm) => {
+    return (acc += farm.lpBalance)
+  }, 0)
+
+  //TODO: add calculation for tvl value (loans, vaults)
+  const tvlValue = totalStakedMvk * exchangeRate + treasuryTVL + farmsTVL
 
   useEffect(() => {
     dispatch(fillTreasuryStorage())
-    dispatch(getFarmStorage())
     dispatch(getDelegationStorage())
   }, [dispatch])
 

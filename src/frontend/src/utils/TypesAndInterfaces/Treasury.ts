@@ -8,11 +8,11 @@ export type TreasuryGQLType = {
   name: string
 }
 
-export type TreasuryType = TreasuryGQLType & FetchedTreasuryType
+export type TreasuryType = TreasuryGQLType & FetchedTreasuryType & { treasuryTVL: number }
 
 export type FetchedTreasuryType = {
   balances: Array<TreasuryBalanceType>
-  total: number
+  total?: number
 }
 
 export type FetchedTreasuryBalanceType = {
@@ -41,7 +41,7 @@ export type FetchedTreasuryBalanceType = {
 export type TreasuryBalanceType = {
   rate: number | null
   balance: number
-  contract: string
+  contract?: string
   decimals: number
   name: string
   symbol: string

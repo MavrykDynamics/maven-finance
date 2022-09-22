@@ -26,7 +26,10 @@ export function toaster(state = toasterDefaultState, action: Action) {
         message: action.message,
       }
     case HIDE_TOASTER:
-      return toasterDefaultState
+      return {
+        ...state,
+        showing: false,
+      }
     default:
       return state
   }

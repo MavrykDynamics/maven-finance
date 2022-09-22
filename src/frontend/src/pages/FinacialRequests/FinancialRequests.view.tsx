@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // helpers, actions
 import { distinctRequestsByExecuting, getDate_MDHMTZ_Format, getRequestStatus } from './FinancialRequests.helpers'
@@ -6,24 +7,21 @@ import {
   ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST,
   PAST_REQUESTS_FINANCIAL_REQUESTS_LIST,
 } from './Pagination/pagination.consts'
+import { PRECISION_NUMBER } from 'utils/constants'
+import { normalizeTokenStandart } from 'pages/Governance/Governance.helpers'
+import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
+import { votingRoundVote } from 'pages/Governance/Governance.actions'
 
 // types
-import { FinancialRequestBody } from './FinancialRequests.types'
+import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { GovernanceFinancialRequestGraphQL } from '../../utils/TypesAndInterfaces/Governance'
-// helpers
-import {
-  normalizeProposalStatus,
-  normalizeTokenStandart,
-  getShortByte,
-  getProposalStatusInfo,
-} from 'pages/Governance/Governance.helpers'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
+import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
 import FRList from './FRList/FRList.view'
-import FRVoting from './FRVoting/FRVoting.view'
 
 // styles
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
@@ -35,17 +33,14 @@ import {
   InfoBlockListValue,
   InfoBlockTitle,
 } from './FinancialRequests.style'
-import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { EmptyContainer } from 'app/App.style'
-import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 
 type FinancialRequestsViewProps = {
-  ready: boolean
-  loading: boolean
   financialRequestsList: GovernanceFinancialRequestGraphQL[]
 }
 
-export const FinancialRequestsView = ({ ready, loading, financialRequestsList = [] }: FinancialRequestsViewProps) => {
+export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialRequestsViewProps) => {
+  const dispatch = useDispatch()
   const [rightSideContent, setRightSideContent] = useState(financialRequestsList[0])
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
@@ -58,6 +53,64 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
   const tokenName = normalizeTokenStandart(rightSideContent?.token)
+
+  // Voting data & handlers
+  const [votingStats, setVoteStatistics] = useState({
+    forVotesMVKTotal: 0,
+    againstVotesMVKTotal: 0,
+    abstainVotesMVKTotal: 0,
+    unusedVotesMVKTotal: 0,
+    quorum: 0,
+  })
+
+  useEffect(() => {
+    setVoteStatistics({
+      forVotesMVKTotal: rightSideContent.yay_vote_smvk_total / PRECISION_NUMBER,
+      againstVotesMVKTotal: rightSideContent.nay_vote_smvk_total / PRECISION_NUMBER,
+      abstainVotesMVKTotal: rightSideContent.pass_vote_smvk_total / PRECISION_NUMBER,
+      unusedVotesMVKTotal: Math.round(
+        rightSideContent.snapshot_smvk_total_supply / PRECISION_NUMBER -
+          rightSideContent.yay_vote_smvk_total / PRECISION_NUMBER -
+          rightSideContent.pass_vote_smvk_total / PRECISION_NUMBER -
+          rightSideContent.nay_vote_smvk_total / PRECISION_NUMBER,
+      ),
+      quorum: rightSideContent.smvk_percentage_for_approval / 100,
+    })
+  }, [rightSideContent])
+
+  const handleVotingRoundVote = (vote: string) => {
+    let voteType
+    switch (vote) {
+      case 'FOR':
+        voteType = 'yay'
+        setVoteStatistics({
+          ...votingStats,
+          forVotesMVKTotal: +votingStats.forVotesMVKTotal + 1,
+          unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
+        })
+        break
+      case 'AGAINST':
+        voteType = 'nay'
+        setVoteStatistics({
+          ...votingStats,
+          againstVotesMVKTotal: votingStats.againstVotesMVKTotal + 1,
+          unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
+        })
+        break
+      case 'ABSTAIN':
+        voteType = 'abstain'
+        setVoteStatistics({
+          ...votingStats,
+          abstainVotesMVKTotal: votingStats.abstainVotesMVKTotal + 1,
+          unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
+        })
+        break
+      default:
+        return
+    }
+
+    dispatch(votingRoundVote(voteType))
+  }
 
   const RightSideBlock = () =>
     rightSideContent ? (
@@ -77,11 +130,10 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList = 
           )}
         </div>
 
-        <FRVoting
-          isActiveVoting={rightItemStatus === ProposalStatus.ONGOING}
-          walletConnected={ready}
-          loading={loading}
-          selectedRequest={rightSideContent}
+        <VotingArea
+          voteStatistics={votingStats}
+          isVotingActive={rightItemStatus === ProposalStatus.ONGOING}
+          handleVote={handleVotingRoundVote}
         />
 
         <hr />

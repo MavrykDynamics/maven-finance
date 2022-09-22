@@ -310,8 +310,6 @@ export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
   margin: 0 auto;
   height: 50px;
   cursor: pointer;
-  color: ${skyColor};
-  border: 2px solid ${skyColor};
   border-radius: ${BUTTON_RADIUS};
   text-align: center;
   font-weight: bold;
@@ -320,8 +318,9 @@ export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 190px;
-  background: none;
+  width: 220px;
+  color: ${({ theme }) => theme.containerColor};
+  background-color: ${({ theme }) => theme.actionPrimaryBtnColor};
 
   &:hover {
     opacity: 0.8;
@@ -330,7 +329,7 @@ export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
   svg {
     width: 25px;
     height: 30px;
-    stroke: ${skyColor};
+    stroke: ${({ theme }) => theme.containerColor};
     fill: transparent;
     margin-right: 16px;
   }
@@ -349,20 +348,21 @@ export const SimpleConnectedButton = styled.div<{ theme: MavrykTheme }>`
   margin: 0 auto;
   height: 50px;
   cursor: pointer;
-  color: ${({ theme }) => theme.connectWalletSecondary};
-  border: 2px solid ${({ theme }) => theme.connectWalletSecondary};
+  color: ${({ theme }) => theme.containerColor};
+  background-color: ${({ theme }) => theme.actionPrimaryBtnColor};
   border-radius: ${BUTTON_RADIUS};
   text-align: center;
   font-weight: bold;
   line-height: 50px;
   font-size: 12px;
+  width: 220px;
 
   > svg {
     display: inline-block;
     width: 24px;
     height: 24px;
     margin: 14px 9px 13px 8px;
-    stroke: ${({ theme }) => theme.connectWalletSecondary};
+    stroke: ${({ theme }) => theme.containerColor};
     vertical-align: top;
   }
 
@@ -370,24 +370,26 @@ export const SimpleConnectedButton = styled.div<{ theme: MavrykTheme }>`
     display: inline-block;
     margin-right: 9px;
     font-weight: 600;
-    color: ${({ theme }) => theme.connectWalletSecondary};
+    color: ${({ theme }) => theme.containerColor};
   }
 `
 
 export const ConnectWalletInfoStyled = styled.blockquote<{ theme: MavrykTheme }>`
+  height: 100px;
   border-radius: 10px;
   margin: 0;
   display: flex;
   align-items: center;
-  padding: 25px;
+  justify-content: space-between;
+  padding: 0 40px;
   background-color: ${({ theme }) => theme.connectInfoColor};
   margin-top: 32px;
 
   p {
+    width: 650px;
     font-weight: 400;
     font-size: 14px;
     line-height: 21px;
-    margin-right: 155px;
     color: ${({ theme }) => theme.headerColor};
     margin-top: 2px;
     margin-bottom: 2px;
@@ -398,11 +400,20 @@ export const ConnectWalletInfoStyled = styled.blockquote<{ theme: MavrykTheme }>
   }
 `
 
+export const ButtonBar = styled.div`
+  display: flex;
+  align-items: center;
+
+  .connect-wallet {
+    margin: 0;
+  }
+`
+
 export const ConnectWalletClose = styled.button<{ theme: MavrykTheme }>`
   background: transparent;
   border: none;
   padding: 0;
-  margin-left: 32px;
+  margin-left: 46px;
   cursor: pointer;
 
   .close-connect-wallet {
