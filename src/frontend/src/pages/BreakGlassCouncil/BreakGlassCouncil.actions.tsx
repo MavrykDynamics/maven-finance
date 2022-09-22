@@ -227,7 +227,6 @@ export const UPDATE_COUNCIL_MEMBER_REQUEST = 'UPDATE_COUNCIL_MEMBER_REQUEST'
 export const UPDATE_COUNCIL_MEMBER_RESULT = 'UPDATE_COUNCIL_MEMBER_RESULT'
 export const UPDATE_COUNCIL_MEMBER_ERROR = 'UPDATE_COUNCIL_MEMBER_ERROR'
 export const updateCouncilMember = (
-  memberAddress: string,
   newMemberName: string, 
   newMemberWebsite: string,
   newMemberImage: string
@@ -251,7 +250,6 @@ export const updateCouncilMember = (
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.updateCouncilMemberInfo(
-      memberAddress,
       newMemberName, 
       newMemberWebsite,
       newMemberImage,

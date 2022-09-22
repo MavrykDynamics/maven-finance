@@ -15,7 +15,7 @@ import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
-import { CouncilFormUpdateCouncilMemberInfo } from '../Council/CouncilForms/CouncilFormUpdateCouncilMemberInfo.view'
+import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
@@ -110,33 +110,6 @@ const mockHistory = [
   },
 ]
 
-const mockMembers = [
-  {
-    id: 1,
-    image: 'https://icatcare.org/app/uploads/2018/07/Thinking-of-getting-a-cat.png',
-    name: 'Cat',
-    user_id: 'jfdsafkjnadfkdasfasf',
-    website: 'cat site',
-    openModal: () => {},
-  },
-  {
-    id: 2,
-    image: 'https://icatcare.org/app/uploads/2018/07/Thinking-of-getting-a-cat.png',
-    name: 'Cat',
-    user_id: 'fkldsajlfnasadsf',
-    website: 'cat site',
-    openModal: () => {},
-  },
-  {
-    id: 3,
-    image: 'https://icatcare.org/app/uploads/2018/07/Thinking-of-getting-a-cat.png',
-    name: 'Cat',
-    user_id: 'asdkgjbkjfadsafkml',
-    website: 'cat site',
-    openModal: () => {},
-  },
-]
-
 const actionNameHandler = (name: string) => {
   return name
     .split('_')
@@ -170,6 +143,10 @@ export const BreakGlassCouncil: FC = () => {
   const [isPendingSignature, setIsPendingSignature] = useState(true)
 
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
+
+  const handleOpenleModal = () => {
+    setIsUpdateCouncilMemberInfo(true)
+  }
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -313,14 +290,14 @@ export const BreakGlassCouncil: FC = () => {
               name={item.name}
               user_id={item.userId}
               website={item.website}
-              openModal={() => {}}
+              openModal={handleOpenleModal}
             />
           ))}
         </div>
       </BreakGlassCouncilStyled>
       {isUpdateCouncilMemberInfo ? (
-        <ModalPopup width={750} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
-          <CouncilFormUpdateCouncilMemberInfo />
+        <ModalPopup width={800} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
+          <FormUpdateCouncilMemberView />
         </ModalPopup>
       ) : null}
     </Page>
