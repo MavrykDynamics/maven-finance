@@ -6,13 +6,16 @@ import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 
 // gql
 import {
-  BREAK_GLASS_COUNCIL_MEMBER_QUERY,
-  BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME,
-  BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE,
   BREAK_GLASS_ACTION_QUERY,
   BREAK_GLASS_ACTION_QUERY_NAME,
   BREAK_GLASS_ACTION_QUERY_VARIABLE,
 } from '../../gql/queries/getBreakGlassActionsStorage'
+
+import {
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY,
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME,
+  BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE,
+} from '../../gql/queries/getBreakGlassCouncilStorage'
 
 export const breakGlassActions = {
   SET_ALL_CONTRACTS_ADMIN: 'SET_ALL_CONTRACTS_ADMIN',

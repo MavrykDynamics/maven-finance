@@ -9,7 +9,7 @@ import {
   BREAK_GLASS_COUNCIL_MEMBER_QUERY,
   BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME,
   BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE,
-} from '../../gql/queries/getBreakGlassActionsStorage'
+} from '../../gql/queries/getBreakGlassCouncilStorage'
 
 // getBreakGlassCouncilMember
 export const GET_BREAK_GLASS_COUNCIL_MEMBER = 'GET_BREAK_GLASS_COUNCIL_MEMBER'
