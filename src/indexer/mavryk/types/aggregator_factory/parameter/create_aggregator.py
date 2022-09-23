@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Union
+from typing import Dict
 
 from pydantic import BaseModel, Extra
 
@@ -35,4 +35,4 @@ class CreateAggregatorParameter(BaseModel):
     oracleAddresses: Dict[str, bool]
     aggregatorConfig: AggregatorConfig
     maintainer: str
-    metadata: Union[int, Dict[str, str]]
+    metadata: str

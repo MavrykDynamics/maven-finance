@@ -53,7 +53,7 @@ contracts:
     address: KT1WESG5zjPWpTJvupm1HbaGSZG1YpNNHrk9
     typename: mvk
   governance_proxy:
-    address: KT1CzDracF6x27PxVJi3LnaS4JgB8UFumDME
+    address: KT1RAFnMEyjDAvzFdbbfNdserGwdrFTJT9c6
     typename: governance_proxy
   governance:
     address: KT1UhppqfnxScFsTaEvwLVjbCjrTA8B9Twt3
@@ -65,7 +65,7 @@ contracts:
     address: KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH #KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH
     typename: farm
   farm_factory:
-    address: KT1PCebAQ23sH1qmNAEtnRim3d64X6EsfP7M
+    address: KT1HQAwWUVE8MweJGMiVSnBRccm7vzoHK1KS
     typename: farm_factory
   delegation:
     address: KT1F9GLKRNH3Bvz91BMoKqm7DcUagbZNmvLE
@@ -92,13 +92,13 @@ contracts:
     address: KT1NdZrQhWh8xMhnsVvAqiFTvTXDQR9RqTEH
     typename: aggregator
   aggregator_factory:
-    address: KT1Xje3DoJgF1su1mnrcMRmZVxZYvrsV7Cyw
+    address: KT1NCrZriUdfzCf9FR8XmmCoXpGDUkJVjZDa
     typename: aggregator_factory
   treasury:
     address: KT1RahUBbjVuhS8BsLjcMRMmfijZMABmf5Ws
     typename: treasury
   treasury_factory:
-    address: KT1Teq1CvwtVEfaghvmPhTbmfzKkM5KxQNmm
+    address: KT1SSqUwiGqKbhML3V2cZCKMVM41nEAgVE4h
     typename: treasury_factory
   token_sale:
     address: KT1DM3EjTwYWrwZeLjQXMPcNDXdzrTVviq4H
