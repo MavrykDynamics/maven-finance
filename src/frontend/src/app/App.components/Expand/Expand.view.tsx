@@ -15,7 +15,6 @@ type Props = {
   showCustomText?: string
   isExpandedByDefault?: boolean
   onClickCallback?: () => void
-  onClick?: () => void
 }
 
 export default function Expand({
@@ -27,7 +26,6 @@ export default function Expand({
   showText = false,
   isExpandedByDefault = false,
   onClickCallback,
-  onClick
 }: Props) {
   const [expanded, setExpanded] = useState<boolean>(false)
   const handleToggleExpand = () => setExpanded(!expanded)
@@ -37,7 +35,7 @@ export default function Expand({
   }, [isExpandedByDefault])
 
   return (
-    <ExpandStyled onClick={onClick} className={className}>
+    <ExpandStyled className={className}>
       <header
         className="expand-header"
         onClick={() => {
