@@ -7,9 +7,30 @@ export interface UserData {
   participationFeesPerShare: number
   satelliteMvkIsDelegatedTo: string
   isSatellite: boolean
-  // myDoormanRewardsData: UserDoormanRewardsData
-  // myFarmRewardsData: UserFarmRewardsData[]
-  mySatelliteRewardsData?: UserSatelliteRewardsData
+  myDoormanRewardsData: UserDoormanRewardsData
+  myFarmRewardsData: Record<string, UserFarmRewardsData>
+  mySatelliteRewardsData: UserSatelliteRewardsData
+}
+
+export interface UserDoormanRewardsData {
+  generalUnclaimedRewards: number
+  generalAccumulatedFeesPerShare: number
+  myParticipationFeesPerShare: number
+  myAvailableDoormanRewards: number
+}
+
+export interface UserFarmRewardsData {
+  generalAccumulatedRewardsPerShare: number
+  currentRewardPerBlock: number
+  lastBlockUpdate: number
+  generalTotalRewards: number
+  generalPaidReward: number
+  generalUnpaidReward: number
+  infinite: boolean
+  totalLPTokenDeposited: number
+  myDepositedAmount: number
+  myParticipationRewardsPerShare: number
+  myAvailableFarmRewards: number
 }
 
 export interface UserSatelliteRewardsData {

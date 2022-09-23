@@ -10,6 +10,7 @@ import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export type HeadDataType = {
   knownLevel: number
+  level: number
 }
 
 export type RPCNodeType = {
