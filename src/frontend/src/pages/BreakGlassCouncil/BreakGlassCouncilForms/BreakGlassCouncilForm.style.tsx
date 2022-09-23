@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { skyColor, headerColor, textsColor } from "styles";
+import { skyColor, headerColor, textsColor, upColor } from "styles";
 
 export const FormStyled = styled.div`
   position: relative;
@@ -40,6 +40,14 @@ export const FormStyled = styled.div`
         fill: ${textsColor};
       }
     }
+  }
+
+  .address {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    margin-left: 20px;
+    color: ${upColor};
   }
 
   .form {
