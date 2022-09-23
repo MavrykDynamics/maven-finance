@@ -288,8 +288,7 @@ export const SET_USER_DATA = 'SET_USER_DATA'
 export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
 export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
-  // @ts-ignore
-  const currentBlockLevel = state.preferences.headData?.level || 0
+  const currentBlockLevel = state.preferences.headData?.level ?? 0
 
   try {
     const userInfoFromIndexer = await fetchFromIndexer(
@@ -303,20 +302,20 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       USER_REWARDS_QUERY_NAME,
       USER_REWARDS_QUERY_VARIABLES(accountPkh),
     )
-    console.log('userRewardsData', userRewardsData)
 
     const userDoormanRewardsData: UserDoormanRewardsData = {
-      generalAccumulatedFeesPerShare: userRewardsData.doorman[0]?.accumulated_fees_per_share || 0,
-      generalUnclaimedRewards: userRewardsData.doorman[0]?.unclaimed_rewards || 0,
-      myParticipationFeesPerShare: userRewardsData.doorman[0]?.stake_accounts[0]?.participation_fees_per_share || 0,
+      generalAccumulatedFeesPerShare: userRewardsData.doorman[0]?.accumulated_fees_per_share ?? 0,
+      generalUnclaimedRewards: userRewardsData.doorman[0]?.unclaimed_rewards ?? 0,
+      myParticipationFeesPerShare: userRewardsData.doorman[0]?.stake_accounts[0]?.participation_fees_per_share ?? 0,
       myAvailableDoormanRewards: 0,
     }
+
     const userSatelliteRewardsData: UserSatelliteRewardsData = {
-      unpaid: userRewardsData.satellite_rewards[0]?.unpaid || 0,
-      paid: userRewardsData.satellite_rewards[0]?.paid || 0,
-      participationRewardsPerShare: userRewardsData.satellite_rewards[0]?.participation_rewards_per_share || 0,
+      unpaid: userRewardsData.satellite_rewards[0]?.unpaid ?? 0,
+      paid: userRewardsData.satellite_rewards[0]?.paid ?? 0,
+      participationRewardsPerShare: userRewardsData.satellite_rewards[0]?.participation_rewards_per_share ?? 0,
       satelliteAccumulatedRewardPerShare:
-        userRewardsData.satellite_rewards[0]?.reference?.satellite_accumulated_reward_per_share || 0,
+        userRewardsData.satellite_rewards[0]?.reference?.satellite_accumulated_reward_per_share ?? 0,
       myAvailableSatelliteRewards: 0,
     }
 
