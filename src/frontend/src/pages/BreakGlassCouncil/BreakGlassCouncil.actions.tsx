@@ -226,7 +226,7 @@ export const setSingleContractAdmin = (newAdminAddress: string, targetContract: 
 export const SIGN_ACTION_REQUEST = 'SIGN_ACTION_REQUEST'
 export const SIGN_ACTION_RESULT = 'SIGN_ACTION_RESULT'
 export const SIGN_ACTION_ERROR = 'SIGN_ACTION_ERROR'
-export const signAction = (breakGlassActionID: string) => async (dispatch: AppDispatch, getState: GetState) => {
+export const signAction = (breakGlassActionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {

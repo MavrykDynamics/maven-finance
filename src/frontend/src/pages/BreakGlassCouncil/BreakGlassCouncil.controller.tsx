@@ -9,12 +9,12 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPastAction.view'
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
-import { CouncilPendingView } from '../Council/CouncilPending/CouncilPending.view'
 import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
+import { BreakGlassCouncilPanding } from './BreakGlassCouncilPanding/BreakGlassCouncilPanding.controller'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
@@ -144,16 +144,11 @@ export const BreakGlassCouncil: FC = () => {
               <div className="pending-items">
                 <Carousel itemLength={breakGlassActionPendingMySignature.length} key={sliderKey}>
                   {breakGlassActionPendingMySignature.map((item) => (
-                    <CouncilPendingView
-                      execution_datetime={String(item.executionDatetime)}
+                    <BreakGlassCouncilPanding
+                      {...item}
                       key={item.id}
-                      id={item.id}
-                      action_type={item.actionType}
-                      signers_count={item.signersCount}
-                      initiator_id={item.initiatorId}
-                      num_council_members={breakGlassCouncilMember.length}
+                      numCouncilMembers={breakGlassCouncilMember.length}
                       councilPendingActionsLength={breakGlassActionPendingMySignature.length}
-                      parameters={[]}
                     />
                   ))}
                 </Carousel>

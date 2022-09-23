@@ -13,6 +13,7 @@ export const Page = styled(PageBase)`
 export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
+  cursor: grab;
 
   .left-block {
     width: 750px;

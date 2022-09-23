@@ -33,7 +33,7 @@ export const FormSignActionView: FC = () => {
     e.preventDefault()
 
     try {
-      await dispatch(signAction(breakGlassActionID))
+      await dispatch(signAction(Number(breakGlassActionID)))
       setForm(INIT_FORM)
       setFormInputStatus({
         breakGlassActionID: '',
