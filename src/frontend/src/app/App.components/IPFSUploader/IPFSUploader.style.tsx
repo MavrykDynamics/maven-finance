@@ -85,7 +85,7 @@ export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const UploadIconContainer = styled.div<{
-  uploadIsFailed: boolean,
+  uploadIsFailed: boolean
   theme: MavrykTheme
 }>`
   position: absolute;

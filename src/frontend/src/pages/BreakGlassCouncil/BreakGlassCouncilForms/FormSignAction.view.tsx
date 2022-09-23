@@ -4,10 +4,10 @@ import { useDispatch } from 'react-redux'
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { Input } from "app/App.components/Input/Input.controller"
+import { Input } from 'app/App.components/Input/Input.controller'
 
 // types
-import { InputStatusType } from "app/App.components/Input/Input.constants"
+import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 // styles
 import { FormStyled } from './BreakGlassCouncilForm.style'
@@ -27,7 +27,7 @@ export const FormSignActionView: FC = () => {
     breakGlassActionID: '',
   })
 
-  const { breakGlassActionID } = form;
+  const { breakGlassActionID } = form
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -60,7 +60,7 @@ export const FormSignActionView: FC = () => {
       <h1>Sign Action</h1>
       <p>Please enter valid function parameters for sign action</p>
 
-      <form className='form' onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         <div className="form-fields input-size-primary">
           <label>Break Glass Action ID</label>
 
@@ -78,13 +78,7 @@ export const FormSignActionView: FC = () => {
           />
         </div>
 
-        <Button
-          className="stroke-03"
-          text={'Sign Action'}
-          kind={ACTION_PRIMARY}
-          icon={'sign'}
-          type="submit"
-        />
+        <Button className="stroke-03" text={'Sign Action'} kind={ACTION_PRIMARY} icon={'sign'} type="submit" />
       </form>
     </FormStyled>
   )

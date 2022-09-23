@@ -5,13 +5,13 @@ import { State } from 'reducers'
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { Input } from "app/App.components/Input/Input.controller"
+import { Input } from 'app/App.components/Input/Input.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // types
-import { InputStatusType } from "app/App.components/Input/Input.constants"
+import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 // styles
 import { FormStyled } from './BreakGlassCouncilForm.style'
@@ -25,7 +25,7 @@ import { getShortTzAddress } from '../../../utils/tzAdress'
 const INIT_FORM = {
   newCouncilMemberAddress: '',
   newMemberWebsite: '',
-  newMemberName: '' ,
+  newMemberName: '',
   newMemberImage: '',
 }
 
@@ -34,13 +34,13 @@ export const FormChangeCouncilMemberView: FC = () => {
   const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 
   const itemsForDropDown = [
-    {text: 'Choose', value: ''},
-    ...breakGlassCouncilMember.map(((item) => {
+    { text: 'Choose', value: '' },
+    ...breakGlassCouncilMember.map((item) => {
       return {
         text: `${item.name} - ${getShortTzAddress(item.userId)}`,
         value: item.userId,
       }
-    }))
+    }),
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -53,7 +53,7 @@ export const FormChangeCouncilMemberView: FC = () => {
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     newCouncilMemberAddress: '',
     newMemberWebsite: '',
-    newMemberName: '' ,
+    newMemberName: '',
     newMemberImage: '',
   })
 
@@ -64,14 +64,22 @@ export const FormChangeCouncilMemberView: FC = () => {
     e.preventDefault()
 
     try {
-      const oldCouncilMemberAddress = chosenDdItem?.value || '';
+      const oldCouncilMemberAddress = chosenDdItem?.value || ''
 
-      await dispatch(changeCouncilMember(oldCouncilMemberAddress, newCouncilMemberAddress, newMemberName, newMemberWebsite, newMemberImage))
+      await dispatch(
+        changeCouncilMember(
+          oldCouncilMemberAddress,
+          newCouncilMemberAddress,
+          newMemberName,
+          newMemberWebsite,
+          newMemberImage,
+        ),
+      )
       setForm(INIT_FORM)
       setFormInputStatus({
         newCouncilMemberAddress: '',
         newMemberWebsite: '',
-        newMemberName: '' ,
+        newMemberName: '',
         newMemberImage: '',
       })
       setChosenDdItem(itemsForDropDown[0])
@@ -114,7 +122,7 @@ export const FormChangeCouncilMemberView: FC = () => {
       <p>Please enter valid function parameters for changing a council member</p>
 
       <form onSubmit={handleSubmit}>
-        <div className='form-fields input-size-secondary margin-bottom-20'>
+        <div className="form-fields input-size-secondary margin-bottom-20">
           <label>Choose Council Member to change</label>
           <DropDown
             clickOnDropDown={handleClickDropdown}
@@ -127,7 +135,7 @@ export const FormChangeCouncilMemberView: FC = () => {
         </div>
 
         <div className="form-fields in-two-columns">
-          <div className='input-size-secondary margin-bottom-20'>
+          <div className="input-size-secondary margin-bottom-20">
             <label>Council Member Address</label>
             <Input
               type="text"
@@ -143,7 +151,7 @@ export const FormChangeCouncilMemberView: FC = () => {
             />
           </div>
 
-          <div className='input-size-tertiary'>
+          <div className="input-size-tertiary">
             <label>Council Member Name</label>
             <Input
               type="text"
@@ -159,7 +167,7 @@ export const FormChangeCouncilMemberView: FC = () => {
             />
           </div>
 
-          <div className='input-size-secondary margin-bottom-20'>
+          <div className="input-size-secondary margin-bottom-20">
             <label>Council Member Website URL</label>
             <Input
               type="text"
@@ -189,7 +197,7 @@ export const FormChangeCouncilMemberView: FC = () => {
           title={'Upload Profile Pic'}
         />
 
-        <div className='align-to-right'>
+        <div className="align-to-right">
           <Button
             className="stroke-01"
             text={'Change Council Member'}

@@ -5,7 +5,7 @@ import { State } from 'reducers'
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { Input } from "app/App.components/Input/Input.controller"
+import { Input } from 'app/App.components/Input/Input.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 
@@ -13,7 +13,7 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 import { getShortTzAddress } from '../../../utils/tzAdress'
 
 // types
-import { InputStatusType } from "app/App.components/Input/Input.constants"
+import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 // styles
 import { FormStyled } from './BreakGlassCouncilForm.style'
@@ -23,7 +23,7 @@ import { updateCouncilMember } from '../BreakGlassCouncil.actions'
 
 const INIT_FORM = {
   newMemberWebsite: '',
-  newMemberName: '' ,
+  newMemberName: '',
   newMemberImage: '',
 }
 
@@ -38,7 +38,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     newMemberWebsite: '',
-    newMemberName: '' ,
+    newMemberName: '',
     newMemberImage: '',
   })
 
@@ -53,7 +53,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
       setForm(INIT_FORM)
       setFormInputStatus({
         newMemberWebsite: '',
-        newMemberName: '' ,
+        newMemberName: '',
         newMemberImage: '',
       })
       setUploadKey(uploadKey + 1)
@@ -104,12 +104,12 @@ export const FormUpdateCouncilMemberView: FC = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="form-fields in-two-columns">
-          <div className='input-size-secondary margin-bottom-20'>
+          <div className="input-size-secondary margin-bottom-20">
             <label>Council Member Address</label>
-            <div className='address'>{getShortTzAddress(accountPkh || '')}</div>
+            <div className="address">{getShortTzAddress(accountPkh || '')}</div>
           </div>
 
-          <div className='input-size-tertiary'>
+          <div className="input-size-tertiary">
             <label>Council Member Name</label>
             <Input
               type="text"
@@ -125,7 +125,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
             />
           </div>
 
-          <div className='input-size-secondary margin-bottom-20'>
+          <div className="input-size-secondary margin-bottom-20">
             <label>Council Member Website URL</label>
             <Input
               type="text"
@@ -155,7 +155,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
           title={'Upload Profile Pic'}
         />
 
-        <div className='align-to-right'>
+        <div className="align-to-right">
           <Button
             className="stroke-01"
             text={'Update Council Member'}

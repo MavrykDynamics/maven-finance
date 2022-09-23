@@ -18,8 +18,8 @@ import { BreakGlassCouncilPanding } from './BreakGlassCouncilPanding/BreakGlassC
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
-import { 
-  BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME, 
+import {
+  BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME,
   BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   calculateSlicePositions,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
@@ -27,7 +27,15 @@ import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
 
 // styles
-import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack, AvaliableActions, ModalPopup, PropagateBreakGlassCouncilCard } from './BreakGlassCouncil.style'
+import {
+  Page,
+  BreakGlassCouncilStyled,
+  ReviewPastCouncilActionsCard,
+  GoBack,
+  AvaliableActions,
+  ModalPopup,
+  PropagateBreakGlassCouncilCard,
+} from './BreakGlassCouncil.style'
 
 // actions
 import { propagateBreakGlass } from './BreakGlassCouncil.actions'
@@ -49,7 +57,7 @@ export const BreakGlassCouncil: FC = () => {
     pastBreakGlassCouncilAction,
     myPastBreakGlassCouncilAction,
   } = useSelector((state: State) => state.breakGlass)
-  
+
   const itemsForDropDown = useMemo(
     () => [
       ...Object.values(actions).map((item) => {
@@ -71,7 +79,9 @@ export const BreakGlassCouncil: FC = () => {
   const [isPendingSignature, setIsPendingSignature] = useState(true)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
-  const displayPendingSignature = Boolean(isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length)
+  const displayPendingSignature = Boolean(
+    isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
+  )
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
@@ -88,15 +98,16 @@ export const BreakGlassCouncil: FC = () => {
   }
 
   const currentPage = getPageNumber(
-    search, isGoBack ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME
+    search,
+    isGoBack ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
 
-  const paginatedMyPastCouncilActions= useMemo(() => {
+  const paginatedMyPastCouncilActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME)
     return myPastBreakGlassCouncilAction?.slice(from, to)
   }, [currentPage, myPastBreakGlassCouncilAction])
 
-  const paginatedPastBreakGlassCouncilActions= useMemo(() => {
+  const paginatedPastBreakGlassCouncilActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME)
     return pastBreakGlassCouncilAction?.slice(from, to)
   }, [currentPage, pastBreakGlassCouncilAction])
@@ -112,15 +123,17 @@ export const BreakGlassCouncil: FC = () => {
   return (
     <Page>
       <PageHeader page={'break glass council'} />
-      {isGoBack && isUserInBreakCouncilMember && (<GoBack
-        onClick={() => {
-          setIsPendingSignature(true)
-          setIsGoBack(false)
-        }}
-      >
-        <Icon id="arrow-left-stroke" />
-        Back to Member Dashboard
-      </GoBack>)}
+      {isGoBack && isUserInBreakCouncilMember && (
+        <GoBack
+          onClick={() => {
+            setIsPendingSignature(true)
+            setIsGoBack(false)
+          }}
+        >
+          <Icon id="arrow-left-stroke" />
+          Back to Member Dashboard
+        </GoBack>
+      )}
 
       {isUserInBreakCouncilMember && !isGoBack && (
         <PropagateBreakGlassCouncilCard>
@@ -133,12 +146,13 @@ export const BreakGlassCouncil: FC = () => {
             icon={'plus'}
             onClick={handleClickPropagateBreakGlass}
           />
-        </PropagateBreakGlassCouncilCard>)}
+        </PropagateBreakGlassCouncilCard>
+      )}
 
       {displayPendingSignature && <h1>Pending Signature</h1>}
 
       <BreakGlassCouncilStyled>
-        <div className='left-block'>
+        <div className="left-block">
           {displayPendingSignature && (
             <article className="pending">
               <div className="pending-items">
@@ -153,102 +167,110 @@ export const BreakGlassCouncil: FC = () => {
                   ))}
                 </Carousel>
               </div>
-            </article>)}
+            </article>
+          )}
 
-          {isGoBack ? 
-          <>
-            {!!pastBreakGlassCouncilAction.length && 
+          {isGoBack ? (
             <>
-              <h1>Past Break Glass Council Actions</h1>
-              {paginatedPastBreakGlassCouncilActions.map((item) => (
-                <CouncilPastActionView
-                  execution_datetime={String(item.executionDatetime)}
-                  key={item.id}
-                  action_type={item.actionType}
-                  signers_count={item.signersCount}
-                  num_council_members={breakGlassCouncilMember.length}
-                  council_id={item.breakGlassId}
-                />
-              ))}
+              {!!pastBreakGlassCouncilAction.length && (
+                <>
+                  <h1>Past Break Glass Council Actions</h1>
+                  {paginatedPastBreakGlassCouncilActions.map((item) => (
+                    <CouncilPastActionView
+                      execution_datetime={String(item.executionDatetime)}
+                      key={item.id}
+                      action_type={item.actionType}
+                      signers_count={item.signersCount}
+                      num_council_members={breakGlassCouncilMember.length}
+                      council_id={item.breakGlassId}
+                    />
+                  ))}
 
-              <Pagination
-                itemsCount={pastBreakGlassCouncilAction.length}
-                listName={BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME}
-              />
-            </>}
-          </> : 
-          <>
-             <AvaliableActions>
-              <div className="top-bar">
-                <h1 className="top-bar-title">Available Actions</h1>
-
-                <div className="dropdown-size">
-                  <DropDown
-                    clickOnDropDown={handleClickDropdown}
-                    placeholder={ddItems[0]}
-                    isOpen={ddIsOpen}
-                    itemSelected={chosenDdItem?.text}
-                    items={ddItems}
-                    clickOnItem={(e) => handleClickDropdownItem(e)}
+                  <Pagination
+                    itemsCount={pastBreakGlassCouncilAction.length}
+                    listName={BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME}
                   />
-                </div>
-              </div>
-
-              <BreakGlassCouncilForm action={chosenDdItem?.value} />
-            </AvaliableActions>
-
-            {!!myPastBreakGlassCouncilAction.length &&
+                </>
+              )}
+            </>
+          ) : (
             <>
-              <h1>My Past Council Actions</h1>
-              {paginatedMyPastCouncilActions.map((item) => (
-                <CouncilPastActionView
-                  execution_datetime={String(item.executionDatetime)}
-                  key={item.id}
-                  action_type={item.actionType}
-                  signers_count={item.signersCount}
-                  num_council_members={breakGlassCouncilMember.length}
-                  council_id={item.breakGlassId}
-                />
-              ))}
+              <AvaliableActions>
+                <div className="top-bar">
+                  <h1 className="top-bar-title">Available Actions</h1>
 
-              <Pagination
-                itemsCount={myPastBreakGlassCouncilAction.length}
-                listName={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME}
-              />
-            </>}
-          </>}
+                  <div className="dropdown-size">
+                    <DropDown
+                      clickOnDropDown={handleClickDropdown}
+                      placeholder={ddItems[0]}
+                      isOpen={ddIsOpen}
+                      itemSelected={chosenDdItem?.text}
+                      items={ddItems}
+                      clickOnItem={(e) => handleClickDropdownItem(e)}
+                    />
+                  </div>
+                </div>
+
+                <BreakGlassCouncilForm action={chosenDdItem?.value} />
+              </AvaliableActions>
+
+              {!!myPastBreakGlassCouncilAction.length && (
+                <>
+                  <h1>My Past Council Actions</h1>
+                  {paginatedMyPastCouncilActions.map((item) => (
+                    <CouncilPastActionView
+                      execution_datetime={String(item.executionDatetime)}
+                      key={item.id}
+                      action_type={item.actionType}
+                      signers_count={item.signersCount}
+                      num_council_members={breakGlassCouncilMember.length}
+                      council_id={item.breakGlassId}
+                    />
+                  ))}
+
+                  <Pagination
+                    itemsCount={myPastBreakGlassCouncilAction.length}
+                    listName={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME}
+                  />
+                </>
+              )}
+            </>
+          )}
         </div>
 
-        <div className='right-block'>
-          {!isGoBack && (<ReviewPastCouncilActionsCard displayPendingSignature={displayPendingSignature} >
-            <h2>Review Past Council Actions</h2>
+        <div className="right-block">
+          {!isGoBack && (
+            <ReviewPastCouncilActionsCard displayPendingSignature={displayPendingSignature}>
+              <h2>Review Past Council Actions</h2>
 
-            <Button
-              text="Review"
-              kind={ACTION_SECONDARY}
-              onClick={() => {
-                setIsGoBack(true)
-                setIsPendingSignature(false)
-              }}
-            />
-          </ReviewPastCouncilActionsCard>)}
-
-          {Boolean(breakGlassCouncilMember.length) &&
-          <>
-            <h1>Break Glass Council</h1>
-            
-            {breakGlassCouncilMember.map((item) => (
-              <CouncilMemberView
-                key={item.id}
-                image={item.image || item.name}
-                name={item.name}
-                user_id={item.userId}
-                website={item.website}
-                openModal={handleOpenleModal}
-                showUpdateInfo={isUserInBreakCouncilMember}
+              <Button
+                text="Review"
+                kind={ACTION_SECONDARY}
+                onClick={() => {
+                  setIsGoBack(true)
+                  setIsPendingSignature(false)
+                }}
               />
-            ))}
-          </>}
+            </ReviewPastCouncilActionsCard>
+          )}
+
+          {Boolean(breakGlassCouncilMember.length) && (
+            <>
+              <h1>Break Glass Council</h1>
+
+              {breakGlassCouncilMember.map((item) => (
+                <CouncilMemberView
+                  key={item.id}
+                  image={item.image || item.name}
+                  name={item.name}
+                  user_id={item.userId}
+                  website={item.website}
+                  openModal={handleOpenleModal}
+                  showUpdateInfo={isUserInBreakCouncilMember}
+                />
+              ))}
+            </>
+          )}
         </div>
       </BreakGlassCouncilStyled>
       {isUpdateCouncilMemberInfo ? (

@@ -4,12 +4,12 @@ import { useDispatch } from 'react-redux'
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { Input } from "app/App.components/Input/Input.controller"
+import { Input } from 'app/App.components/Input/Input.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // types
-import { InputStatusType } from "app/App.components/Input/Input.constants"
+import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 // styles
 import { FormStyled } from './BreakGlassCouncilForm.style'
@@ -20,7 +20,7 @@ import { addCouncilMember } from '../BreakGlassCouncil.actions'
 const INIT_FORM = {
   memberAddress: '',
   newMemberWebsite: '',
-  newMemberName: '' ,
+  newMemberName: '',
   newMemberImage: '',
 }
 
@@ -33,7 +33,7 @@ export const FormAddCouncilMemberView: FC = () => {
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     memberAddress: '',
     newMemberWebsite: '',
-    newMemberName: '' ,
+    newMemberName: '',
     newMemberImage: '',
   })
 
@@ -49,7 +49,7 @@ export const FormAddCouncilMemberView: FC = () => {
       setFormInputStatus({
         memberAddress: '',
         newMemberWebsite: '',
-        newMemberName: '' ,
+        newMemberName: '',
         newMemberImage: '',
       })
       setUploadKey(uploadKey + 1)
@@ -82,7 +82,7 @@ export const FormAddCouncilMemberView: FC = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="form-fields in-two-columns">
-          <div className='input-size-secondary margin-bottom-20'>
+          <div className="input-size-secondary margin-bottom-20">
             <label>Council Member Address</label>
             <Input
               type="text"
@@ -98,7 +98,7 @@ export const FormAddCouncilMemberView: FC = () => {
             />
           </div>
 
-          <div className='input-size-tertiary'>
+          <div className="input-size-tertiary">
             <label>Council Member Name</label>
             <Input
               type="text"
@@ -114,7 +114,7 @@ export const FormAddCouncilMemberView: FC = () => {
             />
           </div>
 
-          <div className='input-size-secondary margin-bottom-20'>
+          <div className="input-size-secondary margin-bottom-20">
             <label>Council Member Website URL</label>
             <Input
               type="text"
@@ -144,14 +144,8 @@ export const FormAddCouncilMemberView: FC = () => {
           title={'Upload Profile Pic'}
         />
 
-        <div className='align-to-right'>
-          <Button
-            className="stroke-01"
-            text={'Add Council Member'}
-            kind={ACTION_PRIMARY}
-            icon={'plus'}
-            type="submit"
-          />
+        <div className="align-to-right">
+          <Button className="stroke-01" text={'Add Council Member'} kind={ACTION_PRIMARY} icon={'plus'} type="submit" />
         </div>
       </form>
     </FormStyled>

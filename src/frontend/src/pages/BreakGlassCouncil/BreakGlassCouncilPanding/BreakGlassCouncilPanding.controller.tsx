@@ -24,14 +24,7 @@ type Props = BreakGlassAction[0] & {
 export const BreakGlassCouncilPanding = (props: Props) => {
   const dispatch = useDispatch()
 
-  const {
-    id,
-    actionType,
-    signersCount,
-    initiatorId,
-    numCouncilMembers,
-    councilPendingActionsLength,
-  } = props
+  const { id, actionType, signersCount, initiatorId, numCouncilMembers, councilPendingActionsLength } = props
 
   const handleSign = () => {
     if (id) {
@@ -42,21 +35,19 @@ export const BreakGlassCouncilPanding = (props: Props) => {
   return (
     <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
       <h3>{getSeparateCamelCase(actionType)}</h3>
-        <div className='parameters'>
-          <div>
-            <p>Address</p>
-            <span className="parameters-value">
-              {getShortTzAddress(initiatorId)}
-            </span>
-          </div>
-
-          <div>
-            <p>Signed</p>
-            <span className="parameters-value">
-              {signersCount}/{numCouncilMembers}
-            </span>
-          </div>
+      <div className="parameters">
+        <div>
+          <p>Address</p>
+          <span className="parameters-value">{getShortTzAddress(initiatorId)}</span>
         </div>
+
+        <div>
+          <p>Signed</p>
+          <span className="parameters-value">
+            {signersCount}/{numCouncilMembers}
+          </span>
+        </div>
+      </div>
       <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
     </BreakGlassCouncilPendingStyled>
   )
