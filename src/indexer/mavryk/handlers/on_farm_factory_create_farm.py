@@ -26,7 +26,6 @@ async def on_farm_factory_create_farm(
     infinite                        = farm_origination.storage.config.infinite
     lp_token_address                = farm_origination.storage.config.lpToken.tokenAddress
     lp_token_id                     = int(farm_origination.storage.config.lpToken.tokenId)
-    lp_token_standard               = farm_origination.storage.config.lpToken.tokenStandard
     lp_token_balance                = int(farm_origination.storage.config.lpToken.tokenBalance)
     total_blocks                    = int(farm_origination.storage.config.plannedRewards.totalBlocks)
     current_reward_per_block        = int(farm_origination.storage.config.plannedRewards.currentRewardPerBlock)
@@ -41,6 +40,7 @@ async def on_farm_factory_create_farm(
     accumulated_rewards_per_share   = float(farm_origination.storage.accumulatedRewardsPerShare)
     unpaid_rewards                  = float(farm_origination.storage.claimedRewards.unpaid)
     paid_rewards                    = float(farm_origination.storage.claimedRewards.paid)
+    contract_metadata               = json.loads(bytes.fromhex(create_farm.parameter.metadata).decode('utf-8'))
 
     # Create a contract and index it
     await ctx.add_contract(
@@ -57,16 +57,12 @@ async def on_farm_factory_create_farm(
     )
 
     # Get Farm Contract Metadata and save the two Tokens involved in the LP Token
-    network                     = ctx.datasource.network
-    metadata_datasource_name    = 'metadata_' + network.lower()
-    metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-    contract_metadata           = await metadata_datasource.get_contract_metadata(farm_address)
     token0_address              = ""
     token1_address              = ""
 
-    if contract_metadata and 'liquidityPairToken' in contract_metadata and 'token0' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token0'] and len(contract_metadata['liquidityPairToken']['token0']['tokenAddress']) > 0:
+    if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token0' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token0'] and len(contract_metadata['liquidityPairToken']['token0']['tokenAddress']) > 0:
         token0_address  = contract_metadata['liquidityPairToken']['token0']['tokenAddress'][0]
-    if contract_metadata and 'liquidityPairToken' in contract_metadata and 'token1' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token1'] and len(contract_metadata['liquidityPairToken']['token1']['tokenAddress']) > 0:
+    if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token1' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token1'] and len(contract_metadata['liquidityPairToken']['token1']['tokenAddress']) > 0:
         token1_address  = contract_metadata['liquidityPairToken']['token1']['tokenAddress'][0]
 
     await persist_token_metadata(

@@ -23,7 +23,7 @@ type treasuryFactoryConfigType is [@layout:comb] record [
 type createTreasuryType is [@layout:comb] record[
     name                    : string;
     addToGeneralContracts   : bool;
-    metadata                : big_map(string, bytes);
+    metadata                : bytes;
 ]
 
 type treasuryFactoryUpdateConfigNewValueType is nat
