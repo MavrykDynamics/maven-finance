@@ -12,6 +12,7 @@ import { TreasuryViewStyle } from './Treasury.style'
 import { getPieChartData } from './helpers/calculateChartData'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
+import { MIN_TREASURY_PERSENT_TO_DISPLAY } from './Treasury.helpers'
 
 type Props = {
   treasury: TreasuryType
@@ -107,7 +108,11 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
                 <p className="asset-lable-text">
                   {balanceValue.symbol}
                   <span className="asset-persent">
-                    {persentOfTheAsset < 0.1 ? '< 0.1 %' : <CommaNumber endingText="%" value={persentOfTheAsset} />}
+                    {persentOfTheAsset < MIN_TREASURY_PERSENT_TO_DISPLAY ? (
+                      `< ${MIN_TREASURY_PERSENT_TO_DISPLAY} %`
+                    ) : (
+                      <CommaNumber endingText="%" value={persentOfTheAsset} />
+                    )}
                   </span>
                 </p>
               </div>
