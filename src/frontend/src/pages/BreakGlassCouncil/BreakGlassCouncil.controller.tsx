@@ -172,7 +172,7 @@ export const BreakGlassCouncil: FC = () => {
 
           {isGoBack ? (
             <>
-              {!!pastBreakGlassCouncilAction.length && (
+              {Boolean(pastBreakGlassCouncilAction.length) && (
                 <>
                   <h1>Past Break Glass Council Actions</h1>
                   {paginatedPastBreakGlassCouncilActions.map((item) => (
@@ -214,7 +214,7 @@ export const BreakGlassCouncil: FC = () => {
                 <BreakGlassCouncilForm action={chosenDdItem?.value} />
               </AvaliableActions>
 
-              {!!myPastBreakGlassCouncilAction.length && (
+              {Boolean(myPastBreakGlassCouncilAction.length) && (
                 <>
                   <h1>My Past Council Actions</h1>
                   {paginatedMyPastCouncilActions.map((item) => (
