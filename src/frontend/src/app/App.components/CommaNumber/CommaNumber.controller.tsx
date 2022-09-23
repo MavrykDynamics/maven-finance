@@ -5,7 +5,7 @@ import { LoadingIcon } from './CommaNumber.style'
 /**
  * rounds a decimal part to symbolsCount lenght passed under number argument.
  * @param {string} number - decimal part to be rounded.
- * @param {number} symbolsCount - number ot numbers to be rounded.
+ * @param {number} symbolsCount - amount of numbers to left after rounding.
  */
 const roundDecimalPart = (number: string, symbolsCount: number): string => {
   let formatterNumber = parseFloat(`0.${number}`)

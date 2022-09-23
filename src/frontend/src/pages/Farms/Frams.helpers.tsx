@@ -119,6 +119,7 @@ export async function getFarmMetadata(farmAddress: string) {
 
     return parsedMetadataValue
   } catch (e) {
+    // TODO: add validation for result from Sam
     // console.error('getFarmMetadata error: ', e)
 
     return {
