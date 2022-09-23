@@ -24,9 +24,13 @@ import {
   calculateSlicePositions,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
 
 // styles
-import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack, AvaliableActions, ModalPopup } from './BreakGlassCouncil.style'
+import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack, AvaliableActions, ModalPopup, PropagateBreakGlassCouncilCard } from './BreakGlassCouncil.style'
+
+// actions
+import { propagateBreakGlass } from './BreakGlassCouncil.actions'
 
 // TODO: change mock to valid data
 
@@ -95,7 +99,6 @@ export const BreakGlassCouncil: FC = () => {
   const [isPendingSignature, setIsPendingSignature] = useState(true)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
-
   const displayPendingSignature = Boolean(isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length)
 
   const handleOpenleModal = () => {
@@ -126,14 +129,18 @@ export const BreakGlassCouncil: FC = () => {
     return pastBreakGlassCouncilAction?.slice(from, to)
   }, [currentPage, pastBreakGlassCouncilAction])
 
+  const handleClickPropagateBreakGlass = () => {
+    dispatch(propagateBreakGlass())
+  }
+
   useEffect(() => {
-    accountPkh ? setIsGoBack(false) : setIsGoBack(true)
-  }, [accountPkh])
+    isUserInBreakCouncilMember ? setIsGoBack(false) : setIsGoBack(true)
+  }, [isUserInBreakCouncilMember])
 
   return (
     <Page>
       <PageHeader page={'break glass council'} />
-      {isGoBack && accountPkh && (<GoBack
+      {isGoBack && isUserInBreakCouncilMember && (<GoBack
         onClick={() => {
           setIsPendingSignature(true)
           setIsGoBack(false)
@@ -142,6 +149,19 @@ export const BreakGlassCouncil: FC = () => {
         <Icon id="arrow-left-stroke" />
         Back to Member Dashboard
       </GoBack>)}
+
+      {isUserInBreakCouncilMember && !isGoBack && (
+        <PropagateBreakGlassCouncilCard>
+          <h1>Propagate Break Glass</h1>
+
+          <Button
+            className="start_verification"
+            text="Propagate Break Glass"
+            kind={ACTION_PRIMARY}
+            icon={'plus'}
+            onClick={handleClickPropagateBreakGlass}
+          />
+        </PropagateBreakGlassCouncilCard>)}
 
       {displayPendingSignature && <h1>Pending Signature</h1>}
 
