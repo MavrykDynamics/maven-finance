@@ -1,23 +1,25 @@
-//styles
-import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
+import * as React from 'react'
+import { useSelector } from 'react-redux'
+
 // consts, helpers, actions
-import { ACTION_PRIMARY, ACTION_SECONDARY, PRIMARY, SECONDARY } from 'app/App.components/Button/Button.constants'
+import { DOWN, WARNING } from 'app/App.components/StatusFlag/StatusFlag.constants'
+import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+
 // view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { RoutingButton } from 'app/App.components/RoutingButton/RoutingButton.controller'
-import { DOWN, WARNING } from 'app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
-import * as React from 'react'
-import { useSelector } from 'react-redux'
 
 // types
 import { State } from 'reducers'
 import { SatelliteStatus } from 'utils/TypesAndInterfaces/Delegation'
-
 import { SatelliteListItemProps } from '../../helpers/Satellites.types'
+
+//styles
+import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
 import {
   SatelliteCard,
   SatelliteCardButtons,
@@ -35,25 +37,25 @@ import {
 } from './SatelliteCard.style'
 
 const renderVotingHistoryItem = (vote: number) => {
-  switch (vote){
+  switch (vote) {
     case 1:
-      return <span className='voting-yes'>"YES"</span>
-    case 2: 
-      return <span className='voting-pass'>"PASS"</span>
-    
+      return <span className="voting-yes">"YES"</span>
+    case 2:
+      return <span className="voting-pass">"PASS"</span>
     default:
-      return <span className='voting-no'>"NO"</span>
+      return <span className="voting-no">"NO"</span>
   }
 }
 
 export const SatelliteListItem = ({
   satellite,
-  loading,
   delegateCallback,
   undelegateCallback,
+  claimRewardsCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
   isDetailsPage = false,
+  userHasSatelliteRewards = false,
   className = '',
   children,
 }: SatelliteListItemProps) => {
@@ -72,8 +74,8 @@ export const SatelliteListItem = ({
   const isSatelliteOracle = satellite.oracleRecords.length
 
   const currentlySupportingProposalVote = satellite.proposalVotingHistory?.length
-  ? satellite.proposalVotingHistory[0].vote
-  : null
+    ? satellite.proposalVotingHistory[0].vote
+    : null
 
   const currentlySupportingProposalId = satellite.proposalVotingHistory?.length
     ? satellite.proposalVotingHistory[0].proposalId
@@ -98,26 +100,25 @@ export const SatelliteListItem = ({
         text="Undelegate"
         icon="man-close"
         kind={ACTION_SECONDARY}
-        loading={loading}
         onClick={() => undelegateCallback()}
         disabled={!ready}
       />
-      <Button
-        text="Claim Rewards"
-        icon="rewards"
-        kind={ACTION_PRIMARY}
-        loading={loading}
-        onClick={() => undelegateCallback()}
-        disabled={!ready}
-        strokeWidth={0.3}
-      />
+      {isDetailsPage && claimRewardsCallback && userHasSatelliteRewards ? (
+        <Button
+          text="Claim Rewards"
+          icon="rewards"
+          kind={ACTION_PRIMARY}
+          onClick={() => claimRewardsCallback()}
+          disabled={!ready}
+          strokeWidth={0.3}
+        />
+      ) : null}
     </>
   ) : (
     <Button
       text="Delegate"
       icon="man-check"
       kind={ACTION_PRIMARY}
-      loading={loading}
       onClick={() => delegateCallback(satellite.address)}
       disabled={!ready}
     />
@@ -235,13 +236,17 @@ export const SatelliteListItem = ({
         </SatelliteCardButtons>
       </SatelliteCardInner>
 
-      {children ? (
-        children
-      ) : currentlySupportingProposal?.id && currentlySupportingProposalVote && (
-        <SatelliteCardRow>
-          <div>Voted {renderVotingHistoryItem(currentlySupportingProposalVote)} on current Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}</div>
-        </SatelliteCardRow>
-      )}
+      {children
+        ? children
+        : currentlySupportingProposal?.id &&
+          currentlySupportingProposalVote && (
+            <SatelliteCardRow>
+              <div>
+                Voted {renderVotingHistoryItem(currentlySupportingProposalVote)} on current Proposal{' '}
+                {currentlySupportingProposal.id} - {currentlySupportingProposal.title}
+              </div>
+            </SatelliteCardRow>
+          )}
     </SatelliteCard>
   )
 }
