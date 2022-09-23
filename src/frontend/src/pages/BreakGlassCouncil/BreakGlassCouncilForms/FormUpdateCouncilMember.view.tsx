@@ -1,5 +1,6 @@
-import React, { FC, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import React, { FC, useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // components
 import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
@@ -7,6 +8,9 @@ import { Button } from '../../../app/App.components/Button/Button.controller'
 import { Input } from "app/App.components/Input/Input.controller"
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
+
+// helpers
+import { getShortTzAddress } from '../../../utils/tzAdress'
 
 // types
 import { InputStatusType } from "app/App.components/Input/Input.constants"
@@ -18,7 +22,6 @@ import { FormStyled } from './BreakGlassCouncilForm.style'
 import { updateCouncilMember } from '../BreakGlassCouncil.actions'
 
 const INIT_FORM = {
-  memberAddress: '',
   newMemberWebsite: '',
   newMemberName: '' ,
   newMemberImage: '',
@@ -26,18 +29,20 @@ const INIT_FORM = {
 
 export const FormUpdateCouncilMemberView: FC = () => {
   const dispatch = useDispatch()
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState(INIT_FORM)
+  const myInfo = breakGlassCouncilMember.find((item) => item.userId === accountPkh)
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    memberAddress: '',
     newMemberWebsite: '',
     newMemberName: '' ,
     newMemberImage: '',
   })
 
-  const { memberAddress, newMemberWebsite, newMemberName, newMemberImage } = form
+  const { newMemberWebsite, newMemberName, newMemberImage } = form
   const disabled = false
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,7 +52,6 @@ export const FormUpdateCouncilMemberView: FC = () => {
       await dispatch(updateCouncilMember(newMemberName, newMemberWebsite, newMemberImage))
       setForm(INIT_FORM)
       setFormInputStatus({
-        memberAddress: '',
         newMemberWebsite: '',
         newMemberName: '' ,
         newMemberImage: '',
@@ -71,6 +75,24 @@ export const FormUpdateCouncilMemberView: FC = () => {
     })
   }
 
+  useEffect(() => {
+    if (myInfo) {
+      setForm({
+        newMemberName: myInfo.name,
+        newMemberWebsite: myInfo.website,
+        newMemberImage: myInfo.image,
+      })
+
+      setFormInputStatus({
+        newMemberName: 'success',
+        newMemberWebsite: 'success',
+        newMemberImage: 'success',
+      })
+
+      setUploadKey(uploadKey + 1)
+    }
+  }, [myInfo, uploadKey])
+
   return (
     <FormStyled>
       <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
@@ -84,18 +106,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
         <div className="form-fields in-two-columns">
           <div className='input-size-secondary margin-bottom-20'>
             <label>Council Member Address</label>
-            <Input
-              type="text"
-              required
-              value={memberAddress}
-              name="memberAddress"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                handleChange(e)
-                handleBlur(e)
-              }}
-              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-              inputStatus={formInputStatus.memberAddress}
-            />
+            <div className='address'>{getShortTzAddress(accountPkh || '')}</div>
           </div>
 
           <div className='input-size-tertiary'>
