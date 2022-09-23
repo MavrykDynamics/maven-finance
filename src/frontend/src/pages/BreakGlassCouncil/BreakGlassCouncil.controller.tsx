@@ -233,19 +233,22 @@ export const BreakGlassCouncil: FC = () => {
             />
           </ReviewPastCouncilActionsCard>)}
 
-          <h1>Break Glass Council</h1>
-          
-          {breakGlassCouncilMember.map((item) => (
-            <CouncilMemberView
-              key={item.id}
-              image={item.image || item.name}
-              name={item.name}
-              user_id={item.userId}
-              website={item.website}
-              openModal={handleOpenleModal}
-              showUpdateInfo={isUserInBreakCouncilMember}
-            />
-          ))}
+          {Boolean(breakGlassCouncilMember.length) &&
+          <>
+            <h1>Break Glass Council</h1>
+            
+            {breakGlassCouncilMember.map((item) => (
+              <CouncilMemberView
+                key={item.id}
+                image={item.image || item.name}
+                name={item.name}
+                user_id={item.userId}
+                website={item.website}
+                openModal={handleOpenleModal}
+                showUpdateInfo={isUserInBreakCouncilMember}
+              />
+            ))}
+          </>}
         </div>
       </BreakGlassCouncilStyled>
       {isUpdateCouncilMemberInfo ? (
