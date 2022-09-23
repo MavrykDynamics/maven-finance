@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import Icon from './Icon.view'
@@ -39,8 +40,20 @@ export default function CoinsIcons({
 }) {
   return (
     <FarmCardTokenLogoContainer>
-      <FarmCardFirstTokenIcon src={firstAssetLogoSrc} />
-      <FarmCardSecondTokenIcon src={secondAssetLogoSrc} />
+      <FarmCardFirstTokenIcon
+        src={firstAssetLogoSrc}
+        onError={({ currentTarget }) => {
+          currentTarget.onerror = null
+          currentTarget.src = '/images/coin-gold.svg'
+        }}
+      />
+      <FarmCardSecondTokenIcon
+        src={secondAssetLogoSrc}
+        onError={({ currentTarget }) => {
+          currentTarget.onerror = null
+          currentTarget.src = '/images/coin-silver.svg'
+        }}
+      />
     </FarmCardTokenLogoContainer>
   )
 }
