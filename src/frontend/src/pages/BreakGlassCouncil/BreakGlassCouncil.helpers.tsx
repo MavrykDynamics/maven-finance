@@ -1,4 +1,34 @@
-import { BreakGlassCouncilMemberGraphQL } from "utils/TypesAndInterfaces/BreakGlass"
+import { BreakGlassCouncilMemberGraphQL, BreakGlassActionGraphQL } from "utils/TypesAndInterfaces/BreakGlass"
+
+type BreakGlassActionProps = {
+  break_glass_action: BreakGlassActionGraphQL[]
+}
+
+export function normalizeBreakGlassAction(storage: BreakGlassActionProps) {
+  const { break_glass_action } = storage;
+
+  return break_glass_action?.map((item) => {
+    return {
+      actionType: item.action_type,
+      breakGlass: item.break_glass,
+      breakGlassId: item.break_glass_id,
+      executed: item.executed,
+      executionDatetime: item.execution_datetime,
+      executionLevel: item.execution_level,
+      expirationDatetime: item.expiration_datetime,
+      id: item.id,
+      initiator: item.initiator,
+      initiatorId: item.initiator_id,
+      parameters: item.parameters,
+      parametersAggregate: item.parameters_aggregate,
+      signers: item.signers,
+      signersAggregate: item.signers_aggregate,
+      signersCount: item.signers_count,
+      startDatetime: item.start_datetime,
+      status: item.status,
+    }
+  })
+}
 
 type BreakGlassCouncilMemberProps = {
   break_glass_council_member: BreakGlassCouncilMemberGraphQL[]

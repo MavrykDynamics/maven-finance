@@ -15,7 +15,7 @@ import { InputStatusType } from "app/App.components/Input/Input.constants"
 import { FormStyled } from './BreakGlassCouncilForm.style'
 
 // actions
-import { addCouncilMember } from 'pages/BreakGlassActions/BreakGlassActions.actions'
+import { addCouncilMember } from '../BreakGlassCouncil.actions'
 
 const INIT_FORM = {
   memberAddress: '',
