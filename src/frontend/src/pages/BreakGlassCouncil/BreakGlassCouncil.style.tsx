@@ -42,6 +42,33 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
+export const PropagateBreakGlassCouncilCard = styled(Card)<{ theme: MavrykTheme }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 0 30px;
+  height: 75px;
+  
+  h1 {
+    margin: 0;
+
+    &::after{
+      display: none;
+    }
+  }
+
+  button {
+    max-width: 250px;
+
+    &.start_verification {
+      svg {
+        stroke-width: 0.1;
+        fill: ${textsColor};
+      }
+    }
+  }
+`
+
 export const ReviewPastCouncilActionsCard = styled(Card)<{ 
   displayPendingSignature: boolean
   theme: MavrykTheme
