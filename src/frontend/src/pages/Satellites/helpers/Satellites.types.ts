@@ -35,13 +35,13 @@ export type InitialOracleStorageType = {
 
 export type SatelliteListItemProps = {
   satellite: SatelliteRecord
-  loading: boolean
   delegateCallback: (satelliteAddress: string) => void
-  claimRewardsCallback?: (satelliteAddress: string) => void
+  claimRewardsCallback?: () => void
   undelegateCallback: () => void
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
   isDetailsPage?: boolean
+  userHasSatelliteRewards?: boolean
   className?: string
   children?: JSX.Element
 }

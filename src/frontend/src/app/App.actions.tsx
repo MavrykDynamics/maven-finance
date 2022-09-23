@@ -57,7 +57,17 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const mvkTokenStorage = normalizeMvkToken(res[1]?.mvk_token[0])
   const doormanStorage = normalizeDoormanStorage(res[2]?.doorman[0])
   const delegationStorage = normalizeDelegationStorage(res[3]?.delegation[0])
-  const farmStorage = await normalizeFarmStorage(res[4]?.farm)
+
+  try {
+    const farmStorage = await normalizeFarmStorage(res[4]?.farm)
+    dispatch({
+      type: GET_FARM_STORAGE,
+      farmStorage: farmStorage,
+    })
+  } catch (e) {
+    console.error('normalizingFarmStorage error: ', e)
+  }
+
   const emergencyGovernanceStorage: EmergencyGovernanceStorage = normalizeEmergencyGovernance(
     res[5]?.emergency_governance[0],
   )
@@ -71,11 +81,13 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const breakGlassActionPendingMySignature = normalizeBreakGlassAction(res[13])
   const myPastBreakGlassCouncilAction = normalizeBreakGlassAction(res[14])
 
-  const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
+  const emergencyGovActive = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId !== 0
+
   dispatch({
     type: SET_EMERGENCY_GOVERNANCE_ACTIVE,
-    emergencyGovActive: currentEmergencyGovernanceId !== 0,
+    emergencyGovActive,
   })
+
   dispatch({
     type: SET_GLASS_BROKEN,
     glassBroken: breakGlassStorage.glassBroken,
@@ -86,7 +98,6 @@ export const onStart = () => async (dispatch: Dispatch) => {
     phase: governanceStorage.currentRound,
   })
 
-  //dispatching all the different actions into the redux
   dispatch({ type: GET_CONTRACT_ADDRESSES, addresses: addressesStorage })
 
   dispatch({
@@ -102,26 +113,27 @@ export const onStart = () => async (dispatch: Dispatch) => {
     type: GET_DELEGATION_STORAGE,
     delegationStorage: delegationStorage,
   })
-  dispatch({
-    type: GET_FARM_STORAGE,
-    farmStorage: farmStorage,
-  })
+
   dispatch({
     type: GET_EMERGENCY_GOVERNANCE_STORAGE,
     emergencyGovernanceStorage: emergencyGovernanceStorage,
   })
+
   dispatch({
     type: GET_BREAK_GLASS_STORAGE,
     breakGlassStorage: breakGlassStorage,
   })
+
   dispatch({
     type: GET_COUNCIL_STORAGE,
     councilStorage: councilStorage,
   })
+
   dispatch({
     type: GET_VESTING_STORAGE,
     vestingStorage: vestingStorage,
   })
+
   dispatch({
     type: GET_GOVERNANCE_STORAGE,
     governanceStorage: governanceStorage,
@@ -151,6 +163,7 @@ export const onStart = () => async (dispatch: Dispatch) => {
     type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
     myPastBreakGlassCouncilAction,
   })
+  dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
 }
 
 export const GET_CONTRACT_ADDRESSES = 'GET_CONTRACT_ADDRESSES'

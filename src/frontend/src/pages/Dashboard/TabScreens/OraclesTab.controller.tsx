@@ -5,11 +5,11 @@ import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { BLUE } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
-import { getDate_DMYHM_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { State } from 'reducers'
+import { parseData } from 'utils/time'
 import { StatBlock } from '../Dashboard.style'
 import { OraclesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 
@@ -84,7 +84,9 @@ export const OraclesTab = () => {
               </StatBlock>
               <StatBlock>
                 <div className="name">Date/Time</div>
-                <div className="value">{getDate_DMYHM_Format(feed.last_completed_price_datetime)}</div>
+                <div className="value">
+                  {parseData({ time: feed.last_completed_price_datetime, timeFormat: 'DD MMM YYYY / HH:mm' })}
+                </div>
               </StatBlock>
             </div>
           ))}

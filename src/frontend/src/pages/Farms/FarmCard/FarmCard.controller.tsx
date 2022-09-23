@@ -65,11 +65,14 @@ export const FarmCard = ({
 }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const {
+    user: { myFarmRewardsData },
+  } = useSelector((state: State) => state.user)
   const [visibleModal, setVisibleModal] = useState(false)
   const myFarmStakedBalance = 45645.8987
   const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)
 
-  const disabled = !wallet || !ready || !depositAmount
+  const userReward = myFarmRewardsData[farmAddress]
 
   const harvestRewards = () => {
     dispatch(harvest(farmAddress))
@@ -182,9 +185,9 @@ export const FarmCard = ({
     <FarmHarvestStyled className="farm-harvest">
       <div className="farm-info">
         <h3>sMVK Earned</h3>
-        <var>0.00</var>
+        <var>{userReward?.myAvailableFarmRewards.toFixed(2) ?? '0.00'}</var>
       </div>
-      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={disabled} />
+      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={!userReward} />
     </FarmHarvestStyled>
   )
 
