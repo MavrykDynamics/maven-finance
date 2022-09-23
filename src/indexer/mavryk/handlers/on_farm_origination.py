@@ -4,6 +4,7 @@ from ..utils.persisters import persist_token_metadata
 from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.farm.storage import FarmStorage, TokenStandardItem as fa12, TokenStandardItem1 as fa2
 import mavryk.models as models
+import json
 
 async def on_farm_origination(
     ctx: HandlerContext,
@@ -34,6 +35,9 @@ async def on_farm_origination(
     withdraw_paused                 = farm_origination.storage.breakGlassConfig.withdrawIsPaused
     claim_paused                    = farm_origination.storage.breakGlassConfig.claimIsPaused
     force_rewards_from_transfer     = farm_origination.storage.config.forceRewardFromTransfer
+    contract_metadata               = ""
+    if 'data' in farm_origination.storage.metadata:
+        contract_metadata   = json.loads(bytes.fromhex(farm_origination.storage.metadata['data']).decode('utf-8'))
 
     # Persist contract metadata
     await persist_contract_metadata(
@@ -49,16 +53,12 @@ async def on_farm_origination(
     )
 
     # Get Farm Contract Metadata and save the two Tokens involved in the LP Token
-    network                     = ctx.datasource.network
-    metadata_datasource_name    = 'metadata_' + network.lower()
-    metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
-    contract_metadata           = await metadata_datasource.get_contract_metadata(farm_address)
     token0_address              = ""
     token1_address              = ""
 
-    if contract_metadata and 'liquidityPairToken' in contract_metadata and 'token0' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token0'] and len(contract_metadata['liquidityPairToken']['token0']['tokenAddress']) > 0:
+    if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token0' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token0'] and len(contract_metadata['liquidityPairToken']['token0']['tokenAddress']) > 0:
         token0_address  = contract_metadata['liquidityPairToken']['token0']['tokenAddress'][0]
-    if contract_metadata and 'liquidityPairToken' in contract_metadata and 'token1' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token1'] and len(contract_metadata['liquidityPairToken']['token1']['tokenAddress']) > 0:
+    if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token1' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token1'] and len(contract_metadata['liquidityPairToken']['token1']['tokenAddress']) > 0:
         token1_address  = contract_metadata['liquidityPairToken']['token1']['tokenAddress'][0]
 
     await persist_token_metadata(
