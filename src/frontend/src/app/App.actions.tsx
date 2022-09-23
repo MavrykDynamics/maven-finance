@@ -21,7 +21,7 @@ import {
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
 import { GET_BREAK_GLASS_ACTION } from 'pages/BreakGlassActions/BreakGlassActions.actions'
-import { GET_PAST_BREAK_GLASS_COUNCIL_ACTION, GET_BREAK_GLASS_COUNCIL_MEMBER } from 'pages/BreakGlassCouncil/BreakGlassCouncil.actions'
+import { GET_PAST_BREAK_GLASS_COUNCIL_ACTION, GET_BREAK_GLASS_COUNCIL_MEMBER, GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE } from 'pages/BreakGlassCouncil/BreakGlassCouncil.actions'
 
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
@@ -65,6 +65,7 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const breakGlassCouncilMember = normalizeBreakGlassCouncilMember(res[11])
   const breakGlassAction = normalizeBreakGlassAction(res[12])
   const pastBreakGlassCouncilAction = normalizeBreakGlassAction(res[13])
+  const breakGlassActionPendingMySignature = normalizeBreakGlassAction(res[14])
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
   dispatch({
@@ -141,6 +142,10 @@ export const onStart = () => async (dispatch: Dispatch) => {
   dispatch({
     type: GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
     pastBreakGlassCouncilAction,
+  })
+  dispatch({
+    type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
+    breakGlassActionPendingMySignature,
   })
 }
 

@@ -11,8 +11,40 @@ import {
   BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE,
   PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
   PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
-  PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE
+  PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
+  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
+  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
+  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE,
 } from '../../gql/queries/getBreakGlassCouncilStorage'
+
+// getBreakGlassActionPendingMySignature
+export const GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE = 'GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE'
+export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  try {
+    const breakGlassActionPendingMySignature = await fetchFromIndexerWithPromise(
+      BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
+      BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
+      BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE,
+    )
+
+    await dispatch({
+      type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
+      breakGlassActionPendingMySignature,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+
+    dispatch({
+      type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
+      error,
+    })
+  }
+}
 
 // getPastBreakGlassCouncilAction
 export const GET_PAST_BREAK_GLASS_COUNCIL_ACTION = 'GET_PAST_BREAK_GLASS_COUNCIL_ACTION'
