@@ -30,11 +30,17 @@ export const FarmCardSecondTokenIcon = styled.img<{ theme: MavrykTheme }>`
   align-self: flex-end;
 `
 
-export default function CoinsIcons() {
+export default function CoinsIcons({
+  firstAssetLogoSrc = '/images/coin-gold.svg',
+  secondAssetLogoSrc = '/images/coin-silver.svg',
+}: {
+  firstAssetLogoSrc?: string
+  secondAssetLogoSrc?: string
+}) {
   return (
     <FarmCardTokenLogoContainer>
-      <FarmCardFirstTokenIcon src={'/images/coin-gold.svg'} />
-      <FarmCardSecondTokenIcon src={'/images/coin-silver.svg'} />
+      <FarmCardFirstTokenIcon src={firstAssetLogoSrc} />
+      <FarmCardSecondTokenIcon src={secondAssetLogoSrc} />
     </FarmCardTokenLogoContainer>
   )
 }

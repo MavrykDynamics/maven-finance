@@ -19,28 +19,27 @@ export const normalizeFarmStorage = async (farmList: FarmGraphQL[]) => {
       endsIn: endsIn,
       isLive: Date.now() - new Date(endsIn).getTime() < 0,
       open: farmItem.open,
-
       withdrawPaused: farmItem.withdraw_paused,
       claimPaused: farmItem.claim_paused,
       depositPaused: farmItem.deposit_paused,
       blocksPerMinute: 0,
-      lpTokenBalance: farmItem.lp_token_balance,
       currentRewardPerBlock: farmItem.current_reward_per_block,
       farmFactoryId: farmItem.farm_factory_id || '',
       infinite: farmItem.infinite,
       initBlock: farmItem.init_block,
       accumulatedMvkPerShare: 0,
       lastBlockUpdate: farmItem.last_block_update,
+      lpTokenAddress: lpMetadata?.liquidityPairToken?.tokenAddress?.[0],
       lpBalance: farmItem.lp_token_balance / Math.pow(10, farmItem.lp_token?.decimals ?? 0),
-      // TODO: find appropriate value in gql
-      lpTokenAddress: '',
       lpToken1: {
-        symbol: lpMetadata.liquidityPairToken.token0.symbol[0],
-        address: lpMetadata.liquidityPairToken.token0.tokenAddress[0],
+        symbol: lpMetadata?.liquidityPairToken?.token0?.symbol?.[0],
+        address: lpMetadata?.liquidityPairToken?.token0?.tokenAddress?.[0],
+        thumbnailUri: lpMetadata?.liquidityPairToken?.token0?.thumbnailUri,
       },
       lpToken2: {
-        symbol: lpMetadata.liquidityPairToken.token1.symbol[0],
-        address: lpMetadata.liquidityPairToken.token1.tokenAddress[0],
+        symbol: lpMetadata?.liquidityPairToken?.token1?.symbol?.[0],
+        address: lpMetadata?.liquidityPairToken?.token1?.tokenAddress?.[0],
+        thumbnailUri: lpMetadata?.liquidityPairToken?.token1?.thumbnailUri,
       },
       rewardPerBlock: 0,
       rewardsFromTreasury: false,
@@ -113,6 +112,8 @@ export async function getFarmMetadata(farmAddress: string) {
 
     const parsedMetadataValue = JSON.parse(targetFarmMetadataValue)
 
+    console.log('parsedMetadataValue', parsedMetadataValue)
+
     if (!parsedMetadataValue['liquidityPairToken']) {
       throw new Error(`invalid farm metadata: ${farmAddress}`)
     }
@@ -124,8 +125,8 @@ export async function getFarmMetadata(farmAddress: string) {
 
     return {
       liquidityPairToken: {
-        token0: { symbol: [''], tokenAddress: [''] },
-        token1: { symbol: [''], tokenAddress: [''] },
+        token0: { symbol: [''], tokenAddress: [''], thumbnailUri: '/images/coin-gold.svg' },
+        token1: { symbol: [''], tokenAddress: [''], thumbnailUri: '/images/coin-silver.svg' },
       },
     }
   }
