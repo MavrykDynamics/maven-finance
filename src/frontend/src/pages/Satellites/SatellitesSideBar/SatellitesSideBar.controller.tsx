@@ -1,4 +1,4 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import React, { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,7 +18,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const numSatellites = satelliteLedger?.length || 0
   const dataPointsCount = useMemo(
     () =>
-      feeds?.filter((feed) => moment(Date.now()).diff(moment(feed?.last_completed_price_datetime), 'minutes') <= 60)
+      feeds?.filter((feed) => dayjs(Date.now()).diff(dayjs(feed?.last_completed_price_datetime), 'minutes') <= 60)
         .length,
     [feeds],
   )
