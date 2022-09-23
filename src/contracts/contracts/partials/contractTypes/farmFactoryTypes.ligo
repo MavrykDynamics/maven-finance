@@ -36,7 +36,7 @@ type createFarmType is [@layout:comb] record[
     forceRewardFromTransfer  : bool;
     infinite                 : bool;
     plannedRewards           : farmPlannedRewardsType;
-    metadata                 : big_map(string, bytes);
+    metadata                 : bytes;
     lpToken                  : farmLpTokenType;
 ]
 

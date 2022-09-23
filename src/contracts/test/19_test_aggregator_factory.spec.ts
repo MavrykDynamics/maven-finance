@@ -33,18 +33,16 @@
 
 //   let aggregatorStorage
 
-//   const aggregatorMetadataBase = MichelsonMap.fromLiteral({
-//       '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
-//       data: Buffer.from(
-//           JSON.stringify({
-//           name: 'MAVRYK Aggregator Contract',
-//           version: 'v1.0.0',
-//           authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-//           }),
-//           'ascii',
-//       ).toString('hex'),
-//   })
+//   const aggregatorMetadataBase = Buffer.from(
+//         JSON.stringify({
+//             name: 'MAVRYK Aggregator Contract',
+//             version: 'v1.0.0',
+//             authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//         }),
+//         'ascii',
+//         ).toString('hex')
   
+
 //   const signerFactory = async (pk) => {
 //     await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
 //     return utils.tezos;
