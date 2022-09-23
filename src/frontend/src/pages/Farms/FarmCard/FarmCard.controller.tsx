@@ -28,12 +28,13 @@ import { calculateAPR } from '../Frams.helpers'
 
 // styles
 import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
+import { FarmStorage } from 'utils/TypesAndInterfaces/Farm'
 
 type FarmCardProps = {
   name: string
   farmAddress: string
-  firstToken: any
-  secondToken: any
+  firstToken: FarmStorage[number]['lpToken1']
+  secondToken: FarmStorage[number]['lpToken2']
   lpTokenBalance: number
   lpTokenAddress: string
   currentRewardPerBlock: number
