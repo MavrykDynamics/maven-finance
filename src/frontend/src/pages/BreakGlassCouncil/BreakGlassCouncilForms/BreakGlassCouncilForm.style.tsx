@@ -1,5 +1,5 @@
-import styled from "styled-components/macro";
-import { skyColor, headerColor, textsColor, upColor } from "styles";
+import styled from 'styled-components/macro'
+import { skyColor, headerColor, textsColor, upColor } from 'styles'
 
 export const FormStyled = styled.div`
   position: relative;
@@ -8,7 +8,7 @@ export const FormStyled = styled.div`
   h1 {
     margin: 0;
   }
-  
+
   p {
     margin-top: 0;
     margin-bottom: 20px;
@@ -20,7 +20,9 @@ export const FormStyled = styled.div`
     color: ${skyColor};
   }
 
-  h1, p, label {
+  h1,
+  p,
+  label {
     padding-left: 10px;
   }
 

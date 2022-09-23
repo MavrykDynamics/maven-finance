@@ -1,11 +1,11 @@
-import { BreakGlassCouncilMemberGraphQL, BreakGlassActionGraphQL } from "utils/TypesAndInterfaces/BreakGlass"
+import { BreakGlassCouncilMemberGraphQL, BreakGlassActionGraphQL } from 'utils/TypesAndInterfaces/BreakGlass'
 
 type BreakGlassActionProps = {
   break_glass_action: BreakGlassActionGraphQL[]
 }
 
 export function normalizeBreakGlassAction(storage: BreakGlassActionProps) {
-  const { break_glass_action } = storage;
+  const { break_glass_action } = storage
 
   return break_glass_action?.map((item) => {
     return {
@@ -35,7 +35,7 @@ type BreakGlassCouncilMemberProps = {
 }
 
 export function normalizeBreakGlassCouncilMember(storage: BreakGlassCouncilMemberProps) {
-  const { break_glass_council_member } = storage;
+  const { break_glass_council_member } = storage
 
   return break_glass_council_member?.map((item) => {
     return {

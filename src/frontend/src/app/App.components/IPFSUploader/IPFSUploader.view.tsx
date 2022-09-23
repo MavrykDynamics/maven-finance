@@ -64,7 +64,7 @@ export const IPFSUploaderView = ({
     const file = e.target?.files?.[0]
     const fileSize = file?.size / 1024 / 1024 // in MiB
     const { name } = file
-    
+
     if (fileSize <= IMG_MAX_SIZE) {
       setUploadIsFailed(false)
       handleUpload(e.target.files[0])
@@ -125,7 +125,7 @@ export const IPFSUploaderView = ({
                     <IpfsUploadedImageContainer>
                       <img className="uploaded-image" src={imageIpfsUrl} alt="" />
                       <div className="pencil-wrap">
-                      <Icon id="pencil-stroke" />
+                        <Icon id="pencil-stroke" />
                       </div>
                     </IpfsUploadedImageContainer>
                   )}
@@ -140,14 +140,15 @@ export const IPFSUploaderView = ({
                     )}
                   </div>
                   <figcaption>Upload {isTypeFileImage ? 'picture' : 'document'}</figcaption>
-                  <small className='tip'>{`Supports: PNG. JPG. PDF. Max size is ${IMG_MAX_SIZE}MB`}</small>
+                  <small className="tip">{`Supports: PNG. JPG. PDF. Max size is ${IMG_MAX_SIZE}MB`}</small>
                 </figure>
               )}
             </UploadIconContainer>
-            {isUploaded ? 
-            <div onClick={handleDelete}>
-              <Icon className="delete-icon" id="delete" /> 
-            </div> :null}
+            {isUploaded ? (
+              <div onClick={handleDelete}>
+                <Icon className="delete-icon" id="delete" />
+              </div>
+            ) : null}
           </div>
         </UploaderFileSelector>
       </div>

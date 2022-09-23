@@ -14,8 +14,15 @@ import type {
   Break_Glass_Action,
 } from '../generated/graphqlTypes'
 
-import { normalizeBreakGlassAction, normalizeBreakGlassCouncilMember } from 'pages/BreakGlassCouncil/BreakGlassCouncil.helpers'
-import { normalizeBreakGlass, normalizeBreakGlassStatus, normalizeWhitelistDev } from '../../pages/BreakGlass/BreakGlass.helpers'
+import {
+  normalizeBreakGlassAction,
+  normalizeBreakGlassCouncilMember,
+} from 'pages/BreakGlassCouncil/BreakGlassCouncil.helpers'
+import {
+  normalizeBreakGlass,
+  normalizeBreakGlassStatus,
+  normalizeWhitelistDev,
+} from '../../pages/BreakGlass/BreakGlass.helpers'
 
 export type BreakGlassCouncilMember = ReturnType<typeof normalizeBreakGlassCouncilMember>
 export type BreakGlassCouncilMemberGraphQL = Omit<Break_Glass_Council_Member, '__typename'>

@@ -22,15 +22,15 @@ export const FormRemoveCouncilMemberView: FC = () => {
   const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 
   const itemsForDropDown = [
-    {text: 'Choose', value: ''},
-    ...breakGlassCouncilMember.map(((item) => {
+    { text: 'Choose', value: '' },
+    ...breakGlassCouncilMember.map((item) => {
       return {
         text: `${item.name} - ${getShortTzAddress(item.userId)}`,
         value: item.userId,
       }
-    }))
+    }),
   ]
-  
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
@@ -66,7 +66,7 @@ export const FormRemoveCouncilMemberView: FC = () => {
       <h1>Remove Council Member</h1>
       <p>Please enter valid function parameters for removing a council member</p>
 
-      <form className='form' onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         <div className="form-fields input-size-primary">
           <label>Choose Council Member to remove</label>
 

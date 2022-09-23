@@ -10,7 +10,7 @@ import { FormChangeCouncilMemberView } from './FormChangeCouncilMember.view'
 import { FormRemoveCouncilMemberView } from './FormRemoveCouncilMember.view'
 
 type Props = {
-  action?: string;
+  action?: string
 }
 
 export const actions = {
@@ -32,6 +32,7 @@ export const BreakGlassCouncilForm: FC<Props> = ({ action }) => {
       {actions.ADD_COUNCIL_MEMBER === action ? <FormAddCouncilMemberView /> : null}
       {actions.UPDATE_COUNCIL_MEMBER === action ? <FormUpdateCouncilMemberView /> : null}
       {actions.CHANGE_COUNCIL_MEMBER === action ? <FormChangeCouncilMemberView /> : null}
-      {actions.REMOVE_COUNCIL_MEMBER === action ? <FormRemoveCouncilMemberView /> : null}    </>
+      {actions.REMOVE_COUNCIL_MEMBER === action ? <FormRemoveCouncilMemberView /> : null}{' '}
+    </>
   )
 }

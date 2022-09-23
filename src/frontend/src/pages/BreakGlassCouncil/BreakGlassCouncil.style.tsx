@@ -1,8 +1,8 @@
-import styled from "styled-components/macro"
-import { Page as PageBase, Card, royalPurpleColor, textsColor, headerColor, skyColor } from "styles"
+import styled from 'styled-components/macro'
+import { Page as PageBase, Card, royalPurpleColor, textsColor, headerColor, skyColor } from 'styles'
 import ModalPopupBase from '../../app/App.components/Modal/ModalPopup.view'
 
-import { MavrykTheme } from "../../styles/interfaces";
+import { MavrykTheme } from '../../styles/interfaces'
 
 export const Page = styled(PageBase)`
   & > h1 {
@@ -49,11 +49,11 @@ export const PropagateBreakGlassCouncilCard = styled(Card)<{ theme: MavrykTheme 
   justify-content: space-between;
   padding: 0 20px 0 30px;
   height: 75px;
-  
+
   h1 {
     margin: 0;
 
-    &::after{
+    &::after {
       display: none;
     }
   }
@@ -70,12 +70,12 @@ export const PropagateBreakGlassCouncilCard = styled(Card)<{ theme: MavrykTheme 
   }
 `
 
-export const ReviewPastCouncilActionsCard = styled(Card)<{ 
+export const ReviewPastCouncilActionsCard = styled(Card)<{
   displayPendingSignature: boolean
   theme: MavrykTheme
 }>`
   padding: 60px 30px 30px 30px;
-  margin-top: ${({displayPendingSignature}) => displayPendingSignature ? 0 : 30}px;
+  margin-top: ${({ displayPendingSignature }) => (displayPendingSignature ? 0 : 30)}px;
   margin-bottom: 23px;
   height: 201px;
 
@@ -85,7 +85,7 @@ export const ReviewPastCouncilActionsCard = styled(Card)<{
     font-weight: 600;
     font-size: 16px;
     line-height: 16px;
-    color: ${skyColor}
+    color: ${skyColor};
   }
 `
 
@@ -129,7 +129,7 @@ export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
     font-size: 22px;
     line-height: 22px;
 
-    &::after{
+    &::after {
       display: none;
     }
   }

@@ -15,7 +15,7 @@ import {
   BreakGlassStatusStorage,
   WhitelistDevStorage,
   BreakGlassCouncilMember,
-  BreakGlassAction
+  BreakGlassAction,
 } from '../utils/TypesAndInterfaces/BreakGlass'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
