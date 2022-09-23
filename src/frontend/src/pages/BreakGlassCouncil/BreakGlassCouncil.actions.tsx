@@ -15,7 +15,39 @@ import {
   BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
   BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
   BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE,
+  MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
+  MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
+  MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
 } from '../../gql/queries/getBreakGlassCouncilStorage'
+
+// getMyPastBreakGlassCouncilAction
+export const GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION = 'GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION'
+export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  try {
+    const myPastBreakGlassCouncilAction = await fetchFromIndexerWithPromise(
+      MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
+      MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
+      MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
+    )
+
+    await dispatch({
+      type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
+      myPastBreakGlassCouncilAction,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+
+    dispatch({
+      type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
+      error,
+    })
+  }
+}
 
 // getBreakGlassActionPendingMySignature
 export const GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE = 'GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE'
