@@ -112,17 +112,12 @@ export async function getFarmMetadata(farmAddress: string) {
 
     const parsedMetadataValue = JSON.parse(targetFarmMetadataValue)
 
-    console.log('parsedMetadataValue', parsedMetadataValue)
-
     if (!parsedMetadataValue['liquidityPairToken']) {
       throw new Error(`invalid farm metadata: ${farmAddress}`)
     }
 
     return parsedMetadataValue
   } catch (e) {
-    // TODO: add validation for result from Sam
-    // console.error('getFarmMetadata error: ', e)
-
     return {
       liquidityPairToken: {
         token0: { symbol: [''], tokenAddress: [''], thumbnailUri: '/images/coin-gold.svg' },
