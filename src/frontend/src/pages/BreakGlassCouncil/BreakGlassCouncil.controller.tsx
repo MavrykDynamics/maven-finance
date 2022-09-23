@@ -29,58 +29,6 @@ import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { Page, BreakGlassCouncilStyled, ReviewPastCouncilActionsCard, GoBack, AvaliableActions, ModalPopup } from './BreakGlassCouncil.style'
 
 // TODO: change mock to valid data
-const mockCards = [
-  {
-    execution_datetime: `${new Date()}`,
-    id: 1,
-    action_type: 'Sign Action',
-    signers_count: 233,
-    initiator_id: '3',
-    num_council_members: 3423,
-    councilPendingActionsLength: 3255,
-    parameters: [],
-  },
-  {
-    execution_datetime: `${new Date()}`,
-    id: 2,
-    action_type: 'Add Council Member',
-    signers_count: 233,
-    initiator_id: '3',
-    num_council_members: 3423,
-    councilPendingActionsLength: 3255,
-    parameters: [],
-  },
-  {
-    execution_datetime: `${new Date()}`,
-    id: 3,
-    action_type: 'Change Council Member',
-    signers_count: 233,
-    initiator_id: '3',
-    num_council_members: 3423,
-    councilPendingActionsLength: 3255,
-    parameters: [],
-  },
-  {
-    execution_datetime: `${new Date()}`,
-    id: 4,
-    action_type: 'Update Council Member',
-    signers_count: 233,
-    initiator_id: '3',
-    num_council_members: 3423,
-    councilPendingActionsLength: 3255,
-    parameters: [],
-  },
-  {
-    execution_datetime: `${new Date()}`,
-    id: 5,
-    action_type: 'Remove Council Member',
-    signers_count: 233,
-    initiator_id: 'rlejjtewjiorweiojtiowrjieojrtiow',
-    num_council_members: 3423,
-    councilPendingActionsLength: 3255,
-    parameters: [],
-  },
-]
 
 const mockHistory = [
   {
@@ -120,7 +68,11 @@ export const BreakGlassCouncil: FC = () => {
   const dispatch = useDispatch()
   const { search } = useLocation()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { breakGlassCouncilMember, pastBreakGlassCouncilAction } = useSelector((state: State) => state.breakGlass)
+  const {
+    breakGlassCouncilMember,
+    pastBreakGlassCouncilAction,
+    breakGlassActionPendingMySignature,
+  } = useSelector((state: State) => state.breakGlass)
   
   const itemsForDropDown = useMemo(
     () => [
@@ -143,6 +95,8 @@ export const BreakGlassCouncil: FC = () => {
   const [isPendingSignature, setIsPendingSignature] = useState(true)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
+
+  const displayPendingSignature = Boolean(isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length)
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
@@ -189,29 +143,30 @@ export const BreakGlassCouncil: FC = () => {
         Back to Member Dashboard
       </GoBack>)}
 
-      {isPendingSignature && isUserInBreakCouncilMember && <h1>Pending Signature</h1>}
+      {displayPendingSignature && <h1>Pending Signature</h1>}
 
       <BreakGlassCouncilStyled>
         <div className='left-block'>
-          {isPendingSignature && isUserInBreakCouncilMember && (<article className="pending">
-            <div className="pending-items">
-              <Carousel itemLength={mockCards.length} key={sliderKey}>
-                {mockCards.map((item) => (
-                  <CouncilPendingView
-                    execution_datetime={item.execution_datetime}
-                    key={item.id}
-                    id={item.id}
-                    action_type={item.action_type}
-                    signers_count={item.signers_count}
-                    initiator_id={item.initiator_id}
-                    num_council_members={item.num_council_members}
-                    councilPendingActionsLength={item.councilPendingActionsLength}
-                    parameters={item.parameters || []}
-                  />
-                ))}
-              </Carousel>
-            </div>
-          </article>)}
+          {displayPendingSignature && (
+            <article className="pending">
+              <div className="pending-items">
+                <Carousel itemLength={breakGlassActionPendingMySignature.length} key={sliderKey}>
+                  {breakGlassActionPendingMySignature.map((item) => (
+                    <CouncilPendingView
+                      execution_datetime={String(item.executionDatetime)}
+                      key={item.id}
+                      id={item.id}
+                      action_type={item.actionType}
+                      signers_count={item.signersCount}
+                      initiator_id={item.initiatorId}
+                      num_council_members={breakGlassCouncilMember.length}
+                      councilPendingActionsLength={breakGlassActionPendingMySignature.length}
+                      parameters={[]}
+                    />
+                  ))}
+                </Carousel>
+              </div>
+            </article>)}
 
           {isGoBack ? 
           <>
@@ -272,7 +227,7 @@ export const BreakGlassCouncil: FC = () => {
         </div>
 
         <div className='right-block'>
-          {!isGoBack && (<ReviewPastCouncilActionsCard>
+          {!isGoBack && (<ReviewPastCouncilActionsCard displayPendingSignature={displayPendingSignature} >
             <h2>Review Past Council Actions</h2>
 
             <Button

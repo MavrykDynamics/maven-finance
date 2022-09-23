@@ -25,7 +25,6 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
       display: flex;
       width: 100%;
       justify-content: space-between;
-      margin-bottom: 30px;
     }
 
     .pending-items {
@@ -43,9 +42,12 @@ export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const ReviewPastCouncilActionsCard = styled(Card)<{ theme: MavrykTheme }>`
+export const ReviewPastCouncilActionsCard = styled(Card)<{ 
+  displayPendingSignature: boolean
+  theme: MavrykTheme
+}>`
   padding: 60px 30px 30px 30px;
-  margin: 0;
+  margin-top: ${({displayPendingSignature}) => displayPendingSignature ? 0 : 30}px;
   margin-bottom: 23px;
   height: 201px;
 
