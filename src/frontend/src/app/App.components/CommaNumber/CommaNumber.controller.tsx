@@ -2,7 +2,12 @@ import { ACCURATE_DECIMALS_TO_SHOW, DECIMALS_TO_SHOW } from '../../../utils/cons
 import { CommaNumberSvgKind, SECONDARY_COMMA_NUMBER } from './CommaNumber.constants'
 import { LoadingIcon } from './CommaNumber.style'
 
-const roundNumber = (number: string, symbolsCount: number): string => {
+/**
+ * rounds a decimal part to symbolsCount lenght passed under number argument.
+ * @param {string} number - decimal part to be rounded.
+ * @param {number} symbolsCount - amount of numbers to left after rounding.
+ */
+const roundDecimalPart = (number: string, symbolsCount: number): string => {
   let formatterNumber = parseFloat(`0.${number}`)
   return formatterNumber.toFixed(symbolsCount).split('.')[1]
 }
@@ -46,7 +51,7 @@ export const CommaNumber = ({
       if (Math.abs(+newTenGrade) + integer.length + decimals.length > ACCURATE_DECIMALS_TO_SHOW) {
         // if we have legnth of future decimal part > 5, it means that numberWithCommas will be > 9 symbols and we need to round decimal part
         if (integer.length + decimals.length > 5) {
-          numberWithCommas = `0.0...0${roundNumber(integer + decimals, 5)}`
+          numberWithCommas = `0.0...0${roundDecimalPart(integer + decimals, 5)}`
         } else {
           numberWithCommas = `0.0...0${integer}${decimals}`
         }
