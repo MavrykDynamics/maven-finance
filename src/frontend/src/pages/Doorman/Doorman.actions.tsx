@@ -369,8 +369,6 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
     //   userInfo.myDoormanRewardsData.myAvailableDoormanRewards +
     //   userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards
 
-    console.log('%c res getUserData()', 'color:orange', userInfo)
-
     setItemInStorage('UserData', userInfo)
     dispatch({
       type: GET_USER_DATA,

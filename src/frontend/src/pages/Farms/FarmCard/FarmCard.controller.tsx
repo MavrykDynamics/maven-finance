@@ -28,20 +28,19 @@ import { calculateAPR } from '../Frams.helpers'
 
 // styles
 import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
+import { FarmStorage } from 'utils/TypesAndInterfaces/Farm'
 
 type FarmCardProps = {
   name: string
   farmAddress: string
-  firstToken: string
-  secondToken: string
-  distributer: string
-  lpTokenAddress: string
+  firstToken: FarmStorage[number]['lpToken1']
+  secondToken: FarmStorage[number]['lpToken2']
   lpTokenBalance: number
+  lpTokenAddress: string
   currentRewardPerBlock: number
-  firstTokenAddress: string
-  secondTokenAddress: string
   variant: FarmsViewVariantType
   totalLiquidity: number
+  liquidity: number
   depositAmount: number
   isOpenedCard: boolean
   expandCallback: (address: string) => void
@@ -49,12 +48,10 @@ type FarmCardProps = {
 export const FarmCard = ({
   farmAddress,
   firstToken,
-  firstTokenAddress,
   secondToken,
-  secondTokenAddress,
-  distributer,
-  lpTokenAddress,
+  liquidity,
   totalLiquidity,
+  lpTokenAddress,
   variant,
   name,
   lpTokenBalance,
@@ -107,13 +104,9 @@ export const FarmCard = ({
 
   const logoHeaderContent = (
     <div className="farm-card-header">
-      <CoinsIcons />
+      <CoinsIcons firstAssetLogoSrc={firstToken.thumbnailUri} secondAssetLogoSrc={secondToken.thumbnailUri} />
       <div className="farm-card-section">
-        <h3>
-          {/* {firstToken}-{secondToken} */}
-          {name}
-        </h3>
-        <p>{distributer}</p>
+        <h3>{name}</h3>
       </div>
     </div>
   )
@@ -140,14 +133,18 @@ export const FarmCard = ({
   const liquidityBlock = (
     <div className="farm-info">
       <h3>Liquidity</h3>
-      <var>$209,544,892</var>
+      <var>
+        <CommaNumber value={liquidity} beginningText="$" />
+      </var>
     </div>
   )
 
   const totalLiquidityBlock = (
     <div className="farm-info">
       <h3>Total Liquidity</h3>
-      <var>${totalLiquidity}</var>
+      <var>
+        <CommaNumber value={totalLiquidity} beginningText="$" />
+      </var>
     </div>
   )
 
@@ -202,8 +199,6 @@ export const FarmCard = ({
         <FarmStakeStyled className="farm-stake">
           {stakedBlock}
           <div className="circle-buttons">
-            {/* <ButtonCircle onClick={triggerDepositModal} kind="actionPrimary" text="" icon="add" />
-            <ButtonCircle onClick={triggerWithdrawModal} kind="actionSecondary" text="" icon="subtract" /> */}
             <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
             <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
           </div>
@@ -225,7 +220,7 @@ export const FarmCard = ({
   if (variant === 'vertical') {
     return (
       <FarmCardStyled
-        key={lpTokenAddress}
+        key={farmAddress}
         className={`contractCard accordion} ${variant} ${isOpenedCard ? 'opened' : ''}`}
       >
         {questionLinkBlock}
