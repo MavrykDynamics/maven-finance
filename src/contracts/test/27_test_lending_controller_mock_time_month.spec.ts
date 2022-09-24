@@ -47,9 +47,14 @@
 //     var eveVaultSet = []
 //     var malloryVaultSet = [] 
 
-//     const oneDayLevelBlocks = 4320
-//     const oneMonthLevelBlocks = 129600
-//     const oneYearLevelBlocks = 1576800
+//     // const oneDayLevelBlocks = 4320
+//     // const oneMonthLevelBlocks = 129600
+//     // const oneYearLevelBlocks = 1576800
+
+//     // 3 seconds blocks (docker sandbox)
+//     const oneDayLevelBlocks   = 28800
+//     const oneMonthLevelBlocks = 864000
+//     const oneYearLevelBlocks  = 10512000 // 365 days
 
 //     const secondsInYears = 31536000
 //     const fixedPointAccuracy = 10**27
