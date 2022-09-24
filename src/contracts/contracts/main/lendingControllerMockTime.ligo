@@ -604,25 +604,6 @@ block {
 
 
 
-// helper function to get vault
-function getVault(const vaultId : nat; const vaultOwner : address; const s : lendingControllerStorageType) : vaultRecordType is 
-block {
-
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = vaultOwner;
-    ];
-
-    var vault : vaultRecordType := case s.vaults[vaultHandle] of [
-            Some(_vault) -> _vault
-        |   None -> failwith(error_VAULT_CONTRACT_NOT_FOUND)
-    ];
-
-} with vault
-
-
-
 // helper function to get vault by vaultHandle
 function getVaultByHandle(const handle : vaultHandleType; const s : lendingControllerStorageType) : vaultRecordType is 
 block {
@@ -960,7 +941,7 @@ block {
 
 
 // helper function to check if vault is under collaterized
-function isUnderCollaterized(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
+function isUnderCollaterized(const vault : vaultRecordType; var s : lendingControllerStorageType) : (bool * lendingControllerStorageType) is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
@@ -971,18 +952,24 @@ block {
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
 
+    s.tempMap["isUnderCollaterized - vaultCollateralValueRebased"] := vaultCollateralValueRebased;
+
     // calculate loan outstanding value rebased
     const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
 
+    s.tempMap["isUnderCollaterized - loanOutstandingRebased"] := loanOutstandingRebased;
+
     // check is vault is under collaterized based on collateral ratio
     const isUnderCollaterized : bool = vaultCollateralValueRebased < (collateralRatio * loanOutstandingRebased) / 1000n;
+
+    s.tempMap["isUnderCollaterized - isUnderCollaterized"] := if isUnderCollaterized then 1n else 0n;
     
-} with isUnderCollaterized
+} with (isUnderCollaterized, s)
 
 
 
 // helper function to check if vault is liquidatable
-function isLiquidatable(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
+function isLiquidatable(const vault : vaultRecordType; var s : lendingControllerStorageType) : (bool * lendingControllerStorageType) is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
@@ -993,13 +980,20 @@ block {
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
 
+    s.tempMap["isLiquidatable - vaultCollateralValueRebased"] := vaultCollateralValueRebased;
+
     // calculate loan outstanding value rebased
     const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
 
+    s.tempMap["isLiquidatable - loanOutstandingRebased"] := loanOutstandingRebased;
+    s.tempMap["isLiquidatable - liquidationPoint"] := (liquidationRatio * loanOutstandingRebased) / 1000n;
+
     // check is vault is liquidatable based on liquidation ratio
     const isLiquidatable : bool = vaultCollateralValueRebased < (liquidationRatio * loanOutstandingRebased) / 1000n;
+
+    s.tempMap["isLiquidatable - isLiquidatable"] := if isLiquidatable then 1n else 0n;
     
-} with isLiquidatable
+} with (isLiquidatable, s)
 
 // ------------------------------------------------------------------------------
 // Contract Helper Functions End
