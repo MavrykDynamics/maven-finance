@@ -582,19 +582,10 @@ block {
                 if amount > loanTotalRemaining then failwith(error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE) else skip;
                 const newTotalRemaining : nat = abs(loanTotalRemaining - amount);
 
-                // burn LP Token operation
-                // const burnLpTokenOperation : operation = burnLpToken(
-                //     initiator,                  // current user
-                //     lpTokensBurned,             // amount of LP Tokens to burn 
-                //     lpTokenContractAddress      // LP Token address
-                // );
-                // operations := burnLpTokenOperation # operations;
-
                 // burn LP Tokens and send to sender
                 const burnLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, 0n - amount, lpTokenContractAddress);
                 operations := burnLpTokensTokensOperation # operations;
 
-                
                 // send tokens from token pool to initiator
                 const sendTokensToInitiatorOperation : operation = tokenPoolTransfer(
                     Tezos.get_self_address(),   // from_
@@ -794,7 +785,7 @@ block {
                 ];
 
                 // Get vault if exists
-                var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 const vaultAddress : address = vault.address;
 
@@ -905,24 +896,81 @@ block {
                 ];
 
                 // Get vault if exists
-                var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+                const vaultLoanTokenName : string = vault.loanToken; 
+
+                // Get loan token type
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                ];
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+
+                const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
+
+                // ------------------------------------------------------------------
+                // Get current vault borrow index
+                // ------------------------------------------------------------------
+
+                // Get user's vault borrow index
+                var vaultBorrowIndex : nat := vault.borrowIndex;
+
+                // Get current user loan outstanding
+                const currentLoanOutstandingTotal   : nat = vault.loanOutstandingTotal;
+                const initialLoanPrincipalTotal     : nat = vault.loanPrincipalTotal;
                 
-                // get vault liquidation timestamps
-                const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
-                const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
+                // Init new total amounts
+                var newLoanOutstandingTotal         : nat := currentLoanOutstandingTotal;
+                var newLoanInterestTotal            : nat := vault.loanInterestTotal;
+
+                // ------------------------------------------------------------------
+                // Calculate vault interest and update storage
+                // ------------------------------------------------------------------
+
+                newLoanOutstandingTotal := accrueInterestToVault(
+                    currentLoanOutstandingTotal,
+                    vaultBorrowIndex,
+                    tokenBorrowIndex
+                );
+
+                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+
+                // update vault storage (no change to principal total)
+                vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
+                vault.loanInterestTotal         := newLoanInterestTotal;
+                vault.borrowIndex               := tokenBorrowIndex;
+                vault.lastUpdatedBlockLevel     := Tezos.get_level();
+                vault.lastUpdatedTimestamp      := Tezos.get_now();
+
+                // update vault
+                s.vaults[vaultHandle] := vault;
+                
+                // ------------------------------------------------------------------
+                // Check if vault is liquidatable
+                // ------------------------------------------------------------------
+                
+                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
 
                 // check if vault is liquidatable
-                if isLiquidatable(vault, s) 
-                then skip 
-                else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
+                if vaultIsLiquidatable then block {
 
-                // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
-                if currentBlockLevel < levelWhenVaultCanBeLiquidated 
-                then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
-                else vault.markedForLiquidationLevel := currentBlockLevel;
+                    // get vault liquidation timestamps
+                    const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
+                    const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
 
-                // update vault storage
-                s.vaults[vaultHandle] := vault;
+                    // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
+                    if currentBlockLevel < levelWhenVaultCanBeLiquidated 
+                    then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
+                    else vault.markedForLiquidationLevel := currentBlockLevel;
+
+                    // update vault storage
+                    s.vaults[vaultHandle] := vault;
+
+                } 
+                else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);                
 
             }
         |   _ -> skip
@@ -977,7 +1025,7 @@ block {
                 ];
 
                 // get vault record
-                var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 // init vault parameters
                 const vaultLoanTokenName            : string  = vault.loanToken; // USDT, EURL, some other crypto coin
@@ -1739,9 +1787,9 @@ block {
                 const initialLoanPrincipalTotal     : nat = vault.loanPrincipalTotal;
                 
                 // Init new total amounts
-                var newLoanOutstandingTotal     : nat := currentLoanOutstandingTotal;
-                var newLoanPrincipalTotal       : nat := vault.loanPrincipalTotal;
-                var newLoanInterestTotal        : nat := vault.loanInterestTotal;
+                var newLoanOutstandingTotal         : nat := currentLoanOutstandingTotal;
+                var newLoanPrincipalTotal           : nat := vault.loanPrincipalTotal;
+                var newLoanInterestTotal            : nat := vault.loanInterestTotal;
                 
                 // ------------------------------------------------------------------
                 // Calculate fees on past loan outstanding
@@ -1851,16 +1899,6 @@ block {
                     newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
                     newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
                     newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
-
-                    // transfer prinicpal repayment amount from repayer to token pool
-                    // const transferRepaymentAmountToTokenPoolOperation : operation = tokenPoolTransfer(
-                    //     initiator,                  // from_
-                    //     Tezos.get_self_address(),   // to_
-                    //     totalPrincipalRepaid,       // amount
-                    //     loanTokenType               // token type
-                    // );
-
-                    // operations := transferRepaymentAmountToTokenPoolOperation # operations;
 
                 } else skip;
 

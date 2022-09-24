@@ -603,25 +603,6 @@ block {
 
 
 
-// helper function to get vault
-function getVault(const vaultId : nat; const vaultOwner : address; const s : lendingControllerStorageType) : vaultRecordType is 
-block {
-
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = vaultOwner;
-    ];
-
-    var vault : vaultRecordType := case s.vaults[vaultHandle] of [
-            Some(_vault) -> _vault
-        |   None -> failwith(error_VAULT_CONTRACT_NOT_FOUND)
-    ];
-
-} with vault
-
-
-
 // helper function to get vault by vaultHandle
 function getVaultByHandle(const handle : vaultHandleType; const s : lendingControllerStorageType) : vaultRecordType is 
 block {

@@ -370,6 +370,12 @@ block{
                     ("", ("74657a6f732d73746f726167653a64617461": bytes));
                     ("data", createFarmParams.metadata);
                 ]); 
+
+                const farmMetadata: metadataType = Big_map.literal (list [
+                    ("", "74657a6f732d73746f726167653a64617461");
+                    ("data", createFarmParams.metadata);
+                ]); 
+
                 const farmLambdaLedger : lambdaLedgerType = s.farmLambdaLedger;
 
                 // Check whether the farm is infinite or its total blocks has been set

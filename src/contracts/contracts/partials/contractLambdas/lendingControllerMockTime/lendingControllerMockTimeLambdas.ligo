@@ -797,7 +797,7 @@ block {
                 ];
 
                 // Get vault if exists
-                var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 const vaultAddress : address = vault.address;
 
@@ -900,6 +900,7 @@ block {
                 const vaultOwner  : vaultOwnerType   = markForLiquidationParams.vaultOwner;
 
                 const mockLevel                     : nat = s.config.mockLevel;
+                // const currentBlockLevel             : nat = Tezos.get_level();
                 const liquidationDelayInMins        : nat = s.config.liquidationDelayInMins;
                 const liquidationDelayInBlockLevel  : nat = liquidationDelayInMins * blocksPerMinute; 
 
@@ -910,24 +911,93 @@ block {
                 ];
 
                 // Get vault if exists
-                var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+                const vaultLoanTokenName : string = vault.loanToken; 
+
+                // Get loan token type
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                ];
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                loanTokenRecord := loanTokenRecordUpdated.0;
+                s := loanTokenRecordUpdated.1;
+
+                const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
+
+                // ------------------------------------------------------------------
+                // Get current vault borrow index
+                // ------------------------------------------------------------------
+
+                // Get user's vault borrow index
+                var vaultBorrowIndex : nat := vault.borrowIndex;
+
+                // Get current user loan outstanding
+                const currentLoanOutstandingTotal   : nat = vault.loanOutstandingTotal;
+                const initialLoanPrincipalTotal     : nat = vault.loanPrincipalTotal;
                 
-                // get vault liquidation block level
-                const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
-                const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
+                // Init new total amounts
+                var newLoanOutstandingTotal         : nat := currentLoanOutstandingTotal;
+                var newLoanInterestTotal            : nat := vault.loanInterestTotal;
 
-                // check if vault is liquidatable
-                if isLiquidatable(vault, s) 
-                then skip 
-                else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
+                // ------------------------------------------------------------------
+                // Calculate vault interest and update storage
+                // ------------------------------------------------------------------
 
-                // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
-                if mockLevel < levelWhenVaultCanBeLiquidated 
-                then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
-                else vault.markedForLiquidationLevel := mockLevel;
+                newLoanOutstandingTotal := accrueInterestToVault(
+                    currentLoanOutstandingTotal,
+                    vaultBorrowIndex,
+                    tokenBorrowIndex
+                );
 
-                // update vault storage
+                s.tempMap["markForLiquidation - currentLoanOutstandingTotal"] := currentLoanOutstandingTotal;
+                s.tempMap["markForLiquidation - newLoanOutstandingTotal"] := newLoanOutstandingTotal;
+
+                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+
+                s.tempMap["markForLiquidation - initialLoanPrincipalTotal"] := initialLoanPrincipalTotal;
+                s.tempMap["markForLiquidation - newLoanInterestTotal"] := newLoanInterestTotal;
+
+                // update vault storage (no change to principal total)
+                vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
+                vault.loanInterestTotal         := newLoanInterestTotal;
+                vault.borrowIndex               := tokenBorrowIndex;
+                vault.lastUpdatedBlockLevel     := mockLevel + Tezos.get_level();
+                vault.lastUpdatedTimestamp      := Tezos.get_now();
+
+                const checkVaultIsLiquidatable : (bool * lendingControllerStorageType) = isLiquidatable(vault, s);
+                const vaultIsLiquidatableBool = checkVaultIsLiquidatable.0;
+                s := checkVaultIsLiquidatable.1;
+
+                // update vault
                 s.vaults[vaultHandle] := vault;
+
+                s.tempMap["markForLiquidation"] := 123n;
+                
+                // ------------------------------------------------------------------
+                // Check if vault is liquidatable
+                // ------------------------------------------------------------------
+
+                
+                // check if vault is liquidatable
+                // if vaultIsLiquidatableBool then block {
+
+                //     // get vault liquidation timestamps
+                //     const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
+                //     const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
+
+                //     // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
+                //     if mockLevel < levelWhenVaultCanBeLiquidated 
+                //     then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
+                //     else vault.markedForLiquidationLevel := mockLevel;
+
+                //     // update vault storage
+                //     s.vaults[vaultHandle] := vault;
+
+                // } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);                
 
             }
         |   _ -> skip
@@ -982,7 +1052,7 @@ block {
                 ];
 
                 // get vault record
-                var vault : vaultRecordType := getVault(vaultId, vaultOwner, s);
+                var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
                 // init vault parameters
                 const vaultLoanTokenName            : string  = vault.loanToken; // USDT, EURL, some other crypto coin
@@ -999,9 +1069,15 @@ block {
                 // ------------------------------------------------------------------
 
                 // check if vault is liquidatable
-                if isLiquidatable(vault, s) 
-                then skip 
-                else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
+                // if isLiquidatable(vault, s) 
+                // then skip 
+                // else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
+
+                const vaultIsLiquidatable : (bool * lendingControllerStorageType) = isLiquidatable(vault, s);
+                const vaultIsLiquidatableBool = vaultIsLiquidatable.0;
+                s := vaultIsLiquidatable.1;
+
+                if vaultIsLiquidatableBool then skip else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
 
                 // check if sufficient time has passed since vault was marked for liquidation
                 if mockLevel < levelWhenVaultCanBeLiquidated 
@@ -1464,9 +1540,15 @@ block {
                 newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
 
                 // check if vault is undercollaterized, if not then send withdraw operation
-                if isUnderCollaterized(vault, s) 
-                then failwith(error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED) 
-                else skip;
+                // if isUnderCollaterized(vault, s) 
+                // then failwith(error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED) 
+                // else skip;
+
+                const vaultIsUnderCollaterized : (bool * lendingControllerStorageType) = isUnderCollaterized(vault, s);
+                const vaultIsUnderCollaterizedBool = vaultIsUnderCollaterized.0;
+                s := vaultIsUnderCollaterized.1;
+
+                if vaultIsUnderCollaterizedBool then failwith(error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED) else skip;
 
                 // ------------------------------------------------------------------
                 // Register token withdrawal in vault collateral balance ledger
@@ -1707,9 +1789,15 @@ block {
                 s.vaults[vaultHandle] := vault;
 
                 // check if vault is undercollaterized again after loan; if it is not, then allow user to borrow
-                if isUnderCollaterized(vault, s) 
-                then failwith(error_VAULT_IS_UNDERCOLLATERIZED)
-                else skip;
+                // if isUnderCollaterized(vault, s) 
+                // then failwith(error_VAULT_IS_UNDERCOLLATERIZED)
+                // else skip;
+
+                const vaultIsUnderCollaterized : (bool * lendingControllerStorageType) = isUnderCollaterized(vault, s);
+                const vaultIsUnderCollaterizedBool = vaultIsUnderCollaterized.0;
+                s := vaultIsUnderCollaterized.1;
+
+                if vaultIsUnderCollaterizedBool then failwith(error_VAULT_IS_UNDERCOLLATERIZED) else skip;
 
             }
         |   _ -> skip
@@ -1902,16 +1990,6 @@ block {
                     newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
                     newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
                     newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
-
-                    // transfer prinicpal repayment amount from repayer to token pool
-                    // const transferRepaymentAmountToTokenPoolOperation : operation = tokenPoolTransfer(
-                    //     initiator,                  // from_
-                    //     Tezos.get_self_address(),   // to_
-                    //     totalPrincipalRepaid,       // amount
-                    //     loanTokenType               // token type
-                    // );
-
-                    // operations := transferRepaymentAmountToTokenPoolOperation # operations;
 
                 } else skip;
 
