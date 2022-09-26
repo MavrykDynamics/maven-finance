@@ -38,7 +38,12 @@ import {
 } from './BreakGlassCouncil.style'
 
 // actions
-import { propagateBreakGlass } from './BreakGlassCouncil.actions'
+import {
+  propagateBreakGlass,
+  getBreakGlassActionPendingMySignature,
+  getMyPastBreakGlassCouncilAction,
+  getPastBreakGlassCouncilAction
+} from './BreakGlassCouncil.actions'
 
 const actionNameHandler = (name: string) => {
   return name
@@ -115,6 +120,16 @@ export const BreakGlassCouncil: FC = () => {
   const handleClickPropagateBreakGlass = () => {
     dispatch(propagateBreakGlass())
   }
+
+  useEffect(() => {
+    dispatch(getMyPastBreakGlassCouncilAction())
+    dispatch(getPastBreakGlassCouncilAction())
+  }, [dispatch])
+
+  useEffect(() => {
+    if (accountPkh) dispatch(getBreakGlassActionPendingMySignature())
+    setSliderKey(sliderKey + 1)
+  }, [dispatch, accountPkh])
 
   useEffect(() => {
     isUserInBreakCouncilMember ? setIsGoBack(false) : setIsGoBack(true)

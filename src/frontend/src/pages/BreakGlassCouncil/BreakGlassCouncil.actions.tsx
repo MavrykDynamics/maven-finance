@@ -20,6 +20,9 @@ import {
   MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
 } from '../../gql/queries/getBreakGlassCouncilStorage'
 
+// helpers
+import { normalizeBreakGlassAction, normalizeBreakGlassCouncilMember } from './BreakGlassCouncil.helpers'
+
 // getMyPastBreakGlassCouncilAction
 export const GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION = 'GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION'
 export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -34,7 +37,7 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
 
     await dispatch({
       type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
-      myPastBreakGlassCouncilAction,
+      myPastBreakGlassCouncilAction: normalizeBreakGlassAction(myPastBreakGlassCouncilAction),
     })
   } catch (error) {
     if (error instanceof Error) {
@@ -63,7 +66,7 @@ export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppD
 
     await dispatch({
       type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
-      breakGlassActionPendingMySignature,
+      breakGlassActionPendingMySignature: normalizeBreakGlassAction(breakGlassActionPendingMySignature),
     })
   } catch (error) {
     if (error instanceof Error) {
@@ -92,7 +95,7 @@ export const getPastBreakGlassCouncilAction = () => async (dispatch: AppDispatch
 
     await dispatch({
       type: GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
-      pastBreakGlassCouncilAction,
+      pastBreakGlassCouncilAction: normalizeBreakGlassAction(pastBreakGlassCouncilAction),
     })
   } catch (error) {
     if (error instanceof Error) {
@@ -121,7 +124,7 @@ export const getBreakGlassCouncilMember = () => async (dispatch: AppDispatch, ge
 
     await dispatch({
       type: GET_BREAK_GLASS_COUNCIL_MEMBER,
-      breakGlassCouncilMember,
+      breakGlassCouncilMember: normalizeBreakGlassCouncilMember(breakGlassCouncilMember),
     })
   } catch (error) {
     if (error instanceof Error) {
