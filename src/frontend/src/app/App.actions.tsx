@@ -30,7 +30,7 @@ import {
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
 import { normalizeDoormanStorage, normalizeMvkToken } from '../pages/Doorman/Doorman.converter'
-import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from '../pages/Farms/Frams.helpers'
+import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from '../pages/Farms/Farms.helpers'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
 import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/EmergencyGovernance.helpers'
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'

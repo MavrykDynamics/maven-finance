@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // components
-import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, SUBMIT } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
 
@@ -39,7 +39,7 @@ export const FormSetAllContractsAdminView: FC = () => {
         newAdminAddress: '',
       })
     } catch (error) {
-      console.error(error)
+      console.error('FormSetAllContractsAdminView', error)
     }
   }
 
@@ -83,7 +83,7 @@ export const FormSetAllContractsAdminView: FC = () => {
           text={'Set Contracts Admin'}
           kind={ACTION_PRIMARY}
           icon={'profile'}
-          type="submit"
+          type={SUBMIT}
         />
       </form>
     </FormStyled>

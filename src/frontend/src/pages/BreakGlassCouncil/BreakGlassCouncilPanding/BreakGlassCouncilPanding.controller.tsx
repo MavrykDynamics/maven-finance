@@ -7,6 +7,7 @@ import { Button } from '../../../app/App.components/Button/Button.controller'
 import { BreakGlassAction } from 'utils/TypesAndInterfaces/BreakGlass'
 
 // helpers
+import { ACTION_PRIMARY, SUBMIT } from '../../../app/App.components/Button/Button.constants'
 import { getSeparateCamelCase } from '../../../utils/parse'
 import { getShortTzAddress } from '../../../utils/tzAdress'
 
@@ -48,7 +49,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
           </span>
         </div>
       </div>
-      <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+      <Button text="Sign" className="sign-btn" kind={ACTION_PRIMARY} icon="sign" onClick={handleSign} />
     </BreakGlassCouncilPendingStyled>
   )
 }

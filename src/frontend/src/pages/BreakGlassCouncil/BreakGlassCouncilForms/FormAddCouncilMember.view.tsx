@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // components
-import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, SUBMIT } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
@@ -54,7 +54,7 @@ export const FormAddCouncilMemberView: FC = () => {
       })
       setUploadKey(uploadKey + 1)
     } catch (error) {
-      console.error(error)
+      console.error('FormAddCouncilMemberView', error)
       setUploadKey(uploadKey + 1)
     }
   }
@@ -145,7 +145,7 @@ export const FormAddCouncilMemberView: FC = () => {
         />
 
         <div className="align-to-right">
-          <Button className="stroke-01" text={'Add Council Member'} kind={ACTION_PRIMARY} icon={'plus'} type="submit" />
+          <Button className="stroke-01" text={'Add Council Member'} kind={ACTION_PRIMARY} icon={'plus'} type={SUBMIT} />
         </div>
       </form>
     </FormStyled>

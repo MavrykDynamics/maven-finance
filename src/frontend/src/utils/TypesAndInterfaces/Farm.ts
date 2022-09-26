@@ -2,7 +2,7 @@
 import type { Farm } from '../generated/graphqlTypes'
 
 // helpers
-import { normalizeFarmStorage } from '../../pages/Farms/Frams.helpers'
+import { normalizeFarmStorage } from '../../pages/Farms/Farms.helpers'
 
 export interface FarmAccountsType {
   claimed_rewards: number
