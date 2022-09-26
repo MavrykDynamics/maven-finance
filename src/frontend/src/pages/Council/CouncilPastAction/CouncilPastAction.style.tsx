@@ -45,4 +45,12 @@ export const CouncilPastActionStyled = styled(CardHover)`
       height: 16px;
     }
   }
+
+  .is-green {
+    color: ${upColor}
+  }
+
+  .is-red {
+    color: ${downColor}
+  }
 `
