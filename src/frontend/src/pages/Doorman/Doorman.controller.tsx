@@ -42,7 +42,7 @@ export const Doorman = () => {
     dispatch(showExitFeeModal(amount))
   }
 
-  const chartList = [20, 120, 180, 350, 380, 700, 801]
+  const chartList = [20, 120, 180, 350, 380, 700, 801, 980]
 
   return (
     <Page>

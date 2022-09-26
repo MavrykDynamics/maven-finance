@@ -1,5 +1,5 @@
 import React from 'react'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Line } from 'recharts'
+import { AreaChart, Area, Tooltip } from 'recharts'
 
 // style
 import { ChartStyled, ChartHeader } from './Chart.style'
@@ -23,33 +23,28 @@ const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
   return <div className="tooltip">{value} MVK</div>
 }
 
-// TODO: refactor it and make it work, when data will be received
-
 export default function Chart(props: Props) {
   const { list, header } = props
 
-  // const data = list?.length
-  //   ? list.map((uv) => {
-  //       return {
-  //         uv,
-  //       }
-  //     })
-  //   : []
+  const data = list?.length
+    ? list.map((uv) => {
+        return {
+          uv,
+        }
+      })
+    : []
 
   return (
     <ChartStyled>
       <ChartHeader>{header}</ChartHeader>
-      <aside>
-        <b>Coming Soon</b>
-      </aside>
-      {/* <AreaChart
-        width={573}
-        height={280}
+      <AreaChart
+        width={623}
+        height={292}
         data={data}
         margin={{
-          top: 20,
+          top: 17,
           right: 0,
-          left: 0,
+          left: 22,
           bottom: 0,
         }}
       >
@@ -61,7 +56,7 @@ export default function Chart(props: Props) {
         </defs>
         <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />       
         <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
-      </AreaChart> */}
+      </AreaChart>
     </ChartStyled>
   )
 }
