@@ -149,12 +149,30 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
     display: flex;
     flex-direction: column;
     row-gap: 20px;
+    cursor: pointer;
+
     .row {
       display: grid;
       grid-template-columns: 1.2fr 1.1fr 1.3fr 1.2fr;
 
       .value {
         height: 22px;
+        transition: color 0.4s ease-in-out;
+      }
+
+      &:hover {
+        .value {
+          color: ${({ theme }) => theme.textColorHovered};
+
+          > div {
+            div {
+              color: ${({ theme }) => theme.textColorHovered};
+            }
+            svg {
+              stroke: ${({ theme }) => theme.textColorHovered};
+            }
+          }
+        }
       }
     }
   }
@@ -395,7 +413,7 @@ export const VaultsContentStyled = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const FarmsContentStyled = styled.div`
+export const FarmsContentStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   column-gap: 80px;
   margin-top: 70px;
@@ -484,16 +502,16 @@ export const FarmsContentStyled = styled.div`
     &:hover {
       .top {
         .name {
-          color: ${cyanColor};
+          color: ${({ theme }) => theme.textColorHovered};
         }
       }
       .row-info {
         .name {
-          color: ${cyanColor};
+          color: ${({ theme }) => theme.textColorHovered};
         }
 
         .value {
-          color: ${cyanColor};
+          color: ${({ theme }) => theme.textColorHovered};
         }
       }
     }
