@@ -65,6 +65,7 @@ export const dark = {
   dashboardTvlGradient: 'linear-gradient(180deg, #160e3f 3.55%, #26185c 83.47%, #321f71 103.84%)',
   shineAnimationGradient: `linear-gradient(to right, ${headerColor} 0, ${cyanColor} 10%, ${headerColor} 20%)`,
   boxShadowColor: 'rgba(136, 209, 195, 0.3)',
+  textColorHovered: cyanColor
 }
 
 export const light = {
@@ -102,6 +103,7 @@ export const light = {
   navLinkBackgroundActive: 'linear-gradient(90deg, rgba(134, 212, 201, 0.5) 0%, rgba(134, 212, 201, 0) 100%);',
   dashboardTvlGradient: 'linear-gradient(180deg, #160e3f 3.55%, #26185c 83.47%, #321f71 103.84%)',
   boxShadowColor: 'rgba(112, 104, 170, 0.3)',
+  textColorHovered: cyanColor
 }
 
 export const space = {
@@ -139,6 +141,7 @@ export const space = {
   navLinkBackgroundActive: 'linear-gradient(90deg, rgba(134, 212, 201, 0.5) 0%, rgba(134, 212, 201, 0) 100%);',
   dashboardTvlGradient: 'linear-gradient(180deg, #160e3f 3.55%, #26185c 83.47%, #321f71 103.84%)',
   boxShadowColor: 'rgba(112, 104, 170, 0.3)',
+  textColorHovered: cyanColor
 }
 
 export default {

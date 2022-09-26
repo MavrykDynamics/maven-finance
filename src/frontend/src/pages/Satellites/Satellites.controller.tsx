@@ -11,7 +11,7 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 // consts, helpers, actions
 import { getMvkTokenStorage, getDoormanStorage } from 'pages/Doorman/Doorman.actions'
 import { getTotalDelegatedMVK } from './helpers/Satellites.consts'
-import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
+import { delegate, getDelegationStorage, getOracleStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 
 const Satellites = () => {
   const {
@@ -30,6 +30,7 @@ const Satellites = () => {
       dispatch(getDoormanStorage())
     }
     dispatch(getDelegationStorage())
+    dispatch(getOracleStorage())
   }, [dispatch, accountPkh])
 
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
