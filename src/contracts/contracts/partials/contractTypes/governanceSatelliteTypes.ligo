@@ -28,11 +28,7 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     governancePurpose                  : string;
     voters                             : set(address);
 
-    addressMap                         : addressMapType;
-    stringMap                          : stringMapType;
-    natMap                             : natMapType;
-
-    transferList                       : transferActionType; 
+    dataMap                            : dataMapType;
 
     yayVoteStakedMvkTotal              : nat;
     nayVoteStakedMvkTotal              : nat;
@@ -102,6 +98,8 @@ type banSatelliteActionType is [@layout:comb] record [
 
 type restoreSatelliteActionType is [@layout:comb] record [
     satelliteToBeRestored       : address;
+    oraclePublicKey             : key;
+    oraclePeerId                : string;
     purpose                     : string;
 ]
 
@@ -112,6 +110,8 @@ type removeAllSatelliteOraclesActionType is [@layout:comb] record [
 
 type addOracleToAggregatorActionType is [@layout:comb] record [
     oracleAddress               : address;
+    oraclePublicKey             : key;
+    oraclePeerId                : string;
     aggregatorAddress           : address;
     purpose                     : string;
 ]
