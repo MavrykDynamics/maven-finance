@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // components
-import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, SUBMIT } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
@@ -58,7 +58,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
       })
       setUploadKey(uploadKey + 1)
     } catch (error) {
-      console.error(error)
+      console.error('FormSetSingleContractAdminView', error)
       setUploadKey(uploadKey + 1)
     }
   }
@@ -161,7 +161,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
             text={'Update Council Member'}
             kind={ACTION_PRIMARY}
             icon={'upload'}
-            type="submit"
+            type={SUBMIT}
           />
         </div>
       </form>

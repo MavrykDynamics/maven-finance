@@ -1,3 +1,5 @@
+import { parseData,  } from "utils/time"
+
 export const BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME = 'GetBreakGlassCouncilMemberQuery'
 export const BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE = {}
 
@@ -16,7 +18,9 @@ export const BREAK_GLASS_COUNCIL_MEMBER_QUERY = `
 export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME = 'GetPastBreakGlassCouncilActions'
 export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE = {}
 
-const curentDate = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`
+const time = String(new Date())
+const timeFormat = 'YYYY-MM-DD'
+const curentDate = parseData({ time, timeFormat })
 
 export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY = `
   query GetPastBreakGlassCouncilActions($_lt: timestamptz = "${curentDate}") {

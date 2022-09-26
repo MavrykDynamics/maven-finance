@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // components
-import { ACTION_PRIMARY } from '../../../app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, SUBMIT } from '../../../app/App.components/Button/Button.constants'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -43,7 +43,7 @@ export const FormRemoveCouncilMemberView: FC = () => {
       await dispatch(removeCouncilMember(memberAddress))
       setChosenDdItem(itemsForDropDown[0])
     } catch (error) {
-      console.error(error)
+      console.error('FormRemoveCouncilMemberView', error)
     }
   }
 
@@ -85,7 +85,7 @@ export const FormRemoveCouncilMemberView: FC = () => {
           text={'Remove Council Member'}
           kind={ACTION_PRIMARY}
           icon={'minus'}
-          type="submit"
+          type={SUBMIT}
         />
       </form>
     </FormStyled>

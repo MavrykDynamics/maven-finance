@@ -24,7 +24,7 @@ import { SELECT_FARM_ADDRESS } from '../Farms.actions'
 import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 
 // helpers
-import { calculateAPR } from '../Frams.helpers'
+import { calculateAPR } from '../Farms.helpers'
 
 // styles
 import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
