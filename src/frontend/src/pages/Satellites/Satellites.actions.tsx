@@ -2,10 +2,18 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
-import { DELEGATION_STORAGE_QUERY, DELEGATION_STORAGE_QUERY_NAME, DELEGATION_STORAGE_QUERY_VARIABLE } from 'gql/queries'
-import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
+import {
+  DELEGATION_STORAGE_QUERY,
+  DELEGATION_STORAGE_QUERY_NAME,
+  DELEGATION_STORAGE_QUERY_VARIABLE,
+  ORACLE_STORAGE_QUERY,
+  ORACLE_STORAGE_QUERY_NAME,
+  ORACLE_STORAGE_QUERY_VARIABLE,
+} from 'gql/queries'
+import { fetchFromIndexer, fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import type { AppDispatch, GetState } from '../../app/App.controller'
 import { normalizeDelegationStorage } from './Satellites.helpers'
+import { normalizeOracle } from 'app/App.helpers'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -150,6 +158,20 @@ export const undelegate = () => async (dispatch: AppDispatch, getState: GetState
 }
 
 export const GET_ORACLES_STORAGE = 'GET_ORACLES_STORAGE'
+export const getOracleStorage = () => async (dispatch: AppDispatch) => {
+  try {
+    const oracleData = await fetchFromIndexer(
+      ORACLE_STORAGE_QUERY,
+      ORACLE_STORAGE_QUERY_NAME,
+      ORACLE_STORAGE_QUERY_VARIABLE,
+    )
+
+    const oraclesStorage = normalizeOracle(oracleData)
+    dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
+  } catch (error) {
+    console.error('getOracleStorage: ', error)
+  }
+}
 
 export const REGISTER_FEED = 'REGISTER_FEED'
 export const REGISTER_FEED_ERROR = 'REGISTER_FEED_ERROR'

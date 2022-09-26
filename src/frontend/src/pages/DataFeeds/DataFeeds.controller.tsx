@@ -22,6 +22,7 @@ import { DataFeedsStyled } from './DataFeeds.styles'
 import { EmptyContainer } from 'app/App.style'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
+import { getOracleStorage } from 'pages/Satellites/Satellites.actions'
 
 const itemsForDropDown = [
   { text: 'Cryptocurrencies (USD pairs)', value: 'cryptocurUDS' },
@@ -44,6 +45,7 @@ const emptyContainer = (
 )
 // TODO: filters after category field will be implemented
 export const DataFeeds = () => {
+  const dispatch = useDispatch()
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const loading = useSelector((state: State) => Boolean(state.loading))
 
@@ -105,6 +107,10 @@ export const DataFeeds = () => {
     setAllSatellites(oraclesStorage.feeds)
     setFilteredSatelliteList(oraclesStorage.feeds)
   }, [oraclesStorage.feeds])
+
+  useEffect(() => {
+    dispatch(getOracleStorage())
+  }, [])
 
   return (
     <Page>
