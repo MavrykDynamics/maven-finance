@@ -91,7 +91,7 @@ export const FormUpdateCouncilMemberView: FC = () => {
 
       setUploadKey(uploadKey + 1)
     }
-  }, [myInfo, uploadKey])
+  }, [myInfo])
 
   return (
     <FormStyled>
