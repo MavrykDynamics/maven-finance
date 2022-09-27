@@ -1,8 +1,13 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from '../../reducers'
+import { useHistory, useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import qs from 'qs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+
+// types
+import { State } from '../../reducers'
+
+// view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { Page } from 'styles'
 import { FarmTopBar, LIVE_TAB_ID } from './FarmTopBar/FarmTopBar.controller'
 import { FarmCard } from './FarmCard/FarmCard.controller'
 import { Modal } from '../../app/App.components/Modal/Modal.controller'
@@ -12,9 +17,8 @@ import { calculateAPR, getSummDepositedAmount } from './Frams.helpers'
 
 // styles
 import { FarmsStyled } from './Farms.style'
+import { Page } from 'styles'
 import { EmptyContainer as EmptyList } from 'app/App.style'
-import { useHistory, useLocation } from 'react-router-dom'
-import qs from 'qs'
 
 export type FarmsViewVariantType = 'vertical' | 'horizontal'
 
@@ -59,6 +63,7 @@ export const Farms = () => {
     [search],
   )
 
+  // effect to set all filters state from queryParams on mount
   useEffect(() => {
     setToggleChecked(isStakedOny)
     setSearchValue(searchFarm)
@@ -67,17 +72,9 @@ export const Farms = () => {
     setOpenedFarmsCards(openedCards)
   }, [])
 
+  // fn to add/remove card address fron query params, is it open or not
   const handleOpenCard = useCallback(
     (cardAdrress: string) => {
-      console.log(
-        'openedFarmsCards',
-        openedFarmsCards,
-        openedFarmsCards.find((openCardAddress) => openCardAddress === cardAdrress),
-        openedFarmsCards.find((openCardAddress) => openCardAddress === cardAdrress)
-          ? openedFarmsCards.filter((openCardAddress) => openCardAddress !== cardAdrress)
-          : openedFarmsCards.concat(cardAdrress),
-      )
-
       const newOpenCardArr = openedFarmsCards.find((openCardAddress) => openCardAddress === cardAdrress)
         ? openedFarmsCards.filter((openCardAddress) => openCardAddress !== cardAdrress)
         : openedFarmsCards.concat(cardAdrress)
@@ -95,7 +92,7 @@ export const Farms = () => {
       const stringifiedQP = qs.stringify(filtersQP, { addQueryPrefix: true })
       history.push(`${pathname}${stringifiedQP}`)
     },
-    [openedFarmsCards],
+    [isStakedOny, liveFinished, openedFarmsCards, pathname, searchFarm, searchValue, sortBy, sortType],
   )
 
   const farmsTVL = useMemo(
@@ -106,6 +103,7 @@ export const Farms = () => {
     [farmStorage],
   )
 
+  // effect to handle all sortings and filters in top bar
   useEffect(() => {
     let farmsToSortFilter = [...farmStorage]
 
@@ -176,6 +174,7 @@ export const Farms = () => {
       setFarmsList(farmsToSortFilter)
     }
 
+    // creating qp object and update qp
     const filtersQP = {
       openedCards,
       isLive: liveFinished,
@@ -188,6 +187,7 @@ export const Farms = () => {
     history.push(`${pathname}?${stringifiedQP}`)
   }, [farmStorage, liveFinished, searchValue, toggleChecked, sortBy, farmContracts])
 
+  // Handler for top bar
   const handleToggleStakedFarmsOnly = (e?: { target: { checked: boolean } }) => {
     setToggleChecked(Boolean(e?.target?.checked))
   }
@@ -225,32 +225,24 @@ export const Farms = () => {
           liveFinishedIdSelected={liveFinished}
         />
         {farmsList.length ? (
-          <>
-            <section className={`farm-list ${farmsViewVariant}`}>
-              {farmsList.map((farm, index: number) => {
-                const depositAmount = getSummDepositedAmount(farm.farmAccounts)
-                return (
-                  <div key={farm.address + index}>
-                    <FarmCard
-                      variant={farmsViewVariant}
-                      farmAddress={farm.address}
-                      name={farm.name}
-                      lpTokenBalance={farm.lpBalance}
-                      lpTokenAddress={farm.lpTokenAddress}
-                      currentRewardPerBlock={farm.currentRewardPerBlock}
-                      depositAmount={depositAmount}
-                      firstToken={farm.lpToken1}
-                      secondToken={farm.lpToken2}
-                      liquidity={farm.lpBalance}
-                      totalLiquidity={farmsTVL}
-                      expandCallback={handleOpenCard}
-                      isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
-                    />
-                  </div>
-                )
-              })}
-            </section>
-          </>
+          <section className={`farm-list ${farmsViewVariant}`}>
+            {farmsList.map((farm, index: number) => {
+              const depositAmount = getSummDepositedAmount(farm.farmAccounts)
+              return (
+                <div key={farm.address + index}>
+                  <FarmCard
+                    farm={farm}
+                    variant={farmsViewVariant}
+                    currentRewardPerBlock={farm.currentRewardPerBlock}
+                    depositAmount={depositAmount}
+                    totalLiquidity={farmsTVL}
+                    expandCallback={handleOpenCard}
+                    isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
+                  />
+                </div>
+              )
+            })}
+          </section>
         ) : (
           <EmptyContainer />
         )}

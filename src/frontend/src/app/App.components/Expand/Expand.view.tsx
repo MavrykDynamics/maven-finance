@@ -8,7 +8,7 @@ import { ExpandStyled, ExpandArticleStyled } from './Expand.style'
 
 type Props = {
   children: React.ReactNode
-  header: React.ReactNode
+  header?: React.ReactNode
   sufix?: React.ReactNode
   className?: string
   showText?: boolean
@@ -19,7 +19,7 @@ type Props = {
 
 export default function Expand({
   children,
-  header,
+  header = null,
   className = '',
   showCustomText = '',
   sufix = null,
