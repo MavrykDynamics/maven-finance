@@ -23,6 +23,7 @@
 // import breakGlassAddress from '../deployments/breakGlassAddress.json';
 // import vestingAddress from '../deployments/vestingAddress.json';
 // import treasuryAddress from '../deployments/treasuryAddress.json';
+// import { char2Bytes } from "@taquito/utils";
 
 // describe("Break Glass tests", async () => {
 //     var utils: Utils;
@@ -300,18 +301,21 @@
 //                     const newMemberName     = "Member Name";
 //                     const newMemberImage    = "Member Image";
 //                     const newMemberWebsite  = "Member Website";
-//                     const nextActionID      = breakGlassStorage.actionCounter;
+//                     const nextActionID      = breakGlassStorage.actionCounter.toNumber();
 
 //                     // Operation
 //                     const newActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember, newMemberName, newMemberWebsite, newMemberImage).send();
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage   = await breakGlassInstance.storage();
-//                     const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const addressMap    = await action.addressMap;
-//                     const stringMap     = await action.stringMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -320,10 +324,10 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
-//                     assert.equal(stringMap.get("councilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
-//                     assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
+//                     assert.equal(dataMap.get("councilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("councilMemberWebsite"), packedCouncilMemberWebsite);
+//                     assert.equal(dataMap.get("councilMemberImage"), packedCouncilMemberImage);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -380,10 +384,11 @@
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage   = await breakGlassInstance.storage();
-//                     const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const addressMap    = await action.addressMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -392,7 +397,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -480,11 +485,15 @@
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage   = await breakGlassInstance.storage();
-//                     const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const addressMap    = await action.addressMap;
-//                     const stringMap     = await action.stringMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedOldCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: oldCouncilMember }, type: { prim: 'address' } })).packed
+//                     const packedNewCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -493,11 +502,11 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("oldCouncilMemberAddress"), oldCouncilMember);
-//                     assert.equal(addressMap.get("newCouncilMemberAddress"), newCouncilMember);
-//                     assert.equal(stringMap.get("newCouncilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("newCouncilMemberWebsite"), newMemberWebsite);
-//                     assert.equal(stringMap.get("newCouncilMemberImage"), newMemberImage);
+//                     assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                     assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
+//                     assert.equal(dataMap.get("newCouncilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("newCouncilMemberWebsite"), packedCouncilMemberWebsite);
+//                     assert.equal(dataMap.get("newCouncilMemberImage"), packedCouncilMemberImage);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -697,7 +706,6 @@
 //                 try{
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     const nextActionID      = breakGlassStorage.actionCounter;
 
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.pauseAllEntrypoints().send()).to.be.rejected;
@@ -710,7 +718,6 @@
 //                 try{
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     const nextActionID      = breakGlassStorage.actionCounter;
 
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.unpauseAllEntrypoints().send()).to.be.rejected;
@@ -723,7 +730,6 @@
 //                 try{
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     const nextActionID      = breakGlassStorage.actionCounter;
 //                     const newAdmin          = oscar.pkh;
 //                     const targetContract    = doormanAddress.address;
 
@@ -738,7 +744,6 @@
 //                 try{
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     const nextActionID      = breakGlassStorage.actionCounter;
 //                     const newAdmin          = bob.pkh;
 
 //                     // Operation
@@ -752,7 +757,6 @@
 //                 try{
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     const nextActionID      = breakGlassStorage.actionCounter;
 
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.removeBreakGlassControl().send()).to.be.rejected;
@@ -881,10 +885,12 @@
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage   = await breakGlassInstance.storage();
-//                     const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const addressMap    = await action.addressMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedAdmin                   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
+//                     const packedContract                = (await utils.tezos.rpc.packData({ data: { string: targetContract }, type: { prim: 'address' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -893,8 +899,8 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("newAdminAddress"), newAdmin);
-//                     assert.equal(addressMap.get("targetContractAddress"), targetContract);
+//                     assert.equal(dataMap.get("newAdminAddress"), packedAdmin);
+//                     assert.equal(dataMap.get("targetContractAddress"), packedContract);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
@@ -951,7 +957,8 @@
 //                     breakGlassStorage   = await breakGlassInstance.storage();
 //                     const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
 //                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const addressMap    = await action.addressMap;
+//                     const dataMap       = await action.dataMap;
+//                     const packedAdmin   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -960,7 +967,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("newAdminAddress"), newAdmin);
+//                     assert.equal(dataMap.get("newAdminAddress"), packedAdmin);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
@@ -1143,10 +1150,11 @@
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage   = await breakGlassInstance.storage();
-//                     const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const natMap        = await action.natMap;
+//                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     const action            = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner      = action.signers.includes(alice.pkh)
+//                     const dataMap           = await action.dataMap;
+//                     const packedFlushedId   = (await utils.tezos.rpc.packData({ data: { int: flushedAction.toString() }, type: { prim: 'nat' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1156,7 +1164,7 @@
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
-//                     assert.equal(natMap.get("actionId"), flushedAction);
+//                     assert.equal(dataMap.get("actionId"), packedFlushedId);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -1253,12 +1261,15 @@
 //                     await duplicatedActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const addressMap        = await action.addressMap;
-//                     const stringMap         = await action.stringMap;
-//                     const signerThreshold   = breakGlassStorage.config.threshold;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
+//                     const signerThreshold               = breakGlassStorage.config.threshold;
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1267,10 +1278,10 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
-//                     assert.equal(stringMap.get("councilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
-//                     assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
+//                     assert.equal(dataMap.get("councilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("councilMemberImage"), packedCouncilMemberImage);
+//                     assert.equal(dataMap.get("councilMemberWebsite"), packedCouncilMemberWebsite);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1344,12 +1355,15 @@
 //                     await duplicatedActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const addressMap        = await action.addressMap;
-//                     const stringMap        = await action.stringMap;
-//                     const signerThreshold   = breakGlassStorage.config.threshold;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
+//                     const signerThreshold               = breakGlassStorage.config.threshold;
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1358,10 +1372,10 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
-//                     assert.equal(stringMap.get("councilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
-//                     assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
+//                     assert.equal(dataMap.get("councilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("councilMemberImage"), packedCouncilMemberImage);
+//                     assert.equal(dataMap.get("councilMemberWebsite"), packedCouncilMemberWebsite);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1405,11 +1419,14 @@
 //                     await duplicatedActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const addressMap        = await action.addressMap;
-//                     const stringMap         = await action.stringMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
 //                     const signerThreshold   = breakGlassStorage.config.threshold;
 
 //                     // Assertions
@@ -1419,10 +1436,10 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
-//                     assert.equal(stringMap.get("councilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
-//                     assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
+//                     assert.equal(dataMap.get("councilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("councilMemberImage"), packedCouncilMemberImage);
+//                     assert.equal(dataMap.get("councilMemberWebsite"), packedCouncilMemberWebsite);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1447,16 +1464,19 @@
 //             it('addCouncilMember --> should fail if the member is already in the storage', async () => {
 //                 try{
 //                     // Initial Values
-//                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     const councilMember     = susie.pkh;
-//                     const newMemberName     = "Member Name";
-//                     const newMemberImage    = "Member Image";
-//                     const newMemberWebsite  = "Member Website";
-//                     const nextActionID      = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
-//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const addressMap        = await action.addressMap;
-//                     const stringMap         = await action.stringMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     const councilMember                 = susie.pkh;
+//                     const newMemberName                 = "Member Name";
+//                     const newMemberImage                = "Member Image";
+//                     const newMemberWebsite              = "Member Website";
+//                     const nextActionID                  = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1465,10 +1485,10 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
-//                     assert.equal(stringMap.get("councilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
-//                     assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
+//                     assert.equal(dataMap.get("councilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("councilMemberImage"), packedCouncilMemberImage);
+//                     assert.equal(dataMap.get("councilMemberWebsite"), packedCouncilMemberWebsite);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1494,10 +1514,11 @@
 //                     await duplicatedActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const addressMap        = await action.addressMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
 //                     const signerThreshold   = breakGlassStorage.config.threshold;
 
 //                     // Assertions
@@ -1507,7 +1528,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1532,12 +1553,13 @@
 //             it('removeCouncilMember --> should fail if the member is not in the council', async () => {
 //                 try{
 //                     // Initial Values
-//                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     const councilMember     = oscar.pkh;
-//                     const nextActionID      = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
-//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const addressMap        = await action.addressMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     const councilMember                 = oscar.pkh;
+//                     const nextActionID                  = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1546,7 +1568,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1568,12 +1590,12 @@
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage      = await breakGlassInstance.storage();
-//                     var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     var actionSigner    = action.signers.includes(alice.pkh)
-//                     var addressMap      = await action.addressMap;
-//                     const councilSize   = breakGlassStorage.councilMembers.size;
-//                     // const oldThresold   = breakGlassStorage.config.threshold;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     var actionSigner                    = action.signers.includes(alice.pkh)
+//                     var dataMap                         = await action.dataMap;
+//                     const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
+//                     const councilSize                   = breakGlassStorage.councilMembers.size;
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1582,7 +1604,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+//                     assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                     // Update config
 //                     await signerFactory(bob.sk)
@@ -1639,12 +1661,15 @@
 //                     await existingNewOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const addressMap        = await action.addressMap;
-//                     const stringMap         = await action.stringMap;
-//                     const signerThreshold   = breakGlassStorage.config.threshold;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedOldCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: oldCouncilMember }, type: { prim: 'address' } })).packed
+//                     const packedNewCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1653,11 +1678,11 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("oldCouncilMemberAddress"), oldCouncilMember);
-//                     assert.equal(addressMap.get("newCouncilMemberAddress"), newCouncilMember);
-//                     assert.equal(stringMap.get("newCouncilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("newCouncilMemberWebsite"), newMemberWebsite);
-//                     assert.equal(stringMap.get("newCouncilMemberImage"), newMemberImage);
+//                     assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                     assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
+//                     assert.equal(dataMap.get("newCouncilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("newCouncilMemberWebsite"), packedCouncilMemberWebsite);
+//                     assert.equal(dataMap.get("newCouncilMemberImage"), packedCouncilMemberImage);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1681,17 +1706,21 @@
 //             it('changeCouncilMember --> should fail if the old member is not in the council', async () => {
 //                 try{
 //                     // Initial Values
-//                     breakGlassStorage           = await breakGlassInstance.storage();
-//                     const oldCouncilMember      = alice.pkh;
-//                     const newCouncilMember      = mallory.pkh;
-//                     const nextActionID          = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
-//                     var action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner          = action.signers.includes(alice.pkh)
-//                     const addressMap            = await action.addressMap;
-//                     const stringMap             = await action.stringMap;
-//                     const newMemberName         = "Member Name";
-//                     const newMemberImage        = "Member Image";
-//                     const newMemberWebsite      = "Member Website";
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     const oldCouncilMember              = alice.pkh;
+//                     const newCouncilMember              = mallory.pkh;
+//                     const nextActionID                  = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const newMemberName                 = "Member Name";
+//                     const newMemberImage                = "Member Image";
+//                     const newMemberWebsite              = "Member Website";
+//                     const packedOldCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: oldCouncilMember }, type: { prim: 'address' } })).packed
+//                     const packedNewCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1700,11 +1729,11 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("oldCouncilMemberAddress"), oldCouncilMember);
-//                     assert.equal(addressMap.get("newCouncilMemberAddress"), newCouncilMember);
-//                     assert.equal(stringMap.get("newCouncilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("newCouncilMemberWebsite"), newMemberWebsite);
-//                     assert.equal(stringMap.get("newCouncilMemberImage"), newMemberImage);
+//                     assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                     assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
+//                     assert.equal(dataMap.get("newCouncilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("newCouncilMemberWebsite"), packedCouncilMemberWebsite);
+//                     assert.equal(dataMap.get("newCouncilMemberImage"), packedCouncilMemberImage);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1717,17 +1746,21 @@
 //             it('changeCouncilMember --> should fail if the new member is already in the council', async () => {
 //                 try{
 //                     // Initial Values
-//                     breakGlassStorage       = await breakGlassInstance.storage();
-//                     const oldCouncilMember  = bob.pkh;
-//                     const newCouncilMember  = trudy.pkh;
-//                     const newMemberName     = "Member Name";
-//                     const newMemberImage    = "Member Image";
-//                     const newMemberWebsite  = "Member Website";
-//                     const nextActionID      = breakGlassStorage.actionCounter - 2; // Get the previously duplicated action
-//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const addressMap        = await action.addressMap;
-//                     const stringMap         = await action.stringMap;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     const oldCouncilMember              = bob.pkh;
+//                     const newCouncilMember              = trudy.pkh;
+//                     const newMemberName                 = "Member Name";
+//                     const newMemberImage                = "Member Image";
+//                     const newMemberWebsite              = "Member Website";
+//                     const nextActionID                  = breakGlassStorage.actionCounter - 2; // Get the previously duplicated action
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedOldCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: oldCouncilMember }, type: { prim: 'address' } })).packed
+//                     const packedNewCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
+//                     const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                     const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1736,11 +1769,11 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("oldCouncilMemberAddress"), oldCouncilMember);
-//                     assert.equal(addressMap.get("newCouncilMemberAddress"), newCouncilMember);
-//                     assert.equal(stringMap.get("newCouncilMemberName"), newMemberName);
-//                     assert.equal(stringMap.get("newCouncilMemberWebsite"), newMemberWebsite);
-//                     assert.equal(stringMap.get("newCouncilMemberImage"), newMemberImage);
+//                     assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                     assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
+//                     assert.equal(dataMap.get("newCouncilMemberName"), packedCouncilMemberName);
+//                     assert.equal(dataMap.get("newCouncilMemberWebsite"), packedCouncilMemberWebsite);
+//                     assert.equal(dataMap.get("newCouncilMemberImage"), packedCouncilMemberImage);
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
@@ -1774,7 +1807,6 @@
 //                     breakGlassStorage   = await breakGlassInstance.storage();
 //                     var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
 //                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const signerThreshold   = breakGlassStorage.config.threshold;
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1832,7 +1864,6 @@
 //                     breakGlassStorage   = await breakGlassInstance.storage();
 //                     var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
 //                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const signerThreshold   = breakGlassStorage.config.threshold;
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1889,11 +1920,12 @@
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage   = await breakGlassInstance.storage();
-//                     var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const addressMap    = await action.addressMap;
-//                     const signerThreshold   = breakGlassStorage.config.threshold;
+//                     breakGlassStorage                   = await breakGlassInstance.storage();
+//                     var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner                  = action.signers.includes(alice.pkh)
+//                     const dataMap                       = await action.dataMap;
+//                     const packedAdmin                   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
+//                     const packedContract                = (await utils.tezos.rpc.packData({ data: { string: targetContract }, type: { prim: 'address' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -1902,8 +1934,8 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("newAdminAddress"), newAdmin);
-//                     assert.equal(addressMap.get("targetContractAddress"), targetContract);
+//                     assert.equal(dataMap.get("newAdminAddress"), packedAdmin);
+//                     assert.equal(dataMap.get("targetContractAddress"), packedContract);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 
 //                     // Operation
@@ -1945,10 +1977,11 @@
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage   = await breakGlassInstance.storage();
-//                     var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner  = action.signers.includes(alice.pkh)
-//                     const addressMap    = await action.addressMap;
+//                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner      = action.signers.includes(alice.pkh)
+//                     const dataMap           = await action.dataMap;
+//                     const packedAdmin       = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 //                     const signerThreshold   = breakGlassStorage.config.threshold;
 
 //                     // Assertions
@@ -1958,7 +1991,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(addressMap.get("newAdminAddress"), newAdmin);
+//                     assert.equal(dataMap.get("newAdminAddress"), packedAdmin);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 
 //                     // Operation
@@ -2155,11 +2188,12 @@
 //                     await flushedOperation.confirmation();
 
 //                     // Final values
-//                     breakGlassStorage   = await breakGlassInstance.storage();
-//                     var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const actionSigner  = action.signers.includes(alice.pkh)
+//                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     const actionSigner      = action.signers.includes(alice.pkh)
 //                     const signerThreshold   = breakGlassStorage.config.threshold;
-//                     const natMap            = await action.natMap;
+//                     const dataMap           = await action.dataMap;
+//                     const packedFlushedId   = (await utils.tezos.rpc.packData({ data: { int: flushedAction.toString() }, type: { prim: 'nat' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -2169,7 +2203,7 @@
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
 //                     assert.equal(breakGlassStorage.glassBroken, false);
-//                     assert.equal(natMap.get("actionId"), flushedAction);
+//                     assert.equal(dataMap.get("actionId"), packedFlushedId);
                     
 //                     // Operation
 //                     await signerFactory(eve.sk);
@@ -2201,7 +2235,8 @@
 
 //                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
 //                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const natMap            = await action.natMap;
+//                     const dataMap           = await action.dataMap;
+//                     const packedActionId    = (await utils.tezos.rpc.packData({ data: { int: executedAction.toString() }, type: { prim: 'nat' } })).packed
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);
@@ -2210,7 +2245,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 //                     assert.equal(action.signersCount, 1);
-//                     assert.equal(natMap.get("actionId"), executedAction);
+//                     assert.equal(dataMap.get("actionId"), packedActionId);
 //                     action              = await breakGlassStorage.actionsLedger.get(executedAction);
 //                     assert.equal(action.executed, true);
 
@@ -2230,7 +2265,6 @@
 //                     const flushedAction     = 1;
 //                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
 //                     const actionSigner      = action.signers.includes(alice.pkh)
-//                     const natMap            = await action.natMap;
 
 //                     // Assertions
 //                     assert.strictEqual(action.initiator, alice.pkh);

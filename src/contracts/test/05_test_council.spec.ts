@@ -355,11 +355,14 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
-//                 const natMap        = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh)
+//                 const dataMap                       = await action.dataMap;
+//                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
+//                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedCliffInMonths           = (await utils.tezos.rpc.packData({ data: { int: cliffInMonths.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -368,10 +371,10 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
-//                 assert.equal(natMap.get("totalAllocatedAmount"), totalAllocated);
-//                 assert.equal(natMap.get("cliffInMonths"), cliffInMonths);
-//                 assert.equal(natMap.get("vestingInMonths"), vestingInMonths);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+//                 assert.equal(dataMap.get("totalAllocatedAmount"), packedTotalAllocatedAmount);
+//                 assert.equal(dataMap.get("cliffInMonths"), packedCliffInMonths);
+//                 assert.equal(dataMap.get("vestingInMonths"), packedVestingInMonths);
 
 //                 // Approve vestee for following tests
 //                 await signerFactory(bob.sk)
@@ -512,10 +515,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 const action                = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner          = action.signers.includes(alice.pkh)
+//                 const dataMap               = await action.dataMap;
+//                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -524,7 +528,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 
 //                 // Remove vestee for following tests
 //                 await signerFactory(bob.sk)
@@ -577,11 +581,14 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
-//                 const natMap        = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh)
+//                 const dataMap                       = await action.dataMap;
+//                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
+//                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedCliffInMonths           = (await utils.tezos.rpc.packData({ data: { int: cliffInMonths.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -590,10 +597,10 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
-//                 assert.equal(natMap.get("newTotalAllocatedAmount"), totalAllocated);
-//                 assert.equal(natMap.get("newCliffInMonths"), cliffInMonths);
-//                 assert.equal(natMap.get("newVestingInMonths"), vestingInMonths);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+//                 assert.equal(dataMap.get("newTotalAllocatedAmount"), packedTotalAllocatedAmount);
+//                 assert.equal(dataMap.get("newCliffInMonths"), packedCliffInMonths);
+//                 assert.equal(dataMap.get("newVestingInMonths"), packedVestingInMonths);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -677,10 +684,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh);
+//                 const dataMap                       = await action.dataMap;
+//                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -689,7 +697,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -767,11 +775,14 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
-//                 const stringMap    = await action.stringMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh)
+//                 const dataMap                       = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
+//                 const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
+//                 const packedCouncilMemberWebsite    = (await utils.tezos.rpc.packData({ data: { string: newMemberWebsite }, type: { prim: 'string' } })).packed
+//                 const packedCouncilMemberImage      = (await utils.tezos.rpc.packData({ data: { string: newMemberImage }, type: { prim: 'string' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -780,10 +791,10 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), newMember);
-//                 assert.equal(stringMap.get("councilMemberName"), newMemberName);
-//                 assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
-//                 assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
+//                 assert.equal(dataMap.get("councilMemberName"), packedCouncilMemberName);
+//                 assert.equal(dataMap.get("councilMemberWebsite"), packedCouncilMemberWebsite);
+//                 assert.equal(dataMap.get("councilMemberImage"), packedCouncilMemberImage);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -840,10 +851,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh)
+//                 const dataMap                       = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -852,7 +864,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), newMember);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -933,10 +945,12 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh)
+//                 const dataMap                       = await action.dataMap;
+//                 const packedOldCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: oldMember }, type: { prim: 'address' } })).packed
+//                 const packedNewCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -945,8 +959,8 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMember);
-//                 assert.equal(addressMap.get("newCouncilMemberAddress"), newMember);
+//                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -1033,12 +1047,16 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
-//                 const stringMap     = await action.stringMap;
-//                 const natMap        = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh)
+//                 const dataMap                       = await action.dataMap;
+//                 const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1047,12 +1065,12 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("receiverAddress"), receiverAddress);
-//                 assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
-//                 assert.equal(stringMap.get("tokenType"), tokenType);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
-//                 assert.equal(natMap.get("tokenId"), tokenId);
+//                 assert.equal(dataMap.get("receiverAddress"), packedReceiverAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenType"), packedTokenType);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"), packedTokenId);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -1140,12 +1158,17 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
-//                 const stringMap     = await action.stringMap;
-//                 const natMap        = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh)
+//                 const dataMap                       = await action.dataMap;
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1154,13 +1177,13 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
-//                 assert.equal(stringMap.get("tokenName"), tokenName);
-//                 assert.equal(stringMap.get("tokenType"), tokenType);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
-//                 assert.equal(natMap.get("tokenId"), tokenId);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenName"), packedTokenName);
+//                 assert.equal(dataMap.get("tokenType"), packedTokenType);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"), packedTokenId);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -1244,12 +1267,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const addressMap    = await action.addressMap;
-//                 const stringMap     = await action.stringMap;
-//                 const natMap        = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 const action                        = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner                  = action.signers.includes(alice.pkh)
+//                 const dataMap                       = await action.dataMap;
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1258,9 +1282,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // Sign action for later drop 
 //                 await signerFactory(bob.sk)
@@ -1310,10 +1334,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const natMap        = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 const action                = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner          = action.signers.includes(alice.pkh)
+//                 const dataMap               = await action.dataMap;
+//                 const packedRequestId       = (await utils.tezos.rpc.packData({ data: { int: requestID.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1322,7 +1347,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("requestId"), requestID);
+//                 assert.equal(dataMap.get("requestId"), packedRequestId);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -1359,12 +1384,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1373,9 +1399,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // ----- FLUSH REQUEST
 //                 // Initial Values
@@ -1387,12 +1413,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-//                 actionSigner        = action.signers.includes(alice.pkh)
-//                 addressMap          = await action.addressMap;
-//                 stringMap           = await action.stringMap;
-//                 natMap              = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 action                      = await councilStorage.councilActionsLedger.get(flushActionID);
+//                 actionSigner                = action.signers.includes(alice.pkh)
+//                 dataMap                     = await action.dataMap;
+//                 var packedActionId          = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1401,7 +1426,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 
 //                 // ----- SIGN FLUSH
 //                 await signerFactory(bob.sk)
@@ -1411,11 +1436,10 @@
 //                 await signOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-//                 addressMap          = await action.addressMap;
-//                 stringMap           = await action.stringMap;
-//                 natMap              = await action.natMap;
+//                 councilStorage          = await councilInstance.storage();
+//                 action                  = await councilStorage.councilActionsLedger.get(flushActionID);
+//                 dataMap                 = await action.dataMap;
+//                 packedActionId          = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1423,21 +1447,19 @@
 //                 assert.strictEqual(action.actionType, "flushAction");
 //                 assert.equal(action.executed, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 
-//                 const flushedAction = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 addressMap          = await flushedAction.addressMap;
-//                 stringMap           = await flushedAction.stringMap;
-//                 natMap              = await flushedAction.natMap;
+//                 const flushedAction         = await councilStorage.councilActionsLedger.get(mintActionID);
+//                 dataMap                     = await flushedAction.dataMap;
 
 //                 assert.strictEqual(flushedAction.initiator, alice.pkh);
 //                 assert.strictEqual(flushedAction.status, "FLUSHED");
 //                 assert.strictEqual(flushedAction.actionType, "requestMint");
 //                 assert.equal(flushedAction.executed, false);
 //                 assert.equal(flushedAction.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // ----- DROP
 //                 await signerFactory(alice.sk);
@@ -1465,12 +1487,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1479,9 +1502,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // ----- SIGN REQUEST
 //                 // Operation
@@ -1493,9 +1516,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(mintActionID);
 //                 actionSigner        = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 var dataMap         = await action.dataMap;
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1503,9 +1524,9 @@
 //                 assert.strictEqual(action.actionType, "requestMint");
 //                 assert.equal(action.executed, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // ----- DROP
 //                 await signerFactory(alice.sk);
@@ -1547,10 +1568,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 const actionSigner  = action.signers.includes(alice.pkh)
-//                 const natMap        = await action.natMap;
+//                 councilStorage          = await councilInstance.storage();
+//                 const action            = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 const actionSigner      = action.signers.includes(alice.pkh)
+//                 const dataMap           = await action.dataMap;
+//                 const packedRequestId   = (await utils.tezos.rpc.packData({ data: { int: requestID.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1559,7 +1581,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("actionId"), requestID);
+//                 assert.equal(dataMap.get("actionId"), packedRequestId);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }
@@ -1594,10 +1616,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(memberActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(memberActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var flushDataMap                    = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1606,7 +1629,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+//                 assert.equal(flushDataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // ----- FLUSH ACTION
 //                 // Initial Values
@@ -1618,10 +1641,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-//                 actionSigner        = action.signers.includes(alice.pkh)
-//                 const natMap        = await action.natMap;
+//                 councilStorage          = await councilInstance.storage();
+//                 action                  = await councilStorage.councilActionsLedger.get(flushActionID);
+//                 actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap             = await action.dataMap;
+//                 const packedActionId    = (await utils.tezos.rpc.packData({ data: { int: memberActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1630,7 +1654,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("actionId").toNumber(), memberActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 
 //                 // ----- SIGN DROP
 //                 await signerFactory(bob.sk)
@@ -1650,14 +1674,14 @@
 //                 assert.strictEqual(action.actionType, "flushAction");
 //                 assert.equal(action.executed, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(natMap.get("actionId").toNumber(), memberActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 
 //                 assert.strictEqual(flushedAction.initiator, alice.pkh);
 //                 assert.strictEqual(flushedAction.status, "FLUSHED");
 //                 assert.strictEqual(flushedAction.actionType, "addCouncilMember");
 //                 assert.equal(flushedAction.executed, false);
 //                 assert.equal(flushedAction.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+//                 assert.equal(flushDataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // ----- FLUSH AGAIN
 //                 await signerFactory(alice.sk);
@@ -1683,10 +1707,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(memberActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(memberActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: councilMember }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1695,7 +1720,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // ----- SIGN ACTION
 //                 await signerFactory(bob.sk)
@@ -1707,7 +1732,7 @@
 //                 // Final values
 //                 councilStorage      = await councilInstance.storage();
 //                 var action          = await councilStorage.councilActionsLedger.get(memberActionID);
-//                 var addressMap      = await action.addressMap;
+//                 dataMap             = await action.dataMap;
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1715,7 +1740,7 @@
 //                 assert.strictEqual(action.actionType, "addCouncilMember");
 //                 assert.equal(action.executed, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // ----- FLUSH
 //                 await signerFactory(alice.sk);
@@ -1760,11 +1785,14 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
+//                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedCliffInMonths           = (await utils.tezos.rpc.packData({ data: { int: cliffInMonths.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1773,10 +1801,10 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
-//                 assert.equal(natMap.get("totalAllocatedAmount"), totalAllocated);
-//                 assert.equal(natMap.get("cliffInMonths"), cliffInMonths);
-//                 assert.equal(natMap.get("vestingInMonths"), vestingInMonths);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+//                 assert.equal(dataMap.get("totalAllocatedAmount"), packedTotalAllocatedAmount);
+//                 assert.equal(dataMap.get("cliffInMonths"), packedCliffInMonths);
+//                 assert.equal(dataMap.get("vestingInMonths"), packedVestingInMonths);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -1787,8 +1815,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var natMap          = await action.natMap;
+//                 dataMap             = await action.dataMap;
 
 //                 vestingStorage      = await vestingInstance.storage();
 //                 const vestee        = await vestingStorage.vesteeLedger.get(vesteeAddress);
@@ -1800,10 +1827,10 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
-//                 assert.equal(natMap.get("totalAllocatedAmount"), totalAllocated);
-//                 assert.equal(natMap.get("cliffInMonths"), cliffInMonths);
-//                 assert.equal(natMap.get("vestingInMonths"), vestingInMonths);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+//                 assert.equal(dataMap.get("totalAllocatedAmount"), packedTotalAllocatedAmount);
+//                 assert.equal(dataMap.get("cliffInMonths"), packedCliffInMonths);
+//                 assert.equal(dataMap.get("vestingInMonths"), packedVestingInMonths);
 //                 assert.notStrictEqual(vestee, undefined);
 //                 assert.equal(vestee.totalAllocatedAmount, totalAllocated);
 //                 assert.equal(vestee.cliffMonths, cliffInMonths);
@@ -1828,11 +1855,14 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
+//                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedCliffInMonths           = (await utils.tezos.rpc.packData({ data: { int: cliffInMonths.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1841,10 +1871,10 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
-//                 assert.equal(natMap.get("totalAllocatedAmount"), totalAllocated);
-//                 assert.equal(natMap.get("cliffInMonths"), cliffInMonths);
-//                 assert.equal(natMap.get("vestingInMonths"), vestingInMonths);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+//                 assert.equal(dataMap.get("totalAllocatedAmount"), packedTotalAllocatedAmount);
+//                 assert.equal(dataMap.get("cliffInMonths"), packedCliffInMonths);
+//                 assert.equal(dataMap.get("vestingInMonths"), packedVestingInMonths);
 
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
@@ -1877,11 +1907,14 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
+//                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedCliffInMonths           = (await utils.tezos.rpc.packData({ data: { int: cliffInMonths.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1890,10 +1923,10 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
-//                 assert.equal(natMap.get("newTotalAllocatedAmount"), totalAllocated);
-//                 assert.equal(natMap.get("newCliffInMonths"), cliffInMonths);
-//                 assert.equal(natMap.get("newVestingInMonths"), vestingInMonths);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+//                 assert.equal(dataMap.get("newTotalAllocatedAmount"), packedTotalAllocatedAmount);
+//                 assert.equal(dataMap.get("newCliffInMonths"), packedCliffInMonths);
+//                 assert.equal(dataMap.get("newVestingInMonths"), packedVestingInMonths);
 
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
@@ -1926,11 +1959,14 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedVesteeAddress           = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
+//                 const packedTotalAllocatedAmount    = (await utils.tezos.rpc.packData({ data: { int: totalAllocated.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedCliffInMonths           = (await utils.tezos.rpc.packData({ data: { int: cliffInMonths.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedVestingInMonths         = (await utils.tezos.rpc.packData({ data: { int: vestingInMonths.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1939,10 +1975,10 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
-//                 assert.equal(natMap.get("newTotalAllocatedAmount"), totalAllocated);
-//                 assert.equal(natMap.get("newCliffInMonths"), cliffInMonths);
-//                 assert.equal(natMap.get("newVestingInMonths"), vestingInMonths);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+//                 assert.equal(dataMap.get("newTotalAllocatedAmount"), packedTotalAllocatedAmount);
+//                 assert.equal(dataMap.get("newCliffInMonths"), packedCliffInMonths);
+//                 assert.equal(dataMap.get("newVestingInMonths"), packedVestingInMonths);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -1953,8 +1989,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var natMap          = await action.natMap;
+//                 dataMap             = await action.dataMap;
 
 //                 vestingStorage      = await vestingInstance.storage();
 //                 const vestee        = await vestingStorage.vesteeLedger.get(vesteeAddress);
@@ -1966,10 +2001,10 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
-//                 assert.equal(natMap.get("newTotalAllocatedAmount"), totalAllocated);
-//                 assert.equal(natMap.get("newCliffInMonths"), cliffInMonths);
-//                 assert.equal(natMap.get("newVestingInMonths"), vestingInMonths);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
+//                 assert.equal(dataMap.get("newTotalAllocatedAmount"), packedTotalAllocatedAmount);
+//                 assert.equal(dataMap.get("newCliffInMonths"), packedCliffInMonths);
+//                 assert.equal(dataMap.get("newVestingInMonths"), packedVestingInMonths);
 //                 assert.notStrictEqual(vestee, undefined);
 //                 assert.equal(vestee.totalAllocatedAmount, totalAllocated);
 //                 assert.equal(vestee.cliffMonths, cliffInMonths);
@@ -1991,10 +2026,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2003,7 +2039,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
@@ -2033,12 +2069,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 vestingStorage      = await vestingInstance.storage();
-//                 var vestee          = await vestingStorage.vesteeLedger.get(vesteeAddress);
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
+//                 vestingStorage              = await vestingInstance.storage();
+//                 var vestee                  = await vestingStorage.vesteeLedger.get(vesteeAddress);
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2047,7 +2084,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 //                 assert.strictEqual(vestee.status, "ACTIVE")
 
 //                 // Operation
@@ -2056,13 +2093,12 @@
 //                 await signOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-
-//                 vestingStorage      = await vestingInstance.storage();
-//                 vestee              = await vestingStorage.vesteeLedger.get(vesteeAddress);
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 dataMap                     = await action.dataMap;
+//                 vestingStorage              = await vestingInstance.storage();
+//                 vestee                      = await vestingStorage.vesteeLedger.get(vesteeAddress);
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2071,7 +2107,7 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 //                 assert.notStrictEqual(vestee, undefined);
 //                 assert.strictEqual(vestee.status, "LOCKED")
 //             } catch(e){
@@ -2091,10 +2127,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2103,7 +2140,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
@@ -2133,10 +2170,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedVesteeAddress   = (await utils.tezos.rpc.packData({ data: { string: vesteeAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2145,7 +2183,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2156,7 +2194,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 dataMap             = await action.dataMap;
 
 //                 vestingStorage      = await vestingInstance.storage();
 //                 const vestee        = await vestingStorage.vesteeLedger.get(vesteeAddress);
@@ -2168,7 +2206,7 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+//                 assert.equal(dataMap.get("vesteeAddress"), packedVesteeAddress);
 //                 assert.strictEqual(vestee, undefined);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -2194,10 +2232,11 @@
 //                 await futureActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2206,7 +2245,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2217,7 +2256,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 var dataMap      = await action.dataMap;
 
 //                 const memberUpdated = councilStorage.councilMembers.has(david.pkh);
 
@@ -2228,7 +2267,7 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 //                 assert.equal(memberUpdated, true);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -2243,10 +2282,11 @@
 //                 const nextActionID      = councilStorage.actionCounter - 1;
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2255,7 +2295,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2277,12 +2317,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 const councilSize   = councilStorage.councilMembers.size;
-//                 const oldThresold   = councilStorage.config.threshold;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
+//                 const councilSize                   = councilStorage.councilMembers.size;
+//                 const oldThresold                   = councilStorage.config.threshold;
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2291,7 +2332,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // Update config
 //                 await signerFactory(bob.sk)
@@ -2338,10 +2379,11 @@
 //                 await futureActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2350,7 +2392,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2361,7 +2403,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 var dataMap      = await action.dataMap;
 
 //                 const memberUpdated = councilStorage.councilMembers.has(mallory.pkh);
 
@@ -2372,7 +2414,7 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 //                 assert.equal(memberUpdated, false);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -2387,10 +2429,11 @@
 //                 const nextActionID      = councilStorage.actionCounter - 1;
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2399,7 +2442,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+//                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2435,10 +2478,12 @@
 //                 await futureActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                          = await councilInstance.storage();
+//                 var action                              = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                        = action.signers.includes(alice.pkh)
+//                 var dataMap                             = await action.dataMap;
+//                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
+//                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2447,8 +2492,8 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMemberAddress);
-//                 assert.equal(addressMap.get("newCouncilMemberAddress"), newMemberAddress);
+//                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2459,7 +2504,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 dataMap             = await action.dataMap;
 
 //                 const memberRemoved = councilStorage.councilMembers.has(eve.pkh);
 //                 const memberAdded = councilStorage.councilMembers.has(isaac.pkh);
@@ -2471,8 +2516,8 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMemberAddress);
-//                 assert.equal(addressMap.get("newCouncilMemberAddress"), newMemberAddress);
+//                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 //                 assert.equal(memberRemoved, false);
 //                 assert.equal(memberAdded, true);
 //             } catch(e){
@@ -2489,10 +2534,12 @@
 //                 const nextActionID      = councilStorage.actionCounter - 2;
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                          = await councilInstance.storage();
+//                 var action                              = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                        = action.signers.includes(alice.pkh)
+//                 var dataMap                             = await action.dataMap;
+//                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
+//                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2501,8 +2548,8 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMemberAddress);
-//                 assert.equal(addressMap.get("newCouncilMemberAddress"), newMemberAddress);
+//                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2521,10 +2568,12 @@
 //                 const nextActionID      = councilStorage.actionCounter - 1;
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 councilStorage                          = await councilInstance.storage();
+//                 var action                              = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                        = action.signers.includes(alice.pkh)
+//                 var dataMap                             = await action.dataMap;
+//                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
+//                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2533,8 +2582,8 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMemberAddress);
-//                 assert.equal(addressMap.get("newCouncilMemberAddress"), newMemberAddress);
+//                 assert.equal(dataMap.get("oldCouncilMemberAddress"), packedOldCouncilMemberAddress);
+//                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2567,16 +2616,19 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
-
-//                 mvkTokenStorage         = await mvkTokenInstance.storage();
-//                 const preCouncilBalance = await mvkTokenStorage.ledger.get(councilAddress.address);
-//                 const preUserBalance    = await mvkTokenStorage.ledger.get(eve.pkh);
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 const preCouncilBalance             = await mvkTokenStorage.ledger.get(councilAddress.address);
+//                 const preUserBalance                = await mvkTokenStorage.ledger.get(eve.pkh);
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2585,12 +2637,12 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("receiverAddress"), receiverAddress);
-//                 assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
-//                 assert.equal(stringMap.get("tokenType"), tokenType);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
-//                 assert.equal(natMap.get("tokenId"), tokenId);
+//                 assert.equal(dataMap.get("receiverAddress"), packedReceiverAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenType"), packedTokenType);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"), packedTokenId);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2601,7 +2653,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
+//                 dataMap             = await action.dataMap;
 
 //                 mvkTokenStorage             = await mvkTokenInstance.storage();
 //                 const postCouncilBalance    = await mvkTokenStorage.ledger.get(councilAddress.address);
@@ -2613,12 +2665,12 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("receiverAddress"), receiverAddress);
-//                 assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
-//                 assert.equal(stringMap.get("tokenType"), tokenType);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
-//                 assert.equal(natMap.get("tokenId"), tokenId);
+//                 assert.equal(dataMap.get("receiverAddress"), packedReceiverAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenType"), packedTokenType);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"), packedTokenId);
 //                 assert.notEqual(postCouncilBalance.toNumber(), preCouncilBalance.toNumber());
 //                 assert.notEqual(postUserBalance.toNumber(), preUserBalance.toNumber());
 //                 assert.equal(postUserBalance.toNumber(), preUserBalance.toNumber() + tokenAmount);
@@ -2655,12 +2707,17 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage                      = await councilInstance.storage();
+//                 var action                          = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner                    = action.signers.includes(alice.pkh)
+//                 var dataMap                         = await action.dataMap;
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2669,13 +2726,13 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
-//                 assert.equal(stringMap.get("tokenName"), tokenName);
-//                 assert.equal(stringMap.get("tokenType"), tokenType);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
-//                 assert.equal(natMap.get("tokenId"), tokenId);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenName"), packedTokenName);
+//                 assert.equal(dataMap.get("tokenType"), packedTokenType);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"), packedTokenId);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2686,9 +2743,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 actionSigner        = action.signers.includes(alice.pkh)
-//                 addressMap          = await action.addressMap;
-//                 stringMap           = await action.stringMap;
-//                 natMap              = await action.natMap;
+//                 dataMap             = await action.dataMap;
 
 //                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
 //                 const governanceAction          = await governanceFinancialStorage.financialRequestLedger.get(governanceActionID)
@@ -2699,13 +2754,13 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
-//                 assert.equal(stringMap.get("tokenName"), tokenName);
-//                 assert.equal(stringMap.get("tokenType"), tokenType);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
-//                 assert.equal(natMap.get("tokenId"), tokenId);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"), packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenName"), packedTokenName);
+//                 assert.equal(dataMap.get("tokenType"), packedTokenType);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"), packedTokenId);
 //                 assert.notStrictEqual(governanceAction, undefined);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -2731,12 +2786,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2745,9 +2801,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2758,9 +2814,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 actionSigner        = action.signers.includes(alice.pkh)
-//                 addressMap          = await action.addressMap;
-//                 stringMap           = await action.stringMap;
-//                 natMap              = await action.natMap;
+//                 dataMap             = await action.dataMap;
 
 //                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
 //                 const governanceAction  = await governanceFinancialStorage.financialRequestLedger.get(governanceActionID)
@@ -2771,9 +2825,9 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 //                 assert.notStrictEqual(governanceAction, undefined);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -2793,10 +2847,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var natMap          = await action.natMap;
+//                 councilStorage          = await councilInstance.storage();
+//                 var action              = await councilStorage.councilActionsLedger.get(nextActionID);
+//                 var actionSigner        = action.signers.includes(alice.pkh)
+//                 var dataMap             = await action.dataMap;
+//                 const packedRequestId   = (await utils.tezos.rpc.packData({ data: { int: requestID.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2805,7 +2860,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("requestId"), requestID);
+//                 assert.equal(dataMap.get("requestId"), packedRequestId);
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
@@ -2816,7 +2871,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 actionSigner        = action.signers.includes(alice.pkh)
-//                 natMap              = await action.natMap;
+//                 dataMap             = await action.dataMap;
 
 //                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
 //                 const dropAction        = await governanceFinancialStorage.financialRequestLedger.get(requestID)
@@ -2827,7 +2882,7 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(natMap.get("requestId"), requestID);
+//                 assert.equal(dataMap.get("requestId"), packedRequestId);
 //                 assert.equal(dropAction.status, false);
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -2852,12 +2907,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2866,9 +2922,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // ----- FLUSH REQUEST
 //                 // Initial Values
@@ -2880,10 +2936,11 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-//                 actionSigner        = action.signers.includes(alice.pkh)
-//                 natMap              = await action.natMap;
+//                 councilStorage          = await councilInstance.storage();
+//                 action                  = await councilStorage.councilActionsLedger.get(flushActionID);
+//                 actionSigner            = action.signers.includes(alice.pkh)
+//                 dataMap                 = await action.dataMap;
+//                 var packedActionId      = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2892,7 +2949,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 
 //                 // ----- SIGN MINT
 //                 await signerFactory(bob.sk)
@@ -2904,7 +2961,7 @@
 //                 // Final values
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 natMap              = await action.natMap;
+//                 dataMap             = await action.dataMap;
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2912,9 +2969,9 @@
 //                 assert.strictEqual(action.actionType, "requestMint");
 //                 assert.equal(action.executed, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // ----- SIGN FLUSH
 //                 // Operation
@@ -2942,12 +2999,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2956,9 +3014,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // ----- FLUSH REQUEST
 //                 // Initial Values
@@ -2973,7 +3031,8 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
 //                 actionSigner        = action.signers.includes(alice.pkh)
-//                 natMap              = await action.natMap;
+//                 dataMap             = await action.dataMap;
+//                 var packedActionId  = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2982,7 +3041,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 
 //                 // ----- SECOND FLUSH REQUEST
 //                 // Initial Values
@@ -2997,7 +3056,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(reflushActionID);
 //                 actionSigner        = action.signers.includes(alice.pkh)
-//                 natMap              = await action.natMap;
+//                 dataMap             = await action.dataMap;
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -3006,7 +3065,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 
 //                 // ----- SIGN FIRST FLUSH
 //                 await signerFactory(bob.sk)
@@ -3041,12 +3100,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -3055,9 +3115,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // ----- FLUSH REQUEST
 //                 // Initial Values
@@ -3072,7 +3132,8 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
 //                 actionSigner        = action.signers.includes(alice.pkh)
-//                 natMap              = await action.natMap;
+//                 dataMap             = await action.dataMap;
+//                 var packedActionId  = (await utils.tezos.rpc.packData({ data: { int: mintActionID.toNumber().toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -3081,7 +3142,7 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 
 //                 // ----- SIGN FIRST FLUSH
 //                 await signerFactory(bob.sk)
@@ -3094,7 +3155,7 @@
 //                 councilStorage      = await councilInstance.storage();
 //                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
 //                 actionSigner        = action.signers.includes(alice.pkh)
-//                 natMap              = await action.natMap;
+//                 dataMap             = await action.dataMap;
 
 //                 const flushedAction = await councilStorage.councilActionsLedger.get(mintActionID);
 
@@ -3105,7 +3166,7 @@
 //                 assert.equal(action.executed, true);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 2);
-//                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+//                 assert.equal(dataMap.get("actionId"), packedActionId);
 //                 assert.strictEqual(flushedAction.status, "FLUSHED");
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
@@ -3176,12 +3237,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -3190,9 +3252,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // Operation
 //                 await signerFactory(trudy.sk);
@@ -3220,12 +3282,13 @@
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
-//                 councilStorage      = await councilInstance.storage();
-//                 var action          = await councilStorage.councilActionsLedger.get(mintActionID);
-//                 var actionSigner    = action.signers.includes(alice.pkh)
-//                 var addressMap      = await action.addressMap;
-//                 var stringMap       = await action.stringMap;
-//                 var natMap          = await action.natMap;
+//                 councilStorage              = await councilInstance.storage();
+//                 var action                  = await councilStorage.councilActionsLedger.get(mintActionID);
+//                 var actionSigner            = action.signers.includes(alice.pkh)
+//                 var dataMap                 = await action.dataMap;
+//                 const packedTreasuryAddress = (await utils.tezos.rpc.packData({ data: { string: fromTreasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose         = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount     = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -3234,9 +3297,9 @@
 //                 assert.equal(action.executed, false);
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
-//                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
-//                 assert.equal(stringMap.get("purpose"), purpose);
-//                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+//                 assert.equal(dataMap.get("treasuryAddress"), packedTreasuryAddress);
+//                 assert.equal(dataMap.get("purpose"), packedPurpose);
+//                 assert.equal(dataMap.get("tokenAmount"), packedTokenAmount);
 
 //                 // Operation
 //                 await signerFactory(alice.sk);

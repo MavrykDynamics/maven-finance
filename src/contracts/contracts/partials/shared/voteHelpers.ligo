@@ -8,10 +8,7 @@
 // Vote constants
 // ------------------------------------------------------------------------------
 
-const emptyAddressMap  : addressMapType         = map [];
-const emptyStringMap : stringMapType            = map [];
-const emptyNatMap : natMapType                  = map [];
-const emptyTransferList : transferActionType    = list [];
+const emptyDataMap : dataMapType                = map [];
 
 // ------------------------------------------------------------------------------
 // Vote helper functions

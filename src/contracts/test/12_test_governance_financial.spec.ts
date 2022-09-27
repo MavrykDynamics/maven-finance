@@ -446,15 +446,16 @@
 //                 // get new council storage and assert tests            
 //                 councilStorage                  = await councilInstance.storage();
 //                 const councilActionsRequestMint = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestMint.natMap
-//                 const councilActionString       = councilActionsRequestMint.stringMap
-//                 const councilActionAddress      = councilActionsRequestMint.addressMap
-                
+//                 const dataMap                   = councilActionsRequestMint.dataMap
+//                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestMint.actionType,       "requestMint");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
 //                 assert.equal(councilActionsRequestMint.executed,         false);
 //                 assert.equal(councilActionsRequestMint.status,           "PENDING");
 //                 assert.equal(councilActionsRequestMint.signersCount,     1);
@@ -639,21 +640,26 @@
 //                 await councilRequestsTokensOperation.confirmation();
     
 //                 // get new council storage and assert tests            
-//                 councilStorage            = await councilInstance.storage();
-//                 const councilActionsRequestTokens = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestTokens.natMap
-//                 const councilActionString       = councilActionsRequestTokens.stringMap
-//                 const councilActionAddress      = councilActionsRequestTokens.addressMap
+//                 councilStorage                      = await councilInstance.storage();
+//                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
+//                 const dataMap                       = councilActionsRequestTokens.dataMap
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  tokenContractAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"),  packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"),      packedTokenId);
+//                 assert.equal(dataMap.get("tokenName"),      packedTokenName);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
+//                 assert.equal(dataMap.get("tokenType"),      packedTokenType);
 //                 assert.equal(councilActionsRequestTokens.executed,         false);
 //                 assert.equal(councilActionsRequestTokens.status,           "PENDING");
 //                 assert.equal(councilActionsRequestTokens.signersCount,     1);
@@ -888,21 +894,26 @@
 //                 await councilRequestsTokensOperation.confirmation();
     
 //                 // get new council storage and assert tests            
-//                 councilStorage            = await councilInstance.storage();
-//                 const councilActionsRequestTokens = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestTokens.natMap
-//                 const councilActionString       = councilActionsRequestTokens.stringMap
-//                 const councilActionAddress      = councilActionsRequestTokens.addressMap
+//                 councilStorage                      = await councilInstance.storage();
+//                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
+//                 const dataMap                       = councilActionsRequestTokens.dataMap
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  tokenContractAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"),  packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"),      packedTokenId);
+//                 assert.equal(dataMap.get("tokenName"),      packedTokenName);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
+//                 assert.equal(dataMap.get("tokenType"),      packedTokenType);
 //                 assert.equal(councilActionsRequestTokens.executed,         false);
 //                 assert.equal(councilActionsRequestTokens.status,           "PENDING");
 //                 assert.equal(councilActionsRequestTokens.signersCount,     1);
@@ -997,21 +1008,26 @@
 //                 await councilRequestsTokensOperation.confirmation();
     
 //                 // get new council storage and assert tests            
-//                 councilStorage            = await councilInstance.storage();
-//                 const councilActionsRequestTokens = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestTokens.natMap
-//                 const councilActionString       = councilActionsRequestTokens.stringMap
-//                 const councilActionAddress      = councilActionsRequestTokens.addressMap
+//                 councilStorage                      = await councilInstance.storage();
+//                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
+//                 const dataMap                       = councilActionsRequestTokens.dataMap
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  tokenContractAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"),  packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"),      packedTokenId);
+//                 assert.equal(dataMap.get("tokenName"),      packedTokenName);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
+//                 assert.equal(dataMap.get("tokenType"),      packedTokenType);
 //                 assert.equal(councilActionsRequestTokens.executed,         false);
 //                 assert.equal(councilActionsRequestTokens.status,           "PENDING");
 //                 assert.equal(councilActionsRequestTokens.signersCount,     1);
@@ -1093,15 +1109,16 @@
 //                 // get new council storage and assert tests            
 //                 councilStorage                  = await councilInstance.storage();
 //                 const councilActionsRequestMint = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestMint.natMap
-//                 const councilActionString       = councilActionsRequestMint.stringMap
-//                 const councilActionAddress      = councilActionsRequestMint.addressMap
+//                 const dataMap                   = councilActionsRequestMint.dataMap
+//                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestMint.actionType,       "requestMint");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
 //                 assert.equal(councilActionsRequestMint.executed,         false);
 //                 assert.equal(councilActionsRequestMint.status,           "PENDING");
 //                 assert.equal(councilActionsRequestMint.signersCount,     1);
@@ -1243,15 +1260,15 @@
 //                 // get new council storage and assert tests            
 //                 councilStorage                  = await councilInstance.storage();
 //                 const councilActionsRequestMint = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestMint.natMap
-//                 const councilActionString       = councilActionsRequestMint.stringMap
-//                 const councilActionAddress      = councilActionsRequestMint.addressMap
-                
+//                 const dataMap                   = councilActionsRequestMint.dataMap
+//                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestMint.actionType,       "requestMint");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
 //                 assert.equal(councilActionsRequestMint.executed,         false);
 //                 assert.equal(councilActionsRequestMint.status,           "PENDING");
 //                 assert.equal(councilActionsRequestMint.signersCount,     1);
@@ -1412,21 +1429,26 @@
 //                 await councilRequestsTokensOperation.confirmation();
     
 //                 // get new council storage and assert tests            
-//                 councilStorage            = await councilInstance.storage();
-//                 const councilActionsRequestTokens = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestTokens.natMap
-//                 const councilActionString       = councilActionsRequestTokens.stringMap
-//                 const councilActionAddress      = councilActionsRequestTokens.addressMap
-                
+//                 councilStorage                      = await councilInstance.storage();
+//                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
+//                 const dataMap                       = councilActionsRequestTokens.dataMap
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: tokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
+
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  tokenContractAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"),  packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"),      packedTokenId);
+//                 assert.equal(dataMap.get("tokenName"),      packedTokenName);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
+//                 assert.equal(dataMap.get("tokenType"),      packedTokenType);
 //                 assert.equal(councilActionsRequestTokens.executed,         false);
 //                 assert.equal(councilActionsRequestTokens.status,           "PENDING");
 //                 assert.equal(councilActionsRequestTokens.signersCount,     1);
@@ -1520,15 +1542,16 @@
 //                 // get new council storage and assert tests            
 //                 councilStorage                  = await councilInstance.storage();
 //                 const councilActionsRequestMint = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestMint.natMap
-//                 const councilActionString       = councilActionsRequestMint.stringMap
-//                 const councilActionAddress      = councilActionsRequestMint.addressMap
+//                 const dataMap                   = councilActionsRequestMint.dataMap
+//                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestMint.actionType,       "requestMint");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
 //                 assert.equal(councilActionsRequestMint.executed,         false);
 //                 assert.equal(councilActionsRequestMint.status,           "PENDING");
 //                 assert.equal(councilActionsRequestMint.signersCount,     1);
@@ -1653,15 +1676,16 @@
 //                 // get new council storage and assert tests            
 //                 councilStorage                  = await councilInstance.storage();
 //                 const councilActionsRequestMint = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestMint.natMap
-//                 const councilActionString       = councilActionsRequestMint.stringMap
-//                 const councilActionAddress      = councilActionsRequestMint.addressMap
+//                 const dataMap                   = councilActionsRequestMint.dataMap
+//                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestMint.actionType,       "requestMint");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
 //                 assert.equal(councilActionsRequestMint.executed,         false);
 //                 assert.equal(councilActionsRequestMint.status,           "PENDING");
 //                 assert.equal(councilActionsRequestMint.signersCount,     1);
@@ -1794,15 +1818,16 @@
 //                 // get new council storage and assert tests            
 //                 councilStorage                  = await councilInstance.storage();
 //                 const councilActionsRequestMint = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestMint.natMap
-//                 const councilActionString       = councilActionsRequestMint.stringMap
-//                 const councilActionAddress      = councilActionsRequestMint.addressMap
+//                 const dataMap                   = councilActionsRequestMint.dataMap
+//                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestMint.actionType,       "requestMint");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
 //                 assert.equal(councilActionsRequestMint.executed,         false);
 //                 assert.equal(councilActionsRequestMint.status,           "PENDING");
 //                 assert.equal(councilActionsRequestMint.signersCount,     1);
@@ -1913,15 +1938,16 @@
 //                 // get new council storage and assert tests            
 //                 councilStorage                  = await councilInstance.storage();
 //                 const councilActionsRequestMint = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestMint.natMap
-//                 const councilActionString       = councilActionsRequestMint.stringMap
-//                 const councilActionAddress      = councilActionsRequestMint.addressMap
+//                 const dataMap                   = councilActionsRequestMint.dataMap
+//                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestMint.actionType,       "requestMint");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
 //                 assert.equal(councilActionsRequestMint.executed,         false);
 //                 assert.equal(councilActionsRequestMint.status,           "PENDING");
 //                 assert.equal(councilActionsRequestMint.signersCount,     1);
@@ -1978,21 +2004,26 @@
 //                 await councilRequestsTokensOperation.confirmation();
 
 //                 // get new council storage and assert tests
-//                 councilStorage                = await councilInstance.storage();
+//                 councilStorage                      = await councilInstance.storage();
 //                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat              = councilActionsRequestTokens.natMap
-//                 const councilActionString           = councilActionsRequestTokens.stringMap
-//                 const councilActionAddress          = councilActionsRequestTokens.addressMap
+//                 const dataMap                       = councilActionsRequestTokens.dataMap
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mockFa12TokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  mockFa12TokenContractAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"),  packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"),      packedTokenId);
+//                 assert.equal(dataMap.get("tokenName"),      packedTokenName);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
+//                 assert.equal(dataMap.get("tokenType"),      packedTokenType);
 //                 assert.equal(councilActionsRequestTokens.executed,         false);
 //                 assert.equal(councilActionsRequestTokens.status,           "PENDING");
 //                 assert.equal(councilActionsRequestTokens.signersCount,     1);
@@ -2119,21 +2150,26 @@
 //                 await councilRequestsTokensOperation.confirmation();
 
 //                 // get new council storage and assert tests
-//                 councilStorage            = await councilInstance.storage();
-//                 const councilActionsRequestTokens = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat              = councilActionsRequestTokens.natMap
-//                 const councilActionString           = councilActionsRequestTokens.stringMap
-//                 const councilActionAddress          = councilActionsRequestTokens.addressMap
+//                 councilStorage                      = await councilInstance.storage();
+//                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
+//                 const dataMap                       = councilActionsRequestTokens.dataMap
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mockFa2TokenContractAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  mockFa2TokenContractAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"),  packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"),      packedTokenId);
+//                 assert.equal(dataMap.get("tokenName"),      packedTokenName);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
+//                 assert.equal(dataMap.get("tokenType"),      packedTokenType);
 //                 assert.equal(councilActionsRequestTokens.executed,         false);
 //                 assert.equal(councilActionsRequestTokens.status,           "PENDING");
 //                 assert.equal(councilActionsRequestTokens.signersCount,     1);
@@ -2264,19 +2300,24 @@
 //                 // get new council storage and assert tests
 //                 councilStorage                      = await councilInstance.storage();
 //                 const councilActionsRequestTokens   = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat              = councilActionsRequestTokens.natMap
-//                 const councilActionString           = councilActionsRequestTokens.stringMap
-//                 const councilActionAddress          = councilActionsRequestTokens.addressMap
+//                 const dataMap                       = councilActionsRequestTokens.dataMap
+//                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: zeroAddress }, type: { prim: 'address' } })).packed
+//                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
+//                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
+//                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
+//                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  zeroAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      0);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenContractAddress"),  packedTokenContractAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("tokenId"),      packedTokenId);
+//                 assert.equal(dataMap.get("tokenName"),      packedTokenName);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
+//                 assert.equal(dataMap.get("tokenType"),      packedTokenType);
 //                 assert.equal(councilActionsRequestTokens.executed,         false);
 //                 assert.equal(councilActionsRequestTokens.status,           "PENDING");
 //                 assert.equal(councilActionsRequestTokens.signersCount,     1);
@@ -2398,15 +2439,16 @@
 //                 // get new council storage and assert tests            
 //                 councilStorage                  = await councilInstance.storage();
 //                 const councilActionsRequestMint = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestMint.natMap
-//                 const councilActionString       = councilActionsRequestMint.stringMap
-//                 const councilActionAddress      = councilActionsRequestMint.addressMap
+//                 const dataMap                   = councilActionsRequestMint.dataMap
+//                 const packedTreasuryAddress     = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
+//                 const packedPurpose             = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
+//                 const packedTokenAmount         = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 
 //                 // check details of council action
 //                 assert.equal(councilActionsRequestMint.actionType,       "requestMint");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
+//                 assert.equal(dataMap.get("treasuryAddress"),  packedTreasuryAddress);
+//                 assert.equal(dataMap.get("tokenAmount"),      packedTokenAmount);
+//                 assert.equal(dataMap.get("purpose"),      packedPurpose);
 //                 assert.equal(councilActionsRequestMint.executed,         false);
 //                 assert.equal(councilActionsRequestMint.status,           "PENDING");
 //                 assert.equal(councilActionsRequestMint.signersCount,     1);
