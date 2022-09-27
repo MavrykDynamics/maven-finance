@@ -17,6 +17,7 @@ import { signAction } from '../BreakGlassCouncil.actions'
 
 // styles
 import { CouncilPendingStyled } from './BreakGlassCouncilPanding.style'
+import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 
 type Props = BreakGlassAction[0] & {
   numCouncilMembers: number
@@ -116,7 +117,13 @@ export const BreakGlassCouncilPanding = (props: Props) => {
           <div className="parameters grid">
             <article>
               <p>Profile Pic</p>
-              <span className="parameters-value">{profilePic || '-'}</span>
+              {profilePic ? (
+              <article className="parameters-img">
+                <AvatarStyle>
+                  <img src={profilePic} />
+                </AvatarStyle>
+              </article>
+            ) : <span className="parameters-value">-</span>}
             </article>
 
             <article>
@@ -179,7 +186,13 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
             <article>
               <p>Profile Pic</p>
-              <span className="parameters-value">{profilePic || '-'}</span>
+              {profilePic ? (
+              <article className="parameters-img">
+                <AvatarStyle>
+                  <img src={profilePic} />
+                </AvatarStyle>
+              </article>
+            ) : <span className="parameters-value">-</span>}
             </article>
 
             <article>
