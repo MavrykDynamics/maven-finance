@@ -31,8 +31,8 @@ type emergencyGovernanceAction is
     |   SetGovernance             of (address)
     |   UpdateMetadata            of updateMetadataType
     |   UpdateConfig              of emergencyUpdateConfigParamsType    
-    |   UpdateGeneralContracts    of updateGeneralContractsType
     |   UpdateWhitelistContracts  of updateWhitelistContractsType
+    |   UpdateGeneralContracts    of updateGeneralContractsType
     |   MistakenTransfer          of transferActionType
 
         // Emergency Governance Entrypoints
@@ -353,25 +353,6 @@ block {
 
 
 
-(* updateGeneralContracts entrypoint  *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : emergencyGovernanceStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init emergencyGovernance lambda action
-    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
-
-} with response
-
-
-
 (*  updateWhitelistContracts entrypoint *)
 function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : emergencyGovernanceStorageType) : return is
 block {
@@ -383,6 +364,25 @@ block {
 
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
+
+
+
+(* updateGeneralContracts entrypoint  *)
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : emergencyGovernanceStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
@@ -516,8 +516,8 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
         |   SetGovernance(parameters)             -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)              -> updateConfig(parameters, s)
-        |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
         |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
 
             // Emergency Governance Entrypoints

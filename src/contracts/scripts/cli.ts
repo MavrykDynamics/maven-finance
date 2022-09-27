@@ -1,6 +1,6 @@
 import yargs from 'yargs'
 
-import { compile, compileLambdas, compileContract, compileContractLambdas, compileContractNoLambdas, runMigrations } from './helpers'
+import { compile, compileLambdas, compileContract, compileContractLambdas, compileContractNoLambdas, generateLambdaIndexes, runMigrations } from './helpers'
 
 yargs
 
@@ -178,6 +178,22 @@ yargs
         
         compileContractLambdas(argv.contract)
 
+    },
+)
+
+
+.command(
+    'generate-lambda-indexes',
+    'generate lambda indexes for contracts',
+    {
+        contract: {
+            description: 'input file relative path (with lambdas Ligo code)',
+            alias: 'c',
+            type: 'string',
+        },
+    },
+    async (argv) => {
+        generateLambdaIndexes(argv.contract)
     },
 )
 
