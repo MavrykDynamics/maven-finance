@@ -40,11 +40,11 @@ const LogoHeaderContent = ({
   name,
 }: {
   name: string
-  firstToken: Record<string, string>
-  secondToken: Record<string, string>
+  firstToken: FarmStorage[number]['lpToken1']
+  secondToken: FarmStorage[number]['lpToken2']
 }) => (
   <div className="farm-card-header">
-    <CoinsIcons firstAssetLogoSrc={firstToken.thumbnailUri} secondAssetLogoSrc={secondToken.thumbnailUri} />
+    <CoinsIcons firstAssetLogoSrc={firstToken.address} secondAssetLogoSrc={secondToken.address} />
     <div className="farm-card-section">
       <h3>{name}</h3>
     </div>
@@ -60,13 +60,6 @@ const AprBlock = ({ valueAPR, triggerCalculatorModal }: { valueAPR: string; trig
         <Icon id="calculator" />
       </button>
     </div>
-  </div>
-)
-
-const UnclaimedSMVKBlock = () => (
-  <div className="farm-info">
-    <h3>Unclaimed sMVK</h3>
-    <var>0.00</var>
   </div>
 )
 
@@ -228,6 +221,7 @@ const HorisontalFarmComponent = ({
   isOpenedCard,
   userReward,
   aprValue,
+  accountPkh,
   triggerWithdrawModal,
   closeCalculatorModal,
   triggerDepositModal,
@@ -244,7 +238,6 @@ const HorisontalFarmComponent = ({
         header={
           <>
             <LogoHeaderContent name={farm.name} firstToken={farm.lpToken1} secondToken={farm.lpToken2} />
-            <UnclaimedSMVKBlock />
             <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
             <LiquidityBlock liquidity={farm.lpBalance} />
             <EarnBlock />
@@ -253,7 +246,11 @@ const HorisontalFarmComponent = ({
       >
         <div className="horizontal-expand">
           <HarvestBlock harvestRewards={harvestRewards} userReward={userReward} />
-          <FarmingBlock triggerDepositModal={triggerDepositModal} triggerWithdrawModal={triggerWithdrawModal} />
+          <FarmingBlock
+            accountPhk={accountPkh}
+            triggerDepositModal={triggerDepositModal}
+            triggerWithdrawModal={triggerWithdrawModal}
+          />
           <LinksBlock farmAddress={farm.address} lpTokenAddress={farm.lpTokenAddress} />
         </div>
       </Expand>
