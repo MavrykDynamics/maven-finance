@@ -42,8 +42,8 @@ type governanceAction is
     |   SetGovernanceProxy              of (address)
     |   UpdateMetadata                  of updateMetadataType
     |   UpdateConfig                    of governanceUpdateConfigParamsType
-    |   UpdateGeneralContracts          of updateGeneralContractsType
     |   UpdateWhitelistContracts        of updateWhitelistContractsType
+    |   UpdateGeneralContracts          of updateGeneralContractsType    
     |   UpdateWhitelistDevelopers       of (address)
     |   MistakenTransfer                of transferActionType
     |   SetContractAdmin                of setContractAdminType
@@ -1420,8 +1420,8 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   SetGovernanceProxy(parameters)              -> setGovernanceProxy(parameters, s)
         |   UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)                    -> updateConfig(parameters, s)
-        |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)        
         |   UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
         |   MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
         |   SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)

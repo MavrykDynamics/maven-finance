@@ -247,30 +247,6 @@ block {
 
 
 
-(*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
-block {
-
-    // Steps Overview:
-    // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
-    // 2. Check that no tez is sent to the entrypoint
-    // 3. Update general contracts map
-
-    
-    checkSenderIsWhitelistedOrAdmin(s); // check that sender is admin or whitelisted (e.g. Factory contracts)
-    checkNoAmount(Unit);                // check that no tez is sent to the entrypoint
-    
-    case governanceLambdaAction of [
-        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
 (*  updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
@@ -287,6 +263,30 @@ block {
     case governanceLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
                 s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  updateGeneralContracts lambda *)
+function lambdaUpdateGeneralContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
+block {
+
+    // Steps Overview:
+    // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
+    // 2. Check that no tez is sent to the entrypoint
+    // 3. Update general contracts map
+
+    
+    checkSenderIsWhitelistedOrAdmin(s); // check that sender is admin or whitelisted (e.g. Factory contracts)
+    checkNoAmount(Unit);                // check that no tez is sent to the entrypoint
+    
+    case governanceLambdaAction of [
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
         |   _ -> skip
     ];

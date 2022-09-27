@@ -975,6 +975,7 @@ block {
                 // update vault
                 s.vaults[vaultHandle] := vault;
 
+                s.tempMap["vaultIsLiquidatableBool"] := if vaultIsLiquidatableBool = True then 1n else 0n;
                 s.tempMap["markForLiquidation"] := 123n;
                 
                 // ------------------------------------------------------------------
@@ -983,21 +984,21 @@ block {
 
                 
                 // check if vault is liquidatable
-                // if vaultIsLiquidatableBool then block {
+                if vaultIsLiquidatableBool then block {
 
-                //     // get vault liquidation timestamps
-                //     const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
-                //     const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
+                    // get vault liquidation timestamps
+                    const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
+                    const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
 
-                //     // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
-                //     if mockLevel < levelWhenVaultCanBeLiquidated 
-                //     then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
-                //     else vault.markedForLiquidationLevel := mockLevel;
+                    // check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
+                    if mockLevel < levelWhenVaultCanBeLiquidated 
+                    then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
+                    else vault.markedForLiquidationLevel := mockLevel;
 
-                //     // update vault storage
-                //     s.vaults[vaultHandle] := vault;
+                    // update vault storage
+                    s.vaults[vaultHandle] := vault;
 
-                // } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);                
+                } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);                
 
             }
         |   _ -> skip

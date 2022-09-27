@@ -96,23 +96,6 @@ block {
 
 
 
-(* updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s); // check that sender is admin 
-
-    case emergencyGovernanceLambdaAction of [
-        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
 (*  updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
@@ -122,6 +105,23 @@ block {
     case emergencyGovernanceLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
                 s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* updateGeneralContracts lambda  *)
+function lambdaUpdateGeneralContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType) : return is
+block {
+
+    checkSenderIsAdmin(s); // check that sender is admin 
+
+    case emergencyGovernanceLambdaAction of [
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
         |   _ -> skip
     ];
