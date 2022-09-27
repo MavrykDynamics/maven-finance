@@ -28,6 +28,8 @@
     "compile-contract-lambdas": "ts-node scripts/cli.ts compile-contract-lambda -c",
     "compile-contract": "ts-node scripts/cli.ts compile-contract -c",
     "compile-contract-no-lambdas": "ts-node scripts/cli.ts compile-contract-no-lambdas -c",
+
+    "generate-lambda-indexes": "ts-node scripts/cli.ts generate-lambda-indexes",
     
     "compile-all-lambdas-1": "yarn compile-contract-lambdas governanceProxy,governance,governanceFinancial,governanceSatellite && yarn compile-contract-lambdas doorman,delegation,breakGlass,council,emergencyGovernance,vesting",
     "compile-all-lambdas-2": "yarn compile-contract-lambdas farm,farmFactory,treasury,treasuryFactory,aggregator,aggregatorFactory",

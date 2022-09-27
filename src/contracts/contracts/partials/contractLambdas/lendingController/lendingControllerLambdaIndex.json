@@ -1,94 +1,102 @@
 [
-    {
-        "index": 0,
-        "name": "lambdaSetAdmin"
-    },
-    {
-        "index": 1,
-        "name": "lambdaSetGovernance"
-    },
-    {
-        "index": 2,
-        "name": "lambdaUpdateMetadata"
-    },
-    {
-        "index": 3,
-        "name": "lambdaUpdateConfig"
-    },
-    {
-        "index": 4,
-        "name": "lambdaUpdateWhitelistContracts"
-    },
-    {
-        "index": 5,
-        "name": "lambdaUpdateGeneralContracts"
-    },
-    {
-        "index": 6,
-        "name": "lambdaUpdateWhitelistTokenContracts"
-    },
-    {
-        "index": 7,
-        "name": "lambdaPauseAll"
-    },
-    {
-        "index": 8,
-        "name": "lambdaUnpauseAll"
-    },
-    {
-        "index": 9,
-        "name": "lambdaTogglePauseEntrypoint"
-    },
-    {
-        "index": 10,
-        "name": "lambdaSetLoanToken"
-    },
-    {
-        "index": 11,
-        "name": "lambdaUpdateLoanToken"
-    },
-    {
-        "index": 12,
-        "name": "lambdaAddLiquidity"
-    },
-    {
-        "index": 13,
-        "name": "lambdaRemoveLiquidity"
-    },
-    {
-        "index": 14,
-        "name": "lambdaUpdateCollateralToken"
-    },
-    {
-        "index": 15,
-        "name": "lambdaRegisterVaultCreation"
-    },
-    {
-        "index": 16,
-        "name": "lambdaCloseVault"
-    },
-    {
-        "index": 17,
-        "name": "lambdaMarkForLiquidation"
-    },
-    {
-        "index": 18,
-        "name": "lambdaLiquidateVault"
-    },
-    {
-        "index": 19,
-        "name": "lambdaRegisterDeposit"
-    },
-    {
-        "index": 20,
-        "name": "lambdaRegisterWithdrawal"
-    },
-    {
-        "index": 21,
-        "name": "lambdaBorrow"
-    },
-    {
-        "index": 22,
-        "name": "lambdaRepay"
-    }
+	{
+		"index": 0,
+		"name": "lambdaSetAdmin"
+	},
+	{
+		"index": 1,
+		"name": "lambdaSetGovernance"
+	},
+	{
+		"index": 2,
+		"name": "lambdaUpdateMetadata"
+	},
+	{
+		"index": 3,
+		"name": "lambdaUpdateConfig"
+	},
+	{
+		"index": 4,
+		"name": "lambdaUpdateWhitelistTokens"
+	},
+	{
+		"index": 5,
+		"name": "lambdaPauseAll"
+	},
+	{
+		"index": 6,
+		"name": "lambdaUnpauseAll"
+	},
+	{
+		"index": 7,
+		"name": "lambdaTogglePauseEntrypoint"
+	},
+	{
+		"index": 8,
+		"name": "lambdaSetLoanToken"
+	},
+	{
+		"index": 9,
+		"name": "lambdaUpdateLoanToken"
+	},
+	{
+		"index": 10,
+		"name": "lambdaAddLiquidity"
+	},
+	{
+		"index": 11,
+		"name": "lambdaRemoveLiquidity"
+	},
+	{
+		"index": 12,
+		"name": "lambdaUpdateCollateralToken"
+	},
+	{
+		"index": 13,
+		"name": "lambdaRegisterVaultCreation"
+	},
+	{
+		"index": 14,
+		"name": "lambdaCloseVault"
+	},
+	{
+		"index": 15,
+		"name": "lambdaMarkForLiquidation"
+	},
+	{
+		"index": 16,
+		"name": "lambdaLiquidateVault"
+	},
+	{
+		"index": 17,
+		"name": "lambdaRegisterWithdrawal"
+	},
+	{
+		"index": 18,
+		"name": "lambdaRegisterDeposit"
+	},
+	{
+		"index": 19,
+		"name": "lambdaBorrow"
+	},
+	{
+		"index": 20,
+		"name": "lambdaRepay"
+	},
+	{
+		"index": 21,
+		"name": "lambdaCallVaultStakedMvkAction"
+	},
+	{
+		"index": 22,
+		"name": "lambdaVaultDepositStakedMvk"
+	},
+	{
+		"index": 23,
+		"name": "lambdaVaultWithdrawStakedMvk"
+	},
+	{
+		"index": 24,
+		"name": "lambdaVaultLiquidateStakedMvk"
+	}
 ]

@@ -183,8 +183,19 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
         
 
             //----------------------------
+            // Mock Oracles
+            //----------------------------
+            const oracleMap = MichelsonMap.fromLiteral({
+                [bob.pkh]              : true,
+                [eve.pkh]              : true,
+                [mallory.pkh]          : true,
+                [oracleMaintainer.pkh] : true,
+              });
+
+            //----------------------------
             // Mock USD/MockFA12 Token Aggregator Contract
             //----------------------------
+          
             aggregatorStorage.config = {
                 nameMaxLength                       : new BigNumber(200),
                 decimals                            : new BigNumber(6),
@@ -207,6 +218,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
                 percentOracleResponse   : new BigNumber(100),
                 priceDateTime           : '1'
             };
+            aggregatorStorage.oracleAddresses = oracleMap;
             mockUsdMockFa12TokenAggregator = await Aggregator.originate(
                 utils.tezos,
                 aggregatorStorage
@@ -292,8 +304,12 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
 
             // Token Pool Reward Lambdas
             await setTokenPoolRewardLambdas(tezos, tokenPoolReward.contract);
-            console.log("Token Pool Reward Lambdas Setup")
-        
+            console.log("Token Pool Reward Lambdas Setup")    
+  
+            // Aggregator Setup Lambdas
+            await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
+            await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
+            await setAggregatorLambdas(tezos, mockUsdXtzAggregator.contract);
 
             //----------------------------
             // Update Contract Links and Relationships

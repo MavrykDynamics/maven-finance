@@ -52,8 +52,8 @@ type governanceFinancialAction is
     |   SetGovernance                   of (address)
     |   UpdateMetadata                  of updateMetadataType
     |   UpdateConfig                    of governanceFinancialUpdateConfigParamsType
-    |   UpdateGeneralContracts          of updateGeneralContractsType
     |   UpdateWhitelistContracts        of updateWhitelistContractsType
+    |   UpdateGeneralContracts          of updateGeneralContractsType    
     |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     |   MistakenTransfer                of transferActionType
 
@@ -835,25 +835,6 @@ block {
 
 
 
-// (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceFinancialStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance financial lambda action
-    const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceFinancialLambdaAction, s);
-
-} with response
-
-
-
 (*  updateWhitelistContracts entrypoint *)
 function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : governanceFinancialStorageType) : return is
 block {
@@ -868,6 +849,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceFinancialLambdaAction, s);  
+
+} with response
+
+
+
+// (*  updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceFinancialStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance financial lambda action
+    const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceFinancialLambdaAction, s);
 
 } with response
 
@@ -1058,8 +1058,8 @@ function main (const action : governanceFinancialAction; const s : governanceFin
         |   SetGovernance(parameters)                   -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)                    -> updateConfig(parameters, s)
-        |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)        
         |   UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
         |   MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
 

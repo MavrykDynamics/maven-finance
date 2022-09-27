@@ -82,8 +82,8 @@ type governanceProxyAction is
     |   SetGovernance                   of (address)
     |   UpdateMetadata                  of updateMetadataType
     |   UpdateWhitelistContracts        of updateWhitelistContractsType
-    |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     |   UpdateGeneralContracts          of updateGeneralContractsType
+    |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     |   MistakenTransfer                of transferActionType
 
         // Main entrypoints
@@ -1072,25 +1072,6 @@ block {
 
 
 
-(*  updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : governanceProxyStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
-
-} with response
-
-
-
 (*  updateGeneralContracts entrypoint *)
 function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceProxyStorageType) : return is
 block {
@@ -1102,6 +1083,25 @@ block {
 
     // init governance proxy lambda action
     const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateWhitelistTokenContracts entrypoint *)
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : governanceProxyStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
@@ -1224,8 +1224,8 @@ block {
         |   SetGovernance(parameters)                 -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)                -> updateMetadata(parameters, s)
         |   UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
-        |   UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         |   UpdateGeneralContracts(parameters)        -> updateGeneralContracts(parameters, s)
+        |   UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
             // Main entrypoints
