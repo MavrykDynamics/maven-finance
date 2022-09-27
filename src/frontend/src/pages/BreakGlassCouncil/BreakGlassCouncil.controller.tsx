@@ -25,6 +25,7 @@ import {
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
+import { getSeparateSnakeCase } from 'utils/parse'
 
 // styles
 import {
@@ -46,13 +47,6 @@ import {
   getBreakGlassCouncilMember
 } from './BreakGlassCouncil.actions'
 
-const actionNameHandler = (name: string) => {
-  return name
-    .split('_')
-    .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
-    .join(' ')
-}
-
 export const BreakGlassCouncil: FC = () => {
   const dispatch = useDispatch()
   const { search } = useLocation()
@@ -67,7 +61,7 @@ export const BreakGlassCouncil: FC = () => {
   const itemsForDropDown = useMemo(
     () => Object.values(actions).map((item) => {
         return {
-          text: actionNameHandler(item),
+          text: getSeparateSnakeCase(item),
           value: item,
         }
       }),
