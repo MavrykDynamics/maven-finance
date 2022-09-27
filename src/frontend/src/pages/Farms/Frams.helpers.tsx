@@ -1,18 +1,47 @@
 // types
-import { FarmAccountsType, FarmGraphQL } from '../../utils/TypesAndInterfaces/Farm'
+import { FarmAccountsType, FarmContractType, FarmGraphQL } from '../../utils/TypesAndInterfaces/Farm'
 
 // helpers
 import { getContractBigmapKeys } from 'utils/api'
 
-export const normalizeFarmStorage = async (farmList: FarmGraphQL[]) => {
-  if (!farmList?.length) return []
+type EndsInType = {
+  endsIn: any
+  address: string
+}[]
 
-  const farmCardEndsIn = await getEndsInTimestampForFarmCards(farmList)
-  const farmLPTokensInfo = await getLPTokensInfo(farmList)
+type TokensInfoType = {
+  liquidityPairToken: {
+    tokenAddress: string[]
+    token0: {
+      symbol: string[]
+      tokenAddress: string[]
+      thumbnailUri: string
+    }
+    token1: {
+      symbol: string[]
+      tokenAddress: string[]
+      thumbnailUri: string
+    }
+  }
+}[]
+
+export const normalizeFarmStorage = (
+  farmList: FarmGraphQL[],
+  farmCardEndsIn: EndsInType,
+  farmLPTokensInfo: TokensInfoType,
+  farmContracts: FarmContractType[],
+) => {
+  if (!farmList?.length) return []
 
   return farmList.map((farmItem: FarmGraphQL, idx: number) => {
     const endsIn = farmCardEndsIn[idx].endsIn
     const lpMetadata = farmLPTokensInfo[idx]
+    const contract = farmContracts.find(
+      ({ address }) =>
+        lpMetadata?.liquidityPairToken?.tokenAddress?.[0] &&
+        address === lpMetadata?.liquidityPairToken?.tokenAddress?.[0],
+    )
+
     return {
       address: farmItem.address,
       name: farmItem.name,
@@ -45,6 +74,7 @@ export const normalizeFarmStorage = async (farmList: FarmGraphQL[]) => {
       rewardsFromTreasury: false,
       totalBlocks: farmItem.total_blocks,
       farmAccounts: farmItem.farm_accounts,
+      farmContract: contract,
     }
   })
 }

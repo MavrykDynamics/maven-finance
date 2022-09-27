@@ -1,5 +1,5 @@
 import { useHistory, useLocation } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -19,6 +19,7 @@ import { calculateAPR, getSummDepositedAmount } from './Frams.helpers'
 import { FarmsStyled } from './Farms.style'
 import { Page } from 'styles'
 import { EmptyContainer as EmptyList } from 'app/App.style'
+import { getFarmStorage } from './Farms.actions'
 
 export type FarmsViewVariantType = 'vertical' | 'horizontal'
 
@@ -30,9 +31,10 @@ const EmptyContainer = () => (
 )
 
 export const Farms = () => {
+  const dispatch = useDispatch()
   const history = useHistory()
   const { ready } = useSelector((state: State) => state.wallet)
-  const { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
+  const { farmStorage } = useSelector((state: State) => state.farm)
 
   const [farmsList, setFarmsList] = useState(farmStorage)
 
@@ -65,6 +67,8 @@ export const Farms = () => {
 
   // effect to set all filters state from queryParams on mount
   useEffect(() => {
+    dispatch(getFarmStorage())
+
     setToggleChecked(isStakedOny)
     setSearchValue(searchFarm)
     setSortBy(sortType)
@@ -185,7 +189,7 @@ export const Farms = () => {
 
     const stringifiedQP = qs.stringify(filtersQP)
     history.push(`${pathname}?${stringifiedQP}`)
-  }, [farmStorage, liveFinished, searchValue, toggleChecked, sortBy, farmContracts])
+  }, [farmStorage, liveFinished, searchValue, toggleChecked, sortBy])
 
   // Handler for top bar
   const handleToggleStakedFarmsOnly = (e?: { target: { checked: boolean } }) => {

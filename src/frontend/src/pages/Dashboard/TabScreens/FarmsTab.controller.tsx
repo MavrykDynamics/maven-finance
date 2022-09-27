@@ -6,10 +6,11 @@ import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { EmptyContainer } from 'app/App.style'
 import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { getFarmStorage } from 'pages/Farms/Farms.actions'
 import { calculateAPR } from 'pages/Farms/Frams.helpers'
 import qs from 'qs'
-import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { FarmsContentStyled, TabWrapperStyled } from './DashboardTabs.style'
@@ -22,8 +23,13 @@ const emptyContainer = (
 )
 
 export const FarmsTab = () => {
+  const dispatch = useDispatch()
   const { farmStorage } = useSelector((state: State) => state.farm)
   const hasLiveFarms = useMemo(() => farmStorage.some(({ isLive }) => isLive), [farmStorage])
+
+  useEffect(() => {
+    dispatch(getFarmStorage())
+  }, [])
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_farmsTab_bg.png">
