@@ -4,7 +4,7 @@ import { State } from '../../reducers'
 import { FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
 
 //helpers
-import { getEndsInTimestampForFarmCards, normalizeFarmStorage } from './Frams.helpers'
+import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from './Frams.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
@@ -14,43 +14,63 @@ import { PRECISION_NUMBER } from '../../utils/constants'
 import { hideModal } from '../../app/App.components/Modal/Modal.actions'
 import type { AppDispatch, GetState } from '../../app/App.controller'
 
-export const GET_FARM_CONTRACTS = 'GET_FARM_CONTRACTS'
-export const getFarmsContracts = () => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
-
-  const { farmStorage } = state.farm
-  const urls = farmStorage.map((item) => `${process.env.REACT_APP_RPC_TZKT_API}/v1/contracts/${item.lpTokenAddress}`)
-
-  try {
-    const farmContracts: FarmContractType[] = await Promise.all(
-      urls.map(async (url) => await (await fetch(url)).json()),
-    )
-
-    dispatch({
-      type: GET_FARM_CONTRACTS,
-      farmContracts,
-    })
-  } catch (error) {
-    console.log('error getFarmsContracts', error)
-  }
-}
-
 export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
 export const getFarmStorage = () => async (dispatch: AppDispatch) => {
+  // main try/catch to fetch endTime for farmsCards and farms cards from gql, if nested willl end up with error, it will set fetched card, of if this fail, will set []
   try {
     const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
-    const farmStorage = await normalizeFarmStorage(storage?.farm)
+    const farmCardEndsIn = await getEndsInTimestampForFarmCards(storage?.farm)
 
+    // try/catch to fetch lp coins metadata, if fails will log error and dispatch just farms cards with endTime
+    try {
+      const farmLPTokensInfo = await getLPTokensInfo(storage?.farm)
+
+      // try/catch to fetch farms contracts, if fails it will log error and dispatch farms cards without contacts data
+      try {
+        const urls = farmLPTokensInfo.reduce<string[]>(
+          (acc, item: { liquidityPairToken: { tokenAddress: Array<string> } }) => {
+            if (item?.liquidityPairToken?.tokenAddress?.[0]) {
+              acc.push(`https://api.tzkt.io/v1/contracts/${item.liquidityPairToken.tokenAddress[0]}`)
+            }
+            return acc
+          },
+          [],
+        )
+
+        const farmContracts: FarmContractType[] = await Promise.all(
+          urls.map(async (url) => await (await fetch(url)).json()),
+        )
+
+        const farmStorage = normalizeFarmStorage(storage?.farm, farmCardEndsIn, farmLPTokensInfo, farmContracts)
+        dispatch({
+          type: GET_FARM_STORAGE,
+          farmStorage,
+        })
+      } catch (e) {
+        console.error('getFarmStorage, fetching contracts error: ', e)
+
+        const farmStorage = normalizeFarmStorage(storage?.farm, farmCardEndsIn, farmLPTokensInfo, [])
+        dispatch({
+          type: GET_FARM_STORAGE,
+          farmStorage,
+        })
+      }
+    } catch (e) {
+      console.error('getFarmStorage, fetching metadata error: ', e)
+
+      const farmStorage = normalizeFarmStorage(storage?.farm, [], [], [])
+      dispatch({
+        type: GET_FARM_STORAGE,
+        farmStorage,
+      })
+    }
+  } catch (e) {
+    dispatch(showToaster(ERROR, 'Error while fetching farms data', 'Please try to reload page'))
     dispatch({
       type: GET_FARM_STORAGE,
-      farmStorage,
+      farmStorage: [],
     })
-
-    await dispatch(getFarmsContracts())
-  } catch (e) {
-    dispatch(showToaster(ERROR, 'Error while fetching farms data', 'Please wait...'))
-    return
   }
 }
 

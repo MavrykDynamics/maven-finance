@@ -24,13 +24,13 @@ type Props = {
 }
 
 export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
-  const { selectedFarmAddress, farmContracts } = useSelector((state: State) => state.farm)
+  const { selectedFarmAddress } = useSelector((state: State) => state.farm)
   const [amount, setAmount] = useState<number | ''>('')
   const [status, setStatus] = useState<InputStatusType>('')
 
   const currentContract = useMemo(
-    () => farmContracts.find((item) => item.address === lpTokenAddress),
-    [selectedFarmAddress, farmContracts],
+    () => [{ address: '', balance: 0 }].find((item) => item.address === lpTokenAddress),
+    [selectedFarmAddress],
   )
 
   const STAKED_ITEMS = [
