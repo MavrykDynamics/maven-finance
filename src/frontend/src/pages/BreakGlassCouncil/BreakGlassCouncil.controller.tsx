@@ -42,7 +42,8 @@ import {
   propagateBreakGlass,
   getBreakGlassActionPendingMySignature,
   getMyPastBreakGlassCouncilAction,
-  getPastBreakGlassCouncilAction
+  getPastBreakGlassCouncilAction,
+  getBreakGlassCouncilMember
 } from './BreakGlassCouncil.actions'
 
 const actionNameHandler = (name: string) => {
@@ -64,18 +65,16 @@ export const BreakGlassCouncil: FC = () => {
   } = useSelector((state: State) => state.breakGlass)
 
   const itemsForDropDown = useMemo(
-    () => [
-      ...Object.values(actions).map((item) => {
+    () => Object.values(actions).map((item) => {
         return {
           text: actionNameHandler(item),
           value: item,
         }
       }),
-    ],
     [],
   )
 
-  const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
+  const ddItems = useMemo(() => itemsForDropDown.map(({ text }) => text), [itemsForDropDown])
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
@@ -124,6 +123,7 @@ export const BreakGlassCouncil: FC = () => {
   useEffect(() => {
     dispatch(getMyPastBreakGlassCouncilAction())
     dispatch(getPastBreakGlassCouncilAction())
+    dispatch(getBreakGlassCouncilMember())
   }, [dispatch])
 
   useEffect(() => {
@@ -132,7 +132,7 @@ export const BreakGlassCouncil: FC = () => {
   }, [dispatch, accountPkh])
 
   useEffect(() => {
-    isUserInBreakCouncilMember ? setIsGoBack(false) : setIsGoBack(true)
+    setIsGoBack(isUserInBreakCouncilMember ? false : true)
   }, [isUserInBreakCouncilMember])
 
   return (

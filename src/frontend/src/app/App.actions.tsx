@@ -36,8 +36,6 @@ import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/Emerg
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
 import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
-import { normalizeBreakGlassAction } from 'pages/BreakGlassCouncil/BreakGlassCouncil.helpers'
-import { normalizeBreakGlassCouncilMember } from 'pages/BreakGlassCouncil/BreakGlassCouncil.helpers'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: Dispatch) => {
@@ -76,10 +74,6 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
   const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = normalizeOracle(res[10])
-  const breakGlassCouncilMember = normalizeBreakGlassCouncilMember(res[11])
-  const pastBreakGlassCouncilAction = normalizeBreakGlassAction(res[12])
-  const breakGlassActionPendingMySignature = normalizeBreakGlassAction(res[13])
-  const myPastBreakGlassCouncilAction = normalizeBreakGlassAction(res[14])
 
   const emergencyGovActive = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId !== 0
 
@@ -146,22 +140,6 @@ export const onStart = () => async (dispatch: Dispatch) => {
   dispatch({
     type: GET_ORACLES_STORAGE,
     oraclesStorage,
-  })
-  dispatch({
-    type: GET_BREAK_GLASS_COUNCIL_MEMBER,
-    breakGlassCouncilMember,
-  })
-  dispatch({
-    type: GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
-    pastBreakGlassCouncilAction,
-  })
-  dispatch({
-    type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
-    breakGlassActionPendingMySignature,
-  })
-  dispatch({
-    type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
-    myPastBreakGlassCouncilAction,
   })
   dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
 }
