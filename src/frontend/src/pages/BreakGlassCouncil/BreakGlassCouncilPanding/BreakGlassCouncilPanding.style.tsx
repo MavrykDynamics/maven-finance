@@ -1,13 +1,50 @@
 import styled from 'styled-components/macro'
 import { Card, skyColor, headerColor, containerColor, cyanColor } from 'styles'
 
-export const BreakGlassCouncilPendingStyled = styled(Card)`
+export const CouncilPendingStyled = styled(Card)`
   margin: 0;
-  width: 237px;
   height: 200px;
-  padding: 25px 25px 30px 25px;
-  padding-bottom: 30px;
+  width: 100%;
+  padding: 25px;
   min-width: 237px;
+
+  &.setSingleContractAdmin,
+  &.updateCouncilMember,
+  &.changeCouncilMember {
+    h3 {
+      max-width: 100%;
+    }
+  }
+
+  &.setSingleContractAdmin {
+    min-width: 380px;
+
+    .parameters {
+      display: grid;
+      grid-template-columns: 125px 185px;
+      align-items: center;
+    }
+  }
+
+  &.updateCouncilMember {
+    min-width: 532px;
+
+    .parameters {
+      display: grid;
+      grid-template-columns: 118px 144px 185px;
+      align-items: center;
+    }
+  }
+
+  &.changeCouncilMember {
+    min-width: 725px;
+
+    .parameters {
+      display: grid;
+      grid-template-columns: 120px 160px 160px 185px;
+      align-items: center;
+    }
+  }
 
   &.more {
     margin-right: 19px;
@@ -38,6 +75,13 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
     }
   }
 
+  .parameters-btn {
+    color: ${headerColor};
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 14px;
+  }
+
   .parameters {
     display: flex;
     justify-content: space-between;
@@ -51,6 +95,8 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
       font-weight: 600;
       font-size: 16px;
       line-height: 16px;
+      /* white-space: nowrap; */
+      /* overflow: hidden; */
       word-break: break-all;
       width: 100%;
       max-width: 100%;
@@ -65,6 +111,29 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
       color: ${skyColor};
       margin-top: 0;
       margin-bottom: 10px;
+    }
+
+    .signed-article {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .without-margin {
+      margin: 0;
+    }
+  }
+
+  .parameters-img {
+    figure {
+      height: 50px;
+      width: 50px;
+    }
+    img {
+      height: 50px;
+      width: 50px;
+      object-fit: cover;
+      border-radius: 50%;
     }
   }
 `
