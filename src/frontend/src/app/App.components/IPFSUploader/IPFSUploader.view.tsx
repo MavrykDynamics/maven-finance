@@ -1,4 +1,4 @@
-import React, { Ref, useEffect, useState } from 'react'
+import React, { Ref, useCallback, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // types
@@ -58,29 +58,30 @@ export const IPFSUploaderView = ({
   const isTypeFileImage = typeFile === 'image'
   const isUploaded = imageIpfsUrl && !isUploading
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return
-
-    const file = e.target?.files?.[0]
-    const fileSize = file?.size / 1024 / 1024 // in MiB
-    const { name } = file
-
-    if (fileSize <= IMG_MAX_SIZE) {
-      setUploadIsFailed(false)
-      handleUpload(e.target.files[0])
-    } else {
-      setUploadIsFailed(true)
-      dispatch(showToaster(INFO, 'File is too big!', `Max size is ${IMG_MAX_SIZE}MB`))
-    }
-
-    // check file type
-    if (file?.type.toLowerCase().includes('pdf')) {
-      setIsDocument(true)
-      setFileName(name)
-    } else {
-      setIsDocument(false)
-    }
-  }
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!e.target.files?.length) return
+  
+      const file = e.target?.files?.[0]
+      const fileSize = file?.size / 1024 / 1024 // in MiB
+      const { name } = file
+  
+      if (fileSize <= IMG_MAX_SIZE) {
+        setUploadIsFailed(false)
+        handleUpload(e.target.files[0])
+      } else {
+        setUploadIsFailed(true)
+        dispatch(showToaster(INFO, 'File is too big!', `Max size is ${IMG_MAX_SIZE}MB`))
+      }
+  
+      // check file type
+      if (file?.type.toLowerCase().includes('pdf')) {
+        setIsDocument(true)
+        setFileName(name)
+      } else {
+        setIsDocument(false)
+      }
+    }, [dispatch, handleUpload])
 
   const handleDelete = () => {
     setUploadIsFailed(false)
