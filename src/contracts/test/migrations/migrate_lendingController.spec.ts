@@ -293,6 +293,10 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         await setTokenPoolRewardLambdas(tezos, tokenPoolReward.contract)
         console.log("Token Pool Reward Lambdas Setup")
 
+        // Aggregator Setup Lambdas
+        await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
+        await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
+        await setAggregatorLambdas(tezos, mockUsdXtzAggregator.contract);
     
         //----------------------------
         // Update Contract Links and Relationships

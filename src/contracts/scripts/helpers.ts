@@ -404,6 +404,60 @@ export const compileContractLambdas = async (
 }
 
 
+export const generateLambdaIndexes = async (
+    
+    contract : string, 
+    contractLambdasDir: string = env.contractLambdasDir,
+
+) => {
+    
+    let contracts : string[] = []
+
+    if(contract !== undefined){
+        contracts = contract.split(',')
+    }
+
+    const overallLambdaIndexJson : string = `contracts/partials/contractLambdas/overallLambdaIndex.json`
+    const contractLambdaIndexes: any = JSON.parse(fs.readFileSync(overallLambdaIndexJson).toString())
+
+    try {
+
+        for (const contract of contractLambdaIndexes) {
+
+            let res: any[] = []
+            let counter : number = 0
+            const contractName : string = contract.contractName;
+
+            if(contracts.length == 0 || contracts.includes(contractName)){
+                
+                for (const lambdaIndex of contract.lambdas) {
+
+                    const index = {
+                        "index" : counter,
+                        "name": lambdaIndex
+                    }
+                    counter += 1;
+
+                    res.push(index);
+                }
+
+                if (!fs.existsSync(`${contractLambdasDir}/${contractName}`)) {
+                    fs.mkdirSync(`${contractLambdasDir}/${contractName}`)
+                }
+
+                fs.writeFileSync(`${contractLambdasDir}/${contractName}/${contractName}LambdaIndex.json`, JSON.stringify(res, null, '\t'))
+            }
+        }
+
+    } catch (e) {
+        console.log('error in generating lambda index')
+        console.error(e)
+    }
+
+}
+
+
+
 export const migrate = async (tezos: TezosToolkit, contract: string, storage: any) => {
     try {
     

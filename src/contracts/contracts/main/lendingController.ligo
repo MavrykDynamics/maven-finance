@@ -48,8 +48,8 @@ type lendingControllerAction is
     |   SetGovernance                   of (address)
     |   UpdateMetadata                  of updateMetadataType
     |   UpdateConfig                    of lendingControllerUpdateConfigParamsType
-    |   UpdateWhitelistContracts        of updateWhitelistContractsType
-    |   UpdateGeneralContracts          of updateGeneralContractsType
+    // |   UpdateWhitelistContracts        of updateWhitelistContractsType
+    // |   UpdateGeneralContracts          of updateGeneralContractsType
     |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
 
         // Break Glass Entrypoints
@@ -75,7 +75,7 @@ type lendingControllerAction is
     |   Repay                           of repayActionType
 
         // Vault Staked MVK Entrypoints  
-    // |   CallVaultStakedMvkAction        of callVaultStakedMvkActionType  
+    |   CallVaultStakedMvkAction        of callVaultStakedMvkActionType  
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -1415,40 +1415,40 @@ block {
 
 
 (* updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : lendingControllerStorageType) : return is
-block {
+// function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : lendingControllerStorageType) : return is
+// block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
 
-} with response
+// } with response
 
 
 
 (* updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : lendingControllerStorageType) : return is
-block {
+// function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : lendingControllerStorageType) : return is
+// block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+//         |   Some(_v) -> _v
+//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
 
-} with response
+// } with response
 
 
 
@@ -1809,22 +1809,22 @@ block {
 // ------------------------------------------------------------------------------
 
 (* callVaultStakedMvkAction entrypoint *)
-// function callVaultStakedMvkAction(const callVaultStakedMvkActionParams : callVaultStakedMvkActionType; var s : lendingControllerStorageType) : return is 
-// block {
+function callVaultStakedMvkAction(const callVaultStakedMvkActionParams : callVaultStakedMvkActionType; var s : lendingControllerStorageType) : return is 
+block {
 
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCallVaultStakedMvkAction"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCallVaultStakedMvkAction"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-//     // init lending controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams);
+    // init lending controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams);
 
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
-//     // const response:return = (nil, s);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    // const response:return = (nil, s);
 
-// } with response
+} with response
 
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Entrypoints End
@@ -1873,8 +1873,8 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   SetGovernance(parameters)                     -> setGovernance(parameters, s) 
         |   UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)                      -> updateConfig(parameters, s)
-        |   UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
-        |   UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
+        // |   UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
+        // |   UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
 
             // Pause / Break Glass Entrypoints
@@ -1900,7 +1900,7 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   Repay(parameters)                             -> repay(parameters, s)
 
             // Vault Staked MVK Entrypoints   
-        // |   CallVaultStakedMvkAction(parameters)          -> callVaultStakedMvkAction(parameters, s)
+        |   CallVaultStakedMvkAction(parameters)          -> callVaultStakedMvkAction(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    

@@ -57,12 +57,9 @@ type lendingControllerBreakGlassConfigType is record [
     repayIsPaused                       : bool;
 
     // Vault Entrypoints
-    // vaultDelegateTezToBakerIsPaused         : bool; 
-    // vaultDelegateMvkToSatelliteIsPaused     : bool;
     vaultDepositIsPaused                    : bool;
     vaultWithdrawIsPaused                   : bool;
     vaultOnLiquidateIsPaused                : bool;
-    // vaultUpdateDepositorIsPaused            : bool;
 
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : bool;
@@ -333,12 +330,9 @@ type lendingControllerPausableEntrypointType is
     |   Repay                       of bool
 
         // Vault Entrypoints
-    // |   VaultDelegateTezToBaker     of bool
-    // |   VaultDelegateMvkToSatellite of bool
     |   VaultDeposit                of bool
     |   VaultWithdraw               of bool
     |   VaultOnLiquidate            of bool
-    // |   VaultUpdateDepositor        of bool
 
         // Vault Staked MVK Entrypoints
     |   VaultDepositStakedMvk       of bool
@@ -367,8 +361,8 @@ type lendingControllerLambdaActionType is
     |   LambdaSetGovernance                   of (address)
     |   LambdaUpdateMetadata                  of updateMetadataType
     |   LambdaUpdateConfig                    of lendingControllerUpdateConfigParamsType
-    |   LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
-    |   LambdaUpdateGeneralContracts          of updateGeneralContractsType
+    // |   LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
+    // |   LambdaUpdateGeneralContracts          of updateGeneralContractsType
     |   LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsType
 
         // Pause / Break Glass Lambdas
@@ -394,10 +388,10 @@ type lendingControllerLambdaActionType is
     |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    // |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
-    // |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
-    // |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
-    // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
+    |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
+    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
+    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
+    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
 
 // ------------------------------------------------------------------------------
 // Storage
