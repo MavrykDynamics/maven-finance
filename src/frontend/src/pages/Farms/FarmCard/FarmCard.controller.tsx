@@ -213,9 +213,9 @@ export const FarmCard = ({
     </a>
   )
 
-  const expandBlockCallback = useCallback(() => {
+  const expandBlockCallback = () => {
     expandCallback(farmAddress)
-  }, [])
+  }
 
   if (variant === 'vertical') {
     return (

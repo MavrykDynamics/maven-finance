@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SlidingTabButtonsView } from './SlidingTabButtons.view'
 
 export interface TabItem {
@@ -14,7 +14,14 @@ type SlidingTabButtonsProps = {
 }
 
 export const SlidingTabButtons = ({ onClick, className = '', tabItems = [] }: SlidingTabButtonsProps) => {
-  const [activeTab, setActiveTab] = useState<number>(tabItems?.[tabItems.findIndex((item) => item.active)]?.id)
+  const [activeTab, setActiveTab] = useState<number>(tabItems.find(({ active }) => active)?.id ?? tabItems[0].id)
+
+  useEffect(() => {
+    const foundActiveTabId = tabItems.find(({ active }) => active)?.id
+    if (foundActiveTabId) {
+      setActiveTab(foundActiveTabId)
+    }
+  }, [tabItems])
 
   const clickHandler = (tabId: number) => {
     setActiveTab(tabId)
