@@ -37,7 +37,6 @@ export const FARM_STORAGE_QUERY = `
         decimals
         name
         type
-        lp_token_id
       }
     }
   }
