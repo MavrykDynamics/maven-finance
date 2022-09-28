@@ -40,7 +40,7 @@ export const DELEGATION_STORAGE_QUERY = `
           mvk_balance
           aggregator_oracles {
             aggregator_id
-            id
+            user_id
             last_updated_at
             aggregator {
               address
