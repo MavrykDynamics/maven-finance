@@ -4,7 +4,7 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { BLUE } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getOracleStorage } from 'pages/Satellites/Satellites.actions'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -42,7 +42,7 @@ export const OraclesTab = () => {
   return (
     <TabWrapperStyled className="oracles" backgroundImage="dashboard_oraclesTab_bg.png">
       <div className="top">
-        <BGTitle>Oracles</BGTitle>
+        <BGPrimaryTitle>Oracles</BGPrimaryTitle>
         <Link to="/satellites">
           <Button text="Oracle Feeds" icon="plant" kind={ACTION_PRIMARY} className="noStroke" />
         </Link>

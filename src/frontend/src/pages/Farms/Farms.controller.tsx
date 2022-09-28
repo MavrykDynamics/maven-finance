@@ -11,7 +11,7 @@ import { FarmCard } from './FarmCard/FarmCard.controller'
 import { Modal } from '../../app/App.components/Modal/Modal.controller'
 
 // helpers
-import { calculateAPR, getSummDepositedAmount } from './Frams.helpers'
+import { calculateAPR, getSummDepositedAmount } from './Farms.helpers'
 
 // styles
 import { FarmsStyled } from './Farms.style'

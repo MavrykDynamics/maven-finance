@@ -2,7 +2,7 @@ import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import Icon from 'app/App.components/Icon/Icon.view'
-import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { Link } from 'react-router-dom'
 import { StatBlock } from '../Dashboard.style'
 import { LendingContentStyled, TabWrapperStyled } from './DashboardTabs.style'
@@ -11,7 +11,7 @@ export const LendingTab = () => {
   return (
     <TabWrapperStyled backgroundImage="dashboard_lendingTab_bg.png">
       <div className="top">
-        <BGTitle>Lending</BGTitle>
+        <BGPrimaryTitle>Lending</BGPrimaryTitle>
         <Link to="/loans">
           <Button text="Loans" icon="coin-loan" kind={ACTION_PRIMARY} className="noStroke" />
         </Link>

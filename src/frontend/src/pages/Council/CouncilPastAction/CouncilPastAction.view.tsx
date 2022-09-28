@@ -20,6 +20,8 @@ type Props = {
 
 export const CouncilPastActionView = (props: Props) => {
   const { execution_datetime, action_type, signers_count, num_council_members, council_id } = props
+  const isMoreThanHalf = (num_council_members / 2) < signers_count
+
   return (
     <CouncilPastActionStyled>
       <div>
@@ -34,7 +36,7 @@ export const CouncilPastActionView = (props: Props) => {
       </div>
       <div>
         <p>Multi-sig Approval</p>
-        <h4>
+        <h4 className={`${isMoreThanHalf ? 'is-green' : 'is-red'}`}>
           {signers_count}/{num_council_members}
         </h4>
       </div>
