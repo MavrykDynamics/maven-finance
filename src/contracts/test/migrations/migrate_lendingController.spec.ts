@@ -70,6 +70,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
   var mockUsdXtzAggregator              : Aggregator;
   var mockUsdMockFa12TokenAggregator    : Aggregator;
   var mockUsdMockFa2TokenAggregator     : Aggregator;
+  var mockUsdStakedMvkTokenAggregator   : Aggregator;
 
   var mockFa12Token                     : MavrykFa12Token
   var mockFa2Token                      : MavrykFa2Token
@@ -184,6 +185,16 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
     
 
         //----------------------------
+        // Mock Oracles
+        //----------------------------
+        const oracleMap = MichelsonMap.fromLiteral({
+            [bob.pkh]              : true,
+            [eve.pkh]              : true,
+            [mallory.pkh]          : true,
+            [oracleMaintainer.pkh] : true,
+        });
+
+        //----------------------------
         // Mock USD/MockFA12 Token Aggregator Contract
         //----------------------------
         aggregatorStorage.config = {
@@ -208,6 +219,9 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
             percentOracleResponse   : new BigNumber(100),
             priceDateTime           : '1'
         };
+        aggregatorStorage.oracleAddresses   = oracleMap;
+        aggregatorStorage.mvkTokenAddress   = mvkTokenAddress.address;
+        aggregatorStorage.governanceAddress = governanceAddress.address;
         mockUsdMockFa12TokenAggregator = await Aggregator.originate(
             utils.tezos,
             aggregatorStorage
@@ -250,6 +264,27 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         )
         await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
         console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
+
+
+        //----------------------------
+        // Mock USD/sMVK Token Aggregator Contract
+        // - decimals to 9
+        //----------------------------
+
+        aggregatorStorage.config.decimals = new BigNumber(9);
+        aggregatorStorage.lastCompletedRoundPrice = {
+            round                   : new BigNumber(0),
+            price                   : new BigNumber(2000000),
+            percentOracleResponse   : new BigNumber(100),
+            priceDateTime           : '1'
+        };
+        mockUsdStakedMvkTokenAggregator = await Aggregator.originate(
+            utils.tezos,
+            aggregatorStorage
+        )
+
+        await saveContractAddress('mockUsdStakedMvkTokenAggregatorAddress', mockUsdStakedMvkTokenAggregator.contract.address)
+        console.log('Mock USD/StakedMvkToken Aggregator Contract deployed at:', mockUsdStakedMvkTokenAggregator.contract.address)
 
 
         //----------------------------
@@ -297,6 +332,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
         await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
         await setAggregatorLambdas(tezos, mockUsdXtzAggregator.contract);
+        await setAggregatorLambdas(tezos, mockUsdStakedMvkTokenAggregator.contract);
     
         //----------------------------
         // Update Contract Links and Relationships
@@ -309,11 +345,15 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
         const governanceContractsBatch = await tezos.wallet
         .batch()
-    
-        // general contracts
-        .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingController.contract.address))
-        .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory', vaultFactory.contract.address))
-        .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolReward.contract.address))
+
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController' , lendingController.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward'   , tokenPoolReward.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'      , vaultFactory.contract.address))
+
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa12TokenAggregator'    , mockUsdMockFa12TokenAggregator.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa2TokenAggregator'     , mockUsdMockFa2TokenAggregator.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('usdXtzAggregator'              , mockUsdXtzAggregator.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('usdStakedMvkTokenAggregator'   , mockUsdStakedMvkTokenAggregator.contract.address))
     
         const governanceContractsBatchOperation = await governanceContractsBatch.send()
         await confirmOperation(tezos, governanceContractsBatchOperation.opHash)

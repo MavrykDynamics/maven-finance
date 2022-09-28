@@ -480,7 +480,7 @@ block {
     const getStakedBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
     const userStakedMvkBalance : nat = case getStakedBalanceView of [
             Some (_value) -> _value
-        |   None          -> failwith (error_USER_STAKE_RECORD_NOT_FOUND)
+        |   None          -> 0n
     ];
 
 } with userStakedMvkBalance

@@ -72,6 +72,7 @@ type vaultLambdaActionType is
     |   LambdaWithdraw                   of withdrawType
     |   LambdaOnLiquidate                of onLiquidateType 
     |   LambdaUpdateDepositor            of updateDepositorType
+    |   LambdaUpdateMvkOperators         of updateOperatorsType
 
 
 // ------------------------------------------------------------------------------
@@ -83,6 +84,7 @@ type vaultStorageType is record [
     
     admin                   : address;                  
     metadata                : metadataType;
+    mvkTokenAddress         : address;
     governanceAddress       : address; 
 
     handle                  : vaultHandleType;          // owner of the vault

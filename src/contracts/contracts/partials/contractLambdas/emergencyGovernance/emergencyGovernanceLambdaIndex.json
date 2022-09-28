@@ -29,18 +29,14 @@
 	},
 	{
 		"index": 7,
-		"name": "lambdaMigateFunds"
-	},
-	{
-		"index": 8,
 		"name": "lambdaTriggerEmergencyControl"
 	},
 	{
-		"index": 9,
+		"index": 8,
 		"name": "lambdaVoteForEmergencyControl"
 	},
 	{
-		"index": 10,
+		"index": 9,
 		"name": "lambdaDropEmergencyGovernance"
 	}
 ]

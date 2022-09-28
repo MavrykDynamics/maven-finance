@@ -71,6 +71,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
     var mockUsdXtzAggregator            : Aggregator;
     var mockUsdMockFa12TokenAggregator  : Aggregator;
     var mockUsdMockFa2TokenAggregator   : Aggregator;
+    var mockUsdStakedMvkTokenAggregator : Aggregator;
 
     var mockFa12Token                   : MavrykFa12Token
     var mockFa2Token                    : MavrykFa2Token
@@ -121,6 +122,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             //----------------------------
             // Mock FA12 Token
             //----------------------------
+            mavrykFa12TokenStorage.governanceAddress = governanceAddress.address;
             mockFa12Token = await MavrykFa12Token.originate(
                 utils.tezos,
                 mavrykFa12TokenStorage
@@ -133,6 +135,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             //----------------------------
             // Mock FA2 Token
             //----------------------------
+            mavrykFa2TokenStorage.governanceAddress = governanceAddress.address;
             mockFa2Token = await MavrykFa2Token.originate(
                 utils.tezos,
                 mavrykFa2TokenStorage
@@ -190,7 +193,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
                 [eve.pkh]              : true,
                 [mallory.pkh]          : true,
                 [oracleMaintainer.pkh] : true,
-              });
+            });
 
             //----------------------------
             // Mock USD/MockFA12 Token Aggregator Contract
@@ -218,7 +221,9 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
                 percentOracleResponse   : new BigNumber(100),
                 priceDateTime           : '1'
             };
-            aggregatorStorage.oracleAddresses = oracleMap;
+            aggregatorStorage.oracleAddresses   = oracleMap;
+            aggregatorStorage.mvkTokenAddress   = mvkTokenAddress.address;
+            aggregatorStorage.governanceAddress = governanceAddress.address;
             mockUsdMockFa12TokenAggregator = await Aggregator.originate(
                 utils.tezos,
                 aggregatorStorage
@@ -262,6 +267,28 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             )
             await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
             console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
+
+
+            //----------------------------
+            // Mock USD/sMVK Token Aggregator Contract
+            // - decimals to 9
+            //----------------------------
+
+            aggregatorStorage.config.decimals = new BigNumber(9);
+            aggregatorStorage.lastCompletedRoundPrice = {
+                round                   : new BigNumber(0),
+                price                   : new BigNumber(2000000),
+                percentOracleResponse   : new BigNumber(100),
+                priceDateTime           : '1'
+            };
+            mockUsdStakedMvkTokenAggregator = await Aggregator.originate(
+                utils.tezos,
+                aggregatorStorage
+            )
+
+            await saveContractAddress('mockUsdStakedMvkTokenAggregatorAddress', mockUsdStakedMvkTokenAggregator.contract.address)
+            console.log('Mock USD/StakedMvkToken Aggregator Contract deployed at:', mockUsdStakedMvkTokenAggregator.contract.address)
+
 
 
             //----------------------------
@@ -310,6 +337,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
             await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
             await setAggregatorLambdas(tezos, mockUsdXtzAggregator.contract);
+            await setAggregatorLambdas(tezos, mockUsdStakedMvkTokenAggregator.contract);
 
             //----------------------------
             // Update Contract Links and Relationships
@@ -323,9 +351,14 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             .batch()
         
             // general contracts
-            .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTime.contract.address))
-            .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolReward.contract.address))
-            .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory', vaultFactory.contract.address))
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController' , lendingControllerMockTime.contract.address))
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward'   , tokenPoolReward.contract.address))
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'      , vaultFactory.contract.address))
+
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa12TokenAggregator'    , mockUsdMockFa12TokenAggregator.contract.address))
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa2TokenAggregator'     , mockUsdMockFa2TokenAggregator.contract.address))
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('usdXtzAggregator'              , mockUsdXtzAggregator.contract.address))
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('usdStakedMvkTokenAggregator'   , mockUsdStakedMvkTokenAggregator.contract.address))
         
             const governanceContractsBatchOperation = await governanceContractsBatch.send()
             await confirmOperation(tezos, governanceContractsBatchOperation.opHash)

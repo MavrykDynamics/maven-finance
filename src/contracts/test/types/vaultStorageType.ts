@@ -6,6 +6,7 @@ export type vaultStorageType = {
     
     admin                       : string;
     metadata                    : MichelsonMap<MichelsonMapKey, unknown>;
+    mvkTokenAddress             : string;
     governanceAddress           : string;
     
     handle                      : {};

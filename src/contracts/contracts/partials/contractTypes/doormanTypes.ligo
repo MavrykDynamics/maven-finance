@@ -51,20 +51,6 @@ type doormanUpdateConfigParamsType is [@layout:comb] record [
     updateConfigAction      : doormanUpdateConfigActionType;
 ]
 
-// vault and usdm types
-// type vaultHandleType is [@layout:comb] record [
-//     id      : nat ;
-//     owner   : address;
-// ]
-// type tokenBalanceType            is nat;
-// type collateralNameType          is string;
-// type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
-// type vaultType is [@layout:comb] record [
-//     address                     : address;
-//     collateralBalanceLedger     : collateralBalanceLedgerType;  // tez/token balance
-//     usdmOutstanding             : nat;                    
-// ]
-
 type onVaultDepositStakedMvkType is [@layout:comb] record [
     vaultOwner       : address;
     vaultAddress     : address;

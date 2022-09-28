@@ -291,6 +291,7 @@ block{
                 const originateVaultStorage : vaultStorageType = record [
                     admin                       = s.admin;
                     metadata                    = s.vaultMetadata;
+                    mvkTokenAddress             = s.mvkTokenAddress;
                     governanceAddress           = s.governanceAddress;
                     
                     handle                      = handle;

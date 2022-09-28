@@ -83,11 +83,8 @@ block {
     case vaultLambdaAction of [
         |   LambdaDelegateTezToBaker(delegateParams) -> {
 
-                // checkVaultDelegateTezToBakerIsNotPaused(s);
-
-                // set new delegate only if sender is the vault owner
-                if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_TEZ_TO_BAKER) 
-                else skip; 
+                // check sender is vault owner
+                checkSenderIsVaultOwner(s);
                 
                 const delegateToTezBakerOperation : operation = Tezos.set_delegate(delegateParams);
                 
@@ -110,11 +107,8 @@ block {
     case vaultLambdaAction of [
         |   LambdaDelegateMvkToSat(satelliteAddress) -> {
 
-                // checkVaultDelegateMvkToSatIsNotPaused(s);
-
-                // set new delegate only if sender is the vault owner
-                if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_MVK_TO_SATELLITE) 
-                else skip; 
+                // check sender is vault owner
+                checkSenderIsVaultOwner(s);
 
                 // Get Delegation Address from the General Contracts map on the Governance Contract
                 const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
@@ -210,7 +204,11 @@ block {
     case vaultLambdaAction of [
         |   LambdaWithdraw(withdrawParams) -> {
 
+                // check that %withdraw is not paused on Lending Controller
                 checkVaultWithdrawIsNotPaused(s);
+
+                // check sender is vault owner
+                checkSenderIsVaultOwner(s);
 
                 // withdraw operation
                 const amount     : nat        = withdrawParams.amount;
@@ -222,50 +220,27 @@ block {
                 // get collateral token's token type
                 const tokenType : tokenType = collateralTokenRecord.tokenType;
 
-                // Get Lending Controller Address from the General Contracts map on the Governance Contract
-                const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+                // register withdrawal in Lending Controller
+                const registerWithdrawalOperation : operation = registerWithdrawalInLendingController(
+                    amount,       // amount
+                    tokenName,    // tokenName
+                    tokenType,    // tokenType
+                    s             // storage
+                );
 
-                if Tezos.get_sender() = s.handle.owner then {
+                // process withdrawal from vault to sender
+                const processVaultWithdrawalOperation : operation = processVaultTransfer(
+                    Tezos.get_self_address(),   // from_
+                    Tezos.get_sender(),         // to_
+                    amount,                     // amount
+                    tokenType                   // tokenType
+                );
 
-                    // sender is owner of vault
-
-                    // register withdrawal in Lending Controller
-                    const registerWithdrawalOperation : operation = registerWithdrawalInLendingController(
-                        amount,       // amount
-                        tokenName,    // tokenName
-                        tokenType,    // tokenType
-                        s             // storage
-                    );
-
-                    // process withdrawal from vault to sender
-                    const processVaultWithdrawalOperation : operation = processVaultTransfer(
-                        Tezos.get_self_address(),   // from_
-                        Tezos.get_sender(),         // to_
-                        amount,                     // amount
-                        tokenType                   // tokenType
-                    );
-
-                    operations := list[
-                        registerWithdrawalOperation;
-                        processVaultWithdrawalOperation
-                    ];
-
-                } else if Tezos.get_sender() = lendingControllerAddress then {
-
-                    // sender is Lending Controller - e.g. from %closeVault, %liquidateVault
-
-                    // process withdrawal from vault to sender
-                    const processVaultWithdrawalOperation : operation = processVaultTransfer(
-                        Tezos.get_self_address(),   // from_
-                        Tezos.get_sender(),         // to_
-                        amount,                     // amount
-                        tokenType                   // tokenType
-                    );
-
-                    operations := processVaultWithdrawalOperation # operations;
-
-                } else failwith(error_NOT_AUTHORISED_TO_WITHDRAW_FROM_VAULT)
-                
+                operations := list[
+                    registerWithdrawalOperation;
+                    processVaultWithdrawalOperation
+                ];
+            
             }   
         |   _ -> skip
     ];
@@ -322,35 +297,72 @@ block {
     case vaultLambdaAction of [
         |   LambdaUpdateDepositor(updateDepositorParams) -> {
 
-                // checkVaultUpdateDepositorIsNotPaused(s);
+                // check sender is vault owner
+                checkSenderIsVaultOwner(s);
 
-                // set new depositor only if sender is the vault owner
-                if Tezos.get_sender() =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
-                else block {
+                // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
+                // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
+                const emptyWhitelistSet : set(address) = set[];
+                const depositors : depositorsType = case updateDepositorParams.allowance of [
+                    | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
+                    | AllowAccount(_account) -> block {
+                        const updateDepositors : depositorsType = case s.depositors of [
+                            | Any -> failwith("Error. Set any off first")
+                            | Whitelist(_depositors) -> Whitelist(if _account.0 then Set.add(_account.1, _depositors) else Set.remove(_account.1, _depositors))  
+                        ];
+                    } with updateDepositors
+                ];
+                
+                // update depositors
+                s.depositors := depositors;
 
-                    // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
-                    // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
-                    const emptyWhitelistSet : set(address) = set[];
-                    const depositors : depositorsType = case updateDepositorParams.allowance of [
-                        | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
-                        | AllowAccount(_account) -> block {
-                            const updateDepositors : depositorsType = case s.depositors of [
-                                | Any -> failwith("Error. Set any off first")
-                                | Whitelist(_depositors) -> Whitelist(if _account.0 then Set.add(_account.1, _depositors) else Set.remove(_account.1, _depositors))  
-                            ];
-                        } with updateDepositors
-                    ];
-                    
-                    // update depositors
-                    s.depositors := depositors;
-
-                };
 
             }   
         |   _ -> skip
     ];
 
 } with (noOperations, s)
+
+
+
+(* updateMvkOperators lambda *)
+function lambdaUpdateMvkOperators(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is 
+block {
+
+    // Steps Overview:
+    // 1. Check if sender is vault owner
+    // 2. Update operators of Vault Contract on the MVK Token contract 
+    //    - required to set Doorman Contract as an operator for staking/unstaking 
+
+    checkSenderIsVaultOwner(s);
+
+    var operations : list(operation) := nil;
+
+    case vaultLambdaAction of [
+        |   LambdaUpdateMvkOperators(updateOperatorsParams) -> {
+                
+                // Get %update_operators entrypoint in MVK Token Contract
+                const updateEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%update_operators",
+                    s.mvkTokenAddress) : option(contract(updateOperatorsType))) of [
+                            Some (contr)    -> contr
+                        |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
+                    ];
+
+                const updateOperation : operation = Tezos.transaction(
+                    (updateOperatorsParams),
+                    0tez, 
+                    updateEntrypoint
+                );
+
+                operations := updateOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
 
 
 // ------------------------------------------------------------------------------

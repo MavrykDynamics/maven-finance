@@ -1118,9 +1118,7 @@
 [@inline] const error_NOT_AUTHORISED_TO_WITHDRAW_FROM_VAULT                                                             = 799n;
 [@inline] const error_AMOUNT_NOT_EQUAL_TO_DEPOSIT                                                                       = 800n;
 
-[@inline] const error_ONLY_OWNER_CAN_DELEGATE_TEZ_TO_BAKER                                                              = 801n;
-[@inline] const error_ONLY_OWNER_CAN_DELEGATE_MVK_TO_SATELLITE                                                          = 802n;
-
+[@inline] const error_ONLY_VAULT_OWNER_ALLOWED                                                                          = 802n; 
 
 // ENTRYPOINTS NOT FOUND ERRORS
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                  = 803n;

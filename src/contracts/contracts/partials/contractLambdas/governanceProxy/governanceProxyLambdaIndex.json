@@ -21,7 +21,7 @@
 	},
 	{
 		"index": 5,
-		"name": "lambdaUpdateWhitelistTokens"
+		"name": "lambdaUpdateWhitelistTokenContracts"
 	},
 	{
 		"index": 6,
@@ -89,7 +89,7 @@
 	},
 	{
 		"index": 22,
-		"name": "updateWhitelistDeveloperSet"
+		"name": "updateWhitelistDevelopersSet"
 	},
 	{
 		"index": 23,
