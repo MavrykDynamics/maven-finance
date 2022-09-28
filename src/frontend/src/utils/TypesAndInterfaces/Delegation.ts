@@ -49,7 +49,7 @@ export interface SatelliteRecord {
   satelliteActionVotes?: SatelliteFinancialRequestVotingHistory[]
   oracleRecords: Array<{
     active: boolean
-    oracle_id: string
+    oracleAddress: string
     sMVKReward: number
     XTZReward: number
     aggregator: { address: string }

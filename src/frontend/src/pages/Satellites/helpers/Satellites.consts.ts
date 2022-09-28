@@ -23,7 +23,7 @@ export const getOracleStatus = (oracle: SatelliteRecord, feeds: FeedGQL[]): 'res
   if (oracle?.oracleRecords?.length > 0) {
     // check whether oracle is active, if true status can be responded or awaiting
     if (oracle.oracleRecords.every(({ active }) => active)) {
-      const currentOracleFeeds = feeds.filter(({ admin }) => oracle.oracleRecords[0].oracle_id === admin)
+      const currentOracleFeeds = feeds.filter(({ admin }) => oracle.oracleRecords[0].oracleAddress === admin)
 
       // if timestamp or all feeds from this satellite is >= than 30m ago, feed is not active, if all feeds are not active oracle status is responded, if at least 1 feed is still active, satellite status is awaiting
       if (
