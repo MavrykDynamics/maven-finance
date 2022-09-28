@@ -17,9 +17,12 @@ export const FarmCardStyled = styled(Card)`
     var {
       font-weight: 700;
       font-size: 14px;
-      line-height: 14px;
       color: ${cyanColor};
       font-style: normal;
+
+      p {
+        margin: 0;
+      }
     }
   }
 
@@ -95,6 +98,14 @@ export const FarmCardStyled = styled(Card)`
         flex-shrink: 0;
       }
     }
+
+    .horizontal-expand {
+      .farm-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+    }
   } //horizontal
 
   &.vertical {
@@ -154,12 +165,13 @@ export const FarmCardStyled = styled(Card)`
       }
 
       .start-farming {
-        padding: 0;
+        padding: 70px 20px 56px 20px;
         flex-direction: column;
-        align-items: baseline;
-        padding-left: 20px;
-        padding-right: 20px;
+        row-gap: 27px;
+        align-items: center;
         margin-bottom: 10px;
+        border: 1px solid ${({ theme }) => theme.cardBorderColor};
+        border-radius: 10px;
 
         h3 {
           margin-bottom: 13px;
@@ -216,10 +228,15 @@ export const FarmCardStyled = styled(Card)`
   .start-farming {
     display: flex;
     align-items: center;
+    justify-content: space-around;
     padding-left: 40px;
+    border: 1px solid ${({ theme }) => theme.cardBorderColor};
+    border-radius: 10px;
+    height: 100%;
 
     div {
       margin: 0;
+      width: fit-content;
     }
 
     h3 {
