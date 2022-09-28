@@ -25,16 +25,9 @@ export const SATELLITE_RECORDS_QUERY = `
         aggregator_oracles {
           aggregator_id
           id
-          oracle_id
           last_updated_at
           aggregator {
             address
-          }
-          oracle {
-            aggregator_oracle_rewards {
-              reward
-              type
-            }
           }
         }
         emergency_governance_votes {

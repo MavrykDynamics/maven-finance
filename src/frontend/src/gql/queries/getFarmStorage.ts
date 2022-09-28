@@ -32,12 +32,7 @@ export const FARM_STORAGE_QUERY = `
         user_id
         participation_rewards_per_share
       }
-      lp_token {
-        address
-        decimals
-        name
-        type
-      }
+      lp_token_address
     }
   }
 `
