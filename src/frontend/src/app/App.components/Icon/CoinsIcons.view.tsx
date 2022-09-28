@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import Icon from './Icon.view'
@@ -30,11 +31,29 @@ export const FarmCardSecondTokenIcon = styled.img<{ theme: MavrykTheme }>`
   align-self: flex-end;
 `
 
-export default function CoinsIcons() {
+export default function CoinsIcons({
+  firstAssetLogoSrc = '/images/coin-gold.svg',
+  secondAssetLogoSrc = '/images/coin-silver.svg',
+}: {
+  firstAssetLogoSrc?: string
+  secondAssetLogoSrc?: string
+}) {
   return (
     <FarmCardTokenLogoContainer>
-      <FarmCardFirstTokenIcon src={'/images/coin-gold.svg'} />
-      <FarmCardSecondTokenIcon src={'/images/coin-silver.svg'} />
+      <FarmCardFirstTokenIcon
+        src={firstAssetLogoSrc}
+        onError={({ currentTarget }) => {
+          currentTarget.onerror = null
+          currentTarget.src = '/images/coin-gold.svg'
+        }}
+      />
+      <FarmCardSecondTokenIcon
+        src={secondAssetLogoSrc}
+        onError={({ currentTarget }) => {
+          currentTarget.onerror = null
+          currentTarget.src = '/images/coin-silver.svg'
+        }}
+      />
     </FarmCardTokenLogoContainer>
   )
 }

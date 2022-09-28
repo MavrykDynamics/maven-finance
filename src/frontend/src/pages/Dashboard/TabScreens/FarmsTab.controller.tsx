@@ -39,7 +39,7 @@ export const FarmsTab = () => {
           ? farmStorage.map((farmCardData) => {
               if (!farmCardData.isLive) return null
 
-              const apr = calculateAPR(farmCardData.currentRewardPerBlock, farmCardData.lpTokenBalance)
+              const apr = calculateAPR(farmCardData.currentRewardPerBlock, farmCardData.lpBalance)
               return (
                 <Link
                   to={`/yield-farms?${qs.stringify({ openedCards: [farmCardData.address] })}`}

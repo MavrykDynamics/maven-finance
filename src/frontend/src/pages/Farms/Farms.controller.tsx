@@ -3,7 +3,7 @@ import { FarmStorage } from '../../utils/TypesAndInterfaces/Farm'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { Page } from 'styles'
 import { FarmTopBar } from './FarmTopBar/FarmTopBar.controller'
@@ -56,6 +56,14 @@ export const Farms = () => {
     history.push(`${pathname}?${stringifiedQP}`)
   }
 
+  const farmsTVL = useMemo(
+    () =>
+      farmStorage.reduce((acc, farm) => {
+        return (acc += farm.lpBalance)
+      }, 0),
+    [],
+  )
+
   useEffect(() => {
     const filterStakedOnly = toggleChecked
       ? farmStorage.filter(
@@ -88,24 +96,24 @@ export const Farms = () => {
             break
           case 'highestAPY':
             res =
-              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)) <
-              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance))
+              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpBalance)) <
+              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpBalance))
                 ? 1
                 : -1
 
             break
           case 'lowestAPY':
             res =
-              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)) >
-              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance))
+              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpBalance)) >
+              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpBalance))
                 ? 1
                 : -1
             break
           case 'highestLiquidity':
-            res = a.lpTokenBalance < b.lpTokenBalance ? 1 : -1
+            res = a.lpBalance < b.lpBalance ? 1 : -1
             break
           case 'lowestLiquidity':
-            res = a.lpTokenBalance > b.lpTokenBalance ? 1 : -1
+            res = a.lpBalance > b.lpBalance ? 1 : -1
             break
           case 'yourLargestStake':
             res = getSummDepositedAmount(a.farmAccounts) < getSummDepositedAmount(b.farmAccounts) ? 1 : -1
@@ -165,28 +173,21 @@ export const Farms = () => {
           <>
             <section className={`farm-list ${farmsViewVariant}`}>
               {farmsList.map((farm, index: number) => {
-                const lpTokenAddress = farm.lpTokenAddress || ''
-                const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
                 const depositAmount = getSummDepositedAmount(farm.farmAccounts)
                 return (
                   <div key={farm.address + index}>
-                    {/* For test <p>LpBalance = {farm.lpTokenBalance}</p>
-                    <p>Stake amount = {depositAmount}</p>
-                    <p>Rewards per block= {farm.currentRewardPerBlock}</p> */}
                     <FarmCard
                       variant={farmsViewVariant}
                       farmAddress={farm.address}
                       name={farm.name}
+                      lpTokenBalance={farm.lpBalance}
                       lpTokenAddress={farm.lpTokenAddress}
-                      lpTokenBalance={farm.lpTokenBalance}
                       currentRewardPerBlock={farm.currentRewardPerBlock}
                       depositAmount={depositAmount}
-                      firstToken={'MVK'}
-                      secondToken={'USDM'}
-                      distributer={farmContract?.creator.alias || ''}
-                      firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
-                      secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
-                      totalLiquidity={farm.lpTokenBalance}
+                      firstToken={farm.lpToken1}
+                      secondToken={farm.lpToken2}
+                      liquidity={farm.lpBalance}
+                      totalLiquidity={farmsTVL}
                       expandCallback={addOpenedCardToQP}
                       isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
                     />
