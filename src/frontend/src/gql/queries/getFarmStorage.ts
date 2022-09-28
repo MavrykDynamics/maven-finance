@@ -37,7 +37,6 @@ export const FARM_STORAGE_QUERY = `
         address
         decimals
         name
-        token_id
         type
       }
     }
