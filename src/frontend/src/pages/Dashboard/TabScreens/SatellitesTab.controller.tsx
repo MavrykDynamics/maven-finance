@@ -1,7 +1,7 @@
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -48,7 +48,7 @@ export const SatellitesTab = () => {
   return (
     <TabWrapperStyled backgroundImage="dashboard_satelliteTab_bg.png">
       <div className="top">
-        <BGTitle>Satellites</BGTitle>
+        <BGPrimaryTitle>Satellites</BGPrimaryTitle>
         <Link to="/satellites">
           <Button text="Satellite" icon="satellite" kind={ACTION_PRIMARY} className="noStroke" />
         </Link>

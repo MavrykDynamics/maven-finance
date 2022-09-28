@@ -2,7 +2,7 @@ import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
-import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { reduceTreasuryAssets } from 'pages/Treasury/Treasury.helpers'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -66,7 +66,7 @@ export const TreasuryTab = () => {
   return (
     <TabWrapperStyled backgroundImage="dashboard_treasuryTab_bg.png">
       <div className="top">
-        <BGTitle>Treasury</BGTitle>
+        <BGPrimaryTitle>Treasury</BGPrimaryTitle>
         <Link to="/treasury">
           <Button text="Treasury" icon="treasury" kind={ACTION_PRIMARY} className="noStroke" />
         </Link>
