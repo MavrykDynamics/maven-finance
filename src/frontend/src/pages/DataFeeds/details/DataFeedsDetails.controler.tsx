@@ -8,7 +8,7 @@ import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 // view
 import DataFeedDetailsView from './DataFeedsDetails.view'
-import { registerFeedAction } from 'pages/Satellites/Satellites.actions'
+import { getOracleStorage, registerFeedAction } from 'pages/Satellites/Satellites.actions'
 
 const DataFeedDetails = () => {
   const dispatch = useDispatch()
@@ -21,8 +21,12 @@ const DataFeedDetails = () => {
   let [selectedFeed, setSelectedFeed] = useState<null | FeedGQL>(null)
 
   useEffect(() => {
+    dispatch(getOracleStorage())
+  }, [])
+
+  useEffect(() => {
     setSelectedFeed(oraclesStorage.feeds.find((feed) => feed.address === feedId) || null)
-  }, [dispatch, feedId, oraclesStorage.feeds])
+  }, [feedId, oraclesStorage.feeds])
 
   return (
     <DataFeedDetailsView

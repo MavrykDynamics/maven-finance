@@ -28,6 +28,7 @@ import {
 import { EmptyContainer } from '../../app/App.style'
 import { SatelliteListItem } from 'pages/Satellites/SatelliteList/ListCards/SateliteCard.view'
 import { UserSatelliteRewardsData } from 'utils/TypesAndInterfaces/User'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
@@ -76,7 +77,6 @@ export const SatelliteDetailsView = ({
 }: SatelliteDetailsViewProps) => {
   const { satelliteId } = useParams<{ satelliteId: string }>()
   const { user } = useSelector((state: State) => state.user)
-  const { participationMetrics } = useSelector((state: State) => state.delegation)
   const isSameId = satellite?.address === satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
 
@@ -110,12 +110,20 @@ export const SatelliteDetailsView = ({
 
             <div className="column-wrapper">
               <div>
-                <BlockName>Participation Metrics:</BlockName>
+                <BlockName>Satellite metrics:</BlockName>
                 <SatelliteMetricsBlock>
-                  <h5>Poll participation</h5>
-                  <p>{participationMetrics.pollParticipation}%</p>
-                  <h5>Proposal participation</h5>
-                  <p>{participationMetrics.proposalParticipation}%</p>
+                  <h5>Proposal Participation</h5>
+                  <p>
+                    <CommaNumber value={0} endingText="%" />
+                  </p>
+                  <h5>Vote Participation</h5>
+                  <p>
+                    <CommaNumber value={0} endingText="%" />
+                  </p>
+                  <h5>Oracle efficiency</h5>
+                  <p>
+                    <CommaNumber value={0} endingText="%" />
+                  </p>
                 </SatelliteMetricsBlock>
               </div>
 

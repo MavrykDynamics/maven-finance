@@ -8,6 +8,7 @@ export const TzAddressContainer = styled.div`
   cursor: pointer;
 `
 export const TzAddressStyled = styled.div<{ theme: MavrykTheme }>`
+  transition: color 0.4s ease-in-out;
   &.${PRIMARY} {
     color: ${({ theme }) => theme.primaryColor};
   }
@@ -46,6 +47,7 @@ export const TzAddressIcon = styled.svg<{ theme: MavrykTheme }>`
   display: inline-block;
   vertical-align: sub;
   margin-left: 8px;
+  transition: stroke 0.4s ease-in-out;
 
   &.${PRIMARY} {
     stroke: ${({ theme }) => theme.backgroundTextColor};

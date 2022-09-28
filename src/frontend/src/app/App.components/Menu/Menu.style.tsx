@@ -92,7 +92,7 @@ export const MenuSidebarContent = styled.div`
   max-width: 232px;
   height: 100%;
   background-color: ${({ theme }) => theme.containerColor};
-  padding-top: 80px;
+  padding-top: 110px;
   transition: 0.6s all;
   height: fit-content;
   min-height: 100%;
