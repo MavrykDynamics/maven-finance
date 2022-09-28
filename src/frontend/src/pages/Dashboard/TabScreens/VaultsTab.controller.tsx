@@ -3,7 +3,7 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import PieChartView from 'app/App.components/PieСhart/PieСhart.view'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
-import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getPieChartData } from 'pages/Treasury/helpers/calculateChartData'
 import { reduceTreasuryAssets } from 'pages/Treasury/Treasury.helpers'
 import React, { useMemo, useState } from 'react'
@@ -28,7 +28,7 @@ export const VaultsTab = () => {
   return (
     <TabWrapperStyled className="vaults">
       <div className="top">
-        <BGTitle>Vaults</BGTitle>
+        <BGPrimaryTitle>Vaults</BGPrimaryTitle>
         <Link to="/vaults">
           <Button text="Vaults" icon="vaults" kind={ACTION_PRIMARY} className="noStroke" />
         </Link>

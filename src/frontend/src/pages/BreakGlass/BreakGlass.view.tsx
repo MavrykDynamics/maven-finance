@@ -5,7 +5,8 @@ import {
   BGMiddleWrapper,
   BGStatusIndicator,
   BGStyled,
-  BGTitle,
+  BGPrimaryTitle,
+  BGSecondaryTitle,
   BGTop,
   BGWhitelist,
 } from './BreakGlass.style'
@@ -95,7 +96,7 @@ export const BreakGlassView = ({
           </FAQLink>
         </BGInfo>
         <BGWhitelist>
-          <BGTitle>Whitelist Developers</BGTitle>
+          <BGSecondaryTitle>Whitelist Developers</BGSecondaryTitle>
           <div className="adress-list">
             <TzAddress tzAddress={whitelistDev} hasIcon />
           </div>
@@ -103,7 +104,7 @@ export const BreakGlassView = ({
       </BGTop>
 
       <BGMiddleWrapper>
-        <BGTitle>Contract Status</BGTitle>
+        <BGPrimaryTitle>Contract Status</BGPrimaryTitle>
         <SlidingTabButtons className="brake-glass-tabs" tabItems={brakeGlassTabsList} onClick={handleTabChange} />
       </BGMiddleWrapper>
 
