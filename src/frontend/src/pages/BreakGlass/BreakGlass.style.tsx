@@ -130,9 +130,21 @@ export const BGWhitelist = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
   }
 `
 
-export const BGTitle = styled.h1<{ theme: MavrykTheme }>`
+export const BGPrimaryTitle = styled.h1<{ theme: MavrykTheme }>`
   color: ${headerColor};
+  margin: 0;
+
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 30px;
+`
+
+export const BGSecondaryTitle = styled(BGPrimaryTitle)`
   font-weight: 600;
   font-size: 16px;
-  margin: 0;
+  line-height: 22px;
+
+  &::after{
+    display: none;
+  }
 `
