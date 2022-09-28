@@ -63,15 +63,6 @@ const AprBlock = ({ valueAPR, triggerCalculatorModal }: { valueAPR: string; trig
   </div>
 )
 
-const LiquidityBlock = ({ liquidity }: { liquidity: number }) => (
-  <div className="farm-info">
-    <h3>Liquidity</h3>
-    <var>
-      <CommaNumber value={liquidity} beginningText="$" />
-    </var>
-  </div>
-)
-
 const TotalLiquidityBlock = ({ totalLiquidity }: { totalLiquidity: number }) => (
   <div className="farm-info">
     <h3>Total Liquidity</h3>
@@ -104,9 +95,6 @@ const LinksBlock = ({ farmAddress, lpTokenAddress }: { farmAddress: string; lpTo
     </a>
     <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${farmAddress}`}>
       View Contract <Icon id="send" />
-    </a>
-    <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${lpTokenAddress}`}>
-      See Pair Info <Icon id="send" />
     </a>
   </div>
 )
@@ -190,6 +178,7 @@ const VerticalFarmComponent = ({
       <div className="farm-info-vertical">
         <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
         <EarnBlock />
+        <TotalLiquidityBlock totalLiquidity={0} />
       </div>
       <div className="vertical-harvest">
         <HarvestBlock userReward={userReward} harvestRewards={harvestRewards} />
@@ -238,9 +227,9 @@ const HorisontalFarmComponent = ({
         header={
           <>
             <LogoHeaderContent name={farm.name} firstToken={farm.lpToken1} secondToken={farm.lpToken2} />
-            <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
-            <LiquidityBlock liquidity={farm.lpBalance} />
             <EarnBlock />
+            <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
+            <TotalLiquidityBlock totalLiquidity={0} />
           </>
         }
       >
