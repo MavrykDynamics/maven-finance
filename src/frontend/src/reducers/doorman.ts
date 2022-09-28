@@ -24,7 +24,7 @@ export interface DoormanState {
   error?: object
   doormanStorage?: DoormanStorage
   totalStakedMvk?: number
-  stakeHistoryData?: StakeHistoryData
+  stakeHistoryData: StakeHistoryData
 }
 
 const defaultStorageState: DoormanStorage = {

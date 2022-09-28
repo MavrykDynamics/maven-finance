@@ -1,35 +1,60 @@
 import React from 'react'
-import { AreaChart, Area, Tooltip } from 'recharts'
+import { AreaChart, Area, Tooltip, XAxis, YAxis } from 'recharts'
 
-// style
-import { ChartStyled, ChartHeader } from './Chart.style'
+// styles
+import { ChartStyled, ChartHeader, ChartTooltip } from './Chart.style'
+
+type ChartItem = {
+  timestamp: string
+  finalAmount: number
+  type: number
+}
 
 type Props = {
-  list: number[]
+  list: ChartItem[]
   header: string
 }
 
 type ChartData = {
   uv: number
+  pv: string
 }[]
 
 type TooltipContent = Pick<{ label?: number }, 'label'>
 
 const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
   const label = o.label ?? 0
-
   const value = Object.values(data)[label]?.uv || ''
+  const date = Object.values(data)[label]?.pv || ''
 
-  return <div className="tooltip">{value} MVK</div>
+  return (
+    <ChartTooltip>
+      {value} MVK
+      <div>{date}</div>
+    </ChartTooltip>
+  )
+}
+
+const chartStyle = {
+  width: 675,
+  height: 292,
+  padding: {
+    top: 17,
+    right: 0,
+    left: 22,
+    bottom: 0,
+  },
+  color: '#8D86EB',
 }
 
 export default function Chart(props: Props) {
   const { list, header } = props
 
   const data = list?.length
-    ? list.map((uv) => {
+    ? list.map(({ finalAmount, timestamp }) => {
         return {
-          uv,
+          uv: finalAmount,
+          pv: timestamp,
         }
       })
     : []
@@ -38,15 +63,9 @@ export default function Chart(props: Props) {
     <ChartStyled>
       <ChartHeader>{header}</ChartHeader>
       <AreaChart
-        width={623}
-        height={292}
+        width={chartStyle.width}
+        height={chartStyle.height}
         data={data}
-        margin={{
-          top: 17,
-          right: 0,
-          left: 22,
-          bottom: 0,
-        }}
       >
         <defs>
           <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
@@ -54,7 +73,11 @@ export default function Chart(props: Props) {
             <stop offset="100%" stopColor="rgba(22, 14, 63, 1)" stopOpacity={1} />
           </linearGradient>
         </defs>
-        <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />       
+
+        <XAxis tick={{ fill: chartStyle.color }} stroke={chartStyle.color} type="category" padding={{left: chartStyle.padding.left}} />
+        <YAxis tick={{ fill: chartStyle.color }} stroke={chartStyle.color} orientation='right' padding={{top: chartStyle.padding.top}} />
+
+        <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
         <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
       </AreaChart>
     </ChartStyled>

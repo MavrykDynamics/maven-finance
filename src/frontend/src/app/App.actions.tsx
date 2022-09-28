@@ -23,7 +23,7 @@ import {
 
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
-import { normalizeDoormanStorage, normalizeMvkToken } from '../pages/Doorman/Doorman.converter'
+import { normalizeDoormanStorage, normalizeMvkToken, normalizeStakeHistoryData } from '../pages/Doorman/Doorman.converter'
 import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from '../pages/Farms/Farms.helpers'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
 import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/EmergencyGovernance.helpers'
@@ -68,7 +68,7 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
   const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = normalizeOracle(res[10])
-  const stakeHistoryData = res[10]
+  const stakeHistoryData = normalizeStakeHistoryData(res[11])
 
   const emergencyGovActive = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId !== 0
 
