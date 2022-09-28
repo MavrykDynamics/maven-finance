@@ -59,6 +59,7 @@ export const normalizeFarmStorage = (
       accumulatedMvkPerShare: 0,
       lastBlockUpdate: farmItem.last_block_update,
       lpTokenAddress: lpMetadata?.liquidityPairToken?.tokenAddress?.[0] ?? '',
+      // TODO: add multypling lpBalance on exchange rate of lpToken
       lpBalance: farmItem.lp_token_balance / Math.pow(10, farmItem.lp_token?.decimals ?? 0),
       lpToken1: {
         symbol: lpMetadata?.liquidityPairToken?.token0?.symbol?.[0],
