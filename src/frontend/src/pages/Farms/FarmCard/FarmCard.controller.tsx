@@ -38,15 +38,18 @@ const LogoHeaderContent = ({
   firstToken,
   secondToken,
   name,
+  subtitle,
 }: {
   name: string
   firstToken: FarmStorage[number]['lpToken1']
   secondToken: FarmStorage[number]['lpToken2']
+  subtitle?: string
 }) => (
   <div className="farm-card-header">
     <CoinsIcons firstAssetLogoSrc={firstToken.address} secondAssetLogoSrc={secondToken.address} />
     <div className="farm-card-section">
       <h3>{name}</h3>
+      {subtitle && <div className="subtitle">{subtitle}</div>}
     </div>
   </div>
 )
@@ -174,7 +177,14 @@ const VerticalFarmComponent = ({
   return (
     <FarmCardStyled key={farm.address} className={`contractCard accordion} vertical ${isOpenedCard ? 'opened' : ''}`}>
       <QuestionLinkBlock />
-      <LogoHeaderContent name={farm.name} firstToken={farm.lpToken1} secondToken={farm.lpToken2} />
+      <LogoHeaderContent
+        name={
+          farm.lpToken1.symbol && farm.lpToken2.symbol ? `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}` : farm.name
+        }
+        subtitle={farm.farmContract?.creator?.alias}
+        firstToken={farm.lpToken1}
+        secondToken={farm.lpToken2}
+      />
       <div className="farm-info-vertical">
         <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
         <EarnBlock />
@@ -226,7 +236,16 @@ const HorisontalFarmComponent = ({
         isExpandedByDefault={isOpenedCard}
         header={
           <>
-            <LogoHeaderContent name={farm.name} firstToken={farm.lpToken1} secondToken={farm.lpToken2} />
+            <LogoHeaderContent
+              name={
+                farm.lpToken1.symbol && farm.lpToken2.symbol
+                  ? `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}`
+                  : farm.name
+              }
+              subtitle={farm.farmContract?.creator?.alias}
+              firstToken={farm.lpToken1}
+              secondToken={farm.lpToken2}
+            />
             <EarnBlock />
             <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
             <TotalLiquidityBlock totalLiquidity={0} />

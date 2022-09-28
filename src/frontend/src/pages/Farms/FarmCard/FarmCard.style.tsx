@@ -34,9 +34,11 @@ export const FarmCardStyled = styled(Card)`
     h3 {
       font-weight: 600;
       font-size: 22px;
-      line-height: 18px;
       color: ${cyanColor};
-      word-break: break-all;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 210px;
     }
 
     p {
@@ -45,6 +47,14 @@ export const FarmCardStyled = styled(Card)`
       line-height: 11px;
       color: ${headerColor};
       margin: 3px 0;
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      font-weight: 400;
+      font-size: 11px;
+      text-align: right;
+      color: ${({ theme }) => theme.headerColor};
     }
   }
 
