@@ -43,6 +43,7 @@ type vaultActionType is
     |   Withdraw                        of withdrawType
     |   OnLiquidate                     of onLiquidateType
     |   UpdateDepositor                 of updateDepositorType
+    |   UpdateMvkOperators              of updateOperatorsType
   
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -75,6 +76,13 @@ function checkSenderIsAllowed(var s : vaultStorageType) : unit is
 // Allowed Senders: Admin
 function checkSenderIsAdmin(const s : vaultStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    else unit
+
+
+
+// Allowed Senders: Vault Owner
+function checkSenderIsVaultOwner(const s : vaultStorageType) : unit is
+    if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_VAULT_OWNER_ALLOWED)
     else unit
 
 
@@ -727,6 +735,25 @@ block {
 
 } with response
 
+
+
+(* updateMvkOperators entrypoint *)
+function updateMvkOperators(const updateMvkOperatorsParams : updateOperatorsType; var s : vaultStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMvkOperators"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateMvkOperators(updateMvkOperatorsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints Begin
 // ------------------------------------------------------------------------------
@@ -781,6 +808,7 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
         |   Withdraw(parameters)                         -> withdraw(parameters, s)
         |   OnLiquidate(parameters)                      -> onLiquidate(parameters, s)
         |   UpdateDepositor(parameters)                  -> updateDepositor(parameters, s)
+        |   UpdateMvkOperators(parameters)               -> updateMvkOperators(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                        -> setLambda(parameters, s)    

@@ -1,82 +1,82 @@
 [
-    {
-        "index": 0,
-        "name": "lambdaSetAdmin"
-    },
-    {
-        "index": 1,
-        "name": "lambdaSetGovernance"
-    },
-    {
-        "index": 2,
-        "name": "lambdaSetMaintainer"
-    },
-    {
-        "index": 3,
-        "name": "lambdaSetName"
-    },
-    {
-        "index": 4,
-        "name": "lambdaUpdateMetadata"
-    },
-    {
-        "index": 5,
-        "name": "lambdaUpdateConfig"
-    },
-    {
-        "index": 6,
-        "name": "lambdaUpdateWhitelistContracts"
-    },
-    {
-        "index": 7,
-        "name": "lambdaUpdateGeneralContracts"
-    },
-    {
-        "index": 8,
-        "name": "lambdaMistakenTransfer"
-    },
-    {
-        "index": 9,
-        "name": "lambdaAddOracle"
-    },
-    {
-        "index": 10,
-        "name": "lambdaRemoveOracle"
-    },
-    {
-        "index": 11,
-        "name": "lambdaPauseAll"
-    },
-    {
-        "index": 12,
-        "name": "lambdaUnpauseAll"
-    },
-    {
-        "index": 13,
-        "name": "lambdaTogglePauseEntrypoint"
-    },
-    {
-        "index": 14,
-        "name": "lambdaRequestRateUpdate"
-    },
-    {
-        "index": 15,
-        "name": "lambdaRequestRateUpdateDeviation"
-    },
-    {
-        "index": 16,
-        "name": "lambdaSetObservationCommit"
-    },
-    {
-        "index": 17,
-        "name": "lambdaSetObservationReveal"
-    },
-    {
-        "index": 18,
-        "name": "lambdaWithdrawRewardXtz"
-    },
-    {
-        "index": 19,
-        "name": "lambdaWithdrawRewardStakedMvk"
-  }  
+	{
+		"index": 0,
+		"name": "lambdaSetAdmin"
+	},
+	{
+		"index": 1,
+		"name": "lambdaSetGovernance"
+	},
+	{
+		"index": 2,
+		"name": "lambdaSetMaintainer"
+	},
+	{
+		"index": 3,
+		"name": "lambdaSetName"
+	},
+	{
+		"index": 4,
+		"name": "lambdaUpdateMetadata"
+	},
+	{
+		"index": 5,
+		"name": "lambdaUpdateConfig"
+	},
+	{
+		"index": 6,
+		"name": "lambdaUpdateWhitelistContracts"
+	},
+	{
+		"index": 7,
+		"name": "lambdaUpdateGeneralContracts"
+	},
+	{
+		"index": 8,
+		"name": "lambdaMistakenTransfer"
+	},
+	{
+		"index": 9,
+		"name": "lambdaAddOracle"
+	},
+	{
+		"index": 10,
+		"name": "lambdaRemoveOracle"
+	},
+	{
+		"index": 11,
+		"name": "lambdaPauseAll"
+	},
+	{
+		"index": 12,
+		"name": "lambdaUnpauseAll"
+	},
+	{
+		"index": 13,
+		"name": "lambdaTogglePauseEntrypoint"
+	},
+	{
+		"index": 14,
+		"name": "lambdaRequestRateUpdate"
+	},
+	{
+		"index": 15,
+		"name": "lambdaRequestRateUpdDeviation"
+	},
+	{
+		"index": 16,
+		"name": "lambdaSetObservationCommit"
+	},
+	{
+		"index": 17,
+		"name": "lambdaSetObservationReveal"
+	},
+	{
+		"index": 18,
+		"name": "lambdaWithdrawRewardXtz"
+	},
+	{
+		"index": 19,
+		"name": "lambdaWithdrawRewardStakedMvk"
+	}
 ]
