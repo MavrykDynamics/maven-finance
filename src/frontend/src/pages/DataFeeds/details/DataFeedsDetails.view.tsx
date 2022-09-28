@@ -125,7 +125,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   Deviation threshold
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  <CommaNumber value={feed.per_thousand_deviation_trigger / 1000} endingText="%" />
+                  <CommaNumber value={feed.alpha_pct_per_thousand / 1000} endingText="%" />
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
