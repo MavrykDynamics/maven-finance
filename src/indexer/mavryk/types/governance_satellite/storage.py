@@ -36,44 +36,6 @@ class Config(BaseModel):
     maxActionsPerSatellite: str
 
 
-class TokenItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    fa12: str
-
-
-class Fa2(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    tokenContractAddress: str
-    tokenId: str
-
-
-class TokenItem1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    fa2: Fa2
-
-
-class TokenItem2(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    tez: Dict[str, Any]
-
-
-class TransferListItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    to_: str
-    amount: str
-    token: Union[TokenItem, TokenItem1, TokenItem2]
-
-
 class GovernanceSatelliteActionLedger(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -84,10 +46,7 @@ class GovernanceSatelliteActionLedger(BaseModel):
     governanceType: str
     governancePurpose: str
     voters: List[str]
-    addressMap: Dict[str, str]
-    stringMap: Dict[str, str]
-    natMap: Dict[str, str]
-    transferList: List[TransferListItem]
+    dataMap: Dict[str, str]
     yayVoteStakedMvkTotal: str
     nayVoteStakedMvkTotal: str
     passVoteStakedMvkTotal: str

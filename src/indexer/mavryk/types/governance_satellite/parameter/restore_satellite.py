@@ -11,4 +11,6 @@ class RestoreSatelliteParameter(BaseModel):
         extra = Extra.forbid
 
     satelliteToBeRestored: str
+    oraclePublicKey: str
+    oraclePeerId: str
     purpose: str
