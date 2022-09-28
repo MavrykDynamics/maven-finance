@@ -24,7 +24,7 @@ export const SATELLITE_RECORDS_QUERY = `
         address
         aggregator_oracles {
           aggregator_id
-          id
+          user_id
           last_updated_at
           aggregator {
             address
