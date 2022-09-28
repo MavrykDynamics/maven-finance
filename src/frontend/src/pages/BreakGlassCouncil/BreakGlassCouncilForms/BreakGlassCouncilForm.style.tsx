@@ -1,13 +1,14 @@
-import styled from "styled-components/macro";
-import { skyColor, headerColor, textsColor } from "styles";
+import styled from 'styled-components/macro'
+import { skyColor, headerColor, textsColor, upColor } from 'styles'
 
 export const FormStyled = styled.div`
+  position: relative;
   padding: 40px 20px;
 
   h1 {
     margin: 0;
   }
-  
+
   p {
     margin-top: 0;
     margin-bottom: 20px;
@@ -19,7 +20,9 @@ export const FormStyled = styled.div`
     color: ${skyColor};
   }
 
-  h1, p, label {
+  h1,
+  p,
+  label {
     padding-left: 10px;
   }
 
@@ -39,6 +42,14 @@ export const FormStyled = styled.div`
         fill: ${textsColor};
       }
     }
+  }
+
+  .address {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    margin-left: 20px;
+    color: ${upColor};
   }
 
   .form {
@@ -75,15 +86,15 @@ export const FormStyled = styled.div`
   }
 
   .input-size-primary {
-    width: 515px;
+    width: 400px;
   }
 
   .input-size-secondary {
-    width: 480px;
+    width: 330px;
   }
 
   .input-size-tertiary {
-    width: 550px;
+    width: 360px;
   }
 
   .in-two-columns {

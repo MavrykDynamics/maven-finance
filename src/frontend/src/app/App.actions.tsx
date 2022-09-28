@@ -20,11 +20,17 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
+import {
+  GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
+  GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
+  GET_BREAK_GLASS_COUNCIL_MEMBER,
+  GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
+} from 'pages/BreakGlassCouncil/BreakGlassCouncil.actions'
 
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
 import { normalizeDoormanStorage, normalizeMvkToken } from '../pages/Doorman/Doorman.converter'
-import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from '../pages/Farms/Frams.helpers'
+import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from '../pages/Farms/Farms.helpers'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
 import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/EmergencyGovernance.helpers'
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
@@ -131,7 +137,10 @@ export const onStart = () => async (dispatch: Dispatch) => {
     type: SET_PAST_PROPOSALS,
     pastProposals: governanceStorage.proposalLedger,
   })
-
+  dispatch({
+    type: GET_ORACLES_STORAGE,
+    oraclesStorage,
+  })
   dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
 }
 

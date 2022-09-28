@@ -137,6 +137,15 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
     },
   ],
   [
+    'break glass council',
+    {
+      title: 'Break Glass Council',
+      subText: 'Break Glass Council page',
+      foregroundImageSrc: '/images/break-glass-header.svg',
+      backgroundImageSrc: '/images/dapp-header-bg.svg',
+    },
+  ],
+  [
     'break glass actions',
     {
       title: 'Break Glass Actions',
