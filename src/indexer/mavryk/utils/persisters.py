@@ -1,6 +1,5 @@
 from dateutil import parser
 import mavryk.models as models
-from mavryk.types.governance_satellite.storage import TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
 
 ###
 #
@@ -62,9 +61,7 @@ async def persist_council_action(action):
     councilActionStatus             = councilActionRecordDiff['status']
     councilActionExecuted           = councilActionRecordDiff['executed']
     councilActionSigners            = councilActionRecordDiff['signers']
-    councilActionAddressParams      = councilActionRecordDiff['addressMap']
-    councilActionStringParams       = councilActionRecordDiff['stringMap']
-    councilActionNatParams          = councilActionRecordDiff['natMap']
+    councilActionData               = councilActionRecordDiff['dataMap']
     councilActionCounter            = int(action.storage.actionCounter)
 
     # Create and update records
@@ -106,26 +103,8 @@ async def persist_council_action(action):
         await councilActionRecord.save()
 
         # Parameters
-        for key in councilActionAddressParams:
-            value   = councilActionAddressParams[key]
-            councilActionRecordParameter    = models.CouncilActionParameter(
-                council_action          = councilActionRecord,
-                name                    = key,
-                value                   = value
-            )
-            await councilActionRecordParameter.save()
-
-        for key in councilActionStringParams:
-            value   = councilActionStringParams[key]
-            councilActionRecordParameter    = models.CouncilActionParameter(
-                council_action          = councilActionRecord,
-                name                    = key,
-                value                   = value
-            )
-            await councilActionRecordParameter.save()
-
-        for key in councilActionNatParams:
-            value   = councilActionNatParams[key]
+        for key in councilActionData:
+            value                           = councilActionData[key]
             councilActionRecordParameter    = models.CouncilActionParameter(
                 council_action          = councilActionRecord,
                 name                    = key,
@@ -157,8 +136,7 @@ async def persist_break_glass_action(action):
     breakGlassActionStatus             = breakGlassActionRecordDiff['status']
     breakGlassActionExecuted           = breakGlassActionRecordDiff['executed']
     breakGlassActionSigners            = breakGlassActionRecordDiff['signers']
-    breakGlassActionAddressParams      = breakGlassActionRecordDiff['addressMap']
-    breakGlassActionNatParams          = breakGlassActionRecordDiff['natMap']
+    breakGlassActionData               = breakGlassActionRecordDiff['dataMap']
     breakGlassActionCounter            = int(action.storage.actionCounter)
 
     # Create and update records
@@ -200,18 +178,9 @@ async def persist_break_glass_action(action):
         await breakGlassActionRecord.save()
 
         # Parameters
-        for key in breakGlassActionAddressParams:
-            value   = breakGlassActionAddressParams[key]
-            breakGlassActionRecordParameter    = models.BreakGlassActionParameter(
-                break_glass_action          = breakGlassActionRecord,
-                name                        = key,
-                value                       = value
-            )
-            await breakGlassActionRecordParameter.save()
-
-        for key in breakGlassActionNatParams:
-            value   = breakGlassActionNatParams[key]
-            breakGlassActionRecordParameter    = models.BreakGlassActionParameter(
+        for key in breakGlassActionData:
+            value                               = breakGlassActionData[key]
+            breakGlassActionRecordParameter     = models.BreakGlassActionParameter(
                 break_glass_action          = breakGlassActionRecord,
                 name                        = key,
                 value                       = value
@@ -346,10 +315,7 @@ async def persist_governance_satellite_action(ctx, action):
             smvk_required_for_approval      = float(action_record_storage.stakedMvkRequiredForApproval)
             expiration_datetime             = parser.parse(action_record_storage.expiryDateTime)
             start_datetime                  = parser.parse(action_record_storage.startDateTime)
-            address_map                     = action_record_storage.addressMap
-            string_map                      = action_record_storage.stringMap
-            nat_map                         = action_record_storage.natMap
-            transfer_list                   = action_record_storage.transferList
+            data                            = action_record_storage.dataMap
 
             initiator, _                    = await models.MavrykUser.get_or_create(
                 address = initiator_address
@@ -373,66 +339,14 @@ async def persist_governance_satellite_action(ctx, action):
             await action_record.save()
 
             # Parameters
-            for key in address_map:
-                value   = address_map[key]
-                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionParameter(
+            for key in data:
+                value                                           = data[key]
+                governance_satellite_action_record_parameter    = models.GovernanceSatelliteActionParameter(
                     governance_satellite_action     = action_record,
                     name                            = key,
                     value                           = value
                 )
                 await governance_satellite_action_record_parameter.save()
-
-            for key in string_map:
-                value   = string_map[key]
-                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionParameter(
-                    governance_satellite_action     = action_record,
-                    name                            = key,
-                    value                           = value
-                )
-                await governance_satellite_action_record_parameter.save()
-
-            for key in nat_map:
-                value   = nat_map[key]
-                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionParameter(
-                    governance_satellite_action     = action_record,
-                    name                            = key,
-                    value                           = value
-                )
-                await governance_satellite_action_record_parameter.save()
-
-            for value in transfer_list:
-                token_id                = 0
-                token_contract_address  = ""
-                amount                  = float(value.amount)
-                to_                     = value.to_
-
-                receiver, _             = await models.MavrykUser.get_or_create(
-                    address = to_
-                )
-                await receiver.save()
-
-                if type(value.token) == fa12:
-                    token_contract_address  = value.token.fa12
-                elif type(value.token) == fa2:
-                    token_id                = int(value.token.fa2.tokenId)
-                    token_contract_address  = value.token.fa2.tokenContractAddress
-                elif type(value.token) == tez:
-                    token_contract_address  = "XTZ"
-
-                # Persist Token Metadata
-                await persist_token_metadata(
-                    ctx=ctx,
-                    token_address=token_contract_address,
-                    token_id=str(token_id)
-                )
-                    
-                governance_satellite_action_record_transfer = models.GovernanceSatelliteActionTransfer(
-                    governance_satellite_action     = action_record,
-                    token_address                   = token_contract_address,
-                    to_                             = receiver,
-                    amount                          = amount
-                )
-                await governance_satellite_action_record_transfer.save()
                 
             
 

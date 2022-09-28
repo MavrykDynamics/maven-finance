@@ -1,11 +1,38 @@
 # Changelog
 
-## Version 0.13.0
+## Information
 
 ### Deployment
 
-- DEV &#9745;
-- PROD &#9746;
+- DEV: 0.16
+- PROD: 0.13
+
+### Updated ERD Model
+
+[Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.16
+
+### New contracts indexed
+
+- Oracle V2 Indexed
+- Lending Indexed
+  - Liquidation on vault not tracked yet
+
+### Breaking changes
+
+- Token table removed and replaced by dipdup_token_metadata table (all FKs to the Token Table have been replaced by token contract addresses)
+- CouncilActionParameter/BreakGlassActionParameter/GovernanceSatelliteActionParameter now contains hex bytes as values
+- Table GovernanceSatelliteActionTransfer removed. Its content is now saved into GovernanceSatelliteActionParameter
+
+### New tables
+
+- Aggregator/AggregatorFactory tables + GovernanceSatellite/Council/BreakGlass tables refactored
+- LendingController/Vault/VaultFactory/TokenPoolReward tables
+- dipdup_token_metadata: Metadata of all tokens in the system
+- dipdup_contract_metadata: Metadata of all contracts in the system (due to a BCD bug, some contracts don't have their metadata)
+
+## Version 0.13
 
 ### Changes on all contract tables
 

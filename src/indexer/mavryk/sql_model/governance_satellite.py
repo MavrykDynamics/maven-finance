@@ -75,16 +75,6 @@ class GovernanceSatelliteActionParameter(Model):
     class Meta:
         table = 'governance_satellite_action_parameter'
 
-class GovernanceSatelliteActionTransfer(Model):
-    id                                      = fields.BigIntField(pk=True)
-    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='transfers')
-    token_address                           = fields.CharField(max_length=36, default="")
-    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_transfer_receiver')
-    amount                                  = fields.BigIntField(default=0)
-
-    class Meta:
-        table = 'governance_satellite_action_transfer'
-
 class GovernanceSatelliteAggregator(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='aggregators')
@@ -117,8 +107,8 @@ class GovernanceSatelliteSatelliteOracle(Model):
 class GovernanceSatelliteSatelliteOracleAggregatorPair(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite_satellite_oracle   = fields.ForeignKeyField('models.GovernanceSatelliteSatelliteOracle', related_name='aggregator_pairs')
+    governance_satellite_aggregator         = fields.ForeignKeyField('models.GovernanceSatelliteAggregator', related_name='pairs')
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_satellite_oracle_aggregator_pairs')
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_satellite_oracle_aggregator_pairs')
     start_timestamp                         = fields.DatetimeField(null=True)
     token_0_symbol                          = fields.CharField(max_length=32)
     token_1_symbol                          = fields.CharField(max_length=32)
