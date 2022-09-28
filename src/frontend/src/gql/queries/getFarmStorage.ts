@@ -4,7 +4,6 @@ export const FARM_STORAGE_QUERY = `
       address
       claim_paused
       deposit_paused
-      farm_factory_id
       infinite
       init_block
       last_block_update

@@ -46,7 +46,6 @@ query GetGovernanceStorageQuery {
       snapshot_smvk_total_supply
       status
       token_amount
-      token_id
       treasury_id
       governance_financial_id
       key_hash
