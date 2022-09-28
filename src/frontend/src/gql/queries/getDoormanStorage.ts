@@ -22,3 +22,16 @@ export const DOORMAN_STORAGE_QUERY = `
 
 export const DOORMAN_STORAGE_QUERY_NAME = 'DoormanStorageQuery'
 export const DOORMAN_STORAGE_QUERY_VARIABLE = {}
+
+export const STAKE_HISTORY_DATA_QUERY = `
+  query GetStakingHistoryData {
+    stake_history_data(where: {type: {_eq: "0"}}) {
+      type
+      timestamp
+      final_amount
+    }
+  }
+`
+
+export const STAKE_HISTORY_DATA_QUERY_NAME = 'GetStakingHistoryData'
+export const STAKE_HISTORY_DATA_QUERY_VARIABLE = {}

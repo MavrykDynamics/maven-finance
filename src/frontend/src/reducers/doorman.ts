@@ -9,9 +9,10 @@ import {
   UNSTAKE_ERROR,
   UNSTAKE_REQUEST,
   UNSTAKE_RESULT,
+  GET_STAKE_HISTORY_DATA,
 } from 'pages/Doorman/Doorman.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
-import { DoormanStorage } from '../utils/TypesAndInterfaces/Doorman'
+import { DoormanStorage, StakeHistoryData } from '../utils/TypesAndInterfaces/Doorman'
 
 export const STAKE = 'STAKE'
 export const UNSTAKE = 'UNSTAKE'
@@ -23,6 +24,7 @@ export interface DoormanState {
   error?: object
   doormanStorage?: DoormanStorage
   totalStakedMvk?: number
+  stakeHistoryData?: StakeHistoryData
 }
 
 const defaultStorageState: DoormanStorage = {
@@ -44,6 +46,7 @@ const doormanDefaultState: DoormanState = {
   error: undefined,
   doormanStorage: defaultStorageState,
   totalStakedMvk: 0,
+  stakeHistoryData: [],
 }
 
 export function doorman(state = doormanDefaultState, action: Action) {
@@ -116,6 +119,12 @@ export function doorman(state = doormanDefaultState, action: Action) {
         totalStakedMvk: action.totalStakedMvkSupply,
         amount: 0,
       }
+      case GET_STAKE_HISTORY_DATA:
+        return {
+          ...state,
+          type: GET_STAKE_HISTORY_DATA,
+          stakeHistoryData: action.stakeHistoryData,
+        }
     default:
       return state
   }

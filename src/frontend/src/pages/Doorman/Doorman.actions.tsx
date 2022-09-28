@@ -16,6 +16,9 @@ import {
   USER_REWARDS_QUERY,
   USER_REWARDS_QUERY_NAME,
   USER_REWARDS_QUERY_VARIABLES,
+  STAKE_HISTORY_DATA_QUERY,
+  STAKE_HISTORY_DATA_QUERY_NAME,
+  STAKE_HISTORY_DATA_QUERY_VARIABLE,
 } from '../../gql/queries'
 import {
   calcUsersDoormanRewards,
@@ -32,9 +35,38 @@ import {
   UserSatelliteRewardsData,
 } from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
-import { normalizeDoormanStorage, normalizeMvkToken } from './Doorman.converter'
+import { normalizeDoormanStorage, normalizeMvkToken, normalizeStakeHistoryData } from './Doorman.converter'
 import { FarmContractType } from 'utils/TypesAndInterfaces/Farm'
 import { Farm } from 'utils/generated/graphqlTypes'
+
+export const GET_STAKE_HISTORY_DATA = 'GET_STAKE_HISTORY_DATA'
+export const getStakeHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  try {
+    const storage = await fetchFromIndexer(
+      STAKE_HISTORY_DATA_QUERY,
+      STAKE_HISTORY_DATA_QUERY_NAME,
+      STAKE_HISTORY_DATA_QUERY_VARIABLE,
+    )
+
+    const stakeHistoryData = normalizeStakeHistoryData(storage)
+
+    dispatch({
+      type: GET_STAKE_HISTORY_DATA,
+      stakeHistoryData,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('getStakeHistoryData', error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+    dispatch({
+      type: GET_STAKE_HISTORY_DATA,
+      error,
+    })
+  }
+}
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {

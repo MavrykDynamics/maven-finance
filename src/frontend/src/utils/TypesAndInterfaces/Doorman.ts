@@ -1,8 +1,8 @@
 // type
-import type { Doorman } from "../generated/graphqlTypes";
+import type { Doorman, Stake_History_Data } from "../generated/graphqlTypes";
 
 // conterters
-import { normalizeDoormanStorage } from "../../pages/Doorman/Doorman.converter";
+import { normalizeDoormanStorage, normalizeStakeHistoryData } from "../../pages/Doorman/Doorman.converter";
 
 export interface UserStakeRecord {
   balance: number;
@@ -21,5 +21,7 @@ export interface DoormanBreakGlassConfigType {
 }
 
 export type DoormanStorage = ReturnType<typeof normalizeDoormanStorage>;
-
 export type DoormanGraphQl = Omit<Doorman, "__typename">;
+
+export type StakeHistoryData = ReturnType<typeof normalizeStakeHistoryData>;
+export type StakeHistoryDataGraphQl = Omit<Stake_History_Data, "__typename">;

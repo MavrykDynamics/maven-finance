@@ -5,7 +5,7 @@ import type { EmergencyGovernanceStorage } from '../utils/TypesAndInterfaces/Eme
 
 import { getInitialData } from '../gql/fetchGraphQL'
 
-import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE } from '../pages/Doorman/Doorman.actions'
+import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE, GET_STAKE_HISTORY_DATA } from '../pages/Doorman/Doorman.actions'
 import { GET_DELEGATION_STORAGE, GET_ORACLES_STORAGE } from '../pages/Satellites/Satellites.actions'
 import { GET_FARM_STORAGE } from '../pages/Farms/Farms.actions'
 import {
@@ -20,12 +20,6 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
-import {
-  GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
-  GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
-  GET_BREAK_GLASS_COUNCIL_MEMBER,
-  GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
-} from 'pages/BreakGlassCouncil/BreakGlassCouncil.actions'
 
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
@@ -74,6 +68,7 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
   const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = normalizeOracle(res[10])
+  const stakeHistoryData = res[10]
 
   const emergencyGovActive = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId !== 0
 
@@ -141,7 +136,10 @@ export const onStart = () => async (dispatch: Dispatch) => {
     type: GET_ORACLES_STORAGE,
     oraclesStorage,
   })
-  dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
+  dispatch({
+    type: GET_STAKE_HISTORY_DATA,
+    stakeHistoryData,
+  })
 }
 
 export const GET_CONTRACT_ADDRESSES = 'GET_CONTRACT_ADDRESSES'
