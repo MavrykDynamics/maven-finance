@@ -14,13 +14,8 @@ class Config(BaseModel):
 
     decimals: str
     alphaPercentPerThousand: str
-    deviationTriggerBanDuration: str
-    perThousandDeviationTrigger: str
     percentOracleThreshold: str
     heartBeatSeconds: str
-    requestRateDeviationDepositFee: str
-    deviationRewardStakedMvk: str
-    deviationRewardAmountXtz: str
     rewardAmountStakedMvk: str
     rewardAmountXtz: str
 
@@ -68,7 +63,6 @@ class AggregatorStorage(BaseModel):
     generalContracts: Dict[str, str]
     oracleAddresses: Dict[str, OracleAddresses]
     lastCompletedPrice: LastCompletedPrice
-    deviationTriggerBan: Dict[str, str]
     oracleRewardStakedMvk: Dict[str, str]
     oracleRewardXtz: Dict[str, str]
     lambdaLedger: Dict[str, str]

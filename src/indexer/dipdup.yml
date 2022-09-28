@@ -77,22 +77,22 @@ contracts:
     address: KT1VX35UiMQtK4bX1tsbF26eRWiDvDiPXeLW
     typename: emergency_governance
   council:
-    address: KT1ANuhVbRuBq6njgSU4kRA2AeSE3sXgPTSA
+    address: KT1Mh2Snx3B952Pi7uKw2aRFgSsrEKf2ZDpR
     typename: council
   break_glass:
-    address: KT1DNkJukJDLdzeabZRFsCcbUh7JJmrDcvBj
+    address: KT1Cwo8UotSZa9jwtidbMG7FEbEN3WNQBPRn
     typename: break_glass
   governance_financial:
     address: KT1W4SNraUVbSrKCiCoVppffGRiaw6B5vdfz
     typename: governance_financial
   governance_satellite:
-    address: KT1Kb6ddSqcuUUc5vhbCEBWTCYnYVvWQz6B8
+    address: KT1Jo7ZBCMo5jUvHSQ9G3Hf5y6r49TmbSGrk
     typename: governance_satellite
   aggregator:
-    address: KT1NdZrQhWh8xMhnsVvAqiFTvTXDQR9RqTEH
+    address: KT19J8AT2yJ8X8a9uHVHZzSSCXafMufhbQLV
     typename: aggregator
   aggregator_factory:
-    address: KT1NCrZriUdfzCf9FR8XmmCoXpGDUkJVjZDa
+    address: KT1Qwjupn4a8kSRmkKq4jMJxcCGKqcJRbBi2
     typename: aggregator_factory
   treasury:
     address: KT1RahUBbjVuhS8BsLjcMRMmfijZMABmf5Ws

@@ -2172,14 +2172,6 @@ describe("Testnet interactions helper", async () => {
                                             },
                 });
 
-                const aggregatorMetadataBase = Buffer.from(
-                    JSON.stringify({
-                        name: 'MAVRYK Aggregator Contract',
-                        version: 'v1.0.0',
-                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-                    }),
-                    'ascii',
-                    ).toString('hex')
                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
                     'USD',
                     'BTC',
@@ -2190,17 +2182,11 @@ describe("Testnet interactions helper", async () => {
                     oracleMap,
     
                     new BigNumber(16),            // decimals
-                    new BigNumber(2),             // numberBlocksDelay
+                    new BigNumber(2),             // alphaPercentPerThousand
                     
-                    new BigNumber(86400),         // deviationTriggerBanDuration
-                    new BigNumber(5),             // perthousandDeviationTrigger
                     new BigNumber(60),            // percentOracleThreshold
                     new BigNumber(30),            // heartBeatSeconds
 
-                    new BigNumber(0),             // requestRateDeviationDepositFee
-    
-                    new BigNumber(10000000),      // deviationRewardStakedMvk
-                    new BigNumber(2600),          // deviationRewardAmountXtz
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
                     
@@ -2323,10 +2309,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin pauses %updatePrice', async () => {
+        it('Admin pauses %updateData', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("updatePrice", true).send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("updateData", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2402,7 +2388,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 aggregatorStorage   = await aggregatorInstance.storage()
 
-                const operation = await aggregatorInstance.methods.updatePrice(
+                const operation = await aggregatorInstance.methods.updateData(
                     oracleObservations,
                     signatures
                 ).send();
@@ -2417,7 +2403,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 var operation   = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'MVK', aggregatorAddress.address).send()
                 await operation.confirmation()
-                operation = await aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send();
+                var operation = await aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2454,20 +2440,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates number deviation trigger ban duration', async () => {
+        it('Admin updates the alpha percent per thousand', async () => {
             try{
                 // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(10, "configDevTriggerBanDuration").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates number per thousand deviation trigger', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(10, "configPerThousandDevTrigger").send();
+                var operation = await aggregatorInstance.methods.updateConfig(2, "configAlphaPercentPerThousand").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2478,36 +2454,6 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 var operation = await aggregatorInstance.methods.updateConfig(50, "configPercentOracleThreshold").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates request rate deviation deposit fee', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(0, "configRequestRateDevDepositFee").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates deviation reward smvk', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(MVK(1), "configDeviationRewardStakedMvk").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates deviation reward xtz', async () => {
-            try{
-                // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(100, "configDeviationRewardAmountXtz").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3131,7 +3077,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, alice.pk, alice.peerId, "For tests purposes").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3171,7 +3117,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address,"For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, alice.pk, alice.peerId, aggregatorAddress.address,"For tests purposes").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3267,7 +3213,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 var actionId                = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address, "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, alice.pk, alice.peerId, aggregatorAddress.address, "For tests purposes").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();

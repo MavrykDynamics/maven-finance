@@ -8,18 +8,22 @@ from typing import Dict
 from pydantic import BaseModel, Extra
 
 
+class OracleAddresses(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    oraclePublicKey: str
+    oraclePeerId: str
+
+
 class AggregatorConfig(BaseModel):
     class Config:
         extra = Extra.forbid
 
     decimals: str
-    numberBlocksDelay: str
-    deviationTriggerBanDuration: str
-    perThousandDeviationTrigger: str
+    alphaPercentPerThousand: str
     percentOracleThreshold: str
-    requestRateDeviationDepositFee: str
-    deviationRewardStakedMvk: str
-    deviationRewardAmountXtz: str
+    heartBeatSeconds: str
     rewardAmountStakedMvk: str
     rewardAmountXtz: str
 
@@ -32,7 +36,6 @@ class CreateAggregatorParameter(BaseModel):
     string_1: str
     name: str
     addToGeneralContracts: bool
-    oracleAddresses: Dict[str, bool]
+    oracleAddresses: Dict[str, OracleAddresses]
     aggregatorConfig: AggregatorConfig
-    maintainer: str
     metadata: str
