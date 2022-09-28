@@ -14,7 +14,6 @@ export const FARM_STORAGE_QUERY = `
       current_reward_per_block
       init
       lp_token_balance
-      lp_token_id
       paid_rewards
       total_rewards
       unpaid_rewards
@@ -38,6 +37,7 @@ export const FARM_STORAGE_QUERY = `
         decimals
         name
         type
+        lp_token_id
       }
     }
   }
