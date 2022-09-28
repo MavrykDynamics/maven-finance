@@ -3,7 +3,6 @@ export const ORACLE_STORAGE_QUERY = `
     aggregator(where: {admin: {_neq: ""}}) {
       address
       admin
-      aggregator_factory_id
       decimals
       deviation_reward_amount_smvk
       deviation_reward_amount_xtz
