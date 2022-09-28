@@ -120,7 +120,6 @@ query GetGovernanceStorageQuery {
         title
         to__id
         token_amount
-        token_id
       }
     }
   }
@@ -186,7 +185,6 @@ query GetCurrentRoundProposalsQuery {
         title
         to__id
         token_amount
-        token_id
         token {
           address
           decimals
