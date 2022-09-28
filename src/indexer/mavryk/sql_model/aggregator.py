@@ -15,13 +15,8 @@ class Aggregator(MavrykContract, Model):
     name                                    = fields.TextField(default='')
     decimals                                = fields.SmallIntField(default=0)
     alpha_pct_per_thousand                  = fields.SmallIntField(default=0)
-    deviation_trigger_ban_duration          = fields.BigIntField(default=0)
-    per_thousand_deviation_trigger          = fields.SmallIntField(default=0)
     pct_oracle_threshold                    = fields.SmallIntField(default=0)
     heart_beat_seconds                      = fields.BigIntField(default=0)
-    request_rate_deviation_deposit_fee      = fields.FloatField(default=0.0)
-    deviation_reward_amount_smvk            = fields.FloatField(default=0.0)
-    deviation_reward_amount_xtz             = fields.FloatField(default=0.0)
     reward_amount_smvk                      = fields.FloatField(default=0.0)
     reward_amount_xtz                       = fields.FloatField(default=0.0)
     update_data_paused                      = fields.BooleanField(default=False)
@@ -38,30 +33,21 @@ class Aggregator(MavrykContract, Model):
 
 class AggregatorOracle(ContractLambda, Model):
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles')
-    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles')
     public_key                              = fields.CharField(max_length=54, default="")
     peer_id                                 = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'aggregator_oracle'
 
-class AggregatorDeviationTriggerBan(ContractLambda, Model):
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='deviation_trigger_bans')
-    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_deviation_trigger_bans')
-    timestamp                               = fields.DatetimeField(null=True)
-
-    class Meta:
-        table = 'aggregator_deviation_trigger_ban'
-
 class AggregatorOracleReward(ContractLambda, Model):
     id                                      = fields.BigIntField(pk=True)
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracle_rewards')
-    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracle_rewards')
+    oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='rewards')
     type                                    = fields.IntEnumField(enum_type=RewardType)
     reward                                  = fields.FloatField(default=0)
 
     class Meta:
-        table = 'aggregator_observation_reward'
+        table = 'aggregator_oracle_reward'
 
 class AggregatorLambda(ContractLambda, Model):
     contract                                = fields.ForeignKeyField('models.Aggregator', related_name='lambdas')

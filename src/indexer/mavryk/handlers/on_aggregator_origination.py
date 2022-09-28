@@ -19,16 +19,11 @@ async def on_aggregator_origination(
     name                                        = aggregator_origination.storage.name
     decimals                                    = int(aggregator_origination.storage.config.decimals)
     alpha_pct_per_thousand                      = int(aggregator_origination.storage.config.alphaPercentPerThousand)
-    deviation_trigger_ban_duration              = int(aggregator_origination.storage.config.deviationTriggerBanDuration)
-    per_thousand_deviation_trigger              = int(aggregator_origination.storage.config.perThousandDeviationTrigger)
-    pct_oracle_threshold                       = int(aggregator_origination.storage.config.percentOracleThreshold)
+    pct_oracle_threshold                        = int(aggregator_origination.storage.config.percentOracleThreshold)
     heart_beat_seconds                          = int(aggregator_origination.storage.config.heartBeatSeconds)
-    request_rate_deviation_deposit_fee          = float(aggregator_origination.storage.config.requestRateDeviationDepositFee)
-    deviation_reward_amount_xtz                 = int(aggregator_origination.storage.config.deviationRewardAmountXtz)
-    deviation_reward_amount_smvk                = int(aggregator_origination.storage.config.deviationRewardStakedMvk)
     reward_amount_smvk                          = float(aggregator_origination.storage.config.rewardAmountStakedMvk)
     reward_amount_xtz                           = int(aggregator_origination.storage.config.rewardAmountXtz)
-    update_data_paused                         = aggregator_origination.storage.breakGlassConfig.updateDataIsPaused
+    update_data_paused                          = aggregator_origination.storage.breakGlassConfig.updateDataIsPaused
     withdraw_reward_xtz_paused                  = aggregator_origination.storage.breakGlassConfig.withdrawRewardXtzIsPaused
     withdraw_reward_smvk_paused                 = aggregator_origination.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
     last_completed_price_round                  = int(aggregator_origination.storage.lastCompletedPrice.round)
@@ -58,13 +53,8 @@ async def on_aggregator_origination(
         name                                        = name,
         decimals                                    = decimals,
         alpha_pct_per_thousand                      = alpha_pct_per_thousand,
-        deviation_trigger_ban_duration              = deviation_trigger_ban_duration,
-        per_thousand_deviation_trigger              = per_thousand_deviation_trigger,
         pct_oracle_threshold                        = pct_oracle_threshold,
         heart_beat_seconds                          = heart_beat_seconds,
-        request_rate_deviation_deposit_fee          = request_rate_deviation_deposit_fee,
-        deviation_reward_amount_smvk                = deviation_reward_amount_smvk,
-        deviation_reward_amount_xtz                 = deviation_reward_amount_xtz,
         reward_amount_smvk                          = reward_amount_smvk,
         reward_amount_xtz                           = reward_amount_xtz,
         update_data_paused                          = update_data_paused,
@@ -90,7 +80,7 @@ async def on_aggregator_origination(
         await oracle.save()
         aggregator_oracle       = models.AggregatorOracle(
             aggregator  = aggregator,
-            oracle      = oracle,
+            user        = oracle,
             public_key  = oracle_pk,
             peer_id     = oracle_peer_id
         )

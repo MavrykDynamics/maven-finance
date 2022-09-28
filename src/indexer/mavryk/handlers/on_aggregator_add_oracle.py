@@ -22,7 +22,7 @@ async def on_aggregator_add_oracle(
     aggregator              = await models.Aggregator.get(address   = aggregator_address)
     aggregator_oracle       = models.AggregatorOracle(
         aggregator  = aggregator,
-        oracle      = oracle,
+        user        = oracle,
         public_key  = oracle_pk,
         peer_id     = oracle_peer_id
     )

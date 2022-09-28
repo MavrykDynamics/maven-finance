@@ -20,6 +20,6 @@ async def on_aggregator_remove_oracle(
     aggregator              = await models.Aggregator.get(address   = aggregator_address)
     aggregator_oracle       = await models.AggregatorOracle.get(
         aggregator  = aggregator,
-        oracle      = oracle
+        user        = oracle
     )
     await aggregator_oracle.delete()

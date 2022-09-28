@@ -110,30 +110,36 @@ async def on_governance_satellite_vote_for_action(
 
         aggregator_pairs_records    = await models.GovernanceSatelliteSatelliteOracleAggregatorPair.filter(
             governance_satellite_satellite_oracle   = satellite_oracle_record,
-            oracle=oracle
+            oracle                                  = oracle
         ).all()
 
         # Remove unexisting entries
         for aggregator_pairs_record in aggregator_pairs_records:
-            aggregator_pairs_record_aggregator          = await aggregator_pairs_record.aggregator
-            aggregator_pairs_record_aggregator_address  = aggregator_pairs_record_aggregator.address
+            aggregator_pairs_record_governance_satellite_aggregator = await aggregator_pairs_record.governance_satellite_aggregator
+            aggregator_pairs_record_aggregator                      = await aggregator_pairs_record_governance_satellite_aggregator.aggregator
+            aggregator_pairs_record_aggregator_address              = aggregator_pairs_record_aggregator.address
             if not aggregator_pairs_record_aggregator_address in aggregator_pairs:
                 await aggregator_pairs_record.delete()
 
         # Create entries
         for aggregator_pair_address in aggregator_pairs:
-            aggregator_from_pair, _         = await models.Aggregator.get_or_create(address = aggregator_pair_address)
+            aggregator_from_pair, _             = await models.Aggregator.get_or_create(address = aggregator_pair_address)
             await aggregator_from_pair.save()
+            governance_satellite_aggregator, _  = await models.GovernanceSatelliteAggregator.get_or_create(
+                governance_satellite    = governance_satellite,
+                aggregator              = aggregator_from_pair
+            )
+            await governance_satellite_aggregator.save()
 
-            aggregator_pair_storage         = aggregator_pairs[aggregator_pair_address]
-            start_timestamp                 = parser.parse(aggregator_pair_storage.startDateTime)
-            token_0_symbol                  = aggregator_pair_storage.aggregatorPair.string_0
-            token_1_symbol                  = aggregator_pair_storage.aggregatorPair.string_1
+            aggregator_pair_storage             = aggregator_pairs[aggregator_pair_address]
+            start_timestamp                     = parser.parse(aggregator_pair_storage.startDateTime)
+            token_0_symbol                      = aggregator_pair_storage.aggregatorPair.string_0
+            token_1_symbol                      = aggregator_pair_storage.aggregatorPair.string_1
 
-            aggregator_pair_record          = models.GovernanceSatelliteSatelliteOracleAggregatorPair(
+            aggregator_pair_record              = models.GovernanceSatelliteSatelliteOracleAggregatorPair(
                 governance_satellite_satellite_oracle           = satellite_oracle_record,
+                governance_satellite_aggregator                 = governance_satellite_aggregator,
                 oracle                                          = oracle,
-                aggregator                                      = aggregator_from_pair,
                 start_timestamp                                 = start_timestamp,
                 token_0_symbol                                  = token_0_symbol,
                 token_1_symbol                                  = token_1_symbol

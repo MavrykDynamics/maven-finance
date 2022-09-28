@@ -28,19 +28,22 @@ async def on_aggregator_update_data(
     aggregator.last_completed_price_datetime           = parser.parse(last_completed_price.priceDateTime)
     await aggregator.save()
 
-    oracle, _                       = await models.MavrykUser.get_or_create(
-        address = oracle_address
+    user, _                         = await models.MavrykUser.get_or_create(
+        address     = oracle_address
+    )
+    await user.save()
+    oracle, _                       = await models.AggregatorOracle.get_or_create(
+        aggregator  = aggregator,
+        user        = user
     )
     await oracle.save()
     oracle_reward_xtz, _            = await models.AggregatorOracleReward.get_or_create(
-        aggregator  = aggregator,
         oracle      = oracle,
         type        = models.RewardType.XTZ
     )
     oracle_reward_xtz.reward        = oracle_reward_xtz_amount
     await oracle_reward_xtz.save()
     oracle_reward_smvk, _            = await models.AggregatorOracleReward.get_or_create(
-        aggregator  = aggregator,
         oracle      = oracle,
         type        = models.RewardType.SMVK
     )
