@@ -143,15 +143,13 @@ export const Farms = () => {
             break
           case 'highestAPY':
             res =
-              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpBalance)) <
-              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpBalance))
+              calculateAPR(a.currentRewardPerBlock, a.lpBalance) < calculateAPR(b.currentRewardPerBlock, b.lpBalance)
                 ? 1
                 : -1
             break
           case 'lowestAPY':
             res =
-              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpBalance)) >
-              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpBalance))
+              calculateAPR(a.currentRewardPerBlock, a.lpBalance) > calculateAPR(b.currentRewardPerBlock, b.lpBalance)
                 ? 1
                 : -1
             break
