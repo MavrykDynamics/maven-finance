@@ -6,7 +6,7 @@
             "lambdaSetGovernance",
             "lambdaUpdateMetadata",
             "lambdaUpdateConfig",
-            "lambdaUpdateWhitelistTokens",
+            "lambdaUpdateWhitelistTokenContracts",
 
             "lambdaPauseAll",
             "lambdaUnpauseAll",
@@ -76,7 +76,8 @@
             "lambdaDeposit",
             "lambdaWithdraw",
             "lambdaOnLiquidate",
-            "lambdaUpdateDepositor"
+            "lambdaUpdateDepositor",
+            "lambdaUpdateMvkOperators"
         ]
     },
     {
@@ -106,7 +107,6 @@
             "lambdaUpdateWhitelistContracts",
             "lambdaUpdateGeneralContracts",
             "lambdaUpdateWhitelistTokenContracts",
-            "lambdaMistakenTransfer",
 
             "lambdaPauseAll",
             "lambdaUnpauseAll",
@@ -265,7 +265,7 @@
             "lambdaUpdateWhitelistContracts",
             "lambdaUpdateGeneralContracts",
             "lambdaMistakenTransfer",
-            "lambdaMigateFunds",
+            "lambdaMigrateFunds",
 
             "lambdaPauseAll",
             "lambdaUnpauseAll",
@@ -292,7 +292,6 @@
             "lambdaUpdateGeneralContracts",
             "lambdaMistakenTransfer",
 
-            "lambdaMigateFunds",
             "lambdaTriggerEmergencyControl",
             "lambdaVoteForEmergencyControl",
             "lambdaDropEmergencyGovernance"
@@ -351,7 +350,7 @@
             "lambdaUpdateConfig",
             "lambdaUpdateWhitelistContracts",
             "lambdaUpdateGeneralContracts",
-            "lambdaUpdateWhitelistTokens",
+            "lambdaUpdateWhitelistTokenContracts",
             "lambdaMistakenTransfer",
 
             "lambdaRequestTokens",
@@ -450,10 +449,9 @@
             "lambdaSetBaker",
             "lambdaSetName",
             "lambdaUpdateMetadata",
-            "lambdaUpdateConfig",
             "lambdaUpdateWhitelistContracts",
             "lambdaUpdateGeneralContracts",
-            "lambdaUpdateWhitelistTokens",
+            "lambdaUpdateWhitelistTokenContracts",
             
             "lambdaPauseAll",
             "lambdaUnpauseAll",
@@ -472,7 +470,6 @@
             "lambdaSetAdmin",
             "lambdaSetGovernance",
             "lambdaUpdateMetadata",
-            "lambdaUpdateConfig",
             "lambdaUpdateWhitelistContracts",
             "lambdaUpdateGeneralContracts",
             "lambdaMistakenTransfer",
@@ -493,7 +490,7 @@
             "lambdaUpdateMetadata",
             "lambdaUpdateWhitelistContracts",
             "lambdaUpdateGeneralContracts",
-            "lambdaUpdateWhitelistTokens",
+            "lambdaUpdateWhitelistTokenContracts",
             "lambdaMistakenTransfer",
 
             "executeGovernanceLambdaProxy",
@@ -515,7 +512,7 @@
             "unpauseAllContractEntrypoint",
             "toggleContractEntrypoint",
             
-            "updateWhitelistDeveloperSet",
+            "updateWhitelistDevelopersSet",
             "setGovernanceProxy",
 
             "createFarm",

@@ -122,7 +122,7 @@ block{
 
     if Tezos.get_sender() = s.admin then skip
     else {
-        
+    
         const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip
