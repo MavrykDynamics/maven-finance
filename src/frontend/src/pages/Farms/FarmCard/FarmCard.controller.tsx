@@ -54,11 +54,13 @@ const LogoHeaderContent = ({
   </div>
 )
 
-const AprBlock = ({ valueAPR, triggerCalculatorModal }: { valueAPR: string; triggerCalculatorModal: () => void }) => (
+const AprBlock = ({ valueAPR, triggerCalculatorModal }: { valueAPR: number; triggerCalculatorModal: () => void }) => (
   <div className="farm-info">
     <h3>APY</h3>
     <div className="btn-info">
-      <var>{valueAPR}</var>
+      <var>
+        <CommaNumber value={valueAPR} endingText="%" />
+      </var>
       <button onClick={triggerCalculatorModal} className="calc-button">
         <Icon id="calculator" />
       </button>
@@ -91,7 +93,7 @@ const StakedBlock = ({ myFarmStakedBalance }: { myFarmStakedBalance: number }) =
   </div>
 )
 
-const LinksBlock = ({ farmAddress, lpTokenAddress }: { farmAddress: string; lpTokenAddress: string }) => (
+const LinksBlock = ({ farmAddress }: { farmAddress: string }) => (
   <div className="links-block">
     <a target="_blank" rel="noreferrer" href="https://mavryk.finance/">
       Get MVK-tzBTC <Icon id="send" />
@@ -148,7 +150,7 @@ const FarmingBlock = ({
 type FarmCardViewProps = {
   farm: FarmStorage[number]
   visibleModal: boolean
-  aprValue: string
+  aprValue: number
   accountPkh?: string
   isOpenedCard: boolean
   userReward: UserFarmRewardsData
@@ -207,7 +209,7 @@ const VerticalFarmComponent = ({
         isExpandedByDefault={isOpenedCard}
         showText
       >
-        <LinksBlock farmAddress={farm.address} lpTokenAddress={farm.lpTokenAddress} />
+        <LinksBlock farmAddress={farm.address} />
       </Expand>
       {visibleModal ? <RoiCalculator lpTokenAddress={farm.lpTokenAddress} onClose={closeCalculatorModal} /> : null}
     </FarmCardStyled>
@@ -259,7 +261,7 @@ const HorisontalFarmComponent = ({
             triggerDepositModal={triggerDepositModal}
             triggerWithdrawModal={triggerWithdrawModal}
           />
-          <LinksBlock farmAddress={farm.address} lpTokenAddress={farm.lpTokenAddress} />
+          <LinksBlock farmAddress={farm.address} />
         </div>
       </Expand>
       {visibleModal ? <RoiCalculator lpTokenAddress={farm.lpTokenAddress} onClose={closeCalculatorModal} /> : null}
