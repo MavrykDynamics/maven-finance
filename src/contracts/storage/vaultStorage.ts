@@ -33,6 +33,7 @@ export const vaultStorage: vaultStorageType = {
     
     admin                       : alice.pkh,
     metadata                    : metadata,
+    mvkTokenAddress             : zeroAddress,
     governanceAddress           : zeroAddress,
     
     handle                      : vaultHandle,
