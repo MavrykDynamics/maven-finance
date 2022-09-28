@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -21,6 +21,12 @@ export const Doorman = () => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { totalStakedMvk, stakeHistoryData } = useSelector((state: State) => state.doorman)
+  const chartList = useMemo(() => stakeHistoryData.map((item) => {
+    return {
+      ...item,
+      finalAmount: item.finalAmount/10**9
+    }
+  }), [stakeHistoryData])
 
   // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   // const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
@@ -42,8 +48,6 @@ export const Doorman = () => {
   const unstakeCallback = (amount: number) => {
     dispatch(showExitFeeModal(amount))
   }
-
-  const chartList = [20, 120, 180, 350, 380, 700, 801, 980]
 
   return (
     <Page>

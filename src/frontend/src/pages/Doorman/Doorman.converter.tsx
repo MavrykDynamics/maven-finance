@@ -38,14 +38,7 @@ export function normalizeStakeHistoryData(storage: StakeHistoryDataProps) {
   return stake_history_data?.length
     ? stake_history_data?.map((item) => {
       return {
-        desiredAmount: item.desired_amount,
-        doorman: item.doorman,
-        doormanId: item.doorman_id,
         finalAmount: item.final_amount,
-        from_: item.from_,
-        fromId: item.from__id,
-        id: item.id,
-        mvkLoyaltyIndex: item.mvk_loyalty_index,
         timestamp: item.timestamp,
         type: item.type,
       }
