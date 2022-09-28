@@ -84,20 +84,38 @@ const EarnBlock = () => (
   </div>
 )
 
-const StakedBlock = ({ myFarmStakedBalance }: { myFarmStakedBalance: number }) => (
+const StakedBlock = ({
+  myFarmStakedBalance,
+  token1Symbol,
+  token2Symbol,
+}: {
+  token1Symbol: string
+  token2Symbol: string
+  myFarmStakedBalance: number
+}) => (
   <div className="farm-info">
-    <h3>MVK-XTZ LP staked</h3>
+    <h3>{token1Symbol && token2Symbol ? `${token1Symbol} - ${token2Symbol}` : ''} LP staked</h3>
     <var>
       <CommaNumber value={Number(myFarmStakedBalance)} />
     </var>
   </div>
 )
 
-const LinksBlock = ({ farmAddress }: { farmAddress: string }) => (
+const LinksBlock = ({
+  farmAddress,
+  token1Symbol,
+  token2Symbol,
+}: {
+  farmAddress: string
+  token1Symbol: string
+  token2Symbol: string
+}) => (
   <div className="links-block">
-    <a target="_blank" rel="noreferrer" href="https://mavryk.finance/">
-      Get MVK-tzBTC <Icon id="send" />
-    </a>
+    {token1Symbol && token2Symbol ? (
+      <a target="_blank" rel="noreferrer" href="https://mavryk.finance/">
+        Get {`${token1Symbol} - ${token2Symbol}`} <Icon id="send" />
+      </a>
+    ) : null}
     <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${farmAddress}`}>
       View Contract <Icon id="send" />
     </a>
@@ -123,29 +141,38 @@ const HarvestBlock = ({
 const FarmingBlock = ({
   triggerDepositModal,
   triggerWithdrawModal,
+  token1Symbol,
+  token2Symbol,
   accountPhk,
+  farmAccounts,
 }: {
   triggerDepositModal: () => void
   triggerWithdrawModal: () => void
+  token1Symbol: string
+  token2Symbol: string
   accountPhk?: string
-}) => (
-  <>
-    {!accountPhk ? (
-      <div className="start-farming">
-        <h3>Start Farming</h3>
-        <ConnectWallet />
-      </div>
-    ) : (
-      <FarmStakeStyled className="farm-stake">
-        <StakedBlock myFarmStakedBalance={0} />
-        <div className="circle-buttons">
-          <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
-          <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
+  farmAccounts: FarmStorage[number]['farmAccounts']
+}) => {
+  const depositedAmount = farmAccounts.find(({ user_id }) => accountPhk === user_id)?.deposited_amount ?? 0
+  return (
+    <>
+      {!accountPhk ? (
+        <div className="start-farming">
+          <h3>Start Farming</h3>
+          <ConnectWallet />
         </div>
-      </FarmStakeStyled>
-    )}
-  </>
-)
+      ) : (
+        <FarmStakeStyled className="farm-stake">
+          <StakedBlock myFarmStakedBalance={depositedAmount} token1Symbol={token1Symbol} token2Symbol={token2Symbol} />
+          <div className="circle-buttons">
+            <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
+            <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
+          </div>
+        </FarmStakeStyled>
+      )}
+    </>
+  )
+}
 
 type FarmCardViewProps = {
   farm: FarmStorage[number]
@@ -190,14 +217,17 @@ const VerticalFarmComponent = ({
       <div className="farm-info-vertical">
         <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
         <EarnBlock />
-        <TotalLiquidityBlock totalLiquidity={0} />
+        <TotalLiquidityBlock totalLiquidity={farm.lpBalance} />
       </div>
       <div className="vertical-harvest">
         <HarvestBlock userReward={userReward} harvestRewards={harvestRewards} />
       </div>
       <div className="vertical-harvest">
         <FarmingBlock
+          token1Symbol={farm.lpToken1.symbol}
+          token2Symbol={farm.lpToken2.symbol}
           accountPhk={accountPkh}
+          farmAccounts={farm.farmAccounts}
           triggerDepositModal={triggerDepositModal}
           triggerWithdrawModal={triggerWithdrawModal}
         />
@@ -209,7 +239,11 @@ const VerticalFarmComponent = ({
         isExpandedByDefault={isOpenedCard}
         showText
       >
-        <LinksBlock farmAddress={farm.address} />
+        <LinksBlock
+          farmAddress={farm.address}
+          token1Symbol={farm.lpToken1.symbol}
+          token2Symbol={farm.lpToken2.symbol}
+        />
       </Expand>
       {visibleModal ? <RoiCalculator lpTokenAddress={farm.lpTokenAddress} onClose={closeCalculatorModal} /> : null}
     </FarmCardStyled>
@@ -250,7 +284,7 @@ const HorisontalFarmComponent = ({
             />
             <EarnBlock />
             <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
-            <TotalLiquidityBlock totalLiquidity={0} />
+            <TotalLiquidityBlock totalLiquidity={farm.lpBalance} />
           </>
         }
       >
@@ -258,10 +292,17 @@ const HorisontalFarmComponent = ({
           <HarvestBlock harvestRewards={harvestRewards} userReward={userReward} />
           <FarmingBlock
             accountPhk={accountPkh}
+            token1Symbol={farm.lpToken1.symbol}
+            token2Symbol={farm.lpToken2.symbol}
+            farmAccounts={farm.farmAccounts}
             triggerDepositModal={triggerDepositModal}
             triggerWithdrawModal={triggerWithdrawModal}
           />
-          <LinksBlock farmAddress={farm.address} />
+          <LinksBlock
+            farmAddress={farm.address}
+            token1Symbol={farm.lpToken1.symbol}
+            token2Symbol={farm.lpToken2.symbol}
+          />
         </div>
       </Expand>
       {visibleModal ? <RoiCalculator lpTokenAddress={farm.lpTokenAddress} onClose={closeCalculatorModal} /> : null}
