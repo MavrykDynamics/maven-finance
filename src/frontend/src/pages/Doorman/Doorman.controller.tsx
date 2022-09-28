@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+
 // style
 import { Page } from 'styles'
 
@@ -19,7 +20,7 @@ export const Doorman = () => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-  const { totalStakedMvk } = useSelector((state: State) => state.doorman)
+  const { totalStakedMvk, stakeHistoryData } = useSelector((state: State) => state.doorman)
 
   // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   // const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
