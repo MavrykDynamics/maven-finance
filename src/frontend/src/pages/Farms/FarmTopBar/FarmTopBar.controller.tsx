@@ -85,13 +85,13 @@ export const FarmTopBar = ({
       <SlidingTabButtons tabItems={liveFinishedTabs} className="tab-bar" onClick={handleLiveFinishedToggleButtons} />
       <Input
         type="text"
-        placeholder="Search..."
+        placeholder="Search by..."
         value={searchValue}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearch(e.target.value)}
         onBlur={() => {}}
       />
       <DropdownContainer className="order-by">
-        <h4>Order By:</h4>
+        <h4>Order by:</h4>
         <DropDown
           clickOnDropDown={handleClickDropdown}
           placeholder={'Choose order'}
