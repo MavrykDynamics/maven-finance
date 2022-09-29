@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 // helpers, actions
 import { distinctRequestsByExecuting, getRequestStatus } from './FinancialRequests.helpers'
@@ -8,7 +8,6 @@ import {
   PAST_REQUESTS_FINANCIAL_REQUESTS_LIST,
 } from './Pagination/pagination.consts'
 import { PRECISION_NUMBER } from 'utils/constants'
-import { normalizeTokenStandart } from 'pages/Governance/Governance.helpers'
 import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 import { votingRoundVote } from 'pages/Governance/Governance.actions'
 
@@ -35,6 +34,7 @@ import {
 } from './FinancialRequests.style'
 import { EmptyContainer } from 'app/App.style'
 import { parseData } from 'utils/time'
+import { State } from 'reducers'
 
 type FinancialRequestsViewProps = {
   financialRequestsList: GovernanceFinancialRequestGraphQL[]
@@ -42,6 +42,7 @@ type FinancialRequestsViewProps = {
 
 export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialRequestsViewProps) => {
   const dispatch = useDispatch()
+  const { dipDupTokens } = useSelector((state: State) => state.tokens)
   const [rightSideContent, setRightSideContent] = useState(financialRequestsList[0])
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
@@ -53,8 +54,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
   }
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
-  // TODO: check this token replacement
-  const tokenName = 'MVK' //normalizeTokenStandart(rightSideContent?.token)
+  const tokenName = dipDupTokens.find(({ contract }) => (contract = rightSideContent.token_address))?.metadata.symbol
 
   // Voting data & handlers
   const [votingStats, setVoteStatistics] = useState({

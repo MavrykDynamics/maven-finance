@@ -65,5 +65,5 @@ export function normalizeOracle(storage: {
 }
 
 export function normalizeDipDupTokens(storage: { dipdup_token_metadata: Dipdup_Token_Metadata }) {
-  return storage?.dipdup_token_metadata
+  return storage?.dipdup_token_metadata || []
 }

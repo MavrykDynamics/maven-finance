@@ -16,7 +16,7 @@ import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { VotingProposalsArea } from '../../app/App.components/VotingArea/VotingArea.controller'
 
 // helpers
-import { normalizeTokenStandart, getShortByte, getProposalStatusInfo } from './Governance.helpers'
+import { getShortByte, getProposalStatusInfo } from './Governance.helpers'
 import { calcWithoutPrecision, calcWithoutMu } from '../../utils/calcFunctions'
 import {
   WAITING_PROPOSALS_LIST_NAME,
@@ -94,6 +94,7 @@ export const GovernanceView = ({
   const [visibleMeta, setVisibleMeta] = useState<string>('')
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
+  const { dipDupTokens } = useSelector((state: State) => state.tokens)
 
   const findUserCurrentRoundProposal = useMemo(
     () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
@@ -452,8 +453,8 @@ export const GovernanceView = ({
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
                     {rightSideContent.proposalPayments.map((item: Governance_Proposal_Payment, i: number) => {
-                      // TODO: check this token replacement
-                      const paymentType = 'MVK' // normalizeTokenStandart(item.token)
+                      const paymentType = dipDupTokens.find(({ contract }) => (contract = item.token_address))?.metadata
+                        .symbol
 
                       const amount =
                         paymentType === 'MVK'
