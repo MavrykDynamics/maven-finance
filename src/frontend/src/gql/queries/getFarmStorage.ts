@@ -13,6 +13,7 @@ export const FARM_STORAGE_QUERY = `
       accumulated_rewards_per_share
       current_reward_per_block
       init
+      lp_token_address
       lp_token_balance
       paid_rewards
       total_rewards

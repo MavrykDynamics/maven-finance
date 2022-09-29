@@ -23,23 +23,35 @@ import {
   FarmInputSection,
 } from '../../../../pages/Farms/FarmCard/FarmCard.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { getUserBalanceByAddress } from 'pages/Farms/Farms.helpers'
+
+export const SUCCESS_STATUS = 'success'
+export const ERROR_STATUS = 'error'
 
 export const FarmWithdrawModal = () => {
   const dispatch = useDispatch()
   const { selectedFarmAddress, farmStorage } = useSelector((state: State) => state.farm)
   const farm = farmStorage.find(({ address }) => selectedFarmAddress === address)
-  //TODO: add balance of user
-  const userBalanceOfTokens = 112.53234123
 
-  const [amount, setAmount] = useState<number | ''>(0)
+  const [userBalance, setUserBalance] = useState(0)
+  const [amount, setAmount] = useState<number | string>(0)
   const [status, setStatus] = useState<InputStatusType>('')
 
   const checkInputIsOk = (value: number | '') => {
-    setStatus(value ? 'success' : 'error')
+    setStatus(value && value <= userBalance && value >= 0 ? SUCCESS_STATUS : ERROR_STATUS)
+  }
+
+  const getUserBalance = async () => {
+    const userBalanceFetched = Number(await getUserBalanceByAddress(farm?.lpTokenAddress))
+    setUserBalance(userBalanceFetched)
   }
 
   useEffect(() => {
-    checkInputIsOk(amount)
+    getUserBalance()
+  }, [])
+
+  useEffect(() => {
+    checkInputIsOk(Number(amount))
   }, [amount])
 
   // if farm address doesn't exists, close modal
@@ -52,7 +64,7 @@ export const FarmWithdrawModal = () => {
     return null
   }
 
-  const disabled = !amount || !selectedFarmAddress
+  const disabled = !amount || !selectedFarmAddress || status === ERROR_STATUS
 
   const tokesnNames =
     farm.lpToken1.symbol && farm.lpToken2.symbol && `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}`
@@ -70,20 +82,25 @@ export const FarmWithdrawModal = () => {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = mathRoundTwoDigit(e.target.value)
-    setAmount(+value)
+    e.target.setCustomValidity('')
+    setAmount(e.target.value)
+
+    if (Number(e.target.value) > userBalance) {
+      e.target.setCustomValidity('Not enough balance')
+      e.target.reportValidity()
+    }
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!disabled) {
-      dispatch(withdraw(selectedFarmAddress, amount))
+      dispatch(withdraw(selectedFarmAddress, Number(amount)))
     }
   }
 
-  const useMaxHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setAmount(+userBalanceOfTokens)
+  const useMaxHandler = () => {
+    setAmount(+userBalance)
   }
 
   return (
@@ -119,15 +136,15 @@ export const FarmWithdrawModal = () => {
           <div className="input-info">
             <p>{tokesnNames} LP Balance</p>
             <p>
-              <CommaNumber value={userBalanceOfTokens} />
+              <CommaNumber value={userBalance} />
             </p>
           </div>
-          <div className="input-info">
+          {/* <div className="input-info">
             <p>Withdrawal Fee</p>
             <p>
               <CommaNumber value={1.4} endingText="%" />
             </p>
-          </div>
+          </div> */}
           <Button
             className="farm-button"
             text="Withdrawal"
