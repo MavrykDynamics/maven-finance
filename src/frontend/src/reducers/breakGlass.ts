@@ -4,7 +4,19 @@ import {
   GET_BREAK_GLASS_STATUS,
   GET_WHITELIST_DEV,
 } from '../pages/BreakGlass/BreakGlass.actions'
-import { BreakGlassStorage, BreakGlassStatusStorage, WhitelistDevStorage } from '../utils/TypesAndInterfaces/BreakGlass'
+import {
+  GET_BREAK_GLASS_COUNCIL_MEMBER,
+  GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
+  GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
+  GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
+} from 'pages/BreakGlassCouncil/BreakGlassCouncil.actions'
+import {
+  BreakGlassStorage,
+  BreakGlassStatusStorage,
+  WhitelistDevStorage,
+  BreakGlassCouncilMember,
+  BreakGlassAction,
+} from '../utils/TypesAndInterfaces/BreakGlass'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface BreakGlassState {
@@ -12,6 +24,10 @@ export interface BreakGlassState {
   glassBroken: boolean
   breakGlassStatus: BreakGlassStatusStorage
   whitelistDev: WhitelistDevStorage
+  breakGlassCouncilMember: BreakGlassCouncilMember
+  pastBreakGlassCouncilAction: BreakGlassAction
+  myPastBreakGlassCouncilAction: BreakGlassAction
+  breakGlassActionPendingMySignature: BreakGlassAction
 }
 
 const defaultBreakGlassStorage: BreakGlassStorage = {
@@ -34,6 +50,10 @@ const breakGlassDefaultState: BreakGlassState = {
   glassBroken: false,
   breakGlassStatus: [],
   whitelistDev: '',
+  breakGlassCouncilMember: [],
+  pastBreakGlassCouncilAction: [],
+  myPastBreakGlassCouncilAction: [],
+  breakGlassActionPendingMySignature: [],
 }
 
 export function breakGlass(state = breakGlassDefaultState, action: Action) {
@@ -57,6 +77,26 @@ export function breakGlass(state = breakGlassDefaultState, action: Action) {
       return {
         ...state,
         whitelistDev: action.whitelistDev,
+      }
+    case GET_BREAK_GLASS_COUNCIL_MEMBER:
+      return {
+        ...state,
+        breakGlassCouncilMember: action.breakGlassCouncilMember,
+      }
+    case GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE:
+      return {
+        ...state,
+        breakGlassActionPendingMySignature: action.breakGlassActionPendingMySignature,
+      }
+    case GET_PAST_BREAK_GLASS_COUNCIL_ACTION:
+      return {
+        ...state,
+        pastBreakGlassCouncilAction: action.pastBreakGlassCouncilAction,
+      }
+    case GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION:
+      return {
+        ...state,
+        myPastBreakGlassCouncilAction: action.myPastBreakGlassCouncilAction,
       }
     default:
       return state

@@ -46,7 +46,7 @@ query GetGovernanceStorageQuery {
       snapshot_smvk_total_supply
       status
       token_amount
-      token_id
+      token_address
       treasury_id
       governance_financial_id
       key_hash
@@ -121,7 +121,7 @@ query GetGovernanceStorageQuery {
         title
         to__id
         token_amount
-        token_id
+        token_address
       }
     }
   }
@@ -187,14 +187,7 @@ query GetCurrentRoundProposalsQuery {
         title
         to__id
         token_amount
-        token_id
-        token {
-          address
-          decimals
-          type
-          token_id
-          name
-        }
+        token_address
       }
     }
   }

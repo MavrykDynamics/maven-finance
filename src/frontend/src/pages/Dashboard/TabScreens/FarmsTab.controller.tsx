@@ -5,9 +5,9 @@ import { Timer } from 'app/App.components/Timer/Timer.controller'
 import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { EmptyContainer } from 'app/App.style'
-import { BGTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getFarmStorage } from 'pages/Farms/Farms.actions'
-import { calculateAPR } from 'pages/Farms/Frams.helpers'
+import { calculateAPR } from 'pages/Farms/Farms.helpers'
 import qs from 'qs'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -34,7 +34,7 @@ export const FarmsTab = () => {
   return (
     <TabWrapperStyled backgroundImage="dashboard_farmsTab_bg.png">
       <div className="top">
-        <BGTitle>Yield Farms</BGTitle>
+        <BGPrimaryTitle>Yield Farms</BGPrimaryTitle>
         <Link to="/yield-farms">
           <Button text="Farms" icon="plant" kind={ACTION_PRIMARY} className="noStroke" />
         </Link>

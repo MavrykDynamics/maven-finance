@@ -75,16 +75,19 @@ export function normalizeSatelliteRecord(
     : []
 
   const oracleRecords = (satelliteRecord?.user?.aggregator_oracles || []).map(
-    ({ oracle: { aggregator_oracle_rewards }, ...rest }) => {
-      const { sMVKReward, XTZReward } = aggregator_oracle_rewards.reduce(
-        (acc, reward) => {
-          if (reward.type === 0) {
-            acc.XTZReward += reward.reward
-          }
+    ({ aggregator: { oracles, address: feedAddress }, user_id: oracleAddress, last_updated_at }) => {
+      // getting rewards for oracle per feed
+      const { sMVKReward, XTZReward } = oracles.reduce(
+        (acc, { rewards, user_id: rewardUserId }) => {
+          rewards.forEach(({ type, reward }) => {
+            if (type === 0 && rewardUserId === oracleAddress) {
+              acc.XTZReward += reward
+            }
 
-          if (reward.type === 1) {
-            acc.sMVKReward += reward.reward
-          }
+            if (type === 1 && rewardUserId === oracleAddress) {
+              acc.sMVKReward += reward
+            }
+          })
 
           return acc
         },
@@ -93,11 +96,13 @@ export function normalizeSatelliteRecord(
           XTZReward: 0,
         },
       )
+
+      const isActive = last_updated_at ? Date.now() - new Date(last_updated_at).getTime() < 24 * 60 * 60 * 1000 : false
+
       return {
-        ...rest,
-        active: rest.last_updated_at
-          ? Date.now() - new Date(rest.last_updated_at).getTime() < 24 * 60 * 60 * 1000
-          : false,
+        feedAddress,
+        oracleAddress,
+        active: isActive,
         sMVKReward,
         XTZReward,
       }
