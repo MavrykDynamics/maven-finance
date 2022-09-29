@@ -38,7 +38,8 @@ const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
 }
 
 const chartStyle = {
-  width: 675,
+  color: '#8D86EB',
+  width: 655,
   height: 345,
   padding: {
     top: 17,
@@ -46,7 +47,10 @@ const chartStyle = {
     left: 22,
     bottom: 0,
   },
-  color: '#8D86EB',
+  tick: {
+    margin: 11,
+    size: 12,
+  },
 }
 
 const timeFormat = 'HH:mm'
@@ -84,6 +88,8 @@ export default function Chart({ list }: Props) {
           tick={{ fill: chartStyle.color }}
           stroke={chartStyle.color}
           padding={{left: chartStyle.padding.left}}
+          tickMargin={chartStyle.tick.margin}
+          tickSize={chartStyle.tick.size}
           dataKey='time'
           allowDuplicatedCategory={false}
         />
@@ -93,6 +99,8 @@ export default function Chart({ list }: Props) {
           tick={{ fill: chartStyle.color }}
           stroke={chartStyle.color}
           padding={{top: chartStyle.padding.top}}
+          tickMargin={chartStyle.tick.margin}
+          tickSize={chartStyle.tick.size}
           orientation='right'
         />
 
