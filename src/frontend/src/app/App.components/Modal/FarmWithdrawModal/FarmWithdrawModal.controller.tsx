@@ -147,7 +147,7 @@ export const FarmWithdrawModal = () => {
           </div> */}
           <Button
             className="farm-button"
-            text="Withdrawal"
+            text="Withdraw"
             kind="actionSecondary"
             icon="out"
             type="submit"
