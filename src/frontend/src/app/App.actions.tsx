@@ -30,6 +30,8 @@ import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/Emerg
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
 import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
+import { getDipDupTokensStorage } from 'reducers/actions/dipDupActions.actions'
+import { AppDispatch } from './App.controller'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: Dispatch) => {
@@ -41,7 +43,7 @@ export const recaptchaRequest = () => (dispatch: Dispatch) => {
 /**
  * Function that gets all initial data from the Indexer and adds it to the redux state and localstorage
  */
-export const onStart = () => async (dispatch: Dispatch) => {
+export const onStart = () => async (dispatch: AppDispatch) => {
   const res = await getInitialData()
   console.log('%c res onStart getInitialData()', 'color:gold', res)
 
@@ -49,6 +51,8 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const mvkTokenStorage = normalizeMvkToken(res[1]?.mvk_token[0])
   const doormanStorage = normalizeDoormanStorage(res[2]?.doorman[0])
   const delegationStorage = normalizeDelegationStorage(res[3]?.delegation[0])
+
+  await dispatch(getDipDupTokensStorage())
 
   try {
     const farmStorage = await normalizeFarmStorage(res[4]?.farm)

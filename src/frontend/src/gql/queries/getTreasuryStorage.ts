@@ -9,7 +9,6 @@ export const GET_TREASURY_DATA = `
       name
       stake_mvk_paused
       transfer_paused
-      treasury_factory_id
       unstake_mvk_paused
     }
     treasury_factory {

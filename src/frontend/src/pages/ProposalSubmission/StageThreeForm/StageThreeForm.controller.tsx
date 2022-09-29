@@ -5,10 +5,8 @@ import { State } from 'reducers'
 // types
 import type { ProposalPaymentType } from '../../../utils/TypesAndInterfaces/Governance'
 import { calcWithoutPrecision, calcWithoutMu } from '../../../utils/calcFunctions'
-import { Governance_Proposal_Payment } from '../../../utils/generated/graphqlTypes'
 
 // helpers
-import { normalizeTokenStandart } from '../../Governance/Governance.helpers'
 import {
   ProposalFinancialRequestForm,
   ProposalFinancialRequestInputStatus,
@@ -62,7 +60,7 @@ const MAX_ROWS = 10
 export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPayments }: StageThreeFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
-
+  const { dipDupTokens } = useSelector((state: State) => state.tokens)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { fee } = governanceStorage
   const successReward = governanceStorage.config.successReward
@@ -133,7 +131,7 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
       console.log('%c ||||| proposalPayments', 'color:yellowgreen', proposalPayments)
       const prepareTablePayments = proposalPayments.map((item) => {
         console.log('%c ||||| item', 'color:red', item)
-        const paymentType = normalizeTokenStandart(item.token)
+        const paymentType = dipDupTokens.find(({ contract }) => (contract = item.token_address))?.metadata.symbol
         const amount =
           paymentType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
         return [item.to__id, item.title, `${amount}`, paymentType, item.id, 'notUpdate']
@@ -163,7 +161,7 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
     proposalPayments?.forEach((item) => {
       if (item.id === id) {
         const currentRow = cloneTable[i]
-        const itemType = normalizeTokenStandart(item.token)
+        const itemType = dipDupTokens.find(({ contract }) => (contract = item.token_address))?.metadata.symbol
         const amount = itemType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
 
         const isSame =
