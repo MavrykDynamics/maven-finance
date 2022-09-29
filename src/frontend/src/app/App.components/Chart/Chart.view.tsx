@@ -9,8 +9,7 @@ import { parseData } from '../../../utils/time'
 
 type ChartItem = {
   timestamp: string
-  finalAmount: number
-  type: number
+  mvk: number
 }
 
 type Props = {
@@ -58,9 +57,9 @@ const getParsedDate = (time: string) => parseData({ time, timeFormat: dateFormat
 
 export default function Chart({ list }: Props) {
   const data = list?.length
-    ? list.map(({ finalAmount, timestamp }) => {
+    ? list.map(({ mvk, timestamp }) => {
         return {
-          uv: finalAmount,
+          uv: mvk,
           pv: getParsedDate(timestamp),
           time: getTime(timestamp),
         }
