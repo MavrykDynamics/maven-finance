@@ -55,7 +55,7 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
   }
 
   &.farm-modal {
-    width: 420px;
+    width: 500px;
     height: 360px;
     display: flex;
     flex-direction: column;

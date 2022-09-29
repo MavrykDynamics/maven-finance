@@ -388,4 +388,13 @@ export const FarmInputSection = styled.form`
     margin-top: auto;
     margin-bottom: 10px;
   }
+
+  .farm-modal-input {
+    .pinned-text {
+      font-size: 14px;
+    }
+    .with-text {
+      right: -25px;
+    }
+  }
 `
