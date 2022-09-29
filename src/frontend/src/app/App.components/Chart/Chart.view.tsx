@@ -86,6 +86,7 @@ export default function Chart({ list }: Props) {
           stroke={chartStyle.color}
           padding={{left: chartStyle.padding.left}}
           dataKey='time'
+          allowDuplicatedCategory={false}
         />
 
         <YAxis

@@ -35,6 +35,9 @@ import {
   STAKE_HISTORY_DATA_QUERY,
   STAKE_HISTORY_DATA_QUERY_NAME,
   STAKE_HISTORY_DATA_QUERY_VARIABLE,
+  SMVK_HISTORY_DATA_QUERY,
+  SMVK_HISTORY_DATA_QUERY_NAME,
+  SMVK_HISTORY_DATA_QUERY_VARIABLE,
 } from './queries'
 
 async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, object | string>) {
@@ -144,6 +147,11 @@ export async function getInitialData() {
       STAKE_HISTORY_DATA_QUERY,
       STAKE_HISTORY_DATA_QUERY_NAME,
       STAKE_HISTORY_DATA_QUERY_VARIABLE,
+    ),
+    fetchFromIndexerWithPromise(
+      SMVK_HISTORY_DATA_QUERY,
+      SMVK_HISTORY_DATA_QUERY_NAME,
+      SMVK_HISTORY_DATA_QUERY_VARIABLE,
     ),
   ])
 }
