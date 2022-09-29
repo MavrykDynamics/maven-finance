@@ -30,6 +30,7 @@ import {
   UsersListCardsWrapper,
   UsersListWrapper,
   UserSmallCard,
+  ChartCard,
 } from './DataFeedsDetails.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
@@ -245,7 +246,10 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
           <GovRightContainerTitleArea>
             <h1>Answer history</h1>
           </GovRightContainerTitleArea>
-          <Chart list={[]} header={''} />
+
+          <ChartCard>
+            <Chart list={[]} />
+          </ChartCard>
         </div>
       </DataFeedsStyled>
 
