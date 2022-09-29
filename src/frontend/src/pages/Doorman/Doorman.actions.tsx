@@ -19,6 +19,9 @@ import {
   STAKE_HISTORY_DATA_QUERY,
   STAKE_HISTORY_DATA_QUERY_NAME,
   STAKE_HISTORY_DATA_QUERY_VARIABLE,
+  SMVK_HISTORY_DATA_QUERY,
+  SMVK_HISTORY_DATA_QUERY_NAME,
+  SMVK_HISTORY_DATA_QUERY_VARIABLE,
 } from '../../gql/queries'
 import {
   calcUsersDoormanRewards,
@@ -35,9 +38,38 @@ import {
   UserSatelliteRewardsData,
 } from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
-import { normalizeDoormanStorage, normalizeMvkToken, normalizeStakeHistoryData } from './Doorman.converter'
+import { normalizeDoormanStorage, normalizeMvkToken, normalizeStakeHistoryData, normalizeSmvkHistoryData } from './Doorman.converter'
 import { FarmContractType } from 'utils/TypesAndInterfaces/Farm'
 import { Farm } from 'utils/generated/graphqlTypes'
+
+export const GET_SMVK_HISTORY_DATA = 'GET_SMVK_HISTORY_DATA'
+export const getSmvkHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  try {
+    const storage = await fetchFromIndexer(
+      SMVK_HISTORY_DATA_QUERY,
+      SMVK_HISTORY_DATA_QUERY_NAME,
+      SMVK_HISTORY_DATA_QUERY_VARIABLE,
+    )
+
+    const smvkHistoryData = normalizeSmvkHistoryData(storage)
+
+    dispatch({
+      type: GET_SMVK_HISTORY_DATA,
+      smvkHistoryData,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('smvkHistoryData', error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+    dispatch({
+      type: GET_SMVK_HISTORY_DATA,
+      error,
+    })
+  }
+}
 
 export const GET_STAKE_HISTORY_DATA = 'GET_STAKE_HISTORY_DATA'
 export const getStakeHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {

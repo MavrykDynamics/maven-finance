@@ -35,3 +35,14 @@ export const STAKE_HISTORY_DATA_QUERY = `
 
 export const STAKE_HISTORY_DATA_QUERY_NAME = 'GetStakingHistoryData'
 export const STAKE_HISTORY_DATA_QUERY_VARIABLE = {}
+
+export const SMVK_HISTORY_DATA_QUERY = `
+  query GetStakingHistoryData {
+    smvk_history_data {
+      smvk_total_supply
+      timestamp
+    }
+  }
+`
+export const SMVK_HISTORY_DATA_QUERY_NAME = 'GetStakingHistoryData'
+export const SMVK_HISTORY_DATA_QUERY_VARIABLE = {}
