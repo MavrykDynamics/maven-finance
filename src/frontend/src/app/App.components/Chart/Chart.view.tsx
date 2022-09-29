@@ -2,7 +2,7 @@ import React from 'react'
 import { AreaChart, Area, Tooltip, XAxis, YAxis } from 'recharts'
 
 // styles
-import { ChartStyled, ChartHeader, ChartTooltip } from './Chart.style'
+import { ChartTooltip } from './Chart.style'
 
 // helpers
 import { parseData } from '../../../utils/time'
@@ -15,7 +15,6 @@ type ChartItem = {
 
 type Props = {
   list: ChartItem[]
-  header: string
 }
 
 type ChartData = {
@@ -57,9 +56,7 @@ const getTime = (time: string) => parseData({ time, timeFormat }) || ''
 const dateFormat = 'MMM DD, HH:mm Z'
 const getParsedDate = (time: string) => parseData({ time, timeFormat: dateFormat }) || ''
 
-export default function Chart(props: Props) {
-  const { list, header } = props
-
+export default function Chart({ list }: Props) {
   const data = list?.length
     ? list.map(({ finalAmount, timestamp }) => {
         return {
@@ -71,8 +68,6 @@ export default function Chart(props: Props) {
     : []
 
   return (
-    <ChartStyled>
-      <ChartHeader>{header}</ChartHeader>
       <AreaChart
         width={chartStyle.width}
         height={chartStyle.height}
@@ -104,6 +99,5 @@ export default function Chart(props: Props) {
         <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
         <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
       </AreaChart>
-    </ChartStyled>
   )
 }
