@@ -4,7 +4,6 @@ import { Card, CardHeader } from 'styles'
 
 export const ChartStyled = styled(Card)<{ theme: MavrykTheme }>`
   padding: 30px 20px 20px;
-  height: auto;
 
   aside {
     display: flex;
