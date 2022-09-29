@@ -21,12 +21,12 @@ class TokenSale(MavrykContract, Model):
 
 class TokenSaleBuyOption(Model):
     id                                      = fields.BigIntField(pk=True)
-    buy_option_internal_id                  = fields.SmallIntField(default=0)
+    buy_option_internal_id                  = fields.SmallIntField(default=0, index=True)
     token_sale                              = fields.ForeignKeyField('models.TokenSale', related_name='token_sale_buy_options')
     max_amount_per_wallet_total             = fields.FloatField(default=0.0)
     whitelist_max_amount_total              = fields.FloatField(default=0.0)
     max_amount_cap                          = fields.FloatField(default=0.0)
-    vesting_periods                         = fields.SmallIntField(default=0)
+    vesting_periods                         = fields.SmallIntField(default=0, index=True)
     token_xtz_price                         = fields.BigIntField(default=0)
     min_mvk_amount                          = fields.FloatField(default=0.0)
     total_bought                            = fields.FloatField(default=0.0)
@@ -37,7 +37,7 @@ class TokenSaleBuyOption(Model):
 class TokenSaleWhitelistedUser(Model):
     id                                      = fields.BigIntField(pk=True)
     token_sale                              = fields.ForeignKeyField('models.TokenSale', related_name='token_sale_whitelist_accounts')
-    whitelisted_user                        = fields.ForeignKeyField('models.MavrykUser', related_name='token_sale_whitelist_accounts')
+    whitelisted_user                        = fields.ForeignKeyField('models.MavrykUser', related_name='token_sale_whitelist_accounts', index=True)
 
     class Meta:
         table = 'token_sale_whitelisted_account'
@@ -45,20 +45,20 @@ class TokenSaleWhitelistedUser(Model):
 class TokenSaleBuyer(Model):
     id                                      = fields.BigIntField(pk=True)
     token_sale                              = fields.ForeignKeyField('models.TokenSale', related_name='token_sale_buyers')
-    buyer                                   = fields.ForeignKeyField('models.MavrykUser', related_name='token_sale_buyers')
+    buyer                                   = fields.ForeignKeyField('models.MavrykUser', related_name='token_sale_buyers', index=True)
 
     class Meta:
         table = 'token_sale_buyer'
 
 class TokenSaleBuyerOption(Model):
     id                                      = fields.BigIntField(pk=True)
-    buy_option                              = fields.ForeignKeyField('models.TokenSaleBuyOption', related_name='buyer_options')
-    buyer                                   = fields.ForeignKeyField('models.TokenSaleBuyer', related_name='options')
+    buy_option                              = fields.ForeignKeyField('models.TokenSaleBuyOption', related_name='buyer_options', index=True)
+    buyer                                   = fields.ForeignKeyField('models.TokenSaleBuyer', related_name='options', index=True)
     token_bought                            = fields.FloatField(default=0.0)
     token_claimed                           = fields.FloatField(default=0.0)
-    claim_counter                           = fields.SmallIntField(default=0)
-    last_claim_timestamp                    = fields.DatetimeField(null=True)
-    last_claim_level                        = fields.BigIntField(default=0)
+    claim_counter                           = fields.SmallIntField(default=0, index=True)
+    last_claim_timestamp                    = fields.DatetimeField(null=True, index=True)
+    last_claim_level                        = fields.BigIntField(default=0, index=True)
 
     class Meta:
         table = 'token_sale_buyer_option'
