@@ -9,9 +9,9 @@ from mavryk.sql_model.enums import RewardType
 class Aggregator(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregators', null=True)
     factory                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
-    creation_timestamp                      = fields.DatetimeField(null=True)
-    token_0_symbol                          = fields.CharField(default='', max_length=36)
-    token_1_symbol                          = fields.CharField(default='', max_length=36)
+    creation_timestamp                      = fields.DatetimeField(null=True, index=True)
+    token_0_symbol                          = fields.CharField(default='', max_length=36, index=True)
+    token_1_symbol                          = fields.CharField(default='', max_length=36, index=True)
     name                                    = fields.TextField(default='')
     decimals                                = fields.SmallIntField(default=0)
     alpha_pct_per_thousand                  = fields.SmallIntField(default=0)
@@ -22,18 +22,18 @@ class Aggregator(MavrykContract, Model):
     update_data_paused                      = fields.BooleanField(default=False)
     withdraw_reward_xtz_paused              = fields.BooleanField(default=False)
     withdraw_reward_smvk_paused             = fields.BooleanField(default=False)
-    last_completed_price_round              = fields.BigIntField(default=0)
-    last_completed_price_epoch              = fields.BigIntField(default=0)
+    last_completed_price_round              = fields.BigIntField(default=0, index=True)
+    last_completed_price_epoch              = fields.BigIntField(default=0, index=True)
     last_completed_price                    = fields.FloatField(default=0.0)
     last_completed_price_pct_oracle_resp    = fields.SmallIntField(default=0)
-    last_completed_price_datetime           = fields.DatetimeField(null=True)
+    last_completed_price_datetime           = fields.DatetimeField(null=True, index=True)
 
     class Meta:
         table = 'aggregator'
 
 class AggregatorOracle(ContractLambda, Model):
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles')
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles')
+    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles', index=True)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles', index=True)
     public_key                              = fields.CharField(max_length=54, default="")
     peer_id                                 = fields.CharField(max_length=36, default="")
 
@@ -42,8 +42,8 @@ class AggregatorOracle(ContractLambda, Model):
 
 class AggregatorOracleReward(ContractLambda, Model):
     id                                      = fields.BigIntField(pk=True)
-    oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='rewards')
-    type                                    = fields.IntEnumField(enum_type=RewardType)
+    oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='rewards', index=True)
+    type                                    = fields.IntEnumField(enum_type=RewardType, index=True)
     reward                                  = fields.FloatField(default=0)
 
     class Meta:
