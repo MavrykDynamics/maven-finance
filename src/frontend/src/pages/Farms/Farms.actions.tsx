@@ -4,7 +4,7 @@ import { State } from '../../reducers'
 import { FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
 
 //helpers
-import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from './Frams.helpers'
+import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from './Farms.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'

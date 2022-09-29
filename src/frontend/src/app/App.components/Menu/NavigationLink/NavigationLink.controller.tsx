@@ -57,7 +57,6 @@ export const NavigationLink = ({
   const {
     delegationStorage: { satelliteLedger },
   } = useSelector((state: State) => state.delegation)
-
   const [showSubPages, setShowSubPages] = useState<boolean>(false)
 
   const isMainLinkDisabled = useMemo(() => {

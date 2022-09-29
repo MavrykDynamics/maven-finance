@@ -24,6 +24,10 @@ export const ONGOING_PROPOSALS_LIST_NAME = 'ongoingProposals'
 export const NEXT_PROPOSALS_LIST_NAME = 'nextProposals'
 export const ONGOING_VOTING_PROPOSALS_LIST_NAME = 'ongoingVotingProposals'
 
+export const BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME = 'myPastCouncilActions'
+export const BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME = 'pastBreakGlassCouncilActions'
+export const BREAK_GLASS_ACTIONS_LIST_NAME = 'breakGlassActionsHistory'
+
 export const LIST_NAMES_MAPPER: Record<string, number> = {
   [COUNCIL_LIST_NAME]: 10,
   [EMERGENCY_GOVERNANCE_LIST_NAME]: 5,
@@ -45,6 +49,9 @@ export const LIST_NAMES_MAPPER: Record<string, number> = {
   [USER_DATA_FEEDS_LIST_NAME]: 3,
   [FEEDS_ALL_LIST_NAME]: 10,
   [SATELLITES_OVERVIEW_LIST_NAME]: 10,
+  [BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME]: 2,
+  [BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME]: 2,
+  [BREAK_GLASS_ACTIONS_LIST_NAME]: 2,
 }
 
 export const calculateSlicePositions = (currentPage: number, listName: string) => {

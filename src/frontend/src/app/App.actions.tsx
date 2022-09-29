@@ -24,12 +24,14 @@ import {
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
 import { normalizeDoormanStorage, normalizeMvkToken } from '../pages/Doorman/Doorman.converter'
-import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from '../pages/Farms/Frams.helpers'
+import { normalizeFarmStorage } from '../pages/Farms/Farms.helpers'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
 import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/EmergencyGovernance.helpers'
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
 import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
+import { getDipDupTokensStorage } from 'reducers/actions/dipDupActions.actions'
+import { AppDispatch } from './App.controller'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: Dispatch) => {
@@ -41,7 +43,7 @@ export const recaptchaRequest = () => (dispatch: Dispatch) => {
 /**
  * Function that gets all initial data from the Indexer and adds it to the redux state and localstorage
  */
-export const onStart = () => async (dispatch: Dispatch) => {
+export const onStart = () => async (dispatch: AppDispatch) => {
   const res = await getInitialData()
   console.log('%c res onStart getInitialData()', 'color:gold', res)
 
@@ -49,6 +51,8 @@ export const onStart = () => async (dispatch: Dispatch) => {
   const mvkTokenStorage = normalizeMvkToken(res[1]?.mvk_token[0])
   const doormanStorage = normalizeDoormanStorage(res[2]?.doorman[0])
   const delegationStorage = normalizeDelegationStorage(res[3]?.delegation[0])
+
+  await dispatch(getDipDupTokensStorage())
 
   const emergencyGovernanceStorage: EmergencyGovernanceStorage = normalizeEmergencyGovernance(
     res[5]?.emergency_governance[0],
@@ -121,7 +125,10 @@ export const onStart = () => async (dispatch: Dispatch) => {
     type: SET_PAST_PROPOSALS,
     pastProposals: governanceStorage.proposalLedger,
   })
-
+  dispatch({
+    type: GET_ORACLES_STORAGE,
+    oraclesStorage,
+  })
   dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
 }
 

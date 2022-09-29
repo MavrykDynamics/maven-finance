@@ -43,7 +43,7 @@ export const ExpandStyled = styled(CardHover)`
     }
   }
 
-  &.expand-satellite-governance {
+  &.expand-governance {
     margin-bottom: 16px;
 
     .expand-header {
