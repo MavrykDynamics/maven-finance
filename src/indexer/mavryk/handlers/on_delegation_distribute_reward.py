@@ -44,6 +44,5 @@ async def on_delegation_distribute_reward(
         final_amount        = reward_amount,
         doorman             = doorman,
         from_               = user
-        # mvk_loyalty_index   = mli
     )
     await stake_record.save()
