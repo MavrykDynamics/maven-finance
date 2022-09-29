@@ -52,7 +52,7 @@ export interface SatelliteRecord {
     oracleAddress: string
     sMVKReward: number
     XTZReward: number
-    aggregator: { address: string }
+    feedAddress: string
   }>
 }
 

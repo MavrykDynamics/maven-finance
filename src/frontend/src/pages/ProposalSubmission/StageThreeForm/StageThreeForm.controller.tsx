@@ -133,7 +133,8 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
       console.log('%c ||||| proposalPayments', 'color:yellowgreen', proposalPayments)
       const prepareTablePayments = proposalPayments.map((item) => {
         console.log('%c ||||| item', 'color:red', item)
-        const paymentType = normalizeTokenStandart(item.token)
+        // TODO: check this token replacement
+        const paymentType = 'MVK' //normalizeTokenStandart(item.token)
         const amount =
           paymentType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
         return [item.to__id, item.title, `${amount}`, paymentType, item.id, 'notUpdate']
@@ -163,7 +164,8 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
     proposalPayments?.forEach((item) => {
       if (item.id === id) {
         const currentRow = cloneTable[i]
-        const itemType = normalizeTokenStandart(item.token)
+        // TODO: check this token replacement
+        const itemType = 'MVK' //normalizeTokenStandart(item.token)
         const amount = itemType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
 
         const isSame =

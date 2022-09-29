@@ -53,7 +53,8 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
   }
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
-  const tokenName = normalizeTokenStandart(rightSideContent?.token)
+  // TODO: check this token replacement
+  const tokenName = 'MVK' //normalizeTokenStandart(rightSideContent?.token)
 
   // Voting data & handlers
   const [votingStats, setVoteStatistics] = useState({
