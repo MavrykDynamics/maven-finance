@@ -4,6 +4,9 @@ import { AreaChart, Area, Tooltip, XAxis, YAxis } from 'recharts'
 // styles
 import { ChartStyled, ChartHeader, ChartTooltip } from './Chart.style'
 
+// helpers
+import { parseData } from '../../../utils/time'
+
 type ChartItem = {
   timestamp: string
   finalAmount: number
@@ -18,14 +21,15 @@ type Props = {
 type ChartData = {
   uv: number
   pv: string
+  time: string
 }[]
 
-type TooltipContent = Pick<{ label?: number }, 'label'>
+type TooltipContent = Pick<{ label?: string }, 'label'>
 
 const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
-  const label = o.label ?? 0
-  const value = Object.values(data)[label]?.uv || ''
-  const date = Object.values(data)[label]?.pv || ''
+  const { label } = o
+  const value = data.find((item) => item.time === label)?.uv || ''
+  const date = data.find((item) => item.time === label)?.pv || ''
 
   return (
     <ChartTooltip>
@@ -47,6 +51,12 @@ const chartStyle = {
   color: '#8D86EB',
 }
 
+const timeFormat = 'HH:mm'
+const getTime = (time: string) => parseData({ time, timeFormat }) || ''
+
+const dateFormat = 'MMM DD, HH:mm Z'
+const getParsedDate = (time: string) => parseData({ time, timeFormat: dateFormat }) || ''
+
 export default function Chart(props: Props) {
   const { list, header } = props
 
@@ -54,7 +64,8 @@ export default function Chart(props: Props) {
     ? list.map(({ finalAmount, timestamp }) => {
         return {
           uv: finalAmount,
-          pv: timestamp,
+          pv: getParsedDate(timestamp),
+          time: getTime(timestamp),
         }
       })
     : []
@@ -73,9 +84,22 @@ export default function Chart(props: Props) {
             <stop offset="100%" stopColor="rgba(22, 14, 63, 1)" stopOpacity={1} />
           </linearGradient>
         </defs>
+        
+        <XAxis
+          tickLine={false}
+          tick={{ fill: chartStyle.color }}
+          stroke={chartStyle.color}
+          padding={{left: chartStyle.padding.left}}
+          dataKey='time'
+        />
 
-        <XAxis tick={{ fill: chartStyle.color }} stroke={chartStyle.color} type="category" padding={{left: chartStyle.padding.left}} />
-        <YAxis tick={{ fill: chartStyle.color }} stroke={chartStyle.color} orientation='right' padding={{top: chartStyle.padding.top}} />
+        <YAxis
+          tickLine={false}
+          tick={{ fill: chartStyle.color }}
+          stroke={chartStyle.color}
+          padding={{top: chartStyle.padding.top}}
+          orientation='right'
+        />
 
         <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
         <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
