@@ -256,7 +256,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
 
         <UsersListCardsWrapper>
           {usersData.map((user) => (
-            <Link to={`/satellites/user-details/${user.id}`}>
+            <Link to={`/satellites/user-details/${user.id}`} key={user.id}>
               <UserSmallCard>
                 <div className="img-wrapper">logo</div>
                 {user.name}
