@@ -1,8 +1,6 @@
 // type
 import type {
   Governance,
-  Maybe,
-  Token,
   Governance_Satellite,
   Governance_Financial_Request,
   Governance_Proposal,
@@ -13,7 +11,6 @@ import type {
 } from '../generated/graphqlTypes'
 import { normalizeGovernanceStorage, normalizeProposal } from '../../pages/Governance/Governance.helpers'
 
-export type TokenGraphQL = Maybe<Token> | undefined
 export type GovernanceGraphQL = Omit<Governance, '__typename'>
 export type GovernanceFinancialRequestGraphQL = Omit<Governance_Financial_Request, '__typename'>
 export type GovernanceProposalGraphQL = Omit<Governance_Proposal, '__typename'>
