@@ -134,10 +134,11 @@ export const DataFeedsStyled = styled.div`
   }
 `
 
-export const DataFeedInfoBlock = styled.div`
+export const DataFeedInfoBlock = styled.div<{ justifyContent?: string }>`
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  padding-top: 15px;
+  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
   min-height: 85px;
 `
 

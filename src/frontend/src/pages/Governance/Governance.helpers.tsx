@@ -2,8 +2,6 @@ import { MichelsonMap } from '@taquito/taquito'
 import { GovernancePhase } from '../../reducers/governance'
 import {
   ProposalStatus,
-  TokenGraphQL,
-  PaymentType,
   GovernanceStorageGraphQL,
   ProposalRecordType,
   GovernanceProposalGraphQL,
@@ -180,10 +178,6 @@ export const normalizeProposalStatus = (
     }
   }
   return status
-}
-
-export const normalizeTokenStandart = (token?: TokenGraphQL): PaymentType => {
-  return token?.type === 0 ? 'XTZ' : 'MVK'
 }
 
 const BEFORE_DIGIT = 24
