@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -12,7 +12,7 @@ import CoinsIcons from '../../Icon/CoinsIcons.view'
 import { mathRoundTwoDigit } from '../../../../utils/validatorFunctions'
 
 // actions
-import { withdraw } from '../../../../pages/Farms/Farms.actions'
+import { SELECT_FARM_ADDRESS, withdraw } from '../../../../pages/Farms/Farms.actions'
 
 // styles
 import { ModalCard, ModalCardContent } from '../../../../styles'
@@ -22,27 +22,49 @@ import {
   FarmTitleSection,
   FarmInputSection,
 } from '../../../../pages/Farms/FarmCard/FarmCard.style'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 export const FarmWithdrawModal = () => {
   const dispatch = useDispatch()
-  const { selectedFarmAddress } = useSelector((state: State) => state.farm)
-  const [amount, setAmount] = useState<number | ''>('')
-  const [status, setStatus] = useState<InputStatusType>('')
+  const { selectedFarmAddress, farmStorage } = useSelector((state: State) => state.farm)
+  const farm = farmStorage.find(({ address }) => selectedFarmAddress === address)
+  //TODO: add balance of user
+  const userBalanceOfTokens = 112.53234123
 
-  const disabled = !amount || !selectedFarmAddress
+  const [amount, setAmount] = useState<number | ''>(0)
+  const [status, setStatus] = useState<InputStatusType>('')
 
   const checkInputIsOk = (value: number | '') => {
     setStatus(value ? 'success' : 'error')
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = mathRoundTwoDigit(e.target.value)
-    checkInputIsOk(value)
+  useEffect(() => {
+    checkInputIsOk(amount)
+  }, [amount])
+
+  // if farm address doesn't exists, close modal
+  if (!farm) {
+    dispatch({
+      type: SELECT_FARM_ADDRESS,
+      selectedFarmAddress: '',
+    })
+
+    return null
   }
 
-  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    if (+value === 0) {
+  const disabled = !amount || !selectedFarmAddress
+
+  const tokesnNames =
+    farm.lpToken1.symbol && farm.lpToken2.symbol && `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}`
+
+  const handleBlur = () => {
+    if (amount === '') {
+      setAmount(0)
+    }
+  }
+
+  const handleFocus = () => {
+    if (amount === 0) {
       setAmount('')
     }
   }
@@ -50,7 +72,6 @@ export const FarmWithdrawModal = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = mathRoundTwoDigit(e.target.value)
     setAmount(+value)
-    checkInputIsOk(value)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -61,6 +82,10 @@ export const FarmWithdrawModal = () => {
     }
   }
 
+  const useMaxHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setAmount(+userBalanceOfTokens)
+  }
+
   return (
     <ModalCard>
       <ModalCardContent className="farm-modal">
@@ -68,7 +93,7 @@ export const FarmWithdrawModal = () => {
           <FarmCardContentSection>
             <CoinsIcons />
             <FarmTitleSection>
-              <h3>Unstake MVK-tzBTC LP Tokens</h3>
+              <h3>Unstake {tokesnNames} LP Tokens</h3>
             </FarmTitleSection>
           </FarmCardContentSection>
         </FarmCardTopSection>
@@ -76,7 +101,9 @@ export const FarmWithdrawModal = () => {
         <FarmInputSection onSubmit={handleSubmit}>
           <div className="input-info">
             <div />
-            <button>Use Max</button>
+            <button type="button" onClick={useMaxHandler}>
+              Use Max
+            </button>
           </div>
           <Input
             type={'number'}
@@ -85,16 +112,21 @@ export const FarmWithdrawModal = () => {
             onBlur={handleBlur}
             onFocus={handleFocus}
             value={amount}
-            pinnedText={'MVK-tzBTC LP'}
+            pinnedText={tokesnNames + ' LP'}
             inputStatus={status}
+            className="farm-modal-input"
           />
           <div className="input-info">
-            <p>tzBTC LP Balance</p>
-            <p>5.12432</p>
+            <p>{tokesnNames} LP Balance</p>
+            <p>
+              <CommaNumber value={userBalanceOfTokens} />
+            </p>
           </div>
           <div className="input-info">
             <p>Withdrawal Fee</p>
-            <p>1.4%</p>
+            <p>
+              <CommaNumber value={1.4} endingText="%" />
+            </p>
           </div>
           <Button
             className="farm-button"
