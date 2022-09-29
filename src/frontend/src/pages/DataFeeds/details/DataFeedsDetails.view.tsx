@@ -56,10 +56,7 @@ const emptyContainer = (
 const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
   const oraclesForFeed = useMemo(
-    () =>
-      oracles.filter(({ oracleRecords }) =>
-        oracleRecords.find(({ aggregator: { address } }) => feed?.address === address),
-      ),
+    () => oracles.filter(({ oracleRecords }) => oracleRecords.find(({ feedAddress }) => feed?.address === feedAddress)),
     [oracles],
   )
 
