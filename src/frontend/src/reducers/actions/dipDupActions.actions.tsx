@@ -7,8 +7,6 @@ export const GET_DIP_DUP_TOKENS = 'GET_DIP_DUP_TOKENS'
 export const getDipDupTokensStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     const storage = await fetchFromIndexer(DIPDUP_TOKENS_QUERY, DIPDUP_TOKENS_QUERY_NAME, DIPDUP_TOKENS_QUERY_VARIABLE)
-    console.log('storage, getDipDupTokensStorage', storage)
-
     const dipDupTokens = normalizeDipDupTokens(storage)
 
     dispatch({

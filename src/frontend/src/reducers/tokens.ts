@@ -5,16 +5,13 @@ import { GET_DIP_DUP_TOKENS } from './actions/dipDupActions.actions'
 export interface ContractAddressesState {
   [key: string]: { address: string }
 }
-export type DipDupTokensType = Array<DipDupTokensGraphQl>
+export type TokensType = { dipDupTokens: Array<DipDupTokensGraphQl> }
 const dipDupTokensDefaultState: Array<DipDupTokensGraphQl> = []
 
-export function dipDupTokens(state = dipDupTokensDefaultState, action: any) {
+export function tokens(state = dipDupTokensDefaultState, action: any) {
   switch (action.type) {
     case GET_DIP_DUP_TOKENS:
-      return {
-        ...state,
-        ...action.dipDupTokens,
-      }
+      return { ...state, dipDupTokens: [...action.dipDupTokens] }
     default:
       return state
   }
