@@ -23,16 +23,24 @@ const tabsList: TabItem[] = [
 ]
 
 export const DoormanChart: FC = () => {
-  const { stakeHistoryData } = useSelector((state: State) => state.doorman)
+  const { stakeHistoryData, smvkHistoryData} = useSelector((state: State) => state.doorman)
 
   const [activeTab, setActiveTab] = useState('')
+  const isStakingHistory = activeTab === tabsList[1].text
 
-  const chartList = useMemo(() => stakeHistoryData.map((item) => {
+  const stakeHistory = useMemo(() => stakeHistoryData.map((item) => {
     return {
       ...item,
-      finalAmount: item.finalAmount/10**9
+      mvk: item.finalAmount/10**9
     }
   }), [stakeHistoryData])
+
+  const smvkHistory = useMemo(() => smvkHistoryData.map((item) => {
+    return {
+      ...item,
+      mvk: item.smvkTotalSupply/10**9
+    }
+  }), [smvkHistoryData])
 
   const handleChangeTabs = (tabId?: number) => {
     setActiveTab( tabId === 1 ? 'MVK Total Supply' : 'Staking History')
@@ -44,7 +52,7 @@ export const DoormanChart: FC = () => {
         {tabsList?.length ? <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
       </ChartSlidingTabButtons>
 
-      <Chart list={chartList} />
+      <Chart list={isStakingHistory ? stakeHistory: smvkHistory} />
     </ChartCard>
   )
 }
