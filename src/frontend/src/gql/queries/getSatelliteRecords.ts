@@ -28,6 +28,13 @@ export const SATELLITE_RECORDS_QUERY = `
           last_updated_at
           aggregator {
             address
+            oracles {
+              rewards {
+                reward
+                type
+              }
+              user_id
+            }
           }
         }
         emergency_governance_votes {
