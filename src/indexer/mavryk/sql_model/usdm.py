@@ -58,7 +58,7 @@ from mavryk.sql_model.parents import LinkedContract, ContractLambda
 # class VaultHandle(Model):
 #     id                                      = fields.BigIntField(pk=True)
 #     vault                                   = fields.ForeignKeyField('models.Vault', related_name='vault_handle')
-#     vault_owner                             = fields.ForeignKeyField('models.MavrykUser', related_name='vault_owners')
+#     vault_owner                             = fields.ForeignKeyField('models.MavrykUser', related_name='vault_owners', index=True)
 #     internal_id                             = fields.BigIntField(default=0)
 
 #     class Meta:
@@ -67,7 +67,7 @@ from mavryk.sql_model.parents import LinkedContract, ContractLambda
 # class VaultDepositor(Model):
 #     id                                      = fields.BigIntField(pk=True)
 #     vault                                   = fields.ForeignKeyField('models.Vault', related_name='vault_depositors')
-#     depositor                               = fields.ForeignKeyField('models.MavrykUser', related_name='vaults_depositor')
+#     depositor                               = fields.ForeignKeyField('models.MavrykUser', related_name='vaults_depositor', index=True)
 #     whitelisted                             = fields.BooleanField(default=False)
 
 #     class Meta:

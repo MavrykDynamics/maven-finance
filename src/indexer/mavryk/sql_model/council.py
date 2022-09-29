@@ -40,7 +40,7 @@ class CouncilWhitelistContract(LinkedContract, Model):
 
 class CouncilCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='council_council_members')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='council_council_members', index=True)
     council                                 = fields.ForeignKeyField('models.Council', related_name='members')
     name                                    = fields.TextField(default="")
     website                                 = fields.TextField(default="")
@@ -52,14 +52,14 @@ class CouncilCouncilMember(Model):
 class CouncilAction(Model):
     id                                      = fields.BigIntField(pk=True)
     council                                 = fields.ForeignKeyField('models.Council', related_name='actions')
-    initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator')
-    start_datetime                          = fields.DatetimeField(null=True)
-    execution_datetime                      = fields.DatetimeField(null=True)
-    execution_level                         = fields.BigIntField(default=0)
-    expiration_datetime                     = fields.DatetimeField(null=True)
+    initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator', index=True)
+    start_datetime                          = fields.DatetimeField(null=True, index=True)
+    execution_datetime                      = fields.DatetimeField(null=True, index=True)
+    execution_level                         = fields.BigIntField(default=0, index=True)
+    expiration_datetime                     = fields.DatetimeField(null=True, index=True)
     action_type                             = fields.CharField(max_length=48)
-    status                                  = fields.IntEnumField(enum_type=ActionStatus)
-    executed                                = fields.BooleanField(default=False)
+    status                                  = fields.IntEnumField(enum_type=ActionStatus, index=True)
+    executed                                = fields.BooleanField(default=False, index=True)
     signers_count                           = fields.SmallIntField(default=1)
 
     class Meta:
@@ -67,15 +67,15 @@ class CouncilAction(Model):
 
 class CouncilActionSigner(Model):
     id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='signers')
-    signer                                  = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_signer')
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='signers', index=True)
+    signer                                  = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_signer', index=True)
 
     class Meta:
         table = 'council_action_signer'
 
 class CouncilActionParameter(Model):
     id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='parameters')
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='parameters', index=True)
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 

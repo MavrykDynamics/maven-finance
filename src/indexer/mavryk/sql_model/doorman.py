@@ -50,10 +50,9 @@ class DoormanStakeAccount(Model):
 class StakeHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_history_data')
-    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='stakes_history_data')
-    timestamp                               = fields.DatetimeField()
-    type                                    = fields.IntEnumField(enum_type=StakeType)
-    mvk_loyalty_index                       = fields.BigIntField(default=0.0)
+    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='stakes_history_data', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
+    type                                    = fields.IntEnumField(enum_type=StakeType, index=True)
     desired_amount                          = fields.FloatField(default=0.0)
     final_amount                            = fields.FloatField(default=0.0)
 
@@ -63,7 +62,7 @@ class StakeHistoryData(Model):
 class SMVKHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_mvk_history_data')
-    timestamp                               = fields.DatetimeField()
+    timestamp                               = fields.DatetimeField(index=True)
     smvk_total_supply                       = fields.FloatField(default=0.0)
     avg_smvk_by_user                        = fields.FloatField(default=0.0)
 
