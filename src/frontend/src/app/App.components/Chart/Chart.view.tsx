@@ -39,7 +39,7 @@ const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
 
 const chartStyle = {
   width: 675,
-  height: 292,
+  height: 345,
   padding: {
     top: 17,
     right: 0,
