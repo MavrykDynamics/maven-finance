@@ -16,7 +16,10 @@ import type { AppDispatch, GetState } from '../../app/App.controller'
 
 export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
-export const getFarmStorage = () => async (dispatch: AppDispatch) => {
+export const getFarmStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const {
+    tokens: { dipDupTokens },
+  } = getState()
   // main try/catch to fetch endTime for farmsCards and farms cards from gql, if nested willl end up with error, it will set fetched card, of if this fail, will set []
   try {
     const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
@@ -42,7 +45,13 @@ export const getFarmStorage = () => async (dispatch: AppDispatch) => {
           urls.map(async (url) => await (await fetch(url)).json()),
         )
 
-        const farmStorage = normalizeFarmStorage(storage?.farm, farmCardEndsIn, farmLPTokensInfo, farmContracts)
+        const farmStorage = normalizeFarmStorage(
+          storage?.farm,
+          dipDupTokens,
+          farmCardEndsIn,
+          farmLPTokensInfo,
+          farmContracts,
+        )
         dispatch({
           type: GET_FARM_STORAGE,
           farmStorage,
@@ -50,7 +59,7 @@ export const getFarmStorage = () => async (dispatch: AppDispatch) => {
       } catch (e) {
         console.error('getFarmStorage, fetching contracts error: ', e)
 
-        const farmStorage = normalizeFarmStorage(storage?.farm, farmCardEndsIn, farmLPTokensInfo, [])
+        const farmStorage = normalizeFarmStorage(storage?.farm, dipDupTokens, farmCardEndsIn, farmLPTokensInfo, [])
         dispatch({
           type: GET_FARM_STORAGE,
           farmStorage,
@@ -59,7 +68,7 @@ export const getFarmStorage = () => async (dispatch: AppDispatch) => {
     } catch (e) {
       console.error('getFarmStorage, fetching metadata error: ', e)
 
-      const farmStorage = normalizeFarmStorage(storage?.farm, [], [], [])
+      const farmStorage = normalizeFarmStorage(storage?.farm, dipDupTokens, [], [], [])
       dispatch({
         type: GET_FARM_STORAGE,
         farmStorage,

@@ -99,14 +99,6 @@ export const Farms = () => {
     [isStakedOny, liveFinished, openedFarmsCards, pathname, searchFarm, searchValue, sortBy, sortType],
   )
 
-  const farmsTVL = useMemo(
-    () =>
-      farmStorage.reduce((acc, farm) => {
-        return (acc += farm.lpBalance)
-      }, 0),
-    [farmStorage],
-  )
-
   // effect to handle all sortings and filters in top bar
   useEffect(() => {
     let farmsToSortFilter = [...farmStorage]
@@ -237,7 +229,6 @@ export const Farms = () => {
                     variant={farmsViewVariant}
                     currentRewardPerBlock={farm.currentRewardPerBlock}
                     depositAmount={depositAmount}
-                    totalLiquidity={farmsTVL}
                     expandCallback={handleOpenCard}
                     isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
                   />

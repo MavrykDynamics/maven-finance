@@ -145,9 +145,11 @@ const FarmingBlock = ({
   token2Symbol,
   accountPhk,
   farmAccounts,
+  isFarmLive,
 }: {
   triggerDepositModal: () => void
   triggerWithdrawModal: () => void
+  isFarmLive: boolean
   token1Symbol: string
   token2Symbol: string
   accountPhk?: string
@@ -164,10 +166,12 @@ const FarmingBlock = ({
       ) : (
         <FarmStakeStyled className="farm-stake">
           <StakedBlock myFarmStakedBalance={depositedAmount} token1Symbol={token1Symbol} token2Symbol={token2Symbol} />
-          <div className="circle-buttons">
-            <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
-            <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
-          </div>
+          {isFarmLive ? (
+            <div className="circle-buttons">
+              <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
+              <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
+            </div>
+          ) : null}
         </FarmStakeStyled>
       )}
     </>
@@ -224,6 +228,7 @@ const VerticalFarmComponent = ({
       </div>
       <div className="vertical-harvest">
         <FarmingBlock
+          isFarmLive={farm.isLive}
           token1Symbol={farm.lpToken1.symbol}
           token2Symbol={farm.lpToken2.symbol}
           accountPhk={accountPkh}
@@ -291,6 +296,7 @@ const HorisontalFarmComponent = ({
         <div className="horizontal-expand">
           <HarvestBlock harvestRewards={harvestRewards} userReward={userReward} />
           <FarmingBlock
+            isFarmLive={farm.isLive}
             accountPhk={accountPkh}
             token1Symbol={farm.lpToken1.symbol}
             token2Symbol={farm.lpToken2.symbol}
@@ -314,20 +320,12 @@ type FarmCardProps = {
   farm: FarmStorage[number]
   currentRewardPerBlock: number
   variant: FarmsViewVariantType
-  totalLiquidity: number
   depositAmount: number
   isOpenedCard: boolean
   expandCallback: (address: string) => void
 }
 
-export const FarmCard = ({
-  farm,
-  totalLiquidity,
-  variant,
-  isOpenedCard,
-  currentRewardPerBlock,
-  expandCallback,
-}: FarmCardProps) => {
+export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, expandCallback }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
