@@ -452,7 +452,8 @@ export const GovernanceView = ({
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
                     {rightSideContent.proposalPayments.map((item: Governance_Proposal_Payment, i: number) => {
-                      const paymentType = normalizeTokenStandart(item.token)
+                      // TODO: check this token replacement
+                      const paymentType = 'MVK' // normalizeTokenStandart(item.token)
 
                       const amount =
                         paymentType === 'MVK'
