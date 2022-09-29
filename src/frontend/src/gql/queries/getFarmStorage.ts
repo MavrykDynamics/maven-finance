@@ -4,7 +4,6 @@ export const FARM_STORAGE_QUERY = `
       address
       claim_paused
       deposit_paused
-      farm_factory_id
       infinite
       init_block
       last_block_update
@@ -15,7 +14,6 @@ export const FARM_STORAGE_QUERY = `
       current_reward_per_block
       init
       lp_token_balance
-      lp_token_id
       paid_rewards
       total_rewards
       unpaid_rewards
@@ -34,13 +32,7 @@ export const FARM_STORAGE_QUERY = `
         user_id
         participation_rewards_per_share
       }
-      lp_token {
-        address
-        decimals
-        name
-        token_id
-        type
-      }
+      lp_token_address
     }
   }
 `

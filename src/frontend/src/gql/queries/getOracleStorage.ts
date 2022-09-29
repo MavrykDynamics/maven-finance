@@ -3,10 +3,7 @@ export const ORACLE_STORAGE_QUERY = `
     aggregator(where: {admin: {_neq: ""}}) {
       address
       admin
-      aggregator_factory_id
       decimals
-      deviation_reward_amount_smvk
-      deviation_reward_amount_xtz
       governance_id
       last_completed_price
       last_completed_price_datetime
@@ -19,7 +16,6 @@ export const ORACLE_STORAGE_QUERY = `
       token_0_symbol
       reward_amount_xtz
       reward_amount_smvk
-      per_thousand_deviation_trigger
       pct_oracle_threshold
     }
     aggregator_factory {
@@ -31,9 +27,6 @@ export const ORACLE_STORAGE_QUERY = `
       governance_id
       track_aggregator_paused
       untrack_aggregator_paused
-    }
-    aggregator_oracle {
-      oracle_id
     }
   }
 `

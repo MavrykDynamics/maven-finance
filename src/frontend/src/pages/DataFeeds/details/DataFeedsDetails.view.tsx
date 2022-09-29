@@ -57,10 +57,7 @@ const emptyContainer = (
 const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
   const oraclesForFeed = useMemo(
-    () =>
-      oracles.filter(({ oracleRecords }) =>
-        oracleRecords.find(({ aggregator: { address } }) => feed?.address === address),
-      ),
+    () => oracles.filter(({ oracleRecords }) => oracleRecords.find(({ feedAddress }) => feed?.address === feedAddress)),
     [oracles],
   )
 
@@ -115,22 +112,6 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
             <div className="bottom">
               <DataFeedInfoBlock>
                 <DataFeedsTitle fontSize={18} fontWeidth={600}>
-                  Trigger parameters
-                  <CustomTooltip
-                    text={`A new trusted answer is written when the off-chain data moves more than the deviation threshold or X
-                    seconds have passed since the last answer was written on-chain`}
-                    iconId={'info'}
-                  />
-                </DataFeedsTitle>
-                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  Deviation threshold
-                </DataFeedSubTitleText>
-                <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  <CommaNumber value={feed.per_thousand_deviation_trigger / 1000} endingText="%" />
-                </DataFeedValueText>
-              </DataFeedInfoBlock>
-              <DataFeedInfoBlock>
-                <DataFeedsTitle fontSize={18} fontWeidth={600}>
                   Oracle responses
                   <CustomTooltip
                     text={`The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
@@ -167,6 +148,15 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
+                <DataFeedsTitle fontSize={18} fontWeidth={600}>
+                  Decimals
+                  <CustomTooltip text={`Countdown until the data is next written on-chain`} iconId={'info'} />
+                </DataFeedsTitle>
+                <DataFeedValueText fontSize={16} fontWeidth={600}>
+                  {''.padEnd(feed.decimals, '0')}
+                </DataFeedValueText>
+              </DataFeedInfoBlock>
+              <DataFeedInfoBlock justifyContent={'flex-end'}>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   Heartbeat
                   <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} />
@@ -182,15 +172,6 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                       timestamp={new Date(feed.last_completed_price_datetime).getTime() + 1000 * 60 * 30}
                     />
                   ) : null}
-                </DataFeedValueText>
-              </DataFeedInfoBlock>
-              <DataFeedInfoBlock>
-                <DataFeedsTitle fontSize={18} fontWeidth={600}>
-                  Decimals
-                  <CustomTooltip text={`Countdown until the data is next written on-chain`} iconId={'info'} />
-                </DataFeedsTitle>
-                <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {''.padEnd(feed.decimals, '0')}
                 </DataFeedValueText>
               </DataFeedInfoBlock>
             </div>
@@ -279,7 +260,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
 
         <UsersListCardsWrapper>
           {usersData.map((user) => (
-            <Link to={`/satellites/user-details/${user.id}`}>
+            <Link to={`/satellites/user-details/${user.id}`} key={user.id}>
               <UserSmallCard>
                 <div className="img-wrapper">logo</div>
                 {user.name}
