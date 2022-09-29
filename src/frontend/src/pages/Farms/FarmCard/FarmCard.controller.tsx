@@ -59,7 +59,7 @@ const AprBlock = ({ valueAPR, triggerCalculatorModal }: { valueAPR: number; trig
     <h3>APY</h3>
     <div className="btn-info">
       <var>
-        <CommaNumber value={valueAPR} endingText="%" />
+        <CommaNumber value={valueAPR} endingText="%" useAccurateParsing />
       </var>
       <button onClick={triggerCalculatorModal} className="calc-button">
         <Icon id="calculator" />
