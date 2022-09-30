@@ -70,7 +70,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
   var mockUsdXtzAggregator              : Aggregator;
   var mockUsdMockFa12TokenAggregator    : Aggregator;
   var mockUsdMockFa2TokenAggregator     : Aggregator;
-  var mockUsdStakedMvkTokenAggregator   : Aggregator;
+  var mockUsdMvkTokenAggregator         : Aggregator;
 
   var mockFa12Token                     : MavrykFa12Token
   var mockFa2Token                      : MavrykFa2Token
@@ -278,13 +278,13 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
             percentOracleResponse   : new BigNumber(100),
             priceDateTime           : '1'
         };
-        mockUsdStakedMvkTokenAggregator = await Aggregator.originate(
+        mockUsdMvkTokenAggregator = await Aggregator.originate(
             utils.tezos,
             aggregatorStorage
         )
 
-        await saveContractAddress('mockUsdStakedMvkTokenAggregatorAddress', mockUsdStakedMvkTokenAggregator.contract.address)
-        console.log('Mock USD/StakedMvkToken Aggregator Contract deployed at:', mockUsdStakedMvkTokenAggregator.contract.address)
+        await saveContractAddress('mockUsdMvkTokenAggregatorAddress', mockUsdMvkTokenAggregator.contract.address)
+        console.log('Mock USD/MvkToken Aggregator Contract deployed at:', mockUsdMvkTokenAggregator.contract.address)
 
 
         //----------------------------
@@ -332,7 +332,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
         await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
         await setAggregatorLambdas(tezos, mockUsdXtzAggregator.contract);
-        await setAggregatorLambdas(tezos, mockUsdStakedMvkTokenAggregator.contract);
+        await setAggregatorLambdas(tezos, mockUsdMvkTokenAggregator.contract);
     
         //----------------------------
         // Update Contract Links and Relationships
@@ -353,7 +353,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa12TokenAggregator'    , mockUsdMockFa12TokenAggregator.contract.address))
         .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa2TokenAggregator'     , mockUsdMockFa2TokenAggregator.contract.address))
         .withContractCall(governanceInstance.methods.updateGeneralContracts('usdXtzAggregator'              , mockUsdXtzAggregator.contract.address))
-        .withContractCall(governanceInstance.methods.updateGeneralContracts('usdStakedMvkTokenAggregator'   , mockUsdStakedMvkTokenAggregator.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMvkTokenAggregator'         , mockUsdMvkTokenAggregator.contract.address))
     
         const governanceContractsBatchOperation = await governanceContractsBatch.send()
         await confirmOperation(tezos, governanceContractsBatchOperation.opHash)
@@ -364,7 +364,6 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         //----------------------------
         // Set Vault Factory Admin to Governance Proxy 
         //----------------------------
-
 
         // Vault Factory Set Admin
         vaultFactoryInstance = await utils.tezos.contract.at(vaultFactory.contract.address);

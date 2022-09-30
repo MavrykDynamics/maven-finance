@@ -39,15 +39,16 @@ type lendingControllerConfigType is [@layout:comb] record [
 
 type lendingControllerBreakGlassConfigType is record [
     
-    // Lending Controller Token Pool Entrypoints
+    // Lending Controller Admin Entrypoints
     setLoanTokenIsPaused                : bool;
-    updateLoanTokenIsPaused             : bool;
+    setCollateralTokenIsPaused          : bool;
+    registerVaultCreationIsPaused       : bool; 
+
+    // Lending Controller Token Pool Entrypoints
     addLiquidityIsPaused                : bool;
     removeLiquidityIsPaused             : bool;
 
     // Lending Controller Vault Entrypoints
-    updateCollateralTokenIsPaused       : bool;
-    registerVaultCreationIsPaused       : bool; 
     closeVaultIsPaused                  : bool;
     registerDepositIsPaused             : bool;
     registerWithdrawalIsPaused          : bool;
@@ -77,8 +78,8 @@ type collateralTokenRecordType is [@layout:comb] record [
     tokenContractAddress    : address;
     tokenDecimals           : nat;       // token decimals
 
-    oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
+    protected               : bool;
 
     tokenType               : tokenType; 
 ]
@@ -91,7 +92,6 @@ type loanTokenRecordType is [@layout:comb] record [
     tokenType                               : tokenType; 
     tokenDecimals                           : nat;
 
-    oracleType                              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress                           : address;   // zeroAddress if no oracle
 
     lpTokensTotal                           : nat;
@@ -190,11 +190,10 @@ type closeVaultActionType is [@layout:comb] record [
 ]
 
 
-type setLoanTokenActionType is [@layout:comb] record [
+type createLoanTokenActionType is [@layout:comb] record [
     tokenName                               : string;
     tokenDecimals                           : nat;
 
-    oracleType                              : string;
     oracleAddress                           : address;
 
     lpTokenContractAddress                  : address;
@@ -217,7 +216,6 @@ type updateLoanTokenActionType is [@layout:comb] record [
 
     tokenName                               : string;
 
-    oracleType                              : string;
     oracleAddress                           : address;
 
     reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
@@ -230,17 +228,35 @@ type updateLoanTokenActionType is [@layout:comb] record [
 ]
 
 
-type updateCollateralTokenActionType is [@layout:comb] record [
+type setLoanTokenActionType is 
+    |   CreateLoanToken      of createLoanTokenActionType
+    |   UpdateLoanToken      of updateLoanTokenActionType
+
+
+
+type createCollateralTokenActionType is [@layout:comb] record [
     tokenName               : string;
     tokenContractAddress    : address;
     tokenDecimals           : nat; 
 
-    oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
+    protected               : bool;
 
     // variants at the end for taquito 
     tokenType               : tokenType; 
 ]
+
+
+type updateCollateralTokenActionType is [@layout:comb] record [
+    tokenName               : string;
+    oracleAddress           : address;   // zeroAddress if no oracle
+]
+
+
+type setCollateralTokenActionType is 
+    |   CreateCollateralToken      of createCollateralTokenActionType
+    |   UpdateCollateralToken      of updateCollateralTokenActionType
+
 
 type registerWithdrawalActionType is [@layout:comb] record [
     handle         : vaultHandleType; 
@@ -312,14 +328,15 @@ type claimRewardsType is address
 
 type lendingControllerPausableEntrypointType is
 
-        // Lending Controller Token Pool Entrypoints
+        // Lending Controller Admin Entrypoints
     |   SetLoanToken                of bool
-    |   UpdateLoanToken             of bool
+    |   SetCollateralToken          of bool
+
+        // Lending Controller Token Pool Entrypoints
     |   AddLiquidity                of bool
     |   RemoveLiquidity             of bool
 
         // Lending Controller Vault Entrypoints
-    |   UpdateCollateralToken       of bool
     |   RegisterVaultCreation       of bool
     |   CloseVault                  of bool
     |   RegisterDeposit             of bool
@@ -359,10 +376,7 @@ type lendingControllerLambdaActionType is
         // Housekeeping Entrypoints
     |   LambdaSetAdmin                        of (address)
     |   LambdaSetGovernance                   of (address)
-    |   LambdaUpdateMetadata                  of updateMetadataType
     |   LambdaUpdateConfig                    of lendingControllerUpdateConfigParamsType
-    // |   LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
-    // |   LambdaUpdateGeneralContracts          of updateGeneralContractsType
     |   LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsType
 
         // Pause / Break Glass Lambdas
@@ -370,14 +384,15 @@ type lendingControllerLambdaActionType is
     |   LambdaUnpauseAll                      of (unit)
     |   LambdaTogglePauseEntrypoint           of lendingControllerTogglePauseEntrypointType
 
-        // Token Pool Entrypoints
+        // Admin Entrypoints
     |   LambdaSetLoanToken                    of setLoanTokenActionType  
-    |   LambdaUpdateLoanToken                 of updateLoanTokenActionType  
+    |   LambdaSetCollateralToken              of setCollateralTokenActionType  
+
+        // Token Pool Entrypoints
     |   LambdaAddLiquidity                    of addLiquidityActionType
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
         // Vault Entrypoints
-    |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
     |   LambdaRegisterVaultCreation           of registerVaultCreationActionType
     |   LambdaCloseVault                      of closeVaultActionType
     |   LambdaMarkForLiquidation              of markForLiquidationActionType
@@ -388,7 +403,6 @@ type lendingControllerLambdaActionType is
     |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
     |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
     |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
     |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType

@@ -148,6 +148,9 @@ block {
                 // get collateral token record from Lending Controller through on-chain view
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
 
+                // check if collateral token is protected
+                if collateralTokenRecord.protected = True then failwith(error_CANNOT_DEPOSIT_PROTECTED_COLLATERAL_TOKEN) else skip;
+
                 // get collateral token's token type
                 const tokenType : tokenType = collateralTokenRecord.tokenType;
 
@@ -216,6 +219,9 @@ block {
 
                 // get collateral token record from Lending Controller through on-chain view
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
+
+                // check if collateral token is protected
+                if collateralTokenRecord.protected = True then failwith(error_CANNOT_WITHDRAW_PROTECTED_COLLATERAL_TOKEN) else skip;
 
                 // get collateral token's token type
                 const tokenType : tokenType = collateralTokenRecord.tokenType;

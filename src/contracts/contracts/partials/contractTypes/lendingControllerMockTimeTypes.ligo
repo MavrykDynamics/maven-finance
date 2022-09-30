@@ -36,7 +36,6 @@ type lendingControllerConfigType is [@layout:comb] record [
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
 
     mockLevel                    : nat;         // mock level for time
-
 ]
 
 type lendingControllerBreakGlassConfigType is record [
@@ -59,12 +58,9 @@ type lendingControllerBreakGlassConfigType is record [
     repayIsPaused                       : bool;
 
     // Vault Entrypoints
-    // vaultDelegateTezToBakerIsPaused         : bool; 
-    // vaultDelegateMvkToSatelliteIsPaused     : bool;
     vaultDepositIsPaused                    : bool;
     vaultWithdrawIsPaused                   : bool;
     vaultOnLiquidateIsPaused                : bool;
-    // vaultUpdateDepositorIsPaused            : bool;
 
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : bool;
@@ -82,7 +78,6 @@ type collateralTokenRecordType is [@layout:comb] record [
     tokenContractAddress    : address;
     tokenDecimals           : nat;       // token decimals
 
-    oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
 
     tokenType               : tokenType; 
@@ -96,7 +91,6 @@ type loanTokenRecordType is [@layout:comb] record [
     tokenType                               : tokenType; 
     tokenDecimals                           : nat;
 
-    oracleType                              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress                           : address;   // zeroAddress if no oracle
 
     lpTokensTotal                           : nat;
@@ -202,7 +196,6 @@ type setLoanTokenActionType is [@layout:comb] record [
     tokenName                               : string;
     tokenDecimals                           : nat;
 
-    oracleType                              : string;
     oracleAddress                           : address;
 
     lpTokenContractAddress                  : address;
@@ -227,7 +220,6 @@ type updateLoanTokenActionType is [@layout:comb] record [
 
     tokenName                               : string;
 
-    oracleType                              : string;
     oracleAddress                           : address;
 
     reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
@@ -342,12 +334,9 @@ type lendingControllerPausableEntrypointType is
     |   Repay                       of bool
 
         // Vault Entrypoints
-    // |   VaultDelegateTezToBaker     of bool
-    // |   VaultDelegateMvkToSatellite of bool
     |   VaultDeposit                of bool
     |   VaultWithdraw               of bool
     |   VaultOnLiquidate            of bool
-    // |   VaultUpdateDepositor        of bool
 
         // Vault Staked MVK Entrypoints
     |   VaultDepositStakedMvk       of bool
@@ -376,8 +365,6 @@ type lendingControllerLambdaActionType is
     |   LambdaSetGovernance                   of (address)
     |   LambdaUpdateMetadata                  of updateMetadataType
     |   LambdaUpdateConfig                    of lendingControllerUpdateConfigParamsType
-    |   LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
-    |   LambdaUpdateGeneralContracts          of updateGeneralContractsType
     |   LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsType
 
         // Pause / Break Glass Lambdas
@@ -403,10 +390,10 @@ type lendingControllerLambdaActionType is
     |   LambdaRepay                           of repayActionType
 
         // Vault Staked MVK Entrypoints   
-    // |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
-    // |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
-    // |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
-    // |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
+    |   LambdaCallVaultStakedMvkAction        of callVaultStakedMvkActionType
+    |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
+    |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
+    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
 
 
 // ------------------------------------------------------------------------------
