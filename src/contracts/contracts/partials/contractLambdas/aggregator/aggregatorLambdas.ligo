@@ -12,7 +12,6 @@
 function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkNoAmount(Unit);      // entrypoint should not receive any tez amount
     checkSenderIsAllowed(s);  // check that sender is admin or the Governance Contract address
 
     case aggregatorLambdaAction of [
@@ -30,7 +29,6 @@ block {
 function lambdaSetGovernance(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkNoAmount(Unit);      // entrypoint should not receive any tez amount
     checkSenderIsAllowed(s);  // check that sender is admin or the Governance Contract address
 
     case aggregatorLambdaAction of [
@@ -56,7 +54,6 @@ block {
     // 5. Validate that new name input does not exceed aggregatorNameMaxLength
     // 6. Set new name on Aggregator Contract
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorLambdaAction of [
@@ -91,7 +88,6 @@ block {
 function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorLambdaAction of [
@@ -114,7 +110,6 @@ block {
 function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorLambdaAction of [
@@ -145,7 +140,6 @@ block{
 function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
     
     case aggregatorLambdaAction of [
@@ -163,7 +157,6 @@ block {
 function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
     
     case aggregatorLambdaAction of [
@@ -222,16 +215,14 @@ block {
 function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
+    checkSenderIsAdminOrGovernanceSatellite(s);  
 
     case aggregatorLambdaAction of [
         |   LambdaAddOracle(addOracleParams) -> {
                 
                 if isOracleAddress(addOracleParams.oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR)
                 else block{
-                    checkSenderIsAdminOrGovernanceSatellite(s);
-                    const updatedWhiteListedContract: oracleAddressesType = Map.update(addOracleParams.oracleAddress, Some( addOracleParams.oracleInformation), s.oracleAddresses);
-                    s.oracleAddresses := updatedWhiteListedContract;
+                    s.oracleAddresses := Map.update(addOracleParams.oracleAddress, Some( addOracleParams.oracleInformation), s.oracleAddresses);
                 }   
 
             }
@@ -246,16 +237,14 @@ block {
 function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
+    checkSenderIsAdminOrGovernanceSatellite(s);
 
     case aggregatorLambdaAction of [
         |   LambdaRemoveOracle(oracleAddress) -> {
                 
                 if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_NOT_PRESENT_IN_AGGREGATOR)
                 else block{
-                    checkSenderIsAdminOrGovernanceSatellite(s);
-                    const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
-                    s.oracleAddresses := updatedWhiteListedContract;
+                    s.oracleAddresses := Map.remove(oracleAddress, s.oracleAddresses);
                 }
 
             }
@@ -276,10 +265,7 @@ block {
 
 (*  pauseAll lambda *)
 function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
-block {
-    
-    // entrypoint should not receive any tez amount   
-    checkNoAmount(Unit);   
+block {  
 
     // check that sender is admin, the Governance Contract, the Governance Satellite Contract, or the Aggregator Factory Contract
     checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
@@ -308,10 +294,7 @@ block {
 (*  unpauseAll lambda *)
 function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
-
-    // entrypoint should not receive any tez amount   
-    checkNoAmount(Unit);
-
+    
     // check that sender is admin, the Governance Contract, the Governance Satellite Contract, or the Aggregator Factory Contract
     checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
 
@@ -340,14 +323,13 @@ block {
 function lambdaTogglePauseEntrypoint(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                        UpdateData (_v)              -> s.breakGlassConfig.updateDataIsPaused                       := _v
+                        UpdateData (_v)                     -> s.breakGlassConfig.updateDataIsPaused                  := _v
                     |   WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused           := _v
                     |   WithdrawRewardStakedMvk (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused     := _v
                 ]
@@ -391,9 +373,6 @@ block{
 
     // Check that %updateData entrypoint is not paused (e.g. glass broken)
     checkUpdateDataIsNotPaused(s); 
-
-    // Check that entrypoint should not receive any tez amount   
-    checkNoAmount(Unit);
 
     case aggregatorLambdaAction of [
         |   LambdaUpdateData(params) -> {
@@ -476,9 +455,6 @@ block{
     // Check that %withdrawRewardXtz entrypoint is not paused (e.g. glass broken)
     checkWithdrawRewardXtzIsNotPaused(s);
 
-    // Check that entrypoint should not receive any tez amount   
-    checkNoAmount(Unit);
-
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
@@ -545,9 +521,6 @@ block{
 
     // Check that %withdrawRewardStakedMvk entrypoint is not paused (e.g. glass broken)
     checkWithdrawRewardStakedMvkIsNotPaused(s);
-
-    // Check that entrypoint should not receive any tez amount   
-    checkNoAmount(Unit);
     
     var operations : list(operation) := nil;
 
