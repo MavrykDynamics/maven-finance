@@ -13,7 +13,7 @@ import { FarmCard } from './FarmCard/FarmCard.controller'
 import { Modal } from '../../app/App.components/Modal/Modal.controller'
 
 // helpers
-import { calculateAPR, getSummDepositedAmount } from './Farms.helpers'
+import { calculateAPY, getSummDepositedAmount } from './Farms.helpers'
 
 // styles
 import { FarmsStyled } from './Farms.style'
@@ -134,16 +134,10 @@ export const Farms = () => {
             res = Number(a.open) - Number(b.open)
             break
           case 'highestAPY':
-            res =
-              calculateAPR(a.currentRewardPerBlock, a.lpBalance) < calculateAPR(b.currentRewardPerBlock, b.lpBalance)
-                ? 1
-                : -1
+            res = calculateAPY(a.lpTokenRate) < calculateAPY(b.lpTokenRate) ? 1 : -1
             break
           case 'lowestAPY':
-            res =
-              calculateAPR(a.currentRewardPerBlock, a.lpBalance) > calculateAPR(b.currentRewardPerBlock, b.lpBalance)
-                ? 1
-                : -1
+            res = calculateAPY(a.lpTokenRate) > calculateAPY(b.lpTokenRate) ? 1 : -1
             break
           case 'highestLiquidity':
             res = a.lpBalance < b.lpBalance ? 1 : -1

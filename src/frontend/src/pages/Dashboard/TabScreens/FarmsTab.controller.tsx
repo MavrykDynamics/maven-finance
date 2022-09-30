@@ -7,7 +7,7 @@ import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { EmptyContainer } from 'app/App.style'
 import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getFarmStorage } from 'pages/Farms/Farms.actions'
-import { calculateAPR } from 'pages/Farms/Farms.helpers'
+import { calculateAPY } from 'pages/Farms/Farms.helpers'
 import qs from 'qs'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -45,7 +45,7 @@ export const FarmsTab = () => {
           ? farmStorage.map((farmCardData) => {
               if (!farmCardData.isLive) return null
 
-              const apr = calculateAPR(farmCardData.currentRewardPerBlock, farmCardData.lpBalance)
+              const apy = calculateAPY(farmCardData.lpTokenRate)
               return (
                 <Link
                   to={`/yield-farms?${qs.stringify({ openedCards: [farmCardData.address] })}`}
@@ -62,8 +62,8 @@ export const FarmsTab = () => {
                     </div>
 
                     <div className="row-info">
-                      <div className="name">APR: </div>
-                      <div className="value">{apr}</div>
+                      <div className="name">APY: </div>
+                      <div className="value">{apy}</div>
                     </div>
 
                     <div className="row-info">
