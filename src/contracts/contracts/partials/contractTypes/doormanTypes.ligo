@@ -111,7 +111,7 @@ type doormanLambdaActionType is
     |   LambdaCompound                    of (address)
     |   LambdaFarmClaim                   of farmClaimType
 
-    // Vault Lambdas
+        // Vault Lambdas
     |   LambdaOnVaultDepositStakedMvk       of onVaultDepositStakedMvkType
     |   LambdaOnVaultWithdrawStakedMvk      of onVaultWithdrawStakedMvkType
     |   LambdaOnVaultLiquidateStakedMvk     of onVaultLiquidateStakedMvkType

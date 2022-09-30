@@ -61,7 +61,7 @@
 	},
 	{
 		"index": 15,
-		"name": "lambdaRequestRateUpdDeviation"
+		"name": "lambdaRequestRateUpdateDeviation"
 	},
 	{
 		"index": 16,

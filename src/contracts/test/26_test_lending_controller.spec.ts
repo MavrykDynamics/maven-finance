@@ -154,6 +154,9 @@ describe("Lending Controller tests", async () => {
         console.log('Bob address: '     + bob.pkh);
         console.log('Eve address: '     + eve.pkh);
 
+        // const contractParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
+        // console.log(JSON.stringify(contractParameterSchema,null,2));
+
     });
 
 
@@ -170,12 +173,12 @@ describe("Lending Controller tests", async () => {
                 // init variables
                 await signerFactory(bob.sk);
 
+                const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "mockFa12";
                 const tokenContractAddress                  = mockFa12TokenAddress.address;
                 const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
 
-                const oracleType                            = "oracle";
                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
@@ -198,10 +201,11 @@ describe("Lending Controller tests", async () => {
 
                     const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
+                        setLoanTokenActionType,
+
                         tokenName,
                         tokenDecimals,
 
-                        oracleType,
                         oracleAddress,
 
                         lpTokenContractAddress,
@@ -268,13 +272,13 @@ describe("Lending Controller tests", async () => {
                 // init variables
                 await signerFactory(bob.sk);
 
+                const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "mockFa2";
                 const tokenContractAddress                  = mockFa2TokenAddress.address;
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
-                const oracleType                            = "oracle";
                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
@@ -295,11 +299,12 @@ describe("Lending Controller tests", async () => {
                 if(checkLoanTokenExists === undefined){
 
                     const adminSetMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+                        setLoanTokenActionType,
                         
                         tokenName,
                         tokenDecimals,
 
-                        oracleType,
                         oracleAddress,
 
                         lpTokenContractAddress,
@@ -371,11 +376,11 @@ describe("Lending Controller tests", async () => {
                 // init variables
                 await signerFactory(bob.sk);
 
+                const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "tez";
                 const tokenType                             = "tez";
                 const tokenDecimals                         = 6;
 
-                const oracleType                            = "oracle";
                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
@@ -397,11 +402,12 @@ describe("Lending Controller tests", async () => {
                 if(checkLoanTokenExists === undefined){
 
                     const adminSeTezLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+                        setLoanTokenActionType,
                         
                         tokenName,
                         tokenDecimals,
 
-                        oracleType,
                         oracleAddress,
 
                         lpTokenContractAddress,
@@ -468,13 +474,13 @@ describe("Lending Controller tests", async () => {
                 lendingControllerStorage = await lendingControllerInstance.storage();
                 const currentAdmin = lendingControllerStorage.admin;
 
+                const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "failTestLoanToken";
                 const tokenContractAddress                  = mockFa2TokenAddress.address;
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
                 const tokenDecimals                         = 6;
 
-                const oracleType                            = "oracle";
                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
@@ -491,11 +497,12 @@ describe("Lending Controller tests", async () => {
                 const minRepaymentAmount                    = 10000;
 
                 await chai.expect(lendingControllerInstance.methods.setLoanToken(
+
+                    setLoanTokenActionType,
                         
                     tokenName,
                     tokenDecimals,
 
-                    oracleType,
                     oracleAddress,
 
                     lpTokenContractAddress,
@@ -534,9 +541,9 @@ describe("Lending Controller tests", async () => {
 
 
     // 
-    // Setup and test Lending Controller UpdateCollateralToken entrypoint - tokens which vault owners can use as collateral
+    // Setup and test Lending Controller setCollateralToken entrypoint - tokens which vault owners can use as collateral
     //
-    describe('%updateCollateralToken - setup and test lending controller %updateCollateralToken entrypoint', function () {
+    describe('%setCollateralToken - setup and test lending controller %setCollateralToken entrypoint', function () {
 
         it('admin can set mock FA12 as collateral token', async () => {
 
@@ -545,28 +552,31 @@ describe("Lending Controller tests", async () => {
                 // init variables
                 await signerFactory(bob.sk);
 
-                const tokenName                  = "mockFa12";
-                const tokenContractAddress       = mockFa12TokenAddress.address;
-                const tokenType                  = "fa12";
-                const tokenId                    = 0;
+                const setCollateralTokenActionType      = "createCollateralToken";
+                const tokenName                         = "mockFa12";
+                const tokenContractAddress              = mockFa12TokenAddress.address;
+                const tokenType                         = "fa12";
+                const tokenId                           = 0;
 
-                const tokenDecimals              = 6;
-                const oracleType                 = "oracle";
-                const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
+                const tokenDecimals                     = 6;
+                const oracleAddress                     = mockUsdMockFa12TokenAggregatorAddress.address;
+                const tokenProtected                    = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 if(checkCollateralTokenExists === undefined){
 
-                    const adminSetMockFa12CollateralTokenOperation = await lendingControllerInstance.methods.updateCollateralToken(
+                    const adminSetMockFa12CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        setCollateralTokenActionType,
                         
                         tokenName,
                         tokenContractAddress,
                         tokenDecimals,
 
-                        oracleType,
                         oracleAddress,
+                        tokenProtected,
 
                         // fa12 token type - token contract address
                         tokenType,
@@ -582,7 +592,6 @@ describe("Lending Controller tests", async () => {
             
                 assert.equal(mockFa12CollateralToken.tokenName              , tokenName);
                 assert.equal(mockFa12CollateralToken.tokenDecimals          , tokenDecimals);
-                assert.equal(mockFa12CollateralToken.oracleType             , oracleType);
                 assert.equal(mockFa12CollateralToken.oracleAddress          , oracleAddress);
 
             } catch(e){
@@ -597,29 +606,32 @@ describe("Lending Controller tests", async () => {
                 // init variables
                 await signerFactory(bob.sk);
 
+                const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "mockFa2";
                 const tokenContractAddress                  = mockFa2TokenAddress.address;
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
-                const oracleType                            = "oracle";
-                const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;;
+                const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+                const tokenProtected                        = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 if(checkCollateralTokenExists === undefined){
 
-                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.updateCollateralToken(
+                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        setCollateralTokenActionType,
                         
                         tokenName,
                         tokenContractAddress,
                         tokenDecimals,
 
-                        oracleType,
                         oracleAddress,
-                        
+                        tokenProtected,
+
                         // fa2 token type - token contract address + token id
                         tokenType,
                         tokenContractAddress,
@@ -635,7 +647,6 @@ describe("Lending Controller tests", async () => {
 
                 assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
                 assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
-                assert.equal(mockFa2CollateralToken.oracleType             , oracleType);
                 assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
 
 
@@ -651,28 +662,31 @@ describe("Lending Controller tests", async () => {
                 // init variables
                 await signerFactory(bob.sk);
 
+                const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "tez";
                 const tokenContractAddress                  = zeroAddress;
                 const tokenType                             = "tez";
                 const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
-                const oracleType                            = "oracle";
-                const oracleAddress                         = mockUsdXtzAggregatorAddress.address;;
+                const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+                const tokenProtected                        = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 if(checkCollateralTokenExists === undefined){
 
-                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.updateCollateralToken(
+                    const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        setCollateralTokenActionType,
                         
                         tokenName,
                         tokenContractAddress,
                         tokenDecimals,
 
-                        oracleType,
                         oracleAddress,
+                        tokenProtected,
                         
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -689,7 +703,6 @@ describe("Lending Controller tests", async () => {
 
                 assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
                 assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
-                assert.equal(mockFa2CollateralToken.oracleType             , oracleType);
                 assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
 
 
@@ -706,28 +719,31 @@ describe("Lending Controller tests", async () => {
                 // init variables
                 await signerFactory(bob.sk);
 
-                const tokenName                  = "sMVK";
-                const tokenContractAddress       = mvkTokenAddress.address;
-                const tokenType                  = "fa2";
-                const tokenId                    = 0;
+                const setCollateralTokenActionType      = "createCollateralToken";
+                const tokenName                         = "sMVK";
+                const tokenContractAddress              = mvkTokenAddress.address;
+                const tokenType                         = "fa2";
+                const tokenId                           = 0;
 
-                const tokenDecimals              = 9;
-                const oracleType                 = "oracle";
-                const oracleAddress              = mockUsdStakedMvkTokenAggregatorAddress.address;
+                const tokenDecimals                     = 9;
+                const oracleAddress                     = mockUsdStakedMvkTokenAggregatorAddress.address;
+                const tokenProtected                    = true; // sMVK is protected
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 if(checkCollateralTokenExists === undefined){
 
-                    const adminSetMockFa12CollateralTokenOperation = await lendingControllerInstance.methods.updateCollateralToken(
+                    const adminSetMockFa12CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+                        setCollateralTokenActionType,
                         
                         tokenName,
                         tokenContractAddress,
                         tokenDecimals,
 
-                        oracleType,
                         oracleAddress,
+                        tokenProtected,
 
                         // fa12 token type - token contract address
                         tokenType,
@@ -744,7 +760,6 @@ describe("Lending Controller tests", async () => {
             
                 assert.equal(stakedMvkToken.tokenName              , tokenName);
                 assert.equal(stakedMvkToken.tokenDecimals          , tokenDecimals);
-                assert.equal(stakedMvkToken.oracleType             , oracleType);
                 assert.equal(stakedMvkToken.oracleAddress          , oracleAddress);
                 
 
@@ -761,23 +776,24 @@ describe("Lending Controller tests", async () => {
                 lendingControllerStorage = await lendingControllerInstance.storage();
                 const currentAdmin = lendingControllerStorage.admin;
 
+                const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "failTestCollateralToken";
                 const tokenContractAddress                  = mockFa2TokenAddress.address;
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
-                const oracleType                            = "oracle";
                 const oracleAddress                         = zeroAddress;
             
 
-                await chai.expect(lendingControllerInstance.methods.updateCollateralToken(
+                await chai.expect(lendingControllerInstance.methods.setCollateralToken(
+
+                    setCollateralTokenActionType,
                         
                     tokenName,
                     tokenContractAddress,
                     tokenDecimals,
 
-                    oracleType,
                     oracleAddress,
                     
                     // fa2 token type - token contract address + token id
@@ -3505,7 +3521,8 @@ describe("Lending Controller tests", async () => {
             const lendingControllerStorage      = await lendingControllerInstance.storage();
             const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
+            const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger;
 
             // get vault contract
             const vaultAddress = vault.address;
@@ -3568,8 +3585,8 @@ describe("Lending Controller tests", async () => {
             // Eve's vault stake some MVK to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
-            const contractParameterSchema = eveVaultInstance.parameterSchema.ExtractSchema();
-            console.log(JSON.stringify(contractParameterSchema,null,2));
+            // const contractParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
+            // console.log(JSON.stringify(contractParameterSchema,null,2));
 
             // eve set doorman as operator for vault
             const vaultUpdateMvkOperatorOperation = await eveVaultInstance.methods.updateMvkOperators([
@@ -3584,8 +3601,7 @@ describe("Lending Controller tests", async () => {
             await vaultUpdateMvkOperatorOperation.confirmation();
 
             // vault staked mvk operation
-            const eveVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.callVaultStakedMvkAction(
-                "vaultDepositStakedMvk",
+            const eveVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.vaultDepositStakedMvk(
                 vaultId,                 
                 depositAmount                            
             ).send();
@@ -3594,7 +3610,8 @@ describe("Lending Controller tests", async () => {
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
             const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-            const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
+            const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger;
 
             // get updated balance for Eve and Vault
             const updatedMvkTokenStorage = await mvkTokenInstance.storage();
@@ -3606,6 +3623,25 @@ describe("Lending Controller tests", async () => {
 
             const updatedVaultStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const updatedVaultStakeBalance = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
+
+            const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: vaultOwner}).executeView({ viewCaller : bob.pkh});
+            const vaultViewCollateralTokenLedger = vaultRecordView.collateralBalanceLedger;
+            console.log(vaultRecordView);
+            console.log(vaultViewCollateralTokenLedger);
+
+            console.log(updatedLendingControllerStorage.collateralTokenLedger);
+            console.log("initialVaultCollateralTokenBalance: " + initialVaultCollateralTokenBalance);
+            console.log("updatedVaultCollateralTokenBalance: " + updatedVaultCollateralTokenBalance);
+
+            const tempMap                 = await updatedLendingControllerStorage.tempMap;
+            const tempVaultId             = await updatedLendingControllerStorage.tempMap.get("vaultId");
+            const tempDepositAmount       = await updatedLendingControllerStorage.tempMap.get("depositAmount");
+            const tempNewCollateralBalance       = await updatedLendingControllerStorage.tempMap.get("newCollateralBalance");
+            
+            console.log(tempMap);
+            console.log("tempVaultId: " + tempVaultId);
+            console.log("tempDepositAmount: " + tempDepositAmount);
+            console.log("tempNewCollateralBalance: " + tempNewCollateralBalance);
 
             assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance + depositAmount);
             assert.equal(updatedUserStakeBalance, userStakeBalance - depositAmount);

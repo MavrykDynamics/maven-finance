@@ -46,10 +46,7 @@ type lendingControllerAction is
         // Housekeeping Entrypoints
     |   SetAdmin                        of (address)
     |   SetGovernance                   of (address)
-    |   UpdateMetadata                  of updateMetadataType
     |   UpdateConfig                    of lendingControllerUpdateConfigParamsType
-    |   UpdateWhitelistContracts        of updateWhitelistContractsType
-    |   UpdateGeneralContracts          of updateGeneralContractsType
     |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
 
         // Break Glass Entrypoints
@@ -57,15 +54,16 @@ type lendingControllerAction is
     |   UnpauseAll                      of (unit)
     |   TogglePauseEntrypoint           of lendingControllerTogglePauseEntrypointType
 
-        // Token Pool Entrypoints
+        // Admin Entrypoints
     |   SetLoanToken                    of setLoanTokenActionType
-    |   UpdateLoanToken                 of updateLoanTokenActionType
+    |   SetCollateralToken              of setCollateralTokenActionType
+    |   RegisterVaultCreation           of registerVaultCreationActionType
+    
+        // Token Pool Entrypoints
     |   AddLiquidity                    of addLiquidityActionType
     |   RemoveLiquidity                 of removeLiquidityActionType 
 
         // Vault Entrypoints
-    |   UpdateCollateralToken           of updateCollateralTokenActionType
-    |   RegisterVaultCreation           of registerVaultCreationActionType
     |   CloseVault                      of closeVaultActionType
     |   RegisterDeposit                 of registerDepositActionType
     |   RegisterWithdrawal              of registerWithdrawalActionType
@@ -76,6 +74,9 @@ type lendingControllerAction is
 
         // Vault Staked MVK Entrypoints   
     // |   CallVaultStakedMvkAction        of callVaultStakedMvkActionType  
+    |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
+    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
+    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -511,7 +512,6 @@ block {
     const tokenType                             : tokenType     = setLoanTokenParams.tokenType;
     const tokenDecimals                         : nat           = setLoanTokenParams.tokenDecimals;
 
-    const oracleType                            : string        = setLoanTokenParams.oracleType;
     const oracleAddress                         : address        = setLoanTokenParams.oracleAddress;
 
     const lpTokenContractAddress                : address       = setLoanTokenParams.lpTokenContractAddress;
@@ -532,7 +532,6 @@ block {
         tokenType                           = tokenType;
         tokenDecimals                       = tokenDecimals;
 
-        oracleType                          = oracleType;
         oracleAddress                       = oracleAddress;
 
         lpTokensTotal                       = 0n;
@@ -562,6 +561,34 @@ block {
     ];
 
 } with newLoanTokenRecord
+
+
+
+// helper function to create new collateral token record
+function createCollateralTokenRecord(const createCollateralTokenParams : createCollateralTokenActionType) : collateralTokenRecordType is 
+block {
+
+    // init variables for convenience
+
+    const tokenName             : string       = createCollateralTokenParams.tokenName;
+    const tokenContractAddress  : address      = createCollateralTokenParams.tokenContractAddress;
+    const tokenType             : tokenType    = createCollateralTokenParams.tokenType;
+    const tokenDecimals         : nat          = createCollateralTokenParams.tokenDecimals;
+    const oracleAddress         : address      = createCollateralTokenParams.oracleAddress;
+    const protected             : bool         = createCollateralTokenParams.protected;
+    
+    const newCollateralTokenRecord : collateralTokenRecordType = record [
+        tokenName            = tokenName;
+        tokenContractAddress = tokenContractAddress;
+        tokenDecimals        = tokenDecimals;
+
+        oracleAddress        = oracleAddress;
+        protected            = protected;
+
+        tokenType            = tokenType;
+    ];
+
+} with newCollateralTokenRecord
 
 
 
@@ -1603,44 +1630,6 @@ block {
 
 
 
-(* updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : lendingControllerStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
-
-} with response
-
-
-
-(* updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : lendingControllerStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
-
-} with response
-
-
-
 (* updateWhitelistTokenContracts entrypoint *)
 function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : lendingControllerStorageType) : return is
 block {
@@ -1730,7 +1719,7 @@ block{
 
 
 // ------------------------------------------------------------------------------
-// Token Pool Entrypoints Begin
+// Admin Entrypoints Begin
 // ------------------------------------------------------------------------------
 
 (* setLoanToken entrypoint *)
@@ -1752,17 +1741,17 @@ block {
 
 
 
-(* updateLoanToken entrypoint *)
-function updateLoanToken(const updateLoanTokenParams : updateLoanTokenActionType; var s : lendingControllerStorageType) : return is 
+(* setCollateralToken entrypoint *)
+function setCollateralToken(const setCollateralTokenParams : setCollateralTokenActionType; var s : lendingControllerStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateLoanToken"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetCollateralToken"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateLoanToken(updateLoanTokenParams);
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaSetCollateralToken(setCollateralTokenParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
@@ -1770,6 +1759,33 @@ block {
 } with response
 
 
+
+(* registerVaultCreation entrypoint *)
+function registerVaultCreation(const registerVaultCreationParams : registerVaultCreationActionType; var s : lendingControllerStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterVaultCreation"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRegisterVaultCreation(registerVaultCreationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+// ------------------------------------------------------------------------------
+// Admin Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Token Pool Entrypoints Begin
+// ------------------------------------------------------------------------------
 
 (* addLiquidity entrypoint *)
 function addLiquidity(const addLiquidityParams : addLiquidityActionType; var s : lendingControllerStorageType) : return is 
@@ -1816,44 +1832,6 @@ block {
 // ------------------------------------------------------------------------------
 // Vault Entrypoints Begin
 // ------------------------------------------------------------------------------
-
-(* updateCollateralToken entrypoint *)
-function updateCollateralToken(const updateCollateralTokenParams : updateCollateralTokenActionType ; var s : lendingControllerStorageType) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCollateralToken"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateCollateralToken(updateCollateralTokenParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
-    
-} with response
-
-
-
-(* registerVaultCreation entrypoint *)
-function registerVaultCreation(const registerVaultCreationParams : registerVaultCreationActionType; var s : lendingControllerStorageType) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterVaultCreation"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaRegisterVaultCreation(registerVaultCreationParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
-    
-} with response
-
-
 
 (* closeVault entrypoint *)
 function closeVault(const closeVaultParams : closeVaultActionType ; var s : lendingControllerStorageType) : return is 
@@ -1997,22 +1975,61 @@ block {
 // Vault Staked MVK Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(* callVaultStakedMvkAction entrypoint *)
-// function callVaultStakedMvkAction(const callVaultStakedMvkActionParams : callVaultStakedMvkActionType; var s : lendingControllerStorageType) : return is 
-// block {
-
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCallVaultStakedMvkAction"] of [
-//         |   Some(_v) -> _v
-//         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
-
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams);
-
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+(* vaultDepositStakedMvk entrypoint *)
+function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
+block {
+ 
+     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultDepositStakedMvk"] of [
+         |   Some(_v) -> _v
+         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+     ];
+ 
+     // init lending controller lambda action
+     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
+ 
+     // init response
+     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
     
-// } with response
+} with response
+
+
+
+// (* vaultWithdrawStakedMvk entrypoint *)
+function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
+block {
+
+     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultWithdrawStakedMvk"] of [
+         |   Some(_v) -> _v
+         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+     ];
+
+     // init lending controller lambda action
+     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+ 
+     // init response
+     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+
+
+// (* vaultLiquidateStakedMvk entrypoint *)
+function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
+block {
+
+
+     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultLiquidateStakedMvk"] of [
+         |   Some(_v) -> _v
+         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+     ];
+
+     // init lending controller lambda action
+     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
+
+     // init response
+     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
 
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Entrypoints End
@@ -2059,10 +2076,7 @@ function main (const action : lendingControllerAction; const s : lendingControll
             // Housekeeping Entrypoints
         |   SetAdmin(parameters)                          -> setAdmin(parameters, s) 
         |   SetGovernance(parameters)                     -> setGovernance(parameters, s) 
-        |   UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)                      -> updateConfig(parameters, s)
-        |   UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
-        |   UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
 
             // Pause / Break Glass Entrypoints
@@ -2070,15 +2084,16 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   UnpauseAll(_parameters)                       -> unpauseAll(s)
         |   TogglePauseEntrypoint(parameters)             -> togglePauseEntrypoint(parameters, s)
 
-            // Token Pool Entrypoints
+            // Admin Entrypoints
         |   SetLoanToken(parameters)                      -> setLoanToken(parameters, s)
-        |   UpdateLoanToken(parameters)                   -> updateLoanToken(parameters, s)
+        |   SetCollateralToken(parameters)                -> setCollateralToken(parameters, s)
+        |   RegisterVaultCreation(parameters)             -> registerVaultCreation(parameters, s)
+
+            // Token Pool Entrypoints
         |   AddLiquidity(parameters)                      -> addLiquidity(parameters, s)
         |   RemoveLiquidity(parameters)                   -> removeLiquidity(parameters, s)
         
             // Vault Entrypoints
-        |   UpdateCollateralToken(parameters)             -> updateCollateralToken(parameters, s)
-        |   RegisterVaultCreation(parameters)             -> registerVaultCreation(parameters, s)
         |   CloseVault(parameters)                        -> closeVault(parameters, s)
         |   RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
         |   RegisterWithdrawal(parameters)                -> registerWithdrawal(parameters, s)
@@ -2088,7 +2103,9 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   Repay(parameters)                             -> repay(parameters, s)
 
             // Vault Staked MVK Entrypoints 
-        // |   CallVaultStakedMvkAction(parameters)          -> callVaultStakedMvkAction(parameters, s)  
+        |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
+        |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
+        |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    

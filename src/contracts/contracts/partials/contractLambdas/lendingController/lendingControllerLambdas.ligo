@@ -44,28 +44,6 @@ block {
 
 
 
-(* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s); // check that sender is admin 
-    
-    case lendingControllerLambdaAction of [
-        |   LambdaUpdateMetadata(updateMetadataParams) -> {
-                
-                const metadataKey   : string = updateMetadataParams.metadataKey;
-                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
-                
-                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
 (* updateConfig lambda *)
 function lambdaUpdateConfig(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
 block {
@@ -92,40 +70,6 @@ block {
     ];
   
 } with (noOperations, s)
-
-
-
-(* updateWhitelistContracts lambda *)
-// function lambdaUpdateWhitelistContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
-// block {
-    
-//     checkSenderIsAdmin(s); // check that sender is admin 
-    
-//     case lendingControllerLambdaAction of [
-//         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-//                 s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-//             }
-//         |   _ -> skip
-//     ];
-
-// } with (noOperations, s)
-
-
-
-(* updateGeneralContracts lambda *)
-// function lambdaUpdateGeneralContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
-// block {
-
-//     checkSenderIsAdmin(s); // check that sender is admin 
-    
-//     case lendingControllerLambdaAction of [
-//         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-//                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-//             }
-//         |   _ -> skip
-//     ];
-
-// } with (noOperations, s)
 
 
 
@@ -167,23 +111,26 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaPauseAll(_parameters) -> {
                 
-                // Lending Controller Token Pool Entrypoints
+                // Lending Controller Admin Entrypoints
                 if s.breakGlassConfig.setLoanTokenIsPaused then skip
                 else s.breakGlassConfig.setLoanTokenIsPaused := True;
 
+                if s.breakGlassConfig.setCollateralTokenIsPaused then skip
+                else s.breakGlassConfig.setCollateralTokenIsPaused := True;
+
+                if s.breakGlassConfig.registerVaultCreationIsPaused then skip
+                else s.breakGlassConfig.registerVaultCreationIsPaused := True;
+
+
+                // Lending Controller Token Pool Entrypoints
                 if s.breakGlassConfig.addLiquidityIsPaused then skip
                 else s.breakGlassConfig.addLiquidityIsPaused := True;
 
                 if s.breakGlassConfig.removeLiquidityIsPaused then skip
                 else s.breakGlassConfig.removeLiquidityIsPaused := True;
 
+
                 // Lending Controller Vault Entrypoints
-                if s.breakGlassConfig.updateCollateralTokenIsPaused then skip
-                else s.breakGlassConfig.updateCollateralTokenIsPaused := True;
-
-                if s.breakGlassConfig.registerVaultCreationIsPaused then skip
-                else s.breakGlassConfig.registerVaultCreationIsPaused := True;
-
                 if s.breakGlassConfig.closeVaultIsPaused then skip
                 else s.breakGlassConfig.closeVaultIsPaused := True;
 
@@ -205,13 +152,8 @@ block {
                 if s.breakGlassConfig.repayIsPaused then skip
                 else s.breakGlassConfig.repayIsPaused := True;
 
+
                 // Vault Entrypoints
-                // if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then skip
-                // else s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := True;
-
-                // if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then skip
-                // else s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := True;
-
                 if s.breakGlassConfig.vaultDepositIsPaused then skip
                 else s.breakGlassConfig.vaultDepositIsPaused := True;
 
@@ -221,8 +163,6 @@ block {
                 if s.breakGlassConfig.vaultOnLiquidateIsPaused then skip
                 else s.breakGlassConfig.vaultOnLiquidateIsPaused := True;
 
-                // if s.breakGlassConfig.vaultUpdateDepositorIsPaused then skip
-                // else s.breakGlassConfig.vaultUpdateDepositorIsPaused := True;
 
                 // Vault Staked MVK Entrypoints
                 if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then skip
@@ -256,23 +196,26 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaUnpauseAll(_parameters) -> {
             
-                // Lending Controller Token Pool Entrypoints
+                // Lending Controller Admin Entrypoints
                 if s.breakGlassConfig.setLoanTokenIsPaused then s.breakGlassConfig.setLoanTokenIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.addLiquidityIsPaused then s.breakGlassConfig.addLiquidityIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.removeLiquidityIsPaused then s.breakGlassConfig.removeLiquidityIsPaused := False
-                else skip;
-                
-                // Lending Controller Vault Entrypoints
-                if s.breakGlassConfig.updateCollateralTokenIsPaused then s.breakGlassConfig.updateCollateralTokenIsPaused := False
+                if s.breakGlassConfig.setCollateralTokenIsPaused then s.breakGlassConfig.setCollateralTokenIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.registerVaultCreationIsPaused then s.breakGlassConfig.registerVaultCreationIsPaused := False
                 else skip;
 
+
+                // Lending Controller Token Pool Entrypoints
+                if s.breakGlassConfig.addLiquidityIsPaused then s.breakGlassConfig.addLiquidityIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.removeLiquidityIsPaused then s.breakGlassConfig.removeLiquidityIsPaused := False
+                else skip;
+
+
+                // Lending Controller Vault Entrypoints
                 if s.breakGlassConfig.closeVaultIsPaused then s.breakGlassConfig.closeVaultIsPaused := False
                 else skip;
 
@@ -294,13 +237,8 @@ block {
                 if s.breakGlassConfig.repayIsPaused then s.breakGlassConfig.repayIsPaused := False
                 else skip;
 
+
                 // Vault Entrypoints
-                // if s.breakGlassConfig.vaultDelegateTezToBakerIsPaused then s.breakGlassConfig.vaultDelegateTezToBakerIsPaused := False
-                // else skip;
-
-                // if s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused then s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused := False
-                // else skip;
-
                 if s.breakGlassConfig.vaultDepositIsPaused then s.breakGlassConfig.vaultDepositIsPaused := False
                 else skip;
 
@@ -310,8 +248,6 @@ block {
                 if s.breakGlassConfig.vaultOnLiquidateIsPaused then s.breakGlassConfig.vaultOnLiquidateIsPaused := False
                 else skip;
 
-                // if s.breakGlassConfig.vaultUpdateDepositorIsPaused then s.breakGlassConfig.vaultUpdateDepositorIsPaused := False
-                // else skip;
 
                 // Vault Staked MVK Entrypoints
                 if s.breakGlassConfig.vaultDepositStakedMvkIsPaused then s.breakGlassConfig.vaultDepositStakedMvkIsPaused := False
@@ -346,15 +282,16 @@ block {
 
                 case params.targetEntrypoint of [
 
-                        // Lending Controller Token Pool Entrypoints
+                        // Lending Controller Admin Entrypoints
                     |   SetLoanToken (_v)                    -> s.breakGlassConfig.setLoanTokenIsPaused                  := _v
-                    |   UpdateLoanToken (_v)                 -> s.breakGlassConfig.updateLoanTokenIsPaused               := _v
+                    |   SetCollateralToken (_v)              -> s.breakGlassConfig.setCollateralTokenIsPaused            := _v
+                    |   RegisterVaultCreation (_v)           -> s.breakGlassConfig.registerVaultCreationIsPaused         := _v
+
+                        // Lending Controller Token Pool Entrypoints
                     |   AddLiquidity (_v)                    -> s.breakGlassConfig.addLiquidityIsPaused                  := _v
                     |   RemoveLiquidity (_v)                 -> s.breakGlassConfig.removeLiquidityIsPaused               := _v
 
                         // Lending Controller Vault Entrypoints
-                    |   UpdateCollateralToken (_v)           -> s.breakGlassConfig.updateCollateralTokenIsPaused         := _v
-                    |   RegisterVaultCreation (_v)           -> s.breakGlassConfig.registerVaultCreationIsPaused         := _v
                     |   CloseVault (_v)                      -> s.breakGlassConfig.closeVaultIsPaused                    := _v
                     |   RegisterDeposit (_v)                 -> s.breakGlassConfig.registerDepositIsPaused               := _v
                     |   RegisterWithdrawal (_v)              -> s.breakGlassConfig.registerWithdrawalIsPaused            := _v
@@ -364,12 +301,9 @@ block {
                     |   Repay (_v)                           -> s.breakGlassConfig.repayIsPaused                         := _v
 
                         // Vault Entrypoints
-                    // |   VaultDelegateTezToBaker (_v)         -> s.breakGlassConfig.vaultDelegateTezToBakerIsPaused       := _v
-                    // |   VaultDelegateMvkToSatellite (_v)     -> s.breakGlassConfig.vaultDelegateMvkToSatelliteIsPaused   := _v
                     |   VaultDeposit (_v)                    -> s.breakGlassConfig.vaultDepositIsPaused                  := _v
                     |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
                     |   VaultOnLiquidate (_v)                -> s.breakGlassConfig.vaultOnLiquidateIsPaused              := _v
-                    // |   VaultUpdateDepositor (_v)            -> s.breakGlassConfig.vaultUpdateDepositorIsPaused          := _v
 
                         // Vault Staked MVK Entrypoints
                     |   VaultDepositStakedMvk (_v)           -> s.breakGlassConfig.vaultDepositStakedMvkIsPaused         := _v
@@ -392,7 +326,7 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Token Pool Lambdas Begin
+// Admin Lambdas Begin
 // ------------------------------------------------------------------------------
 
 (* setLoanToken lambda *)
@@ -405,12 +339,40 @@ block {
 
     case lendingControllerLambdaAction of [
         |   LambdaSetLoanToken(setLoanTokenParams) -> {
-                
-                // check if loan token already exists
-                if Map.mem(setLoanTokenParams.tokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
-                
-                // update loan token ledger
-                s.loanTokenLedger[setLoanTokenParams.tokenName] := createLoanTokenRecord(setLoanTokenParams);
+
+                case setLoanTokenParams of [
+                    |   CreateLoanToken(createLoanTokenParams) -> block {
+
+                            // check if loan token already exists
+                            if Map.mem(createLoanTokenParams.tokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
+                            
+                            // update loan token ledger
+                            s.loanTokenLedger[createLoanTokenParams.tokenName] := createLoanTokenRecord(createLoanTokenParams);
+
+                        }
+                    |   UpdateLoanToken(updateLoanTokenParams) -> block{
+
+                            const loanTokenName : string = updateLoanTokenParams.tokenName;
+                    
+                            var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
+                                    Some(_record) -> _record
+                                |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                            ];
+
+                            loanTokenRecord.oracleAddress                       := updateLoanTokenParams.oracleAddress;
+
+                            loanTokenRecord.reserveRatio                         := updateLoanTokenParams.reserveRatio;
+                            loanTokenRecord.baseInterestRate                     := updateLoanTokenParams.baseInterestRate;
+                            loanTokenRecord.maxInterestRate                      := updateLoanTokenParams.maxInterestRate;
+                            loanTokenRecord.interestRateBelowOptimalUtilisation  := updateLoanTokenParams.interestRateBelowOptimalUtilisation;
+                            loanTokenRecord.interestRateAboveOptimalUtilisation  := updateLoanTokenParams.interestRateAboveOptimalUtilisation;
+                            loanTokenRecord.minRepaymentAmount                   := updateLoanTokenParams.minRepaymentAmount;
+                            
+                            // update storage
+                            s.loanTokenLedger[loanTokenName] := loanTokenRecord;
+
+                        }
+                ];
 
             }
         |   _ -> skip
@@ -420,45 +382,122 @@ block {
 
 
 
-(* updateLoanToken lambda *)
-function lambdaUpdateLoanToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+(* setCollateralToken lambda *)
+function lambdaSetCollateralToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
-    
-    checkNoAmount(Unit);                // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);            // check that sender is admin or the Governance Contract address
-    checkUpdateLoanTokenIsNotPaused(s);    // check that %updateLoanToken entrypoint is not paused (e.g. if glass broken)
+
+    checkSenderIsAdmin(s);                    // check that sender is admin 
+    checkSetCollateralTokenIsNotPaused(s);    // check that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
-        |   LambdaUpdateLoanToken(updateLoanTokenParams) -> {
-                
-                // init parameters
-                const loanTokenName : string = updateLoanTokenParams.tokenName;
-                
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
+        |   LambdaSetCollateralToken(setCollateralTokenParams) -> {
+
+                case setCollateralTokenParams of [
+                    |   CreateCollateralToken(createCollateralTokenParams) -> block {
+
+                            // check if collateral token already exists
+                            if Map.mem(createCollateralTokenParams.tokenName, s.collateralTokenLedger) then failwith(error_COLLATERAL_TOKEN_ALREADY_EXISTS) else skip;
+
+                            // update collateral token ledger
+                            s.collateralTokenLedger[createCollateralTokenParams.tokenName] := createCollateralTokenRecord(createCollateralTokenParams);
+
+                        }
+                    |   UpdateCollateralToken(updateCollateralTokenParams) -> block{
+
+                            const collateralTokenName : string = updateCollateralTokenParams.tokenName;
+                    
+                            var collateralTokenRecord : collateralTokenRecordType := case s.collateralTokenLedger[collateralTokenName] of [
+                                    Some(_record) -> _record
+                                |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+                            ];
+
+                            collateralTokenRecord.oracleAddress          := updateCollateralTokenParams.oracleAddress;
+
+                            // update storage
+                            s.collateralTokenLedger[collateralTokenName] := collateralTokenRecord;
+
+                        }
+                ];
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* registerVaultCreation lambda *)
+function lambdaRegisterVaultCreation(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+    
+    var operations : list(operation) := nil;
+    checkRegisterVaultCreationIsNotPaused(s);    // check that %registerVaultCreation entrypoint is not paused (e.g. if glass broken)
+
+    case lendingControllerLambdaAction of [
+        |   LambdaRegisterVaultCreation(registerVaultCreationParams) -> {
+
+                // check sender is vault factory contract
+                checkSenderIsVaultFactoryContract(s);
+
+                // init params
+                const vaultOwner     : address = registerVaultCreationParams.vaultOwner;
+                const vaultId        : nat     = registerVaultCreationParams.vaultId;
+                const vaultAddress   : address = registerVaultCreationParams.vaultAddress;
+                const loanTokenName  : string  = registerVaultCreationParams.loanTokenName;
+
+                // make vault handle
+                const handle : vaultHandleType = record [
+                    id     = vaultId;
+                    owner  = vaultOwner;
+                ];
+
+                // Get loan token record
+                const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[loanTokenName] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
-                loanTokenRecord.oracleType                          := updateLoanTokenParams.oracleType;
-                loanTokenRecord.oracleAddress                       := updateLoanTokenParams.oracleAddress;
-
-                loanTokenRecord.reserveRatio                         := updateLoanTokenParams.reserveRatio;
-                loanTokenRecord.baseInterestRate                     := updateLoanTokenParams.baseInterestRate;
-                loanTokenRecord.maxInterestRate                      := updateLoanTokenParams.maxInterestRate;
-                loanTokenRecord.interestRateBelowOptimalUtilisation  := updateLoanTokenParams.interestRateBelowOptimalUtilisation;
-                loanTokenRecord.interestRateAboveOptimalUtilisation  := updateLoanTokenParams.interestRateAboveOptimalUtilisation;
-                loanTokenRecord.minRepaymentAmount                   := updateLoanTokenParams.minRepaymentAmount;
+                // Get borrow index of token
+                const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
                 
-                // update storage
-                s.loanTokenLedger[loanTokenName] := loanTokenRecord;
+                // init empty collateral balance ledger map
+                var collateralBalanceLedgerMap : collateralBalanceLedgerType := map[];
+                
+                // create vault record
+                const vault : vaultRecordType = createVaultRecord(
+                    vaultAddress,                   // vault address
+                    collateralBalanceLedgerMap,     // collateral balance ledger
+                    loanTokenRecord.tokenName,      // loan token name
+                    loanTokenRecord.tokenDecimals,  // loan token decimals
+                    tokenBorrowIndex                // token borrow index
+                );
+                
+                // update controller storage with new vault
+                s.vaults := Big_map.update(handle, Some(vault), s.vaults);
+
+                // add new vault to owner's vault set
+                var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
+                        Some (_set) -> _set
+                    |   None        -> set []
+                ];
+                s.ownerLedger[vaultOwner] := Set.add(vaultId, ownerVaultSet);
 
             }
         |   _ -> skip
     ];
 
-} with (noOperations, s)
+} with (operations, s)
+
+// ------------------------------------------------------------------------------
+// Admin Lambdas End
+// ------------------------------------------------------------------------------
 
 
+
+// ------------------------------------------------------------------------------
+// Token Pool Lambdas Begin
+// ------------------------------------------------------------------------------
 
 (* addLiquidity lambda *)
 function lambdaAddLiquidity(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
@@ -646,121 +685,6 @@ block {
 // ------------------------------------------------------------------------------
 // Vault Lambdas Begin
 // ------------------------------------------------------------------------------
-
-(* updateCollateralToken lambda *)
-function lambdaUpdateCollateralToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s);                       // check that sender is admin 
-    checkUpdateCollateralTokenIsNotPaused(s);    // check that %updateCollateralToken entrypoint is not paused (e.g. if glass broken)
-
-    case lendingControllerLambdaAction of [
-        |   LambdaUpdateCollateralToken(updateCollateralTokenParams) -> {
-                
-                const tokenName             : string       = updateCollateralTokenParams.tokenName;
-                const tokenContractAddress  : address      = updateCollateralTokenParams.tokenContractAddress;
-                const tokenType             : tokenType    = updateCollateralTokenParams.tokenType;
-                const tokenDecimals         : nat          = updateCollateralTokenParams.tokenDecimals;
-                const oracleType            : string       = updateCollateralTokenParams.oracleType;
-                var oracleAddress           : address     := updateCollateralTokenParams.oracleAddress;
-
-                if oracleType = "cfmm" then block {
-                    oracleAddress := zeroAddress;
-                } else skip;
-                
-                const collateralTokenRecord : collateralTokenRecordType = record [
-                    tokenName            = tokenName;
-                    tokenContractAddress = tokenContractAddress;
-                    tokenType            = tokenType;
-                    tokenDecimals        = tokenDecimals;
-
-                    oracleType           = oracleType;
-                    oracleAddress        = oracleAddress;
-                ];
-
-                const existingToken: option(collateralTokenRecordType) = 
-                if checkInCollateralTokenLedger(collateralTokenRecord, s) then (None : option(collateralTokenRecordType)) else Some (collateralTokenRecord);
-
-                const updatedCollateralTokenLedger : collateralTokenLedgerType = 
-                    Map.update(
-                        tokenName, 
-                        existingToken,
-                        s.collateralTokenLedger
-                    );
-
-                s.collateralTokenLedger := updatedCollateralTokenLedger
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* registerVaultCreation lambda *)
-function lambdaRegisterVaultCreation(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
-    
-    var operations : list(operation) := nil;
-    checkRegisterVaultCreationIsNotPaused(s);    // check that %registerVaultCreation entrypoint is not paused (e.g. if glass broken)
-
-    case lendingControllerLambdaAction of [
-        |   LambdaRegisterVaultCreation(registerVaultCreationParams) -> {
-
-                // check sender is vault factory contract
-                checkSenderIsVaultFactoryContract(s);
-
-                // init params
-                const vaultOwner     : address = registerVaultCreationParams.vaultOwner;
-                const vaultId        : nat     = registerVaultCreationParams.vaultId;
-                const vaultAddress   : address = registerVaultCreationParams.vaultAddress;
-                const loanTokenName  : string  = registerVaultCreationParams.loanTokenName;
-
-                // make vault handle
-                const handle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = vaultOwner;
-                ];
-
-                // Get loan token record
-                const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[loanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
-
-                // Get borrow index of token
-                const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
-                
-                // init empty collateral balance ledger map
-                var collateralBalanceLedgerMap : collateralBalanceLedgerType := map[];
-                
-                // create vault record
-                const vault : vaultRecordType = createVaultRecord(
-                    vaultAddress,                   // vault address
-                    collateralBalanceLedgerMap,     // collateral balance ledger
-                    loanTokenRecord.tokenName,      // loan token name
-                    loanTokenRecord.tokenDecimals,  // loan token decimals
-                    tokenBorrowIndex                // token borrow index
-                );
-                
-                // update controller storage with new vault
-                s.vaults := Big_map.update(handle, Some(vault), s.vaults);
-
-                // add new vault to owner's vault set
-                var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
-                        Some (_set) -> _set
-                    |   None        -> set []
-                ];
-                s.ownerLedger[vaultOwner] := Set.add(vaultId, ownerVaultSet);
-
-            }
-        |   _ -> skip
-    ];
-
-} with (operations, s)
-
-
 
 (* closeVault lambda *)
 function lambdaCloseVault(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
@@ -1338,6 +1262,9 @@ block {
                 const tokenName       : string            = registerDepositParams.tokenName;
                 const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
+                // check that token name is not protected (e.g. sMVK)
+                if tokenName = "sMVK" then failwith(error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK) else skip;
+
                 // get vault
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
@@ -1443,6 +1370,9 @@ block {
                 const tokenName           : string            = registerWithdrawalParams.tokenName;
                 const initiator           : address           = Tezos.get_sender(); // vault address that initiated withdrawal
 
+                // check that token name is not protected (e.g. sMVK)
+                if tokenName = "sMVK" then failwith(error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK) else skip;
+
                 // get vault
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
@@ -1496,11 +1426,6 @@ block {
                 // ------------------------------------------------------------------
                 // Register token withdrawal in vault collateral balance ledger
                 // ------------------------------------------------------------------
-
-                // if tez is to be withdrawn, check that Tezos amount should be the same as withdraw amount
-                // if tokenName = "tez" then block {
-                //     if mutezToNatural(Tezos.get_amount()) =/= withdrawalAmount then failwith(error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT) else skip;
-                // } else skip;
 
                 // get token collateral balance in vault, fail if none found
                 var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
@@ -1954,38 +1879,38 @@ block {
 // ------------------------------------------------------------------------------
 
 // (* callVaultStakedMvkEntrypoint lambda *)
-function lambdaCallVaultStakedMvkAction(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
-block {
+// function lambdaCallVaultStakedMvkAction(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
+// block {
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case lendingControllerLambdaAction of [
-        |   LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams) -> {
+//     case lendingControllerLambdaAction of [
+//         |   LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams) -> {
 
-                const lambdaName : string = case callVaultStakedMvkActionParams of [
-                    |   VaultDepositStakedMvk (_v)     -> "lambdaVaultDepositStakedMvk"
-                    |   VaultWithdrawStakedMvk (_v)    -> "lambdaVaultWithdrawStakedMvk"
-                    |   VaultLiquidateStakedMvk (_v)   -> "lambdaVaultLiquidateStakedMvk"
-                ];
+//                 const lambdaName : string = case callVaultStakedMvkActionParams of [
+//                     |   VaultDepositStakedMvk (_v)     -> "lambdaVaultDepositStakedMvk"
+//                     |   VaultWithdrawStakedMvk (_v)    -> "lambdaVaultWithdrawStakedMvk"
+//                     |   VaultLiquidateStakedMvk (_v)   -> "lambdaVaultLiquidateStakedMvk"
+//                 ];
 
-                // Get entrypoint lambda as bytes
-                const lambdaBytes : bytes = case s.lambdaLedger[lambdaName] of [
-                    |   Some(_v) -> _v
-                    |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-                ];
+//                 // Get entrypoint lambda as bytes
+//                 const lambdaBytes : bytes = case s.lambdaLedger[lambdaName] of [
+//                     |   Some(_v) -> _v
+//                     |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+//                 ];
 
-                const res : return = case (Bytes.unpack(lambdaBytes) : option(lendingControllerUnpackLambdaFunctionType)) of [
-                    |   Some(f) -> f(lendingControllerLambdaAction, s)
-                    |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-                ];
+//                 const res : return = case (Bytes.unpack(lambdaBytes) : option(lendingControllerUnpackLambdaFunctionType)) of [
+//                     |   Some(f) -> f(lendingControllerLambdaAction, s)
+//                     |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+//                 ];
 
-                operations := res.0;
+//                 operations := res.0;
 
-            }
-        |   _ -> skip
-    ]
+//             }
+//         |   _ -> skip
+//     ]
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
@@ -2005,6 +1930,9 @@ block {
                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
                 const tokenName       : string            = "sMVK";
 
+                s.tempMap["vaultId"] := vaultId;
+                s.tempMap["depositAmount"] := depositAmount;
+
                 // Get Doorman Address from the General Contracts map on the Governance Contract
                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
@@ -2019,6 +1947,49 @@ block {
 
                 // Get vault if exists
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+
+                // ------------------------------------------------------------------
+                // Update Loan Token state and get token borrow index
+                // ------------------------------------------------------------------
+
+                // Get current vault borrow index, and vault loan token name
+                var vaultBorrowIndex      : nat := vault.borrowIndex;
+                const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
+
+                // Get loan token type
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                ];
+
+                // Get loan token parameters
+                const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
+
+                // ------------------------------------------------------------------
+                // Accrue interest to vault oustanding
+                // ------------------------------------------------------------------
+
+                // Get current user loan outstanding and init new total variables
+                const currentLoanOutstandingTotal  : nat = vault.loanOutstandingTotal;
+                const initialLoanPrincipalTotal    : nat = vault.loanPrincipalTotal;
+
+                var newLoanOutstandingTotal        : nat := currentLoanOutstandingTotal;
+                var newLoanPrincipalTotal          : nat := vault.loanPrincipalTotal;
+                var newLoanInterestTotal           : nat := vault.loanInterestTotal;
+
+                // calculate interest
+                newLoanOutstandingTotal := accrueInterestToVault(
+                    currentLoanOutstandingTotal,
+                    vaultBorrowIndex,
+                    tokenBorrowIndex
+                );
+
+                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+
+                // ------------------------------------------------------------------
+                // Register vaultDepositStakedMvk action on the Doorman Contract
+                // ------------------------------------------------------------------
 
                 const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType = record [
                     vaultOwner    = vaultOwner;
@@ -2040,9 +2011,26 @@ block {
                 // calculate new collateral balance
                 const newCollateralBalance : nat = currentVaultStakedMvkBalance + depositAmount;
 
-                // save and update new balance for collateral token
+                s.tempMap["newCollateralBalance"] := newCollateralBalance;
+
+                // ------------------------------------------------------------------
+                // Update storage
+                // ------------------------------------------------------------------
+
+                vault.loanOutstandingTotal                := newLoanOutstandingTotal;
+                vault.loanPrincipalTotal                  := newLoanPrincipalTotal;
+                vault.loanInterestTotal                   := newLoanInterestTotal;
+                vault.borrowIndex                         := tokenBorrowIndex;
+                vault.lastUpdatedBlockLevel               := Tezos.get_level();
+                vault.lastUpdatedTimestamp                := Tezos.get_now();
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
                 s.vaults[vaultHandle]                     := vault;
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                if loanTokenRecord.tokenPoolTotal > 0n then {
+                    loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+                } else skip;
+                s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
                 
             }
         |   _ -> skip
@@ -2132,7 +2120,7 @@ block {
                 // init variables for convenience
                 const vaultId           : vaultIdType       = vaultLiquidateStakedMvkParams.vaultId;
                 const vaultOwner        : vaultOwnerType    = vaultLiquidateStakedMvkParams.vaultOwner;
-                const liquidator        : address            = vaultLiquidateStakedMvkParams.liquidator;
+                const liquidator        : address           = vaultLiquidateStakedMvkParams.liquidator;
                 const liquidatedAmount  : nat               = vaultLiquidateStakedMvkParams.liquidatedAmount;
                 const tokenName         : string            = "sMVK";
 
