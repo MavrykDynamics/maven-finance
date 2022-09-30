@@ -16,7 +16,7 @@
 #include "../partials/shared/transferHelpers.ligo"
 
 // Votes Helpers
-#include "../partials/shared/voteHelpers.ligo"
+#include "../partials/shared/councilActionHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types

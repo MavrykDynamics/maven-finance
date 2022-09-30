@@ -4,7 +4,7 @@
 
 
 // Council Types
-#include "../shared/councilMemberTypes.ligo"
+#include "../shared/councilActionTypes.ligo"
 
 // Vote Types
 #include "../shared/voteTypes.ligo"
