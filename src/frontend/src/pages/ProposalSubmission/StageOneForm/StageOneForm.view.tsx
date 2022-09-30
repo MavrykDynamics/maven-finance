@@ -13,6 +13,7 @@ import { Info } from '../../../app/App.components/Info/Info.view'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+import { SUBMIT } from 'app/App.components/Button/Button.constants'
 
 // hooks
 import useGovernence from '../../Governance/UseGovernance'
@@ -64,7 +65,7 @@ export const StageOneFormView = ({
   const disabled = Boolean(proposalId) || !isProposalRound
 
   return (
-    <>
+    <form onSubmit={handleSubmitProposal}>
       <FormHeaderGroup>
         <h1>Stage 1 </h1>
         <StatusFlag
@@ -139,6 +140,7 @@ export const StageOneFormView = ({
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
             inputStatus={formInputStatus.sourceCodeLink}
             disabled={disabled}
+            required
           />
         </div>
       )}
@@ -149,9 +151,9 @@ export const StageOneFormView = ({
           kind="actionPrimary"
           disabled={disabled}
           text={'Submit Proposal'}
-          onClick={handleSubmitProposal}
+          type={SUBMIT}
         />
       </FormButtonContainer>
-    </>
+    </form>
   )
 }
