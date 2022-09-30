@@ -3531,10 +3531,10 @@ describe("Lending Controller tests", async () => {
             const userMVKBalance = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
                 
             const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
-            const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber()
+            const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
 
             const vaultStakeLedger = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
-            const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber()
+            const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
     
             const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
 
@@ -3629,7 +3629,7 @@ describe("Lending Controller tests", async () => {
             console.log(vaultRecordView);
             console.log(vaultViewCollateralTokenLedger);
 
-            console.log(updatedLendingControllerStorage.collateralTokenLedger);
+            // console.log(updatedLendingControllerStorage.collateralTokenLedger);
             console.log("initialVaultCollateralTokenBalance: " + initialVaultCollateralTokenBalance);
             console.log("updatedVaultCollateralTokenBalance: " + updatedVaultCollateralTokenBalance);
 
@@ -3638,13 +3638,17 @@ describe("Lending Controller tests", async () => {
             const tempDepositAmount       = await updatedLendingControllerStorage.tempMap.get("depositAmount");
             const tempNewCollateralBalance       = await updatedLendingControllerStorage.tempMap.get("newCollateralBalance");
             
-            console.log(tempMap);
+            // console.log(tempMap);
             console.log("tempVaultId: " + tempVaultId);
             console.log("tempDepositAmount: " + tempDepositAmount);
             console.log("tempNewCollateralBalance: " + tempNewCollateralBalance);
 
+
+            console.log("userStakeBalance - depositAmount: " + (userStakeBalance - depositAmount));
+            console.log("vaultStakeBalance + depositAmount: " + (vaultStakeBalance + depositAmount));
+
             assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance + depositAmount);
-            assert.equal(updatedUserStakeBalance, userStakeBalance - depositAmount);
+            assert.equal(updatedUserStakeBalance, userStakeBalanceEnd - depositAmount);
             assert.equal(updatedVaultStakeBalance, vaultStakeBalance + depositAmount);
             assert.equal(updatedUserMVKBalance, userMVKBalanceEnd);
 
