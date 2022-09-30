@@ -250,7 +250,7 @@ const VerticalFarmComponent = ({
           token2Symbol={farm.lpToken2.symbol}
         />
       </Expand>
-      {visibleModal ? <RoiCalculator lpTokenAddress={farm.lpTokenAddress} onClose={closeCalculatorModal} /> : null}
+      {visibleModal ? <RoiCalculator onClose={closeCalculatorModal} /> : null}
     </FarmCardStyled>
   )
 }
@@ -311,7 +311,7 @@ const HorisontalFarmComponent = ({
           />
         </div>
       </Expand>
-      {visibleModal ? <RoiCalculator lpTokenAddress={farm.lpTokenAddress} onClose={closeCalculatorModal} /> : null}
+      {visibleModal ? <RoiCalculator onClose={closeCalculatorModal} /> : null}
     </FarmCardStyled>
   )
 }
