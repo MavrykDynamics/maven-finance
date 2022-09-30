@@ -15,7 +15,7 @@ import Expand from '../../../app/App.components/Expand/Expand.view'
 // style
 import { RoiCalculatorStyled, RoiExpandStyled } from './RoiCalculator.style'
 import { SUCCESS_STATUS, ERROR_STATUS } from 'app/App.components/Modal/FarmWithdrawModal/FarmWithdrawModal.controller'
-import { getUserBalanceByAddress } from '../Farms.helpers'
+import { calculateAPR, calculateAPY, getUserBalanceByAddress } from '../Farms.helpers'
 import { SELECT_FARM_ADDRESS } from '../Farms.actions'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { votingRoundVoteType } from 'utils/TypesAndInterfaces/Governance'
@@ -145,7 +145,8 @@ export default function RoiCalculator({ onClose }: Props) {
 
   const tokensNames =
     farm.lpToken1.symbol && farm.lpToken2.symbol && `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}`
-
+  const valueAPY = calculateAPY(farm.lpTokenRate)
+  const farmAPR = calculateAPR(farm.currentRewardPerBlock, farm.lpTokenRate, farm.lpBalance)
   // handlers for inputs
   const handleBlur = () => {
     if (inputValue.amount === '') {
@@ -363,23 +364,33 @@ export default function RoiCalculator({ onClose }: Props) {
           <ul className="roi-expand-ul">
             <li>
               <h4>APR (incl LP rewards)</h4>
-              <var>21.57%</var>
+              <var>
+                <CommaNumber value={farmAPR} endingText="%" />
+              </var>
             </li>
             <li>
               <h4>Base APR (MVK yield only)</h4>
-              <var>21.57%</var>
+              <var>
+                <CommaNumber value={0} endingText="%" />
+              </var>
             </li>
             <li>
               <h4>LP Rewards APR</h4>
-              <var>21.57%</var>
+              <var>
+                <CommaNumber value={farmAPR} endingText="%" />
+              </var>
             </li>
             <li>
               <h4>APY</h4>
-              <var>21.57%</var>
+              <var>
+                <CommaNumber value={valueAPY} endingText="%" />
+              </var>
             </li>
             <li>
               <h4>Farm Multiplier</h4>
-              <var>21.57%</var>
+              <var>
+                <CommaNumber value={0} endingText="%" />
+              </var>
             </li>
           </ul>
         </Expand>

@@ -21,7 +21,7 @@ import { SELECT_FARM_ADDRESS } from '../Farms.actions'
 import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 
 // helpers
-import { calculateAPR } from '../Farms.helpers'
+import { calculateAPY } from '../Farms.helpers'
 
 // styles
 import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
@@ -54,7 +54,7 @@ const LogoHeaderContent = ({
   </div>
 )
 
-const AprBlock = ({ valueAPR, triggerCalculatorModal }: { valueAPR: number; triggerCalculatorModal: () => void }) => (
+const ApyBlock = ({ valueAPR, triggerCalculatorModal }: { valueAPR: number; triggerCalculatorModal: () => void }) => (
   <div className="farm-info">
     <h3>APY</h3>
     <div className="btn-info">
@@ -181,7 +181,7 @@ const FarmingBlock = ({
 type FarmCardViewProps = {
   farm: FarmStorage[number]
   visibleModal: boolean
-  aprValue: number
+  apyValue: number
   accountPkh?: string
   isOpenedCard: boolean
   userReward: UserFarmRewardsData
@@ -198,7 +198,7 @@ const VerticalFarmComponent = ({
   visibleModal,
   isOpenedCard,
   userReward,
-  aprValue,
+  apyValue,
   accountPkh,
   triggerWithdrawModal,
   closeCalculatorModal,
@@ -219,7 +219,7 @@ const VerticalFarmComponent = ({
         secondToken={farm.lpToken2}
       />
       <div className="farm-info-vertical">
-        <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
+        <ApyBlock valueAPR={apyValue} triggerCalculatorModal={triggerCalculatorModal} />
         <EarnBlock />
         <TotalLiquidityBlock totalLiquidity={farm.lpBalance} />
       </div>
@@ -260,7 +260,7 @@ const HorisontalFarmComponent = ({
   visibleModal,
   isOpenedCard,
   userReward,
-  aprValue,
+  apyValue,
   accountPkh,
   triggerWithdrawModal,
   closeCalculatorModal,
@@ -288,7 +288,7 @@ const HorisontalFarmComponent = ({
               secondToken={farm.lpToken2}
             />
             <EarnBlock />
-            <AprBlock valueAPR={aprValue} triggerCalculatorModal={triggerCalculatorModal} />
+            <ApyBlock valueAPR={apyValue} triggerCalculatorModal={triggerCalculatorModal} />
             <TotalLiquidityBlock totalLiquidity={farm.lpBalance} />
           </>
         }
@@ -334,7 +334,7 @@ export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, e
 
   const [visibleModal, setVisibleModal] = useState(false)
 
-  const valueAPR = calculateAPR(currentRewardPerBlock, farm.lpBalance)
+  const valueAPR = calculateAPY(farm.lpTokenRate)
   const userReward = myFarmRewardsData[farm.address]
 
   const harvestRewards = () => {
@@ -380,7 +380,7 @@ export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, e
       userReward={userReward}
       closeCalculatorModal={closeCalculatorModal}
       expandBlockCallback={expandBlockCallback}
-      aprValue={valueAPR}
+      apyValue={valueAPR}
       triggerCalculatorModal={triggerCalculatorModal}
       triggerDepositModal={triggerDepositModal}
       triggerWithdrawModal={triggerWithdrawModal}
@@ -396,7 +396,7 @@ export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, e
       userReward={userReward}
       closeCalculatorModal={closeCalculatorModal}
       expandBlockCallback={expandBlockCallback}
-      aprValue={valueAPR}
+      apyValue={valueAPR}
       triggerCalculatorModal={triggerCalculatorModal}
       triggerDepositModal={triggerDepositModal}
       triggerWithdrawModal={triggerWithdrawModal}
