@@ -259,7 +259,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
         </div>
         <div className="suspend-satellite-group">
           <Button
-            className={variant}
+            className={`${variant} fill`}
             icon={content?.btnIcon || ''}
             kind="actionPrimary"
             text={content?.btnText || ''}
