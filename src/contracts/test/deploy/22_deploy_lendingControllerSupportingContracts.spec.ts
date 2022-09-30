@@ -46,7 +46,7 @@ describe('Lending Controller', async () => {
     var mockUsdXtzAggregator            : Aggregator
     var mockUsdMockFa12TokenAggregator  : Aggregator
     var mockUsdMockFa2TokenAggregator   : Aggregator
-    var mockUsdStakedMvkTokenAggregator : Aggregator
+    var mockUsdMvkTokenAggregator       : Aggregator
 
     var tezos
 
@@ -186,13 +186,13 @@ describe('Lending Controller', async () => {
                 percentOracleResponse   : new BigNumber(100),
                 priceDateTime           : '1'
             };
-            mockUsdStakedMvkTokenAggregator = await Aggregator.originate(
+            mockUsdMvkTokenAggregator = await Aggregator.originate(
                 utils.tezos,
                 aggregatorStorage
             )
 
-            await saveContractAddress('mockUsdStakedMvkTokenAggregatorAddress', mockUsdStakedMvkTokenAggregator.contract.address)
-            console.log('Mock USD/StakedMvkToken Aggregator Contract deployed at:', mockUsdStakedMvkTokenAggregator.contract.address)
+            await saveContractAddress('mockUsdMvkTokenAggregatorAddress', mockUsdMvkTokenAggregator.contract.address)
+            console.log('Mock USD/MvkToken Aggregator Contract deployed at:', mockUsdMvkTokenAggregator.contract.address)
 
             //----------------------------
             // Set Lambdas
@@ -204,7 +204,7 @@ describe('Lending Controller', async () => {
             await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
             await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
             await setAggregatorLambdas(tezos, mockUsdXtzAggregator.contract);
-            await setAggregatorLambdas(tezos, mockUsdStakedMvkTokenAggregator.contract);
+            await setAggregatorLambdas(tezos, mockUsdMvkTokenAggregator.contract);
           
         } catch(e){
         console.dir(e, {depth: 5})
