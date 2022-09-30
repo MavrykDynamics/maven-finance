@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -8,85 +8,228 @@ import CoinsIcons from '../../../app/App.components/Icon/CoinsIcons.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { SlidingTabButtons, TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import Checkbox from '../../../app/App.components/Checkbox/Checkbox.view'
 import Expand from '../../../app/App.components/Expand/Expand.view'
 
-// helpers
-import { mathRoundTwoDigit } from '../../../utils/validatorFunctions'
-
 // style
 import { RoiCalculatorStyled, RoiExpandStyled } from './RoiCalculator.style'
+import { SUCCESS_STATUS, ERROR_STATUS } from 'app/App.components/Modal/FarmWithdrawModal/FarmWithdrawModal.controller'
+import { getUserBalanceByAddress } from '../Farms.helpers'
+import { SELECT_FARM_ADDRESS } from '../Farms.actions'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { votingRoundVoteType } from 'utils/TypesAndInterfaces/Governance'
+
+const STAKED_ITEMS = [
+  { text: '1D', id: 1, active: true, actualValue: 1 },
+  { text: '7D', id: 2, active: false, actualValue: 7 },
+  { text: '30D', id: 3, active: false, actualValue: 30 },
+  { text: '1Y', id: 4, active: false, actualValue: 365 },
+  { text: '5Y', id: 5, active: false, actualValue: 1825 },
+]
+
+const COMPOUNDING_ITEMS = [
+  { text: '1D', id: 1, active: false, actualValue: 1 },
+  { text: '7D', id: 2, active: false, actualValue: 7 },
+  { text: '14D', id: 3, active: false, actualValue: 14 },
+  { text: '30D', id: 4, active: false, actualValue: 30 },
+]
+
+type SelectedTabsStateType = {
+  balanceTab: null | (TabItem & { actualValue: number | null })
+  stakedTab: null | (TabItem & { actualValue: number | null })
+  compoundTab: null | (TabItem & { actualValue: number | null })
+}
+
+type InputValuesType = {
+  amount: number | ''
+  backwardAmount: number | ''
+}
+
+type InputStatusesType = {
+  amountStatus: InputStatusType
+  backwardStatus: InputStatusType
+}
 
 type Props = {
   onClose: () => void
-  lpTokenAddress: string
 }
 
-export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
-  const { selectedFarmAddress } = useSelector((state: State) => state.farm)
-  const [amount, setAmount] = useState<number | ''>('')
-  const [status, setStatus] = useState<InputStatusType>('')
+const LP_EXCHANGE_RATE = 0.5
 
-  const currentContract = useMemo(
-    () => [{ address: '', balance: 0 }].find((item) => item.address === lpTokenAddress),
-    [selectedFarmAddress],
+export default function RoiCalculator({ onClose }: Props) {
+  const dispatch = useDispatch()
+  const { selectedFarmAddress, farmStorage } = useSelector((state: State) => state.farm)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { exchangeRate } = useSelector((state: State) => state.mvkToken)
+
+  const farm = farmStorage.find(({ address }) => selectedFarmAddress === address)
+
+  const [inputStatus, setInputStatus] = useState<InputStatusesType>({
+    amountStatus: '',
+    backwardStatus: '',
+  })
+  const [inputValue, setInputValue] = useState<InputValuesType>({
+    amount: 0,
+    backwardAmount: 0,
+  })
+
+  const [isPensilClicked, togglePensil] = useState(false)
+  const [userBalance, setUserBalance] = useState(0)
+
+  const STAKED_VALUES = useMemo(
+    () => [
+      { text: '$100', id: 1, active: false, actualValue: 100 },
+      { text: '$1000', id: 2, active: false, actualValue: 1000 },
+      { text: 'My Balance', id: 3, active: false, actualValue: userBalance, isDisabled: !accountPkh },
+    ],
+    [userBalance, accountPkh],
   )
 
-  const STAKED_ITEMS = [
-    { text: '1D', id: 1, active: true },
-    { text: '7D', id: 2, active: false },
-    { text: '30D', id: 3, active: false },
-    { text: '1Y', id: 4, active: false },
-    { text: '5Y', id: 5, active: false },
-  ]
+  // state for tabs
+  const [compoundEverythingActive, toggleCompoundEverything] = useState(false)
+  const [shouldDisableBalanceTabs, toggleDisablingBalanceTabs] = useState(false)
+  const [tabsSelected, selectTab] = useState<SelectedTabsStateType>({
+    balanceTab: null,
+    stakedTab: STAKED_VALUES[0],
+    compoundTab: compoundEverythingActive ? COMPOUNDING_ITEMS[0] : null,
+  })
 
-  const COMPOUNDING_ITEMS = [
-    { text: '1D', id: 1, active: true },
-    { text: '7D', id: 2, active: false },
-    { text: '14D', id: 3, active: false },
-    { text: '30D', id: 4, active: false },
-  ]
-  const STAKED_VALUES = [
-    { text: '$100', id: 1, active: false },
-    { text: '$1000', id: 2, active: false },
-    { text: 'My Balance', id: 3, active: false },
-  ]
+  const lpValue = useMemo(() => Number(inputValue.amount) * LP_EXCHANGE_RATE, [inputValue.amount])
 
-  console.log('%c ||||| currentContract', 'color:yellowgreen', currentContract)
-
-  console.log('%c ||||| STAKED_VALUES', 'color:gold', STAKED_VALUES)
-
-  const checkInputIsOk = (value: number | '') => {
-    setStatus(value ? 'success' : 'error')
+  const getUserBalance = async () => {
+    const userBalanceFetched = Number(await getUserBalanceByAddress(farm?.lpTokenAddress))
+    setUserBalance(userBalanceFetched)
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = mathRoundTwoDigit(e.target.value)
-    checkInputIsOk(value)
+  useEffect(() => {
+    getUserBalance()
+  }, [])
+
+  // validation for input and running calcuations based on input
+  useEffect(() => {
+    const validityStatus = +inputValue.backwardAmount >= 0 ? SUCCESS_STATUS : ERROR_STATUS
+
+    setInputStatus({
+      ...inputStatus,
+      backwardStatus: validityStatus,
+    })
+
+    if (validityStatus === SUCCESS_STATUS) {
+      //TODO: run calculations from end to start
+    }
+  }, [inputValue.backwardAmount])
+
+  useEffect(() => {
+    const validityStatus = +inputValue.amount >= 0 ? SUCCESS_STATUS : ERROR_STATUS
+
+    setInputStatus({
+      ...inputStatus,
+      amountStatus: validityStatus,
+    })
+
+    if (validityStatus === SUCCESS_STATUS) {
+      //TODO: run calculations from start to end
+    }
+  }, [inputValue.amount])
+
+  // if farm address doesn't exists, close modal
+  if (!farm) {
+    dispatch({
+      type: SELECT_FARM_ADDRESS,
+      selectedFarmAddress: '',
+    })
+
+    return null
   }
 
-  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    if (+value === 0) {
-      setAmount('')
+  const tokensNames =
+    farm.lpToken1.symbol && farm.lpToken2.symbol && `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}`
+
+  // handlers for inputs
+  const handleBlur = () => {
+    if (inputValue.amount === '') {
+      setInputValue({
+        ...inputValue,
+        amount: 0,
+      })
+      return
+    }
+
+    if (inputValue.backwardAmount === '') {
+      setInputValue({
+        ...inputValue,
+        backwardAmount: 0,
+      })
+      return
     }
   }
 
-  const handleChange = (text: string) => {
-    const value = mathRoundTwoDigit(text)
-    setAmount(+value)
-    checkInputIsOk(value)
+  const handleFocus = () => {
+    if (inputValue.amount === 0) {
+      setInputValue({
+        ...inputValue,
+        amount: '',
+      })
+      return
+    }
+
+    if (inputValue.backwardAmount === 0) {
+      setInputValue({
+        ...inputValue,
+        backwardAmount: '',
+      })
+      return
+    }
   }
 
-  const handleChangeStaked = (tabId?: number) => {}
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setInputValue({
+      ...inputValue,
+      [name]: value,
+    })
 
-  const handleChangeCompounding = (tabId?: number) => {}
+    if (name === 'amount') {
+      toggleDisablingBalanceTabs(true)
+      selectTab({
+        ...tabsSelected,
+        balanceTab: null,
+      })
+    }
+  }
+
+  // handlers for selecting tabs
+  const handleChangeStaked = (tabId?: number) => {
+    const tabValue = STAKED_ITEMS.find(({ id }) => id === tabId) || null
+    selectTab({
+      ...tabsSelected,
+      stakedTab: tabValue,
+    })
+  }
+
+  const handleChangeCompounding = (tabId: number) => {
+    if (!compoundEverythingActive) return
+    const tabValue = COMPOUNDING_ITEMS.find(({ id }) => id === tabId) || null
+    const isSecondClickOnTheTab = tabValue?.id === tabsSelected.compoundTab?.id
+    selectTab({
+      ...tabsSelected,
+      compoundTab: isSecondClickOnTheTab ? null : tabValue,
+    })
+  }
 
   const handleChangeValues = (tabId?: number) => {
-    const balance = currentContract?.balance ?? 0
-    const value = tabId === 1 ? 100 : tabId === 2 ? 1000 : balance
-    handleChange(`${value}`)
+    toggleDisablingBalanceTabs(false)
+    const tabValue = STAKED_VALUES.find(({ id }) => id === tabId) || null
+    selectTab({
+      ...tabsSelected,
+      balanceTab: tabValue,
+    })
+
+    setInputValue({
+      ...inputValue,
+      amount: tabValue?.actualValue ?? userBalance,
+    })
   }
 
   return (
@@ -99,31 +242,34 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
 
         <fieldset className="fieldset-roi">
           <label className="label-roi" htmlFor="input-roi">
-            MVK-tzBTC LP Staked
+            {tokensNames} LP Staked
           </label>
           <Input
             id="input-roi"
             type={'number'}
-            placeholder={String(amount)}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.value)}
+            name={'amount'}
+            onChange={handleChange}
             onBlur={handleBlur}
             onFocus={handleFocus}
-            value={amount}
+            value={inputValue.amount}
             pinnedText={'USD'}
-            inputStatus={status}
-            errorMessage={''}
+            inputStatus={inputStatus.amountStatus}
+            className="farm-modal-input"
           />
           <label className="exchange-roi" htmlFor="input-roi">
-            <span>87.23451</span>
-            <span>MVK-tzBTC</span>
+            <span>
+              <CommaNumber value={lpValue} />
+            </span>
+            <span>{tokensNames}</span>
           </label>
         </fieldset>
 
         <div className="tab-block">
           <SlidingTabButtons
             className="tab-component values-tabs"
-            tabItems={Array.from(STAKED_VALUES)}
+            tabItems={STAKED_VALUES}
             onClick={handleChangeValues}
+            disableAll={shouldDisableBalanceTabs}
           />
         </div>
 
@@ -139,11 +285,17 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
         <div className="tab-block">
           <h4>Compounding Every</h4>
           <div className="compounding-every">
-            <Checkbox className="compounding-checkbox" id="compounding-checkbox" />
+            <Checkbox
+              className="compounding-checkbox"
+              id="compounding-checkbox"
+              checked={compoundEverythingActive}
+              onChangeHandler={() => toggleCompoundEverything(!compoundEverythingActive)}
+            />
             <SlidingTabButtons
               className="tab-component compounding-tabs"
               tabItems={COMPOUNDING_ITEMS}
               onClick={handleChangeCompounding}
+              disabled={!compoundEverythingActive}
             />
           </div>
         </div>
@@ -151,16 +303,63 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
         <div className="current-rates">
           <div>
             <h3>ROI at Current Rates</h3>
-            <var>$0.00</var>
-            <p>~0.00 sMVK (0.00%)</p>
+
+            {isPensilClicked ? (
+              <div className="input-wrapper">
+                <Input
+                  id="input-roi-backward"
+                  type={'number'}
+                  name={'backwardAmount'}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  onFocus={handleFocus}
+                  value={inputValue.backwardAmount}
+                  pinnedText={'USD'}
+                  inputStatus={inputStatus.backwardStatus}
+                  className="farm-modal-backward-input"
+                />
+                <label className="exchange-roi-backward" htmlFor="input-roi-backward">
+                  <span>
+                    <CommaNumber
+                      beginningText="~"
+                      value={+inputValue.backwardAmount * exchangeRate}
+                      endingText="sMVK"
+                    />
+                    <CommaNumber
+                      beginningText="("
+                      value={(+inputValue.backwardAmount * 100) / +inputValue.amount}
+                      endingText="%)"
+                    />
+                  </span>
+                </label>
+              </div>
+            ) : (
+              <>
+                <var>
+                  <CommaNumber beginningText="$" value={+inputValue.backwardAmount} />
+                </var>
+                <p>
+                  <CommaNumber beginningText="~" value={+inputValue.backwardAmount * exchangeRate} endingText="sMVK" />
+                  <CommaNumber
+                    beginningText="("
+                    value={(+inputValue.backwardAmount * 100) / +inputValue.amount}
+                    endingText="%)"
+                  />
+                </p>
+              </>
+            )}
           </div>
-          <button>
+          <button
+            className={`${isPensilClicked ? 'active' : ''}`}
+            type="button"
+            onClick={() => togglePensil(!isPensilClicked)}
+          >
             <Icon id="pencil-stroke" />
           </button>
         </div>
       </RoiCalculatorStyled>
       <RoiExpandStyled>
-        <Expand className="roi-expand" showCustomText="Details" header={<></>}>
+        <Expand className="roi-expand" showCustomText="Details">
           <ul className="roi-expand-ul">
             <li>
               <h4>APR (incl LP rewards)</h4>
