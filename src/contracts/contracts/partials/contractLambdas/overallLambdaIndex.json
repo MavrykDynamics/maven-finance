@@ -4,7 +4,6 @@
         "lambdas" : [
             "lambdaSetAdmin",
             "lambdaSetGovernance",
-            "lambdaUpdateMetadata",
             "lambdaUpdateConfig",
             "lambdaUpdateWhitelistTokenContracts",
 
@@ -13,12 +12,12 @@
             "lambdaTogglePauseEntrypoint",
 
             "lambdaSetLoanToken",
-            "lambdaUpdateLoanToken",
+            "lambdaSetCollateralToken",
+            "lambdaRegisterVaultCreation",
+
             "lambdaAddLiquidity",
             "lambdaRemoveLiquidity",
 
-            "lambdaUpdateCollateralToken",
-            "lambdaRegisterVaultCreation",
             "lambdaCloseVault",
             "lambdaMarkForLiquidation",
             "lambdaLiquidateVault",
@@ -27,7 +26,6 @@
             "lambdaBorrow",
             "lambdaRepay",
 
-            "lambdaCallVaultStakedMvkAction",
             "lambdaVaultDepositStakedMvk",
             "lambdaVaultWithdrawStakedMvk",
             "lambdaVaultLiquidateStakedMvk"
@@ -61,7 +59,11 @@
             "lambdaRegisterWithdrawal",
             "lambdaRegisterDeposit",
             "lambdaBorrow",
-            "lambdaRepay"
+            "lambdaRepay",
+
+            "lambdaVaultDepositStakedMvk",
+            "lambdaVaultWithdrawStakedMvk",
+            "lambdaVaultLiquidateStakedMvk"
         ]
     },
     {
@@ -160,7 +162,7 @@
             "lambdaTogglePauseEntrypoint",
 
             "lambdaRequestRateUpdate",
-            "lambdaRequestRateUpdDeviation",
+            "lambdaRequestRateUpdateDeviation",
             "lambdaSetObservationCommit",
             "lambdaSetObservationReveal",
 
