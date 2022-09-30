@@ -95,7 +95,6 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
-                  // oracleMaintainer.pkh,         // maintainer
                   aggregatorMetadataBase       // metadata bytes
 
               ))
@@ -117,7 +116,6 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
-                  // oracleMaintainer.pkh,         // maintainer
                   aggregatorMetadataBase        // metadata bytes
 
               ))
@@ -139,7 +137,6 @@ describe('Aggregator Factory', async () => {
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
-                  // oracleMaintainer.pkh,         // maintainer
                   aggregatorMetadataBase        // metadata bytes
                   
               ))
