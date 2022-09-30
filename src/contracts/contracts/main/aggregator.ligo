@@ -41,8 +41,6 @@
 
 type aggregatorAction is
 
-    |   Default                              of (unit)
-
         // Housekeeping Entrypoints
     |   SetAdmin                             of (address)
     |   SetGovernance                        of (address)
@@ -324,10 +322,10 @@ function verifyInfosFromObservations(const oracleObservations: map (address, ora
   for key -> value in map oracleObservations block {
       if (not (Tezos.get_self_address() = value.aggregatorAddress)) then failwith(error_WRONG_AGGREGATOR_ADDRESS_IN_OBSERVATIONS_MAP);
       if (not isOracleAddress(key, store.oracleAddresses))   then failwith (error_OBSERVATION_MADE_BY_WRONG_ORACLE);
-      if (epoch = 0n) then epoch:= value.epoch;
+      if (epoch = 0n) then epoch    := value.epoch;
       if (not (epoch = value.epoch)) then failwith(error_DIFFERENT_EPOCH_IN_OBSERVATIONS_MAP);
 
-      if (round = 0n) then round:= value.round;
+      if (round = 0n) then round    := value.round;
       if (not (round = value.round)) then failwith(error_DIFFERENT_ROUND_IN_OBSERVATIONS_MAP);
   };
 
@@ -688,14 +686,6 @@ block {
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints Begin
 // ------------------------------------------------------------------------------
-
-(*  default entrypoint  *)
-function default(const s : aggregatorStorageType) : return is
-block {
-    skip
-} with (noOperations, s)
-
-
 
 (*  setAdmin entrypoint  *)
 function setAdmin(const newAdminAddress : address; const s : aggregatorStorageType) : return is
@@ -1069,37 +1059,39 @@ block{
 
 (* main entrypoint *)
 function main (const action : aggregatorAction; const s : aggregatorStorageType) : return is
-    
-    case action of [
+    block {
+        // Check that entrypoint should not receive any tez amount   
+        checkNoAmount(Unit);
+    } with(
+        case action of [
+            
+                // Housekeeping Entrypoints
+            |   SetAdmin (parameters)                           -> setAdmin(parameters, s)
+            |   SetGovernance (parameters)                      -> setGovernance(parameters, s) 
+            |   SetName (parameters)                            -> setName(parameters, s) 
+            |   UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
+            |   UpdateConfig (parameters)                       -> updateConfig(parameters, s)
+            |   UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)
+            |   UpdateGeneralContracts (parameters)             -> updateGeneralContracts(parameters, s)
+            |   MistakenTransfer (parameters)                   -> mistakenTransfer(parameters, s)
 
-        |   Default (_parameters)                           -> default(s)
-        
-            // Housekeeping Entrypoints
-        |   SetAdmin (parameters)                           -> setAdmin(parameters, s)
-        |   SetGovernance (parameters)                      -> setGovernance(parameters, s) 
-        |   SetName (parameters)                            -> setName(parameters, s) 
-        |   UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
-        |   UpdateConfig (parameters)                       -> updateConfig(parameters, s)
-        |   UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)
-        |   UpdateGeneralContracts (parameters)             -> updateGeneralContracts(parameters, s)
-        |   MistakenTransfer (parameters)                   -> mistakenTransfer(parameters, s)
+                // Admin Oracle Entrypoints
+            |   AddOracle (parameters)                          -> addOracle(parameters, s)
+            |   RemoveOracle (parameters)                       -> removeOracle(parameters, s)
 
-            // Admin Oracle Entrypoints
-        |   AddOracle (parameters)                          -> addOracle(parameters, s)
-        |   RemoveOracle (parameters)                       -> removeOracle(parameters, s)
+                // Pause / Break Glass Entrypoints
+            |   PauseAll (_parameters)                          -> pauseAll(s)
+            |   UnpauseAll (_parameters)                        -> unpauseAll(s)
+            |   TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
 
-            // Pause / Break Glass Entrypoints
-        |   PauseAll (_parameters)                          -> pauseAll(s)
-        |   UnpauseAll (_parameters)                        -> unpauseAll(s)
-        |   TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
+                // Oracle Entrypoints
+            |   UpdateData (parameters)                       -> updateData(parameters, s)
 
-            // Oracle Entrypoints
-        |   UpdateData (parameters)                       -> updateData(parameters, s)
+                // Reward Entrypoints
+            |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
+            |   WithdrawRewardStakedMvk (parameters)            -> withdrawRewardStakedMvk(parameters, s)
 
-            // Reward Entrypoints
-        |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
-        |   WithdrawRewardStakedMvk (parameters)            -> withdrawRewardStakedMvk(parameters, s)
-
-            // Lambda Entrypoints
-        |   SetLambda (parameters)                          -> setLambda(parameters, s)
-    ];
+                // Lambda Entrypoints
+            |   SetLambda (parameters)                          -> setLambda(parameters, s)
+        ]
+    );
