@@ -8,10 +8,10 @@ export interface ContractAddressesState {
 export type TokensType = { dipDupTokens: Array<DipDupTokensGraphQl> }
 const dipDupTokensDefaultState: Array<DipDupTokensGraphQl> = []
 
-export function tokens(state = dipDupTokensDefaultState, action: any) {
+export function tokens(state = dipDupTokensDefaultState, action: Action) {
   switch (action.type) {
     case GET_DIP_DUP_TOKENS:
-      return { ...state, dipDupTokens: [...action.dipDupTokens] }
+      return { ...state, dipDupTokens: action.dipDupTokens }
     default:
       return state
   }

@@ -156,7 +156,7 @@ export async function getFarmMetadata(farmAddress: string) {
   try {
     const farmMetadata = await getContractBigmapKeys(farmAddress, 'metadata')
     const targetMetadataItem =
-      farmMetadata.filter((farmItem: any) => {
+      farmMetadata.filter((farmItem: { value: string }) => {
         const output = Buffer.from(farmItem.value, 'hex').toString()
         return !output.endsWith('tezos-storage:data')
       })[0] || {}
