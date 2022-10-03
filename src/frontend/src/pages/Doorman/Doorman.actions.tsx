@@ -287,7 +287,6 @@ export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
 export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   const currentBlockLevel = state.preferences.headData?.level ?? 0
-  console.log('accountPkh', accountPkh)
 
   try {
     const userInfoFromIndexer = await fetchFromIndexer(

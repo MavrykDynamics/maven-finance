@@ -102,6 +102,10 @@ query GetGovernanceStorageQuery {
       votes {
         current_round_vote
         governance_proposal_id
+        governance_proposal {
+          executed
+          locked
+        }
         id
         round
         vote
@@ -172,6 +176,10 @@ query GetCurrentRoundProposalsQuery {
         round
         vote
         voter_id
+        governance_proposal {
+          executed
+          locked
+        }
       }
       data {
         bytes

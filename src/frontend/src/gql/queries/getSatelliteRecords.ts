@@ -160,6 +160,8 @@ export const USER_VOTING_HYSTORY_QUERY = `
         timestamp
         governance_proposal {
           title
+          executed
+          locked
         }
       }
       governance_satellite_actions_votes {
