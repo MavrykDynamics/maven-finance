@@ -1,7 +1,7 @@
 import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
 import { State } from 'reducers'
 
-import { getUserData } from '../../../pages/Doorman/Doorman.actions'
+import { CLEAN_USER_DATA, getUserData } from '../../../pages/Doorman/Doorman.actions'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 import type { AppDispatch, GetState } from '../../App.controller'
@@ -55,6 +55,10 @@ export const disconnect = () => async (dispatch: AppDispatch) => {
     dispatch({ type: DISCONNECT })
     // set some wallet data, so user can see connect wallet instead of install wallet btn
     dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
+    // clear user data
+    dispatch({
+      type: CLEAN_USER_DATA,
+    })
   } catch (err) {
     if (err instanceof Error) {
       dispatch(showToaster(ERROR, 'Failed to disconnect TempleWallet', err.message))

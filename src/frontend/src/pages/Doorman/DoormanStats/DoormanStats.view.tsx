@@ -21,7 +21,6 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
   const { exchangeRate, mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { doormanAddress, mvkTokenAddress } = useSelector((state: State) => state.contractAddresses)
-  const { user } = useSelector((state: State) => state.user)
   const totalSupply = (mvkTokenStorage?.totalSupply ?? 0) + stakedMvkTokens
   const maximumTotalSupply = mvkTokenStorage?.maximumTotalSupply ?? 0
 

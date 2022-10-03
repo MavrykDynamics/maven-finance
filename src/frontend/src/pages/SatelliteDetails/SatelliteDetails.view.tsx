@@ -76,7 +76,7 @@ export const SatelliteDetailsView = ({
   userSatelliteReward,
 }: SatelliteDetailsViewProps) => {
   const { satelliteId } = useParams<{ satelliteId: string }>()
-  const { user } = useSelector((state: State) => state.user)
+  const { satelliteMvkIsDelegatedTo } = useSelector((state: State) => state.user)
   const isSameId = satellite?.address === satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
 
@@ -93,7 +93,7 @@ export const SatelliteDetailsView = ({
           undelegateCallback={undelegateCallback}
           claimRewardsCallback={claimRewardsCallback}
           userStakedBalance={myDelegatedMVK}
-          satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
+          satelliteUserIsDelegatedTo={satelliteMvkIsDelegatedTo}
           isDetailsPage={true}
           userHasSatelliteRewards={userSatelliteReward.myAvailableSatelliteRewards > 0}
         >

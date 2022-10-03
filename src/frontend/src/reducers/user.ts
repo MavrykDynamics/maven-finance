@@ -1,13 +1,20 @@
-import { GET_USER_DATA, SET_USER_DATA, UPDATE_USER_DATA } from '../pages/Doorman/Doorman.actions'
+import { UserDoormanRewardsData, UserFarmRewardsData, UserSatelliteRewardsData } from 'utils/TypesAndInterfaces/User'
+import { CLEAN_USER_DATA, GET_USER_DATA, UPDATE_USER_DATA } from '../pages/Doorman/Doorman.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
-import { UserData } from '../utils/TypesAndInterfaces/User'
 
 export interface UserState {
-  type: typeof GET_USER_DATA | typeof SET_USER_DATA | typeof UPDATE_USER_DATA
-  user: UserData
+  myAddress: string
+  myMvkTokenBalance: number
+  mySMvkTokenBalance: number
+  participationFeesPerShare: number
+  satelliteMvkIsDelegatedTo: string
+  isSatellite: boolean
+  myDoormanRewardsData: UserDoormanRewardsData
+  myFarmRewardsData: Record<string, UserFarmRewardsData>
+  mySatelliteRewardsData: UserSatelliteRewardsData
 }
 
-const defaultUser: UserData = {
+const defaultUser: UserState = {
   myAddress: '',
   myMvkTokenBalance: 0,
   mySMvkTokenBalance: 0,
@@ -29,31 +36,20 @@ const defaultUser: UserData = {
     unpaid: 0,
   },
 }
-const userDefaultState: UserState = {
-  type: GET_USER_DATA,
-  user: defaultUser,
-}
 
-export function user(state = userDefaultState, action: Action) {
+export function user(state = defaultUser, action: Action) {
   switch (action.type) {
     case GET_USER_DATA:
-      return {
-        type: GET_USER_DATA,
-        user: action.userData,
-      }
-    case SET_USER_DATA:
-      return {
-        type: SET_USER_DATA,
-        user: action.userData,
-      }
+      return { ...state, ...action.userData }
     case UPDATE_USER_DATA:
-      const userState = state.user
-      // @ts-ignore
-      userState[action.userKey] = action.userValue
       return {
-        type: UPDATE_USER_DATA,
-        user: userState,
+        ...state,
+        ...action.updatedUserValues,
       }
+    case CLEAN_USER_DATA:
+      console.log('cleaning', state, { ...state, ...defaultUser })
+
+      return { ...state, ...defaultUser }
     default:
       return state
   }

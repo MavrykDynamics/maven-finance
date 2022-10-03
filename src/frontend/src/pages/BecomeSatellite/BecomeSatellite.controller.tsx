@@ -16,7 +16,7 @@ export const BecomeSatellite = () => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
-  const { user } = useSelector((state: State) => state.user)
+  const { mySMvkTokenBalance } = useSelector((state: State) => state.user)
 
   const usersSatellite: SatelliteRecord =
     accountPkh && satelliteLedger
@@ -61,7 +61,7 @@ export const BecomeSatellite = () => {
       registerCallback={registerCallback}
       updateSatelliteCallback={updateSatelliteCallback}
       accountPkh={accountPkh}
-      myTotalStakeBalance={user.mySMvkTokenBalance}
+      myTotalStakeBalance={mySMvkTokenBalance}
       satelliteConfig={delegationStorage.config}
       usersSatellite={usersSatellite}
     />
