@@ -47,8 +47,6 @@ export function user(state = defaultUser, action: Action) {
         ...action.updatedUserValues,
       }
     case CLEAN_USER_DATA:
-      console.log('cleaning', state, { ...state, ...defaultUser })
-
       return { ...state, ...defaultUser }
     default:
       return state
