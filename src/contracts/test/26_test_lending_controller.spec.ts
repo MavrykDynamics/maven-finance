@@ -25,7 +25,7 @@ import mockFa2TokenAddress      from '../deployments/mavrykFa2TokenAddress.json'
 import mockUsdMockFa12TokenAggregatorAddress    from "../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
 import mockUsdMockFa2TokenAggregatorAddress     from "../deployments/mockUsdMockFa2TokenAggregatorAddress.json";
 import mockUsdXtzAggregatorAddress              from "../deployments/mockUsdXtzAggregatorAddress.json";
-import mockUsdStakedMvkTokenAggregatorAddress   from "../deployments/mockUsdStakedMvkTokenAggregatorAddress.json";
+import mockUsdMvkAggregatorAddress              from "../deployments/mockUsdMvkAggregatorAddress.json";
 
 import lpTokenPoolMockFa12TokenAddress          from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
 import lpTokenPoolMockFa2TokenAddress           from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
@@ -56,7 +56,7 @@ describe("Lending Controller tests", async () => {
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
     let mockUsdXtzAggregatorInstance
-    let mockUsdStakedMvkTokenAggregatorInstance
+    let mockUsdMvkAggregatorInstance
 
     let lpTokenPoolMockFa12TokenInstance
     let lpTokenPoolMockFa2TokenInstance
@@ -113,7 +113,7 @@ describe("Lending Controller tests", async () => {
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(mockUsdXtzAggregatorAddress.address);
-        mockUsdStakedMvkTokenAggregatorInstance = await utils.tezos.contract.at(mockUsdStakedMvkTokenAggregatorAddress.address);
+        mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(mockUsdMvkAggregatorAddress.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
         vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
@@ -145,7 +145,7 @@ describe("Lending Controller tests", async () => {
         console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:',   mockUsdMockFa12TokenAggregatorInstance.address);
         console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:',    mockUsdMockFa2TokenAggregatorInstance.address);
         console.log('Mock Aggregator - USD / XTZ - deployed at:',               mockUsdXtzAggregatorInstance.address);
-        console.log('Mock Aggregator - USD / Staked MVK Token - deployed at:',  mockUsdStakedMvkTokenAggregatorInstance.address);
+        console.log('Mock Aggregator - USD / MVK - deployed at:',               mockUsdMvkAggregatorInstance.address);
 
         console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
         console.log('Vault Factory Contract deployed at:',      vaultFactoryInstance.address);
@@ -153,9 +153,6 @@ describe("Lending Controller tests", async () => {
         console.log('Alice address: '   + alice.pkh);
         console.log('Bob address: '     + bob.pkh);
         console.log('Eve address: '     + eve.pkh);
-
-        // const contractParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
-        // console.log(JSON.stringify(contractParameterSchema,null,2));
 
     });
 
@@ -726,7 +723,7 @@ describe("Lending Controller tests", async () => {
                 const tokenId                           = 0;
 
                 const tokenDecimals                     = 9;
-                const oracleAddress                     = mockUsdStakedMvkTokenAggregatorAddress.address;
+                const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
                 const tokenProtected                    = true; // sMVK is protected
                 
                 // check if collateral token exists
@@ -3522,7 +3519,7 @@ describe("Lending Controller tests", async () => {
             const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
             const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
-            const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger;
+            const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
 
             // get vault contract
             const vaultAddress = vault.address;
@@ -3570,12 +3567,6 @@ describe("Lending Controller tests", async () => {
             const userStakeBalanceEnd = userStakeLedgerEnd.balance.toNumber()
             const doormanSMVKTotalSupplyEnd = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
 
-            console.log("userMVKBalance: " + userMVKBalance);
-            console.log("userStake: "       + userStake);
-            console.log("userMVKBalanceEnd: " + userMVKBalanceEnd);
-            console.log("userStakeBalance: " + userStakeBalance);
-            console.log("userStakeBalanceEnd: " + userStakeBalanceEnd);
-
             // Assertion
             assert.equal(doormanSMVKTotalSupply + userStake, doormanSMVKTotalSupplyEnd);
             assert.equal(userMVKBalance - userStake, userMVKBalanceEnd);
@@ -3584,9 +3575,6 @@ describe("Lending Controller tests", async () => {
             // ----------------------------------------------------------------------------------------------
             // Eve's vault stake some MVK to Doorman Contract
             // ----------------------------------------------------------------------------------------------
-
-            // const contractParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
-            // console.log(JSON.stringify(contractParameterSchema,null,2));
 
             // eve set doorman as operator for vault
             const vaultUpdateMvkOperatorOperation = await eveVaultInstance.methods.updateMvkOperators([
@@ -3611,46 +3599,476 @@ describe("Lending Controller tests", async () => {
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
             const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
-            const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger;
+            const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
 
             // get updated balance for Eve and Vault
-            const updatedMvkTokenStorage = await mvkTokenInstance.storage();
-            const updatedDoormanStorage  = await doormanInstance.storage();
-            const updatedUserMVKBalance  = (await updatedMvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const updatedMvkTokenStorage   = await mvkTokenInstance.storage();
+            const updatedDoormanStorage    = await doormanInstance.storage();
+            const updatedUserMVKBalance    = (await updatedMvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+                
+            const updatedUserStakeLedger   = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const updatedUserStakeBalance  = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
+
+            const updatedVaultStakeLedger  = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const updatedVaultStakeBalance = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
+            
+            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance + depositAmount);
+            assert.equal(updatedUserStakeBalance, userStakeBalanceEnd - depositAmount);
+            assert.equal(updatedVaultStakeBalance, vaultStakeBalance + depositAmount);
+            assert.equal(updatedUserMVKBalance, userMVKBalanceEnd);
+
+        });
+
+
+        it('user (eve) cannot deposit more staked MVK tokens than she has to her vault', async () => {
+
+            await signerFactory(eve.sk);
+            const vaultId        = eveVaultSet[0]; 
+            const vaultOwner     = eve.pkh;
+            const tokenName      = 'sMVK';
+
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
+            const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
+
+            // get vault contract
+            const vaultAddress = vault.address;
+
+            // get initial balance for Eve and Vault                
+            const userMVKBalance = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+
+            const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
+
+            // set deposit amount to be slightly more than staked balance
+            const depositAmount = userStakeBalance + 1;
+
+            const vaultStakeLedger = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
+
+            const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+
+            // ----------------------------------------------------------------------------------------------
+            // Eve's vault stake some MVK to Doorman Contract
+            // ----------------------------------------------------------------------------------------------
+
+            // eve set doorman as operator for vault
+            const eveVaultInstance                = await utils.tezos.contract.at(vaultAddress);
+            const vaultUpdateMvkOperatorOperation = await eveVaultInstance.methods.updateMvkOperators([
+                {
+                add_operator: {
+                    owner: vaultAddress,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            }])
+            .send();
+            await vaultUpdateMvkOperatorOperation.confirmation();
+
+            // fail vault staked mvk operation
+            const eveVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.vaultDepositStakedMvk(
+                vaultId,                 
+                depositAmount                            
+            );
+            await chai.expect(eveVaultDepositStakedMvkOperation.send()).to.be.rejected;  
+
+            // get updated storages for lending controller and vault
+            const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
+            const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
+
+            // // get updated balance for Eve and Vault
+            const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
+            const updatedDoormanStorage      = await doormanInstance.storage();
+            const doormanSMVKTotalSupplyEnd  = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+            const updatedUserMVKBalance      = (await updatedMvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+                
+            const updatedUserStakeLedger     = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const updatedUserStakeBalance    = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
+
+            const updatedVaultStakeLedger    = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const updatedVaultStakeBalance   = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
+            
+            // check that there are no changes to balances
+            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance);
+            assert.equal(updatedUserStakeBalance, userStakeBalance);
+            assert.equal(updatedVaultStakeBalance, vaultStakeBalance);
+
+            // no changes to user's MVK balance, and doorman sMVK total supply
+            assert.equal(updatedUserMVKBalance, userMVKBalance);
+            assert.equal(doormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
+
+        });
+
+
+        it('non-owner of the vault (user: mallory) cannot deposit staked MVK tokens into another user\'s (eve) vault', async () => {
+
+            await signerFactory(mallory.sk);
+            const vaultId        = eveVaultSet[0]; 
+            const vaultOwner     = eve.pkh;
+            const initiator      = mallory.pkh;
+            const tokenName      = 'sMVK';
+            const userStake      = MVK(10);
+            const depositAmount  = MVK(5);
+
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
+            const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
+
+            // get vault contract
+            const vaultAddress = vault.address;
+
+            // get initial balance for Eve and Vault                
+            const eveMVKBalance       = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const initiatorMVKBalance = (await mvkTokenStorage.ledger.get(initiator)).toNumber();
+
+            const eveStakeLedger      = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const eveStakeBalance     = eveStakeLedger === undefined ? 0 : eveStakeLedger.balance.toNumber();
+
+            const initiatorStakeLedger  = await doormanStorage.userStakeBalanceLedger.get(initiator);
+            const initiatorStakeBalance = initiatorStakeLedger === undefined ? 0 : initiatorStakeLedger.balance.toNumber();
+
+            const vaultStakeLedger    = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const vaultStakeBalance   = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
+
+            const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+
+            // ----------------------------------------------------------------------------------------------
+            // Mallory stake some MVK to Doorman Contract
+            // ----------------------------------------------------------------------------------------------
+
+            // Operator set
+            const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+            {
+                add_operator: {
+                    owner: initiator,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            }]).send()
+            await updateOperatorsOperation.confirmation();
+
+            // Operation
+            const stakeOperation = await doormanInstance.methods.stake(userStake).send();
+            await stakeOperation.confirmation();
+
+            // Update storage
+            doormanStorage = await doormanInstance.storage();
+            mvkTokenStorage = await mvkTokenInstance.storage();
+
+            // Final Values
+            const initiatorMVKBalanceEnd     = (await mvkTokenStorage.ledger.get(initiator)).toNumber();
+            const initiatorStakeLedgerEnd    = await doormanStorage.userStakeBalanceLedger.get(initiator);
+            const initiatorStakeBalanceEnd   = initiatorStakeLedgerEnd.balance.toNumber()
+            const doormanSMVKTotalSupplyEnd  = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+
+            // Assertion
+            assert.equal(doormanSMVKTotalSupply + userStake, doormanSMVKTotalSupplyEnd);
+            assert.equal(initiatorMVKBalance - userStake, initiatorMVKBalanceEnd);
+            assert.equal(initiatorStakeBalance + userStake, initiatorStakeBalanceEnd);
+
+            // ----------------------------------------------------------------------------------------------
+            // Fail: Mallory deposit some MVK to Eve's vault
+            // ----------------------------------------------------------------------------------------------
+
+            // mallory set doorman as operator for vault
+            const eveVaultInstance                = await utils.tezos.contract.at(vaultAddress);
+            const vaultUpdateMvkOperatorOperation = await eveVaultInstance.methods.updateMvkOperators([
+                {
+                add_operator: {
+                    owner: vaultAddress,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            }]);
+            await chai.expect(vaultUpdateMvkOperatorOperation.send()).to.be.rejected;  
+
+            // fail vault staked mvk operation
+            const malloryVaultDepositStakedMvkOperation  = await lendingControllerInstance.methods.vaultDepositStakedMvk(
+                vaultId,                 
+                depositAmount                            
+            );
+            await chai.expect(malloryVaultDepositStakedMvkOperation.send()).to.be.rejected;  
+
+            // get updated storages for lending controller and vault
+            const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
+            const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
+
+            // // get updated balance for Eve and Vault
+            const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
+            const updatedDoormanStorage          = await doormanInstance.storage();
+            const updatedDoormanSMVKTotalSupply  = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+            
+            const updatedEveMVKBalance       = (await updatedMvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const updatedInitiatorMVKBalance = (await updatedMvkTokenStorage.ledger.get(initiator)).toNumber();
+                
+            const updatedEveStakeLedger      = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const updatedEveStakeBalance     = updatedEveStakeLedger === undefined ? 0 : updatedEveStakeLedger.balance.toNumber()
+
+            const updatedInitiatorStakeLedger      = await updatedDoormanStorage.userStakeBalanceLedger.get(initiator);
+            const updatedInitiatorStakeBalance     = updatedInitiatorStakeLedger === undefined ? 0 : updatedInitiatorStakeLedger.balance.toNumber()
+
+            const updatedVaultStakeLedger    = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const updatedVaultStakeBalance   = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
+            
+            // check that there are no changes to balances
+            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance);
+            assert.equal(updatedEveStakeBalance, eveStakeBalance);
+            assert.equal(updatedInitiatorStakeBalance, initiatorStakeBalanceEnd);
+            assert.equal(updatedVaultStakeBalance, vaultStakeBalance);
+
+            // no changes to eve's and initiator's MVK balance, and doorman sMVK total supply
+            assert.equal(updatedEveMVKBalance, eveMVKBalance);
+            assert.equal(updatedDoormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
+            assert.equal(updatedInitiatorMVKBalance, initiatorMVKBalanceEnd);
+
+        });
+
+
+    })
+
+
+    // 
+    // Test: vault withdraw staked mvk
+    //
+    describe('%vaultWithdrawStakedMvk', function () {
+
+        it('user (eve) can withdraw staked MVK tokens from her vault to her user balance', async () => {
+
+            await signerFactory(eve.sk);
+            const vaultId        = eveVaultSet[0]; 
+            const vaultOwner     = eve.pkh;
+            const withdrawAmount = MVK(2);
+            const tokenName      = 'sMVK';
+
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
+            const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
+
+            // get vault contract
+            const vaultAddress = vault.address;
+
+            // get initial balance for Eve and Vault
+            const userMVKBalance = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+                
+            const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
+
+            const vaultStakeLedger = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
+    
+            const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+
+            // ----------------------------------------------------------------------------------------------
+            // Eve's vault stake some MVK to Doorman Contract
+            // ----------------------------------------------------------------------------------------------
+
+            // vault staked mvk operation
+            const eveVaultWithdrawStakedMvkOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(
+                vaultId,                 
+                withdrawAmount                            
+            ).send();
+            await eveVaultWithdrawStakedMvkOperation.confirmation();
+
+            // get updated storages for lending controller and vault
+            const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
+            const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
+
+            // get updated balance for Eve and Vault
+            const updatedMvkTokenStorage    = await mvkTokenInstance.storage();
+            const updatedDoormanStorage     = await doormanInstance.storage();
+            const updatedUserMVKBalance     = (await updatedMvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const doormanSMVKTotalSupplyEnd = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+                
+            const updatedUserStakeLedger    = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const updatedUserStakeBalance   = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
+
+            const updatedVaultStakeLedger   = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const updatedVaultStakeBalance  = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
+            
+            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
+            assert.equal(updatedUserStakeBalance, userStakeBalance + withdrawAmount);
+            assert.equal(updatedVaultStakeBalance, vaultStakeBalance - withdrawAmount);
+            
+            // no changes to user's MVK balance, and doorman sMVK total supply
+            assert.equal(updatedUserMVKBalance, userMVKBalance);
+            assert.equal(doormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
+
+        });
+
+
+        it('user (eve) cannot withdraw more staked MVK tokens than she has from her vault to her user balance', async () => {
+
+            await signerFactory(eve.sk);
+            const vaultId        = eveVaultSet[0]; 
+            const vaultOwner     = eve.pkh;
+            const tokenName      = 'sMVK';
+
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
+            const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
+
+            // get vault contract
+            const vaultAddress = vault.address;
+
+            // get initial balance for Eve and Vault                
+            const userMVKBalance    = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+
+            const userStakeLedger   = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const userStakeBalance  = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
+
+            const vaultStakeLedger  = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
+
+            const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+
+            // set withdraw amount to be slightly more than staked balance
+            const withdrawAmount = vaultStakeBalance + 1;
+
+            // ----------------------------------------------------------------------------------------------
+            // Eve's vault stake some MVK to Doorman Contract
+            // ----------------------------------------------------------------------------------------------
+
+            // fail vault staked mvk operation
+            const eveVaultWithdrawStakedMvkOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(
+                vaultId,                 
+                withdrawAmount                            
+            );
+            await chai.expect(eveVaultWithdrawStakedMvkOperation.send()).to.be.rejected;  
+
+            // get updated storages for lending controller and vault
+            const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
+            const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
+
+            // // get updated balance for Eve and Vault
+            const updatedMvkTokenStorage    = await mvkTokenInstance.storage();
+            const updatedDoormanStorage     = await doormanInstance.storage();
+            const updatedUserMVKBalance     = (await updatedMvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const doormanSMVKTotalSupplyEnd = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
                 
             const updatedUserStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const updatedUserStakeBalance = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
 
             const updatedVaultStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const updatedVaultStakeBalance = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
-
-            const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: vaultOwner}).executeView({ viewCaller : bob.pkh});
-            const vaultViewCollateralTokenLedger = vaultRecordView.collateralBalanceLedger;
-            console.log(vaultRecordView);
-            console.log(vaultViewCollateralTokenLedger);
-
-            // console.log(updatedLendingControllerStorage.collateralTokenLedger);
-            console.log("initialVaultCollateralTokenBalance: " + initialVaultCollateralTokenBalance);
-            console.log("updatedVaultCollateralTokenBalance: " + updatedVaultCollateralTokenBalance);
-
-            const tempMap                 = await updatedLendingControllerStorage.tempMap;
-            const tempVaultId             = await updatedLendingControllerStorage.tempMap.get("vaultId");
-            const tempDepositAmount       = await updatedLendingControllerStorage.tempMap.get("depositAmount");
-            const tempNewCollateralBalance       = await updatedLendingControllerStorage.tempMap.get("newCollateralBalance");
             
-            // console.log(tempMap);
-            console.log("tempVaultId: " + tempVaultId);
-            console.log("tempDepositAmount: " + tempDepositAmount);
-            console.log("tempNewCollateralBalance: " + tempNewCollateralBalance);
+            // check that there are no changes to balances
+            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance);
+            assert.equal(updatedUserStakeBalance, userStakeBalance);
+            assert.equal(updatedVaultStakeBalance, vaultStakeBalance);            
+            assert.equal(updatedUserMVKBalance, userMVKBalance);
+            assert.equal(doormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
+
+        });
 
 
-            console.log("userStakeBalance - depositAmount: " + (userStakeBalance - depositAmount));
-            console.log("vaultStakeBalance + depositAmount: " + (vaultStakeBalance + depositAmount));
 
-            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance + depositAmount);
-            assert.equal(updatedUserStakeBalance, userStakeBalanceEnd - depositAmount);
-            assert.equal(updatedVaultStakeBalance, vaultStakeBalance + depositAmount);
-            assert.equal(updatedUserMVKBalance, userMVKBalanceEnd);
+        it('non-owner of the vault (user: mallory) cannot deposit staked MVK tokens into another user\'s (eve) vault', async () => {
+
+            await signerFactory(mallory.sk);
+            const vaultId        = eveVaultSet[0]; 
+            const vaultOwner     = eve.pkh;
+            const initiator      = mallory.pkh;
+            const tokenName      = 'sMVK';
+
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
+
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
+            const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
+
+            // get vault contract
+            const vaultAddress = vault.address;
+
+            // get initial balance for Eve and Vault                
+            const userMVKBalance    = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+
+            const userStakeLedger   = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const userStakeBalance  = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
+
+            const vaultStakeLedger  = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
+
+            const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+
+            // set withdraw amount to be slightly more than staked balance
+            const withdrawAmount = vaultStakeBalance + 1;
+
+            // ----------------------------------------------------------------------------------------------
+            // Eve's vault stake some MVK to Doorman Contract
+            // ----------------------------------------------------------------------------------------------
+
+            // fail vault staked mvk operation
+            const initiatorVaultWithdrawStakedMvkOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(
+                vaultId,                 
+                withdrawAmount                            
+            );
+            await chai.expect(initiatorVaultWithdrawStakedMvkOperation.send()).to.be.rejected;  
+
+            // get updated storages for lending controller and vault
+            const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
+            const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
+
+            // // get updated balance for Eve and Vault
+            const updatedMvkTokenStorage    = await mvkTokenInstance.storage();
+            const updatedDoormanStorage     = await doormanInstance.storage();
+            const updatedUserMVKBalance     = (await updatedMvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const doormanSMVKTotalSupplyEnd = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
+                
+            const updatedUserStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            const updatedUserStakeBalance = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
+
+            const updatedVaultStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const updatedVaultStakeBalance = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
+            
+            // check that there are no changes to balances
+            assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance);
+            assert.equal(updatedUserStakeBalance, userStakeBalance);
+            assert.equal(updatedVaultStakeBalance, vaultStakeBalance);            
+            assert.equal(updatedUserMVKBalance, userMVKBalance);
+            assert.equal(doormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
 
         });
 
