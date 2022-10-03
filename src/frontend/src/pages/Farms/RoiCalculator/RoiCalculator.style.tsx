@@ -234,6 +234,10 @@ export const RoiExpandStyled = styled.div`
           font-weight: 600;
           font-size: 14px;
           color: ${cyanColor};
+
+          p {
+            margin: 0;
+          }
         }
       }
     }
