@@ -70,7 +70,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
   var mockUsdXtzAggregator              : Aggregator;
   var mockUsdMockFa12TokenAggregator    : Aggregator;
   var mockUsdMockFa2TokenAggregator     : Aggregator;
-  var mockUsdMvkTokenAggregator         : Aggregator;
+  var mockUsdMvkAggregator              : Aggregator;
 
   var mockFa12Token                     : MavrykFa12Token
   var mockFa2Token                      : MavrykFa2Token
@@ -278,13 +278,13 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
             percentOracleResponse   : new BigNumber(100),
             priceDateTime           : '1'
         };
-        mockUsdMvkTokenAggregator = await Aggregator.originate(
+        mockUsdMvkAggregator = await Aggregator.originate(
             utils.tezos,
             aggregatorStorage
         )
 
-        await saveContractAddress('mockUsdMvkTokenAggregatorAddress', mockUsdMvkTokenAggregator.contract.address)
-        console.log('Mock USD/MvkToken Aggregator Contract deployed at:', mockUsdMvkTokenAggregator.contract.address)
+        await saveContractAddress('mockUsdMvkAggregatorAddress', mockUsdMvkAggregator.contract.address)
+        console.log('Mock USD/MVK Aggregator Contract deployed at:', mockUsdMvkAggregator.contract.address)
 
 
         //----------------------------
@@ -332,7 +332,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         await setAggregatorLambdas(tezos, mockUsdMockFa12TokenAggregator.contract);
         await setAggregatorLambdas(tezos, mockUsdMockFa2TokenAggregator.contract);
         await setAggregatorLambdas(tezos, mockUsdXtzAggregator.contract);
-        await setAggregatorLambdas(tezos, mockUsdMvkTokenAggregator.contract);
+        await setAggregatorLambdas(tezos, mockUsdMvkAggregator.contract);
     
         //----------------------------
         // Update Contract Links and Relationships
@@ -353,7 +353,7 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa12TokenAggregator'    , mockUsdMockFa12TokenAggregator.contract.address))
         .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMockFa2TokenAggregator'     , mockUsdMockFa2TokenAggregator.contract.address))
         .withContractCall(governanceInstance.methods.updateGeneralContracts('usdXtzAggregator'              , mockUsdXtzAggregator.contract.address))
-        .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMvkTokenAggregator'         , mockUsdMvkTokenAggregator.contract.address))
+        .withContractCall(governanceInstance.methods.updateGeneralContracts('usdMvkAggregator'              , mockUsdMvkAggregator.contract.address))
     
         const governanceContractsBatchOperation = await governanceContractsBatch.send()
         await confirmOperation(tezos, governanceContractsBatchOperation.opHash)

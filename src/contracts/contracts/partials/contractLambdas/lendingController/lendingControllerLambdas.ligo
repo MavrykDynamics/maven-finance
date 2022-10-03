@@ -453,10 +453,15 @@ block {
                 ];
 
                 // Get loan token record
-                const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[loanTokenName] of [
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                if loanTokenRecord.tokenPoolTotal > 0n then {
+                    loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+                } else skip;
 
                 // Get borrow index of token
                 const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
@@ -862,12 +867,21 @@ block {
                 if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
                 newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
 
+                // ------------------------------------------------------------------
+                // Update Storage (Vault and Loan Token)
+                // ------------------------------------------------------------------
+
+                // update loan token record storage                
+                s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
+
                 // update vault storage (no change to principal total)
                 vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
                 vault.loanInterestTotal         := newLoanInterestTotal;
                 vault.borrowIndex               := tokenBorrowIndex;
                 vault.lastUpdatedBlockLevel     := Tezos.get_level();
                 vault.lastUpdatedTimestamp      := Tezos.get_now();
+
+                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
 
                 // update vault
                 s.vaults[vaultHandle] := vault;
@@ -876,8 +890,6 @@ block {
                 // Check if vault is liquidatable
                 // ------------------------------------------------------------------
                 
-                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
-
                 // check if vault is liquidatable
                 if vaultIsLiquidatable then block {
 
@@ -895,6 +907,7 @@ block {
 
                 } 
                 else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);                
+
 
             }
         |   _ -> skip
@@ -980,6 +993,9 @@ block {
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord);
 
                 // ------------------------------------------------------------------
                 // Update Vault interest
@@ -1689,6 +1705,8 @@ block {
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+
                 // Get loan token parameters
                 const tokenPoolTotal      : nat         = loanTokenRecord.tokenPoolTotal;
                 const totalBorrowed       : nat         = loanTokenRecord.totalBorrowed;
@@ -1878,42 +1896,6 @@ block {
 // Vault Staked MVK Lambdas Begin
 // ------------------------------------------------------------------------------
 
-// (* callVaultStakedMvkEntrypoint lambda *)
-// function lambdaCallVaultStakedMvkAction(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
-// block {
-
-//     var operations : list(operation) := nil;
-
-//     case lendingControllerLambdaAction of [
-//         |   LambdaCallVaultStakedMvkAction(callVaultStakedMvkActionParams) -> {
-
-//                 const lambdaName : string = case callVaultStakedMvkActionParams of [
-//                     |   VaultDepositStakedMvk (_v)     -> "lambdaVaultDepositStakedMvk"
-//                     |   VaultWithdrawStakedMvk (_v)    -> "lambdaVaultWithdrawStakedMvk"
-//                     |   VaultLiquidateStakedMvk (_v)   -> "lambdaVaultLiquidateStakedMvk"
-//                 ];
-
-//                 // Get entrypoint lambda as bytes
-//                 const lambdaBytes : bytes = case s.lambdaLedger[lambdaName] of [
-//                     |   Some(_v) -> _v
-//                     |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-//                 ];
-
-//                 const res : return = case (Bytes.unpack(lambdaBytes) : option(lendingControllerUnpackLambdaFunctionType)) of [
-//                     |   Some(f) -> f(lendingControllerLambdaAction, s)
-//                     |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-//                 ];
-
-//                 operations := res.0;
-
-//             }
-//         |   _ -> skip
-//     ]
-
-// } with (operations, s)
-
-
-
 (* depositStakedMvk lambda *)
 function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
@@ -1929,9 +1911,6 @@ block {
                 const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
                 const tokenName       : string            = "sMVK";
-
-                s.tempMap["vaultId"] := vaultId;
-                s.tempMap["depositAmount"] := depositAmount;
 
                 // Get Doorman Address from the General Contracts map on the Governance Contract
                 const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
@@ -1953,7 +1932,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Get current vault borrow index, and vault loan token name
-                var vaultBorrowIndex      : nat := vault.borrowIndex;
+                var vaultBorrowIndex      : nat   := vault.borrowIndex;
                 const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
                 // Get loan token type
@@ -1961,6 +1940,8 @@ block {
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
+
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord);
 
                 // Get loan token parameters
                 const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
@@ -2010,8 +1991,6 @@ block {
 
                 // calculate new collateral balance
                 const newCollateralBalance : nat = currentVaultStakedMvkBalance + depositAmount;
-
-                s.tempMap["newCollateralBalance"] := newCollateralBalance;
 
                 // ------------------------------------------------------------------
                 // Update storage
@@ -2071,30 +2050,90 @@ block {
                 // Get vault if exists
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
-                // Get current vault staked MVK balance from Doorman contract
-                const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
+                // ------------------------------------------------------------------
+                // Update Loan Token state and get token borrow index
+                // ------------------------------------------------------------------
 
-                // calculate new collateral balance
-                if withdrawAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
-                const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - withdrawAmount);
+                // Get current vault borrow index, and vault loan token name
+                var vaultBorrowIndex      : nat   := vault.borrowIndex;
+                const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
+
+                // Get loan token type
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                ];
+
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+
+                // Get loan token parameters
+                const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
+
+                // ------------------------------------------------------------------
+                // Accrue interest to vault oustanding
+                // ------------------------------------------------------------------
+
+                // Get current user loan outstanding and init new total variables
+                const currentLoanOutstandingTotal  : nat = vault.loanOutstandingTotal;
+                const initialLoanPrincipalTotal    : nat = vault.loanPrincipalTotal;
+
+                var newLoanOutstandingTotal        : nat := currentLoanOutstandingTotal;
+                var newLoanPrincipalTotal          : nat := vault.loanPrincipalTotal;
+                var newLoanInterestTotal           : nat := vault.loanInterestTotal;
+
+                // calculate interest
+                newLoanOutstandingTotal := accrueInterestToVault(
+                    currentLoanOutstandingTotal,
+                    vaultBorrowIndex,
+                    tokenBorrowIndex
+                );
+
+                if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+                newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+
+                // ------------------------------------------------------------------
+                // Register vaultWithdrawStakedMvk action on the Doorman Contract
+                // ------------------------------------------------------------------
 
                 const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType = record [
                     vaultOwner     = vaultOwner;
                     vaultAddress   = vault.address;
                     withdrawAmount = withdrawAmount;
                 ];
-
-                // create operation to doorman to update balance of staked MVK from user to vault
-                const onVaultWithdrawStakedMvkOperation : operation = Tezos.transaction(
+    
+                // create operation to doorman to update balance of staked MVK from vault to user
+                const vaultWithdrawStakedMvkOperation : operation = Tezos.transaction(
                     onVaultWithdrawStakedMvkParams,
                     0tez,
                     getOnVaultWithdrawStakedMvkEntrypoint(doormanAddress)
                 );
-                operations := onVaultWithdrawStakedMvkOperation # operations;
+                operations := vaultWithdrawStakedMvkOperation # operations;
                 
-                // save and update new balance for collateral token
+                // Get current vault staked MVK balance from Doorman contract
+                const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
+
+                // calculate new collateral balance                
+                if withdrawAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
+                const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - withdrawAmount);
+
+                // ------------------------------------------------------------------
+                // Update storage
+                // ------------------------------------------------------------------
+
+                vault.loanOutstandingTotal                := newLoanOutstandingTotal;
+                vault.loanPrincipalTotal                  := newLoanPrincipalTotal;
+                vault.loanInterestTotal                   := newLoanInterestTotal;
+                vault.borrowIndex                         := tokenBorrowIndex;
+                vault.lastUpdatedBlockLevel               := Tezos.get_level();
+                vault.lastUpdatedTimestamp                := Tezos.get_now();
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
                 s.vaults[vaultHandle]                     := vault;
+
+                // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
+                if loanTokenRecord.tokenPoolTotal > 0n then {
+                    loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+                } else skip;
+                s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
                 
             }
         |   _ -> skip
@@ -2112,7 +2151,7 @@ block {
     checkSenderIsSelf(unit);
 
     var operations : list(operation) := nil;
-    // checkVaultLiquidateStakedMvkIsNotPaused(s);    // check that %vaultLiquidateStakedMvk entrypoint is not paused (e.g. if glass broken)
+    checkVaultLiquidateStakedMvkIsNotPaused(s);    // check that %vaultLiquidateStakedMvk entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams) -> {
@@ -2138,6 +2177,8 @@ block {
 
                 // Get vault if exists
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+
+                // FYI: loan token state update is already done in lambda liquidate
                 
                 // Get current vault staked MVK balance from Doorman contract
                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
