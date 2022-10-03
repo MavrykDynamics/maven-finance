@@ -15,7 +15,7 @@ export const SatelliteDetails = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => Boolean(state.loading))
   const { currentSatellite } = useSelector((state: State) => state.delegation)
-  const { user } = useSelector((state: State) => state.user)
+  const { mySatelliteRewardsData, mySMvkTokenBalance = 0 } = useSelector((state: State) => state.user)
   const { accountPkh } = useSelector((state: State) => state.wallet)
 
   let { satelliteId } = useParams<{ satelliteId: string }>()
@@ -42,12 +42,12 @@ export const SatelliteDetails = () => {
   return (
     <SatelliteDetailsView
       satellite={currentSatellite}
-      userSatelliteReward={user.mySatelliteRewardsData}
+      userSatelliteReward={mySatelliteRewardsData}
       loading={loading}
       delegateCallback={delegateCallback}
       undelegateCallback={undelegateCallback}
       claimRewardsCallback={handleClaimRewards}
-      userStakedBalanceInSatellite={user.mySMvkTokenBalance}
+      userStakedBalanceInSatellite={mySMvkTokenBalance}
     />
   )
 }

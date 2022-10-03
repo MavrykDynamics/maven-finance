@@ -1,5 +1,6 @@
+import { UserState } from 'reducers/user'
 import { FIXED_POINT_ACCURACY, PRECISION_NUMBER, SECONDS_PER_BLOCK } from './constants'
-import { UserData, UserDoormanRewardsData, UserFarmRewardsData, UserSatelliteRewardsData } from './TypesAndInterfaces/User'
+import { UserDoormanRewardsData, UserFarmRewardsData, UserSatelliteRewardsData } from './TypesAndInterfaces/User'
 
 /**
  * Calculates the MVK Loyalty Index (MLI) per the function in the litepaper
@@ -40,7 +41,7 @@ export function calcWithoutMu(amount: string | number): number {
   return numberMu > 0 ? numberMu / 1000000 : 0
 }
 
-export function calcUsersDoormanRewards(userInfo: UserData): UserDoormanRewardsData {
+export function calcUsersDoormanRewards(userInfo: UserState): UserDoormanRewardsData {
   const { mySMvkTokenBalance, myDoormanRewardsData } = userInfo
   const currentFeesPerShare =
     myDoormanRewardsData.generalAccumulatedFeesPerShare - myDoormanRewardsData.myParticipationFeesPerShare
@@ -52,7 +53,10 @@ export function calcUsersDoormanRewards(userInfo: UserData): UserDoormanRewardsD
   return myDoormanRewardsData
 }
 
-export function calcUsersFarmRewards(userInfo: UserData, currentBlockLevel: number): Record<string, UserFarmRewardsData> {
+export function calcUsersFarmRewards(
+  userInfo: UserState,
+  currentBlockLevel: number,
+): Record<string, UserFarmRewardsData> {
   const { myFarmRewardsData } = userInfo
   const newFarmRewardsData: Record<string, UserFarmRewardsData> = {}
   const farmsKeys = Object.keys(myFarmRewardsData)
@@ -84,7 +88,7 @@ export function calcUsersFarmRewards(userInfo: UserData, currentBlockLevel: numb
   return newFarmRewardsData
 }
 
-export function calcUsersSatelliteRewards(userInfo: UserData): UserSatelliteRewardsData {
+export function calcUsersSatelliteRewards(userInfo: UserState): UserSatelliteRewardsData {
   const { mySMvkTokenBalance, mySatelliteRewardsData } = userInfo
   const satelliteRewardRatio =
     mySatelliteRewardsData.satelliteAccumulatedRewardPerShare - mySatelliteRewardsData.participationRewardsPerShare
