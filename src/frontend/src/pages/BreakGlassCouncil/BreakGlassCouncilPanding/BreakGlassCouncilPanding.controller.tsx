@@ -83,10 +83,10 @@ export const BreakGlassCouncilPanding = (props: Props) => {
   }
 
   if (isUpdateChangeCouncilMember) {
-    const councilMember = findActionByName('councilMember')
-    const councilMemberName = findActionByName('councilMemberName')
-    const councilMemberWebsite = findActionByName('councilMemberWebsite')
-    const profilePic = findActionByName('profilePic')
+    const newCouncilMemberAddress = findActionByName('newCouncilMemberAddress')
+    const newCouncilMemberName = findActionByName('newCouncilMemberName')
+    const newCouncilMemberWebsite = findActionByName('newCouncilMemberWebsite')
+    const newCouncilMemberImage = findActionByName('newCouncilMemberImage')
     return (
       <>
         <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
@@ -95,13 +95,13 @@ export const BreakGlassCouncilPanding = (props: Props) => {
             <article>
               <p>Council Member</p>
               <span className="parameters-value">
-                <TzAddress tzAddress={councilMember} hasIcon={false} />
+                <TzAddress tzAddress={newCouncilMemberAddress} hasIcon={false} />
               </span>
             </article>
 
             <article>
               <p>Council Member Name</p>
-              <span className="parameters-value">{councilMemberName || '-'}</span>
+              <span className="parameters-value">{newCouncilMemberName || '-'}</span>
             </article>
 
             <article className="signed-article">
@@ -117,10 +117,10 @@ export const BreakGlassCouncilPanding = (props: Props) => {
           <div className="parameters grid">
             <article>
               <p>Profile Pic</p>
-              {profilePic ? (
+              {newCouncilMemberImage ? (
               <article className="parameters-img">
                 <AvatarStyle>
-                  <img src={profilePic} />
+                  <img src={newCouncilMemberImage} />
                 </AvatarStyle>
               </article>
             ) : <span className="parameters-value">-</span>}
@@ -128,8 +128,8 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
             <article>
               <p>Council Member Website</p>
-              {councilMemberWebsite 
-              ? <a className="parameters-btn" href={councilMemberWebsite} target="_blank" rel="noreferrer">
+              {newCouncilMemberWebsite 
+              ? <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
                 Visit Website
               </a>
               : <span className='parameters-value'>-</span>}
@@ -143,11 +143,11 @@ export const BreakGlassCouncilPanding = (props: Props) => {
   }
 
   if (isChangeCouncilMember) {
-    const councilMemberToChange = findActionByName('councilMemberToChange')
-    const councilMemberAddress = findActionByName('councilMemberAddress')
-    const councilMemberName = findActionByName('councilMemberName')
-    const councilMemberWebsite = findActionByName('councilMemberWebsite')
-    const profilePic = findActionByName('profilePic')
+    const oldCouncilMemberAddress = findActionByName('oldCouncilMemberAddress')
+    const newCouncilMemberAddress = findActionByName('newCouncilMemberAddress')
+    const newCouncilMemberName = findActionByName('newCouncilMemberName')
+    const newCouncilMemberWebsite = findActionByName('newCouncilMemberWebsite')
+    const newCouncilMemberImage = findActionByName('newCouncilMemberImage')
     return (
       <>
         <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
@@ -156,19 +156,19 @@ export const BreakGlassCouncilPanding = (props: Props) => {
             <article>
               <p className='without-margin'>Council Member to change</p>
               <span className="parameters-value">
-                <TzAddress tzAddress={councilMemberToChange} hasIcon={false} />
+                <TzAddress tzAddress={oldCouncilMemberAddress} hasIcon={false} />
               </span>
             </article>
             <article>
               <p>Council Member Address</p>
               <span className="parameters-value">
-                <TzAddress tzAddress={councilMemberAddress} hasIcon={false} />
+                <TzAddress tzAddress={newCouncilMemberAddress} hasIcon={false} />
               </span>
             </article>
 
             <article>
               <p>Council Member Name</p>
-              <span className="parameters-value">{councilMemberName || '-'}</span>
+              <span className="parameters-value">{newCouncilMemberName || '-'}</span>
             </article>
 
             <article className="signed-article">
@@ -186,10 +186,10 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
             <article>
               <p>Profile Pic</p>
-              {profilePic ? (
+              {newCouncilMemberImage ? (
               <article className="parameters-img">
                 <AvatarStyle>
-                  <img src={profilePic} />
+                  <img src={newCouncilMemberImage} />
                 </AvatarStyle>
               </article>
             ) : <span className="parameters-value">-</span>}
@@ -197,8 +197,8 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
             <article>
               <p>Council Member Website</p>
-              {councilMemberWebsite 
-              ? <a className="parameters-btn" href={councilMemberWebsite} target="_blank" rel="noreferrer">
+              {newCouncilMemberWebsite 
+              ? <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
                 Visit Website
               </a>
               : <span className='parameters-value'>-</span>}
