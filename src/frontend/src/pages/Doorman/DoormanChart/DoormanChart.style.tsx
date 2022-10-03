@@ -8,7 +8,7 @@ export const ChartCard = styled(Card)<{ theme: MavrykTheme }>`
 
 export const ChartSlidingTabButtons = styled.div`
   display: flex;
-  width: 300px;
+  width: 394px;
   height: 40px;
 
   > div {
@@ -23,7 +23,6 @@ export const ChartSlidingTabButtons = styled.div`
   }
 
   button {
-    padding: 0 12px;
     width: 100%;
   }
 `

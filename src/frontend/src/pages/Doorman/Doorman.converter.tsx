@@ -33,7 +33,7 @@ type StakeHistoryDataProps = {
 }
 
 export function normalizeStakeHistoryData(storage: StakeHistoryDataProps) {
-  const { stake_history_data } = storage
+  const { stake_history_data = [] } = storage
 
   return stake_history_data?.length
     ? stake_history_data?.map((item) => {
@@ -51,7 +51,7 @@ type SmvkHistoryDataProps = {
 }
 
 export function normalizeSmvkHistoryData(storage: SmvkHistoryDataProps) {
-  const { smvk_history_data } = storage
+  const { smvk_history_data = [] } = storage
 
   return smvk_history_data?.length
     ? smvk_history_data?.map((item) => {
