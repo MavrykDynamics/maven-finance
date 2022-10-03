@@ -3,9 +3,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-// types
-import { State } from '../../reducers'
-
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { FarmTopBar, LIVE_TAB_ID } from './FarmTopBar/FarmTopBar.controller'
@@ -20,8 +17,21 @@ import { FarmsStyled } from './Farms.style'
 import { Page } from 'styles'
 import { EmptyContainer as EmptyList } from 'app/App.style'
 import { getFarmStorage } from './Farms.actions'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import {
+  calculateSlicePositions,
+  FARMS_HORIZONTAL_CARDS,
+  FARMS_VERTICAL_CARDS,
+  LIST_NAMES_MAPPER,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 
-export type FarmsViewVariantType = 'vertical' | 'horizontal'
+// types
+import { State } from '../../reducers'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+
+export const VERTICAL_FARM_VIEW = 'vertical'
+export const HORIZONTAL_FARM_VIEW = 'horizontal'
+export type FarmsViewVariantType = typeof VERTICAL_FARM_VIEW | typeof HORIZONTAL_FARM_VIEW
 
 const EmptyContainer = () => (
   <EmptyList>
@@ -44,7 +54,7 @@ export const Farms = () => {
   const [liveFinished, setLiveFinished] = useState<number>(LIVE_TAB_ID)
   const [searchValue, setSearchValue] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
-  const [farmsViewVariant, setFarmsViewVariant] = useState<FarmsViewVariantType>('vertical')
+  const [farmsViewVariant, setFarmsViewVariant] = useState<FarmsViewVariantType>(VERTICAL_FARM_VIEW)
 
   const { search, pathname } = useLocation()
   const {
@@ -64,6 +74,19 @@ export const Farms = () => {
       },
     [search],
   )
+
+  // pagination stuff
+  const listName = useMemo(
+    () => (farmsViewVariant === VERTICAL_FARM_VIEW ? FARMS_VERTICAL_CARDS : FARMS_HORIZONTAL_CARDS),
+    [farmsViewVariant],
+  )
+
+  const currentPage = useMemo(() => getPageNumber(search, listName), [search, listName])
+
+  const farmsCards = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, listName)
+    return farmsList?.slice(from, to)
+  }, [farmsList, isLive, searchFarm, sortType, isStakedOny, currentPage, listName])
 
   // effect to set all filters state from queryParams on mount
   useEffect(() => {
@@ -214,7 +237,7 @@ export const Farms = () => {
         />
         {farmsList.length ? (
           <section className={`farm-list ${farmsViewVariant}`}>
-            {farmsList.map((farm, index: number) => {
+            {farmsCards.map((farm, index: number) => {
               const depositAmount = getSummDepositedAmount(farm.farmAccounts)
               return (
                 <div key={farm.address + index}>
@@ -229,6 +252,7 @@ export const Farms = () => {
                 </div>
               )
             })}
+            <Pagination itemsCount={farmsList.length} listName={listName} />
           </section>
         ) : (
           <EmptyContainer />
