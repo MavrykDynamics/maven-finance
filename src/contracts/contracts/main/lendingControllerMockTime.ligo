@@ -72,11 +72,10 @@ type lendingControllerAction is
     |   Borrow                          of borrowActionType
     |   Repay                           of repayActionType
 
-        // Vault Staked MVK Entrypoints   
-    // |   CallVaultStakedMvkAction        of callVaultStakedMvkActionType  
-    |   VaultDepositStakedMvk           of vaultDepositStakedMvkType   
-    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
-    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
+        // Vault Staked MVK Entrypoints    
+    |   VaultDepositStakedMvk           of vaultDepositStakedMvkActionType   
+    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType   
+    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType   
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -226,7 +225,7 @@ function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
 // ------------------------------------------------------------------------------
 
 // -----------------------------------------
-// Lending Controller Token Pool Entrypoints
+// Lending Controller Admin Entrypoints
 // -----------------------------------------
 
 // helper function to check that the %setLoanToken entrypoint is not paused
@@ -236,12 +235,14 @@ function checkSetLoanTokenIsNotPaused(var s : lendingControllerStorageType) : un
 
 
 
-// helper function to check that the %updatLoanToken entrypoint is not paused
-function checkUpdateLoanTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
-    if s.breakGlassConfig.updateLoanTokenIsPaused then failwith(error_UPDATE_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
+// helper function to check that the %usetCollateralToken entrypoint is not paused
+function checkSetCollateralTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
+    if s.breakGlassConfig.setCollateralTokenIsPaused then failwith(error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
     else unit;
 
-
+// -----------------------------------------
+// Lending Controller Token Pool Entrypoints
+// -----------------------------------------
 
 // helper function to check that the %addLiquidity entrypoint is not paused
 function checkAddLiquidityIsNotPaused(var s : lendingControllerStorageType) : unit is
@@ -258,13 +259,6 @@ function checkRemoveLiquidityIsNotPaused(var s : lendingControllerStorageType) :
 // -----------------------------------------
 // Lending Controller Vault Entrypoints
 // -----------------------------------------
-
-// helper function to check that the %updateCollateralToken entrypoint is not paused
-function checkUpdateCollateralTokenIsNotPaused(var s : lendingControllerStorageType) : unit is
-    if s.breakGlassConfig.updateCollateralTokenIsPaused then failwith(error_UPDATE_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
-    else unit;
-
-
 
 // helper function to check that the %registerVaultCreation entrypoint is not paused
 function checkRegisterVaultCreationIsNotPaused(var s : lendingControllerStorageType) : unit is
@@ -371,17 +365,6 @@ function getVaultOnLiquidateEntrypoint(const vaultAddress : address) : contract(
         vaultAddress) : option(contract(onLiquidateType))) of [
                 Some(contr) -> contr
             |   None -> (failwith(error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(onLiquidateType))
-        ]
-
-
-
-// helper function to get %vaultDelegateTez entrypoint in a Vault Contract
-function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(delegateTezToBakerType) is
-    case (Tezos.get_entrypoint_opt(
-        "%delegateTezToBaker",
-        vaultAddress) : option(contract(delegateTezToBakerType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_DELEGATE_TEZ_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND) : contract(delegateTezToBakerType))
         ]
 
 
@@ -504,27 +487,27 @@ block {
 
 
 // helper function to create new loan token record
-function createLoanTokenRecord(const setLoanTokenParams : setLoanTokenActionType) : loanTokenRecordType is 
+function createLoanTokenRecord(const createLoanTokenParams : createLoanTokenActionType) : loanTokenRecordType is 
 block {
 
     // init variables for convenience
-    const tokenName                             : string        = setLoanTokenParams.tokenName;
-    const tokenType                             : tokenType     = setLoanTokenParams.tokenType;
-    const tokenDecimals                         : nat           = setLoanTokenParams.tokenDecimals;
+    const tokenName                             : string        = createLoanTokenParams.tokenName;
+    const tokenType                             : tokenType     = createLoanTokenParams.tokenType;
+    const tokenDecimals                         : nat           = createLoanTokenParams.tokenDecimals;
 
-    const oracleAddress                         : address        = setLoanTokenParams.oracleAddress;
+    const oracleAddress                         : address        = createLoanTokenParams.oracleAddress;
 
-    const lpTokenContractAddress                : address       = setLoanTokenParams.lpTokenContractAddress;
-    const lpTokenId                             : nat           = setLoanTokenParams.lpTokenId;
-    const reserveRatio                          : nat           = setLoanTokenParams.reserveRatio;
+    const lpTokenContractAddress                : address       = createLoanTokenParams.lpTokenContractAddress;
+    const lpTokenId                             : nat           = createLoanTokenParams.lpTokenId;
+    const reserveRatio                          : nat           = createLoanTokenParams.reserveRatio;
 
-    const optimalUtilisationRate                : nat           = setLoanTokenParams.optimalUtilisationRate;
-    const baseInterestRate                      : nat           = setLoanTokenParams.baseInterestRate;
-    const maxInterestRate                       : nat           = setLoanTokenParams.maxInterestRate;
-    const interestRateBelowOptimalUtilisation   : nat           = setLoanTokenParams.interestRateBelowOptimalUtilisation;
-    const interestRateAboveOptimalUtilisation   : nat           = setLoanTokenParams.interestRateAboveOptimalUtilisation;
+    const optimalUtilisationRate                : nat           = createLoanTokenParams.optimalUtilisationRate;
+    const baseInterestRate                      : nat           = createLoanTokenParams.baseInterestRate;
+    const maxInterestRate                       : nat           = createLoanTokenParams.maxInterestRate;
+    const interestRateBelowOptimalUtilisation   : nat           = createLoanTokenParams.interestRateBelowOptimalUtilisation;
+    const interestRateAboveOptimalUtilisation   : nat           = createLoanTokenParams.interestRateAboveOptimalUtilisation;
 
-    const minRepaymentAmount                    : nat           = setLoanTokenParams.minRepaymentAmount;
+    const minRepaymentAmount                    : nat           = createLoanTokenParams.minRepaymentAmount;
 
     const newLoanTokenRecord : loanTokenRecordType = record [
                     
@@ -996,7 +979,7 @@ block {
 
 
 // helper function to check if vault is liquidatable
-function isLiquidatable(const vault : vaultRecordType; var s : lendingControllerStorageType) : (bool * lendingControllerStorageType) is 
+function isLiquidatable(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
@@ -1007,20 +990,20 @@ block {
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
 
-    s.tempMap["isLiquidatable - vaultCollateralValueRebased"] := vaultCollateralValueRebased;
+    // s.tempMap["isLiquidatable - vaultCollateralValueRebased"] := vaultCollateralValueRebased;
 
     // calculate loan outstanding value rebased
     const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
 
-    s.tempMap["isLiquidatable - loanOutstandingRebased"] := loanOutstandingRebased;
-    s.tempMap["isLiquidatable - liquidationPoint"] := (liquidationRatio * loanOutstandingRebased) / 1000n;
+    // s.tempMap["isLiquidatable - loanOutstandingRebased"] := loanOutstandingRebased;
+    // s.tempMap["isLiquidatable - liquidationPoint"] := (liquidationRatio * loanOutstandingRebased) / 1000n;
 
     // check is vault is liquidatable based on liquidation ratio
     const isLiquidatable : bool = vaultCollateralValueRebased < (liquidationRatio * loanOutstandingRebased) / 1000n;
 
-    s.tempMap["isLiquidatable - isLiquidatable"] := if isLiquidatable then 1n else 0n;
+    // s.tempMap["isLiquidatable - isLiquidatable"] := if isLiquidatable then 1n else 0n;
     
-} with (isLiquidatable, s)
+} with isLiquidatable
 
 // ------------------------------------------------------------------------------
 // Contract Helper Functions End
@@ -1217,187 +1200,6 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Vault Entrypoint Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-(* vaultDepositStakedMvk  *)
-function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    var operations : list(operation) := nil;
-    checkVaultDepositStakedMvkIsNotPaused(s);    // check that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
-    
-    // init variables for convenience
-    const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
-    const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
-    const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-    const tokenName       : string            = "sMVK";
-
-    // Get Doorman Address from the General Contracts map on the Governance Contract
-    const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-    // check if token (sMVK) exists in collateral token ledger
-    checkCollateralTokenExists(tokenName, s);
-
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = vaultOwner;
-    ];
-
-    // Get vault if exists
-    var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-
-    const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType = record [
-        vaultOwner    = vaultOwner;
-        vaultAddress  = vault.address;
-        depositAmount = depositAmount;
-    ];
-
-    // create operation to doorman to update balance of staked MVK from user to vault
-    const vaultDepositStakedMvkOperation : operation = Tezos.transaction(
-        onVaultDepositStakedMvkParams,
-        0tez,
-        getOnVaultDepositStakedMvkEntrypoint(doormanAddress)
-    );
-    operations := vaultDepositStakedMvkOperation # operations;
-    
-    // Get current vault staked MVK balance from Doorman contract
-    const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
-
-    // calculate new collateral balance
-    const newCollateralBalance : nat = currentVaultStakedMvkBalance + depositAmount;
-
-    // save and update new balance for collateral token
-    vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-    s.vaults[vaultHandle]                     := vault;
-
-} with (operations, s)
-
-
-
-(* vaultWithdrawStakedMvk  *)
-function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    var operations : list(operation) := nil;
-    checkVaultWithdrawStakedMvkIsNotPaused(s);    // check that %vaultWithdrawStakedMvk entrypoint is not paused (e.g. if glass broken)
-    
-    // init variables for convenience
-    const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
-    const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
-    const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-    const tokenName       : string            = "sMVK";
-
-    // Get Doorman Address from the General Contracts map on the Governance Contract
-    const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-    // check if token (sMVK) exists in collateral token ledger
-    checkCollateralTokenExists(tokenName, s);
-
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = vaultOwner;
-    ];
-
-    // Get vault if exists
-    var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-
-    // Get current vault staked MVK balance from Doorman contract
-    const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
-
-    // calculate new collateral balance
-    if withdrawAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
-    const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - withdrawAmount);
-
-    const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType = record [
-        vaultOwner     = vaultOwner;
-        vaultAddress   = vault.address;
-        withdrawAmount = withdrawAmount;
-    ];
-
-    // create operation to doorman to update balance of staked MVK from user to vault
-    const onVaultWithdrawStakedMvkOperation : operation = Tezos.transaction(
-        onVaultWithdrawStakedMvkParams,
-        0tez,
-        getOnVaultWithdrawStakedMvkEntrypoint(doormanAddress)
-    );
-    operations := onVaultWithdrawStakedMvkOperation # operations;
-    
-    // save and update new balance for collateral token
-    vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-    s.vaults[vaultHandle]                     := vault;
-
-} with (operations, s)
-
-
-
-(* vaultLiquidateStakedMvk  *)
-function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    checkSenderIsSelf(unit);
-    var operations : list(operation) := nil;
-    checkVaultLiquidateStakedMvkIsNotPaused(s);    // check that %vaultLiquidateStakedMvk entrypoint is not paused (e.g. if glass broken)
-    
-    // init variables for convenience
-    const vaultId           : vaultIdType       = vaultLiquidateStakedMvkParams.vaultId;
-    const vaultOwner        : vaultOwnerType    = vaultLiquidateStakedMvkParams.vaultOwner;
-    const liquidator        : address            = vaultLiquidateStakedMvkParams.liquidator;
-    const liquidatedAmount  : nat               = vaultLiquidateStakedMvkParams.liquidatedAmount;
-    const tokenName         : string            = "sMVK";
-
-    // Get Doorman Address from the General Contracts map on the Governance Contract
-    const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-    // check if token (sMVK) exists in collateral token ledger
-    checkCollateralTokenExists(tokenName, s);
-
-    // Make vault handle
-    const vaultHandle : vaultHandleType = record [
-        id     = vaultId;
-        owner  = vaultOwner;
-    ];
-
-    // Get vault if exists
-    var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-    
-    // Get current vault staked MVK balance from Doorman contract
-    const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
-
-    // calculate new collateral balance
-    if liquidatedAmount > currentVaultStakedMvkBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
-    const newCollateralBalance : nat = abs(currentVaultStakedMvkBalance - liquidatedAmount);
-
-    const onVaultLiquidateStakedMvkParams : onVaultLiquidateStakedMvkType = record [
-        vaultOwner       = vaultOwner;
-        vaultAddress     = vault.address;
-        liquidator       = liquidator;
-        liquidatedAmount = liquidatedAmount;
-    ];
-
-    // create operation to doorman to update balance of staked MVK from user to vault
-    const onVaultLiquidateStakedMvkOperation : operation = Tezos.transaction(
-        onVaultLiquidateStakedMvkParams,
-        0tez,
-        getOnVaultLiquidateStakedMvkEntrypoint(doormanAddress)
-    );
-    operations := onVaultLiquidateStakedMvkOperation # operations;
-    
-    // save and update new balance for collateral token in liquidated vault
-    vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-    s.vaults[vaultHandle]                     := vault;
-
-} with (operations, s)
-
-// ------------------------------------------------------------------------------
-// Vault Entrypoint Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -1470,18 +1272,6 @@ block {
 (* View: get Governance address *)
 // [@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
 //     s.governanceAddress
-
-
-
-// (* View: get whitelist contracts *)
-// [@view] function getWhitelistContracts(const _ : unit; var s : lendingControllerStorageType) : whitelistContractsType is
-//     s.whitelistContracts
-
-
-
-// (* View: get general contracts *)
-// [@view] function getGeneralContracts(const _ : unit; var s : lendingControllerStorageType) : generalContractsType is
-//     s.generalContracts
 
 
 
@@ -1584,25 +1374,6 @@ block {
 
     // init vault controller lambda action
     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
-
-} with response
-
-
-
-(* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : lendingControllerStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
@@ -1976,7 +1747,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* vaultDepositStakedMvk entrypoint *)
-function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : lendingControllerStorageType) : return is 
+function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkActionType; var s : lendingControllerStorageType) : return is 
 block {
  
      const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultDepositStakedMvk"] of [
@@ -1995,7 +1766,7 @@ block {
 
 
 // (* vaultWithdrawStakedMvk entrypoint *)
-function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : lendingControllerStorageType) : return is 
+function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkActionType; var s : lendingControllerStorageType) : return is 
 block {
 
      const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultWithdrawStakedMvk"] of [
@@ -2014,7 +1785,7 @@ block {
 
 
 // (* vaultLiquidateStakedMvk entrypoint *)
-function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : lendingControllerStorageType) : return is 
+function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkActionType; var s : lendingControllerStorageType) : return is 
 block {
 
 
