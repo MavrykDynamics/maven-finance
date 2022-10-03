@@ -38,6 +38,11 @@ type SatelliteDetailsViewProps = {
   claimRewardsCallback: () => void
   userStakedBalanceInSatellite: number
   userSatelliteReward: UserSatelliteRewardsData
+  satelliteMetrics: {
+    proposalParticipation: number
+    votingPartisipation: number
+    oracleEfficiency: number
+  }
 }
 
 const renderVotingHistoryItem = (item: SatelliteProposalVotingHistory | SatelliteFinancialRequestVotingHistory) => {
@@ -74,6 +79,7 @@ export const SatelliteDetailsView = ({
   claimRewardsCallback,
   userStakedBalanceInSatellite: myDelegatedMVK,
   userSatelliteReward,
+  satelliteMetrics,
 }: SatelliteDetailsViewProps) => {
   const { satelliteId } = useParams<{ satelliteId: string }>()
   const { satelliteMvkIsDelegatedTo } = useSelector((state: State) => state.user)
@@ -114,15 +120,15 @@ export const SatelliteDetailsView = ({
                 <SatelliteMetricsBlock>
                   <h5>Proposal Participation</h5>
                   <p>
-                    <CommaNumber value={0} endingText="%" />
+                    <CommaNumber value={satelliteMetrics.proposalParticipation} endingText="%" showDecimal={false} />
                   </p>
                   <h5>Vote Participation</h5>
                   <p>
-                    <CommaNumber value={0} endingText="%" />
+                    <CommaNumber value={satelliteMetrics.votingPartisipation} endingText="%" showDecimal={false} />
                   </p>
                   <h5>Oracle efficiency</h5>
                   <p>
-                    <CommaNumber value={0} endingText="%" />
+                    <CommaNumber value={satelliteMetrics.oracleEfficiency} endingText="%" showDecimal={false} />
                   </p>
                 </SatelliteMetricsBlock>
               </div>

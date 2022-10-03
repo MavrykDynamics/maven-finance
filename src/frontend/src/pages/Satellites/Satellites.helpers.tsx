@@ -31,6 +31,7 @@ export function normalizeSatelliteRecord(
           votingPower: calcWithoutPrecision(vote.voting_power),
           requestData: vote.governance_proposal,
           voteName: vote?.governance_proposal?.title,
+          submitted: vote.governance_proposal?.executed && vote.governance_proposal.locked,
         }
       })
     : []
