@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components'
-import { boxShadowColor, cyanColor, downColor, upColor } from 'styles'
+import { boxShadowColor, cyanColor, downColor, upColor, Card } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const DataFeedsStyled = styled.div`
   display: flex;
@@ -247,4 +248,8 @@ export const UserSmallCard = styled.div`
     box-shadow: 0px 4px 4px ${boxShadowColor};
     cursor: pointer;
   }
+`
+
+export const ChartCard = styled(Card)<{ theme: MavrykTheme }>`
+  padding: 30px 20px 20px;
 `

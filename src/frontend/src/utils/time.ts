@@ -8,7 +8,8 @@ export function toHHMMSS(sec: number): string {
   return `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
-type TimeFormatTypes = 'MMM DD, HH:mm:ss' | 'DD MMM YYYY / HH:mm' | 'MMMM DD HH:mm Z' | 'MMM DD, YYYY' | 'YYYY-MM-DD'
+type TimeFormatTypes = 'MMM DD, HH:mm:ss' | 'DD MMM YYYY / HH:mm' | 'MMMM DD HH:mm Z' | 'MMM DD, YYYY' | 'YYYY-MM-DD' | 'HH:mm' | 'MMM DD, HH:mm Z'
+
 export const parseData = ({ time, timeFormat }: { time?: string | number | null; timeFormat: TimeFormatTypes }) => {
   if (!time) return null
   const dateObj = new Date(time)
