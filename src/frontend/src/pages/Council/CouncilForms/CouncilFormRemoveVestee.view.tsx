@@ -60,7 +60,7 @@ export const CouncilFormRemoveVestee = () => {
         <Icon id="question" />
       </a>
       <h1 className="form-h1">Remove Vestee</h1>
-      <p>Please enter valid function parameters for remove vestee</p>
+      <p>Please enter valid function parameters for removing vestee</p>
       <div className="form-grid form-grid-button-right">
         <div>
           <label>Vestee Address</label>
