@@ -1,5 +1,5 @@
 // type
-import { DoormanGraphQl } from '../../utils/TypesAndInterfaces/Doorman'
+import { DoormanGraphQl, StakeHistoryDataGraphQl, SmvkHistoryDataGraphQl } from '../../utils/TypesAndInterfaces/Doorman'
 import { MvkTokenGraphQL } from '../../utils/TypesAndInterfaces/MvkToken'
 
 // helpers
@@ -26,4 +26,39 @@ export function normalizeMvkToken(storage: MvkTokenGraphQL | null) {
     totalSupply: storage?.total_supply ? calcWithoutPrecision(storage?.total_supply) : 0,
     maximumTotalSupply: storage?.maximum_supply ? calcWithoutPrecision(storage?.maximum_supply) : 0,
   }
+}
+
+type StakeHistoryDataProps = {
+  stake_history_data: StakeHistoryDataGraphQl[]
+}
+
+export function normalizeStakeHistoryData(storage: StakeHistoryDataProps) {
+  const { stake_history_data = [] } = storage
+
+  return stake_history_data?.length
+    ? stake_history_data?.map((item) => {
+      return {
+        finalAmount: item.final_amount,
+        timestamp: item.timestamp,
+        type: item.type,
+      }
+    })
+    : []
+}
+
+type SmvkHistoryDataProps = {
+  smvk_history_data: SmvkHistoryDataGraphQl[]
+}
+
+export function normalizeSmvkHistoryData(storage: SmvkHistoryDataProps) {
+  const { smvk_history_data = [] } = storage
+
+  return smvk_history_data?.length
+    ? smvk_history_data?.map((item) => {
+      return {
+        smvkTotalSupply: item.smvk_total_supply,
+        timestamp: item.timestamp,
+      }
+    })
+    : []
 }
