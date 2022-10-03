@@ -58,9 +58,9 @@ type lendingControllerBreakGlassConfigType is record [
     repayIsPaused                       : bool;
 
     // Vault Entrypoints
-    vaultDepositIsPaused                    : bool;
-    vaultWithdrawIsPaused                   : bool;
-    vaultOnLiquidateIsPaused                : bool;
+    vaultDepositIsPaused                : bool;
+    vaultWithdrawIsPaused               : bool;
+    vaultOnLiquidateIsPaused            : bool;
 
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : bool;
@@ -76,9 +76,9 @@ type tokenPoolDepositorLedgerType is big_map((address * string), nat)   // key -
 type collateralTokenRecordType is [@layout:comb] record [
     tokenName               : string;
     tokenContractAddress    : address;
-    tokenDecimals           : nat;       // token decimals
+    tokenDecimals           : nat;      
 
-    oracleAddress           : address;   // zeroAddress if no oracle
+    oracleAddress           : address;   
     protected               : bool;
 
     tokenType               : tokenType; 
@@ -92,7 +92,7 @@ type loanTokenRecordType is [@layout:comb] record [
     tokenType                               : tokenType; 
     tokenDecimals                           : nat;
 
-    oracleAddress                           : address;   // zeroAddress if no oracle
+    oracleAddress                           : address;   
 
     lpTokensTotal                           : nat;
     lpTokenContractAddress                  : address;
@@ -239,7 +239,7 @@ type createCollateralTokenActionType is [@layout:comb] record [
     tokenContractAddress    : address;
     tokenDecimals           : nat; 
 
-    oracleAddress           : address;   // zeroAddress if no oracle
+    oracleAddress           : address;   
     protected               : bool;
 
     // variants at the end for taquito 
@@ -249,7 +249,7 @@ type createCollateralTokenActionType is [@layout:comb] record [
 
 type updateCollateralTokenActionType is [@layout:comb] record [
     tokenName               : string;
-    oracleAddress           : address;   // zeroAddress if no oracle
+    oracleAddress           : address;   
 ]
 
 
@@ -366,11 +366,6 @@ type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
 // Lambda Action Types
 // ------------------------------------------------------------------------------
 
-type callVaultStakedMvkActionType is 
-    |   VaultDepositStakedMvk           of vaultDepositStakedMvkActionType
-    |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
-    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
-
 type lendingControllerLambdaActionType is 
         
         // Housekeeping Entrypoints
@@ -387,13 +382,13 @@ type lendingControllerLambdaActionType is
         // Admin Entrypoints
     |   LambdaSetLoanToken                    of setLoanTokenActionType  
     |   LambdaSetCollateralToken              of setCollateralTokenActionType  
+    |   LambdaRegisterVaultCreation           of registerVaultCreationActionType
 
         // Token Pool Entrypoints
     |   LambdaAddLiquidity                    of addLiquidityActionType
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
         // Vault Entrypoints
-    |   LambdaRegisterVaultCreation           of registerVaultCreationActionType
     |   LambdaCloseVault                      of closeVaultActionType
     |   LambdaMarkForLiquidation              of markForLiquidationActionType
     |   LambdaLiquidateVault                  of liquidateVaultActionType

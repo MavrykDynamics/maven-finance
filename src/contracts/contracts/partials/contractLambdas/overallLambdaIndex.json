@@ -36,10 +36,7 @@
         "lambdas" : [
             "lambdaSetAdmin",
             "lambdaSetGovernance",
-            "lambdaUpdateMetadata",
             "lambdaUpdateConfig",
-            "lambdaUpdateWhitelistContracts",
-            "lambdaUpdateGeneralContracts",
             "lambdaUpdateWhitelistTokenContracts",
 
             "lambdaPauseAll",
@@ -47,12 +44,12 @@
             "lambdaTogglePauseEntrypoint",
 
             "lambdaSetLoanToken",
-            "lambdaUpdateLoanToken",
+            "lambdaSetCollateralToken",
+            "lambdaRegisterVaultCreation",
+
             "lambdaAddLiquidity",
             "lambdaRemoveLiquidity",
 
-            "lambdaUpdateCollateralToken",
-            "lambdaRegisterVaultCreation",
             "lambdaCloseVault",
             "lambdaMarkForLiquidation",
             "lambdaLiquidateVault",
