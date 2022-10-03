@@ -131,7 +131,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
 
   const content = CONTENT_FORM.get(variant)
 
-  const isFieldOracleAdress =
+  const isFieldOracleAddress =
     variant === 'removeFromAggregator' ||
     variant === 'addToAggregator' ||
     variant === 'setAggregatorMaintainer' ||
@@ -197,7 +197,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
         </a>
         <div>
           <h1>{content?.title}</h1>
-          <p>Please enter a valid tz1 adress of the satellite to take action on</p>
+          <p>Please enter a valid tz1 address of the satellite to take action on</p>
           <fieldset>
             <div className="satellite-address">
               <label>
@@ -219,7 +219,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
                 inputStatus={formInputStatus.satelliteAddress}
               />
             </div>
-            {isFieldOracleAdress ? (
+            {isFieldOracleAddress ? (
               <div className="satellite-address">
                 <label>
                   {variant === 'setAggregatorMaintainer' || variant === 'updateAggregatorStatus'
