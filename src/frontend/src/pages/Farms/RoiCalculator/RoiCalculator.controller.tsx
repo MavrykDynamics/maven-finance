@@ -15,10 +15,9 @@ import Expand from '../../../app/App.components/Expand/Expand.view'
 // style
 import { RoiCalculatorStyled, RoiExpandStyled } from './RoiCalculator.style'
 import { SUCCESS_STATUS, ERROR_STATUS } from 'app/App.components/Modal/FarmWithdrawModal/FarmWithdrawModal.controller'
-import { calculateAPR, calculateAPY, getUserBalanceByAddress } from '../Farms.helpers'
+import { calculateAPYorAPR, getUserBalanceByAddress } from '../Farms.helpers'
 import { SELECT_FARM_ADDRESS } from '../Farms.actions'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { votingRoundVoteType } from 'utils/TypesAndInterfaces/Governance'
 
 const STAKED_ITEMS = [
   { text: '1D', id: 1, active: true, actualValue: 1 },
@@ -145,8 +144,8 @@ export default function RoiCalculator({ onClose }: Props) {
 
   const tokensNames =
     farm.lpToken1.symbol && farm.lpToken2.symbol && `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}`
-  const valueAPY = calculateAPY(farm.lpTokenRate)
-  const farmAPR = calculateAPR(farm.currentRewardPerBlock, farm.lpTokenRate, farm.lpBalance)
+  const valueAPY = calculateAPYorAPR(farm.currentRewardPerBlock, farm.lpBalance)
+  const farmAPR = calculateAPYorAPR(farm.currentRewardPerBlock, farm.lpBalance, farm.totalBlocks)
   // handlers for inputs
   const handleBlur = () => {
     if (inputValue.amount === '') {
@@ -363,19 +362,7 @@ export default function RoiCalculator({ onClose }: Props) {
         <Expand className="roi-expand" showCustomText="Details">
           <ul className="roi-expand-ul">
             <li>
-              <h4>APR (incl LP rewards)</h4>
-              <var>
-                <CommaNumber value={farmAPR} endingText="%" />
-              </var>
-            </li>
-            <li>
               <h4>Base APR (MVK yield only)</h4>
-              <var>
-                <CommaNumber value={0} endingText="%" />
-              </var>
-            </li>
-            <li>
-              <h4>LP Rewards APR</h4>
               <var>
                 <CommaNumber value={farmAPR} endingText="%" />
               </var>
@@ -384,12 +371,6 @@ export default function RoiCalculator({ onClose }: Props) {
               <h4>APY</h4>
               <var>
                 <CommaNumber value={valueAPY} endingText="%" />
-              </var>
-            </li>
-            <li>
-              <h4>Farm Multiplier</h4>
-              <var>
-                <CommaNumber value={0} endingText="%" />
               </var>
             </li>
           </ul>

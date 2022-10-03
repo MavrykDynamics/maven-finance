@@ -10,7 +10,7 @@ import { FarmCard } from './FarmCard/FarmCard.controller'
 import { Modal } from '../../app/App.components/Modal/Modal.controller'
 
 // helpers
-import { calculateAPY, getSummDepositedAmount } from './Farms.helpers'
+import { calculateAPYorAPR, getSummDepositedAmount } from './Farms.helpers'
 
 // styles
 import { FarmsStyled } from './Farms.style'
@@ -22,7 +22,6 @@ import {
   calculateSlicePositions,
   FARMS_HORIZONTAL_CARDS,
   FARMS_VERTICAL_CARDS,
-  LIST_NAMES_MAPPER,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
@@ -157,10 +156,18 @@ export const Farms = () => {
             res = Number(a.open) - Number(b.open)
             break
           case 'highestAPY':
-            res = calculateAPY(a.lpTokenRate) < calculateAPY(b.lpTokenRate) ? 1 : -1
+            res =
+              calculateAPYorAPR(a.currentRewardPerBlock, a.lpBalance) <
+              calculateAPYorAPR(a.currentRewardPerBlock, a.lpBalance)
+                ? 1
+                : -1
             break
           case 'lowestAPY':
-            res = calculateAPY(a.lpTokenRate) > calculateAPY(b.lpTokenRate) ? 1 : -1
+            res =
+              calculateAPYorAPR(a.currentRewardPerBlock, a.lpBalance) >
+              calculateAPYorAPR(a.currentRewardPerBlock, a.lpBalance)
+                ? 1
+                : -1
             break
           case 'highestLiquidity':
             res = a.lpBalance < b.lpBalance ? 1 : -1

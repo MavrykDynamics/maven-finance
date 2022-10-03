@@ -64,8 +64,6 @@ export const normalizeFarmStorage = (
       accumulatedMvkPerShare: 0,
       lastBlockUpdate: farmItem.last_block_update,
       lpTokenAddress: lpMetadata?.liquidityPairToken?.tokenAddress?.[0] ?? '',
-      // TODO: add real lp token rate
-      lpTokenRate: 0.5,
       lpBalance: farmItem.lp_token_balance / Math.pow(10, Number(dipDupToken?.metadata.decimals)),
       lpToken1: {
         symbol: lpMetadata?.liquidityPairToken?.token0?.symbol?.[0],
@@ -87,26 +85,15 @@ export const normalizeFarmStorage = (
 }
 
 // helper functions
-export const calculateAPY = (lpTokenRate: number): number => {
-  // const blocksPerYear = 2 * 60 * 24 * 365 // 2 blocks per minute -> 1051200 blocks per year
-  const tokenRate = new BigNumber(lpTokenRate)
-  const compoudingPeriodsPerYear = new BigNumber(365)
+export const calculateAPYorAPR = (
+  currentRewardPerBlock: number,
+  lpTokenBalance: number,
+  totalFarmBlocks?: number,
+): number => {
+  let rewardRate = currentRewardPerBlock / Math.pow(10, 9)
 
-  // return lpTokenBalance ? ((currentRewardPerBlock * blocksPerYear) / lpTokenBalance) * 100 : 0 // old calcs
-  return tokenRate.isZero()
-    ? 0
-    : new BigNumber(1)
-        .plus(tokenRate.dividedBy(compoudingPeriodsPerYear))
-        .exponentiatedBy(compoudingPeriodsPerYear)
-        .minus(1)
-        .toNumber()
-}
-
-export const calculateAPR = (currentRewardPerBlock: number, lpTokenRate: number, lpTokenBalance: number): number => {
-  const blocksPerYear = new BigNumber(2 * 60 * 24 * 365) // 2 blocks per minute -> 1051200 blocks per year
-  const rewardsPerYear = blocksPerYear.multipliedBy(currentRewardPerBlock).dividedBy(lpTokenRate)
-  const principal = new BigNumber(lpTokenBalance)
-  return rewardsPerYear.dividedBy(principal).multipliedBy(100).toNumber()
+  const blocksPerYear = 1051200 // 2 blocks per minute -> 1051200 blocks per year
+  return lpTokenBalance > 0 ? ((rewardRate * (totalFarmBlocks ?? blocksPerYear)) / lpTokenBalance) * 100 : 0
 }
 
 export const getSummDepositedAmount = (farmAccounts: FarmAccountsType[]): number => {

@@ -21,7 +21,7 @@ import { SELECT_FARM_ADDRESS } from '../Farms.actions'
 import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 
 // helpers
-import { calculateAPY } from '../Farms.helpers'
+import { calculateAPYorAPR } from '../Farms.helpers'
 
 // styles
 import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
@@ -334,7 +334,7 @@ export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, e
 
   const [visibleModal, setVisibleModal] = useState(false)
 
-  const valueAPR = calculateAPY(farm.lpTokenRate)
+  const valueAPY = calculateAPYorAPR(farm.currentRewardPerBlock, farm.lpBalance)
   const userReward = myFarmRewardsData[farm.address]
 
   const harvestRewards = () => {
@@ -380,7 +380,7 @@ export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, e
       userReward={userReward}
       closeCalculatorModal={closeCalculatorModal}
       expandBlockCallback={expandBlockCallback}
-      apyValue={valueAPR}
+      apyValue={valueAPY}
       triggerCalculatorModal={triggerCalculatorModal}
       triggerDepositModal={triggerDepositModal}
       triggerWithdrawModal={triggerWithdrawModal}
@@ -396,7 +396,7 @@ export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, e
       userReward={userReward}
       closeCalculatorModal={closeCalculatorModal}
       expandBlockCallback={expandBlockCallback}
-      apyValue={valueAPR}
+      apyValue={valueAPY}
       triggerCalculatorModal={triggerCalculatorModal}
       triggerDepositModal={triggerDepositModal}
       triggerWithdrawModal={triggerWithdrawModal}
