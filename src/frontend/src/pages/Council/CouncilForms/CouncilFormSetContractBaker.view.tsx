@@ -63,7 +63,7 @@ export const CouncilFormSetContractBaker = () => {
         <Icon id="question" />
       </a>
       <h1 className="form-h1">Set Contract Baker</h1>
-      <p>Please enter valid function parameters for set contract baker</p>
+      <p>Please enter valid function parameters for setting a contract baker</p>
       <div className="form-grid">
         <div>
           <label>Target Contract Address</label>

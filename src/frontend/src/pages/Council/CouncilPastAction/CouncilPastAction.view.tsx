@@ -35,7 +35,7 @@ export const CouncilPastActionView = (props: Props) => {
         <h4>{getSeparateCamelCase(action_type)}</h4>
       </div>
       <div>
-        <p>Multi-sig Approval</p>
+        <p>Multisig Approval</p>
         <h4 className={`${isMoreThanHalf ? 'is-green' : 'is-red'}`}>
           {signers_count}/{num_council_members}
         </h4>
