@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -6,57 +6,35 @@ import { State } from 'reducers'
 import ModalPopup from '../../../app/App.components/Modal/ModalPopup.view'
 import CoinsIcons from '../../../app/App.components/Icon/CoinsIcons.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
-import { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { SlidingTabButtons, TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import Checkbox from '../../../app/App.components/Checkbox/Checkbox.view'
 import Expand from '../../../app/App.components/Expand/Expand.view'
+import { SUCCESS_STATUS, ERROR_STATUS } from 'app/App.components/Modal/FarmWithdrawModal/FarmWithdrawModal.controller'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 // style
 import { RoiCalculatorStyled, RoiExpandStyled } from './RoiCalculator.style'
-import { SUCCESS_STATUS, ERROR_STATUS } from 'app/App.components/Modal/FarmWithdrawModal/FarmWithdrawModal.controller'
+
+// types
+import { InputStatusesType, InputValuesType, RoiCalcProps, SelectedTabsStateType } from './RoiCalc.types'
+
+// consts, helpers
 import { calculateAPYorAPR, getUserBalanceByAddress } from '../Farms.helpers'
+import {
+  BOTTOM_INPUT,
+  COMPOUNDING_ITEMS,
+  defaultInputStatuses,
+  defaultInputValues,
+  getOppositeROIvalue,
+  LP_EXCHANGE_RATE,
+  oppositeInputNameMapper,
+  STAKED_ITEMS,
+  TOP_INPUT,
+} from './RoiCalc.helpers'
 import { SELECT_FARM_ADDRESS } from '../Farms.actions'
-import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
-const STAKED_ITEMS = [
-  { text: '1D', id: 1, active: true, actualValue: 1 },
-  { text: '7D', id: 2, active: false, actualValue: 7 },
-  { text: '30D', id: 3, active: false, actualValue: 30 },
-  { text: '1Y', id: 4, active: false, actualValue: 365 },
-  { text: '5Y', id: 5, active: false, actualValue: 1825 },
-]
-
-const COMPOUNDING_ITEMS = [
-  { text: '1D', id: 1, active: false, actualValue: 1 },
-  { text: '7D', id: 2, active: false, actualValue: 7 },
-  { text: '14D', id: 3, active: false, actualValue: 14 },
-  { text: '30D', id: 4, active: false, actualValue: 30 },
-]
-
-type SelectedTabsStateType = {
-  balanceTab: null | (TabItem & { actualValue: number | null })
-  stakedTab: null | (TabItem & { actualValue: number | null })
-  compoundTab: null | (TabItem & { actualValue: number | null })
-}
-
-type InputValuesType = {
-  amount: number | ''
-  backwardAmount: number | ''
-}
-
-type InputStatusesType = {
-  amountStatus: InputStatusType
-  backwardStatus: InputStatusType
-}
-
-type Props = {
-  onClose: () => void
-}
-
-const LP_EXCHANGE_RATE = 0.5
-
-export default function RoiCalculator({ onClose }: Props) {
+export default function RoiCalculator({ onClose }: RoiCalcProps) {
   const dispatch = useDispatch()
   const { selectedFarmAddress, farmStorage } = useSelector((state: State) => state.farm)
   const { accountPkh } = useSelector((state: State) => state.wallet)
@@ -64,73 +42,55 @@ export default function RoiCalculator({ onClose }: Props) {
 
   const farm = farmStorage.find(({ address }) => selectedFarmAddress === address)
 
-  const [inputStatus, setInputStatus] = useState<InputStatusesType>({
-    amountStatus: '',
-    backwardStatus: '',
-  })
-  const [inputValue, setInputValue] = useState<InputValuesType>({
-    amount: 0,
-    backwardAmount: 0,
-  })
-
+  const [inputStatus, setInputStatus] = useState<InputStatusesType>(defaultInputStatuses)
+  const [inputValues, setInputValue] = useState<InputValuesType>(defaultInputValues)
+  const [lastInputUse, setLastInputUse] = useState<typeof TOP_INPUT | typeof BOTTOM_INPUT>(TOP_INPUT)
   const [isPensilClicked, togglePensil] = useState(false)
   const [userBalance, setUserBalance] = useState(0)
-
-  const STAKED_VALUES = useMemo(
-    () => [
-      { text: '$100', id: 1, active: false, actualValue: 100 },
-      { text: '$1000', id: 2, active: false, actualValue: 1000 },
-      { text: 'My Balance', id: 3, active: false, actualValue: userBalance, isDisabled: !accountPkh },
-    ],
-    [userBalance, accountPkh],
-  )
-
-  // state for tabs
   const [compoundEverythingActive, toggleCompoundEverything] = useState(false)
-  const [shouldDisableBalanceTabs, toggleDisablingBalanceTabs] = useState(false)
+  const [shouldDisableBalanceTabs, toggleDisablingBalanceTabs] = useState(true)
   const [tabsSelected, selectTab] = useState<SelectedTabsStateType>({
     balanceTab: null,
-    stakedTab: STAKED_VALUES[0],
+    stakedTab: STAKED_ITEMS[0],
     compoundTab: compoundEverythingActive ? COMPOUNDING_ITEMS[0] : null,
   })
 
-  const lpValue = useMemo(() => Number(inputValue.amount) * LP_EXCHANGE_RATE, [inputValue.amount])
+  const TOGGLE_BALANCE_TABS = useMemo(
+    () => [
+      { text: '$100', id: 1, active: +inputValues.amount === 100, actualValue: 100 },
+      { text: '$1000', id: 2, active: +inputValues.amount === 1000, actualValue: 1000 },
+      { text: 'My Balance', id: 3, active: false, actualValue: userBalance, isDisabled: !accountPkh },
+    ],
+    [userBalance, accountPkh, inputValues.amount],
+  )
 
-  const getUserBalance = async () => {
-    const userBalanceFetched = Number(await getUserBalanceByAddress(farm?.lpTokenAddress))
-    setUserBalance(userBalanceFetched)
-  }
+  const lpValue = useMemo(() => Number(inputValues.amount) * LP_EXCHANGE_RATE, [inputValues.amount])
 
   useEffect(() => {
-    getUserBalance()
-  }, [])
+    ;(async () => {
+      const userBalanceFetched = Number(await getUserBalanceByAddress(farm?.lpTokenAddress))
+      setUserBalance(userBalanceFetched)
+    })().catch((e) => console.error('fetching user balance in ROI calc error: ', e))
+  }, [farm?.lpTokenAddress])
 
   // validation for input and running calcuations based on input
   useEffect(() => {
-    const validityStatus = +inputValue.backwardAmount >= 0 ? SUCCESS_STATUS : ERROR_STATUS
+    const validityStatus = +inputValues.backwardAmount >= 0 ? SUCCESS_STATUS : ERROR_STATUS
 
     setInputStatus({
       ...inputStatus,
       backwardStatus: validityStatus,
     })
-
-    if (validityStatus === SUCCESS_STATUS) {
-      //TODO: run calculations from end to start
-    }
-  }, [inputValue.backwardAmount])
+  }, [inputValues.backwardAmount])
 
   useEffect(() => {
-    const validityStatus = +inputValue.amount >= 0 ? SUCCESS_STATUS : ERROR_STATUS
+    const validityStatus = +inputValues.amount >= 0 ? SUCCESS_STATUS : ERROR_STATUS
 
     setInputStatus({
       ...inputStatus,
       amountStatus: validityStatus,
     })
-
-    if (validityStatus === SUCCESS_STATUS) {
-      //TODO: run calculations from start to end
-    }
-  }, [inputValue.amount])
+  }, [inputValues.amount])
 
   // if farm address doesn't exists, close modal
   if (!farm) {
@@ -146,19 +106,20 @@ export default function RoiCalculator({ onClose }: Props) {
     farm.lpToken1.symbol && farm.lpToken2.symbol && `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}`
   const valueAPY = calculateAPYorAPR(farm.currentRewardPerBlock, farm.lpBalance)
   const farmAPR = calculateAPYorAPR(farm.currentRewardPerBlock, farm.lpBalance, farm.totalBlocks)
+
   // handlers for inputs
   const handleBlur = () => {
-    if (inputValue.amount === '') {
+    if (inputValues.amount === '') {
       setInputValue({
-        ...inputValue,
+        ...inputValues,
         amount: 0,
       })
       return
     }
 
-    if (inputValue.backwardAmount === '') {
+    if (inputValues.backwardAmount === '') {
       setInputValue({
-        ...inputValue,
+        ...inputValues,
         backwardAmount: 0,
       })
       return
@@ -166,17 +127,17 @@ export default function RoiCalculator({ onClose }: Props) {
   }
 
   const handleFocus = () => {
-    if (inputValue.amount === 0) {
+    if (inputValues.amount === 0) {
       setInputValue({
-        ...inputValue,
+        ...inputValues,
         amount: '',
       })
       return
     }
 
-    if (inputValue.backwardAmount === 0) {
+    if (inputValues.backwardAmount === 0) {
       setInputValue({
-        ...inputValue,
+        ...inputValues,
         backwardAmount: '',
       })
       return
@@ -184,27 +145,50 @@ export default function RoiCalculator({ onClose }: Props) {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target as { name: 'amount' | 'backwardAmount'; value: number | string }
+    const oppositeInputValue = getOppositeROIvalue(
+      name,
+      value,
+      compoundEverythingActive,
+      tabsSelected.stakedTab?.actualValue,
+      tabsSelected.compoundTab?.actualValue,
+    )
     setInputValue({
-      ...inputValue,
+      ...inputValues,
       [name]: value,
+      [oppositeInputNameMapper[name]]: oppositeInputValue,
     })
+    setLastInputUse(name)
+
+    const toggleBtn = TOGGLE_BALANCE_TABS.find(({ actualValue }) => +value === actualValue)
 
     if (name === 'amount') {
-      toggleDisablingBalanceTabs(true)
+      toggleDisablingBalanceTabs(Boolean(toggleBtn))
       selectTab({
         ...tabsSelected,
-        balanceTab: null,
+        balanceTab: toggleBtn ?? null,
       })
     }
   }
 
   // handlers for selecting tabs
-  const handleChangeStaked = (tabId?: number) => {
+  const handleChangeStaked = (tabId: number) => {
     const tabValue = STAKED_ITEMS.find(({ id }) => id === tabId) || null
     selectTab({
       ...tabsSelected,
       stakedTab: tabValue,
+    })
+
+    const oppositeInputValue = getOppositeROIvalue(
+      lastInputUse,
+      inputValues[lastInputUse],
+      compoundEverythingActive,
+      tabValue?.actualValue,
+      tabsSelected.compoundTab?.actualValue,
+    )
+    setInputValue({
+      ...inputValues,
+      [oppositeInputNameMapper[lastInputUse]]: oppositeInputValue,
     })
   }
 
@@ -216,19 +200,38 @@ export default function RoiCalculator({ onClose }: Props) {
       ...tabsSelected,
       compoundTab: isSecondClickOnTheTab ? null : tabValue,
     })
+
+    const oppositeInputValue = getOppositeROIvalue(
+      lastInputUse,
+      inputValues[lastInputUse],
+      compoundEverythingActive,
+      tabsSelected.stakedTab?.actualValue,
+      tabValue?.actualValue,
+    )
+    setInputValue({
+      ...inputValues,
+      [oppositeInputNameMapper[lastInputUse]]: oppositeInputValue,
+    })
   }
 
-  const handleChangeValues = (tabId?: number) => {
+  const handleChangeValues = (tabId: number) => {
     toggleDisablingBalanceTabs(false)
-    const tabValue = STAKED_VALUES.find(({ id }) => id === tabId) || null
+    const tabValue = TOGGLE_BALANCE_TABS.find(({ id }) => id === tabId) || null
     selectTab({
       ...tabsSelected,
       balanceTab: tabValue,
     })
 
+    const oppositeInputValue = getOppositeROIvalue(
+      TOP_INPUT,
+      tabValue?.actualValue ?? userBalance,
+      compoundEverythingActive,
+      tabsSelected.stakedTab?.actualValue,
+      tabValue?.actualValue,
+    )
     setInputValue({
-      ...inputValue,
       amount: tabValue?.actualValue ?? userBalance,
+      backwardAmount: oppositeInputValue,
     })
   }
 
@@ -247,11 +250,11 @@ export default function RoiCalculator({ onClose }: Props) {
           <Input
             id="input-roi"
             type={'number'}
-            name={'amount'}
+            name={TOP_INPUT}
             onChange={handleChange}
             onBlur={handleBlur}
             onFocus={handleFocus}
-            value={inputValue.amount}
+            value={inputValues.amount}
             pinnedText={'USD'}
             inputStatus={inputStatus.amountStatus}
             className="farm-modal-input"
@@ -267,7 +270,7 @@ export default function RoiCalculator({ onClose }: Props) {
         <div className="tab-block">
           <SlidingTabButtons
             className="tab-component values-tabs"
-            tabItems={STAKED_VALUES}
+            tabItems={TOGGLE_BALANCE_TABS}
             onClick={handleChangeValues}
             disableAll={shouldDisableBalanceTabs}
           />
@@ -309,11 +312,11 @@ export default function RoiCalculator({ onClose }: Props) {
                 <Input
                   id="input-roi-backward"
                   type={'number'}
-                  name={'backwardAmount'}
+                  name={BOTTOM_INPUT}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   onFocus={handleFocus}
-                  value={inputValue.backwardAmount}
+                  value={inputValues.backwardAmount}
                   pinnedText={'USD'}
                   inputStatus={inputStatus.backwardStatus}
                   className="farm-modal-backward-input"
@@ -322,12 +325,12 @@ export default function RoiCalculator({ onClose }: Props) {
                   <span>
                     <CommaNumber
                       beginningText="~"
-                      value={+inputValue.backwardAmount * exchangeRate}
+                      value={+inputValues.backwardAmount * exchangeRate}
                       endingText="sMVK"
                     />
                     <CommaNumber
                       beginningText="("
-                      value={(+inputValue.backwardAmount * 100) / +inputValue.amount}
+                      value={(+inputValues.backwardAmount * 100) / +inputValues.amount}
                       endingText="%)"
                     />
                   </span>
@@ -336,13 +339,13 @@ export default function RoiCalculator({ onClose }: Props) {
             ) : (
               <>
                 <var>
-                  <CommaNumber beginningText="$" value={+inputValue.backwardAmount} />
+                  <CommaNumber beginningText="$" value={+inputValues.backwardAmount} />
                 </var>
                 <p>
-                  <CommaNumber beginningText="~" value={+inputValue.backwardAmount * exchangeRate} endingText="sMVK" />
+                  <CommaNumber beginningText="~" value={+inputValues.backwardAmount * exchangeRate} endingText="sMVK" />
                   <CommaNumber
                     beginningText="("
-                    value={(+inputValue.backwardAmount * 100) / +inputValue.amount}
+                    value={(+inputValues.backwardAmount - +inputValues.amount) * 100}
                     endingText="%)"
                   />
                 </p>
