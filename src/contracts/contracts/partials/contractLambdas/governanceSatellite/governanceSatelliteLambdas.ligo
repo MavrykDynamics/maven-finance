@@ -195,17 +195,14 @@ block {
                 const purpose                 : string  = suspendSatelliteParams.purpose;
 
                 // init maps
-                const addressMap        : addressMapType     = map [
-                    ("satelliteToBeSuspended" : string) -> satelliteToBeSuspended
+                const dataMap        : dataMapType      = map [
+                    ("satelliteToBeSuspended" : string) -> Bytes.pack(satelliteToBeSuspended)
                 ];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
                     "SUSPEND",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    emptyTransferList,
+                    dataMap,
                     purpose,
                     s
                 );
@@ -246,17 +243,14 @@ block {
                 const purpose                  : string  = banSatelliteParams.purpose;
 
                 // init maps
-                const addressMap        : addressMapType     = map [
-                    ("satelliteToBeBanned" : string) -> satelliteToBeBanned
+                const dataMap        : dataMapType      = map [
+                    ("satelliteToBeBanned" : string) -> Bytes.pack(satelliteToBeBanned)
                 ];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
                     "BAN",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    emptyTransferList,
+                    dataMap,
                     purpose,
                     s
                 );
@@ -293,21 +287,22 @@ block {
         |   LambdaRestoreSatellite(restoreSatelliteParams) -> {
 
                 // init params
-                const satelliteToBeRestored    : address = restoreSatelliteParams.satelliteToBeRestored;
-                const purpose                  : string  = restoreSatelliteParams.purpose;
+                const satelliteToBeRestored    : address    = restoreSatelliteParams.satelliteToBeRestored;
+                const oraclePublicKey          : key        = restoreSatelliteParams.oraclePublicKey;
+                const oraclePeerId             : string     = restoreSatelliteParams.oraclePeerId;
+                const purpose                  : string     = restoreSatelliteParams.purpose;
 
                 // init maps
-                const addressMap        : addressMapType     = map [
-                    ("satelliteToBeRestored" : string) -> satelliteToBeRestored
+                const dataMap        : dataMapType          = map [
+                    ("satelliteToBeRestored" : string) -> Bytes.pack(satelliteToBeRestored);
+                    ("oraclePublicKey"       : string) -> Bytes.pack(oraclePublicKey);
+                    ("oraclePeerId"          : string) -> Bytes.pack(oraclePeerId);
                 ];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
                     "RESTORE",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    emptyTransferList,
+                    dataMap,
                     purpose,
                     s
                 );
@@ -352,21 +347,18 @@ block {
         |   LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams) -> {
 
                 // init params
-                const satelliteAddress    : address = removeAllSatelliteOraclesParams.satelliteAddress;
-                const purpose             : string  = removeAllSatelliteOraclesParams.purpose;
+                const satelliteAddress    : address     = removeAllSatelliteOraclesParams.satelliteAddress;
+                const purpose             : string      = removeAllSatelliteOraclesParams.purpose;
 
                 // init maps
-                const addressMap        : addressMapType     = map [
-                    ("satelliteAddress" : string) -> satelliteAddress
+                const dataMap        : dataMapType      = map [
+                    ("satelliteAddress" : string) -> Bytes.pack(satelliteAddress)
                 ];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
                     "REMOVE_ALL_SATELLITE_ORACLES",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    emptyTransferList,
+                    dataMap,
                     purpose,
                     s
                 );
@@ -403,23 +395,24 @@ block {
         |   LambdaAddOracleToAggregator(addOracleToAggregatorParams) -> {
 
                 // init params
-                const oracleAddress      : address = addOracleToAggregatorParams.oracleAddress;
-                const aggregatorAddress  : address = addOracleToAggregatorParams.aggregatorAddress;
-                const purpose            : string  = addOracleToAggregatorParams.purpose;
+                const oracleAddress      : address  = addOracleToAggregatorParams.oracleAddress;
+                const oraclePublicKey    : key      = addOracleToAggregatorParams.oraclePublicKey;
+                const oraclePeerId       : string   = addOracleToAggregatorParams.oraclePeerId;
+                const aggregatorAddress  : address  = addOracleToAggregatorParams.aggregatorAddress;
+                const purpose            : string   = addOracleToAggregatorParams.purpose;
 
                 // init maps
-                const addressMap        : addressMapType     = map [
-                    ("oracleAddress"     : string)   -> oracleAddress;
-                    ("aggregatorAddress" : string)   -> aggregatorAddress;
+                const dataMap        : dataMapType  = map [
+                    ("oracleAddress"     : string)   -> Bytes.pack(oracleAddress);
+                    ("oraclePublicKey"   : string)   -> Bytes.pack(oraclePublicKey);
+                    ("oraclePeerId"      : string)   -> Bytes.pack(oraclePeerId);
+                    ("aggregatorAddress" : string)   -> Bytes.pack(aggregatorAddress);
                 ];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
                     "ADD_ORACLE_TO_AGGREGATOR",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    emptyTransferList,
+                    dataMap,
                     purpose,
                     s
                 );
@@ -461,18 +454,15 @@ block {
                 const purpose              : string  = removeOracleInAggregatorParams.purpose;
 
                 // init maps
-                const addressMap        : addressMapType     = map [
-                    ("oracleAddress"     : string)   -> oracleAddress;
-                    ("aggregatorAddress" : string)   -> aggregatorAddress;
+                const dataMap        : dataMapType   = map [
+                    ("oracleAddress"     : string)   -> Bytes.pack(oracleAddress);
+                    ("aggregatorAddress" : string)   -> Bytes.pack(aggregatorAddress);
                 ];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
                     "REMOVE_ORACLE_IN_AGGREGATOR",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    emptyTransferList,
+                    dataMap,
                     purpose,
                     s
                 );
@@ -493,56 +483,6 @@ block {
 // ------------------------------------------------------------------------------
 // Aggregator Governance Lambdas Begin
 // ------------------------------------------------------------------------------
-
-(*  setAggregatorMaintainer lambda *)
-function lambdaSetAggregatorMaintainer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
-block {
-
-    // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
-    // 2. Get necessary contracts and config info
-    //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
-    //      -   Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-    // 3. Get / Check Satellite Records
-    //      -   Get satellite record for initiator
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
-    // 6. Create new governance satellite action record - "SET_AGGREGATOR_MAINTAINER"
-    // 6. Update storage with new records 
-    
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    
-    case governanceSatelliteLambdaAction of [
-        |   LambdaSetAggregatorMaintainer(setAggregatorMaintainerParams) -> {
-
-                // init params
-                const aggregatorAddress    : address  = setAggregatorMaintainerParams.aggregatorAddress;
-                const maintainerAddress    : address  = setAggregatorMaintainerParams.maintainerAddress;
-                const purpose              : string   = setAggregatorMaintainerParams.purpose;
-
-                // init maps
-                const addressMap        : addressMapType     = map [
-                    ("aggregatorAddress" : string)   -> aggregatorAddress;
-                    ("maintainerAddress" : string)   -> maintainerAddress;
-                ];
-
-                // create action
-                s   := createGovernanceSatelliteAction(
-                    "SET_AGGREGATOR_MAINTAINER",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    emptyTransferList,
-                    purpose,
-                    s
-                );
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
 
 
 
@@ -625,20 +565,15 @@ block {
                 const purpose              : string  = updateAggregatorStatusParams.purpose;
 
                 // init maps
-                const addressMap        : addressMapType     = map [
-                    ("aggregatorAddress" : string)   -> aggregatorAddress;
-                ];
-                const stringMap    : stringMapType      = map [
-                    ("status" : string)              -> status
+                const dataMap        : dataMapType   = map [
+                    ("aggregatorAddress" : string)      -> Bytes.pack(aggregatorAddress);
+                    ("status" : string)                 -> Bytes.pack(status)
                 ];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
                     "UPDATE_AGGREGATOR_STATUS",
-                    addressMap,
-                    stringMap,
-                    emptyNatMap,
-                    emptyTransferList,
+                    dataMap,
                     purpose,
                     s
                 );
@@ -687,17 +622,15 @@ block {
                 const transferList             : transferActionType     = fixMistakenTransferParams.transferList;
                 const purpose                  : string                 = fixMistakenTransferParams.purpose;
 
-                const addressMap      : addressMapType     = map [
-                    ("targetContractAddress" : string)   -> targetContractAddress;
+                const dataMap      : dataMapType                        = map [
+                    ("targetContractAddress" : string)   -> Bytes.pack(targetContractAddress);
+                    ("transfer" : string)                -> Bytes.pack(transferList);
                 ];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
                     "MISTAKEN_TRANSFER_FIX",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    transferList,
+                    dataMap,
                     purpose,
                     s
                 );

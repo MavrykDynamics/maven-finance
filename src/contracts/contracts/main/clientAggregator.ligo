@@ -1,37 +1,37 @@
-type lastCompletedRoundPriceReturnType is  [@layout:comb] record [
+type lastCompletedDataReturnType is  [@layout:comb] record [
     round: nat;
-    price: nat;
+    data: nat;
     percentOracleResponse: nat;
     decimals: nat;
-    priceDateTime: timestamp;  
+    lastUpdatedAt: timestamp;  
 ];
 
 
 const noOperations : list (operation) = nil;
 type storage is record [
-  lastprices: lastCompletedRoundPriceReturnType;
+  lastdatas: lastCompletedDataReturnType;
 ]
 type return is list (operation) * storage
 
-type parameter is contract(lastCompletedRoundPriceReturnType)
+type parameter is contract(lastCompletedDataReturnType)
 
 type action is
-  | GetPrice of address
+  | GetData of address
 
 (* Entry Points*)
 
-function getPrice(const aggregatorAddress: address; const store: storage): return is
+function getData(const aggregatorAddress: address; const store: storage): return is
 block {
-  const price : option(lastCompletedRoundPriceReturnType) = Tezos.call_view ("lastCompletedRoundPrice", unit, aggregatorAddress);
+  const data : option(lastCompletedDataReturnType) = Tezos.call_view ("lastCompletedRoundData", unit, aggregatorAddress);
 
-  const unpacked = case price of [
+  const unpacked = case data of [
       Some (p) -> p
-    | None -> (failwith ("Oh no") : lastCompletedRoundPriceReturnType)
+    | None -> (failwith ("Oh no") : lastCompletedDataReturnType)
   ]
 
-} with (noOperations, store with record[lastprices=unpacked])
+} with (noOperations, store with record[lastdatas=unpacked])
 
 function main (const action : action; const storage : storage) : list(operation) * storage is
   case action of [
-    | GetPrice (c) -> getPrice(c, storage)
+    | GetData (c) -> getData(c, storage)
   ];
