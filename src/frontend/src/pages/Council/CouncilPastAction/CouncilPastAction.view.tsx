@@ -42,6 +42,7 @@ export const CouncilPastActionView = (props: Props) => {
       </div>
       <figure>
         <a
+          className="icon-send"
           target="_blank"
           href={`https://${
             process.env.NODE_ENV === 'development' ? process.env.REACT_APP_NETWORK + '.' : ''
