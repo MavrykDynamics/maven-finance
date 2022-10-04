@@ -203,24 +203,17 @@ block {
                 if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
                 else skip;
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap          : addressMapType     = map [
-                    ("councilMemberAddress" : string) -> newCouncilMember.memberAddress
-                ];
-                const stringMap           : stringMapType      = map [
-                    ("councilMemberName"    : string) -> newCouncilMember.memberName;
-                    ("councilMemberImage"   : string) -> newCouncilMember.memberImage;
-                    ("councilMemberWebsite" : string) -> newCouncilMember.memberWebsite
+                const dataMap          : dataMapType     = map [
+                    ("councilMemberAddress" : string) -> Bytes.pack(newCouncilMember.memberAddress);
+                    ("councilMemberName"    : string) -> Bytes.pack(newCouncilMember.memberName);
+                    ("councilMemberImage"   : string) -> Bytes.pack(newCouncilMember.memberImage);
+                    ("councilMemberWebsite" : string) -> Bytes.pack(newCouncilMember.memberWebsite);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "addCouncilMember",
-                    addressMap,
-                    stringMap,
-                    emptyNatMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -257,19 +250,14 @@ block {
                 if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
                 else skip;
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap          : addressMapType     = map [
-                    ("councilMemberAddress" : string) -> councilMemberAddress
+                const dataMap          : dataMapType     = map [
+                    ("councilMemberAddress" : string) -> Bytes.pack(councilMemberAddress)
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "removeCouncilMember",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -312,25 +300,18 @@ block {
                 if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith(error_LAMBDA_NOT_FOUND)
                 else skip;
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap          : addressMapType     = map [
-                    ("oldCouncilMemberAddress"  : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
-                    ("newCouncilMemberAddress"  : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
-                ];
-                const stringMap           : stringMapType      = map [
-                    ("newCouncilMemberName"     : string) -> councilActionChangeMemberParams.newCouncilMemberName;
-                    ("newCouncilMemberWebsite"  : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                    ("newCouncilMemberImage"    : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
+                const dataMap          : dataMapType     = map [
+                    ("oldCouncilMemberAddress"  : string) -> Bytes.pack(councilActionChangeMemberParams.oldCouncilMemberAddress);
+                    ("newCouncilMemberAddress"  : string) -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberAddress);
+                    ("newCouncilMemberName"     : string) -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberName);
+                    ("newCouncilMemberWebsite"  : string) -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberWebsite);
+                    ("newCouncilMemberImage"    : string) -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberImage);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "changeCouncilMember",
-                    addressMap,
-                    stringMap,
-                    emptyNatMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
             }
@@ -356,13 +337,14 @@ block {
     case councilLambdaAction of [
         |   LambdaCouncilActionSetBaker(setBakerParams) -> {
 
+                const dataMap          : dataMapType     = map [
+                    ("keyHash"  : string) -> Bytes.pack(setBakerParams);
+                ];
+
                 // create council action
                 s   := createCouncilAction(
                     "setBaker",
-                    emptyAddressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    setBakerParams,
+                    dataMap,
                     s
                 );
             }
@@ -421,24 +403,17 @@ block {
                     |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap : addressMapType     = map [
-                    ("vesteeAddress"         : string) -> vesteeAddress;
-                ];
-                const natMap : natMapType            = map [
-                    ("totalAllocatedAmount"  : string) -> totalAllocatedAmount;
-                    ("cliffInMonths"         : string) -> cliffInMonths;
-                    ("vestingInMonths"       : string) -> vestingInMonths;
+                const dataMap : dataMapType         = map [
+                    ("vesteeAddress"         : string) -> Bytes.pack(vesteeAddress);
+                    ("totalAllocatedAmount"  : string) -> Bytes.pack(totalAllocatedAmount);
+                    ("cliffInMonths"         : string) -> Bytes.pack(cliffInMonths);
+                    ("vestingInMonths"       : string) -> Bytes.pack(vestingInMonths);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "addVestee",
-                    addressMap,
-                    emptyStringMap,
-                    natMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -484,19 +459,14 @@ block {
                     |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap : addressMapType     = map [
-                    ("vesteeAddress"         : string) -> vesteeAddress;
+                const dataMap : dataMapType     = map [
+                    ("vesteeAddress"         : string) -> Bytes.pack(vesteeAddress);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "removeVestee",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -548,24 +518,17 @@ block {
                     |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap : addressMapType     = map [
-                    ("vesteeAddress"         : string)    -> vesteeAddress;
-                ];
-                const natMap : natMapType            = map [
-                    ("newTotalAllocatedAmount"  : string) -> newTotalAllocatedAmount;
-                    ("newCliffInMonths"         : string) -> newCliffInMonths;
-                    ("newVestingInMonths"       : string) -> newVestingInMonths;
+                const dataMap : dataMapType     = map [
+                    ("vesteeAddress"            : string) -> Bytes.pack(vesteeAddress);
+                    ("newTotalAllocatedAmount"  : string) -> Bytes.pack(newTotalAllocatedAmount);
+                    ("newCliffInMonths"         : string) -> Bytes.pack(newCliffInMonths);
+                    ("newVestingInMonths"       : string) -> Bytes.pack(newVestingInMonths);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "updateVestee",
-                    addressMap,
-                    emptyStringMap,
-                    natMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -611,19 +574,14 @@ block {
                     |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap : addressMapType     = map [
-                    ("vesteeAddress"         : string) -> vesteeAddress;
+                const dataMap : dataMapType     = map [
+                    ("vesteeAddress"         : string) -> Bytes.pack(vesteeAddress);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "toggleVesteeLock",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -668,28 +626,19 @@ block {
                 councilActionTransferParams.tokenType = "TEZ" then skip
                 else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap : addressMapType     = map [
-                    ("receiverAddress"       : string) -> councilActionTransferParams.receiverAddress;
-                    ("tokenContractAddress"  : string) -> councilActionTransferParams.tokenContractAddress;
-                ];
-                const stringMap : stringMapType      = map [
-                    ("tokenType"             : string) -> councilActionTransferParams.tokenType; 
-                    ("purpose"               : string) -> councilActionTransferParams.purpose; 
-                ];
-                const natMap : natMapType         = map [
-                    ("tokenAmount"           : string) -> councilActionTransferParams.tokenAmount;
-                    ("tokenId"               : string) -> councilActionTransferParams.tokenId;
+                const dataMap : dataMapType     = map [
+                    ("receiverAddress"       : string) -> Bytes.pack(councilActionTransferParams.receiverAddress);
+                    ("tokenContractAddress"  : string) -> Bytes.pack(councilActionTransferParams.tokenContractAddress);
+                    ("tokenType"             : string) -> Bytes.pack(councilActionTransferParams.tokenType);
+                    ("purpose"               : string) -> Bytes.pack(councilActionTransferParams.purpose);
+                    ("tokenAmount"           : string) -> Bytes.pack(councilActionTransferParams.tokenAmount);
+                    ("tokenId"               : string) -> Bytes.pack(councilActionTransferParams.tokenId);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "transfer",
-                    addressMap,
-                    stringMap,
-                    natMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -736,29 +685,20 @@ block {
                 councilActionRequestTokensParams.tokenType = "TEZ" then skip
                 else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap : addressMapType     = map [
-                    ("treasuryAddress"       : string) -> councilActionRequestTokensParams.treasuryAddress;
-                    ("tokenContractAddress"  : string) -> councilActionRequestTokensParams.tokenContractAddress;
-                ];
-                const stringMap : stringMapType      = map [
-                    ("tokenName"             : string) -> councilActionRequestTokensParams.tokenName; 
-                    ("purpose"               : string) -> councilActionRequestTokensParams.purpose;        
-                    ("tokenType"             : string) -> councilActionRequestTokensParams.tokenType;  
-                ];
-                const natMap : natMapType         = map [
-                    ("tokenAmount"           : string) -> councilActionRequestTokensParams.tokenAmount;
-                    ("tokenId"               : string) -> councilActionRequestTokensParams.tokenId;
+                const dataMap : dataMapType     = map [
+                    ("treasuryAddress"       : string) -> Bytes.pack(councilActionRequestTokensParams.treasuryAddress);
+                    ("tokenContractAddress"  : string) -> Bytes.pack(councilActionRequestTokensParams.tokenContractAddress);
+                    ("tokenName"             : string) -> Bytes.pack(councilActionRequestTokensParams.tokenName);
+                    ("purpose"               : string) -> Bytes.pack(councilActionRequestTokensParams.purpose);
+                    ("tokenType"             : string) -> Bytes.pack(councilActionRequestTokensParams.tokenType);
+                    ("tokenAmount"           : string) -> Bytes.pack(councilActionRequestTokensParams.tokenAmount);
+                    ("tokenId"               : string) -> Bytes.pack(councilActionRequestTokensParams.tokenId);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "requestTokens",
-                    addressMap,
-                    stringMap,
-                    natMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -797,25 +737,16 @@ block {
                 // Check if requestTokens entrypoint exists on the Governance Financial Contract 
                 const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(governanceFinancialAddress);
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap : addressMapType     = map [
-                    ("treasuryAddress"       : string) -> councilActionRequestMintParams.treasuryAddress;
-                ];
-                const stringMap : stringMapType      = map [
-                    ("purpose"               : string) -> councilActionRequestMintParams.purpose; 
-                ];
-                const natMap : natMapType         = map [
-                    ("tokenAmount"           : string) -> councilActionRequestMintParams.tokenAmount;
+                const dataMap : dataMapType     = map [
+                    ("treasuryAddress"       : string) -> Bytes.pack(councilActionRequestMintParams.treasuryAddress);
+                    ("purpose"               : string) -> Bytes.pack(councilActionRequestMintParams.purpose);
+                    ("tokenAmount"           : string) -> Bytes.pack(councilActionRequestMintParams.tokenAmount);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "requestMint",
-                    addressMap,
-                    stringMap,
-                    natMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -850,19 +781,15 @@ block {
                 // Check if setContractBaker entrypoint exists on the Governance Financial Contract 
                 const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendSetContractBakerParams(governanceFinancialAddress);
 
-                const keyHash : option(key_hash) = councilActionSetContractBakerParams.keyHash; 
-
-                const addressMap        : addressMapType     = map [
-                    ("targetContractAddress" : string) -> councilActionSetContractBakerParams.targetContractAddress
+                const dataMap        : dataMapType     = map [
+                    ("targetContractAddress"    : string) -> Bytes.pack(councilActionSetContractBakerParams.targetContractAddress);
+                    ("keyHash"                  : string) -> Bytes.pack(councilActionSetContractBakerParams.keyHash);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "setContractBaker",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -889,9 +816,8 @@ block {
     case councilLambdaAction of [
         |   LambdaCouncilDropFinancialReq(requestId) -> {
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-                const natMap : natMapType                   = map [
-                    ("requestId"           : string) -> requestId;
+                const dataMap : dataMapType                   = map [
+                    ("requestId"           : string) -> Bytes.pack(requestId);
                 ];
 
                 // check if request exists
@@ -907,10 +833,7 @@ block {
                 // create council action
                 s   := createCouncilAction(
                     "dropFinancialRequest",
-                    emptyAddressMap,
-                    emptyStringMap,
-                    natMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
 
@@ -954,18 +877,14 @@ block {
                 // check if council can sign the action
                 validateAction(_request);
 
-                const keyHash : option(key_hash) = (None : option(key_hash));
-                const natMap           : natMapType         = map [
-                    ("actionId" : string) -> actionId;
+                const dataMap           : dataMapType         = map [
+                    ("actionId" : string) -> Bytes.pack(actionId);
                 ];
 
                 // create council action
                 s   := createCouncilAction(
                     "flushAction",
-                    emptyAddressMap,
-                    emptyStringMap,
-                    natMap,
-                    keyHash,
+                    dataMap,
                     s
                 );
                 

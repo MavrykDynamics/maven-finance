@@ -69,34 +69,34 @@ module.exports = {
         peerId: "oracleMaintainerPeerId"
     },
     oracle0: {
-        pkh: 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6',
-        sk: 'edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e',
-        pk: 'edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4',
-        peerId: "oracle0PeerId"
-    },
-    oracle1: {
-        pkh: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-        sk: 'edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt',
-        pk: 'edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4',
+        pkh: 'tz1MF29aSJSQ6daBba2hKXLz1UepBH9Rmmu1',
+        sk: 'edsk2kYXqgMmCB3jEYkv9dChwagTKpxfXS1BKdaJLQW8p4B5csTyVD',
+        pk: 'edpktxZL38ccQnx4SitpCdn472WZU2SbPQciX4ntbHZth3yLXBfu3E',
         peerId: "oracle1PeerId"
     },
-    oracle2: {
-        pkh: 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L',
-        sk: 'edsk3W5Fz1yWK39sLY6vidmgkfmGAXh6V2JqUiri9W1pFeeYWbFbJL',
-        pk: 'edpkujwsG5JMrWVXQwmRMBoR9yJkokRbn6wy3monpQKBpnZTs1ogRR',
+    oracle1: {
+        pkh: 'tz1QPWy4AsjRvRqLcZCAGrhnKBcCzg7Wa692',
+        sk: 'edsk3mMoc6h7o39enr4ChJwtCYE2ZM6aVkGhaN2qp5Whj21hAXTo8F',
+        pk: 'edpkuDsqi9nJgqZUM4wjBRFmSubnpiwwueTYZ1N871h2gioJeCubt1',
         peerId: "oracle2PeerId"
     },
-    oracle3: {
-        pkh: 'tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc',
-        sk: 'edsk3Wz91mGzhGcq2jVnbTnfkyY7Zod8gdQp2dHfnzud5gRAJ2uoaK',
-        pk: 'edpkvJm4eyR4vL7cY3B8zRyFMAGE4W8AuDtjio6v1GSm7dgS79rL23',
+    oracle2: {
+        pkh: 'tz1dXe3rvWiYknxJqFeevvJhEQ6ZqfoUA7D3',
+        sk: 'edsk34LtLgcGU4HPuVJtgTRkvpk7HHnF8H2GBjZ8qCJmvVK3PvjutP',
+        pk: 'edpkuezYJ6qCWjFJcX1ick5LG4vM9k751eEX8pzxwP2iDra1aXbHe8',
         peerId: "oracle3PeerId"
     },
-    oracle4: {
-        pkh: 'tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px',
-        sk: 'edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf',
-        pk: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
+    oracle3: {
+        pkh: 'tz1MphSj6n1xezLCu7EvVCfoJ16iJnzKgMB4',
+        sk: 'edsk4X3MxgTSjkw523dGtGW4hszVTh6obMxhp5UumRnEJXfZ5Qy5De',
+        pk: 'edpkuzWjZLxcZUgkeXPPi1CtErfSNTtF8y8vZ4429rgGyW9twWjjyN',
         peerId: "oracle4PeerId"
+    },
+    oracle4: {
+        pkh: 'tz1bYfducYCc1DjfDVPn2szaX8MpCAFVp5U5',
+        sk: 'edsk4Hd23yKpNCa9Q9t7ZKDrdfHVC4GZ13ms5ThkNXFrxWs4XcE48a',
+        pk: 'edpktrDU8QkzBCRwPtmJssnifiVChSpeGaMrfidTb3yXjPr7NqTNq2',
+        peerId: "oracle5PeerId"
     }
 };
 

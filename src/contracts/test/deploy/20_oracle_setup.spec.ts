@@ -10,7 +10,8 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
+import {bob, eve, mallory, oracleMaintainer} from '../../scripts/sandbox/accounts'
+import {oracles} from '../../scripts/sandbox/oracles'
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -45,26 +46,34 @@ describe('Aggregator Factory', async () => {
       if(utils.network != "development"){
   
           console.log("Setup Oracles")
-  
-          const oracleMap = MichelsonMap.fromLiteral({
-            [oracle0.pkh] : true,
-            [oracle1.pkh] : true,
-            [oracle2.pkh] : true,
-            // [oracle3.pkh]: true,
-            // [oracle4.pkh]: true,
-          }) as MichelsonMap<
-              string,
-              boolean
-              >
 
-            const aggregatorMetadataBase = Buffer.from(
-                JSON.stringify({
-                    name: 'MAVRYK Aggregator Contract',
-                    version: 'v1.0.0',
-                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-                }),
-                'ascii',
-                ).toString('hex')
+          const oracleMap = MichelsonMap.fromLiteral({
+                [bob.pkh]              : {
+                                              oraclePublicKey: bob.pk,
+                                              oraclePeerId: bob.peerId
+                                          },
+                [eve.pkh]              : {
+                                              oraclePublicKey: eve.pk,
+                                              oraclePeerId: eve.peerId
+                                          },
+                [mallory.pkh]          : {
+                                              oraclePublicKey: mallory.pk,
+                                              oraclePeerId: mallory.peerId
+                                          },
+                [oracleMaintainer.pkh] : {
+                                              oraclePublicKey: oracleMaintainer.pk,
+                                              oraclePeerId: oracleMaintainer.peerId
+                                          },
+              });
+
+          const aggregatorMetadataBase = Buffer.from(
+              JSON.stringify({
+                  name: 'MAVRYK Aggregator Contract',
+                  version: 'v1.0.0',
+                  authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+              }),
+              'ascii',
+              ).toString('hex')
   
           const createAggregatorsBatch = await utils.tezos.wallet
               .batch()
@@ -78,20 +87,14 @@ describe('Aggregator Factory', async () => {
                   oracleMap,
   
                   new BigNumber(16),            // decimals
-                  new BigNumber(2),             // numberBlocksDelay
+                  new BigNumber(2),             // alphaPercentPerThousand
                   
-                  new BigNumber(86400),         // deviationTriggerBanDuration
-                  new BigNumber(5),             // perthousandDeviationTrigger
                   new BigNumber(60),            // percentOracleThreshold
-                  
-                  new BigNumber(0),             // requestRateDeviationDepositFee
-  
-                  new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(0),             // deviationRewardAmountXtz
+                  new BigNumber(30),            // heartBeatSeconds
+
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
-                  oracleMaintainer.pkh,         // maintainer
                   aggregatorMetadataBase       // metadata bytes
 
               ))
@@ -105,20 +108,14 @@ describe('Aggregator Factory', async () => {
                   oracleMap,
   
                   new BigNumber(16),            // decimals
-                  new BigNumber(2),             // numberBlocksDelay
+                  new BigNumber(2),             // alphaPercentPerThousand
                   
-                  new BigNumber(86400),         // deviationTriggerBanDuration
-                  new BigNumber(5),             // perthousandDeviationTrigger
                   new BigNumber(60),            // percentOracleThreshold
-                  
-                  new BigNumber(0),             // requestRateDeviationDepositFee
-                  
-                  new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(0),             // deviationRewardAmountXtz
+                  new BigNumber(30),            // heartBeatSeconds
+
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
-                  oracleMaintainer.pkh,         // maintainer
                   aggregatorMetadataBase        // metadata bytes
 
               ))
@@ -132,20 +129,14 @@ describe('Aggregator Factory', async () => {
                   oracleMap,
   
                   new BigNumber(16),            // decimals
-                  new BigNumber(2),             // numberBlocksDelay
+                  new BigNumber(2),             // alphaPercentPerThousand
                   
-                  new BigNumber(86400),         // deviationTriggerBanDuration
-                  new BigNumber(5),             // perthousandDeviationTrigger
                   new BigNumber(60),            // percentOracleThreshold
-                  
-                  new BigNumber(0),             // requestRateDeviationDepositFee
-                  
-                  new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(0),             // deviationRewardAmountXtz
+                  new BigNumber(30),            // heartBeatSeconds
+
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
-                  oracleMaintainer.pkh,         // maintainer
                   aggregatorMetadataBase        // metadata bytes
                   
               ))

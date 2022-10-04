@@ -1,5 +1,4 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
-
 import { BigNumber } from "bignumber.js";
 
 export type aggregatorStorageType = {
@@ -7,28 +6,20 @@ export type aggregatorStorageType = {
     admin                     : string;
     metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
     name                      : string;
-    
     config                    : {
         decimals                            : BigNumber;
-        numberBlocksDelay                   : BigNumber;
+        alphaPercentPerThousand             : BigNumber;
 
-        deviationTriggerBanDuration         : BigNumber;
-        perThousandDeviationTrigger         : BigNumber;
         percentOracleThreshold              : BigNumber;
+        heartBeatSeconds                    : BigNumber;
+
         
-        requestRateDeviationDepositFee      : BigNumber;
-        
-        deviationRewardStakedMvk            : BigNumber;    
-        deviationRewardAmountXtz            : BigNumber;    
         rewardAmountXtz                     : BigNumber;
         rewardAmountStakedMvk               : BigNumber;
     };
 
     breakGlassConfig          : {
-        requestRateUpdateIsPaused           : boolean;
-        requestRateUpdateDeviationIsPaused  : boolean;
-        setObservationCommitIsPaused        : boolean;
-        setObservationRevealIsPaused        : boolean;
+        updateDataIsPaused                 : boolean;
         withdrawRewardXtzIsPaused           : boolean;
         withdrawRewardStakedMvkIsPaused     : boolean;
     };
@@ -36,31 +27,20 @@ export type aggregatorStorageType = {
     mvkTokenAddress           : string;
     governanceAddress         : string;
 
-    maintainer                : string;
     whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
     generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 
-    round                     : BigNumber;
-    roundStart                : string;
-    switchBlock               : BigNumber;
-    
     oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
     
-    deviationTriggerInfos: {
-        oracleAddress   : string;
-        roundPrice      : BigNumber;
-    };
 
-    lastCompletedRoundPrice: {
+    lastCompletedData: {
         round                 : BigNumber;
-        price                 : BigNumber;
+        epoch                 : BigNumber;
+        data                  : BigNumber;
         percentOracleResponse : BigNumber;
-        priceDateTime         : string;
+        lastUpdatedAt         : string;
     };
 
-    observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
-    observationReveals        : MichelsonMap<MichelsonMapKey, unknown>;
-    deviationTriggerBan       : MichelsonMap<MichelsonMapKey, unknown>;
 
     oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;
     oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;

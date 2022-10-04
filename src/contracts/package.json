@@ -28,17 +28,14 @@
     "compile-contract-lambdas": "ts-node scripts/cli.ts compile-contract-lambda -c",
     "compile-contract": "ts-node scripts/cli.ts compile-contract -c",
     "compile-contract-no-lambdas": "ts-node scripts/cli.ts compile-contract-no-lambdas -c",
-    
     "compile-all-lambdas-1": "yarn compile-contract-lambdas governanceProxy,governance,governanceFinancial,governanceSatellite && yarn compile-contract-lambdas doorman,delegation,breakGlass,council,emergencyGovernance,vesting",
     "compile-all-lambdas-2": "yarn compile-contract-lambdas farm,farmFactory,treasury,treasuryFactory,aggregator,aggregatorFactory",
     "compile-all-lambdas-3": "yarn compile-contract-lambdas vault,lendingController",
     "compile-all-contracts-no-lambdas": " yarn compile-contract-no-lambdas mvkToken,mavrykFa12Token,mavrykFa2Token,tokenPoolLpToken",
     
-    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2 && yarn compile-all-lambdas-3",
-    "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
-
+    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2",
+    "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2",
     "migrate": "./deploy-contracts.sh",
-    
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ghostnet ./deploy-contracts.sh",
     "test-net-interact": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ghostnet ts-mocha --paths test/interact/00_test_testnet_interactions.spec.ts --bail --timeout 900000",
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 900000",

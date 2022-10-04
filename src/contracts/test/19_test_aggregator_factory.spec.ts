@@ -14,6 +14,7 @@
 // import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan, oracleMaintainer } from "../scripts/sandbox/accounts";
 // import aggregatorAddress from '../deployments/aggregatorAddress.json';
 // import aggregatorFactoryAddress from '../deployments/aggregatorFactoryAddress.json';
+// import governanceAddress         from '../deployments/governanceAddress.json';
 
 // import { aggregatorStorageType } from './types/aggregatorStorageType';
 
@@ -23,825 +24,762 @@
 
 // describe('AggregatorFactory', () => {
 
-//   const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
+//     var utils: Utils;
 
-//   let satelliteAddress: string;
-//   var utils: Utils;
+//     let aggregatorInstance;
+//     let aggregatorFactoryInstance;
 
-//   let aggregatorInstance
-//   let aggregatorFactory
+//     let aggregatorStorage;
+//     let aggregatorFactoryStorage;
 
-//   let aggregatorStorage
-
-//   const aggregatorMetadataBase = Buffer.from(
+//     const aggregatorMetadataBase = Buffer.from(
 //         JSON.stringify({
 //             name: 'MAVRYK Aggregator Contract',
 //             version: 'v1.0.0',
 //             authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
 //         }),
 //         'ascii',
-//         ).toString('hex')
-  
-
-//   const signerFactory = async (pk) => {
-//     await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-//     return utils.tezos;
-//   };
-
-//   before("setup", async () => {
-//     console.log('-- -- -- -- -- Aggregator Factory Tests -- -- -- --')
-//     utils = new Utils();
-//     await utils.init(bob.sk);
-
-//     aggregatorInstance                 = await utils.tezos.contract.at(aggregatorAddress.address);
-//     aggregatorStorage                  = await aggregatorInstance.storage();
-
-//     aggregatorFactory = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
-//   });
-
-//   describe('deploy a new aggregator', () => {
-//     it('should fail if called by random address', async () => {
-//         await signerFactory(david.sk);
-
-//       const op = aggregatorFactory.methods.createAggregator(
-//         'USD',
-//         'TEST',
-
-//         'USDBTC',
-//         true,
-        
-//         MichelsonMap.fromLiteral({
-//           [bob.pkh]: true,
-//           [eve.pkh]: true,
-//           [mallory.pkh]: true,
-//           [oscar.pkh]: true,
-//         }) as MichelsonMap<string, string>,
-
-//         new BigNumber(8),             // decimals
-//         new BigNumber(2),             // numberBlocksDelay
-
-//         new BigNumber(86400),         // deviationTriggerBanTimestamp
-//         new BigNumber(5),             // perthousandDeviationTrigger
-//         new BigNumber(60),            // percentOracleThreshold
-
-//         new BigNumber(0),             // requestRateDeviationDepositFee 
-
-//         new BigNumber(10000000),      // deviationRewardStakedMvk
-//         new BigNumber(2600),          // deviationRewardAmountXtz
-//         new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
-//         new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
-        
-//         oracleMaintainer.pkh,         // maintainer
-//         aggregatorMetadataBase        // metadata
-//       );
-
-//     await chai.expect(op.send()).to.be.rejectedWith();
-
-//     });
+//     ).toString('hex')
     
-//     it('should create a new Aggregator', async () => {
-//         await signerFactory(bob.sk);
+//     const oracleMap = MichelsonMap.fromLiteral({
+//         [bob.pkh]              : {
+//                                     oraclePublicKey: bob.pk,
+//                                     oraclePeerId: bob.peerId
+//                                 },
+//         [eve.pkh]              : {
+//                                     oraclePublicKey: eve.pk,
+//                                     oraclePeerId: eve.peerId
+//                                 },
+//         [mallory.pkh]          : {
+//                                     oraclePublicKey: mallory.pk,
+//                                     oraclePeerId: mallory.peerId
+//                                 },
+//         [oracleMaintainer.pkh] : {
+//                                     oraclePublicKey: oracleMaintainer.pk,
+//                                     oraclePeerId: oracleMaintainer.peerId
+//                                 },
+//     });
+//     const signerFactory = async (pk) => {
+//         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
+//         return utils.tezos;
+//     };
 
-//       const op = aggregatorFactory.methods.createAggregator(
-//         'USD',
-//         'TEST',
+//     before("setup", async () => {
+//         console.log('-- -- -- -- -- Aggregator Factory Tests -- -- -- --')
+//         utils = new Utils();
+//         await utils.init(bob.sk);
 
-//         'USDBTC',
-//         true,
-        
-//         MichelsonMap.fromLiteral({
-//           [bob.pkh]: true,
-//           [eve.pkh]: true,
-//           [mallory.pkh]: true,
-//           [oscar.pkh]: true,
-//         }) as MichelsonMap<string, string>,
+//         aggregatorInstance              = await utils.tezos.contract.at(aggregatorAddress.address);
+//         aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
 
-//         new BigNumber(8),             // decimals
-//         new BigNumber(2),             // numberBlocksDelay
-
-//         new BigNumber(86400),         // deviationTriggerBanTimestamp
-//         new BigNumber(5),             // perthousandDeviationTrigger
-//         new BigNumber(60),            // percentOracleThreshold
-
-//         new BigNumber(0),             // requestRateDeviationDepositFee 
-
-//         new BigNumber(10000000),      // deviationRewardStakedMvk
-//         new BigNumber(2600),          // deviationRewardAmountXtz
-//         new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
-//         new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
-        
-//         oracleMaintainer.pkh,         // maintainer
-//         aggregatorMetadataBase        // metadata
-//       );
-
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//       const aggregatorFactoryStorage = await aggregatorFactory.storage();
-  
-//       const newAggregatorAddress = aggregatorFactoryStorage.trackedAggregators.get({
-//         0: 'USD',
-//         1: 'TEST',
-//       }) as string;
-//       assert.notDeepEqual(newAggregatorAddress,null);
-
+//         aggregatorStorage               = await aggregatorInstance.storage();
+//         aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
 //     });
 
-//   });  
+//     describe('%createAggregator', () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
 
-
-//   describe('trackAggregator', () => {
-
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
-
-//         const op = await aggregatorFactory.methods.trackAggregator(
-//             "USD", "test", aggregatorInstance.address
-//           );
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
+//                     'USD',
+//                     'TEST',
         
-//         await chai.expect(op.send()).to.be.rejectedWith();     
-//         }
-//     );
-
-//     it(
-//       'should track aggregator',
-//       async () => {
+//                     'USDBTC',
+//                     true,
+                    
+//                     oracleMap,
         
-//         await signerFactory(bob.sk);
-
-//         const op = await aggregatorFactory.methods.trackAggregator(
-//           "USD", "test", aggregatorInstance.address
-//         ).send();
-
-//         await op.confirmation();
-
-//         let storageAggregatorFactory = await aggregatorFactory.storage();
-//         const trackedAggregator  = await storageAggregatorFactory.trackedAggregators.get({
-//           0: 'USD',
-//           1: 'test',
-//         }) as string
-//         assert.deepEqual(trackedAggregator, aggregatorInstance.address);
-
-//       }
-//     );
-//   });
-
-//   describe('untrackAggregator', () => {
-
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
-
-//         const op = await aggregatorFactory.methods.untrackAggregator(
-//             "USD", "test", aggregatorInstance.address
-//           );
+//                     new BigNumber(8),             // decimals
+//                     new BigNumber(2),             // alphaPercentPerThousand
         
-//         await chai.expect(op.send()).to.be.rejectedWith();     
-//         }
-//     );
-
-//     it(
-//       'should untrack aggregator',
-//       async () => {
+//                     new BigNumber(60),            // percentOracleThreshold
+//                     new BigNumber(30),            // heartBeatSeconds
         
-//         await signerFactory(bob.sk);
-
-//         const op = await aggregatorFactory.methods.untrackAggregator(
-//           "USD", "test", aggregatorInstance.address
-//         ).send();
-
-//         await op.confirmation();
-
-//         let storageAggregatorFactory = await aggregatorFactory.storage();
-//         const untrackedAggregator  = await storageAggregatorFactory.trackedAggregators.get({
-//           0: 'USD',
-//           1: 'test',
-//         }) as string
-
-//         assert.deepEqual(untrackedAggregator, null);
-
-//         // reset track aggregator for tests below
-//         const reset_op = await aggregatorFactory.methods.trackAggregator(
-//           "USD", "test", aggregatorInstance.address
-//         ).send();
-
-//         await reset_op.confirmation();
-
-//       }
-//     );
-//   });
-
-
-//   describe('%pauseAll', function() {
-
-//     it('Non-admin should not be able to pause all entrypoints', async() => {
-//       try{
-//           // Change signer
-//           await signerFactory(alice.sk);
-//           let storageAggregatorFactory = await aggregatorFactory.storage();
-
-//           // Initial values
-//           const createAggregatorIsPaused          = storageAggregatorFactory.breakGlassConfig.createAggregatorIsPaused;
-//           const trackAggregatorIsPaused           = storageAggregatorFactory.breakGlassConfig.trackAggregatorIsPaused;
-//           const untrackAggregatorIsPaused         = storageAggregatorFactory.breakGlassConfig.untrackAggregatorIsPaused;
-//           const distributeRewardXtzIsPaused       = storageAggregatorFactory.breakGlassConfig.distributeRewardXtzIsPaused;
-//           const distributeRewardStakedMvkIsPaused = storageAggregatorFactory.breakGlassConfig.distributeRewardStakedMvkIsPaused;
-
-//           assert.equal(createAggregatorIsPaused, false);
-//           assert.equal(trackAggregatorIsPaused, false);
-//           assert.equal(untrackAggregatorIsPaused, false);
-//           assert.equal(distributeRewardXtzIsPaused, false);
-//           assert.equal(distributeRewardStakedMvkIsPaused, false);
-          
-//           // fail pause all
-//           await chai.expect(aggregatorFactory.methods.pauseAll().send()).to.be.rejected;
-
-//           // Final values
-//           const updatedAggregatorFactoryStorage          = await aggregatorFactory.storage();
-
-//           const updatedCreateAggregatorIsPaused          = updatedAggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
-//           const updatedTrackAggregatorIsPaused           = updatedAggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
-//           const updatedUntrackAggregatorIsPaused         = updatedAggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
-//           const updatedDistributeRewardXtzIsPaused       = updatedAggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
-//           const updatedDistributeRewardStakedMvkIsPaused = updatedAggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
-
-//           // Assertion
-//           assert.equal(updatedCreateAggregatorIsPaused, false);
-//           assert.equal(updatedTrackAggregatorIsPaused, false);
-//           assert.equal(updatedUntrackAggregatorIsPaused, false);
-//           assert.equal(updatedDistributeRewardXtzIsPaused, false);
-//           assert.equal(updatedDistributeRewardStakedMvkIsPaused, false);
-
-//       }catch(e){
-//           console.dir(e, {depth: 5})
-//       }
-//     })
-  
-//     it('Admin should be able to pause all entrypoints on the factory and the tracked aggregators', async() => {
-//         try{
-//             await signerFactory(bob.sk)
-//             let storageAggregatorFactory = await aggregatorFactory.storage();
-
-//             // Initial values
-//             const createAggregatorIsPaused          = storageAggregatorFactory.breakGlassConfig.createAggregatorIsPaused;
-//             const trackAggregatorIsPaused           = storageAggregatorFactory.breakGlassConfig.trackAggregatorIsPaused;
-//             const untrackAggregatorIsPaused         = storageAggregatorFactory.breakGlassConfig.untrackAggregatorIsPaused;
-//             const distributeRewardXtzIsPaused       = storageAggregatorFactory.breakGlassConfig.distributeRewardXtzIsPaused;
-//             const distributeRewardStakedMvkIsPaused = storageAggregatorFactory.breakGlassConfig.distributeRewardStakedMvkIsPaused;
-
-//             assert.equal(createAggregatorIsPaused, false);
-//             assert.equal(trackAggregatorIsPaused, false);
-//             assert.equal(untrackAggregatorIsPaused, false);
-//             assert.equal(distributeRewardXtzIsPaused, false);
-//             assert.equal(distributeRewardStakedMvkIsPaused, false);
-            
-//             var aggregatorStorage: aggregatorStorageType = await aggregatorInstance.storage();
-
-//             const requestRateUpdateIsPaused           = aggregatorStorage.breakGlassConfig.requestRateUpdateIsPaused;
-//             const requestRateUpdateDeviationIsPaused  = aggregatorStorage.breakGlassConfig.requestRateUpdateDeviationIsPaused;
-//             const setObservationCommitIsPaused        = aggregatorStorage.breakGlassConfig.setObservationCommitIsPaused;
-//             const setObservationRevealIsPaused        = aggregatorStorage.breakGlassConfig.setObservationRevealIsPaused;
-//             const withdrawRewardXtzIsPaused           = aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
-//             const withdrawRewardStakedMvkIsPaused     = aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
-
-//             assert.equal(requestRateUpdateIsPaused, false);
-//             assert.equal(requestRateUpdateDeviationIsPaused, false);
-//             assert.equal(setObservationCommitIsPaused, false);
-//             assert.equal(setObservationRevealIsPaused, false);
-//             assert.equal(withdrawRewardXtzIsPaused, false);
-//             assert.equal(withdrawRewardStakedMvkIsPaused, false);
-
-//             // Create an operation
-//             const operation = await aggregatorFactory.methods.pauseAll().send();
-//             await operation.confirmation();
-
-//             // Final values
-//             const updatedAggregatorFactoryStorage                  = await aggregatorFactory.storage();
-//             const updatedAggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
-
-//             const updatedRequestRateUpdateIsPaused          = updatedAggregatorStorage.breakGlassConfig.requestRateUpdateIsPaused;
-//             const updatedRequestRateUpdateDeviationIsPaused = updatedAggregatorStorage.breakGlassConfig.requestRateUpdateDeviationIsPaused;
-//             const updatedSetObservationCommitIsPaused       = updatedAggregatorStorage.breakGlassConfig.setObservationCommitIsPaused;
-//             const updatedSetObservationRevealIsPaused       = updatedAggregatorStorage.breakGlassConfig.setObservationRevealIsPaused;
-//             const updatedWithdrawRewardXtzIsPaused          = updatedAggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
-//             const updatedWithdrawRewardStakedMvkIsPaused    = updatedAggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused;
-
-//             assert.equal(updatedRequestRateUpdateIsPaused,          true);
-//             assert.equal(updatedRequestRateUpdateDeviationIsPaused, true);
-//             assert.equal(updatedSetObservationCommitIsPaused,       true);
-//             assert.equal(updatedSetObservationRevealIsPaused,       true);
-//             assert.equal(updatedWithdrawRewardXtzIsPaused,          true);
-//             assert.equal(updatedWithdrawRewardStakedMvkIsPaused,    true);
-            
-//             const updatedCreateAggregatorIsPaused          = updatedAggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
-//             const updatedTrackAggregatorIsPaused           = updatedAggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
-//             const updatedUntrackAggregatorIsPaused         = updatedAggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
-//             const updatedDistributeRewardXtzIsPaused       = updatedAggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
-//             const updatedDistributeRewardStakedMvkIsPaused = updatedAggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
-
-//             assert.equal(updatedCreateAggregatorIsPaused,           true);
-//             assert.equal(updatedTrackAggregatorIsPaused,            true);
-//             assert.equal(updatedUntrackAggregatorIsPaused,          true);
-//             assert.equal(updatedDistributeRewardXtzIsPaused,        true);
-//             assert.equal(updatedDistributeRewardStakedMvkIsPaused,  true);
-
-//             // Test calls
-//             await chai.expect(aggregatorFactory.methods.createAggregator(
-//               'USD',
-//               'TEST',
-      
-//               'USDBTC',
-//               true,
-              
-//               MichelsonMap.fromLiteral({
-//                 [bob.pkh]: true,
-//                 [eve.pkh]: true,
-//                 [mallory.pkh]: true,
-//                 [oscar.pkh]: true,
-//               }) as MichelsonMap<string, string>,
-      
-//               new BigNumber(8),             // decimals
-//               new BigNumber(2),             // numberBlocksDelay
-      
-//               new BigNumber(86400),         // deviationTriggerBanTimestamp
-//               new BigNumber(5),             // perthousandDeviationTrigger
-//               new BigNumber(60),            // percentOracleThreshold
-      
-//               new BigNumber(0),             // requestRateDeviationDepositFee 
-      
-//               new BigNumber(10000000),      // deviationRewardStakedMvk
-//               new BigNumber(2600),          // deviationRewardAmountXtz
-//               new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
-//               new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
-              
-//               oracleMaintainer.pkh,         // maintainer
-//               aggregatorMetadataBase        // metadata
-//             ).send()).to.be.rejected;
-
-//             await chai.expect(aggregatorFactory.methods.untrackAggregator("USD", "test").send()).to.be.rejected;
-//             await chai.expect(aggregatorFactory.methods.trackAggregator("USD", "test", aggregatorInstance.address).send()).to.be.rejected;
-
-//             // init params for aggregator test entrypoints
-//             const round = updatedAggregatorStorage.round;
-//             const roundId = new BigNumber(updatedAggregatorStorage.round);
-//             const price = 2000;
-//             const data: MichelsonData = {
-//               prim: 'Pair',
-//               args: [
-//                 { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-//                 { string: eve.pkh },
-//               ],
-//             };
-//             const type: MichelsonType = {
-//               prim: 'pair',
-//               args: [
-//                 { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-//                 { prim: 'address' },
-//               ],
-//             };
-//             const priceCodec = packDataBytes(data, type);
-//             const hash = createHash('sha256')
-//                 .update(priceCodec.bytes, 'hex')
-//                 .digest('hex');
-
-//             await chai.expect(aggregatorInstance.methods.requestRateUpdate().send()).to.be.rejected;
-//             await chai.expect(aggregatorInstance.methods.requestRateUpdateDeviation(
-//               new BigNumber(roundId).plus(1),
-//               hash
-//             ).send()).to.be.rejected;
-//             await chai.expect(aggregatorInstance.methods.setObservationCommit(
-//               new BigNumber(10),
-//               hash
-//             ).send()).to.be.rejected;
-//             await chai.expect(aggregatorInstance.methods.setObservationReveal(round, price, salt, bob.pkh).send()).to.be.rejected;
-//             await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send()).to.be.rejected;
-//             await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvk(bob.pkh).send()).to.be.rejected;
-
-//         }catch(e){
-//             console.dir(e, {depth: 5})
-//         }
-//     })
-
-//   });
-
-//   describe('%unpauseAll', function() {
-
-//     it('Non-admin should not be able to unpause all entrypoints', async() => {
-//       try{
-//           // Change signer
-//           await signerFactory(alice.sk);
-//           let storageAggregatorFactory = await aggregatorFactory.storage();
-
-//           // Initial values
-//           const createAggregatorIsPaused          = storageAggregatorFactory.breakGlassConfig.createAggregatorIsPaused;
-//           const trackAggregatorIsPaused           = storageAggregatorFactory.breakGlassConfig.trackAggregatorIsPaused;
-//           const untrackAggregatorIsPaused         = storageAggregatorFactory.breakGlassConfig.untrackAggregatorIsPaused;
-//           const distributeRewardXtzIsPaused       = storageAggregatorFactory.breakGlassConfig.distributeRewardXtzIsPaused;
-//           const distributeRewardStakedMvkIsPaused = storageAggregatorFactory.breakGlassConfig.distributeRewardStakedMvkIsPaused;
-
-//           assert.equal(createAggregatorIsPaused,          true);
-//           assert.equal(trackAggregatorIsPaused,           true);
-//           assert.equal(untrackAggregatorIsPaused,         true);
-//           assert.equal(distributeRewardXtzIsPaused,       true);
-//           assert.equal(distributeRewardStakedMvkIsPaused, true);
-          
-//           // fail pause all
-//           await chai.expect(aggregatorFactory.methods.unpauseAll().send()).to.be.rejected;
-
-//           // Final values
-//           const updatedAggregatorFactoryStorage          = await aggregatorFactory.storage();
-
-//           const updatedCreateAggregatorIsPaused          = updatedAggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
-//           const updatedTrackAggregatorIsPaused           = updatedAggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
-//           const updatedUntrackAggregatorIsPaused         = updatedAggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
-//           const updatedDistributeRewardXtzIsPaused       = updatedAggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
-//           const updatedDistributeRewardStakedMvkIsPaused = updatedAggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
-
-//           // Assertion
-//           assert.equal(updatedCreateAggregatorIsPaused,          true);
-//           assert.equal(updatedTrackAggregatorIsPaused,           true);
-//           assert.equal(updatedUntrackAggregatorIsPaused,         true);
-//           assert.equal(updatedDistributeRewardXtzIsPaused,       true);
-//           assert.equal(updatedDistributeRewardStakedMvkIsPaused, true);
-
-//       }catch(e){
-//           console.dir(e, {depth: 5})
-//       }
-//     })
-
-//     it('should be able to unpause all entrypoints on the factory and the tracked aggregators', async() => {
-//         try{
-//             await signerFactory(bob.sk)
-//             let storageAggregatorFactory = await aggregatorFactory.storage();
-
-//             // Initial values
-//             const createAggregatorIsPaused          = storageAggregatorFactory.breakGlassConfig.createAggregatorIsPaused;
-//             const trackAggregatorIsPaused           = storageAggregatorFactory.breakGlassConfig.trackAggregatorIsPaused;
-//             const untrackAggregatorIsPaused         = storageAggregatorFactory.breakGlassConfig.untrackAggregatorIsPaused;
-//             const distributeRewardXtzIsPaused       = storageAggregatorFactory.breakGlassConfig.distributeRewardXtzIsPaused;
-//             const distributeRewardStakedMvkIsPaused = storageAggregatorFactory.breakGlassConfig.distributeRewardStakedMvkIsPaused;
-
-//             assert.equal(createAggregatorIsPaused,          true);
-//             assert.equal(trackAggregatorIsPaused,           true);
-//             assert.equal(untrackAggregatorIsPaused,         true);
-//             assert.equal(distributeRewardXtzIsPaused,       true);
-//             assert.equal(distributeRewardStakedMvkIsPaused, true);
-
-//             var aggregatorStorage: aggregatorStorageType = await aggregatorInstance.storage();
-//             const requestRateUpdateIsPaused           = aggregatorStorage.breakGlassConfig.requestRateUpdateIsPaused;
-//             const requestRateUpdateDeviationIsPaused  = aggregatorStorage.breakGlassConfig.requestRateUpdateDeviationIsPaused;
-//             const setObservationCommitIsPaused        = aggregatorStorage.breakGlassConfig.setObservationCommitIsPaused;
-//             const setObservationRevealIsPaused        = aggregatorStorage.breakGlassConfig.setObservationRevealIsPaused;
-//             const withdrawRewardXtzIsPaused           = aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
-//             const withdrawRewardStakedMvkIsPaused     = aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
-
-//             assert.equal(requestRateUpdateIsPaused,           true);
-//             assert.equal(requestRateUpdateDeviationIsPaused,  true);
-//             assert.equal(setObservationCommitIsPaused,        true);
-//             assert.equal(setObservationRevealIsPaused,        true);
-//             assert.equal(withdrawRewardXtzIsPaused,           true);
-//             assert.equal(withdrawRewardStakedMvkIsPaused,     true);
-
-//             // Create an operation
-//             const operation = await aggregatorFactory.methods.unpauseAll().send();
-//             await operation.confirmation();
-
-//             // Final values
-//             const updatedAggregatorFactoryStorage                  = await aggregatorFactory.storage();
-//             const updatedAggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
-
-//             const updatedRequestRateUpdateIsPaused          = updatedAggregatorStorage.breakGlassConfig.requestRateUpdateIsPaused;
-//             const updatedRequestRateUpdateDeviationIsPaused = updatedAggregatorStorage.breakGlassConfig.requestRateUpdateDeviationIsPaused;
-//             const updatedSetObservationCommitIsPaused       = updatedAggregatorStorage.breakGlassConfig.setObservationCommitIsPaused;
-//             const updatedSetObservationRevealIsPaused       = updatedAggregatorStorage.breakGlassConfig.setObservationRevealIsPaused;
-//             const updatedWithdrawRewardXtzIsPaused          = updatedAggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
-//             const updatedWithdrawRewardStakedMvkIsPaused    = updatedAggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused;
-
-//             assert.equal(updatedRequestRateUpdateIsPaused,          false);
-//             assert.equal(updatedRequestRateUpdateDeviationIsPaused, false);
-//             assert.equal(updatedSetObservationCommitIsPaused,       false);
-//             assert.equal(updatedSetObservationRevealIsPaused,       false);
-//             assert.equal(updatedWithdrawRewardXtzIsPaused,          false);
-//             assert.equal(updatedWithdrawRewardStakedMvkIsPaused,    false);
-            
-//             const updatedCreateAggregatorIsPaused          = updatedAggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
-//             const updatedTrackAggregatorIsPaused           = updatedAggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
-//             const updatedUntrackAggregatorIsPaused         = updatedAggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
-//             const updatedDistributeRewardXtzIsPaused       = updatedAggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
-//             const updatedDistributeRewardStakedMvkIsPaused = updatedAggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
-
-//             assert.equal(updatedCreateAggregatorIsPaused,           false);
-//             assert.equal(updatedTrackAggregatorIsPaused,            false);
-//             assert.equal(updatedUntrackAggregatorIsPaused,          false);
-//             assert.equal(updatedDistributeRewardXtzIsPaused,        false);
-//             assert.equal(updatedDistributeRewardStakedMvkIsPaused,  false);
-
-//             // Test calls
-//             const test_create_aggregator_op = await aggregatorFactory.methods.createAggregator(
-//               'USD',
-//               'TESTv2',
-      
-//               'USDTestv2',
-//               true,
-              
-//               MichelsonMap.fromLiteral({
-//                 [bob.pkh]: true,
-//                 [eve.pkh]: true,
-//                 [mallory.pkh]: true,
-//                 [oscar.pkh]: true,
-//               }) as MichelsonMap<string, string>,
-      
-//               new BigNumber(8),             // decimals
-//               new BigNumber(2),             // numberBlocksDelay
-      
-//               new BigNumber(86400),         // deviationTriggerBanTimestamp
-//               new BigNumber(5),             // perthousandDeviationTrigger
-//               new BigNumber(60),            // percentOracleThreshold
-      
-//               new BigNumber(0),             // requestRateDeviationDepositFee 
-      
-//               new BigNumber(10000000),      // deviationRewardStakedMvk
-//               new BigNumber(2600),          // deviationRewardAmountXtz
-//               new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
-//               new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
-              
-//               oracleMaintainer.pkh,         // maintainer
-//               aggregatorMetadataBase        // metadata
-//             ).send();
-            
-//             await test_create_aggregator_op.confirmation();
-
-//             const test_untrack_aggregator_op = await aggregatorFactory.methods.untrackAggregator('USD', 'test').send();
-//             await test_untrack_aggregator_op.confirmation();
-
-//             const test_track_aggregator_op = await aggregatorFactory.methods.trackAggregator('USD', 'test', aggregatorInstance.address).send();
-//             await test_track_aggregator_op.confirmation();
-
-//         }catch(e){
-//             console.dir(e, {depth: 5})
-//         }
-//     })
-
-//   });
-
-//   describe('setAdmin', () => {
-
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
-
-//         const op = aggregatorFactory.methods.setAdmin(alice.pkh);
-//         await chai.expect(op.send()).to.be.rejectedWith();     
-//         }
-//     );
-
-//     it(
-//       'should update an aggregator factory admin',
-//       async () => {
-//         await signerFactory(bob.sk);
-//         const op_1 = aggregatorFactory.methods.setAdmin(alice.pkh);
-//         const tx_1 = await op_1.send();
-//         await tx_1.confirmation();
-//         let storageAggregatorFactory = await aggregatorFactory.storage();
-//         assert.deepEqual(storageAggregatorFactory.admin,alice.pkh);
-
-//         await signerFactory(alice.sk);
-//         const op_2 = aggregatorFactory.methods.setAdmin(bob.pkh);
-//         const tx_2 = await op_2.send();
-//         await tx_2.confirmation();
-//         storageAggregatorFactory = await aggregatorFactory.storage();
-//         assert.deepEqual(storageAggregatorFactory.admin,bob.pkh);
-
-//       }
-//     );
-//   });
-
-//   describe('setGovernance', () => {
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
-
-//         const op = aggregatorFactory.methods.setGovernance(
-//           bob.pkh
-//         );
-
-//         await chai.expect(op.send()).to.be.rejectedWith();
-//       },
-
-//     );
-
-//     it(
-//       'should update contract governance',
-//       async () => {
-//         await signerFactory(bob.sk);
-
-//         const op = aggregatorFactory.methods.setGovernance(
-//           bob.pkh
-//         );
-
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storageAggregatorFactory = await aggregatorFactory.storage();
-//         assert.deepEqual(storageAggregatorFactory.governanceAddress,bob.pkh);
-
-//         },
-
-//       );
+//                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+//                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+                    
+//                     aggregatorMetadataBase        // metadata
+//                 ).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('Admin should be able to create a new Aggregator', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+
+//                 // Operation
+//                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
+//                     'USD',
+//                     'TEST',
+        
+//                     'USDBTC',
+//                     true,
+                    
+//                     oracleMap,
+        
+//                     new BigNumber(8),             // decimals
+//                     new BigNumber(2),             // alphaPercentPerThousand
+        
+//                     new BigNumber(60),            // percentOracleThreshold
+//                     new BigNumber(30),            // heartBeatSeconds
+        
+//                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+//                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+                    
+//                     aggregatorMetadataBase        // metadata
+//                 ).send();
+//                 await operation.confirmation();
+        
+//                 // Final values
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const newAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get({
+//                     0: 'USD',
+//                     1: 'TEST',
+//                 }) as string;
+                
+//                 // Assertion
+//                 assert.notDeepEqual(newAggregatorAddress,null);
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });  
+
+
+//     describe('trackAggregator', () => {
+
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.trackAggregator("USD", "test", aggregatorInstance.address).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }     
+//         });
+
+//         it('Admin should be able to track an aggregator', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+
+//                 // Operation
+//                 const operation             = await aggregatorFactoryInstance.methods.trackAggregator("USD", "test", aggregatorInstance.address).send();
+//                 await operation.confirmation();
+    
+//                 // Final values
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const trackedAggregator     = await aggregatorFactoryStorage.trackedAggregators.get({
+//                     0: 'USD',
+//                     1: 'test',
+//                 }) as string
+
+//                 // Assertion
+//                 assert.deepEqual(trackedAggregator, aggregatorInstance.address);
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
 //     });
 
-//   describe('updateMetadata', () => {
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
+//     describe('untrackAggregator', () => {
 
-//         // Initial values
-//         const key   = ''
-//         const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
-        
-//         const op = aggregatorFactory.methods.updateMetadata(
-//           key, hash
-//         );
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
 
-//         await chai.expect(op.send()).to.be.rejectedWith();
-//       },
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.untrackAggregator("USD", "test", aggregatorInstance.address).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
 
-//     );
-
-//     it(
-//       'should update contract metadata',
-//       async () => {
-//         await signerFactory(bob.sk);
-
-//         // Initial values
-//         const key   = ''
-//         const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
-        
-//         const op = aggregatorFactory.methods.updateMetadata(
-//           key, hash
-//         );
-
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storageAggregatorFactory = await aggregatorFactory.storage();
-//         const updatedData              = await storageAggregatorFactory.metadata.get(key);
-//         assert.equal(updatedData, hash);
-
-//         },
-
-//       );
-//   });
-
-//   describe('updateConfig', () => {
+//         it('Admin should be able to untrack an aggregator', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+                
+//                 // Operation
+//                 const operation             = await aggregatorFactoryInstance.methods.untrackAggregator("USD", "test", aggregatorInstance.address).send();
+//                 await operation.confirmation();
     
-//     const aggregatorNameMaxLength       : BigNumber = new BigNumber(100);
-
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-
-//         await signerFactory(david.sk);
-
-//         const test_update_config_aggregator_name_max_length_op = aggregatorFactory.methods.updateConfig(
-//           aggregatorNameMaxLength, "configAggregatorNameMaxLength"
-//         );
-//         await chai.expect(test_update_config_aggregator_name_max_length_op.send()).to.be.rejectedWith();
-
-//       },
-
-//     );
-
-//     it(
-//       'should update aggregator config',
-//       async () => {
-//         await signerFactory(bob.sk);
-
-//         const test_update_config_aggregator_name_max_length_op = await aggregatorFactory.methods.updateConfig(
-//           aggregatorNameMaxLength, "configAggregatorNameMaxLength"
-//         ).send();
-//         await test_update_config_aggregator_name_max_length_op.confirmation();
-
-//         const storageAggregatorFactory = await aggregatorFactory.storage();
-
-//         assert.deepEqual(storageAggregatorFactory.config.aggregatorNameMaxLength,  aggregatorNameMaxLength);
-        
-//       },
-
-//     );
-
-//   });
-
-//   describe('updateWhitelistContracts', () => {
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
-
-//         const op = aggregatorFactory.methods.updateWhitelistContracts(
-//           "testContract", david.pkh
-//         );
-
-//         await chai.expect(op.send()).to.be.rejectedWith();
-//       },
-
-//     );
-
-//     it(
-//       'should update whitelist contracts',
-//       async () => {
-//         await signerFactory(bob.sk);
-
-//         const op = aggregatorFactory.methods.updateWhitelistContracts(
-//           "testContract", david.pkh
-//         );
-
-//         const tx = await op.send();
-//         await tx.confirmation();
-
-//         const storageAggregatorFactory = await aggregatorFactory.storage();
-//         const whitelistTestContract    = await storageAggregatorFactory.whitelistContracts.get("testContract");
-//         assert.deepEqual(whitelistTestContract, david.pkh);
-//         },
-
-//       );
-//   });
+//                 // Final values
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const untrackedAggregator   = await aggregatorFactoryStorage.trackedAggregators.get({
+//                     0: 'USD',
+//                     1: 'test',
+//                 }) as string
     
-//   describe('updateGeneralContracts', () => {
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
+//                 // Assertion
+//                 assert.deepEqual(untrackedAggregator, null);
+    
+//                 // Reset
+//                 const resetOperation        = await aggregatorFactoryInstance.methods.trackAggregator("USD", "test", aggregatorInstance.address).send();
+//                 await resetOperation.confirmation();
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
 
-//         const op = aggregatorFactory.methods.updateGeneralContracts(
-//           "testContract", david.pkh
-//         );
 
-//         await chai.expect(op.send()).to.be.rejectedWith();
-//       },
+//     describe('%pauseAll', function() {
 
-//     );
+//         it('Non-admin should not be able to pause all entrypoints', async() => {
+//             try{
+//                 // Change signer
+//                 await signerFactory(alice.sk);
+//                 aggregatorFactoryStorage                        = await aggregatorFactoryInstance.storage();
 
-//     it(
-//       'should update general contracts',
-//       async () => {
-//         await signerFactory(bob.sk);
+//                 // Initial values
+//                 const createAggregatorIsPaused                  = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const trackAggregatorIsPaused                   = aggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
+//                 const untrackAggregatorIsPaused                 = aggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
+//                 const distributeRewardXtzIsPaused               = aggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
+//                 const distributeRewardStakedMvkIsPaused         = aggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
 
-//         const op = aggregatorFactory.methods.updateGeneralContracts(
-//           "testContract", david.pkh
-//         );
+//                 assert.equal(createAggregatorIsPaused, false);
+//                 assert.equal(trackAggregatorIsPaused, false);
+//                 assert.equal(untrackAggregatorIsPaused, false);
+//                 assert.equal(distributeRewardXtzIsPaused, false);
+//                 assert.equal(distributeRewardStakedMvkIsPaused, false);
+                
+//                 // fail pause all
+//                 await chai.expect(aggregatorFactoryInstance.methods.pauseAll().send()).to.be.rejected;
 
-//         const tx = await op.send();
-//         await tx.confirmation();
+//                 // Final values
+//                 aggregatorFactoryStorage                        = await aggregatorFactoryInstance.storage();
+//                 const updatedCreateAggregatorIsPaused           = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const updatedTrackAggregatorIsPaused            = aggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
+//                 const updatedUntrackAggregatorIsPaused          = aggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
+//                 const updatedDistributeRewardXtzIsPaused        = aggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
+//                 const updatedDistributeRewardStakedMvkIsPaused  = aggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
 
-//         const storageAggregatorFactory = await aggregatorFactory.storage();
-//         const generalTestContract      = await storageAggregatorFactory.generalContracts.get("testContract");
-//         assert.deepEqual(generalTestContract, david.pkh);
-//         },
+//                 // Assertion
+//                 assert.equal(updatedCreateAggregatorIsPaused, false);
+//                 assert.equal(updatedTrackAggregatorIsPaused, false);
+//                 assert.equal(updatedUntrackAggregatorIsPaused, false);
+//                 assert.equal(updatedDistributeRewardXtzIsPaused, false);
+//                 assert.equal(updatedDistributeRewardStakedMvkIsPaused, false);
+//             }catch(e){
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+    
+//         it('Admin should be able to pause all entrypoints on the factory and the tracked aggregators', async() => {
+//             try{
+//                 // Initial values
+//                 await signerFactory(bob.sk)
+//                 aggregatorFactoryStorage                        = await aggregatorFactoryInstance.storage();
+//                 const createAggregatorIsPaused                  = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const trackAggregatorIsPaused                   = aggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
+//                 const untrackAggregatorIsPaused                 = aggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
+//                 const distributeRewardXtzIsPaused               = aggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
+//                 const distributeRewardStakedMvkIsPaused         = aggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
 
-//       );
-//   });
+//                 aggregatorStorage                               = await aggregatorInstance.storage();
+//                 const updateDataIsPaused                        = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
+//                 const withdrawRewardXtzIsPaused                 = aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
+//                 const withdrawRewardStakedMvkIsPaused           = aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
 
-//   describe('setLambda', () => {
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
+//                 // Initial assertions
+//                 assert.equal(createAggregatorIsPaused, false);
+//                 assert.equal(trackAggregatorIsPaused, false);
+//                 assert.equal(untrackAggregatorIsPaused, false);
+//                 assert.equal(distributeRewardXtzIsPaused, false);
+//                 assert.equal(distributeRewardStakedMvkIsPaused, false);
+//                 assert.equal(updateDataIsPaused, false);
+//                 assert.equal(withdrawRewardXtzIsPaused, false);
+//                 assert.equal(withdrawRewardStakedMvkIsPaused, false);
 
-//         const bytes  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
-//         const op = aggregatorFactory.methods.setLambda(
-//           "testSetLambda", bytes
-//         );
+//                 // Operation
+//                 const operation                                 = await aggregatorFactoryInstance.methods.pauseAll().send();
+//                 await operation.confirmation();
 
-//         await chai.expect(op.send()).to.be.rejectedWith();
-//       },
+//                 // Final values
+//                 aggregatorFactoryStorage                        = await aggregatorFactoryInstance.storage();
+//                 aggregatorStorage                               = await aggregatorInstance.storage();
+//                 const updatedUpdateDataIsPaused                 = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
+//                 const updatedWithdrawRewardXtzIsPaused          = aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
+//                 const updatedWithdrawRewardStakedMvkIsPaused    = aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused;
+//                 const updatedCreateAggregatorIsPaused           = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const updatedTrackAggregatorIsPaused            = aggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
+//                 const updatedUntrackAggregatorIsPaused          = aggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
+//                 const updatedDistributeRewardXtzIsPaused        = aggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
+//                 const updatedDistributeRewardStakedMvkIsPaused  = aggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
 
-//     );
+//                 // Final assertions
+//                 assert.equal(updatedUpdateDataIsPaused,                 true);
+//                 assert.equal(updatedWithdrawRewardXtzIsPaused,          true);
+//                 assert.equal(updatedWithdrawRewardStakedMvkIsPaused,    true);
+//                 assert.equal(updatedCreateAggregatorIsPaused,           true);
+//                 assert.equal(updatedTrackAggregatorIsPaused,            true);
+//                 assert.equal(updatedUntrackAggregatorIsPaused,          true);
+//                 assert.equal(updatedDistributeRewardXtzIsPaused,        true);
+//                 assert.equal(updatedDistributeRewardStakedMvkIsPaused,  true);
 
-//   });
+//                 // Test operations
+//                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
+//                     'USD',
+//                     'TEST',
+            
+//                     'USDBTC',
+//                     true,
+                    
+//                     oracleMap,
+            
+//                     new BigNumber(8),             // decimals
+//                     new BigNumber(2),             // numberBlocksDelay
+            
+//                     new BigNumber(60),            // percentOracleThreshold
+//                     new BigNumber(30),            // heartBeatSeconds
 
-//   describe('setProductLambda', () => {
-//     it(
-//       'should fail if called by random address',
-//       async () => {
-//         await signerFactory(david.sk);
+                    
+//                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+//                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+                    
+//                     aggregatorMetadataBase        // metadata
+//                 ).send()).to.be.rejected;
+//                 await chai.expect(aggregatorFactoryInstance.methods.untrackAggregator("USD", "test").send()).to.be.rejected;
+//                 await chai.expect(aggregatorFactoryInstance.methods.trackAggregator("USD", "test", aggregatorInstance.address).send()).to.be.rejected;
 
-//         const bytes  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
-//         const op = aggregatorFactory.methods.setProductLambda(
-//           "testSetProductLambda", bytes
-//         );
+//                 // init params for aggregator test entrypoints
+//                 const observations = [
+//                     {
+//                         "oracle": bob.pkh,
+//                         "data": new BigNumber(10142857143)
+//                     },
+//                     {
+//                         "oracle": eve.pkh,
+//                         "data": new BigNumber(10142853322)
+//                     },
+//                     {
+//                         "oracle": mallory.pkh,
+//                         "data": new BigNumber(10142857900)
+//                     },
+//                     {
+//                         "oracle": oracleMaintainer.pkh,
+//                         "data": new BigNumber(10144537815)
+//                     },
+//                 ];
+//                 const epoch: number = 1;
+//                 const round: number = 1;
+//                 const oracleObservations = new MichelsonMap<string, any>();
+//                 for (const { oracle, data } of observations) {
+//                     oracleObservations.set(oracle, {
+//                         data,
+//                         epoch,
+//                         round,
+//                         aggregatorAddress: aggregatorAddress.address
+//                         });
+//                 };
+//                 const signatures = new MichelsonMap<string, string>();
+//                 await signerFactory(bob.sk);
+//                 signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+//                 await signerFactory(eve.sk);
+//                 signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
+//                 await signerFactory(mallory.sk);
+//                 signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+//                 await signerFactory(oracleMaintainer.sk);
+//                 signatures.set(oracleMaintainer.pkh, await utils.signOracleDataResponses(oracleObservations));
 
-//         await chai.expect(op.send()).to.be.rejectedWith();
-//       },
+//                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
+//                 await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send()).to.be.rejected;
+//                 await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvk(bob.pkh).send()).to.be.rejected;
 
-//     );
+//             }catch(e){
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
 
-//   });
+//     });
 
+//     describe('%unpauseAll', function() {
+
+//         it('Non-admin should not be able to unpause all entrypoints', async() => {
+//             try{
+//                 // Initial values
+//                 await signerFactory(alice.sk);
+//                 aggregatorFactoryStorage                        = await aggregatorFactoryInstance.storage();
+//                 const createAggregatorIsPaused                  = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const trackAggregatorIsPaused                   = aggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
+//                 const untrackAggregatorIsPaused                 = aggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
+//                 const distributeRewardXtzIsPaused               = aggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
+//                 const distributeRewardStakedMvkIsPaused         = aggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
+
+//                 // Initial assertions
+//                 assert.equal(createAggregatorIsPaused,          true);
+//                 assert.equal(trackAggregatorIsPaused,           true);
+//                 assert.equal(untrackAggregatorIsPaused,         true);
+//                 assert.equal(distributeRewardXtzIsPaused,       true);
+//                 assert.equal(distributeRewardStakedMvkIsPaused, true);
+                
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.unpauseAll().send()).to.be.rejected;
+
+//                 // Final values
+//                 aggregatorFactoryStorage                        = await aggregatorFactoryInstance.storage();
+//                 const updatedCreateAggregatorIsPaused           = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const updatedTrackAggregatorIsPaused            = aggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
+//                 const updatedUntrackAggregatorIsPaused          = aggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
+//                 const updatedDistributeRewardXtzIsPaused        = aggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
+//                 const updatedDistributeRewardStakedMvkIsPaused  = aggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
+
+//                 // Final assertions
+//                 assert.equal(updatedCreateAggregatorIsPaused,          true);
+//                 assert.equal(updatedTrackAggregatorIsPaused,           true);
+//                 assert.equal(updatedUntrackAggregatorIsPaused,         true);
+//                 assert.equal(updatedDistributeRewardXtzIsPaused,       true);
+//                 assert.equal(updatedDistributeRewardStakedMvkIsPaused, true);
+
+//             } catch(e){
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('Admin should be able to unpause all entrypoints on the factory and the tracked aggregators', async() => {
+//             try{
+//                 // Initial values
+//                 await signerFactory(bob.sk)
+//                 aggregatorFactoryStorage                        = await aggregatorFactoryInstance.storage();
+//                 const createAggregatorIsPaused                  = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const trackAggregatorIsPaused                   = aggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
+//                 const untrackAggregatorIsPaused                 = aggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
+//                 const distributeRewardXtzIsPaused               = aggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
+//                 const distributeRewardStakedMvkIsPaused         = aggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
+
+//                 aggregatorStorage                               = await aggregatorInstance.storage();
+//                 const updateDataIsPaused                        = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
+//                 const withdrawRewardXtzIsPaused                 = aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
+//                 const withdrawRewardStakedMvkIsPaused           = aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
+
+//                 // Initial assertions
+//                 assert.equal(createAggregatorIsPaused,          true);
+//                 assert.equal(trackAggregatorIsPaused,           true);
+//                 assert.equal(untrackAggregatorIsPaused,         true);
+//                 assert.equal(distributeRewardXtzIsPaused,       true);
+//                 assert.equal(distributeRewardStakedMvkIsPaused, true);
+
+//                 assert.equal(updateDataIsPaused,                 true);
+//                 assert.equal(withdrawRewardXtzIsPaused,          true);
+//                 assert.equal(withdrawRewardStakedMvkIsPaused,    true);
+
+//                 // Operation
+//                 const operation                                 = await aggregatorFactoryInstance.methods.unpauseAll().send();
+//                 await operation.confirmation();
+
+//                 // Final values
+//                 aggregatorFactoryStorage                        = await aggregatorFactoryInstance.storage();
+//                 aggregatorStorage                               = await aggregatorInstance.storage();
+//                 const updatedUpdateDataIsPaused                 = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
+//                 const updatedWithdrawRewardXtzIsPaused          = aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused;
+//                 const updatedWithdrawRewardStakedMvkIsPaused    = aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused;
+//                 const updatedCreateAggregatorIsPaused           = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const updatedTrackAggregatorIsPaused            = aggregatorFactoryStorage.breakGlassConfig.trackAggregatorIsPaused;
+//                 const updatedUntrackAggregatorIsPaused          = aggregatorFactoryStorage.breakGlassConfig.untrackAggregatorIsPaused;
+//                 const updatedDistributeRewardXtzIsPaused        = aggregatorFactoryStorage.breakGlassConfig.distributeRewardXtzIsPaused;
+//                 const updatedDistributeRewardStakedMvkIsPaused  = aggregatorFactoryStorage.breakGlassConfig.distributeRewardStakedMvkIsPaused;
+
+//                 // Final assertions
+//                 assert.equal(updatedUpdateDataIsPaused,                false);
+//                 assert.equal(updatedWithdrawRewardXtzIsPaused,          false);
+//                 assert.equal(updatedWithdrawRewardStakedMvkIsPaused,    false);
+//                 assert.equal(updatedCreateAggregatorIsPaused,           false);
+//                 assert.equal(updatedTrackAggregatorIsPaused,            false);
+//                 assert.equal(updatedUntrackAggregatorIsPaused,          false);
+//                 assert.equal(updatedDistributeRewardXtzIsPaused,        false);
+//                 assert.equal(updatedDistributeRewardStakedMvkIsPaused,  false);
+
+//                 // Test operations
+//                 const testCreateAggregatorOp    = await aggregatorFactoryInstance.methods.createAggregator(
+//                     'USD',
+//                     'TESTv2',
+            
+//                     'USDTestv2',
+//                     true,
+                    
+//                     oracleMap,
+            
+//                     new BigNumber(8),             // decimals
+//                     new BigNumber(2),             // alphaPercentPerThousand
+            
+//                     new BigNumber(60),            // percentOracleThreshold
+//                     new BigNumber(30),            // heartBeatSeconds
+            
+//                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+//                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+                    
+//                     aggregatorMetadataBase        // metadata
+//                 ).send();
+                
+//                 await testCreateAggregatorOp.confirmation();
+
+//                 const testUntrackAggregatorOp   = await aggregatorFactoryInstance.methods.untrackAggregator('USD', 'test').send();
+//                 await testUntrackAggregatorOp.confirmation();
+
+//                 const testTrackAggregatorOp     = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'test', aggregatorInstance.address).send();
+//                 await testTrackAggregatorOp.confirmation();
+
+//             }catch(e){
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+
+//     });
+
+//     describe('setAdmin', () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.setAdmin(bob.pkh).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('Admin should be able to update the aggregator admin', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+
+//                 // Operation
+//                 const operation             = await aggregatorFactoryInstance.methods.setAdmin(bob.pkh).send();
+//                 await operation.confirmation();
+    
+//                 // Final values
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+
+//                 // Assertion
+//                 assert.deepEqual(aggregatorFactoryStorage.admin,bob.pkh);
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
+
+//     describe('%setGovernance', () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.setGovernance(david.pkh).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('Admin should be able to update the governance address', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+
+//                 // Operation
+//                 const operation             = await aggregatorFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+//                 await operation.confirmation();
+    
+//                 // Final values
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+
+//                 // Assertion
+//                 assert.deepEqual(aggregatorFactoryStorage.governanceAddress,governanceAddress.address);
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
+
+//     describe('%updateMetadata', () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+//                 const key   = ''
+//                 const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.updateMetadata(key, hash).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('Admin should be able to update the aggregator contract metadata', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+//                 const key                   = ''
+//                 const hash                  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+
+//                 // Operation
+//                 const operation             = await aggregatorFactoryInstance.methods.updateMetadata(key, hash).send();
+//                 await operation.confirmation();
+    
+//                 // Final values
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const updatedData           = await aggregatorFactoryStorage.metadata.get(key);
+
+//                 // Assertion
+//                 assert.equal(updatedData, hash);
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
+
+//     describe('updateConfig', () => {
+        
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+//                 const aggregatorNameMaxLength   : BigNumber = new BigNumber(100);
+
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.updateConfig(aggregatorNameMaxLength, "configAggregatorNameMaxLength").send()).to.be.rejected;
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('Admin should be able to update the aggregator name max length', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+//                 const aggregatorNameMaxLength   : BigNumber = new BigNumber(100);
+
+//                 // Operation
+//                 const operation                             = await aggregatorFactoryInstance.methods.updateConfig(aggregatorNameMaxLength, "configAggregatorNameMaxLength").send();
+//                 await operation.confirmation();
+    
+//                 // Final values
+//                 aggregatorFactoryStorage                    = await aggregatorFactoryInstance.storage();
+    
+//                 // Assertion
+//                 assert.deepEqual(aggregatorFactoryStorage.config.aggregatorNameMaxLength,  aggregatorNameMaxLength);
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
+
+//     describe('%updateWhitelistContracts', () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+//                 const contractName      = 'testContract';
+//                 const contractAddress   = bob.pkh;
+
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.updateWhitelistContracts(contractName, contractAddress).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('Admin should be able to update the aggregator contract whitelist contracts', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+//                 const contractName          = 'testContract';
+//                 const contractAddress       = bob.pkh;
+
+//                 // Operation
+//                 const operation             = await aggregatorFactoryInstance.methods.updateWhitelistContracts(contractName, contractAddress).send();
+//                 await operation.confirmation();
+    
+//                 // Final values
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const contractsMapEntry     = await aggregatorFactoryStorage.whitelistContracts.get(contractName);
+
+//                 // Assertion
+//                 assert.deepEqual(contractsMapEntry, contractAddress);
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
+
+//     describe('%updateGeneralContracts', () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+//                 const contractName      = 'testContract';
+//                 const contractAddress   = bob.pkh;
+
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.updateGeneralContracts(contractName, contractAddress).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+
+//         it('Admin should be able to update the aggregator contract whitelist contracts', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+//                 const contractName          = 'testContract';
+//                 const contractAddress       = bob.pkh;
+
+//                 // Operation
+//                 const operation             = await aggregatorFactoryInstance.methods.updateGeneralContracts(contractName, contractAddress).send();
+//                 await operation.confirmation();
+    
+//                 // Final values
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const contractsMapEntry     = await aggregatorFactoryStorage.generalContracts.get(contractName);
+
+//                 // Assertion
+//                 assert.deepEqual(contractsMapEntry, contractAddress);
+//             } catch (e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
+
+//     describe('%setLambda', () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+//                 const bytes  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+    
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.setLambda("testSetLambda", bytes).send()).to.be.rejected;
+//             } catch (e){
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
+
+//     describe('%setProductLambda', () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try {
+//                 // Initial values
+//                 await signerFactory(david.sk);
+//                 const bytes  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+    
+//                 // Operation
+//                 await chai.expect(aggregatorFactoryInstance.methods.setProductLambda("testSetLambda", bytes).send()).to.be.rejected;
+//             } catch (e){
+//                 console.dir(e, {depth: 5})
+//             }
+//         });
+//     });
 // });

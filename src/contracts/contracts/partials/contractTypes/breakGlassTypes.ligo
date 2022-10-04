@@ -4,7 +4,7 @@
 
 
 // Council Types
-#include "../shared/councilMemberTypes.ligo"
+#include "../shared/councilActionTypes.ligo"
 
 // Vote Types
 #include "../shared/voteTypes.ligo"
@@ -23,30 +23,6 @@ type breakGlassConfigType is [@layout:comb] record [
     councilMemberWebsiteMaxLength   : nat;
     councilMemberImageMaxLength     : nat;
 ]
-
-type breakGlassActionRecordType is record [
-    
-    initiator                       : address;          // address of action initiator
-    status                          : string;           // PENDING / FLUSHED / EXECUTED / EXPIRED
-    actionType                      : string;           // record action type - e.g. pauseAll, unpauseAll, updateMultiSig, removeBreakGlassControl
-    executed                        : bool;             // boolean of whether action has been executed
-
-    signers                         : signersType;      // set of signers
-    signersCount                    : nat;              // total number of signers
-
-    addressMap                      : addressMapType;
-    stringMap                       : stringMapType;
-    natMap                          : natMapType;
-
-    startDateTime                   : timestamp;       // timestamp of when action was initiated
-    startLevel                      : nat;             // block level of when action was initiated           
-    executedDateTime                : timestamp;       // will follow startDateTime and be updated when executed
-    executedLevel                   : nat;             // will follow startLevel and be updated when executed
-    expirationDateTime              : timestamp;       // timestamp of when action will expire
-    
-]
-type breakGlassActionsLedgerType is big_map(nat, breakGlassActionRecordType)
-
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -124,7 +100,7 @@ type breakGlassStorageType is [@layout:comb] record [
     glassBroken                 : bool;
     councilMembers              : councilMembersType;        // set of council member addresses
     
-    actionsLedger               : breakGlassActionsLedgerType;         // record of past actions taken by council members
+    actionsLedger               : councilActionsLedgerType;         // record of past actions taken by council members
     actionCounter               : nat;
 
     lambdaLedger                : lambdaLedgerType;
