@@ -241,13 +241,18 @@ export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
   font-size: 14px;
   line-height: 21px;
   font-weight: normal;
-  color: ${skyColor};
   word-break: break-all;
 
-  * {
+  &, a {
     color: ${skyColor};
-    stroke: ${skyColor};
   }
+
+  .address {
+    * {
+      color: ${cyanColor};
+      stroke: ${cyanColor};
+    }
+  } 
 
   &#votingDeadline {
     color: ${cyanColor};
