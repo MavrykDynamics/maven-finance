@@ -62,9 +62,7 @@ export const FarmCard = ({
 }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const {
-    user: { myFarmRewardsData },
-  } = useSelector((state: State) => state.user)
+  const { myFarmRewardsData } = useSelector((state: State) => state.user)
   const [visibleModal, setVisibleModal] = useState(false)
   const myFarmStakedBalance = 45645.8987
   const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)

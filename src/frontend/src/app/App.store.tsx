@@ -15,7 +15,7 @@ declare global {
 const persistConfig = {
   key: 'root',
   storage,
-  blacklist: ['wallet', 'loading', 'modal', 'exitFeeModal', 'satelliteRecord', 'toaster', 'progressBar'],
+  blacklist: ['wallet', 'loading', 'modal', 'exitFeeModal', 'satelliteRecord', 'toaster', 'progressBar', 'user'],
 }
 
 export function configureStore(preloadedState: object) {
