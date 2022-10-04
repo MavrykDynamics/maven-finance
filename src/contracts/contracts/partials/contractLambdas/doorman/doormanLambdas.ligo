@@ -1156,33 +1156,25 @@ block{
                 checkSenderIsLendingControllerContract(s);
 
                 // init parameters
-                const vaultOwner        : address  = onVaultLiquidateStakedMvkParams.vaultOwner;
                 const vaultAddress      : address  = onVaultLiquidateStakedMvkParams.vaultAddress;
                 const liquidator        : address  = onVaultLiquidateStakedMvkParams.liquidator;
                 const liquidatedAmount  : nat      = onVaultLiquidateStakedMvkParams.liquidatedAmount;
 
                 // Get Delegation Address from the General Contracts map on the Governance Contract
-                const delegationAddress         : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-                // Compound rewards for user, liquidator, and vault before any changes in balance takes place
+                // Compound rewards for liquidator, and vault before any changes in balance takes place
                 s := compoundUserRewards(liquidator, s);
-                s := compoundUserRewards(vaultOwner, s);
                 s := compoundUserRewards(vaultAddress, s);
 
-                // check that user has a record in stake balance ledger and sufficient balance
-                // var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultOwner] of [
-                //   | Some(_v) -> _v
-                //   | None -> failwith("Error. User has no stake balance record. ")
-                // ];
-
                 // find vault record in stake balance ledger
-                var vaultBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
                         Some(_val)  -> _val
-                    |    None       -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+                    |    None       -> failwith(error_VAULT_STAKE_RECORD_NOT_FOUND)
                 ];
 
                 // find or create liquidator record in stake balance ledger 
-                var liquidatorBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[liquidator] of [
+                var liquidatorStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[liquidator] of [
                         Some(_v) -> _v
                     |   None -> record[
                             balance                        = 0n;
@@ -1194,17 +1186,17 @@ block{
                 ];
 
                 // calculate new vault staked balance (check if vault has enough staked MVK to be liquidated)
-                const vaultStakedBalance : nat = vaultBalanceInStakeBalanceLedger.balance; 
+                const vaultStakedBalance : nat = vaultStakeBalanceRecord.balance; 
                 if liquidatedAmount > vaultStakedBalance then failwith(error_NOT_ENOUGH_SMVK_BALANCE) else skip;
                 const newVaultStakedBalance : nat = abs(vaultStakedBalance - liquidatedAmount);
 
                 // update vault stake balance in stake balance ledger
                 vaultBalanceInStakeBalanceLedger.balance  := newVaultStakedBalance; 
-                s.userStakeBalanceLedger[vaultAddress]    := vaultBalanceInStakeBalanceLedger;
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
                 // update liquidator stake balance in stake balance ledger
-                liquidatorBalanceInStakeBalanceLedger.balance   := liquidatorBalanceInStakeBalanceLedger.balance + liquidatedAmount;
-                s.userStakeBalanceLedger[liquidator]            := liquidatorBalanceInStakeBalanceLedger;
+                liquidatorStakeBalanceRecord.balance      := liquidatorStakeBalanceRecord.balance + liquidatedAmount;
+                s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
 
                 // update satellite balance if user/vault is delegated to a satellite
                 const liquidatorOnStakeChangeOperation  : operation = Tezos.transaction((liquidator)  , 0tez, delegationOnStakeChange(delegationAddress));

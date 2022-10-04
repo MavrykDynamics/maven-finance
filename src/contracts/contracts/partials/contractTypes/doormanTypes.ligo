@@ -62,7 +62,6 @@ type onVaultWithdrawStakedMvkType is [@layout:comb] record [
     withdrawAmount   : nat;
 ]
 type onVaultLiquidateStakedMvkType is [@layout:comb] record [
-    vaultOwner        : address; 
     vaultAddress      : address;
     liquidator        : address; 
     liquidatedAmount  : nat; 

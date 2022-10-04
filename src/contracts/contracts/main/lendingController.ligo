@@ -75,7 +75,6 @@ type lendingControllerAction is
         // Vault Staked MVK Entrypoints  
     |   VaultDepositStakedMvk           of vaultDepositStakedMvkActionType   
     |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType   
-    |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType   
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -327,13 +326,6 @@ function checkVaultWithdrawStakedMvkIsNotPaused(var s : lendingControllerStorage
     if s.breakGlassConfig.vaultWithdrawStakedMvkIsPaused then failwith(error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
     else unit;
 
-
-
-// helper function to check that the %vaultLiquidateStakedMvk entrypoint is not paused
-function checkVaultLiquidateStakedMvkIsNotPaused(var s : lendingControllerStorageType) : unit is
-    if s.breakGlassConfig.vaultLiquidateStakedMvkIsPaused then failwith(error_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED)
-    else unit;
-
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
@@ -537,8 +529,6 @@ block {
         borrowIndex                         = fixedPointAccuracy;
 
         minRepaymentAmount                  = minRepaymentAmount;
-        isPaused                            = False;
-
     ];
 
 } with newLoanTokenRecord
@@ -667,10 +657,7 @@ block {
 
 
 
-
-
-
-// helper function withdraw from vault
+// helper function withdraw from vault - call %withdraw in a specified Vault Contract
 function withdrawFromVaultOperation(const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
 block {
 
@@ -726,7 +713,79 @@ block {
 
 
 
-// helper function liquidate from vault
+// helper function withdraw staked mvk from vault through the Doorman Contract - call %onWithdrawStakedMvk in Doorman Contract
+function onWithdrawStakedMvkFromVaultOperation(const vaultOwner : address; const vaultAddress : address; const withdrawAmount : nat; const s : lendingControllerStorageType) : operation is
+block {
+
+    // Get Doorman Address from the General Contracts map on the Governance Contract
+    const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+
+    // Create operation to Doorman contract to withdraw staked MVK from vault to user
+    const onVaultWithdrawStakedMvkParams : onVaultWithdrawStakedMvkType = record [
+        vaultOwner      = vaultOwner;
+        vaultAddress    = vaultAddress;
+        withdrawAmount  = withdrawAmount;
+    ];
+
+    const vaultWithdrawStakedMvkOperation : operation = Tezos.transaction(
+        onVaultWithdrawStakedMvkParams,
+        0tez,
+        getOnVaultWithdrawStakedMvkEntrypoint(doormanAddress)
+    );
+
+} with vaultWithdrawStakedMvkOperation
+
+
+
+// helper function deposit staked mvk to vault through the Doorman Contract - call %onDepositStakedMvk in Doorman Contract
+function onDepositStakedMvkToVaultOperation(const vaultOwner : address; const vaultAddress : address; const depositAmount : nat; const s : lendingControllerStorageType) : operation is
+block {
+
+    // Get Doorman Address from the General Contracts map on the Governance Contract
+    const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+
+    // Create operation to Doorman contract to deposit staked MVK from user to vault
+    const onVaultDepositStakedMvkParams : onVaultDepositStakedMvkType = record [
+        vaultOwner      = vaultOwner;
+        vaultAddress    = vaultAddress;
+        depositAmount   = depositAmount;
+    ];
+
+    const vaultDepositStakedMvkOperation : operation = Tezos.transaction(
+        onVaultDepositStakedMvkParams,
+        0tez,
+        getOnVaultDepositStakedMvkEntrypoint(doormanAddress)
+    );
+
+} with vaultDepositStakedMvkOperation
+
+
+
+// helper function liquidate staked mvk to vault through the Doorman Contract - call %onLiquidateStakedMvk in Doorman Contract
+function onLiquidateStakedMvkFromVaultOperation(const vaultAddress : address; const liquidator : address; const liquidatedAmount : nat; const s : lendingControllerStorageType) : operation is
+block {
+
+    // Get Doorman Address from the General Contracts map on the Governance Contract
+    const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+
+    // Create operation to Doorman contract to liquidate staked MVK from vault to liquidator
+    const onVaultLiquidateStakedMvkParams : onVaultLiquidateStakedMvkType = record [
+        vaultAddress        = vaultAddress;
+        liquidator          = liquidator;
+        liquidatedAmount    = liquidatedAmount;
+    ];
+
+    const vaultLiquidateStakedMvkOperation : operation = Tezos.transaction(
+        onVaultLiquidateStakedMvkParams,
+        0tez,
+        getOnVaultLiquidateStakedMvkEntrypoint(doormanAddress)
+    );
+
+} with vaultLiquidateStakedMvkOperation
+
+
+
+// helper function liquidate collateral from vault - call %onLiquidate in a specified Vault Contract
 function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
 block {
 
@@ -1804,25 +1863,6 @@ block {
 
 } with response
 
-
-
-// (* vaultLiquidateStakedMvk entrypoint *)
-function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkActionType; var s : lendingControllerStorageType) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultLiquidateStakedMvk"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init lending controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
-
-} with response
-
 // ------------------------------------------------------------------------------
 // Vault Staked MVK Entrypoints End
 // ------------------------------------------------------------------------------
@@ -1897,7 +1937,6 @@ function main (const action : lendingControllerAction; const s : lendingControll
             // Vault Staked MVK Entrypoints   
         |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
         |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
-        |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    
