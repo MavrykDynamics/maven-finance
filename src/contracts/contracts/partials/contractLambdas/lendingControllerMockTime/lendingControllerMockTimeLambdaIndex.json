@@ -82,9 +82,5 @@
 	{
 		"index": 20,
 		"name": "lambdaVaultWithdrawStakedMvk"
-	},
-	{
-		"index": 21,
-		"name": "lambdaVaultLiquidateStakedMvk"
 	}
 ]
