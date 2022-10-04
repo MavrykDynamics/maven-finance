@@ -100,6 +100,15 @@ export const getSummDepositedAmount = (farmAccounts: FarmAccountsType[]): number
   return farmAccounts.reduce((acc, cur) => acc + cur.deposited_amount, 0)
 }
 
+export const calcRoi = (
+  startUSDAmount: number,
+  stakedDays: number,
+  useCompound: boolean,
+  compoundFrequency?: number,
+) => {
+  return Math.pow((startUSDAmount + 1) / startUSDAmount, 1 / (stakedDays / 365))
+}
+
 // getting end time for farm cards
 export const getEndsInTimestampForFarmCards = async (farmList: FarmGraphQL[]) => {
   try {
