@@ -8,6 +8,7 @@ type RoutingButtonProps = {
   onClick?: () => void
   type?: RoutingButtonTypes
   loading?: boolean
+  disabled?: boolean
   pathName: string
   pathParams?: Record<string, unknown>
 }
@@ -19,6 +20,7 @@ export const RoutingButton = ({
   onClick,
   type,
   loading = false,
+  disabled = false,
   pathName,
   pathParams,
 }: RoutingButtonProps) => {
@@ -32,6 +34,7 @@ export const RoutingButton = ({
       loading={loading}
       pathName={pathName}
       pathParams={pathParams}
+      disabled={disabled}
     />
   )
 }

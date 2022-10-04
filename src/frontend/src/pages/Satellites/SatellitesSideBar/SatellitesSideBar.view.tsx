@@ -12,6 +12,7 @@ type OraclesSideBarProps = {
   dataPointsCount: number
   averageRevard?: number
   satelliteFactory: string
+  accountPkh?: string
   isButton: boolean
   infoBlockAddresses: {
     satellite: string
@@ -63,6 +64,7 @@ const SatellitesSideBarView = ({
   infoBlockAddresses,
   averageRevard,
   dataPointsCount,
+  accountPkh,
 }: OraclesSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
@@ -73,6 +75,7 @@ const SatellitesSideBarView = ({
             text={userIsSatellite ? 'Edit Satellite Profile' : 'Become a Satellite'}
             pathName={`/become-satellite`}
             pathParams={{ userIsSatellite: userIsSatellite }}
+            disabled={!Boolean(accountPkh)}
           />
         ) : null}
 

@@ -11,13 +11,15 @@ export const isSubLinkShown = (
   satelliteLedger: SatelliteRecord[],
   accountPkh?: string,
 ): boolean => {
-  const { isSatellite, isVestee } = subNavLink.requires || {}
+  const { isSatellite, isVestee, isNotSatellite } = subNavLink.requires || {}
 
-  if (isSatellite || isVestee) {
+  if (isSatellite || isVestee || isNotSatellite) {
     if (!accountPkh) return false
 
     // if user is logged, and link is only for satellites return true if user is satellite otherwise false
-    return Boolean(satelliteLedger.find(({ address }) => address === accountPkh))
+    return isNotSatellite
+      ? !Boolean(satelliteLedger.find(({ address }) => address === accountPkh))
+      : Boolean(satelliteLedger.find(({ address }) => address === accountPkh))
   }
 
   return true
