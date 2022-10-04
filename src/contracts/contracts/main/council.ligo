@@ -16,7 +16,7 @@
 #include "../partials/shared/transferHelpers.ligo"
 
 // Votes Helpers
-#include "../partials/shared/voteHelpers.ligo"
+#include "../partials/shared/councilActionHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -251,7 +251,7 @@ block {
 
 
 // helper to create a council action
-function createCouncilAction(const actionType : string; const addressMap : addressMapType; const stringMap : stringMapType; const natMap : natMapType; const keyHash : option(key_hash); var s : councilStorageType) : councilStorageType is 
+function createCouncilAction(const actionType : string; const dataMap : dataMapType; var s : councilStorageType) : councilStorageType is 
 block {
 
     var councilActionRecord : councilActionRecordType := record[
@@ -263,10 +263,7 @@ block {
         signersCount          = 1n;
         executed              = False;
 
-        addressMap            = addressMap;
-        stringMap             = stringMap;
-        natMap                = natMap;
-        keyHash               = keyHash;
+        dataMap               = dataMap;
 
         startDateTime         = Tezos.get_now();
         startLevel            = Tezos.get_level();             
@@ -290,23 +287,35 @@ function triggerAddCouncilMemberAction(const actionRecord : councilActionRecordT
 block {
 
     // fetch params begin ---
-    const councilMemberAddress : address = case actionRecord.addressMap["councilMemberAddress"] of [
-            Some(_address) -> _address
+    const councilMemberAddress : address = case actionRecord.dataMap["councilMemberAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberName : string = case actionRecord.stringMap["councilMemberName"] of [
-            Some(_string) -> _string
+    const councilMemberName : string = case actionRecord.dataMap["councilMemberName"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberImage : string = case actionRecord.stringMap["councilMemberImage"] of [
-            Some(_string) -> _string
+    const councilMemberImage : string = case actionRecord.dataMap["councilMemberImage"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberWebsite : string = case actionRecord.stringMap["councilMemberWebsite"] of [
-            Some(_string) -> _string
+    const councilMemberWebsite : string = case actionRecord.dataMap["councilMemberWebsite"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -335,8 +344,11 @@ function triggerRemoveCouncilMemberAction(const actionRecord : councilActionReco
 block {
 
     // fetch params begin ---
-    const councilMemberAddress : address = case actionRecord.addressMap["councilMemberAddress"] of [
-            Some(_address) -> _address
+    const councilMemberAddress : address = case actionRecord.dataMap["councilMemberAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -360,28 +372,43 @@ function triggerChangeCouncilMemberAction(const actionRecord : councilActionReco
 block {
 
     // fetch params begin ---
-    const oldCouncilMemberAddress : address = case actionRecord.addressMap["oldCouncilMemberAddress"] of [
-            Some(_address) -> _address
+    const oldCouncilMemberAddress : address = case actionRecord.dataMap["oldCouncilMemberAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const newCouncilMemberAddress : address = case actionRecord.addressMap["newCouncilMemberAddress"] of [
-            Some(_address) -> _address
+    const newCouncilMemberAddress : address = case actionRecord.dataMap["newCouncilMemberAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const newCouncilMemberName : string = case actionRecord.stringMap["newCouncilMemberName"] of [
-            Some(_string) -> _string
+    const newCouncilMemberName : string = case actionRecord.dataMap["newCouncilMemberName"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const newCouncilMemberImage : string = case actionRecord.stringMap["newCouncilMemberImage"] of [
-            Some(_string) -> _string
+    const newCouncilMemberImage : string = case actionRecord.dataMap["newCouncilMemberImage"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |    None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const newCouncilMemberWebsite : string = case actionRecord.stringMap["newCouncilMemberWebsite"] of [
-            Some(_string) -> _string
+    const newCouncilMemberWebsite : string = case actionRecord.dataMap["newCouncilMemberWebsite"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -416,7 +443,13 @@ block {
 function triggerSetBakerAction(const actionRecord : councilActionRecordType; var operations : list(operation)) : list(operation) is
 block {
 
-    const keyHash            : option(key_hash) = actionRecord.keyHash;
+    const keyHash : option(key_hash) = case actionRecord.dataMap["keyHash"] of [
+            Some(_keyHash) -> case (Bytes.unpack(_keyHash) : option(option(key_hash))) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
+        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
     const setBakerOperation  : operation        = Tezos.set_delegate(keyHash);
 
     operations := setBakerOperation # operations;
@@ -430,23 +463,35 @@ function triggerAddVesteeAction(const actionRecord : councilActionRecordType; va
 block {
 
     // fetch params begin ---
-    const vesteeAddress : address = case actionRecord.addressMap["vesteeAddress"] of [
-            Some(_address) -> _address
+    const vesteeAddress : address = case actionRecord.dataMap["vesteeAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const totalAllocatedAmount : nat = case actionRecord.natMap["totalAllocatedAmount"] of [
-            Some(_nat) -> _nat
+    const totalAllocatedAmount : nat = case actionRecord.dataMap["totalAllocatedAmount"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const cliffInMonths : nat = case actionRecord.natMap["cliffInMonths"] of [
-            Some(_nat) -> _nat
+    const cliffInMonths : nat = case actionRecord.dataMap["cliffInMonths"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const vestingInMonths : nat = case actionRecord.natMap["vestingInMonths"] of [
-            Some(_nat) -> _nat
+    const vestingInMonths : nat = case actionRecord.dataMap["vestingInMonths"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -477,8 +522,11 @@ function triggerRemoveVesteeAction(const actionRecord : councilActionRecordType;
 block {
     
     // fetch params begin ---
-    const vesteeAddress : address = case actionRecord.addressMap["vesteeAddress"] of [
-            Some(_address) -> _address
+    const vesteeAddress : address = case actionRecord.dataMap["vesteeAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -502,23 +550,35 @@ function triggerUpdateVesteeAction(const actionRecord : councilActionRecordType;
 block {
     
     // fetch params begin ---
-    const vesteeAddress : address = case actionRecord.addressMap["vesteeAddress"] of [
-            Some(_address) -> _address
+    const vesteeAddress : address = case actionRecord.dataMap["vesteeAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const newTotalAllocatedAmount : nat = case actionRecord.natMap["newTotalAllocatedAmount"] of [
-            Some(_nat) -> _nat
+    const newTotalAllocatedAmount : nat = case actionRecord.dataMap["newTotalAllocatedAmount"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const newCliffInMonths : nat = case actionRecord.natMap["newCliffInMonths"] of [
-            Some(_nat) -> _nat
+    const newCliffInMonths : nat = case actionRecord.dataMap["newCliffInMonths"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const newVestingInMonths : nat = case actionRecord.natMap["newVestingInMonths"] of [
-            Some(_nat) -> _nat
+    const newVestingInMonths : nat = case actionRecord.dataMap["newVestingInMonths"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -549,8 +609,11 @@ function triggerToggleVesteeLockAction(const actionRecord : councilActionRecordT
 block {
 
     // fetch params begin ---
-    const vesteeAddress : address = case actionRecord.addressMap["vesteeAddress"] of [
-            Some(_address) -> _address
+    const vesteeAddress : address = case actionRecord.dataMap["vesteeAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch end begin ---
@@ -574,28 +637,43 @@ function triggerTransferAction(const actionRecord : councilActionRecordType; var
 block {
 
     // fetch params begin ---
-    const receiverAddress : address = case actionRecord.addressMap["receiverAddress"] of [
-            Some(_address) -> _address
+    const receiverAddress : address = case actionRecord.dataMap["receiverAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenContractAddress : address = case actionRecord.addressMap["tokenContractAddress"] of [
-            Some(_address) -> _address
+    const tokenContractAddress : address = case actionRecord.dataMap["tokenContractAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenType : string = case actionRecord.stringMap["tokenType"] of [
-            Some(_string) -> _string
+    const tokenType : string = case actionRecord.dataMap["tokenType"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenAmount : nat = case actionRecord.natMap["tokenAmount"] of [
-            Some(_nat) -> _nat
+    const tokenAmount : nat = case actionRecord.dataMap["tokenAmount"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenId : nat = case actionRecord.natMap["tokenId"] of [
-            Some(_nat) -> _nat
+    const tokenId : nat = case actionRecord.dataMap["tokenId"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -642,38 +720,59 @@ function triggerRequestTokenAction(const actionRecord : councilActionRecordType;
 block {
 
     // fetch params begin ---
-    const treasuryAddress : address = case actionRecord.addressMap["treasuryAddress"] of [
-            Some(_address) -> _address
+    const treasuryAddress : address = case actionRecord.dataMap["treasuryAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenContractAddress : address = case actionRecord.addressMap["tokenContractAddress"] of [
-            Some(_address) -> _address
+    const tokenContractAddress : address = case actionRecord.dataMap["tokenContractAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenType : string = case actionRecord.stringMap["tokenType"] of [
-            Some(_string) -> _string
+    const tokenType : string = case actionRecord.dataMap["tokenType"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenName : string = case actionRecord.stringMap["tokenName"] of [
-            Some(_string) -> _string
+    const tokenName : string = case actionRecord.dataMap["tokenName"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const purpose : string = case actionRecord.stringMap["purpose"] of [
-            Some(_string) -> _string
+    const purpose : string = case actionRecord.dataMap["purpose"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenAmount : nat = case actionRecord.natMap["tokenAmount"] of [
-            Some(_nat) -> _nat
+    const tokenAmount : nat = case actionRecord.dataMap["tokenAmount"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenId : nat = case actionRecord.natMap["tokenId"] of [
-            Some(_nat) -> _nat
+    const tokenId : nat = case actionRecord.dataMap["tokenId"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -711,18 +810,27 @@ function triggerRequestMintAction(const actionRecord : councilActionRecordType; 
 block {
 
     // fetch params begin ---
-    const treasuryAddress : address = case actionRecord.addressMap["treasuryAddress"] of [
-            Some(_address) -> _address
+    const treasuryAddress : address = case actionRecord.dataMap["treasuryAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const purpose : string = case actionRecord.stringMap["purpose"] of [
-            Some(_string) -> _string
+    const purpose : string = case actionRecord.dataMap["purpose"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const tokenAmount : nat = case actionRecord.natMap["tokenAmount"] of [
-            Some(_nat) -> _nat
+    const tokenAmount : nat = case actionRecord.dataMap["tokenAmount"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -755,9 +863,19 @@ function triggerSetContractBakerAction(const actionRecord : councilActionRecordT
 block {
     
     // fetch params begin ---
-    const targetContractAddress : address = case actionRecord.addressMap["targetContractAddress"] of [
-            Some(_address) -> _address
+    const targetContractAddress : address = case actionRecord.dataMap["targetContractAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+    const keyHash : option(key_hash)       = case actionRecord.dataMap["keyHash"] of [
+            Some(_keyHash) -> case (Bytes.unpack(_keyHash) : option(option(key_hash))) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
+        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
 
@@ -765,7 +883,7 @@ block {
 
     const setContractBakerParams : councilActionSetContractBakerType = record[
         targetContractAddress   = targetContractAddress;
-        keyHash                 = actionRecord.keyHash;
+        keyHash                 = keyHash;
     ];
 
     const setContractBakerOperation : operation = Tezos.transaction(
@@ -785,8 +903,11 @@ function triggerDropFinancialRequestAction(const actionRecord : councilActionRec
 block {
                         
     // fetch params begin ---
-    const requestId : nat = case actionRecord.natMap["requestId"] of [
-            Some(_address) -> _address
+    const requestId : nat = case actionRecord.dataMap["requestId"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -819,8 +940,11 @@ function triggerFlushActionAction(const actionRecord : councilActionRecordType; 
 block {
 
     // fetch params begin ---
-    const flushedCouncilActionId : nat = case actionRecord.natMap["actionId"] of [
-            Some(_nat) -> _nat
+    const flushedCouncilActionId : nat = case actionRecord.dataMap["actionId"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---

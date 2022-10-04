@@ -263,21 +263,17 @@ block {
                 if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
                 else skip;
 
-                const addressMap : addressMapType     = map [
-                    ("councilMemberAddress"  : string) -> newCouncilMember.memberAddress;
-                ];
-                const stringMap : stringMapType      = map [
-                    ("councilMemberName"     : string) -> newCouncilMember.memberName;
-                    ("councilMemberImage"    : string) -> newCouncilMember.memberImage;
-                    ("councilMemberWebsite"  : string) -> newCouncilMember.memberWebsite
+                const dataMap : dataMapType     = map [
+                    ("councilMemberAddress"  : string) -> Bytes.pack(newCouncilMember.memberAddress);
+                    ("councilMemberName"     : string) -> Bytes.pack(newCouncilMember.memberName);
+                    ("councilMemberImage"    : string) -> Bytes.pack(newCouncilMember.memberImage);
+                    ("councilMemberWebsite"  : string) -> Bytes.pack(newCouncilMember.memberWebsite);
                 ];
 
                 // create break glass action
                 s   := createBreakGlassAction(
                     "addCouncilMember",
-                    addressMap,
-                    stringMap,
-                    emptyNatMap,
+                    dataMap,
                     s
                 );
 
@@ -314,16 +310,14 @@ block {
                 if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
                 else skip;
 
-                const addressMap : addressMapType     = map [
-                    ("councilMemberAddress"         : string) -> councilMemberAddress;
+                const dataMap : dataMapType     = map [
+                    ("councilMemberAddress"         : string) -> Bytes.pack(councilMemberAddress);
                 ];
 
                 // create break glass action
                 s   := createBreakGlassAction(
                     "removeCouncilMember",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
+                    dataMap,
                     s
                 );
 
@@ -366,22 +360,18 @@ block {
                 if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 else skip;
 
-                const addressMap : addressMapType     = map [
-                    ("oldCouncilMemberAddress"  : string)  -> councilActionChangeMemberParams.oldCouncilMemberAddress;
-                    ("newCouncilMemberAddress"  : string)  -> councilActionChangeMemberParams.newCouncilMemberAddress;
-                ];
-                const stringMap : stringMapType      = map [
-                    ("newCouncilMemberName"     : string)  -> councilActionChangeMemberParams.newCouncilMemberName;
-                    ("newCouncilMemberWebsite"  : string)  -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                    ("newCouncilMemberImage"    : string)  -> councilActionChangeMemberParams.newCouncilMemberImage;
+                const dataMap : dataMapType     = map [
+                    ("oldCouncilMemberAddress"  : string)  -> Bytes.pack(councilActionChangeMemberParams.oldCouncilMemberAddress);
+                    ("newCouncilMemberAddress"  : string)  -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberAddress);
+                    ("newCouncilMemberName"     : string)  -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberName);
+                    ("newCouncilMemberWebsite"  : string)  -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberWebsite);
+                    ("newCouncilMemberImage"    : string)  -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberImage);
                 ];
 
                 // create break glass action
                 s   := createBreakGlassAction(
                     "changeCouncilMember",
-                    addressMap,
-                    stringMap,
-                    emptyNatMap,
+                    dataMap,
                     s
                 );
 
@@ -421,9 +411,7 @@ block {
                 // create break glass action
                 s   := createBreakGlassAction(
                     "pauseAllEntrypoints",
-                    emptyAddressMap,
-                    emptyStringMap,
-                    emptyNatMap,
+                    emptyDataMap,
                     s
                 );
 
@@ -455,9 +443,7 @@ block {
                 // create break glass action
                 s   := createBreakGlassAction(
                     "unpauseAllEntrypoints",
-                    emptyAddressMap,
-                    emptyStringMap,
-                    emptyNatMap,
+                    emptyDataMap,
                     s
                 );
 
@@ -489,9 +475,7 @@ block {
                 // create break glass action
                 s   := createBreakGlassAction(
                     "propagateBreakGlass",
-                    emptyAddressMap,
-                    emptyStringMap,
-                    emptyNatMap,
+                    emptyDataMap,
                     s
                 );
                 
@@ -549,17 +533,15 @@ block {
                 if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
-                const addressMap   : addressMapType      = map [
-                    ("newAdminAddress"       : string) -> newAdminAddress;
-                    ("targetContractAddress" : string) -> targetContractAddress;
+                const dataMap   : dataMapType      = map [
+                    ("newAdminAddress"       : string) -> Bytes.pack(newAdminAddress);
+                    ("targetContractAddress" : string) -> Bytes.pack(targetContractAddress);
                 ];
 
                 // create break glass action
                 s   := createBreakGlassAction(
                     "setSingleContractAdmin",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
+                    dataMap,
                     s
                 );
                 
@@ -610,16 +592,14 @@ block {
                 if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
                 
-                const addressMap   : addressMapType      = map [
-                    ("newAdminAddress" : string) -> newAdminAddress;
+                const dataMap   : dataMapType      = map [
+                    ("newAdminAddress" : string) -> Bytes.pack(newAdminAddress);
                 ];
 
                 // create break glass action
                 s   := createBreakGlassAction(
                     "setAllContractsAdmin",
-                    addressMap,
-                    emptyStringMap,
-                    emptyNatMap,
+                    dataMap,
                     s
                 );
 
@@ -651,9 +631,7 @@ block {
                 // create break glass action
                 s   := createBreakGlassAction(
                     "removeBreakGlassControl",
-                    emptyAddressMap,
-                    emptyStringMap,
-                    emptyNatMap,
+                    emptyDataMap,
                     s
                 );
 
@@ -691,7 +669,7 @@ block {
         |   LambdaFlushAction(actionId) -> {
                 
                 // Check if action to be flushed exists
-                const actionToFlush: breakGlassActionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
+                const actionToFlush: councilActionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
                         Some (_action) -> _action
                     |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
@@ -699,16 +677,14 @@ block {
                 // Check if action has already been flushed or executed
                 validateAction(actionToFlush);
 
-                const natMap           : natMapType          = map [
-                    ("actionId" : string) -> actionId;
+                const dataMap           : dataMapType          = map [
+                    ("actionId" : string) -> Bytes.pack(actionId);
                 ];
 
                 // create break glass action
                 s   := createBreakGlassAction(
                     "flushAction",
-                    emptyAddressMap,
-                    emptyStringMap,
-                    natMap,
+                    dataMap,
                     s
                 );
 
@@ -741,7 +717,7 @@ block {
         |   LambdaSignAction(actionId) -> {
                 
                 // check if action exists
-                var _actionRecord : breakGlassActionRecordType := case s.actionsLedger[actionId] of [
+                var _actionRecord : councilActionRecordType := case s.actionsLedger[actionId] of [
                     |   Some(_record) -> _record
                     |   None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
