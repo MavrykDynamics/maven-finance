@@ -27,8 +27,7 @@
             "lambdaRepay",
 
             "lambdaVaultDepositStakedMvk",
-            "lambdaVaultWithdrawStakedMvk",
-            "lambdaVaultLiquidateStakedMvk"
+            "lambdaVaultWithdrawStakedMvk"
         ]
     },
     {
@@ -59,8 +58,7 @@
             "lambdaRepay",
 
             "lambdaVaultDepositStakedMvk",
-            "lambdaVaultWithdrawStakedMvk",
-            "lambdaVaultLiquidateStakedMvk"
+            "lambdaVaultWithdrawStakedMvk"
         ]
     },
     {

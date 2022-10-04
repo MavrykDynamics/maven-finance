@@ -65,7 +65,6 @@ type lendingControllerBreakGlassConfigType is record [
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : bool;
     vaultWithdrawStakedMvkIsPaused      : bool;
-    vaultLiquidateStakedMvkIsPaused     : bool;
 
 ]
 
@@ -115,8 +114,6 @@ type loanTokenRecordType is [@layout:comb] record [
     lastUpdatedBlockLevel                   : nat; 
     accumulatedRewardsPerShare              : nat;
     borrowIndex                             : nat;
-
-    isPaused                                : bool;
 ]
 
 type loanTokenLedgerType is map(string, loanTokenRecordType)
@@ -225,6 +222,7 @@ type updateLoanTokenActionType is [@layout:comb] record [
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
     minRepaymentAmount                      : nat; 
+    
 ]
 
 
@@ -315,14 +313,6 @@ type vaultWithdrawStakedMvkActionType is [@layout:comb] record [
 ]
 
 
-type vaultLiquidateStakedMvkActionType is [@layout:comb] record [
-    vaultId           : nat;
-    vaultOwner        : address;
-    liquidator        : address;
-    liquidatedAmount  : nat;
-]
-
-
 type claimRewardsType is address
 
 
@@ -354,7 +344,6 @@ type lendingControllerPausableEntrypointType is
         // Vault Staked MVK Entrypoints
     |   VaultDepositStakedMvk       of bool
     |   VaultWithdrawStakedMvk      of bool
-    |   VaultLiquidateStakedMvk     of bool
 
 type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : lendingControllerPausableEntrypointType;
@@ -400,7 +389,6 @@ type lendingControllerLambdaActionType is
         // Vault Staked MVK Entrypoints   
     |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
     |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
-    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -66,7 +66,6 @@ type lendingControllerBreakGlassConfigType is record [
     // Vault Staked MVK Entrypoints
     vaultDepositStakedMvkIsPaused       : bool;
     vaultWithdrawStakedMvkIsPaused      : bool;
-    vaultLiquidateStakedMvkIsPaused     : bool;
 
 ]
 
@@ -318,15 +317,6 @@ type vaultWithdrawStakedMvkActionType is [@layout:comb] record [
     withdrawAmount  : nat;
 ]
 
-
-type vaultLiquidateStakedMvkActionType is [@layout:comb] record [
-    vaultId           : nat;
-    vaultOwner        : address;
-    liquidator        : address;
-    liquidatedAmount  : nat;
-]
-
-
 type claimRewardsType is address
 
 
@@ -358,7 +348,6 @@ type lendingControllerPausableEntrypointType is
         // Vault Staked MVK Entrypoints
     |   VaultDepositStakedMvk       of bool
     |   VaultWithdrawStakedMvk      of bool
-    |   VaultLiquidateStakedMvk     of bool
 
 type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : lendingControllerPausableEntrypointType;
@@ -405,7 +394,6 @@ type lendingControllerLambdaActionType is
         // Vault Staked MVK Entrypoints   
     |   LambdaVaultDepositStakedMvk           of vaultDepositStakedMvkActionType
     |   LambdaVaultWithdrawStakedMvk          of vaultWithdrawStakedMvkActionType
-    |   LambdaVaultLiquidateStakedMvk         of vaultLiquidateStakedMvkActionType
 
 // ------------------------------------------------------------------------------
 // Storage
