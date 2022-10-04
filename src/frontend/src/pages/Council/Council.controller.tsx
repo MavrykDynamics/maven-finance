@@ -86,6 +86,22 @@ export const Council = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
+  const memberIsFirstOfList = useCallback((list: typeof councilMembers) => {
+    const indexOfMember = list.findIndex((item) => item.user_id === accountPkh)
+
+    if (indexOfMember === -1) {
+      return list
+    }
+  
+    const updatedList = [
+      list[indexOfMember],
+      ...list.slice(0, indexOfMember),
+      ...list.slice(indexOfMember + 1)
+    ]
+  
+    return updatedList
+  }, [accountPkh])
+
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
@@ -237,7 +253,7 @@ export const Council = () => {
             {councilMembers.length ? (
               <div>
                 <h1>Council Members</h1>
-                {councilMembers.map((item: CouncilMember) => (
+                {memberIsFirstOfList(councilMembers).map((item: CouncilMember) => (
                   <CouncilMemberView
                     key={item.id}
                     image={item.image}

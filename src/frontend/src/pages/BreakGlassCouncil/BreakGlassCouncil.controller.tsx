@@ -1,4 +1,4 @@
-import React, { FC, useState, useMemo, useEffect } from 'react'
+import React, { FC, useState, useMemo, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useLocation } from 'react-router'
@@ -80,6 +80,22 @@ export const BreakGlassCouncil: FC = () => {
   const displayPendingSignature = Boolean(
     isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
   )
+
+  const memberIsFirstOfList = useCallback((list: typeof breakGlassCouncilMember) => {
+    const indexOfMember = list.findIndex((item) => item.userId === accountPkh)
+
+    if (indexOfMember === -1) {
+      return list
+    }
+  
+    const updatedList = [
+      list[indexOfMember],
+      ...list.slice(0, indexOfMember),
+      ...list.slice(indexOfMember + 1)
+    ]
+  
+    return updatedList
+  }, [accountPkh])
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
@@ -267,7 +283,7 @@ export const BreakGlassCouncil: FC = () => {
             <>
               <h1>Break Glass Council</h1>
 
-              {breakGlassCouncilMember.map((item) => (
+              {memberIsFirstOfList(breakGlassCouncilMember).map((item) => (
                 <CouncilMemberView
                   key={item.id}
                   image={item.image || item.name}
