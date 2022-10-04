@@ -66,7 +66,6 @@ export const Council = () => {
   )
 
   const itemsForDropDown = [
-    { text: 'Choose action', value: '' },
     { text: 'Add Vestee', value: 'addVestee' },
     { text: 'Add Council Member', value: 'addCouncilMember' },
     { text: 'Update Vestee', value: 'updateVestee' },
@@ -84,7 +83,7 @@ export const Council = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
 
   const memberIsFirstOfList = useCallback((list: typeof councilMembers) => {
     const indexOfMember = list.findIndex((item) => item.user_id === accountPkh)
@@ -193,7 +192,7 @@ export const Council = () => {
                   <h2>Available Actions</h2>
                   <DropDown
                     clickOnDropDown={handleClickDropdown}
-                    placeholder={ddItems[0]}
+                    placeholder='Choose action'
                     isOpen={ddIsOpen}
                     itemSelected={chosenDdItem?.text}
                     items={ddItems}

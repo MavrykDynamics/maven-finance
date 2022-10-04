@@ -24,13 +24,11 @@ export const Treasury = () => {
   const loading = useSelector((state: State) => state.loading)
   const { treasuryStorage, treasuryFactoryAddress } = useSelector((state: State) => state.treasury)
 
-  const itemsForDropDown = [{ text: 'Choose treasury', value: '' }]
-    .concat(
-      treasuryStorage.map((treasury) => ({
-        text: treasury.name,
-        value: treasury.address,
-      })),
-    )
+  const itemsForDropDown = 
+    treasuryStorage.map((treasury) => ({
+      text: treasury.name,
+      value: treasury.address,
+    }))
     .map((item) => ({
       ...item,
       text: item.text,
@@ -38,7 +36,7 @@ export const Treasury = () => {
 
   const ddItems = useMemo(() => itemsForDropDown.map((item) => item.text), [itemsForDropDown])
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>()
   const [selectedTreasury, setSelectedTreasury] = useState<null | TreasuryType>(null)
 
   useEffect(() => {
@@ -78,7 +76,7 @@ export const Treasury = () => {
           <h2>Active Treasuries</h2>
           <DropDown
             clickOnDropDown={handleClickDropdown}
-            placeholder={ddItems[0]}
+            placeholder='Choose action'
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
