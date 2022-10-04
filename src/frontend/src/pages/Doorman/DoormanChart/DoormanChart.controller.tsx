@@ -28,14 +28,14 @@ export const DoormanChart: FC = () => {
   const [activeTab, setActiveTab] = useState('')
   const isStakingHistory = activeTab === tabsList[1].text
 
-  const stakeHistory = useMemo(() => stakeHistoryData.map((item) => {
+  const stakeHistory = useMemo(() => stakeHistoryData?.map((item) => {
     return {
       ...item,
       mvk: item.finalAmount/10**9
     }
   }), [stakeHistoryData])
 
-  const smvkHistory = useMemo(() => smvkHistoryData.map((item) => {
+  const smvkHistory = useMemo(() => smvkHistoryData?.map((item) => {
     return {
       ...item,
       mvk: item.smvkTotalSupply/10**9
