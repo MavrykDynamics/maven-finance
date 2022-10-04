@@ -369,7 +369,7 @@ block{
     // 3. Verify the observations informations + get epoch and round
     // 4. Verify the signatures
     // 5. update rewards
-    // 6. Update storage with lastCompletedPrice
+    // 6. Update storage with lastCompletedData
 
     // Check that %updateData entrypoint is not paused (e.g. glass broken)
     checkUpdateDataIsNotPaused(s); 
@@ -385,6 +385,7 @@ block{
 
                 // verify obervations and signatures have the same size
                 verifyMapsSizes(params, s);
+
                 // verify for each observations -> epoch and round are the same + different from previous
                 var epochAndRound: nat*nat := verifyInfosFromObservations(params.oracleObservations, s);
 
@@ -396,14 +397,14 @@ block{
                 // get median
                 const median: nat = getMedianFromMap(pivotObservationMap(params.oracleObservations), Map.size (params.oracleObservations));
 
-                var newLastCompletedPrice := record [
-                    round                 = epochAndRound.1;
-                    epoch                 = epochAndRound.0;
-                    price                 = median;
-                    percentOracleResponse = Map.size (params.oracleObservations);
-                    priceDateTime         = Tezos.get_now();
+                var newlastCompletedData := record [
+                    round                   = epochAndRound.1;
+                    epoch                   = epochAndRound.0;
+                    data                    = median;
+                    percentOracleResponse   = Map.size (params.oracleObservations);
+                    lastUpdatedAt           = Tezos.get_now();
                 ];
-                
+
                 // -----------------------------------------
                 // Set rewards for oracle
                 // -----------------------------------------
@@ -413,14 +414,16 @@ block{
 
                 // Set XTZ reward for oracle
                 const rewardAmountXtz        : nat  = s.config.rewardAmountXtz;
-                var currentOracleXtzRewards  : nat := case s.oracleRewardXtz[Tezos.get_sender()] of [
-                        Some (_amount) -> (_amount) 
-                    |   None           -> 0n 
-                ];
-                s.oracleRewardXtz[Tezos.get_sender()]   := currentOracleXtzRewards + rewardAmountXtz;
+                if rewardAmountXtz > 0n then {
+                    var currentOracleXtzRewards  : nat := case s.oracleRewardXtz[Tezos.get_sender()] of [
+                            Some (_amount) -> (_amount) 
+                        |   None           -> 0n 
+                    ];
+                    s.oracleRewardXtz[Tezos.get_sender()]   := currentOracleXtzRewards + rewardAmountXtz;
+                } else skip;
 
-                // Update storage with lastCompletedPrice
-                s.lastCompletedPrice   := newLastCompletedPrice;
+                // Update storage with lastCompletedData
+                s.lastCompletedData   := newlastCompletedData;
             }
         |   _ -> skip
     ];

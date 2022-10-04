@@ -48,12 +48,12 @@ for (const oracle of oracles) {
 const oracleAddresses = MichelsonMap.fromLiteral({});
 
 
-const lastCompletedPrice = {
+const lastCompletedData = {
     round                   : new BigNumber(0),
     epoch                   : new BigNumber(0),
-    price                   : new BigNumber(0),
+    data                    : new BigNumber(0),
     percentOracleResponse   : new BigNumber(0),
-    priceDateTime           : '1'
+    lastUpdatedAt           : '1'
 }
 
 export const aggregatorStorage: aggregatorStorageType = {
@@ -72,7 +72,7 @@ export const aggregatorStorage: aggregatorStorageType = {
 
     oracleAddresses           : oracleAddresses,
     
-    lastCompletedPrice        : lastCompletedPrice,
+    lastCompletedData        : lastCompletedData,
     
 
     oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
