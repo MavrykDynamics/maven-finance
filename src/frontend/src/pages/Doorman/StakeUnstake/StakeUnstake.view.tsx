@@ -40,7 +40,7 @@ export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstak
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { myDoormanRewardsData, mySatelliteRewardsData, myMvkTokenBalance, mySMvkTokenBalance } = useSelector(
-    (state: State) => state.user.user,
+    (state: State) => state.user,
   )
   const { amount, showing } = useSelector((state: State) => state.exitFeeModal)
   const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
@@ -160,8 +160,11 @@ export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstak
           <StakeUnstakeInputColumn>
             <StakeUnstakeInputLabels>
               <StakeUnstakeMin>Min 1 MVK</StakeUnstakeMin>
-              <StakeUnstakeMax onClick={() => onUseMaxClick('UNSTAKE')}>Max Unstake</StakeUnstakeMax>
-              <StakeUnstakeMax onClick={() => onUseMaxClick('STAKE')}>Max Stake</StakeUnstakeMax>
+              {accountPkh && 
+                <>
+                  <StakeUnstakeMax onClick={() => onUseMaxClick('UNSTAKE')}>Max Unstake</StakeUnstakeMax>
+                  <StakeUnstakeMax onClick={() => onUseMaxClick('STAKE')}>Max Stake</StakeUnstakeMax>
+                </>}
             </StakeUnstakeInputLabels>
             <Input
               type={'number'}

@@ -28,7 +28,7 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   const [showWertIoPopup, setShowWertIoPopup] = useState(false)
   const { wallet, ready, accountPkh } = useSelector((state: State) => state.wallet)
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
-  const { user } = useSelector((state: State) => state.user)
+  const { myMvkTokenBalance = 0, mySMvkTokenBalance = 0 } = useSelector((state: State) => state.user)
   const isMobileView = useMedia('(max-width: 870px)')
 
   const handleConnect = () => {
@@ -67,9 +67,9 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   // will implemented after Sam's answers about data for this block
   const coinsInfo: CoinsInfoType = {
     MVKExchangeRate: exchangeRate,
-    userMVKBalance: user?.myMvkTokenBalance,
+    userMVKBalance: myMvkTokenBalance,
     userXTZBalance: 0,
-    userMVKStaked: user?.mySMvkTokenBalance,
+    userMVKStaked: mySMvkTokenBalance,
     XTZExchnageRate: 0,
   }
 
