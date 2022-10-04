@@ -484,7 +484,9 @@ export const GovernanceView = ({
             <article>
               <RightSideSubHeader>Proposer</RightSideSubHeader>
               <RightSideSubContent>
-                <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
+                <div className='address'>
+                  <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
+                </div>
               </RightSideSubContent>
             </article>
           ) : null}
