@@ -12,7 +12,7 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   left: 0;
   top: 0;
   bottom: 0;
-  overflow-x: hidden;
+  overflow: hidden;
 
   &::-webkit-scrollbar {
     display: none;
