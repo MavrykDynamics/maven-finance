@@ -491,7 +491,7 @@ export const GovernanceView = ({
 
           {rightSideContent.governanceId ? (
             <article>
-              <h4>Governance Info</h4>
+              <RightSideSubHeader>Governance Info</RightSideSubHeader>
               <div className="governance-contract">
                 <p>Governance Contract</p>
                 <TzAddress tzAddress={rightSideContent.governanceId} hasIcon={false} isBold={true} />
