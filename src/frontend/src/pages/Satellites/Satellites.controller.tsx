@@ -19,7 +19,7 @@ const Satellites = () => {
   } = useSelector((state: State) => state.delegation)
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const loading = useSelector((state: State) => Boolean(state.loading))
-  const { user } = useSelector((state: State) => state.user)
+  const { mySMvkTokenBalance = 0, satelliteMvkIsDelegatedTo } = useSelector((state: State) => state.user)
   const dispatch = useDispatch()
 
   const { accountPkh } = useSelector((state: State) => state.wallet)
@@ -59,8 +59,8 @@ const Satellites = () => {
       tabsInfo={tabsInfo}
       delegateCallback={delegateCallback}
       oracleSatellitesData={{
-        userStakedBalance: user.mySMvkTokenBalance,
-        satelliteUserIsDelegatedTo: user.satelliteMvkIsDelegatedTo,
+        userStakedBalance: mySMvkTokenBalance,
+        satelliteUserIsDelegatedTo: satelliteMvkIsDelegatedTo,
         items: satelliteLedger.slice(0, 3),
         delegateCallback,
         undelegateCallback,

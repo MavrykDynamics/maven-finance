@@ -30,9 +30,7 @@ import {
   calcWithoutPrecision,
 } from '../../utils/calcFunctions'
 import { PRECISION_NUMBER } from '../../utils/constants'
-import { setItemInStorage } from '../../utils/storage'
 import {
-  UserData,
   UserDoormanRewardsData,
   UserFarmRewardsData,
   UserSatelliteRewardsData,
@@ -41,6 +39,7 @@ import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { normalizeDoormanStorage, normalizeMvkToken, normalizeStakeHistoryData, normalizeSmvkHistoryData } from './Doorman.converter'
 import { FarmContractType } from 'utils/TypesAndInterfaces/Farm'
 import { Farm } from 'utils/generated/graphqlTypes'
+import { UserState } from 'reducers/user'
 
 export const GET_SMVK_HISTORY_DATA = 'GET_SMVK_HISTORY_DATA'
 export const getSmvkHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -347,8 +346,8 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: AppDi
 }
 
 export const GET_USER_DATA = 'GET_USER_DATA'
+export const CLEAN_USER_DATA = 'CLEAN_USER_DATA'
 export const GET_USER_DATA_ERROR = 'GET_USER_DATA'
-export const SET_USER_DATA = 'SET_USER_DATA'
 export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
 export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
@@ -407,7 +406,7 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
     const userInfoData = userInfoFromIndexer?.mavryk_user[0]
 
     const userIsDelegatedToSatellite = userInfoData?.delegations.length > 0
-    const userInfo: UserData = {
+    const userInfo: UserState = {
       myAddress: userInfoData?.address,
       myMvkTokenBalance: calcWithoutPrecision(userInfoData?.mvk_balance),
       mySMvkTokenBalance: calcWithoutPrecision(userInfoData?.smvk_balance),
@@ -433,7 +432,6 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
     //   userInfo.myDoormanRewardsData.myAvailableDoormanRewards +
     //   userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards
 
-    setItemInStorage('UserData', userInfo)
     dispatch({
       type: GET_USER_DATA,
       userData: userInfo,
@@ -451,24 +449,17 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
 }
 
 export const updateUserData = (field: string, value: string) => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
   try {
-    const userState = state.user
-    // @ts-ignore
-    userState[field] = value
     dispatch({
       type: UPDATE_USER_DATA,
-      userKey: field,
-      userValue: value,
+      updatedUserValues: {
+        [field]: value,
+      },
     })
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: UPDATE_USER_DATA,
-      error,
-    })
   }
 }
