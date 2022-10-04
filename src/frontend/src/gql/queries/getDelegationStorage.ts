@@ -84,6 +84,8 @@ export const DELEGATION_STORAGE_QUERY = `
             current_round_vote
             governance_proposal {
               title
+              executed
+              locked
             }
           }
           governance_satellite_actions_votes {

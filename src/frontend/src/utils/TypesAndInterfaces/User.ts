@@ -1,17 +1,5 @@
 import type { Mavryk_User } from '../generated/graphqlTypes'
 
-export interface UserData {
-  myAddress: string
-  myMvkTokenBalance: number
-  mySMvkTokenBalance: number
-  participationFeesPerShare: number
-  satelliteMvkIsDelegatedTo: string
-  isSatellite: boolean
-  myDoormanRewardsData: UserDoormanRewardsData
-  myFarmRewardsData: Record<string, UserFarmRewardsData>
-  mySatelliteRewardsData: UserSatelliteRewardsData
-}
-
 export interface UserDoormanRewardsData {
   generalUnclaimedRewards: number
   generalAccumulatedFeesPerShare: number

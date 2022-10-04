@@ -9,6 +9,7 @@ import { normalizeDelegationStorage } from '../../pages/Satellites/Satellites.he
 export interface SatelliteProposalVotingHistory extends ProposalVote {
   requestData: Maybe<Governance_Proposal> | undefined
   voteName?: string
+  submitted?: boolean
 }
 
 export interface SatelliteFinancialRequestVotingHistory extends FinancialRequestVote {
