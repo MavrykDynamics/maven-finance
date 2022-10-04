@@ -38,7 +38,6 @@ import { SatelliteStatus } from '../../utils/TypesAndInterfaces/Delegation'
 import { EmptyContainer } from '../../app/App.style'
 
 const itemsForDropDown = [
-  { text: 'Choose action', value: '' },
   { text: 'Suspend Satellite', value: 'suspendSatellite' },
   { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
   { text: 'Ban Satellite', value: 'banSatellite' },
@@ -86,7 +85,7 @@ export const SatelliteGovernance = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>()
   const [activeTab, setActiveTab] = useState('ongoing')
   const governanceSatelliteActionRecord = governanceSatelliteStorage?.governance_satellite_action
 
@@ -237,7 +236,7 @@ export const SatelliteGovernance = () => {
               <h2>Available Actions</h2>
               <DropDown
                 clickOnDropDown={handleClickDropdown}
-                placeholder={ddItems[0]}
+                placeholder='Choose action'
                 isOpen={ddIsOpen}
                 itemSelected={chosenDdItem?.text}
                 items={ddItems}
