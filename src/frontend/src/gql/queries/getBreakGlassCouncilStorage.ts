@@ -1,5 +1,5 @@
-import { parseData } from "utils/time"
-import { getItemFromStorage } from "../../utils/storage"
+import { parseData } from 'utils/time'
+import { getItemFromStorage } from '../../utils/storage'
 
 export const BREAK_GLASS_COUNCIL_MEMBER_QUERY_NAME = 'GetBreakGlassCouncilMemberQuery'
 export const BREAK_GLASS_COUNCIL_MEMBER_QUERY_VARIABLE = {}
@@ -22,7 +22,7 @@ export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE = {}
 const time = String(new Date())
 const timeFormat = 'YYYY-MM-DD'
 const curentDate = parseData({ time, timeFormat })
-const userAddress  = getItemFromStorage('UserData')?.myAddress || ''
+const userAddress = getItemFromStorage('UserData')?.myAddress || ''
 
 const BREAK_GLASS_ACTION_PARAMS = `
   action_type
