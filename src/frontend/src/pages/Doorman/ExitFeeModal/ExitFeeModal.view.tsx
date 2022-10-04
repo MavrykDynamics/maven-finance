@@ -43,24 +43,24 @@ export const ExitFeeModalView = ({
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
 
-  const mvkTokens = mvkTotalSupply ?? 0
-  const stakedMvkTokens = totalStakedMvkSupply ?? 0
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
   const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
   const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
-  const { user } = useSelector((state: State) => state.user)
+  const { myMvkTokenBalance, mySMvkTokenBalance } = useSelector((state: State) => state.user)
   const inputAmountValue = +inputAmount.amount
-  const myMvkTokenBalance = user?.myMvkTokenBalance
-  const userStakeBalance = user?.mySMvkTokenBalance
 
   const checkInputIsOk = (value: number) => {
     let validityCheckResult = false
     setStakeUnstakeValueError('')
     if (accountPkh) {
-      validityCheckResult = isValidNumberValue(value, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
+      validityCheckResult = isValidNumberValue(
+        value,
+        1,
+        Math.max(Number(myMvkTokenBalance), Number(mySMvkTokenBalance)),
+      )
     } else {
       validityCheckResult = isValidNumberValue(value, 1)
     }

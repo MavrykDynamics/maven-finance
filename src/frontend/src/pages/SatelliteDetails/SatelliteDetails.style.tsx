@@ -61,8 +61,7 @@ export const SatelliteMetricsBlock = styled.div`
   padding-top: 10px;
 
   p {
-    margin-top: 7px;
-    margin-bottom: 7px;
+    margin: 3px 0;
     text-align: right;
   }
 

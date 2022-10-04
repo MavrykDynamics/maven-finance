@@ -6,7 +6,7 @@ import { MavrykTheme } from '../../../styles/interfaces'
 export const DoormanStatsStyled = styled(Card)`
   display: flex;
   flex-direction: column;
-  padding: 25px 44px;
+  padding: 30px 49px;
   position: relative;
 
   &::after {
@@ -28,7 +28,10 @@ export const DoormanStatsStyled = styled(Card)`
 
 export const DoormanStatsHeader = styled(CardHeader)<{ theme: MavrykTheme }>`
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 30px;
+
+  font-weight: 600;
+  font-size: 18px;
 `
 
 export const DoormanStatsGrid = styled.div<{ theme: MavrykTheme }>`
@@ -53,16 +56,17 @@ export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
   > div {
     display: flex;
     justify-content: space-between;
-    height: 35px;
     align-items: center;
+    margin-bottom: 12px;
 
     h4 {
       width: 47%;
       color: ${({ theme }) => theme.headerColor};
-      font-size: 12px;
+      font-size: 14px;
       display: flex;
       align-items: center;
       font-weight: 600;
+      white-space: nowrap;
 
       a {
         margin-left: 4px;

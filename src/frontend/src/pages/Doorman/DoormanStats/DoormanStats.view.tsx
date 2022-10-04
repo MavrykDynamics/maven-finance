@@ -21,7 +21,6 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
   const { exchangeRate, mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { doormanAddress, mvkTokenAddress } = useSelector((state: State) => state.contractAddresses)
-  const { user } = useSelector((state: State) => state.user)
   const totalSupply = (mvkTokenStorage?.totalSupply ?? 0) + stakedMvkTokens
   const maximumTotalSupply = mvkTokenStorage?.maximumTotalSupply ?? 0
 
@@ -43,16 +42,16 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
           <div>
             <h4>MVK Token Address</h4>
             <var className="click-address">
-              <TzAddress tzAddress={mvkTokenAddress?.address} hasIcon />
+              <TzAddress tzAddress={mvkTokenAddress?.address} hasIcon={false} />
             </var>
           </div>
         ) : null}
 
         {doormanAddress?.address ? (
           <div>
-            <h4>Doorman address</h4>
+            <h4>Doorman Address</h4>
             <var className="click-address">
-              <TzAddress tzAddress={doormanAddress?.address} hasIcon />
+              <TzAddress tzAddress={doormanAddress?.address} hasIcon={false} />
             </var>
           </div>
         ) : null}
@@ -90,7 +89,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
         </div>
 
         <div>
-          <h4>Total staked MVK</h4>
+          <h4>Total Staked MVK</h4>
           <var>
             <CommaNumber value={stakedMvkTokens} loading={loading} endingText={'MVK'} />
           </var>
@@ -104,14 +103,14 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
         </div>
 
         <div>
-          <h4>Max supply</h4>
+          <h4>Max Supply</h4>
           <var>
             <CommaNumber value={maxSupplyCapValue} loading={loading} endingText={'USD'} />
           </var>
         </div>
 
         <div>
-          <h4>Market cap</h4>
+          <h4>Market Cap</h4>
           <var>
             <CommaNumber value={marketCapValue} loading={loading} endingText={'USD'} />
           </var>
