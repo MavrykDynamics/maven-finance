@@ -212,7 +212,7 @@ function checkNoAmount(const _p : unit) : unit is
 
 // helper function to check that the %updateData entrypoint is not paused
 function checkUpdateDataIsNotPaused(var s : aggregatorStorageType) : unit is
-    if s.breakGlassConfig.updateDataIsPaused then failwith(error_UPDATE_PRICE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
+    if s.breakGlassConfig.updateDataIsPaused then failwith(error_UPDATE_DATA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
 // helper function to check that the %withdrawRewardXtz entrypoint is not paused
@@ -272,9 +272,9 @@ function isOracleAddress(const address : address; const oracleAddresses : oracle
 // helper function to hash bytes input
 function hasherman (const s : bytes) : bytes is Crypto.sha256 (s)
 
-// helper function to get observations price utils
-function getObservationsPriceUtils(const price : nat; const myMap : pivotedObservationsType) : nat is
-    case Map.find_opt(price, myMap) of [
+// helper function to get observations data utils
+function getObservationsDataUtils(const data : nat; const myMap : pivotedObservationsType) : nat is
+    case Map.find_opt(data, myMap) of [
             Some (v) -> (v+1n)
         |   None -> 1n
     ]
@@ -287,54 +287,66 @@ function getOraclePublicKey(const addressKey: address; const oracleAddresses: or
   ]
 
 // helper function to check if the signature is correct
-function check_signature
-    (const pk     : key;
-     const signed : signature;
-     const msg    : bytes) : bool
-  is Crypto.check (pk, signed, msg)
+function checkSignature(const pk : key; const signed : signature; const msg : bytes) : bool is 
+    Crypto.check (pk, signed, msg)
 
 // helper function to verify all the responses from oracles signatures
 function verifyAllResponsesSignature(const oracleAddress: address; const oracleSignatures: signature; const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorageType): unit is
-  if (not check_signature(
-      getOraclePublicKey(oracleAddress, store.oracleAddresses),
-      oracleSignatures,
-      Bytes.pack(oracleObservations)))
-      then failwith(error_WRONG_SIGNATURE_IN_OBSERVATIONS_MAP)
-  else unit
+    if (not checkSignature(
+        getOraclePublicKey(oracleAddress, store.oracleAddresses),
+        oracleSignatures,
+        Bytes.pack(oracleObservations)))
+        then failwith(error_WRONG_SIGNATURE_IN_OBSERVATIONS_MAP)
+    else unit
 
 // helper function to verify signatures and oracleObservations maps sizes
-function verifyMapsSizes(const leaderReponse : updateDataType; const s: aggregatorStorageType): unit is block {
-  const f: int = (Map.size(s.oracleAddresses) - 1) / 3n;
+function verifyMapsSizes(const leaderReponse : updateDataType; const s: aggregatorStorageType) : unit is block {
 
-  if (int(Map.size(leaderReponse.signatures)) < f)
-      then failwith(error_WRONG_SIGNATURES_MAP_SIZE)
-  else skip;
-  if (int(Map.size(leaderReponse.oracleObservations)) <= (2 * f))
-      then failwith(error_WRONG_OBSERVATIONS_MAP_SIZE)
-  else skip
+    // Byzantine faults check
+    // see: https://research.chain.link/ocr.pdf
+    const f: int = (Map.size(s.oracleAddresses) - 1) / 3n;
+    if (int(Map.size(leaderReponse.signatures)) < f)
+        then failwith(error_WRONG_SIGNATURES_MAP_SIZE)
+    else skip;
+    if (int(Map.size(leaderReponse.oracleObservations)) <= (2 * f))
+        then failwith(error_WRONG_OBSERVATIONS_MAP_SIZE)
+    else skip
+
 } with unit;
 
 // helper function to verify informations from the observations
 function verifyInfosFromObservations(const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorageType): (nat * nat) is block {
-  var epoch: nat := 0n;
-  var round: nat := 0n;
+    
+    var epoch: nat := 0n;
+    var round: nat := 0n;
 
-  for key -> value in map oracleObservations block {
-      if (not (Tezos.get_self_address() = value.aggregatorAddress)) then failwith(error_WRONG_AGGREGATOR_ADDRESS_IN_OBSERVATIONS_MAP);
-      if (not isOracleAddress(key, store.oracleAddresses))   then failwith (error_OBSERVATION_MADE_BY_WRONG_ORACLE);
-      if (epoch = 0n) then epoch    := value.epoch;
-      if (not (epoch = value.epoch)) then failwith(error_DIFFERENT_EPOCH_IN_OBSERVATIONS_MAP);
+    for key -> value in map oracleObservations block {
 
-      if (round = 0n) then round    := value.round;
-      if (not (round = value.round)) then failwith(error_DIFFERENT_ROUND_IN_OBSERVATIONS_MAP);
-  };
+        // Check the aggregator specified in the observation is the current aggregator
+        if Tezos.get_self_address() =/= value.aggregatorAddress then failwith(error_WRONG_AGGREGATOR_ADDRESS_IN_OBSERVATIONS_MAP);
 
-  if (epoch < store.lastCompletedPrice.epoch) then failwith(error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
-  else if (epoch = store.lastCompletedPrice.epoch) then {
-    if (round <= store.lastCompletedPrice.round) then failwith(error_ROUND_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
+        // Check the observation was made by a known oracle
+        if not isOracleAddress(key, store.oracleAddresses) then failwith (error_OBSERVATION_MADE_BY_WRONG_ORACLE);
+
+        // Check the epoch is the same for all observations (set the epoch to the first observation epoch)
+        if epoch = 0n then epoch    := value.epoch;
+        if epoch =/= value.epoch then failwith(error_DIFFERENT_EPOCH_IN_OBSERVATIONS_MAP);
+
+        // Check the round  is the same for all observations (set the round to the first observation epoch)
+        if round = 0n then round    := value.round;
+        if round =/= value.round then failwith(error_DIFFERENT_ROUND_IN_OBSERVATIONS_MAP);
+
+    };
+
+    // Check the current epoch is greater than the previous one
+    if (epoch < store.lastCompletedData.epoch) then failwith(error_EPOCH_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
+    else if (epoch = store.lastCompletedData.epoch) then {
+        // Check the round if the epoch is the same as the previous one
+        if (round <= store.lastCompletedData.round) then failwith(error_ROUND_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT)
+        else skip;
+    }
     else skip;
-  }
-  else skip;
+
 } with (epoch, round)
 
 // helper function to pivot observations for calculation of median later
@@ -349,14 +361,14 @@ function pivotObservationMap (var m : map (address, oracleObservationType)) : pi
   *)
     var empty : pivotedObservationsType := map [];
     for _key -> value in map m block {
-        var temp: nat := getObservationsPriceUtils(value.price, empty);
-        empty := Map.update(value.price, Some (temp), empty);
+        var temp: nat := getObservationsDataUtils(value.data, empty);
+        empty := Map.update(value.data, Some (temp), empty);
     }
 } with (empty)
 
 
 
-// helper function to get median price
+// helper function to get median data
 function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) : nat is block {
   (*
     m is a map: observationValue -> observationCount, sorted by observation value
@@ -398,10 +410,10 @@ function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) 
     The logic remains the same for odd number of observation, we just have to save one value
    *)
 
-  const isEven: bool = (sizeMap mod 2n) = 0n;
-  const medianIndex: nat = (sizeMap / 2n);
-  var _observationCountAccumulator: nat := 0n;
-  var median: nat := 0n;
+  const isEven                      : bool  = (sizeMap mod 2n) = 0n;
+  const medianIndex                 : nat   = (sizeMap / 2n);
+  var _observationCountAccumulator  : nat   := 0n;
+  var median                        : nat   := 0n;
 
   for observationValue -> observationCount in map m block {
         if isEven then {
@@ -459,8 +471,8 @@ function updateRewardsStakedMvk (const oracleObservations : map (address, oracle
 block {
 
     // init params
-    var tempSatellitesMap : map(address, nat) := map [];
-    var total: nat := 0n;
+    var tempSatellitesMap   : map(address, nat) := map [];
+    var total               : nat               := 0n;
 
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
@@ -472,7 +484,7 @@ block {
             |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
-    // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
+    // loop over satellite oracles who have committed their data feed data, and calculate total voting power 
     // and store each satellite respective share in tempSatellitesMap
     for oracleAddress -> _value in map oracleObservations block {
 
@@ -635,15 +647,15 @@ block {
 
 
 
-(* View: get last completed price *)
-[@view] function getLastCompletedPrice (const _ : unit ; const s : aggregatorStorageType) : lastCompletedPriceReturnType is block {
-    const withDecimal : lastCompletedPriceReturnType = record [
-        price                 = s.lastCompletedPrice.price;
-        percentOracleResponse = s.lastCompletedPrice.percentOracleResponse;
-        round                 = s.lastCompletedPrice.round;
-        epoch                 = s.lastCompletedPrice.epoch;
+(* View: get last completed data *)
+[@view] function getlastCompletedData (const _ : unit ; const s : aggregatorStorageType) : lastCompletedDataReturnType is block {
+    const withDecimal : lastCompletedDataReturnType = record [
+        data                  = s.lastCompletedData.data;
+        percentOracleResponse = s.lastCompletedData.percentOracleResponse;
+        round                 = s.lastCompletedData.round;
+        epoch                 = s.lastCompletedData.epoch;
         decimals              = s.config.decimals;
-        priceDateTime         = s.lastCompletedPrice.priceDateTime;
+        lastUpdatedAt         = s.lastCompletedData.lastUpdatedAt;
     ]
 } with (withDecimal)
 

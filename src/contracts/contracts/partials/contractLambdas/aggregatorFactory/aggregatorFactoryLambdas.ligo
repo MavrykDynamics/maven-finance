@@ -317,12 +317,12 @@ block {
 
                 // createAggregator parameters declaration
                 
-                const lastCompletedPrice = record[
-                      round                 = 0n;
-                      epoch                 = 0n;
-                      price                 = 0n;
-                      percentOracleResponse = 0n;
-                      priceDateTime         = Tezos.get_now();
+                const lastCompletedData = record[
+                      round                     = 0n;
+                      epoch                     = 0n;
+                      data                      = 0n;
+                      percentOracleResponse     = 0n;
+                      lastUpdatedAt             = Tezos.get_now();
                   ];
                 const oracleRewardXtz        : oracleRewardXtzType        = map[];
                 const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
@@ -374,7 +374,7 @@ block {
 
                     oracleAddresses           = createAggregatorParams.2.oracleAddresses;
                     
-                    lastCompletedPrice        = lastCompletedPrice;
+                    lastCompletedData        = lastCompletedData;
                                         
                     oracleRewardXtz           = oracleRewardXtz;
                     oracleRewardStakedMvk     = oracleRewardStakedMvk;      

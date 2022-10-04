@@ -1,5 +1,4 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
-
 import { BigNumber } from "bignumber.js";
 
 export type aggregatorStorageType = {
@@ -25,7 +24,6 @@ export type aggregatorStorageType = {
         withdrawRewardStakedMvkIsPaused     : boolean;
     };
 
-    trackedAggregators        : MichelsonMap<{ 0: string; 1: string }, string>
     mvkTokenAddress           : string;
     governanceAddress         : string;
 
@@ -35,12 +33,12 @@ export type aggregatorStorageType = {
     oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
     
 
-    lastCompletedPrice: {
+    lastCompletedData: {
         round                 : BigNumber;
         epoch                 : BigNumber;
-        price                 : BigNumber;
+        data                  : BigNumber;
         percentOracleResponse : BigNumber;
-        priceDateTime         : string;
+        lastUpdatedAt         : string;
     };
 
 

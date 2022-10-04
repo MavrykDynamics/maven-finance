@@ -3,15 +3,15 @@ import { clientAggregatorStorageType } from '../test/types/clientAggregatorStora
 
 // Calculate one year from now
 const currentTimestamp  = new Date();
-const priceDateTime     = Math.round(currentTimestamp.getTime() / 1000);
+const lastUpdatedAt     = Math.round(currentTimestamp.getTime() / 1000);
 
-const lastCompletedRoundPrice = {
-    round: new BigNumber(0),
-    price: new BigNumber(0),
-    percentOracleResponse: new BigNumber(0),
-    decimals: new BigNumber(0),
-    priceDateTime: priceDateTime.toString()
+const lastCompletedRoundData = {
+    round                   : new BigNumber(0),
+    data                    : new BigNumber(0),
+    percentOracleResponse   : new BigNumber(0),
+    decimals                : new BigNumber(0),
+    lastUpdatedAt           : lastUpdatedAt.toString()
 }
 
 export const clientAggregatorStorage: clientAggregatorStorageType = 
-    lastCompletedRoundPrice;
+    lastCompletedRoundData;
