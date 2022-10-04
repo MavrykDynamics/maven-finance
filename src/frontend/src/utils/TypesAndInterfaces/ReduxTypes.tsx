@@ -1,1 +1,1 @@
-export type Action = Record<string, 'type' | object>
+export type Action = { type: string } & { [key: string]: Record<string, object | []> }

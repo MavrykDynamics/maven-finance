@@ -328,9 +328,7 @@ type FarmCardProps = {
 export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, expandCallback }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const {
-    user: { myFarmRewardsData },
-  } = useSelector((state: State) => state.user)
+  const { myFarmRewardsData } = useSelector((state: State) => state.user)
 
   const [visibleModal, setVisibleModal] = useState(false)
 

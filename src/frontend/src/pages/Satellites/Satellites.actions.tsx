@@ -59,12 +59,12 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
     return
   }
 
-  if (state.user.user.myMvkTokenBalance === 0 && state.user.user.mySMvkTokenBalance === 0) {
+  if (state.user.myMvkTokenBalance === 0 && state.user.mySMvkTokenBalance === 0) {
     dispatch(showToaster(ERROR, 'Unable to Delegate', 'Please buy MVK and stake it'))
     return
   }
 
-  if (state.user.user.mySMvkTokenBalance === 0) {
+  if (state.user.mySMvkTokenBalance === 0) {
     dispatch(showToaster(ERROR, 'Unable to Delegate', 'Please stake your MVK'))
     return
   }

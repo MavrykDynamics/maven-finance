@@ -67,7 +67,7 @@ export const SatelliteListItem = ({
     governanceStorage: { proposalLedger },
   } = useSelector((state: State) => state.governance)
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
-  const { isSatellite } = useSelector((state: State) => state.user.user)
+  const { isSatellite } = useSelector((state: State) => state.user)
   const { ready } = useSelector((state: State) => state.wallet)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
