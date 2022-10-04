@@ -14,6 +14,7 @@ type RoutingButtonViewProps = {
   onClick?: () => void
   type?: RoutingButtonTypes
   loading: boolean
+  disabled: boolean
   pathName: string
   pathParams?: Record<string, unknown>
 }
@@ -27,8 +28,9 @@ export const RoutingButtonView = ({
   loading,
   pathName,
   pathParams,
+  disabled,
 }: RoutingButtonViewProps) => {
-  const routingButtonClasses = `${kind} ${loading ? 'loading' : ''}`
+  const routingButtonClasses = `${kind} ${loading ? 'loading' : ''} ${disabled ? 'disabled' : ''}`
 
   return (
     <Link to={{ pathname: pathName, pathParams }}>
