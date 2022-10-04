@@ -36,28 +36,28 @@ type aggregatorBreakGlassConfigType is [@layout:comb] record [
 type pivotedObservationsType     is map (nat, nat);
 
 
-type lastCompletedPriceType is  [@layout:comb] record [
+type lastCompletedDataType is  [@layout:comb] record [
     round                       : nat;
     epoch                       : nat;
-    price                       : nat;
+    data                        : nat;
     percentOracleResponse       : nat;
-    priceDateTime               : timestamp;  
+    lastUpdatedAt               : timestamp;  
 ];
 
-type lastCompletedPriceReturnType is  [@layout:comb] record [
+type lastCompletedDataReturnType is  [@layout:comb] record [
     round                       : nat;
     epoch                       : nat;
-    price                       : nat;
+    data                        : nat;
     percentOracleResponse       : nat;
     decimals                    : nat;
-    priceDateTime               : timestamp;  
+    lastUpdatedAt               : timestamp;  
 ];
 
 type oracleObservationType is [@layout:comb] record [
-       price: nat;
-       epoch: nat;
-       round: nat;
-       aggregatorAddress: address;
+       data                 : nat;
+       epoch                : nat;
+       round                : nat;
+       aggregatorAddress    : address;
 ];
 
 type updateDataType is   [@layout:comb] record [
@@ -74,8 +74,6 @@ type addOracleType is   [@layout:comb] record [
 ];
 
 type removeOracleType                 is address;
-
-type updateDataType                  is updateDataType;
 
 (* updateConfig entrypoint inputs *)
 type aggregatorUpdateConfigNewValueType is nat
@@ -160,7 +158,7 @@ type aggregatorStorageType is [@layout:comb] record [
 
     oracleAddresses           : oracleAddressesType;
     
-    lastCompletedPrice        : lastCompletedPriceType;
+    lastCompletedData         : lastCompletedDataType;
 
     oracleRewardStakedMvk     : oracleRewardStakedMvkType;
     oracleRewardXtz           : oracleRewardXtzType;
