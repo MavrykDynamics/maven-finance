@@ -46,7 +46,7 @@ export const CONTRACT_ADDRESSES_QUERY = `
       address
     }
   }
-`;
+`
 
-export const CONTRACT_ADDRESSES_QUERY_NAME = "ContractAddressesQuery";
-export const CONTRACT_ADDRESSES_QUERY_VARIABLE = {};
+export const CONTRACT_ADDRESSES_QUERY_NAME = 'ContractAddressesQuery'
+export const CONTRACT_ADDRESSES_QUERY_VARIABLE = {}

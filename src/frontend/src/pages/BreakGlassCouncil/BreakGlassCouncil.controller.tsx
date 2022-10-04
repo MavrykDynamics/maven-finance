@@ -44,7 +44,7 @@ import {
   getBreakGlassActionPendingMySignature,
   getMyPastBreakGlassCouncilAction,
   getPastBreakGlassCouncilAction,
-  getBreakGlassCouncilMember
+  getBreakGlassCouncilMember,
 } from './BreakGlassCouncil.actions'
 
 export const BreakGlassCouncil: FC = () => {
@@ -59,7 +59,8 @@ export const BreakGlassCouncil: FC = () => {
   } = useSelector((state: State) => state.breakGlass)
 
   const itemsForDropDown = useMemo(
-    () => Object.values(actions).map((item) => {
+    () =>
+      Object.values(actions).map((item) => {
         return {
           text: getSeparateSnakeCase(item),
           value: item,
@@ -81,21 +82,20 @@ export const BreakGlassCouncil: FC = () => {
     isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
   )
 
-  const memberIsFirstOfList = useCallback((list: typeof breakGlassCouncilMember) => {
-    const indexOfMember = list.findIndex((item) => item.userId === accountPkh)
+  const memberIsFirstOfList = useCallback(
+    (list: typeof breakGlassCouncilMember) => {
+      const indexOfMember = list.findIndex((item) => item.userId === accountPkh)
 
-    if (indexOfMember === -1) {
-      return list
-    }
-  
-    const updatedList = [
-      list[indexOfMember],
-      ...list.slice(0, indexOfMember),
-      ...list.slice(indexOfMember + 1)
-    ]
-  
-    return updatedList
-  }, [accountPkh])
+      if (indexOfMember === -1) {
+        return list
+      }
+
+      const updatedList = [list[indexOfMember], ...list.slice(0, indexOfMember), ...list.slice(indexOfMember + 1)]
+
+      return updatedList
+    },
+    [accountPkh],
+  )
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
