@@ -26,7 +26,7 @@ import { parseData } from 'utils/time'
 
 const time = String(new Date())
 const timeFormat = 'YYYY-MM-DD'
-const timestamptz = parseData({ time, timeFormat }) || ''
+const timestamptz = parseData({ time, timeFormat }) || undefined
 
 // getMyPastBreakGlassCouncilAction
 export const GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION = 'GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION'
@@ -71,7 +71,7 @@ export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppD
     ? await fetchFromIndexerWithPromise(
         BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
         BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
-        BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz, userAddress: accountPkh, userAddress2: '' }),
+        BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz, userAddress: accountPkh }),
       )
     : { break_glass_action: [] }
 
