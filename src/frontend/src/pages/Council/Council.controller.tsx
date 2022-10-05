@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useLocation } from 'react-router'
@@ -18,7 +18,7 @@ import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { CouncilPendingView } from './CouncilPending/CouncilPending.view'
 import { CouncilPendingReviewView } from './CouncilPending/CouncilPendingReview.view'
-import { CouncilMemberView } from './CouncilMember/CouncilMember.view'
+import { CouncilMemberView, memberIsFirstOfList } from './CouncilMember/CouncilMember.view'
 import { CouncilPastActionView } from './CouncilPastAction/CouncilPastAction.view'
 import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
@@ -54,7 +54,7 @@ export const Council = () => {
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
 
-  const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
+  const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
 
   const currentCouncilPastActions = useMemo(
@@ -84,22 +84,7 @@ export const Council = () => {
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
-
-  const memberIsFirstOfList = useCallback((list: typeof councilMembers) => {
-    const indexOfMember = list.findIndex((item) => item.user_id === accountPkh)
-
-    if (indexOfMember === -1) {
-      return list
-    }
-  
-    const updatedList = [
-      list[indexOfMember],
-      ...list.slice(0, indexOfMember),
-      ...list.slice(indexOfMember + 1)
-    ]
-  
-    return updatedList
-  }, [accountPkh])
+  const sortedCouncilMembers = memberIsFirstOfList(councilMembers, accountPkh)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -249,15 +234,15 @@ export const Council = () => {
               />
             ) : null}
 
-            {councilMembers.length ? (
+            {sortedCouncilMembers.length ? (
               <div>
                 <h1>Council Members</h1>
-                {memberIsFirstOfList(councilMembers).map((item: CouncilMember) => (
+                {sortedCouncilMembers.map((item: CouncilMember) => (
                   <CouncilMemberView
                     key={item.id}
                     image={item.image}
                     name={item.name}
-                    user_id={item.user_id}
+                    userId={item.userId}
                     website={item.website}
                     openModal={handleOpenleModal}
                   />

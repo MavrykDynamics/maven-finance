@@ -27,6 +27,16 @@ export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
       })
     : []
 
+  const councilMembers = storage?.members.map((member) => {
+    return {
+      id: member.id,
+      name: member.name,
+      image: member.image,
+      userId: member.user_id,
+      website: member.website,
+    }
+  }) 
+
   return {
     address: storage?.address,
     config: {
@@ -35,6 +45,6 @@ export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
     },
     actionCounter: storage?.action_counter,
     councilActionsLedger,
-    councilMembers: storage?.members?.length ? storage.members : [],
+    councilMembers: storage?.members?.length ? councilMembers : [],
   }
 }
