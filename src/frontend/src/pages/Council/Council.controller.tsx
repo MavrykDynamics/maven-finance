@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useLocation } from 'react-router'
@@ -11,6 +11,7 @@ import type { CouncilPastAction } from '../../reducers/council'
 import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from './Council.actions'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { memberIsFirstOfList } from './Council.helpers'
 
 // view
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -54,7 +55,7 @@ export const Council = () => {
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
 
-  const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
+  const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
 
   const currentCouncilPastActions = useMemo(
@@ -66,7 +67,6 @@ export const Council = () => {
   )
 
   const itemsForDropDown = [
-    { text: 'Choose action', value: '' },
     { text: 'Add Vestee', value: 'addVestee' },
     { text: 'Add Council Member', value: 'addCouncilMember' },
     { text: 'Update Vestee', value: 'updateVestee' },
@@ -84,7 +84,8 @@ export const Council = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
+  const sortedCouncilMembers = memberIsFirstOfList(councilMembers, accountPkh)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -177,7 +178,7 @@ export const Council = () => {
                   <h2>Available Actions</h2>
                   <DropDown
                     clickOnDropDown={handleClickDropdown}
-                    placeholder={ddItems[0]}
+                    placeholder='Choose action'
                     isOpen={ddIsOpen}
                     itemSelected={chosenDdItem?.text}
                     items={ddItems}
@@ -234,15 +235,15 @@ export const Council = () => {
               />
             ) : null}
 
-            {councilMembers.length ? (
+            {sortedCouncilMembers.length ? (
               <div>
                 <h1>Council Members</h1>
-                {councilMembers.map((item: CouncilMember) => (
+                {sortedCouncilMembers.map((item: CouncilMember) => (
                   <CouncilMemberView
                     key={item.id}
                     image={item.image}
                     name={item.name}
-                    user_id={item.user_id}
+                    userId={item.userId}
                     website={item.website}
                     openModal={handleOpenleModal}
                   />

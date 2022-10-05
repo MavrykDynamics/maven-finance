@@ -26,6 +26,7 @@ import {
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
 import { getSeparateSnakeCase } from 'utils/parse'
+import { memberIsFirstOfList } from 'pages/Council/Council.helpers'
 
 // styles
 import {
@@ -44,7 +45,7 @@ import {
   getBreakGlassActionPendingMySignature,
   getMyPastBreakGlassCouncilAction,
   getPastBreakGlassCouncilAction,
-  getBreakGlassCouncilMember
+  getBreakGlassCouncilMember,
 } from './BreakGlassCouncil.actions'
 
 export const BreakGlassCouncil: FC = () => {
@@ -59,7 +60,8 @@ export const BreakGlassCouncil: FC = () => {
   } = useSelector((state: State) => state.breakGlass)
 
   const itemsForDropDown = useMemo(
-    () => Object.values(actions).map((item) => {
+    () =>
+      Object.values(actions).map((item) => {
         return {
           text: getSeparateSnakeCase(item),
           value: item,
@@ -80,6 +82,8 @@ export const BreakGlassCouncil: FC = () => {
   const displayPendingSignature = Boolean(
     isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
   )
+
+  const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
@@ -263,16 +267,16 @@ export const BreakGlassCouncil: FC = () => {
             </ReviewPastCouncilActionsCard>
           )}
 
-          {Boolean(breakGlassCouncilMember.length) && (
+          {Boolean(sortedBreakGlassCouncilMembers.length) && (
             <>
               <h1>Break Glass Council</h1>
 
-              {breakGlassCouncilMember.map((item) => (
+              {sortedBreakGlassCouncilMembers.map((item) => (
                 <CouncilMemberView
                   key={item.id}
                   image={item.image || item.name}
                   name={item.name}
-                  user_id={item.userId}
+                  userId={item.userId}
                   website={item.website}
                   openModal={handleOpenleModal}
                   showUpdateInfo={isUserInBreakCouncilMember}

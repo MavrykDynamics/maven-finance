@@ -35,8 +35,8 @@ export const CouncilFormRemoveCouncilMember = () => {
             { text: 'Chose Member Address', value: '' },
             ...councilMembers.map((item: CouncilMember) => {
               return {
-                text: getShortTzAddress(item.user_id),
-                value: item.user_id,
+                text: getShortTzAddress(item.userId),
+                value: item.userId,
               }
             }),
           ]

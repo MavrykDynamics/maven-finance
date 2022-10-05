@@ -41,6 +41,11 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     & + .voting-proposal {
       display: none;
     }
+
+    svg {
+      stroke: none;
+      fill: ${({ theme }) => theme.headerColor};
+    }
   }
 
   .byte,
@@ -103,9 +108,9 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     .governance-contract {
       display: flex;
       justify-content: space-between;
-      font-weight: 600;
-      font-size: 12px;
-      line-height: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 14px;
       color: ${cyanColor};
 
       p {
@@ -233,7 +238,7 @@ export const RightSideVotingArea = styled.div<{ theme: MavrykTheme }>`
 export const RightSideSubHeader = styled.div<{ theme: MavrykTheme }>`
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: ${({ theme }) => theme.headerColor};
 `
 export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
@@ -241,13 +246,18 @@ export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
   font-size: 14px;
   line-height: 21px;
   font-weight: normal;
-  color: ${skyColor};
   word-break: break-all;
 
-  * {
+  &, a {
     color: ${skyColor};
-    stroke: ${skyColor};
   }
+
+  .address {
+    * {
+      color: ${cyanColor};
+      stroke: ${cyanColor};
+    }
+  } 
 
   &#votingDeadline {
     color: ${cyanColor};

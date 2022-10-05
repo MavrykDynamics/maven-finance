@@ -72,7 +72,7 @@ export const Governance = () => {
   return (
     <Page>
       <PageHeader page={'governance'} />
-      <GovernanceTopBar governancePhase={governancePhase} />
+      {accountPkh && <GovernanceTopBar governancePhase={governancePhase} />}
       <GovernanceView
         handleExecuteProposal={handleExecuteProposal}
         ready={ready}

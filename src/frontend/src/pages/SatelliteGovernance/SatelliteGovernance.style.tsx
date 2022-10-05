@@ -117,8 +117,10 @@ export const AvailableActionsStyle = styled.div`
     .banSatellite,
     .removeOracles,
     .removeFromAggregator {
-      svg {
-        stroke: ${containerColor};
+      &.fill {
+        svg {
+          stroke: ${containerColor};
+        }
       }
     }
 

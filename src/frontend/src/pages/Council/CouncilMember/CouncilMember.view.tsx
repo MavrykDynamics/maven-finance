@@ -12,7 +12,7 @@ import { CouncilMemberStyled } from './CouncilMember.style'
 type Props = {
   image: string
   name: string
-  user_id: string
+  userId: string
   website: string
   openModal: () => void
   showUpdateInfo?: boolean
@@ -20,10 +20,10 @@ type Props = {
 
 export const CouncilMemberView = (props: Props) => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { image, name, user_id, website, openModal, showUpdateInfo = true } = props
-  const href = website?.length ? website : `/satellites/satellite-details/${user_id}`
+  const { image, name, userId, website, openModal, showUpdateInfo = true } = props
+  const href = website?.length ? website : `/satellites/satellite-details/${userId}`
 
-  const isMe = user_id === accountPkh
+  const isMe = userId === accountPkh
   const content = (
     <CouncilMemberStyled className={isMe ? 'is-me' : ''}>
       <div className="inner">
@@ -39,7 +39,7 @@ export const CouncilMemberView = (props: Props) => {
         </AvatarStyle>
         <figcaption>
           <h4>{name}</h4>
-          {user_id ? <TzAddress tzAddress={user_id} hasIcon={false} /> : null}
+          {userId ? <TzAddress tzAddress={userId} hasIcon={false} /> : null}
         </figcaption>
       </div>
       {isMe && showUpdateInfo ? (

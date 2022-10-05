@@ -50,7 +50,7 @@ export const PropSubmissionTopBarView = ({
 
           <PropSubTopBarTimeContainer>
             <CurrentPhaseContainer>
-              <PropSubTopBarPhaseText>Current Phase: </PropSubTopBarPhaseText>
+              <PropSubTopBarPhaseText>Current Period: </PropSubTopBarPhaseText>
               <PropSubTopBarValueText>{getSeparateSnakeCase(currentGovernancePhase)}</PropSubTopBarValueText>
             </CurrentPhaseContainer>
             <TimeRemaining />

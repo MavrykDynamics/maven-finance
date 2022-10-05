@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { Card, cyanColor, skyColor, royalPurpleColor, headerColor, boxShadowColor } from 'styles'
+import { Card, CardHover, cyanColor, skyColor, royalPurpleColor, headerColor, boxShadowColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -51,7 +51,7 @@ export const ListItemLeftSide = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const FRListItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
+export const FRListItem = styled(CardHover)<{ selected: boolean; theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   border: 1px solid ${royalPurpleColor};
   min-height: 57px;

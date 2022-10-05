@@ -1,5 +1,5 @@
 // types
-import { CouncilGraphQL } from '../../utils/TypesAndInterfaces/Council'
+import { CouncilGraphQL, CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 
 export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
   const councilActionsLedger = storage?.actions?.length
@@ -27,6 +27,16 @@ export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
       })
     : []
 
+  const councilMembers = storage?.members.map((member) => {
+    return {
+      id: member.id,
+      name: member.name,
+      image: member.image,
+      userId: member.user_id,
+      website: member.website,
+    }
+  }) 
+
   return {
     address: storage?.address,
     config: {
@@ -35,6 +45,18 @@ export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
     },
     actionCounter: storage?.action_counter,
     councilActionsLedger,
-    councilMembers: storage?.members?.length ? storage.members : [],
+    councilMembers: storage?.members?.length ? councilMembers : [],
   }
+}
+
+export const memberIsFirstOfList = (list: CouncilMember[], address?: string) => {
+  const indexOfMember = list.findIndex((item) => item.userId === address)
+
+  if (indexOfMember === -1) {
+    return list
+  }
+
+  const updatedList = [list[indexOfMember]].concat(list.filter(({userId}) => userId !== address))
+
+  return updatedList
 }

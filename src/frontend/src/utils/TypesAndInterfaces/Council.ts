@@ -30,7 +30,7 @@ export type CouncilMember = {
   id: number
   name: string
   image: string
-  user_id: string
+  userId: string
   website: string
 }
 
