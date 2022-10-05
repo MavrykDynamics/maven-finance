@@ -9,7 +9,7 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPastAction.view'
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
-import { CouncilMemberView, memberIsFirstOfList } from 'pages/Council/CouncilMember/CouncilMember.view'
+import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
@@ -26,6 +26,7 @@ import {
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
 import { getSeparateSnakeCase } from 'utils/parse'
+import { memberIsFirstOfList } from 'pages/Council/Council.helpers'
 
 // styles
 import {

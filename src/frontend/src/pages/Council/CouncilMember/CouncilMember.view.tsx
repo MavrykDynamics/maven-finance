@@ -6,9 +6,6 @@ import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 
-// types
-import { CouncilMember } from 'utils/TypesAndInterfaces/Council'
-
 // style
 import { CouncilMemberStyled } from './CouncilMember.style'
 
@@ -20,18 +17,6 @@ type Props = {
   openModal: () => void
   showUpdateInfo?: boolean
 }
-
-export const memberIsFirstOfList = (list: CouncilMember[], address?: string) => {
-    const indexOfMember = list.findIndex((item) => item.userId === address)
-
-    if (indexOfMember === -1) {
-      return list
-    }
-
-    const updatedList = [list[indexOfMember]].concat(list.filter(({userId}) => userId !== address))
-
-    return updatedList
-  }
 
 export const CouncilMemberView = (props: Props) => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)

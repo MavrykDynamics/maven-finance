@@ -41,7 +41,7 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
         MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
         MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE({ _lt: timestamptz, userAddress: accountPkh }),
       )
-    : []
+    : { break_glass_action: [] }
 
     await dispatch({
       type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
@@ -73,7 +73,7 @@ export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppD
         BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
         BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz, userAddress: accountPkh, userAddress2: '' }),
       )
-    : []
+    : { break_glass_action: [] }
 
     await dispatch({
       type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,

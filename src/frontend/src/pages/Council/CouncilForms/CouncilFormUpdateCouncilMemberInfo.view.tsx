@@ -25,8 +25,6 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
   const { councilMembers } = councilStorage
   const myInfo = councilMembers.find((item) => item.userId === accountPkh)
 
-  console.log('%c ||||| myInfo', 'color:yellowgreen', myInfo)
-
   const [form, setForm] = useState({
     newMemberName: '',
     newMemberWebsite: '',
