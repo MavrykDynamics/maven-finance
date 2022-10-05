@@ -32,7 +32,7 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
     const myPastBreakGlassCouncilAction = await fetchFromIndexerWithPromise(
       MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
       MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
-      MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
+      MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE(state.wallet.accountPkh || ''),
     )
 
     await dispatch({
@@ -61,7 +61,7 @@ export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppD
     const breakGlassActionPendingMySignature = await fetchFromIndexerWithPromise(
       BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
       BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
-      BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE,
+      BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE(state.wallet.accountPkh || ''),
     )
 
     await dispatch({
