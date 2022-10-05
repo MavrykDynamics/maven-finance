@@ -45,6 +45,11 @@ export const RoutingButtonStyled = styled.button<{ theme: MavrykTheme }>`
     pointer-events: none;
     opacity: 0.8;
   }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `
 
 export const RoutingButtonText = styled.div<{ theme: MavrykTheme }>`
