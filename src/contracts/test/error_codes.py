@@ -1266,5 +1266,7 @@ error_MIN_REPAYMENT_AMOUNT_NOT_REACHED                                          
 error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK                                                            = 899
 error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK                                                         = 900
 
+error_VAULT_NEEDS_TO_BE_MARKED_FOR_LIQUIDATION_AGAIN                                                    = 901
+
 
 

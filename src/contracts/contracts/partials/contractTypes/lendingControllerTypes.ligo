@@ -34,6 +34,7 @@ type lendingControllerConfigType is [@layout:comb] record [
 
     maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
+    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
 
 ]
 
@@ -137,6 +138,7 @@ type vaultRecordType is [@layout:comb] record [
     lastUpdatedTimestamp        : timestamp;                     // timestamp of when vault was last updated
 
     markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
+    liquidationEndLevel         : nat;                           // block level of when vault will no longer be liquidated, or will need to be marked for liquidation again
     
 ]
 

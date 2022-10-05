@@ -27,6 +27,7 @@ const config = {
 
     maxVaultLiquidationPercent  : 500,
     liquidationDelayInMins      : 120,
+    liquidationMaxDuration      : 1440,
 
     mockLevel                   : 0
 }

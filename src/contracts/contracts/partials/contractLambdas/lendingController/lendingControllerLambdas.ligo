@@ -800,8 +800,13 @@ block {
                 const vaultOwner  : vaultOwnerType   = markForLiquidationParams.vaultOwner;
 
                 const currentBlockLevel             : nat = Tezos.get_level();
-                const liquidationDelayInMins        : nat = s.config.liquidationDelayInMins;
-                const liquidationDelayInBlockLevel  : nat = liquidationDelayInMins * blocksPerMinute; 
+                const configLiquidationDelayInMins  : nat = s.config.liquidationDelayInMins;
+                const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
+
+                s.tempMap
+
+                const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
+                const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -878,13 +883,16 @@ block {
                 // Check if vault is liquidatable
                 if vaultIsLiquidatable then block {
 
-                    // get vault liquidation timestamps
-                    const levelWhenVaultCanBeLiquidated : nat = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
+                    // get level when vault can be liquidated
+                    const levelWhenVaultCanBeLiquidated  : nat = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
 
                     // Check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
                     if currentBlockLevel < levelWhenVaultCanBeLiquidated 
                     then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
-                    else vault.markedForLiquidationLevel := currentBlockLevel;
+                    else {
+                        vault.markedForLiquidationLevel  := currentBlockLevel;
+                        vault.liquidationEndLevel        := liquidationEndLevel;
+                    };
 
                     // Update vault storage
                     s.vaults[vaultHandle] := vault;
@@ -916,7 +924,7 @@ block {
                 const liquidator         : address   = Tezos.get_sender();
                 const currentBlockLevel  : nat       = Tezos.get_level();
 
-                // config variables
+                // Config variables
                 const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
                 const adminLiquidationFeePercent    : nat  = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
                 const maxDecimalsForCalculation     : nat  = s.config.maxDecimalsForCalculation;
@@ -957,13 +965,24 @@ block {
                 // Check correct duration has passed after being marked for liquidation
                 // ------------------------------------------------------------------
 
-                // get vault liquidation timestamps
-                const vaultMarkedForLiquidationLevel  : nat = vault.markedForLiquidationLevel;
-                const levelWhenVaultCanBeLiquidated   : nat = vaultMarkedForLiquidationLevel + liquidationDelayInBlockLevel;
+                // Get level when vault can be liquidated
+                const levelWhenVaultCanBeLiquidated  : nat = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
 
                 // Check if sufficient time has passed since vault was marked for liquidation
                 if currentBlockLevel < levelWhenVaultCanBeLiquidated
                 then failwith(error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED)
+                else skip;
+
+                // ------------------------------------------------------------------
+                // Check that vault is still within window of opportunity for liquidation to occur
+                // ------------------------------------------------------------------
+
+                // Get level when vault can no longer be liquidated 
+                const vaultLiquidationEndLevel : nat = vault.liquidationEndLevel;
+
+                // Check if current block level has exceeded vault liquidation end level
+                if currentBlockLevel > vaultLiquidationEndLevel
+                then failwith(error_VAULT_NEEDS_TO_BE_MARKED_FOR_LIQUIDATION_AGAIN)
                 else skip;
 
                 // ------------------------------------------------------------------
@@ -1409,12 +1428,14 @@ block {
                 vault.lastUpdatedTimestamp                := Tezos.get_now();
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
 
-                // reset vault marked for liquidation level if vault is no longer liquidatable
+                // reset vault liquidation levels if vault is no longer liquidatable
                 const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
                 if vaultIsLiquidatable then skip else {
-                    vault.markedForLiquidationLevel := 0n;
+                    vault.markedForLiquidationLevel  := 0n;
+                    vault.liquidationEndLevel        := 0n;
                 };
 
+                // update vault storage
                 s.vaults[vaultHandle]                     := vault;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
@@ -1525,12 +1546,14 @@ block {
                 vault.lastUpdatedTimestamp                := Tezos.get_now();
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
 
-                // reset vault marked for liquidation level if vault is no longer liquidatable
+                // reset vault liquidation levels if vault is no longer liquidatable
                 const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
                 if vaultIsLiquidatable then skip else {
-                    vault.markedForLiquidationLevel := 0n;
+                    vault.markedForLiquidationLevel  := 0n;
+                    vault.liquidationEndLevel        := 0n;
                 };
 
+                // update vault storage
                 s.vaults[vaultHandle]                     := vault;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
