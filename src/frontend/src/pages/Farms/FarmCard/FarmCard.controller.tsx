@@ -21,7 +21,7 @@ import { SELECT_FARM_ADDRESS } from '../Farms.actions'
 import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 
 // helpers
-import { calculateAPYorAPR } from '../Farms.helpers'
+import { calculateAPY } from '../Farms.helpers'
 
 // styles
 import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
@@ -332,7 +332,7 @@ export const FarmCard = ({ farm, variant, isOpenedCard, currentRewardPerBlock, e
 
   const [visibleModal, setVisibleModal] = useState(false)
 
-  const valueAPY = calculateAPYorAPR(farm.currentRewardPerBlock, farm.lpBalance)
+  const valueAPY = calculateAPY(farm.currentRewardPerBlock, farm.lpBalance)
   const userReward = myFarmRewardsData[farm.address]
 
   const harvestRewards = () => {

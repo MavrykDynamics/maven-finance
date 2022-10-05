@@ -1,4 +1,5 @@
-import { calcRoi } from '../Farms.helpers'
+import { FarmStorage } from 'utils/TypesAndInterfaces/Farm'
+import { calculateAPR } from '../Farms.helpers'
 import { InputStatusesType, InputValuesType } from './RoiCalc.types'
 
 export const STAKED_ITEMS = [
@@ -20,14 +21,39 @@ export const LP_EXCHANGE_RATE = 0.5
 export const TOP_INPUT = 'amount'
 export const BOTTOM_INPUT = 'backwardAmount'
 
+export const calcRoi = ({
+  startUSDAmount,
+  stakedDays,
+  useCompound,
+  compoundFrequency,
+  farm,
+}: {
+  startUSDAmount: number
+  stakedDays: number
+  useCompound: boolean
+  compoundFrequency?: number
+  farm: FarmStorage[number]
+}) => {
+  const blocksAmount = 2 * 60 * 24 * stakedDays // blocks amount depends on staked time amount
+  const apy = calculateAPR(farm.currentRewardPerBlock, blocksAmount, farm.lpBalance)
+  return Math.pow((startUSDAmount + 1) / startUSDAmount, 1 / (stakedDays / 365))
+}
+
 export const getOppositeROIvalue = (
   typingInput: typeof BOTTOM_INPUT | typeof TOP_INPUT,
   inputValue: number | string,
   useCompound: boolean,
+  farm: FarmStorage[number],
   stakedValue?: number,
   compoundValue?: number,
 ) => {
-  const ROIpersent = calcRoi(Number(inputValue), Number(stakedValue), useCompound, Number(compoundValue))
+  const ROIpersent = calcRoi({
+    startUSDAmount: Number(inputValue),
+    stakedDays: Number(stakedValue),
+    useCompound: useCompound,
+    compoundFrequency: Number(compoundValue),
+    farm,
+  })
 
   if (typingInput === TOP_INPUT) {
     return +inputValue + (+inputValue / 100) * ROIpersent

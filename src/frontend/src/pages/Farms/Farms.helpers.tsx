@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js'
-
 // types
 import { FarmAccountsType, FarmContractType, FarmGraphQL } from '../../utils/TypesAndInterfaces/Farm'
 
@@ -85,28 +83,19 @@ export const normalizeFarmStorage = (
 }
 
 // helper functions
-export const calculateAPYorAPR = (
-  currentRewardPerBlock: number,
-  lpTokenBalance: number,
-  totalFarmBlocks?: number,
-): number => {
+export const BLOCKS_PER_YEAR = 1051200 // 2 blocks per minute
+export const calculateAPY = (currentRewardPerBlock: number, lpTokenBalance: number): number => {
   let rewardRate = currentRewardPerBlock / Math.pow(10, 9)
+  return lpTokenBalance > 0 ? ((rewardRate * BLOCKS_PER_YEAR) / lpTokenBalance) * 100 : 0
+}
 
-  const blocksPerYear = 1051200 // 2 blocks per minute -> 1051200 blocks per year
-  return lpTokenBalance > 0 ? ((rewardRate * (totalFarmBlocks ?? blocksPerYear)) / lpTokenBalance) * 100 : 0
+export const calculateAPR = (currentRewardPerBlock: number, blocksAmount: number, lpTokenBalance: number): number => {
+  let rewardRate = currentRewardPerBlock / Math.pow(10, 9)
+  return lpTokenBalance > 0 ? ((rewardRate * blocksAmount) / lpTokenBalance) * 100 : 0
 }
 
 export const getSummDepositedAmount = (farmAccounts: FarmAccountsType[]): number => {
   return farmAccounts.reduce((acc, cur) => acc + cur.deposited_amount, 0)
-}
-
-export const calcRoi = (
-  startUSDAmount: number,
-  stakedDays: number,
-  useCompound: boolean,
-  compoundFrequency?: number,
-) => {
-  return Math.pow((startUSDAmount + 1) / startUSDAmount, 1 / (stakedDays / 365))
 }
 
 // getting end time for farm cards
