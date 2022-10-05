@@ -1266,5 +1266,7 @@
 [@inline] const error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK                                                            = 899n;
 [@inline] const error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK                                                         = 900n;
 
+[@inline] const error_VAULT_NEEDS_TO_BE_MARKED_FOR_LIQUIDATION_AGAIN                                                    = 901n;
+
 
 

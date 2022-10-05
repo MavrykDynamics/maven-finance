@@ -583,6 +583,7 @@ block {
         lastUpdatedTimestamp        = Tezos.get_now();
 
         markedForLiquidationLevel   = 0n;
+        liquidationEndLevel         = 0n;
     ];
     
 } with vaultRecord
@@ -1387,6 +1388,7 @@ block {
 (* View: get the lambda ledger *)
 [@view] function getLambdaLedger(const _ : unit; var s : lendingControllerStorageType) : lambdaLedgerType is
     s.lambdaLedger
+    
 // ------------------------------------------------------------------------------
 //
 // Views End

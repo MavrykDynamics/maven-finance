@@ -26,7 +26,8 @@ const config = {
     maxDecimalsForCalculation   : 32,
 
     maxVaultLiquidationPercent  : 500,
-    liquidationDelayInMins      : 120
+    liquidationDelayInMins      : 120,
+    liquidationMaxDuration      : 1440
 }
 
 const breakGlassConfig = {
