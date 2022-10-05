@@ -14,29 +14,30 @@
 // import env from "../env";
 // import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
 
-// import doormanAddress from '../deployments/doormanAddress.json';
-// import delegationAddress from '../deployments/delegationAddress.json';
-// import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
-// import treasuryAddress from '../deployments/treasuryAddress.json';
-// import governanceAddress from '../deployments/governanceAddress.json';
-// import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
-// import mockFa12TokenAddress from '../deployments/mavrykFa12TokenAddress.json';
-// import mockFa2TokenAddress from '../deployments/mavrykFa2TokenAddress.json';
+// import doormanAddress           from '../deployments/doormanAddress.json';
+// import delegationAddress        from '../deployments/delegationAddress.json';
+// import mvkTokenAddress          from '../deployments/mvkTokenAddress.json';
+// import treasuryAddress          from '../deployments/treasuryAddress.json';
+// import governanceAddress        from '../deployments/governanceAddress.json';
+// import governanceProxyAddress   from '../deployments/governanceProxyAddress.json';
+// import mockFa12TokenAddress     from '../deployments/mavrykFa12TokenAddress.json';
+// import mockFa2TokenAddress      from '../deployments/mavrykFa2TokenAddress.json';
 
-// import mockUsdMockFa12TokenAggregatorAddress from "../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
-// import mockUsdMockFa2TokenAggregatorAddress from "../deployments/mockUsdMockFa2TokenAggregatorAddress.json";
-// import mockUsdXtzAggregatorAddress from "../deployments/mockUsdXtzAggregatorAddress.json";
+// import mockUsdMockFa12TokenAggregatorAddress    from "../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
+// import mockUsdMockFa2TokenAggregatorAddress     from "../deployments/mockUsdMockFa2TokenAggregatorAddress.json";
+// import mockUsdXtzAggregatorAddress              from "../deployments/mockUsdXtzAggregatorAddress.json";
+// import mockUsdMvkAggregatorAddress              from "../deployments/mockUsdMvkAggregatorAddress.json";
 
-// import lpTokenPoolMockFa12TokenAddress from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
-// import lpTokenPoolMockFa2TokenAddress from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
-// import lpTokenPoolXtzAddress from "../deployments/lpTokenPoolXtzAddress.json";
+// import lpTokenPoolMockFa12TokenAddress  from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
+// import lpTokenPoolMockFa2TokenAddress   from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
+// import lpTokenPoolXtzAddress            from "../deployments/lpTokenPoolXtzAddress.json";
 
-// import lendingControllerAddress from '../deployments/lendingControllerMockTimeAddress.json';
+// import lendingControllerAddress         from '../deployments/lendingControllerMockTimeAddress.json';
 // import lendingControllerMockTimeAddress from '../deployments/lendingControllerMockTimeAddress.json';
 
-// import tokenPoolRewardAddress from '../deployments/tokenPoolRewardAddress.json';
-// import vaultFactoryAddress from '../deployments/vaultFactoryAddress.json';
-// import { vaultStorageType } from "./types/vaultStorageType"
+// import tokenPoolRewardAddress           from '../deployments/tokenPoolRewardAddress.json';
+// import vaultFactoryAddress              from '../deployments/vaultFactoryAddress.json';
+// import { vaultStorageType }             from "./types/vaultStorageType"
 
 // describe("Lending Controller (Mock Time - One Month) tests", async () => {
     
@@ -71,6 +72,7 @@
 //     let mockUsdMockFa12TokenAggregatorInstance
 //     let mockUsdMockFa2TokenAggregatorInstance
 //     let mockUsdXtzAggregatorInstance
+//     let mockUsdMvkAggregatorInstance
 
 //     let lpTokenPoolMockFa12TokenInstance
 //     let lpTokenPoolMockFa2TokenInstance
@@ -221,19 +223,20 @@
 //     //
 //     describe('%setLoanToken - setup and test lending controller %setLoanToken entrypoint', function () {
 
-//         it('admin can set lending controller mock FA12 loan token', async () => {
+//         it('admin can set mock FA12 as a loan token', async () => {
 
 //             try{        
                 
 //                 // init variables
 //                 await signerFactory(bob.sk);
 
+//                 const setLoanTokenActionType                = "createLoanToken";
+
 //                 const tokenName                             = "mockFa12";
 //                 const tokenContractAddress                  = mockFa12TokenAddress.address;
 //                 const tokenType                             = "fa12";
 //                 const tokenDecimals                         = 6;
 
-//                 const oracleType                            = "oracle";
 //                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
 //                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
@@ -260,10 +263,11 @@
 
 //                     const adminSetMockFa12LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
+//                         setLoanTokenActionType,
+
 //                         tokenName,
 //                         tokenDecimals,
 
-//                         oracleType,
 //                         oracleAddress,
 
 //                         lpTokenContractAddress,
@@ -323,12 +327,14 @@
 //             } 
 //         });
 
-//         it('admin can set lending controller mock FA2 loan token', async () => {
+//         it('admin can set mock FA2 as a loan token', async () => {
 
 //             try{        
                 
 //                 // init variables
 //                 await signerFactory(bob.sk);
+
+//                 const setLoanTokenActionType                = "createLoanToken";
 
 //                 const tokenName                             = "mockFa2";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
@@ -336,7 +342,6 @@
 //                 const tokenId                               = 0;
 //                 const tokenDecimals                         = 6;
 
-//                 const oracleType                            = "oracle";
 //                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
 
 //                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
@@ -362,10 +367,11 @@
 
 //                     const adminSetMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
+//                         setLoanTokenActionType,
+
 //                         tokenName,
 //                         tokenDecimals,
 
-//                         oracleType,
 //                         oracleAddress,
 
 //                         lpTokenContractAddress,
@@ -430,18 +436,19 @@
 //         });
 
 
-//         it('admin can set lending controller tez loan token', async () => {
+//         it('admin can set tez as a loan token', async () => {
 
 //             try{        
                 
 //                 // init variables
 //                 await signerFactory(bob.sk);
 
+//                 const setLoanTokenActionType                = "createLoanToken";
+
 //                 const tokenName                             = "tez";
 //                 const tokenType                             = "tez";
 //                 const tokenDecimals                         = 6;
 
-//                 const oracleType                            = "oracle";
 //                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
 //                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
@@ -468,10 +475,11 @@
 
 //                     const adminSeTezLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
+//                         setLoanTokenActionType,
+
 //                         tokenName,
 //                         tokenDecimals,
 
-//                         oracleType,
 //                         oracleAddress,
 
 //                         lpTokenContractAddress,
@@ -538,13 +546,14 @@
 //                 lendingControllerStorage = await lendingControllerInstance.storage();
 //                 const currentAdmin = lendingControllerStorage.admin;
 
+//                 const setLoanTokenActionType                = "createLoanToken";
+
 //                 const tokenName                             = "failTestLoanToken";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
 //                 const tokenDecimals                         = 6;
 
-//                 const oracleType                            = "oracle";
 //                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
 //                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
@@ -561,11 +570,12 @@
 //                 const minRepaymentAmount                    = 10000;
 
 //                 await chai.expect(lendingControllerInstance.methods.setLoanToken(
+
+//                     setLoanTokenActionType,
                         
 //                     tokenName,
 //                     tokenDecimals,
 
-//                     oracleType,
 //                     oracleAddress,
 
 //                     lpTokenContractAddress,
@@ -604,39 +614,42 @@
 
 
 //     // 
-//     // Setup and test Lending Controller UpdateCollateralToken entrypoint - tokens which vault owners can use as collateral
+//     // Setup and test Lending Controller setCollateralToken entrypoint - tokens which vault owners can use as collateral
 //     //
-//     describe('%updateCollateralToken - setup and test lending controller %updateCollateralToken entrypoint', function () {
+//     describe('%setCollateralToken - setup and test lending controller %setCollateralToken entrypoint', function () {
 
-//         it('admin can set lending controller mock FA12 as a collateral token', async () => {
+//         it('admin can set mock FA12 as a collateral token', async () => {
 
 //             try{        
                 
 //                 // init variables
 //                 await signerFactory(bob.sk);
 
-//                 const tokenName                  = "mockFa12";
-//                 const tokenContractAddress       = mockFa12TokenAddress.address;
-//                 const tokenType                  = "fa12";
-//                 const tokenId                    = 0;
+//                 const setCollateralTokenActionType      = "createCollateralToken";
+//                 const tokenName                         = "mockFa12";
+//                 const tokenContractAddress              = mockFa12TokenAddress.address;
+//                 const tokenType                         = "fa12";
+//                 const tokenId                           = 0;
 
-//                 const tokenDecimals              = 6;
-//                 const oracleType                 = "oracle";
-//                 const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
+//                 const tokenDecimals                     = 6;
+//                 const oracleAddress                     = mockUsdMockFa12TokenAggregatorAddress.address;
+//                 const tokenProtected                    = false;
                 
 //                 // check if collateral token exists
 //                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
 //                 if(checkCollateralTokenExists === undefined){
 
-//                     const adminSetMockFa12CollateralTokenOperation = await lendingControllerInstance.methods.updateCollateralToken(
+//                     const adminSetMockFa12CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                         
+//                         setCollateralTokenActionType, 
+
 //                         tokenName,
 //                         tokenContractAddress,
 //                         tokenDecimals,
 
-//                         oracleType,
 //                         oracleAddress,
+//                         tokenProtected,
 
 //                         // fa12 token type - token contract address
 //                         tokenType,
@@ -653,8 +666,8 @@
 //                     // assert.equal(mockFa12CollateralToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa12CollateralToken.tokenDecimals          , tokenDecimals);
-//                     assert.equal(mockFa12CollateralToken.oracleType             , oracleType);
 //                     assert.equal(mockFa12CollateralToken.oracleAddress          , oracleAddress);
+//                     assert.equal(mockFa12CollateralToken.protected              , tokenProtected);
 
 //                 }
                 
@@ -664,35 +677,38 @@
 //             } 
 //         });
 
-//         it('admin can set lending controller mock FA2 collateral token', async () => {
+//         it('admin can set mock FA2 as a collateral token', async () => {
 
 //             try{        
                 
 //                 // init variables
 //                 await signerFactory(bob.sk);
 
+//                 const setCollateralTokenActionType          = "createCollateralToken";
 //                 const tokenName                             = "mockFa2";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
 
 //                 const tokenDecimals                         = 6;
-//                 const oracleType                            = "oracle";
-//                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;;
+//                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+//                 const tokenProtected                        = false;
                 
 //                 // check if collateral token exists
 //                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
 //                 if(checkCollateralTokenExists === undefined){
 
-//                     const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.updateCollateralToken(
+//                     const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+//                         setCollateralTokenActionType,
                         
 //                         tokenName,
 //                         tokenContractAddress,
 //                         tokenDecimals,
 
-//                         oracleType,
 //                         oracleAddress,
+//                         tokenProtected,
                         
 //                         // fa2 token type - token contract address + token id
 //                         tokenType,
@@ -710,8 +726,8 @@
 //                     // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
-//                     assert.equal(mockFa2CollateralToken.oracleType             , oracleType);
 //                     assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
+//                     assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
 
 //                 }
 
@@ -720,35 +736,38 @@
 //             } 
 //         });
 
-//         it('admin can set lending controller tez collateral token', async () => {
+//         it('admin can set tez as a collateral token', async () => {
 
 //             try{        
                 
 //                 // init variables
 //                 await signerFactory(bob.sk);
 
+//                 const setCollateralTokenActionType          = "createCollateralToken";
 //                 const tokenName                             = "tez";
 //                 const tokenContractAddress                  = zeroAddress;
 //                 const tokenType                             = "tez";
 //                 const tokenId                               = 0;
 
 //                 const tokenDecimals                         = 6;
-//                 const oracleType                            = "oracle";
-//                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;;
+//                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
+//                 const tokenProtected                        = false;
                 
 //                 // check if collateral token exists
 //                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
 //                 if(checkCollateralTokenExists === undefined){
 
-//                     const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.updateCollateralToken(
+//                     const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                         
+//                         setCollateralTokenActionType,
+
 //                         tokenName,
 //                         tokenContractAddress,
 //                         tokenDecimals,
 
-//                         oracleType,
 //                         oracleAddress,
+//                         tokenProtected,
                         
 //                         // fa2 token type - token contract address + token id
 //                         tokenType,
@@ -766,8 +785,8 @@
 //                     // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
-//                     assert.equal(mockFa2CollateralToken.oracleType             , oracleType);
 //                     assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
+//                     assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
 
 //                 }
 
@@ -783,24 +802,28 @@
 //                 lendingControllerStorage = await lendingControllerInstance.storage();
 //                 const currentAdmin = lendingControllerStorage.admin;
 
+//                 const setCollateralTokenActionType          = "createCollateralToken";
+
 //                 const tokenName                             = "failTestCollateralToken";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
 //                 const tokenId                               = 0;
 
 //                 const tokenDecimals                         = 6;
-//                 const oracleType                            = "oracle";
 //                 const oracleAddress                         = zeroAddress;
+//                 const tokenProtected                        = false;
             
 
-//                 await chai.expect(lendingControllerInstance.methods.updateCollateralToken(
+//                 await chai.expect(lendingControllerInstance.methods.setCollateralToken(
                         
+//                     setCollateralTokenActionType,
+
 //                     tokenName,
 //                     tokenContractAddress,
 //                     tokenDecimals,
 
-//                     oracleType,
 //                     oracleAddress,
+//                     tokenProtected,
                     
 //                     // fa2 token type - token contract address + token id
 //                     tokenType,
