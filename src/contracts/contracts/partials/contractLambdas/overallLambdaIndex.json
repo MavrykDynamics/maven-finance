@@ -141,7 +141,6 @@
         "lambdas" : [
             "lambdaSetAdmin",
             "lambdaSetGovernance",
-            "lambdaSetMaintainer",
             "lambdaSetName",
             "lambdaUpdateMetadata",
             "lambdaUpdateConfig",
@@ -156,11 +155,8 @@
             "lambdaUnpauseAll",
             "lambdaTogglePauseEntrypoint",
 
-            "lambdaRequestRateUpdate",
-            "lambdaRequestRateUpdateDeviation",
-            "lambdaSetObservationCommit",
-            "lambdaSetObservationReveal",
-
+            "lambdaUpdateData",
+            
             "lambdaWithdrawRewardXtz",
             "lambdaWithdrawRewardStakedMvk"
         ]
@@ -376,7 +372,6 @@
             "lambdaAddOracleToAggregator",
             "lambdaRemoveOracleInAggregator",
 
-            "lambdaSetAggregatorMaintainer",
             "lambdaRegisterAggregator",
             "lambdaUpdateAggregatorStatus",
 
@@ -530,7 +525,6 @@
             "createAggregator",
             "trackAggregator",
             "untrackAggregator",
-            "setAggregatorMaintainer",
 
             "updateMvkInflationRate",
             "triggerMvkInflation",

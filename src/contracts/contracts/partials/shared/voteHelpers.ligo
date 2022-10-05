@@ -5,15 +5,6 @@
 #include "./voteTypes.ligo"
 
 // ------------------------------------------------------------------------------
-// Vote constants
-// ------------------------------------------------------------------------------
-
-const emptyAddressMap  : addressMapType         = map [];
-const emptyStringMap : stringMapType            = map [];
-const emptyNatMap : natMapType                  = map [];
-const emptyTransferList : transferActionType    = list [];
-
-// ------------------------------------------------------------------------------
 // Vote helper functions
 // ------------------------------------------------------------------------------
 

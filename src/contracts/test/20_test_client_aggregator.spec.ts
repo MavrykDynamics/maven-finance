@@ -34,7 +34,7 @@
 //     clientAggregator = await utils.tezos.contract.at(clientAggregatorAddress);
 //   });
 
-//   describe('getPrice', () => {
+//   describe('getData', () => {
 //     it('should fail whencall ther aggregator - wrong aggregatorAddress', async () => {
 //       await signerFactory(bob.sk);
 
@@ -42,7 +42,7 @@
 //       await chai.expect(op.send()).to.be.rejectedWith();
 //   });
 
-//     it('should call ther aggregator and get the last price', async () => {
+//     it('should call ther aggregator and get the last data', async () => {
 //         await signerFactory(bob.sk);
 
 //         const storage_before = await clientAggregator.storage();
@@ -52,7 +52,7 @@
 //         await tx.confirmation();
 
 //         const storage_after = await clientAggregator.storage();
-//         assert.notDeepEqual(storage_after.priceDateTime,storage_before.priceDateTime);
+//         assert.notDeepEqual(storage_after.lastUpdatedAt,storage_before.lastUpdatedAt);
 //     });
 //   });
 // });

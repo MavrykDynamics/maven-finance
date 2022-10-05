@@ -10,7 +10,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
+import { bob } from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Address

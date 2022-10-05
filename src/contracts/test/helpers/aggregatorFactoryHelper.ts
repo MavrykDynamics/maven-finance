@@ -48,14 +48,8 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         decimals                            : BigNumber,
         numberBlocksDelay                   : BigNumber,
 
-        deviationTriggerBanDuration         : BigNumber,
-        perthousandDeviationTrigger         : BigNumber,
         percentOracleThreshold              : BigNumber,
-
-        requestRateDeviationDepositFee      : BigNumber,
         
-        deviationRewardStakedMvk            : BigNumber,
-        deviationRewardAmountXtz            : BigNumber,
         rewardAmountStakedMvK               : BigNumber,
         rewardAmountXtz                     : BigNumber,
 
@@ -74,7 +68,7 @@ type AggregatorOnChainViews = {
     [key: string]: OnChainView
 };
 
-type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+export type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
     AggregatorFactoryContractMethods<T>,
     AggregatorFactoryContractMethodObject<T>,
     AggregatorViews,

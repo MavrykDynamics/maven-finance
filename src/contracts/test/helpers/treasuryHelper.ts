@@ -58,7 +58,7 @@ type TreasuryOnChainViews = {
     decimals: () => OnChainView;
 };
 
-type TreasuryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+export type TreasuryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
     TreasuryContractMethods<T>,
     TreasuryContractMethodObject<T>,
     TreasuryViews,
