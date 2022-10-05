@@ -31,7 +31,6 @@ type createAggregatorParamsType is string * string * [@layout:comb] record[
     oracleAddresses         : oracleAddressesType;
     
     aggregatorConfig        : aggregatorConfigType;
-    maintainer              : address;
     metadata                : bytes;
 ];
 
