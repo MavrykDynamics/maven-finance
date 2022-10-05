@@ -531,8 +531,6 @@ block {
         borrowIndex                         = fixedPointAccuracy;
 
         minRepaymentAmount                  = minRepaymentAmount;
-        isPaused                            = False;
-
     ];
 
 } with newLoanTokenRecord
@@ -587,6 +585,7 @@ block {
         lastUpdatedTimestamp        = Tezos.get_now();
 
         markedForLiquidationLevel   = 0n;
+        liquidationEndLevel         = 0n;
     ];
     
 } with vaultRecord
@@ -1313,17 +1312,15 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-// Some views commented out to reduce contract size of lendingControllerMockTime (which is slightly larger than lendingController)
-
 (* View: get admin *)
-// [@view] function getAdmin(const _ : unit; var s : lendingControllerStorageType) : address is
-//     s.admin
+[@view] function getAdmin(const _ : unit; var s : lendingControllerStorageType) : address is
+    s.admin
 
 
 
 (* View: get config *)
-// [@view] function getConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerConfigType is
-//     s.config
+[@view] function getConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerConfigType is
+    s.config
 
 
 
@@ -1334,8 +1331,20 @@ block {
 
 
 (* View: get Governance address *)
-// [@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
-//     s.governanceAddress
+[@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
+    s.governanceAddress
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _ : unit; var s : lendingControllerStorageType) : whitelistContractsType is
+    s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _ : unit; var s : lendingControllerStorageType) : generalContractsType is
+    s.generalContracts
 
 
 
@@ -1360,7 +1369,7 @@ block {
 
 
 
-(* View: get loan token *)
+(* View: get loan token record *)
 [@view] function getLoanTokenRecordOpt(const tokenName : string; const s : lendingControllerStorageType) : option(loanTokenRecordType) is
     Map.find_opt(tokenName, s.loanTokenLedger)
 
@@ -1373,8 +1382,8 @@ block {
 
 
 (* View: get owned vaults by user *)
-// [@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; const s : lendingControllerStorageType) : option(ownerVaultSetType) is
-//     Big_map.find_opt(ownerAddress, s.ownerLedger)
+[@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; const s : lendingControllerStorageType) : option(ownerVaultSetType) is
+    Big_map.find_opt(ownerAddress, s.ownerLedger)
 
 
 
@@ -1388,6 +1397,17 @@ block {
 [@view] function getTokenPoolDepositorBalanceOpt(const userTokenNameKey : (address * string); const s : lendingControllerStorageType) : option(nat) is
     Big_map.find_opt(userTokenNameKey, s.tokenPoolDepositorLedger)
 
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName : string; var s : lendingControllerStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _ : unit; var s : lendingControllerStorageType) : lambdaLedgerType is
+    s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //

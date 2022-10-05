@@ -34,6 +34,7 @@ type lendingControllerConfigType is [@layout:comb] record [
 
     maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
+    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
 
     mockLevel                    : nat;         // mock level for time
 ]
@@ -115,8 +116,6 @@ type loanTokenRecordType is [@layout:comb] record [
     lastUpdatedBlockLevel                   : nat; 
     accumulatedRewardsPerShare              : nat;
     borrowIndex                             : nat;
-
-    isPaused                                : bool;
 ]
 
 type loanTokenLedgerType is map(string, loanTokenRecordType)
@@ -139,8 +138,8 @@ type vaultRecordType is [@layout:comb] record [
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
     lastUpdatedTimestamp        : timestamp;                     // timestamp of when vault was last updated
 
-    // markedForLiquidationTimestamp  : timestamp;                  // timestamp of when vault was marked for liquidation
-    markedForLiquidationLevel      : nat;                        // block level of when vault was marked for liquidation
+    markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
+    liquidationEndLevel         : nat;                           // block level of when vault will no longer be liquidated, or will need to be marked for liquidation again
     
 ]
 
