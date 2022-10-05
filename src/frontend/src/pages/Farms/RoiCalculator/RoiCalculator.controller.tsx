@@ -20,7 +20,7 @@ import { RoiCalculatorStyled, RoiExpandStyled } from './RoiCalculator.style'
 import { InputStatusesType, InputValuesType, RoiCalcProps, SelectedTabsStateType } from './RoiCalc.types'
 
 // consts, helpers
-import { calculateAPYorAPR, getUserBalanceByAddress } from '../Farms.helpers'
+import { calculateAPR, calculateAPY, getUserBalanceByAddress } from '../Farms.helpers'
 import {
   BOTTOM_INPUT,
   COMPOUNDING_ITEMS,
@@ -104,8 +104,8 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
 
   const tokensNames =
     farm.lpToken1.symbol && farm.lpToken2.symbol && `${farm.lpToken1.symbol} - ${farm.lpToken2.symbol}`
-  const valueAPY = calculateAPYorAPR(farm.currentRewardPerBlock, farm.lpBalance)
-  const farmAPR = calculateAPYorAPR(farm.currentRewardPerBlock, farm.lpBalance, farm.totalBlocks)
+  const valueAPY = calculateAPY(farm.currentRewardPerBlock, farm.lpBalance)
+  const farmAPR = calculateAPR(farm.currentRewardPerBlock, farm.totalBlocks, farm.lpBalance)
 
   // handlers for inputs
   const handleBlur = () => {
@@ -150,6 +150,7 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
       name,
       value,
       compoundEverythingActive,
+      farm,
       tabsSelected.stakedTab?.actualValue,
       tabsSelected.compoundTab?.actualValue,
     )
@@ -183,6 +184,7 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
       lastInputUse,
       inputValues[lastInputUse],
       compoundEverythingActive,
+      farm,
       tabValue?.actualValue,
       tabsSelected.compoundTab?.actualValue,
     )
@@ -205,6 +207,7 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
       lastInputUse,
       inputValues[lastInputUse],
       compoundEverythingActive,
+      farm,
       tabsSelected.stakedTab?.actualValue,
       tabValue?.actualValue,
     )
@@ -226,6 +229,7 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
       TOP_INPUT,
       tabValue?.actualValue ?? userBalance,
       compoundEverythingActive,
+      farm,
       tabsSelected.stakedTab?.actualValue,
       tabValue?.actualValue,
     )
