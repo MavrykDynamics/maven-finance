@@ -23,7 +23,7 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { councilMembers } = councilStorage
-  const myInfo = councilMembers.find((item) => item.user_id === accountPkh)
+  const myInfo = councilMembers.find((item) => item.userId === accountPkh)
 
   console.log('%c ||||| myInfo', 'color:yellowgreen', myInfo)
 

@@ -1,4 +1,4 @@
-import React, { FC, useState, useMemo, useCallback, useEffect } from 'react'
+import React, { FC, useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useLocation } from 'react-router'
@@ -9,7 +9,7 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPastAction.view'
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
-import { CouncilMemberView } from 'pages/Council/CouncilMember/CouncilMember.view'
+import { CouncilMemberView, memberIsFirstOfList } from 'pages/Council/CouncilMember/CouncilMember.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
@@ -82,20 +82,7 @@ export const BreakGlassCouncil: FC = () => {
     isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
   )
 
-  const memberIsFirstOfList = useCallback(
-    (list: typeof breakGlassCouncilMember) => {
-      const indexOfMember = list.findIndex((item) => item.userId === accountPkh)
-
-      if (indexOfMember === -1) {
-        return list
-      }
-
-      const updatedList = [list[indexOfMember], ...list.slice(0, indexOfMember), ...list.slice(indexOfMember + 1)]
-
-      return updatedList
-    },
-    [accountPkh],
-  )
+  const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
@@ -279,16 +266,16 @@ export const BreakGlassCouncil: FC = () => {
             </ReviewPastCouncilActionsCard>
           )}
 
-          {Boolean(breakGlassCouncilMember.length) && (
+          {Boolean(sortedBreakGlassCouncilMembers.length) && (
             <>
               <h1>Break Glass Council</h1>
 
-              {memberIsFirstOfList(breakGlassCouncilMember).map((item) => (
+              {sortedBreakGlassCouncilMembers.map((item) => (
                 <CouncilMemberView
                   key={item.id}
                   image={item.image || item.name}
                   name={item.name}
-                  user_id={item.userId}
+                  userId={item.userId}
                   website={item.website}
                   openModal={handleOpenleModal}
                   showUpdateInfo={isUserInBreakCouncilMember}

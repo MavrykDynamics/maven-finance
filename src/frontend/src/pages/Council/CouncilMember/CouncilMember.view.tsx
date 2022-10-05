@@ -6,24 +6,39 @@ import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 
+// types
+import { CouncilMember } from 'utils/TypesAndInterfaces/Council'
+
 // style
 import { CouncilMemberStyled } from './CouncilMember.style'
 
 type Props = {
   image: string
   name: string
-  user_id: string
+  userId: string
   website: string
   openModal: () => void
   showUpdateInfo?: boolean
 }
 
+export const memberIsFirstOfList = (list: CouncilMember[], address?: string) => {
+    const indexOfMember = list.findIndex((item) => item.userId === address)
+
+    if (indexOfMember === -1) {
+      return list
+    }
+
+    const updatedList = [list[indexOfMember], ...list.slice(0, indexOfMember), ...list.slice(indexOfMember + 1)]
+
+    return updatedList
+  }
+
 export const CouncilMemberView = (props: Props) => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { image, name, user_id, website, openModal, showUpdateInfo = true } = props
-  const href = website?.length ? website : `/satellites/satellite-details/${user_id}`
+  const { image, name, userId, website, openModal, showUpdateInfo = true } = props
+  const href = website?.length ? website : `/satellites/satellite-details/${userId}`
 
-  const isMe = user_id === accountPkh
+  const isMe = userId === accountPkh
   const content = (
     <CouncilMemberStyled className={isMe ? 'is-me' : ''}>
       <div className="inner">
@@ -39,7 +54,7 @@ export const CouncilMemberView = (props: Props) => {
         </AvatarStyle>
         <figcaption>
           <h4>{name}</h4>
-          {user_id ? <TzAddress tzAddress={user_id} hasIcon={false} /> : null}
+          {userId ? <TzAddress tzAddress={userId} hasIcon={false} /> : null}
         </figcaption>
       </div>
       {isMe && showUpdateInfo ? (
