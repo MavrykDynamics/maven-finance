@@ -62,11 +62,6 @@ type targetAggregatorUpdateConfigParamsType is [@layout:comb] record [
     aggregatorConfig          : aggregatorUpdateConfigParamsType;
 ]
 
-type setAggregatorMaintainerType is [@layout:comb] record [
-    aggregatorAddress           : address;
-    maintainerAddress           : address;
-]
-
 type targetFarmInitType is [@layout:comb] record [
     targetFarmAddress         : address;
     farmConfig                : initFarmParamsType;
@@ -208,7 +203,6 @@ type executeActionParamsType is
     |   CreateAggregator                   of createAggregatorParamsType
     |   TrackAggregator                    of trackAggregatorParamsType
     |   UntrackAggregator                  of untrackAggregatorParamsType
-    |   SetAggregatorMaintainer            of setAggregatorMaintainerType
 
     |   UpdateMvkInflationRate             of (nat)
     |   TriggerMvkInflation                of (unit)

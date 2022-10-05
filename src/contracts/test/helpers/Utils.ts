@@ -1,8 +1,8 @@
+import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
+import { Schema } from '@taquito/michelson-encoder';
 import { InMemorySigner } from '@taquito/signer'
 import { MichelsonMap, PollingSubscribeProvider, TezosToolkit, TransactionOperation } from '@taquito/taquito'
 import { BigNumber } from 'bignumber.js'
-import { Schema } from '@taquito/michelson-encoder';
-import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
 
 import env from '../../env'
 import mvkTokenDecimals from '../../helpers/mvkTokenDecimals.json';
@@ -52,40 +52,15 @@ export class Utils {
     return Date.parse((await this.tezos.rpc.getBlockHeader()).timestamp)
   }
 
-  async signOraclePriceResponses(
-    oraclePriceResponsesForPack: MichelsonMap<string, any>
+  async signOracleDataResponses(
+    oracleDataResponsesForPack: MichelsonMap<string, any>
   ): Promise<string> {
     const signature_observations = await this.tezos.signer.sign(
-      `0x${await packObservations(oraclePriceResponsesForPack)}`
+      `0x${await packObservations(oracleDataResponsesForPack)}`
     );
     return signature_observations.sig;
   }
 
-  static destructObj(obj: any) {
-    const strs: string[] = ['tez', 'fa12', 'fa2', 'tokan_a', 'tokan_b']
-    let arr: any[] = []
-
-    Object.keys(obj).map(function (k) {
-      if (strs.includes(k)) {
-        arr.push(k)
-      }
-
-      if (obj[k] instanceof BigNumber) {
-        arr.push(obj[k].toString())
-      } else if (obj[k] instanceof MichelsonMap || Array.isArray(obj[k])) {
-        arr.push(obj[k])
-      } else if (
-        typeof obj[k] === 'object' &&
-        (!(obj[k] instanceof Date) || !(obj[k] instanceof null) || !(obj[k] instanceof undefined))
-      ) {
-        arr = arr.concat(Utils.destructObj(obj[k]))
-      } else {
-        arr.push(obj[k])
-      }
-    })
-
-    return arr
-  }
 }
 
 export const zeroAddress: string = 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg'
@@ -101,7 +76,7 @@ export const TEZ = (value: number = 1) => {
 }
 
 export const packObservations = async (
-  oraclePriceResponsesForPack: MichelsonMap<string, any>
+  oracleDataResponsesForPack: MichelsonMap<string, any>
 ): Promise<string>  => {
   const typeMap: MichelsonType = {
     prim: 'map',
@@ -110,7 +85,7 @@ export const packObservations = async (
       {
         prim: 'pair',
         args: [
-          { prim: 'nat', annots: ['%price'] },
+          { prim: 'nat', annots: ['%data'] },
           {
             prim: 'pair',
             args: [
@@ -127,12 +102,12 @@ export const packObservations = async (
         ]
       }
     ],
-    annots: ['%oraclePriceResponsesForPack']
+    annots: ['%oracleDataResponsesForPack']
   };
 
-  const params = oraclePriceResponsesForPack;
+  const params = oracleDataResponsesForPack;
   const schema = new Schema(typeMap);
   const toPack = schema.Encode(params);
-  const priceCodec = packDataBytes(toPack, typeMap);
-  return priceCodec.bytes;
+  const dataCodec = packDataBytes(toPack, typeMap);
+  return dataCodec.bytes;
 }

@@ -16,7 +16,7 @@
 #include "../partials/shared/transferHelpers.ligo"
 
 // Votes Helpers
-#include "../partials/shared/voteHelpers.ligo"
+#include "../partials/shared/councilActionHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -171,7 +171,7 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 // helper function to check if a satellite can interact with an action
-function validateAction(const actionRecord : breakGlassActionRecordType) : unit is
+function validateAction(const actionRecord : councilActionRecordType) : unit is
 block {
 
     // Check if governance satellite action has been flushed
@@ -187,10 +187,10 @@ block {
 
 
 // helper function to create a break glass action
-function createBreakGlassAction(const actionType : string; const addressMap : addressMapType ; const stringMap : stringMapType; const natMap : natMapType; var s : breakGlassStorageType) : breakGlassStorageType is
+function createBreakGlassAction(const actionType : string; const dataMap : dataMapType; var s : breakGlassStorageType) : breakGlassStorageType is
 block {
 
-    var actionRecord : breakGlassActionRecordType := record[
+    var actionRecord : councilActionRecordType := record[
 
         initiator             = Tezos.get_sender();
         status                = "PENDING";
@@ -200,9 +200,7 @@ block {
         signers               = set[Tezos.get_sender()];
         signersCount          = 1n;
 
-        addressMap            = addressMap;
-        stringMap             = stringMap;
-        natMap                = natMap;
+        dataMap               = dataMap;
 
         startDateTime         = Tezos.get_now();
         startLevel            = Tezos.get_level();             
@@ -228,17 +226,20 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to trigger the flush action action during the sign
-function triggerFlushActionAction(const actionRecord : breakGlassActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
+function triggerFlushActionAction(const actionRecord : councilActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
 block {
 
     // fetch params begin ---
-    const flushedActionId : nat = case actionRecord.natMap["actionId"] of [
-            Some(_nat) -> _nat
+    const flushedActionId : nat = case actionRecord.dataMap["actionId"] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
 
-    var flushedActionRecord : breakGlassActionRecordType := case s.actionsLedger[flushedActionId] of [     
+    var flushedActionRecord : councilActionRecordType := case s.actionsLedger[flushedActionId] of [     
             Some(_record) -> _record
         |   None          -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
     ];
@@ -258,27 +259,39 @@ block {
 
 
 // helper function to trigger the add council member action during the sign
-function triggerAddCouncilMemberAction(const actionRecord : breakGlassActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
+function triggerAddCouncilMemberAction(const actionRecord : councilActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
 block {
 
     // fetch params begin ---
-    const councilMemberAddress : address = case actionRecord.addressMap["councilMemberAddress"] of [
-            Some(_address) -> _address
+    const councilMemberAddress : address = case actionRecord.dataMap["councilMemberAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
     ];
 
-    const councilMemberName : string = case actionRecord.stringMap["councilMemberName"] of [
-            Some(_string) -> _string
+    const councilMemberName : string = case actionRecord.dataMap["councilMemberName"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberImage : string = case actionRecord.stringMap["councilMemberImage"] of [
-            Some(_string) -> _string
+    const councilMemberImage : string = case actionRecord.dataMap["councilMemberImage"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberWebsite : string = case actionRecord.stringMap["councilMemberWebsite"] of [
-            Some(_string) -> _string
+    const councilMemberWebsite : string = case actionRecord.dataMap["councilMemberWebsite"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -303,12 +316,15 @@ block {
 
 
 // helper function to trigger the remove council member action during the sign
-function triggerRemoveCouncilMemberAction(const actionRecord : breakGlassActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
+function triggerRemoveCouncilMemberAction(const actionRecord : councilActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
 block {
 
     // fetch params begin ---
-    const councilMemberAddress : address = case actionRecord.addressMap["councilMemberAddress"] of [
-            Some(_address) -> _address
+    const councilMemberAddress : address = case actionRecord.dataMap["councilMemberAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -328,32 +344,47 @@ block {
 
 
 // helper function to trigger the change council member action during the sign
-function triggerChangeCouncilMemberAction(const actionRecord : breakGlassActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
+function triggerChangeCouncilMemberAction(const actionRecord : councilActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
 block {
 
     // fetch params begin ---
-    const oldCouncilMemberAddress : address = case actionRecord.addressMap["oldCouncilMemberAddress"] of [
-            Some(_address) -> _address
+    const oldCouncilMemberAddress : address = case actionRecord.dataMap["oldCouncilMemberAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const newCouncilMemberAddress : address = case actionRecord.addressMap["newCouncilMemberAddress"] of [
-            Some(_address) -> _address
+    const newCouncilMemberAddress : address = case actionRecord.dataMap["newCouncilMemberAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberName : string = case actionRecord.stringMap["newCouncilMemberName"] of [
-            Some(_string) -> _string
+    const councilMemberName : string = case actionRecord.dataMap["newCouncilMemberName"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberImage : string = case actionRecord.stringMap["newCouncilMemberImage"] of [
-            Some(_string) -> _string
+    const councilMemberImage : string = case actionRecord.dataMap["newCouncilMemberImage"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberWebsite : string = case actionRecord.stringMap["newCouncilMemberWebsite"] of [
-            Some(_string) -> _string
+    const councilMemberWebsite : string = case actionRecord.dataMap["newCouncilMemberWebsite"] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -465,20 +496,26 @@ block {
 
 
 // helper function to trigger the set single contract admin action during the sign
-function triggerSetSingleContractAdminAction(const actionRecord : breakGlassActionRecordType; var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
+function triggerSetSingleContractAdminAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
 block {
     
     // check that glass is broken
     checkGlassIsBroken(s);
 
     // fetch params begin ---
-    const newAdminAddress : address = case actionRecord.addressMap["newAdminAddress"] of [
-            Some(_address) -> _address
+    const newAdminAddress : address = case actionRecord.dataMap["newAdminAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const targetContractAddress : address = case actionRecord.addressMap["targetContractAddress"] of [
-            Some(_address) -> _address
+    const targetContractAddress : address = case actionRecord.dataMap["targetContractAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -515,15 +552,18 @@ block {
 
 
 // helper function to trigger the all contracts admin action during the sign
-function triggerSetAllContractsAdminAction(const actionRecord : breakGlassActionRecordType; var operations : list(operation); var s : breakGlassStorageType) : return is 
+function triggerSetAllContractsAdminAction(const actionRecord : councilActionRecordType; var operations : list(operation); var s : breakGlassStorageType) : return is 
 block {
 
     // check that glass is broken
     checkGlassIsBroken(s);
 
     // fetch params begin ---
-    const newAdminAddress : address = case actionRecord.addressMap["newAdminAddress"] of [
-            Some(_address) -> _address
+    const newAdminAddress : address = case actionRecord.dataMap["newAdminAddress"] of [
+            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
         |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
     // fetch params end ---
@@ -636,7 +676,7 @@ block {
 
 
 // helper function to execute a break glass action during the sign
-function executeBreakGlassAction(var actionRecord : breakGlassActionRecordType; const actionId : actionIdType; var operations : list(operation); var s : breakGlassStorageType) : return is 
+function executeBreakGlassAction(var actionRecord : councilActionRecordType; const actionId : actionIdType; var operations : list(operation); var s : breakGlassStorageType) : return is 
 block {
 
     // --------------------------------------
@@ -788,7 +828,7 @@ block {
 
 
 (* View: get an action *)
-[@view] function getActionOpt(const actionId: nat; var s : breakGlassStorageType) : option(breakGlassActionRecordType) is
+[@view] function getActionOpt(const actionId: nat; var s : breakGlassStorageType) : option(councilActionRecordType) is
     Big_map.find_opt(actionId, s.actionsLedger)
 
 

@@ -36,9 +36,8 @@
     "compile-all-lambdas-3": "yarn compile-contract-lambdas vault,lendingController",
     "compile-all-contracts-no-lambdas": " yarn compile-contract-no-lambdas mvkToken,mavrykFa12Token,mavrykFa2Token,tokenPoolLpToken",
     
-    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2 && yarn compile-all-lambdas-3",
-    "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
-
+    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2",
+    "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2",
     "migrate": "./deploy-contracts.sh",
     "migrate-lendingController" : "ts-mocha --paths test/migrations/migrate_lendingController.spec.ts --bail --timeout 900000",
     "migrate-lendingControllerMockTime" : "ts-mocha --paths test/migrations/migrate_lendingControllerMockTime.spec.ts --bail --timeout 900000",

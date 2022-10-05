@@ -1,9 +1,9 @@
 import { BigNumber } from "bignumber.js";
 
 export type clientAggregatorStorageType = {
-    decimals: BigNumber;
-    round: BigNumber;
-    price: BigNumber;
-    percentOracleResponse: BigNumber;
-    priceDateTime: string;
+    decimals                : BigNumber;
+    round                   : BigNumber;
+    data                    : BigNumber;
+    percentOracleResponse   : BigNumber;
+    lastUpdatedAt           : string;
 };

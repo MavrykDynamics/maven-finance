@@ -226,20 +226,14 @@
 //                 oracleMap,
 
 //                 new BigNumber(8),             // decimals
-//                 new BigNumber(2),             // numberBlocksDelay
+//                 new BigNumber(2),             // alphaPercentPerThousand
 
-//                 new BigNumber(86400),         // deviationTriggerBanTimestamp
-//                 new BigNumber(5),             // perthousandDeviationTrigger
 //                 new BigNumber(60),            // percentOracleThreshold
+//                 new BigNumber(30),            // heartBeatSeconds
 
-//                 new BigNumber(0),             // requestRateDeviationDepositFee 
-
-//                 new BigNumber(10000000),      // deviationRewardStakedMvk
-//                 new BigNumber(0),             // deviationRewardAmountXtz
 //                 new BigNumber(10000000),      // rewardAmountStakedMvk
 //                 new BigNumber(1300),          // rewardAmountXtz
                 
-//                 oracleMaintainer.pkh,         // maintainer
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
@@ -252,20 +246,14 @@
 //                 oracleMap,
 
 //                 new BigNumber(8),             // decimals
-//                 new BigNumber(2),             // numberBlocksDelay
-                    
-//                 new BigNumber(86400),         // deviationTriggerBanTimestamp
-//                 new BigNumber(5),             // perthousandDeviationTrigger
+//                 new BigNumber(2),             // alphaPercentPerThousand
+
 //                 new BigNumber(60),            // percentOracleThreshold
+//                 new BigNumber(30),            // heartBeatSeconds
 
-//                 new BigNumber(0),             // requestRateDeviationDepositFee 
-
-//                 new BigNumber(10000000),      // deviationRewardStakedMvk
-//                 new BigNumber(0),             // deviationRewardAmountXtz
 //                 new BigNumber(10000000),      // rewardAmountStakedMvk
 //                 new BigNumber(1300),          // rewardAmountXtz
                 
-//                 oracleMaintainer.pkh,         // maintainer
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
@@ -277,21 +265,15 @@
 
 //                 oracleMap,
 
-//                 new BigNumber(16),            // decimals
-//                 new BigNumber(2),             // numberBlocksDelay
-                
-//                 new BigNumber(86400),         // deviationTriggerBanTimestamp
-//                 new BigNumber(5),             // perthousandDeviationTrigger
-//                 new BigNumber(60),            // percentOracleThreshold
-                    
-//                 new BigNumber(0),             // requestRateDeviationDepositFee 
+//                 new BigNumber(8),             // decimals
+//                 new BigNumber(2),             // alphaPercentPerThousand
 
-//                 new BigNumber(10000000),      // deviationRewardStakedMvk
-//                 new BigNumber(2600),          // deviationRewardAmountXtz
+//                 new BigNumber(60),            // percentOracleThreshold
+//                 new BigNumber(30),            // heartBeatSeconds
+
 //                 new BigNumber(10000000),      // rewardAmountStakedMvk
 //                 new BigNumber(1300),          // rewardAmountXtz
                 
-//                 oracleMaintainer.pkh,         // maintainer
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 
@@ -344,7 +326,7 @@
 //                 assert.strictEqual(currentAdmin, bob.pkh);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -365,7 +347,7 @@
 //                 // Assertions
 //                 assert.strictEqual(newAdmin, currentAdmin);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
         
@@ -404,7 +386,7 @@
 //                 assert.strictEqual(currentGovernance, governanceAddress.address);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -425,7 +407,7 @@
 //                 // Assertions
 //                 assert.strictEqual(newGovernance, currentGovernance);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
         
@@ -695,12 +677,16 @@
 
 //               // governance satellite action params
 //               const satelliteToBeSuspended   = alice.pkh;
+//               const oraclePublicKey          = alice.pk;
+//               const oraclePeerId             = alice.peerId;
 //               const purpose                  = "Test restore Satellite";            
   
 //               // Satellite Bob creates a governance action - restore Alice
 //               await signerFactory(bob.sk);
 //               const governanceSatelliteOperation = await governanceSatelliteInstance.methods.restoreSatellite(
 //                       satelliteToBeSuspended,
+//                       oraclePublicKey,
+//                       oraclePeerId,
 //                       purpose
 //                   ).send();
 //               await governanceSatelliteOperation.confirmation();
@@ -1007,12 +993,16 @@
 
 //             // governance satellite action params
 //             const satelliteToBeSuspended   = alice.pkh;
+//             const oraclePublicKey          = alice.pk;
+//             const oraclePeerId             = alice.peerId;
 //             const purpose                  = "Test Restore Satellite";            
 
 //             // Satellite Bob creates a governance action - restore Alice
 //             await signerFactory(bob.sk);
 //             const governanceSatelliteOperation = await governanceSatelliteInstance.methods.restoreSatellite(
 //                     satelliteToBeSuspended,
+//                     oraclePublicKey,
+//                     oraclePeerId,
 //                     purpose
 //                 ).send();
 //             await governanceSatelliteOperation.confirmation();
@@ -1101,7 +1091,7 @@
 //             for(const i in updatedInitiatorsActions){
 //                 if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
 //                     actionsInitiatorCheck   = true;
-//                  }
+//                 }
 //              }
 //              assert.equal(actionsInitiatorCheck, false)
 
@@ -1153,6 +1143,8 @@
 
 //             // governance satellite action params
 //             const oracleAddress            = bob.pkh;
+//             const oraclePublicKey          = bob.pk;
+//             const oraclePeerId             = bob.peerId;
 //             const aggregatorAddress        = usdBtcAggregatorAddress;
 //             const purpose                  = "Test Add Oracle To Aggregator";            
 
@@ -1160,6 +1152,8 @@
 //             await signerFactory(bob.sk);
 //             const governanceSatelliteOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                     oracleAddress,
+//                     oraclePublicKey,
+//                     oraclePeerId,
 //                     aggregatorAddress,
 //                     purpose
 //                 ).send();
@@ -1220,7 +1214,7 @@
 //             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdBtcAggregatorAddress);
 
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
-//             const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             const updatedAggregatorOracles : any                    = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
 //             governanceStorage                                       = await governanceInstance.storage();
 //             const currentCycle                                      = governanceStorage.cycleId;
 //             const aliceSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
@@ -1265,7 +1259,8 @@
 //             assert.equal(bobUsdBtcOracleAggregatorRecord.aggregatorAddress,         usdBtcAggregatorAddress);
 
 //             // check that bob is now added to aggregator oracleAddresses Set
-//             assert.equal(updatedAggregatorOracles, true);
+//             assert.equal(updatedAggregatorOracles.oraclePeerId, bob.peerId);
+//             assert.equal(updatedAggregatorOracles.oraclePublicKey, bob.pk);
 
         
 //         } catch(e){
@@ -1295,8 +1290,9 @@
 //             const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
 
 //             // check that user is in aggregator oracleAddresses set (from previous test)
-//             const aggregatorOracles        = await aggregatorStorage.oracleAddresses.get(bob.pkh);
-//             assert.equal(aggregatorOracles, true);
+//             const aggregatorOracles : any                   = await aggregatorStorage.oracleAddresses.get(bob.pkh);
+//             assert.equal(aggregatorOracles.oraclePeerId, bob.peerId);
+//             assert.equal(aggregatorOracles.oraclePublicKey, bob.pk);
 
 //             // get bob satellite oracle record
 //             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
@@ -1488,6 +1484,8 @@
 //             // --------------------------------------------------------
 
 //             const oracleAddress            = bob.pkh;
+//             const oraclePublicKey          = bob.pk;
+//             const oraclePeerId             = bob.peerId;
 //             const aggregatorAddress        = usdBtcAggregatorAddress;
 //             const purpose                  = "Test Add Oracle To Aggregator";            
 
@@ -1495,6 +1493,8 @@
 //             await signerFactory(bob.sk);
 //             const governanceSatelliteAddOracleFirstOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                     oracleAddress,
+//                     oraclePublicKey,
+//                     oraclePeerId,
 //                     aggregatorAddress,
 //                     purpose
 //                 ).send();
@@ -1557,6 +1557,8 @@
 
 //             const governanceSatelliteAddOracleSecondOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                     oracleAddress,
+//                     oraclePublicKey,
+//                     oraclePeerId,
 //                     usdXtzAggregatorAddress,
 //                     purpose
 //                 ).send();
@@ -1604,6 +1606,8 @@
 
 //             const governanceSatelliteAddOracleThirdOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                     oracleAddress,
+//                     oraclePublicKey,
+//                     oraclePeerId,
 //                     usdDogeAggregatorAddress,
 //                     purpose
 //                 ).send();
@@ -1660,9 +1664,9 @@
 //             const updatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
 //             // check that user is not in aggregator oracleAddresses set
-//             const updatedUsdBtcAggregatorOracles        = await updatedUsdBtcAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             const updatedUsdXtzAggregatorOracles        = await updatedUsdXtzAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             const updatedUsdDogeAggregatorOracles       = await updatedUsdDogeAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             const updatedUsdBtcAggregatorOracles : any        = await updatedUsdBtcAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             const updatedUsdXtzAggregatorOracles : any        = await updatedUsdXtzAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             const updatedUsdDogeAggregatorOracles : any       = await updatedUsdDogeAggregatorStorage.oracleAddresses.get(bob.pkh);
             
 //             // check that governance action has been executed
 //             assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
@@ -1684,9 +1688,12 @@
 //             assert.equal(bobUsdDogeOracleAggregatorRecord.aggregatorAddress,        usdDogeAggregatorAddress);
 
 //             // check that bob is now added to aggregator oracleAddresses Set
-//             assert.equal(updatedUsdBtcAggregatorOracles,      true);
-//             assert.equal(updatedUsdXtzAggregatorOracles,      true);
-//             assert.equal(updatedUsdDogeAggregatorOracles,     true);
+//             assert.equal(updatedUsdBtcAggregatorOracles.oraclePeerId, bob.peerId);
+//             assert.equal(updatedUsdBtcAggregatorOracles.oraclePublicKey, bob.pk);
+//             assert.equal(updatedUsdXtzAggregatorOracles.oraclePeerId, bob.peerId);
+//             assert.equal(updatedUsdXtzAggregatorOracles.oraclePublicKey, bob.pk);
+//             assert.equal(updatedUsdDogeAggregatorOracles.oraclePeerId, bob.peerId);
+//             assert.equal(updatedUsdDogeAggregatorOracles.oraclePublicKey, bob.pk);
 
 //             // --------------------------------------------------------
 //             // governance satellite action params - remove all satellite oracles
@@ -2289,7 +2296,7 @@
 
 //                 // 3 satellites vote yay, one satellite votes nay
 //                 await signerFactory(eve.sk);
-//                 await chai.expect(governanceSatelliteInstance.methods.dropAction(actionId)).to.be.rejected;
+//                 await chai.expect(governanceSatelliteInstance.methods.dropAction(actionId).send()).to.be.rejected;
 
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -2318,6 +2325,8 @@
 //                 // dummy governance satellite action params
 //                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
 //                 var oracleAddress              = trudy.pkh;
+//                 var oraclePublicKey            = trudy.pk;
+//                 var oraclePeerId               = trudy.peerId;
 //                 const aggregatorAddress        = usdBtcAggregatorAddress;
 //                 const newStatus                = "INACTIVE"
 //                 const purpose                  = "Test Purpose";            
@@ -2336,6 +2345,8 @@
 //                 // fail to create governance action to restore Satellite
 //                 const failRestoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
 //                     bob.pkh,
+//                     bob.pk,
+//                     bob.peerId,
 //                     purpose
 //                 ).send();
 //                 await chai.expect(failRestoreSatelliteOperation).to.be.eventually.rejected;
@@ -2352,6 +2363,8 @@
 //                 // fail to create governance action to add oracle to aggregator
 //                 const failAddOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
 //                         oracleAddress,
+//                         oraclePublicKey,
+//                         oraclePeerId,
 //                         aggregatorAddress,
 //                         purpose
 //                     ).send();
@@ -2405,8 +2418,12 @@
 //                 // Satellite Bob creates a governance action to add oracle to aggregator (with a real satellite)
 //                 await signerFactory(bob.sk);
 //                 oracleAddress   = alice.pkh;
+//                 oraclePublicKey = alice.pk;
+//                 oraclePeerId    = alice.peerId;
 //                 const governanceSatelliteOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                         oracleAddress,
+//                         oraclePublicKey,
+//                         oraclePeerId,
 //                         aggregatorAddress,
 //                         purpose
 //                     ).send();

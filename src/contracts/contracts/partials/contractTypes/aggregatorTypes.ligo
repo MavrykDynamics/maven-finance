@@ -2,36 +2,27 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-
-type observationCommitsType      is map (address, bytes);
-type observationRevealsType      is map (address, nat);
-type deviationTriggerBanType     is map (address, timestamp);
-
-type oracleAddressesType         is map (address, bool);
+type oracleInformationType is [@layout:comb] record [
+       oraclePublicKey: key;
+       oraclePeerId: string;
+];
+type oracleAddressesType         is map (address, oracleInformationType);
 type oracleRewardStakedMvkType   is map (address, nat);
 type oracleRewardXtzType         is map (address, nat);
 
 type aggregatorConfigType is [@layout:comb] record [
     decimals                            : nat;
-    numberBlocksDelay                   : nat;
+    alphaPercentPerThousand             : nat;
 
-    deviationTriggerBanDuration         : nat;
-    perThousandDeviationTrigger         : nat;
     percentOracleThreshold              : nat;
+    heartBeatSeconds                    : nat;
 
-    requestRateDeviationDepositFee      : nat;
-
-    deviationRewardStakedMvk            : nat;
-    deviationRewardAmountXtz            : nat;
     rewardAmountStakedMvk               : nat;
     rewardAmountXtz                     : nat;
 ];
 
 type aggregatorBreakGlassConfigType is [@layout:comb] record [
-    requestRateUpdateIsPaused           : bool;
-    requestRateUpdateDeviationIsPaused  : bool;
-    setObservationCommitIsPaused        : bool;
-    setObservationRevealIsPaused        : bool;
+    updateDataIsPaused                 : bool;
     withdrawRewardXtzIsPaused           : bool;
     withdrawRewardStakedMvkIsPaused     : bool;
 ]
@@ -44,61 +35,55 @@ type aggregatorBreakGlassConfigType is [@layout:comb] record [
 
 type pivotedObservationsType     is map (nat, nat);
 
-type deviationTriggerInfosType is  [@layout:comb] record [
-    oracleAddress               : address;
-    roundPrice                  : nat;
-];
 
-type lastCompletedRoundPriceType is  [@layout:comb] record [
+type lastCompletedDataType is  [@layout:comb] record [
     round                       : nat;
-    price                       : nat;
+    epoch                       : nat;
+    data                        : nat;
     percentOracleResponse       : nat;
-    priceDateTime               : timestamp;  
+    lastUpdatedAt               : timestamp;  
 ];
 
-type lastCompletedRoundPriceReturnType is  [@layout:comb] record [
+type lastCompletedDataReturnType is  [@layout:comb] record [
     round                       : nat;
-    price                       : nat;
+    epoch                       : nat;
+    data                        : nat;
     percentOracleResponse       : nat;
     decimals                    : nat;
-    priceDateTime               : timestamp;  
+    lastUpdatedAt               : timestamp;  
 ];
 
-type setObservationCommitType is  [@layout:comb] record [
-    roundId       : nat;
-    sign          : bytes;
+type oracleObservationType is [@layout:comb] record [
+       data                 : nat;
+       epoch                : nat;
+       round                : nat;
+       aggregatorAddress    : address;
 ];
 
-type setObservationRevealType is  [@layout:comb] record [
-    roundId       : nat;
-    priceSalted   : nat * string * address;
+type updateDataType is   [@layout:comb] record [
+  oracleObservations: map (address, oracleObservationType);
+  signatures: map (address, signature);
 ];
 
 type withdrawRewardXtzType            is address;
 type withdrawRewardStakedMvkType      is address;
 
-type addOracleType                    is address;
-type removeOracleType                 is address;
+type addOracleType is   [@layout:comb] record [
+        oracleAddress       : address;
+        oracleInformation   : oracleInformationType;
+];
 
-type requestRateUpdateType            is unit;
-type requestRateUpdateDeviationType   is setObservationCommitType;
-type setObservationCommitType         is setObservationCommitType;
-type setObservationRevealType         is setObservationRevealType;
+type removeOracleType                 is address;
 
 (* updateConfig entrypoint inputs *)
 type aggregatorUpdateConfigNewValueType is nat
 type aggregatorUpdateConfigActionType is 
         ConfigDecimals                      of unit
-    |   ConfigNumberBlocksDelay             of unit
+    |   ConfigAlphaPercentPerThousand       of unit
 
-    |   ConfigDevTriggerBanDuration         of unit
-    |   ConfigPerThousandDevTrigger         of unit
     |   ConfigPercentOracleThreshold        of unit
+    |   ConfigHeartBeatSeconds              of unit
 
-    |   ConfigRequestRateDevDepositFee      of unit
-
-    |   ConfigDeviationRewardStakedMvk      of unit
-    |   ConfigDeviationRewardAmountXtz      of unit
     |   ConfigRewardAmountStakedMvk         of unit
     |   ConfigRewardAmountXtz               of unit
 
@@ -108,10 +93,7 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 type aggregatorPausableEntrypointType is
-        RequestRateUpdate             of bool
-    |   RequestRateUpdateDeviation    of bool
-    |   SetObservationCommit          of bool
-    |   SetObservationReveal          of bool
+        UpdateData                   of bool
     |   WithdrawRewardXtz             of bool
     |   WithdrawRewardStakedMvk       of bool
 
@@ -131,7 +113,6 @@ type aggregatorLambdaActionType is
         // Housekeeping Entrypoints
     |   LambdaSetAdmin                      of (address)
     |   LambdaSetGovernance                 of (address)
-    |   LambdaSetMaintainer                 of (address)
     |   LambdaSetName                       of (string)
     |   LambdaUpdateMetadata                of updateMetadataType
     |   LambdaUpdateConfig                  of aggregatorUpdateConfigParamsType
@@ -148,11 +129,8 @@ type aggregatorLambdaActionType is
     |   LambdaUnpauseAll                    of (unit)
     |   LambdaTogglePauseEntrypoint         of aggregatorTogglePauseEntrypointType
 
-        // Oracle Entrypoints
-    |   LambdaRequestRateUpdate             of requestRateUpdateType
-    |   LambdaRequestRateUpdDeviation       of requestRateUpdateDeviationType
-    |   LambdaSetObservationCommit          of setObservationCommitType
-    |   LambdaSetObservationReveal          of setObservationRevealType
+        // Oracle Entrypoint
+    |   LambdaUpdateData                   of updateDataType
     
         // Reward Entrypoints
     |   LambdaWithdrawRewardXtz             of withdrawRewardXtzType
@@ -172,25 +150,15 @@ type aggregatorStorageType is [@layout:comb] record [
     config                    : aggregatorConfigType;
     breakGlassConfig          : aggregatorBreakGlassConfigType;
 
-    maintainer                : address;
     mvkTokenAddress           : address;
     governanceAddress         : address;
 
     whitelistContracts        : whitelistContractsType;      
     generalContracts          : generalContractsType;
 
-    round                     : nat;
-    roundStart                : timestamp;
-    switchBlock               : nat;
-
     oracleAddresses           : oracleAddressesType;
     
-    deviationTriggerInfos     : deviationTriggerInfosType;
-    lastCompletedRoundPrice   : lastCompletedRoundPriceType;
-
-    observationCommits        : observationCommitsType;
-    observationReveals        : observationRevealsType;
-    deviationTriggerBan       : deviationTriggerBanType;
+    lastCompletedData         : lastCompletedDataType;
 
     oracleRewardStakedMvk     : oracleRewardStakedMvkType;
     oracleRewardXtz           : oracleRewardXtzType;
