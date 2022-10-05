@@ -28,7 +28,7 @@ export const memberIsFirstOfList = (list: CouncilMember[], address?: string) => 
       return list
     }
 
-    const updatedList = [list[indexOfMember], ...list.slice(0, indexOfMember), ...list.slice(indexOfMember + 1)]
+    const updatedList = [list[indexOfMember]].concat(list.filter(({userId}) => userId !== address))
 
     return updatedList
   }
