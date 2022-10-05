@@ -44,6 +44,14 @@ export const CouncilPastActionStyled = styled(CardHover)`
       width: 16px;
       height: 16px;
     }
+
+    .icon-send {
+      &:hover {
+        svg {
+          stroke: ${cyanColor};
+        }
+      }
+    }
   }
 
   .is-green {

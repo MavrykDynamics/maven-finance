@@ -60,7 +60,7 @@ export const CouncilFormSetBaker = () => {
         <Icon id="question" />
       </a>
       <h1 className="form-h1">Set Baker</h1>
-      <p>Please enter valid function parameters for set baker</p>
+      <p>Please enter valid function parameters for setting a baker</p>
       <div className="form-grid form-grid-button-right">
         <div>
           <label>Baker Hash</label>

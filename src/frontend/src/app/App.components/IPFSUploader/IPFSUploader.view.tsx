@@ -61,11 +61,11 @@ export const IPFSUploaderView = ({
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!e.target.files?.length) return
-  
+
       const file = e.target?.files?.[0]
       const fileSize = file?.size / 1024 / 1024 // in MiB
       const { name } = file
-  
+
       if (fileSize <= IMG_MAX_SIZE) {
         setUploadIsFailed(false)
         handleUpload(e.target.files[0])
@@ -73,7 +73,7 @@ export const IPFSUploaderView = ({
         setUploadIsFailed(true)
         dispatch(showToaster(INFO, 'File is too big!', `Max size is ${IMG_MAX_SIZE}MB`))
       }
-  
+
       // check file type
       if (file?.type.toLowerCase().includes('pdf')) {
         setIsDocument(true)
@@ -81,7 +81,9 @@ export const IPFSUploaderView = ({
       } else {
         setIsDocument(false)
       }
-    }, [dispatch, handleUpload])
+    },
+    [dispatch, handleUpload],
+  )
 
   const handleDelete = () => {
     setUploadIsFailed(false)

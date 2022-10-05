@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { boxShadowColor, cyanColor, royalPurpleColor, skyColor } from 'styles'
+import { CardHover, boxShadowColor, cyanColor, royalPurpleColor, skyColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
@@ -14,7 +14,7 @@ export const ProposalListContainer = styled.div`
   }
 `
 
-export const ProposalListItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
+export const ProposalListItem = styled(CardHover)<{ selected: boolean; theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   border: 1px solid ${royalPurpleColor};
   min-height: 57px;

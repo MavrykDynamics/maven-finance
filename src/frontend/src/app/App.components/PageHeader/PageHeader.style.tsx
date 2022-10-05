@@ -61,6 +61,7 @@ export const PageHeaderTextArea = styled.div`
     font-size: 14px;
     font-weight: 500;
     margin: 0;
+    white-space: nowrap;
   }
 `
 
