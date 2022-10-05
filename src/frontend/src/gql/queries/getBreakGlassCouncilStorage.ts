@@ -14,7 +14,7 @@ export const BREAK_GLASS_COUNCIL_MEMBER_QUERY = `
 `
 
 export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME = 'GetPastBreakGlassCouncilActions'
-export function PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE(variables: { _lt: string }) {
+export function PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE(variables: { _lt?: string }) {
   return variables
 }
 
@@ -46,7 +46,7 @@ export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY = `
 `
 
 export const BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME = 'GetBreakGlassActionsPendingMySignature'
-export function BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE(variables: { _gte: string, userAddress: string, userAddress2: '' }) {
+export function BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE(variables: { _gte?: string, userAddress?: string, userAddress2?: string }) {
   return variables
 }
 
@@ -64,7 +64,7 @@ export const BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY = `
 `
 
 export const MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME = 'GetMyPastBreakGlassCouncilActions'
-export function MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE(variables: { _lt: string, userAddress: string }) {
+export function MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE(variables: { _lt?: string, userAddress?: string }) {
   return variables
 }
 
