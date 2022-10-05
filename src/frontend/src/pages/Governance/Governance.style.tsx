@@ -41,6 +41,11 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     & + .voting-proposal {
       display: none;
     }
+
+    svg {
+      stroke: none;
+      fill: ${({ theme }) => theme.headerColor};
+    }
   }
 
   .byte,
