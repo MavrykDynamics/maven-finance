@@ -107,11 +107,24 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         protectedRoute: false,
       },
       {
-        id: 55614,
+        id: 55622,
         subTitle: 'Become A Satellite',
         subPath: 'become-satellite',
         routeSubPath: '/become-satellite',
-        protectedRoute: false,
+        protectedRoute: true,
+        requires: {
+          isNotSatellite: true,
+        },
+      },
+      {
+        id: 55614,
+        subTitle: 'Edit satellite',
+        subPath: 'become-satellite',
+        routeSubPath: '/become-satellite',
+        protectedRoute: true,
+        requires: {
+          isSatellite: true,
+        },
       },
       { id: 57471, subTitle: 'Data Feeds', subPath: 'data-feeds', routeSubPath: '/data-feeds', protectedRoute: false },
       { id: 15757, subTitle: 'Users', subPath: 'oracle-users', routeSubPath: '/oracle-users', protectedRoute: false },

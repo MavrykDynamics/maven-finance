@@ -1,9 +1,10 @@
-import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
-import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
-import * as React from 'react'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Redirect } from 'react-router'
 import { State } from 'reducers'
+
+import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
+import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 
 import { SatelliteRecord, SatelliteStatus } from '../../utils/TypesAndInterfaces/Delegation'
 import { RegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
@@ -48,11 +49,14 @@ export const BecomeSatellite = () => {
   }, [dispatch, accountPkh])
 
   const registerCallback = (form: RegisterAsSatelliteForm) => {
-    console.log(typeof form.fee)
     dispatch(registerAsSatellite(form))
   }
   const updateSatelliteCallback = (form: RegisterAsSatelliteForm) => {
     dispatch(updateSatelliteRecord(form))
+  }
+
+  if (!accountPkh) {
+    return <Redirect to="/" />
   }
 
   return (

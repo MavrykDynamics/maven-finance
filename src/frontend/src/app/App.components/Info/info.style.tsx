@@ -73,5 +73,13 @@ export const InfoBlock = styled.blockquote`
 
   &.indent-bottom {
     margin-bottom: 20px;
+
+    &.warning {
+      svg {
+        stroke: none;
+        stroke-width: 0.3;
+        fill: ${downColor};
+      }
+    }
   }
 `
