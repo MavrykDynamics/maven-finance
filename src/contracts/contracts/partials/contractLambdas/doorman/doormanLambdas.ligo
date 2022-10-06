@@ -1191,7 +1191,7 @@ block{
                 const newVaultStakedBalance : nat = abs(vaultStakedBalance - liquidatedAmount);
 
                 // update vault stake balance in stake balance ledger
-                vaultStakeBalanceRecord.balance  := newVaultStakedBalance; 
+                vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
                 s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
                 // update liquidator stake balance in stake balance ledger

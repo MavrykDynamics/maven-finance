@@ -367,12 +367,7 @@ block{
 
                 // Prepare Farm Metadata
                 const farmMetadata: metadataType = Big_map.literal (list [
-                    ("", Bytes.pack("tezos-storage:data"));
-                    ("data", createFarmParams.metadata);
-                ]); 
-
-                const farmMetadata: metadataType = Big_map.literal (list [
-                    ("", "74657a6f732d73746f726167653a64617461");
+                    ("", ("74657a6f732d73746f726167653a64617461" : bytes));
                     ("data", createFarmParams.metadata);
                 ]); 
 
