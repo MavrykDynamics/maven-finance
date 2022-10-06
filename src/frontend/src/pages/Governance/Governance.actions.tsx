@@ -337,7 +337,7 @@ export const executeProposal = (proposalId: number) => async (dispatch: AppDispa
     })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('Execute Proposal contract', contract)
-    const transaction = await contract?.methods.executeProposal().send()
+    const transaction = await contract?.methods.executeProposal(proposalId).send()
     console.log('Execute Proposal transaction', transaction)
 
     await dispatch(showToaster(INFO, 'Request Execute Proposal round start...', 'Please wait 30s'))
