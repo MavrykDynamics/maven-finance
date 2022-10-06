@@ -98,26 +98,33 @@ describe('Lending Controller Supporting Contracts', async () => {
             // Mock Oracles
             //----------------------------
             const oracleMap = MichelsonMap.fromLiteral({
-                [bob.pkh]              : true,
-                [eve.pkh]              : true,
-                [mallory.pkh]          : true,
-                [oracleMaintainer.pkh] : true,
+                [bob.pkh]              : {
+                    oraclePublicKey : bob.pk,
+                    oraclePeerId : bob.peerId
+                },
+                [eve.pkh]              : {
+                    oraclePublicKey : eve.pk,
+                    oraclePeerId : eve.peerId
+                },
+                [mallory.pkh]          : {
+                    oraclePublicKey : mallory.pk,
+                    oraclePeerId : mallory.peerId
+                },
+                [oracleMaintainer.pkh] : {
+                    oraclePublicKey : oracleMaintainer.pk,
+                    oraclePeerId : oracleMaintainer.peerId
+                }
             });
 
             // Setup default Mock Aggregator Storage
             aggregatorStorage.config = {
-                nameMaxLength                       : new BigNumber(200),
+
                 decimals                            : new BigNumber(6),
-                numberBlocksDelay                   : new BigNumber(2),
+                alphaPercentPerThousand             : new BigNumber(2),
                 
-                deviationTriggerBanDuration         : new BigNumber(86400), // one day
-                perThousandDeviationTrigger         : new BigNumber(2),
-                percentOracleThreshold              : new BigNumber(49),
-            
-                requestRateDeviationDepositFee      : new BigNumber(0),
+                percentOracleThreshold              : new BigNumber(60),
+                heartBeatSeconds                    : new BigNumber(30),
                 
-                deviationRewardStakedMvk            : new BigNumber(15000000), // 0.015 MVK
-                deviationRewardAmountXtz            : new BigNumber(0),  
                 rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
                 rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
             };
@@ -126,11 +133,12 @@ describe('Lending Controller Supporting Contracts', async () => {
             aggregatorStorage.governanceAddress = governanceAddress.address;
 
             // Mock USD/MockFa12Token Aggregator
-            aggregatorStorage.lastCompletedRoundPrice = {
-                round                   : new BigNumber(0),
-                price                   : new BigNumber(1500000),
+            aggregatorStorage.lastCompletedData = {
+                round                   : new BigNumber(1),
+                epoch                   : new BigNumber(1),
+                data                    : new BigNumber(1500000),
                 percentOracleResponse   : new BigNumber(100),
-                priceDateTime           : '1'
+                lastUpdatedAt           : '1'
             };
             mockUsdMockFa12TokenAggregator = await Aggregator.originate(
                 utils.tezos,
@@ -143,11 +151,12 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
             // Mock USD/MockFa2Token Aggregator
-            aggregatorStorage.lastCompletedRoundPrice = {
-                round                   : new BigNumber(0),
-                price                   : new BigNumber(3500000),
+            aggregatorStorage.lastCompletedData = {
+                round                   : new BigNumber(1),
+                epoch                   : new BigNumber(1),
+                data                    : new BigNumber(3500000),
                 percentOracleResponse   : new BigNumber(100),
-                priceDateTime           : '1'
+                lastUpdatedAt           : '1'
             };
             mockUsdMockFa2TokenAggregator = await Aggregator.originate(
                 utils.tezos,
@@ -160,11 +169,12 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
             // Mock USD/Xtz Aggregator
-            aggregatorStorage.lastCompletedRoundPrice = {
-                round                   : new BigNumber(0),
-                price                   : new BigNumber(1800000),
+            aggregatorStorage.lastCompletedData = {
+                round                   : new BigNumber(1),
+                epoch                   : new BigNumber(1),
+                data                    : new BigNumber(1800000),
                 percentOracleResponse   : new BigNumber(100),
-                priceDateTime           : '1'
+                lastUpdatedAt           : '1'
             };
             mockUsdXtzAggregator = await Aggregator.originate(
                 utils.tezos,
@@ -180,11 +190,12 @@ describe('Lending Controller Supporting Contracts', async () => {
             //----------------------------
 
             aggregatorStorage.config.decimals = new BigNumber(9);
-            aggregatorStorage.lastCompletedRoundPrice = {
-                round                   : new BigNumber(0),
-                price                   : new BigNumber(2000000),
+            aggregatorStorage.lastCompletedData = {
+                round                   : new BigNumber(1),
+                epoch                   : new BigNumber(1),
+                data                    : new BigNumber(2000000),
                 percentOracleResponse   : new BigNumber(100),
-                priceDateTime           : '1'
+                lastUpdatedAt           : '1'
             };
             mockUsdMvkAggregator = await Aggregator.originate(
                 utils.tezos,

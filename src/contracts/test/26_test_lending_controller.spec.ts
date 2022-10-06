@@ -245,6 +245,8 @@
                     
 //                     assert.equal(mockFa12LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
 //                     assert.equal(mockFa12LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+
+//                     assert.equal(mockFa12LoanToken.minRepaymentAmount       , minRepaymentAmount);
     
 //                 } else {
 
@@ -253,7 +255,6 @@
                 
 //                     // other variables will be affected by repeated tests
 //                     assert.equal(mockFa12LoanToken.tokenName, tokenName);
-//                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
 
 //                 }
 
@@ -328,8 +329,6 @@
 //                     const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2LoanToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2LoanToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
 //                     assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -347,6 +346,8 @@
 //                     assert.equal(mockFa2LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
 //                     assert.equal(mockFa2LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
 
+//                     assert.equal(mockFa2LoanToken.minRepaymentAmount       , minRepaymentAmount);
+
 //                 } else {
 
 //                     lendingControllerStorage = await lendingControllerInstance.storage();
@@ -354,8 +355,6 @@
 
 //                     // other variables will be affected by repeated tests
 //                     assert.equal(mockFa2LoanToken.tokenName, tokenName);
-//                     // assert.equal(mockFa2LoanToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2LoanToken.tokenId                , tokenId);
 
 //                 }
                 
@@ -446,6 +445,8 @@
                     
 //                     assert.equal(tezLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
 //                     assert.equal(tezLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+
+//                     assert.equal(tezLoanToken.minRepaymentAmount       , minRepaymentAmount);
     
 
 //                 } else {
@@ -464,7 +465,165 @@
 //         });
 
 
-//         it('non-admin should not be able to call this entrypoint', async () => {
+//         it('admin should be able to update a loan token', async () => {
+
+//             try{        
+                
+//                 // init variables
+//                 await signerFactory(bob.sk);
+
+//                 const createLoanTokenActionType             = "createLoanToken";
+//                 const tokenName                             = "testUpdateLoanToken";
+//                 const tokenContractAddress                  = mockFa2TokenAddress.address;
+//                 const tokenType                             = "fa2";
+//                 const tokenId                               = 0;
+//                 const tokenDecimals                         = 6;
+
+//                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+
+//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
+//                 const lpTokenId                             = 0;
+
+//                 const interestRateDecimals                  = 27;
+//                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+//                 const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+//                 const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+//                 const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+//                 const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+//                 const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+
+//                 const minRepaymentAmount                    = 10000;
+
+//                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+//                 if(checkLoanTokenExists === undefined){
+
+//                     const adminSetMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+//                         createLoanTokenActionType,
+                        
+//                         tokenName,
+//                         tokenDecimals,
+
+//                         oracleAddress,
+
+//                         lpTokenContractAddress,
+//                         lpTokenId,
+                        
+//                         reserveRatio,
+//                         optimalUtilisationRate,
+//                         baseInterestRate,
+//                         maxInterestRate,
+//                         interestRateBelowOptimalUtilisation,
+//                         interestRateAboveOptimalUtilisation,
+
+//                         minRepaymentAmount,
+                        
+//                         // fa2 token type - token contract address + token id
+//                         tokenType,
+//                         tokenContractAddress,
+//                         tokenId
+
+//                     ).send();
+//                     await adminSetMockFa2LoanTokenOperation.confirmation();
+
+//                     lendingControllerStorage = await lendingControllerInstance.storage();
+//                     const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+//                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
+
+//                     assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
+//                     assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
+//                     assert.equal(mockFa2LoanToken.lpTokenId              , 0);
+
+//                     assert.equal(mockFa2LoanToken.reserveRatio           , reserveRatio);
+//                     assert.equal(mockFa2LoanToken.tokenPoolTotal         , 0);
+//                     assert.equal(mockFa2LoanToken.totalBorrowed          , 0);
+//                     assert.equal(mockFa2LoanToken.totalRemaining         , 0);
+
+//                     assert.equal(mockFa2LoanToken.optimalUtilisationRate , optimalUtilisationRate);
+//                     assert.equal(mockFa2LoanToken.baseInterestRate       , baseInterestRate);
+//                     assert.equal(mockFa2LoanToken.maxInterestRate        , maxInterestRate);
+                    
+//                     assert.equal(mockFa2LoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+//                     assert.equal(mockFa2LoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+
+//                     assert.equal(mockFa2LoanToken.minRepaymentAmount       , minRepaymentAmount);
+
+//                 } else {
+
+//                     lendingControllerStorage = await lendingControllerInstance.storage();
+//                     const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+//                     // other variables will be affected by repeated tests
+//                     assert.equal(mockFa2LoanToken.tokenName, tokenName);
+
+//                 }
+
+//                 const updateLoanTokenActionType             = "updateLoanToken";
+                
+//                 const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
+
+//                 const newReserveRatio                          = 2000; // 20% reserves (4 decimals)
+//                 const newOptimalUtilisationRate                = 50 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+//                 const newBaseInterestRate                      = 10  * (10 ** (interestRateDecimals - 2));  // 5%
+//                 const newMaxInterestRate                       = 50 * (10 ** (interestRateDecimals - 2));  // 25% 
+//                 const newInterestRateBelowOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 10% 
+//                 const newInterestRateAboveOptimalUtilisation   = 30 * (10 ** (interestRateDecimals - 2));  // 20%
+//                 const newMinRepaymentAmount                    = 20000;
+
+//                 const adminUpdateMockFa2LoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+
+//                     updateLoanTokenActionType,
+                    
+//                     tokenName,
+
+//                     newOracleAddress,
+                    
+//                     newReserveRatio,
+//                     newOptimalUtilisationRate,
+//                     newBaseInterestRate,
+//                     newMaxInterestRate,
+//                     newInterestRateBelowOptimalUtilisation,
+//                     newInterestRateAboveOptimalUtilisation,
+
+//                     newMinRepaymentAmount,
+                    
+//                 ).send();
+//                 await adminUpdateMockFa2LoanTokenOperation.confirmation();
+
+//                 lendingControllerStorage = await lendingControllerInstance.storage();
+//                 const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+//                 assert.equal(updatedMockFa2LoanToken.tokenName              , tokenName);
+
+//                 assert.equal(updatedMockFa2LoanToken.lpTokensTotal          , 0);
+//                 assert.equal(updatedMockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
+//                 assert.equal(updatedMockFa2LoanToken.lpTokenId              , 0);
+
+//                 assert.equal(updatedMockFa2LoanToken.reserveRatio           , newReserveRatio);
+//                 assert.equal(updatedMockFa2LoanToken.tokenPoolTotal         , 0);
+//                 assert.equal(updatedMockFa2LoanToken.totalBorrowed          , 0);
+//                 assert.equal(updatedMockFa2LoanToken.totalRemaining         , 0);
+
+//                 assert.equal(updatedMockFa2LoanToken.optimalUtilisationRate , newOptimalUtilisationRate);
+//                 assert.equal(updatedMockFa2LoanToken.baseInterestRate       , newBaseInterestRate);
+//                 assert.equal(updatedMockFa2LoanToken.maxInterestRate        , newMaxInterestRate);
+                
+//                 assert.equal(updatedMockFa2LoanToken.interestRateBelowOptimalUtilisation       , newInterestRateBelowOptimalUtilisation);
+//                 assert.equal(updatedMockFa2LoanToken.interestRateAboveOptimalUtilisation       , newInterestRateAboveOptimalUtilisation);
+
+//                 assert.equal(updatedMockFa2LoanToken.minRepaymentAmount       , newMinRepaymentAmount);
+
+
+                
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+
+//         it('non-admin should not be able to set loan token - create', async () => {
 //             try{
 //                 // Initial Values
 //                 await signerFactory(alice.sk);
@@ -472,6 +631,75 @@
 //                 const currentAdmin = lendingControllerStorage.admin;
 
 //                 const setLoanTokenActionType                = "createLoanToken";
+//                 const tokenName                             = "failTestLoanToken";
+//                 const tokenContractAddress                  = mockFa2TokenAddress.address;
+//                 const tokenType                             = "fa2";
+//                 const tokenId                               = 0;
+//                 const tokenDecimals                         = 6;
+
+//                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+
+//                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
+//                 const lpTokenId                             = 0;
+
+//                 const interestRateDecimals                  = 27;
+//                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
+//                 const optimalUtilisationRate                = 30 * (10 ** (interestRateDecimals - 2));  // 30% utilisation rate kink
+//                 const baseInterestRate                      = 5  * (10 ** (interestRateDecimals - 2));  // 5%
+//                 const maxInterestRate                       = 25 * (10 ** (interestRateDecimals - 2));  // 25% 
+//                 const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
+//                 const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
+
+//                 const minRepaymentAmount                    = 10000;
+
+//                 await chai.expect(lendingControllerInstance.methods.setLoanToken(
+
+//                     setLoanTokenActionType,
+                        
+//                     tokenName,
+//                     tokenDecimals,
+
+//                     oracleAddress,
+
+//                     lpTokenContractAddress,
+//                     lpTokenId,
+                    
+//                     reserveRatio,
+//                     optimalUtilisationRate,
+//                     baseInterestRate,
+//                     maxInterestRate,
+//                     interestRateBelowOptimalUtilisation,
+//                     interestRateAboveOptimalUtilisation,
+
+//                     minRepaymentAmount,
+                    
+//                     // fa2 token type - token contract address + token id
+//                     tokenType,
+//                     tokenContractAddress,
+//                     tokenId
+
+//                 ).send()).to.be.rejected;
+
+//                 // Final values
+//                 lendingControllerStorage = await lendingControllerInstance.storage();
+//                 const failTestLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+
+//                 // Assertions
+//                 assert.strictEqual(failTestLoanToken, undefined);
+
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('non-admin should not be able to set loan token - update', async () => {
+//             try{
+//                 // Initial Values
+//                 await signerFactory(alice.sk);
+//                 lendingControllerStorage = await lendingControllerInstance.storage();
+//                 const currentAdmin = lendingControllerStorage.admin;
+
+//                 const setLoanTokenActionType                = "updateLoanToken";
 //                 const tokenName                             = "failTestLoanToken";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
@@ -770,7 +998,90 @@
 //         });
 
 
-//         it('non-admin should not be able to call this entrypoint', async () => {
+//         it('admin should be able to update collateral token', async () => {
+
+//             try{        
+                
+//                 // init variables
+//                 await signerFactory(bob.sk);
+
+//                 const createCollateralTokenActionType       = "createCollateralToken";
+//                 const tokenName                             = "testUpdateCollateralToken";
+//                 const tokenContractAddress                  = mockFa2TokenAddress.address;
+//                 const tokenType                             = "fa2";
+//                 const tokenId                               = 0;
+
+//                 const tokenDecimals                         = 6;
+//                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
+//                 const tokenProtected                        = false;
+                
+//                 // check if collateral token exists
+//                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+//                 if(checkCollateralTokenExists === undefined){
+
+//                     const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+//                         createCollateralTokenActionType,
+                        
+//                         tokenName,
+//                         tokenContractAddress,
+//                         tokenDecimals,
+
+//                         oracleAddress,
+//                         tokenProtected,
+
+//                         // fa2 token type - token contract address + token id
+//                         tokenType,
+//                         tokenContractAddress,
+//                         tokenId
+
+//                     ).send();
+//                     await adminSetMockFa2CollateralTokenOperation.confirmation();
+
+//                 }
+
+//                 lendingControllerStorage        = await lendingControllerInstance.storage();
+//                 const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+//                 assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
+//                 assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
+//                 assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
+//                 assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
+
+//                 const updateCollateralTokenActionType       = "updateCollateralToken";
+//                 const newOracleAddress                      = mockUsdMockFa12TokenAggregatorAddress.address;
+                
+//                 if(checkCollateralTokenExists === undefined){
+
+//                     const adminSetMockFa2CollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+
+//                         updateCollateralTokenActionType,
+                        
+//                         tokenName,
+//                         oracleAddress
+
+//                     ).send();
+//                     await adminSetMockFa2CollateralTokenOperation.confirmation();
+
+//                 }
+
+//                 lendingControllerStorage               = await lendingControllerInstance.storage();
+//                 const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+//                 // oracle address should be updated, and there should be no changes to other variables
+//                 assert.equal(updatedMockFa2CollateralToken.oracleAddress   , newOracleAddress);
+//                 assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
+//                 assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
+//                 assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+
+//         it('non-admin should not be able to set collateral token - create', async () => {
 //             try{
 //                 // Initial Values
 //                 await signerFactory(alice.sk);
@@ -778,6 +1089,52 @@
 //                 const currentAdmin = lendingControllerStorage.admin;
 
 //                 const setCollateralTokenActionType          = "createCollateralToken";
+//                 const tokenName                             = "failTestCollateralToken";
+//                 const tokenContractAddress                  = mockFa2TokenAddress.address;
+//                 const tokenType                             = "fa2";
+//                 const tokenId                               = 0;
+
+//                 const tokenDecimals                         = 6;
+//                 const oracleAddress                         = zeroAddress;
+            
+
+//                 await chai.expect(lendingControllerInstance.methods.setCollateralToken(
+
+//                     setCollateralTokenActionType,
+                        
+//                     tokenName,
+//                     tokenContractAddress,
+//                     tokenDecimals,
+
+//                     oracleAddress,
+                    
+//                     // fa2 token type - token contract address + token id
+//                     tokenType,
+//                     tokenContractAddress,
+//                     tokenId
+
+//                 ).send()).to.be.rejected;
+
+//                 // Final values
+//                 lendingControllerStorage        = await lendingControllerInstance.storage();
+//                 const failTestCollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+
+//                 // Assertions
+//                 assert.strictEqual(failTestCollateralToken, undefined);
+
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('non-admin should not be able to set collateral token - update', async () => {
+//             try{
+//                 // Initial Values
+//                 await signerFactory(alice.sk);
+//                 lendingControllerStorage = await lendingControllerInstance.storage();
+//                 const currentAdmin = lendingControllerStorage.admin;
+
+//                 const setCollateralTokenActionType          = "updateCollateralToken";
 //                 const tokenName                             = "failTestCollateralToken";
 //                 const tokenContractAddress                  = mockFa2TokenAddress.address;
 //                 const tokenType                             = "fa2";
