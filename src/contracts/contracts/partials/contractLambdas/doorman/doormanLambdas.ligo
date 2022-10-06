@@ -1045,7 +1045,7 @@ block{
                 const newUserStakedBalance : nat = abs(userStakedBalance - depositAmount);
 
                 // find or create vault record in stake balance ledger
-                var vaultBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
                         Some(_val) -> _val
                     |   None -> record[
                             balance                        = 0n;
@@ -1057,8 +1057,8 @@ block{
                 ];
 
                 // update vault stake balance in stake balance ledger
-                vaultBalanceInStakeBalanceLedger.balance  := vaultBalanceInStakeBalanceLedger.balance + depositAmount; 
-                s.userStakeBalanceLedger[vaultAddress]    := vaultBalanceInStakeBalanceLedger;
+                vaultStakeBalanceRecord.balance           := vaultStakeBalanceRecord.balance + depositAmount; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
                 // update user stake balance in stake balance ledger
                 userBalanceInStakeBalanceLedger.balance   := newUserStakedBalance;
@@ -1110,19 +1110,19 @@ block{
                 ];
 
                 // find vault record in stake balance ledger
-                var vaultBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
                 ];
 
                 // calculate new vault staked balance (check if vault has enough staked MVK to be withdrawn)
-                const vaultStakedBalance : nat = vaultBalanceInStakeBalanceLedger.balance; 
+                const vaultStakedBalance : nat = vaultStakeBalanceRecord.balance; 
                 if withdrawAmount > vaultStakedBalance then failwith(error_NOT_ENOUGH_SMVK_BALANCE) else skip;
                 const newVaultStakedBalance : nat = abs(vaultStakedBalance - withdrawAmount);
 
                 // update vault stake balance in stake balance ledger
-                vaultBalanceInStakeBalanceLedger.balance  := newVaultStakedBalance; 
-                s.userStakeBalanceLedger[vaultAddress]    := vaultBalanceInStakeBalanceLedger;
+                vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
                 // update user stake balance in stake balance ledger
                 userBalanceInStakeBalanceLedger.balance   := userBalanceInStakeBalanceLedger.balance + withdrawAmount;
@@ -1191,7 +1191,7 @@ block{
                 const newVaultStakedBalance : nat = abs(vaultStakedBalance - liquidatedAmount);
 
                 // update vault stake balance in stake balance ledger
-                vaultBalanceInStakeBalanceLedger.balance  := newVaultStakedBalance; 
+                vaultStakeBalanceRecord.balance  := newVaultStakedBalance; 
                 s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
                 // update liquidator stake balance in stake balance ledger
