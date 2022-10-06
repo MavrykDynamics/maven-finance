@@ -314,7 +314,7 @@ export const GovernanceView = ({
         emptyContainer
       )}
       {rightSideContent && rightSideContent.id !== 0 ? (
-        <GovernanceRightContainer>
+        <GovernanceRightContainer isAuthorized={Boolean(accountPkh)}>
           <GovRightContainerTitleArea>
             <h1>{rightSideContent.title}</h1>
             <StatusFlag text={rightSideContentStatus} status={rightSideContentStatus} />

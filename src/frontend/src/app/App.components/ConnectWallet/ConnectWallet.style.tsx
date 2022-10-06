@@ -36,8 +36,8 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
   .wallet {
     width: 22px;
     height: 20px;
-    stroke: ${theme.headerSkyColor};
-    fill: transparent;
+    stroke: none;
+    fill: ${theme.headerSkyColor};
     transition: 0.6s all;
   }
 
@@ -47,14 +47,14 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
       : ` &:hover {
       var, .wallet, .end-icon {
         color: ${cyanColor};
-        stroke: ${cyanColor};
+        fill: ${cyanColor};
 
         div {
           color: ${cyanColor};
         }
 
         svg {
-          stroke: ${cyanColor};
+          fill: ${cyanColor};
         }
       }
     }
