@@ -225,10 +225,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         // await bobSetObservationRevealOp.confirmation();
 
         // const afterPriceChangeStorage: aggregatorStorageType = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        // const updatedLastCompletedRoundPrice = afterPriceChangeStorage.lastCompletedRoundPrice.price;
+        // const updatedLastCompletedData = afterPriceChangeStorage.lastCompletedData.data;
         
-        // console.log('updatedLastCompletedRoundPrice: '+ updatedLastCompletedRoundPrice);
-        // assert.equal(updatedLastCompletedRoundPrice, price);
+        // console.log('updatedLastCompletedData: '+ updatedLastCompletedData);
+        // assert.equal(updatedLastCompletedData, price);
 
         // set up token oracles for testing
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
@@ -242,21 +242,21 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     
         tokenOracles.push({
             'name': 'mockFa12', 
-            'price': parseInt(mockUsdMockFa12TokenAggregatorStorage.lastCompletedRoundPrice.price),
+            'price': parseInt(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data),
             'priceDecimals': parseInt(mockUsdMockFa12TokenAggregatorStorage.config.decimals),
             'tokenDecimals': 0
         })
 
         tokenOracles.push({
             'name': 'mockFa2', 
-            'price': parseInt(mockUsdMockFa2TokenAggregatorStorage.lastCompletedRoundPrice.price),
+            'price': parseInt(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data),
             'priceDecimals': parseInt(mockUsdMockFa2TokenAggregatorStorage.config.decimals),
             'tokenDecimals': 0
         })
 
         tokenOracles.push({
             'name': 'tez', 
-            'price': parseInt(mockUsdXtzAggregatorStorage.lastCompletedRoundPrice.price),
+            'price': parseInt(mockUsdXtzAggregatorStorage.lastCompletedData.data),
             'priceDecimals': parseInt(mockUsdXtzAggregatorStorage.config.decimals),
             'tokenDecimals': 0
         })
@@ -1253,7 +1253,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     // 
     // Test Vault Liquidation
     //
-    describe('test vault liquidation', function () {
+    describe('%liquidateVault - test vault liquidation', function () {
  
         it('user (mallory) can mark eve\'s vault for liquidation (interest accumulated over time) and liquidate vault', async () => {
             
@@ -1263,6 +1263,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             let currentMockLevel      = lendingControllerStorage.mockLevel;
             let newMockLevel
+            let mockLevelChange
             let minutesPassed
             
             let vaultRecord
@@ -1399,18 +1400,19 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
             lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
-            const yearsPassed  = 6; 
-            newMockLevel = parseInt(lastUpdatedBlockLevel) + (yearsPassed * oneYearLevelBlocks);
+            const yearsPassed  = 7; 
+            mockLevelChange = yearsPassed * oneYearLevelBlocks;
+            newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperation.confirmation();
+            const setMockLevelOperationOne = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
+            await setMockLevelOperationOne.confirmation();
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel = lendingControllerStorage.config.mockLevel;
 
             assert.equal(currentMockLevel, newMockLevel);
 
-            console.log('   - time set to 6 years ahead: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel);
+            console.log('   - time set to 6 years ahead: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
             // ----------------------------------------------------------------------------------------------
             // Vault Marked for liquidation
@@ -1427,11 +1429,18 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             tempMap                    = lendingControllerStorage.tempMap;
 
             const blocksPerMinute = await tempMap.get('blocksPerMinute');
+            const blocksPerMinuteTwo = await tempMap.get('blocksPerMinuteTwo');
+            const minBlockTime = await tempMap.get('minBlockTime');
+            const getMinBlockTime = await tempMap.get('getMinBlockTime');
 
             const expectedMarkedForLiquidationLevel = currentMockLevel;
             const expectedLiquidationEndLevel       = currentMockLevel + (liquidationMaxDuration * oneMinuteLevelBlocks);
             
             console.log('blocksPerMinute: '+ blocksPerMinute);
+            console.log('blocksPerMinuteTwo: '+ blocksPerMinuteTwo);
+            console.log('minBlockTime: '+ minBlockTime);
+            console.log('getMinBlockTime: '+ getMinBlockTime);
+
             console.log('currentMockLevel: '+ currentMockLevel);
             console.log('liquidationDelayInMins * oneMinuteLevelBlocks: '+ liquidationDelayInMins * oneMinuteLevelBlocks);
             console.log('liquidationMaxDuration: '+ liquidationMaxDuration);
@@ -1458,13 +1467,22 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
             minutesPassed  = liquidationDelayInMins / 2; 
-            newMockLevel = parseInt(lastUpdatedBlockLevel) + (minutesPassed * oneMinuteLevelBlocks);
+            mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
+            newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
 
-            console.log('   - time set to middle of vault liquidation delay: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel);
+            const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
+            await setMockLevelOperationTwo.confirmation();
+
+            lendingControllerStorage = await lendingControllerInstance.storage();
+            currentMockLevel = lendingControllerStorage.config.mockLevel;
+
+            assert.equal(currentMockLevel, newMockLevel);
+
+            console.log('   - time set to middle of vault liquidation delay: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
             // test vault cannot be marked for liquidation if it has already been marked
-            const failMarkVaultForLiquidationAgain = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
-            await chai.expect(failMarkVaultForLiquidationAgain.send()).to.be.rejected;
+            // const failMarkVaultForLiquidationAgain = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
+            // await chai.expect(failMarkVaultForLiquidationAgain.send()).to.be.rejected;
 
             // test vault cannot be liquidated if delay has not been passed
             const failTestLiquidationAmount = 10;
@@ -1482,23 +1500,30 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
             minutesPassed  = liquidationDelayInMins + 1;
-            newMockLevel = parseInt(lastUpdatedBlockLevel) + (minutesPassed * oneMinuteLevelBlocks);
+            mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
+            newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
 
-            console.log('   - time set to immediately after vault liquidation delay: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel);
+            const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
+            await setMockLevelOperationThree.confirmation();
+
+            lendingControllerStorage = await lendingControllerInstance.storage();
+            currentMockLevel = lendingControllerStorage.config.mockLevel;
+
+            assert.equal(currentMockLevel, newMockLevel);
+
+            console.log('   - time set to immediately after vault liquidation delay: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
             // ----------------------------------------------------------------------------------------------
             // Liquidate Vault
             // ----------------------------------------------------------------------------------------------
 
             await signerFactory(oscar.sk); // different user than the one who marked the vault for liquidation
+            const liquidationAmount = 1;
 
             // On-chain views to vault and loan token
             lendingControllerStorage    = await lendingControllerInstance.storage();
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
             loanTokenRecord             = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
-
-            // const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-            // const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
             vaultLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal;
             vaultLoanPrincipalTotal     = vaultRecord.loanPrincipalTotal;
@@ -1506,6 +1531,20 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultBorrowIndex            = vaultRecord.borrowIndex;
 
             loanTokenBorrowIndex        = loanTokenRecord.borrowIndex;
+
+            tempMap = await lendingControllerStorage.tempMap;
+            const liquidatorTokenQuantityTotal  = await tempMap.get('liquidatorTokenQuantityTotal');
+            const treasuryTokenQuantityTotal    = await tempMap.get('treasuryTokenQuantityTotal');
+
+            const interestTreasuryShare         = await tempMap.get('interestTreasuryShare');
+            const interestRewardPool            = await tempMap.get('interestRewardPool');
+
+            console.log(vaultRecord);
+            console.log(tempMap);
+            console.log("liquidatorTokenQuantityTotal: " + liquidatorTokenQuantityTotal);
+            console.log("treasuryTokenQuantityTotal: " + treasuryTokenQuantityTotal);
+            console.log("interestTreasuryShare: " + interestTreasuryShare);
+            console.log("interestRewardPool: " + interestRewardPool);
 
             // const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
             // const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
@@ -1519,6 +1558,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             console.log("vaultBorrowIndex: " + vaultBorrowIndex);
             
             console.log("loanTokenBorrowIndex: " + loanTokenBorrowIndex);
+
+
+            const liquidateVault        = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).send();
+            await liquidateVault.confirmation();
 
 
         })
@@ -1638,7 +1681,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //     // update token oracle with new token price
         //     const newPrice = 1000000; // e.g. $1
         //     const mockFa2TokenIndex = tokenOracles.findIndex((o => o.name === "mockFa2"));
-        //     tokenOracles[mockFa2TokenIndex].price = newPrice;
+        //     tokenOracles[mockFa2TokenIndex].data = newPrice;
 
         //     const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
 
@@ -1692,10 +1735,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //     await bobSetObservationRevealOp.confirmation();
 
         //     const afterPriceChangeStorage: aggregatorStorageType = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        //     const updatedLastCompletedRoundPrice = afterPriceChangeStorage.lastCompletedRoundPrice.price;
+        //     const updatedLastCompletedData = afterPriceChangeStorage.lastCompletedData.data;
             
-        //     console.log('updatedLastCompletedRoundPrice: '+ updatedLastCompletedRoundPrice);
-        //     assert.equal(updatedLastCompletedRoundPrice, price);
+        //     console.log('updatedLastCompletedData: '+ updatedLastCompletedData);
+        //     assert.equal(updatedLastCompletedData, price);
 
         //     // ----------------------------------------------------------------------------------------------
         //     // Vault Marked for liquidation

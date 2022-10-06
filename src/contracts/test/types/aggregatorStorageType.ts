@@ -7,13 +7,12 @@ export type aggregatorStorageType = {
     metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
     name                      : string;
     config                    : {
-        nameMaxLength                       : BigNumber;
+
         decimals                            : BigNumber;
         alphaPercentPerThousand             : BigNumber;
 
         percentOracleThreshold              : BigNumber;
         heartBeatSeconds                    : BigNumber;
-
         
         rewardAmountXtz                     : BigNumber;
         rewardAmountStakedMvk               : BigNumber;
@@ -33,7 +32,6 @@ export type aggregatorStorageType = {
 
     oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
     
-
     lastCompletedData: {
         round                 : BigNumber;
         epoch                 : BigNumber;
@@ -41,7 +39,6 @@ export type aggregatorStorageType = {
         percentOracleResponse : BigNumber;
         lastUpdatedAt         : string;
     };
-
 
     oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;
     oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;
