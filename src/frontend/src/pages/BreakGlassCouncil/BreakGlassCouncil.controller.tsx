@@ -1,7 +1,8 @@
 import React, { FC, useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
+import qs from 'qs'
 
 // components
 import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
@@ -50,7 +51,8 @@ import {
 
 export const BreakGlassCouncil: FC = () => {
   const dispatch = useDispatch()
-  const { search } = useLocation()
+  const history = useHistory()
+  const { search, pathname } = useLocation()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
     breakGlassCouncilMember,
@@ -74,7 +76,6 @@ export const BreakGlassCouncil: FC = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
-  const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(true)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
@@ -84,6 +85,18 @@ export const BreakGlassCouncil: FC = () => {
   )
 
   const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
+  const { review: isReviewPage = false } = qs.parse(search, { ignoreQueryPrefix: true }) as { review?: boolean }
+  const stringifiedQP = qs.stringify({ review: true })
+
+  const handleClickReview = () => {
+    setIsPendingSignature(false)
+    history.push(`${pathname}?${stringifiedQP}`)
+  }
+
+  const handleClickGoBack = () => {
+    setIsPendingSignature(true)
+    history.push(`${pathname}`)
+  }
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
@@ -101,7 +114,7 @@ export const BreakGlassCouncil: FC = () => {
 
   const currentPage = getPageNumber(
     search,
-    isGoBack ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
+    isReviewPage ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
 
   const paginatedMyPastCouncilActions = useMemo(() => {
@@ -130,25 +143,20 @@ export const BreakGlassCouncil: FC = () => {
   }, [dispatch, accountPkh])
 
   useEffect(() => {
-    setIsGoBack(isUserInBreakCouncilMember ? false : true)
+    history.push(isUserInBreakCouncilMember ? `${pathname}` : `${pathname}?${stringifiedQP}`)
   }, [isUserInBreakCouncilMember])
 
   return (
     <Page>
       <PageHeader page={'break glass council'} />
-      {isGoBack && isUserInBreakCouncilMember && (
-        <GoBack
-          onClick={() => {
-            setIsPendingSignature(true)
-            setIsGoBack(false)
-          }}
-        >
+      {isReviewPage && isUserInBreakCouncilMember && (
+        <GoBack onClick={handleClickGoBack}>
           <Icon id="arrow-left-stroke" />
           Back to Member Dashboard
         </GoBack>
       )}
 
-      {isUserInBreakCouncilMember && !isGoBack && (
+      {isUserInBreakCouncilMember && !isReviewPage && (
         <PropagateBreakGlassCouncilCard>
           <h1>Propagate Break Glass</h1>
 
@@ -183,7 +191,7 @@ export const BreakGlassCouncil: FC = () => {
             </article>
           )}
 
-          {isGoBack ? (
+          {isReviewPage ? (
             <>
               {Boolean(pastBreakGlassCouncilAction.length) && (
                 <>
@@ -252,17 +260,14 @@ export const BreakGlassCouncil: FC = () => {
         </div>
 
         <div className="right-block">
-          {!isGoBack && (
+          {!isReviewPage && (
             <ReviewPastCouncilActionsCard displayPendingSignature={displayPendingSignature}>
               <h2>Review Past Council Actions</h2>
 
               <Button
                 text="Review"
                 kind={ACTION_SECONDARY}
-                onClick={() => {
-                  setIsGoBack(true)
-                  setIsPendingSignature(false)
-                }}
+                onClick={handleClickReview}
               />
             </ReviewPastCouncilActionsCard>
           )}

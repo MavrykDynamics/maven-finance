@@ -330,7 +330,6 @@ export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
     width: 25px;
     height: 20px;
     stroke-width: 0.8;
-    stroke: ${({ theme }) => theme.containerColor};
     fill: ${({ theme }) => theme.containerColor};
     margin-right: 16px;
   }
