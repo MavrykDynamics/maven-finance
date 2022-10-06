@@ -55,7 +55,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters">
             <article>
-              <p className="without-margin">Council Member Address</p>
+              <p>Council Member Address</p>
               <span className="parameters-value">
                 <TzAddress tzAddress={findActionByName('councilMemberAddress')} hasIcon={false} />
               </span>
@@ -66,6 +66,9 @@ export const BreakGlassCouncilPanding = (props: Props) => {
                 <span className="parameters-value">{councilMemberName}</span>
               </article>
             ) : null}
+          </div>
+
+          <div className='parameters'>
             <article className="signed-article">
               <div>
                 <p>Signed</p>
@@ -74,9 +77,9 @@ export const BreakGlassCouncilPanding = (props: Props) => {
                 </span>
               </div>
             </article>
-          </div>
 
-          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} /> 
+          </div>
         </CouncilPendingStyled>
       </>
     )
@@ -132,7 +135,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
               <p>Council Member Website</p>
               {newCouncilMemberWebsite ? (
                 <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
-                  Visit Website
+                  {newCouncilMemberWebsite}
                 </a>
               ) : (
                 <span className="parameters-value">-</span>
@@ -205,7 +208,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
               <p>Council Member Website</p>
               {newCouncilMemberWebsite ? (
                 <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
-                  Visit Website
+                  {newCouncilMemberWebsite}
                 </a>
               ) : (
                 <span className="parameters-value">-</span>

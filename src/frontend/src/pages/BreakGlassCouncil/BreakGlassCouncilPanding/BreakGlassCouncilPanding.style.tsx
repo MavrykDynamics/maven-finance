@@ -10,9 +10,25 @@ export const CouncilPendingStyled = styled(Card)`
 
   &.setSingleContractAdmin,
   &.updateCouncilMember,
-  &.changeCouncilMember {
+  &.changeCouncilMember,
+  &.addCouncilMember {
     h3 {
       max-width: 100%;
+    }
+  }
+
+  &.addCouncilMember {
+    min-width: 490px;
+
+    .parameters {
+      display: grid;
+      grid-template-columns: 150px 185px;
+
+      article {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   }
 
@@ -41,7 +57,7 @@ export const CouncilPendingStyled = styled(Card)`
 
     .parameters {
       display: grid;
-      grid-template-columns: 120px 160px 160px 185px;
+      grid-template-columns: 125px 160px 155px 185px;
       align-items: center;
     }
   }
@@ -76,17 +92,26 @@ export const CouncilPendingStyled = styled(Card)`
   }
 
   .parameters-btn {
-    color: ${headerColor};
+    display: block;
+
+    color: ${cyanColor};
     font-weight: 700;
     font-size: 14px;
     line-height: 14px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .parameters {
     display: flex;
     justify-content: space-between;
-    padding-bottom: 20px;
     gap: 16px;
+
+    &:first-of-type {
+      padding-bottom: 20px;
+    }
 
     .parameters-value,
     .parameters-value p {
@@ -95,8 +120,8 @@ export const CouncilPendingStyled = styled(Card)`
       font-weight: 600;
       font-size: 16px;
       line-height: 16px;
-      /* white-space: nowrap; */
-      /* overflow: hidden; */
+      white-space: nowrap;
+      overflow: hidden;
       word-break: break-all;
       width: 100%;
       max-width: 100%;
