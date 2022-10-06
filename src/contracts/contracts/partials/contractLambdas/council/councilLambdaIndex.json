@@ -57,7 +57,7 @@
 	},
 	{
 		"index": 14,
-		"name": "lambdaCouncilToggleVesteeLock"
+		"name": "lambdaCouncilActionToggleVesteeLock"
 	},
 	{
 		"index": 15,
@@ -65,19 +65,19 @@
 	},
 	{
 		"index": 16,
-		"name": "lambdaCouncilRequestTokens"
+		"name": "lambdaCouncilActionRequestTokens"
 	},
 	{
 		"index": 17,
-		"name": "lambdaCouncilRequestMint"
+		"name": "lambdaCouncilActionRequestMint"
 	},
 	{
 		"index": 18,
-		"name": "lambdaCouncilSetContractBaker"
+		"name": "lambdaCouncilActionSetContractBaker"
 	},
 	{
 		"index": 19,
-		"name": "lambdaCouncilDropFinancialReq"
+		"name": "lambdaCouncilActionDropFinancialRequest"
 	},
 	{
 		"index": 20,
