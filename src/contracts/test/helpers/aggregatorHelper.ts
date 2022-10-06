@@ -89,6 +89,7 @@ export class Aggregator {
         const artifacts: any = JSON.parse(
             fs.readFileSync(`${env.buildDir}/aggregator.json`).toString()
         );
+
         const operation: OriginationOperation = await tezos.contract
             .originate({
                 code: artifacts.michelson,
@@ -98,7 +99,7 @@ export class Aggregator {
                 console.error(e);
                 console.log('error no hash')
                 return null;
-            });
+            });            
 
         await confirmOperation(tezos, operation.hash);
 

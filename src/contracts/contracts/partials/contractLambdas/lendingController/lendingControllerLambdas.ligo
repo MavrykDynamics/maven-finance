@@ -803,8 +803,6 @@ block {
                 const configLiquidationDelayInMins  : nat = s.config.liquidationDelayInMins;
                 const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
 
-                s.tempMap
-
                 const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
                 const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
 
@@ -1075,12 +1073,12 @@ block {
                         ];
                         const collateralTokenType : tokenType = collateralTokenRecord.tokenType;
 
-                        // get last completed round price of token from Oracle view
-                        const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
+                        // get last completed data of token from Aggregator view
+                        const collateralTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(collateralTokenRecord.oracleAddress);
                         
                         const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
-                        const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
-                        const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
+                        const priceDecimals    : nat  = collateralTokenLastCompletedData.decimals;
+                        const tokenPrice       : nat  = collateralTokenLastCompletedData.data;            
                         var   tokenBalance     : nat := tokenBalance;
 
                         // if token is sMVK, get latest balance from Doorman Contract through on-chain views
@@ -1852,6 +1850,7 @@ block {
 
                 var totalInterestPaid       : nat := 0n;
                 var totalPrincipalRepaid    : nat := 0n;
+                var refundTotal             : nat := 0n;
 
                 if finalRepaymentAmount > newLoanInterestTotal then {
                     
@@ -1864,9 +1863,16 @@ block {
                     totalInterestPaid := newLoanInterestTotal;
                     newLoanInterestTotal := 0n;
 
-                    // Calculate final loan principal
-                    if principalReductionAmount > initialLoanPrincipalTotal then failwith(error_PRINCIPAL_REDUCTION_MISCALCULATION) else skip;
+                    // Calculate final loan principal and refund if exists
+                    if principalReductionAmount > initialLoanPrincipalTotal then refundTotal := abs(principalReductionAmount - initialLoanPrincipalTotal) else skip;
                     newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
+
+                    // if refund exists, reduce final repay amount by refund amount
+                    if refundTotal > 0n then {
+                        // note: refundTotal will always be smaller than finalRepaymentAmount 
+                        //  - since refundTotal = finalRepaymentAmount - newLoanInterestTotal - initialLoanPrincipalTotal
+                        finalRepaymentAmount := abs(finalRepaymentAmount - refundTotal);
+                    } else skip;
 
                     // set total principal repaid amount
                     totalPrincipalRepaid := principalReductionAmount;
@@ -1939,14 +1945,28 @@ block {
 
                 } else skip;
 
-                const makeRepaymentOperation : operation = tokenPoolTransfer(
+                const processRepayOperation : operation = tokenPoolTransfer(
                     initiator,                  // from_
                     Tezos.get_self_address(),   // to_
                     initialRepaymentAmount,     // amount
                     loanTokenType               // token type
                 );
 
-                operations := makeRepaymentOperation # operations;
+                operations := processRepayOperation # operations;
+
+                // process refund if necessary
+                if refundTotal > 0n then {
+
+                    const processRefundOperation : operation = tokenPoolTransfer(
+                        Tezos.get_self_address(),   // from_
+                        initiator,                  // to_
+                        refundTotal,                // amount
+                        loanTokenType               // token type
+                    );
+
+                    operations := processRefundOperation # operations;   
+
+                } else skip;
 
                 // ------------------------------------------------------------------
                 // Update Storage

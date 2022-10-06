@@ -210,8 +210,8 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
 // helper function to check no loan outstanding on vault
 function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
-  if vault.loanOutstandingTotal = 0n then unit
-  else failwith(error_LOAN_OUTSTANDING_IS_NOT_ZERO)
+    if vault.loanOutstandingTotal = 0n then unit
+    else failwith(error_LOAN_OUTSTANDING_IS_NOT_ZERO)
 
 // ------------------------------------------------------------------------------
 // Misc Helper Functions Begin
@@ -909,18 +909,18 @@ block {
 
 
 
-// helper function to get token last completed round price from oracle
-function getTokenLastCompletedRoundPriceFromOracle(const oracleAddress : address) : lastCompletedRoundPriceReturnType is 
+// helper function to get token last completed data from aggregator
+function getTokenLastCompletedDataFromAggregator(const aggregatorAddress : address) : lastCompletedDataReturnType is 
 block {
 
     // get last completed round price of token from Oracle view
-    const getTokenLastCompletedRoundPriceView : option (lastCompletedRoundPriceReturnType) = Tezos.call_view ("getLastCompletedRoundPrice", unit, oracleAddress);
-    const tokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceView of [
+    const getTokenLastCompletedDataView : option (lastCompletedDataReturnType) = Tezos.call_view ("getlastCompletedData", unit, aggregatorAddress);
+    const tokenLastCompletedData : lastCompletedDataReturnType = case getTokenLastCompletedDataView of [
             Some (_value) -> _value
-        |   None          -> failwith (error_LAST_COMPLETED_ROUND_PRICE_NOT_FOUND)
+        |   None          -> failwith (error_GET_LAST_COMPLETED_DATA_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
     ];
 
-} with tokenLastCompletedRoundPrice
+} with tokenLastCompletedData
 
 
 
@@ -935,12 +935,12 @@ block {
         |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
     ];
 
-    // get last completed round price of token from Oracle view
-    const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
+    // get last completed round price of token from Aggregator view
+    const collateralTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(collateralTokenRecord.oracleAddress);
     
     const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
-    const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
-    const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
+    const priceDecimals    : nat  = collateralTokenLastCompletedData.decimals;
+    const tokenPrice       : nat  = collateralTokenLastCompletedData.data;            
 
     // calculate required number of decimals to rebase each token to the same unit for comparison
     // assuming most token decimals are 6, and most price decimals from oracle is 8 - (upper limit of 32 decimals)
@@ -969,11 +969,11 @@ block {
     ];
 
     // get last completed round price of token from Oracle view
-    const loanTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(loanTokenRecord.oracleAddress);
+    const loanTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
     
     const tokenDecimals    : nat  = loanTokenRecord.tokenDecimals; 
-    const priceDecimals    : nat  = loanTokenLastCompletedRoundPrice.decimals;
-    const tokenPrice       : nat  = loanTokenLastCompletedRoundPrice.price;            
+    const priceDecimals    : nat  = loanTokenLastCompletedData.decimals;
+    const tokenPrice       : nat  = loanTokenLastCompletedData.data;            
 
     // calculate required number of decimals to rebase each token to the same unit for comparison
     // assuming most token decimals are 6, and most price decimals from oracle is 8 - (upper limit of 32 decimals)
@@ -1388,7 +1388,7 @@ block {
 (* View: get the lambda ledger *)
 [@view] function getLambdaLedger(const _ : unit; var s : lendingControllerStorageType) : lambdaLedgerType is
     s.lambdaLedger
-    
+
 // ------------------------------------------------------------------------------
 //
 // Views End

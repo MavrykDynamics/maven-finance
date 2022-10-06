@@ -54,10 +54,10 @@ type lastCompletedDataReturnType is  [@layout:comb] record [
 ];
 
 type oracleObservationType is [@layout:comb] record [
-       data                 : nat;
-       epoch                : nat;
-       round                : nat;
-       aggregatorAddress    : address;
+    data                 : nat;
+    epoch                : nat;
+    round                : nat;
+    aggregatorAddress    : address;
 ];
 
 type updateDataType is   [@layout:comb] record [
