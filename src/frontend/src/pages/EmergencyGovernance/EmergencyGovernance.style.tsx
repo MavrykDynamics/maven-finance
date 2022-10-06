@@ -20,7 +20,8 @@ export const EmergencyGovernanceCard = styled(Card)<{ theme: MavrykTheme }>`
       font-size: 12px;
 
       a {
-        font-size: 13px;
+        font-size: 14px;
+        text-decoration: none;
       }
     }
   }
