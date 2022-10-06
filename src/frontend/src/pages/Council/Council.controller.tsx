@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
+import qs from 'qs'
 
 // type
 import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
@@ -46,10 +47,11 @@ import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/Dr
 
 export const Council = () => {
   const dispatch = useDispatch()
+  const history = useHistory()
+  const { search, pathname } = useLocation()
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(false)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
@@ -87,6 +89,19 @@ export const Council = () => {
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const sortedCouncilMembers = memberIsFirstOfList(councilMembers, accountPkh)
 
+  const { review: isReviewPage = false } = qs.parse(search, { ignoreQueryPrefix: true }) as { review?: boolean }
+  const stringifiedQP = qs.stringify({ review: true })
+  
+  const handleClickReview = () => {
+    setIsPendingSignature(false)
+    history.push(`${pathname}?${stringifiedQP}`)
+  }
+
+  const handleClickGoBack = () => {
+    setIsPendingSignature(true)
+    history.push(`${pathname}`)
+  }
+
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
@@ -117,7 +132,6 @@ export const Council = () => {
     setIsUpdateCouncilMemberInfo(true)
   }
 
-  const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, COUNCIL_LIST_NAME)
 
   const paginatedItemsList = useMemo(() => {
@@ -125,16 +139,17 @@ export const Council = () => {
     return currentCouncilPastActions?.slice(from, to)
   }, [currentPage, currentCouncilPastActions])
 
+  useEffect(() => {
+    history.push(isUserInCouncilMembers ? `${pathname}` : `${pathname}?${stringifiedQP}`)
+  }, [isUserInCouncilMembers])
+
   return (
     <Page>
       <PageHeader page={'council'} />
       <CouncilStyled>
-        {isGoBack ? (
+        {isReviewPage ? (
           <button
-            onClick={() => {
-              setIsPendingSignature(true)
-              setIsGoBack(false)
-            }}
+            onClick={handleClickGoBack}
             className="go-back"
           >
             <Icon id="arrow-left-stroke" />
@@ -227,12 +242,7 @@ export const Council = () => {
             }`}
           >
             {isPendingSignature ? (
-              <CouncilPendingReviewView
-                onClick={() => {
-                  setIsGoBack(true)
-                  setIsPendingSignature(false)
-                }}
-              />
+              <CouncilPendingReviewView onClick={handleClickReview} />
             ) : null}
 
             {sortedCouncilMembers.length ? (
