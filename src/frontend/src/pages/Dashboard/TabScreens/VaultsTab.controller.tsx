@@ -30,7 +30,7 @@ export const VaultsTab = () => {
       <div className="top">
         <BGPrimaryTitle>Vaults</BGPrimaryTitle>
         <Link to="/vaults">
-          <Button text="Vaults" icon="vaults" kind={ACTION_PRIMARY} className="noStroke" />
+          <Button text="Vaults" icon="vaults" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
         </Link>
       </div>
 
@@ -49,7 +49,7 @@ export const VaultsTab = () => {
             </div>
           </StatBlock>
           <StatBlock>
-            <div className="name">Avg Collateral Ratio</div>
+            <div className="name">Avg. Collateral Ratio</div>
             <div className="value">
               <CommaNumber endingText="%" value={333} />
             </div>
@@ -105,7 +105,7 @@ export const VaultsTab = () => {
       <div className="descr">
         <div className="title">What is a Vault?</div>
         <div className="text">
-          The treasury is managed by the Mavryk DAO through on chain voting. Governance votes, whether for the business
+          The treasury is managed by the Mavryk DAO through on-chain voting. Governance votes, whether for the business
           logic or upgrades to the Mavryk ecosystem, are rewarded with a portion of the earned income from the on-chain
           Treasury <a href="#">Read more</a>
         </div>

@@ -13,7 +13,7 @@ export const LendingTab = () => {
       <div className="top">
         <BGPrimaryTitle>Lending</BGPrimaryTitle>
         <Link to="/loans">
-          <Button text="Loans" icon="coin-loan" kind={ACTION_PRIMARY} className="noStroke" />
+          <Button text="Loans" icon="coin-loan" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
         </Link>
       </div>
 

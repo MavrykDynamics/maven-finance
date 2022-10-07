@@ -50,7 +50,7 @@ export const SatellitesTab = () => {
       <div className="top">
         <BGPrimaryTitle>Satellites</BGPrimaryTitle>
         <Link to="/satellites">
-          <Button text="Satellite" icon="satellite" kind={ACTION_PRIMARY} className="noStroke" />
+          <Button text="Satellite" icon="satellite" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
         </Link>
       </div>
 
@@ -70,14 +70,14 @@ export const SatellitesTab = () => {
         </StatBlock>
 
         <StatBlock>
-          <div className="name">Avg Free sMVK Space</div>
+          <div className="name">Avg. Free sMVK Space</div>
           <div className="value">
             <CommaNumber endingText="sMVK" value={satellitesInfo.avgFreesMVKSpace} />
           </div>
         </StatBlock>
 
         <StatBlock>
-          <div className="name">Avg Delegation Fee</div>
+          <div className="name">Avg. Delegation Fee</div>
           <div className="value">
             <CommaNumber endingText="%" value={satellitesInfo.avgFee} />
           </div>
@@ -107,7 +107,7 @@ export const SatellitesTab = () => {
           <br />
           To operate a Mavryk Satellite, a user needs to stake a security deposit in MVK as a bond, which the user can
           buy on the open market or earn by participating in the ecosystem (e.g. through yield farming, or MVK returned
-          on DSR savings <a href="#">Read more</a>
+          on DSR savings). <a href="#">Read more</a>
         </div>
       </div>
     </TabWrapperStyled>

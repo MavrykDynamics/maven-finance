@@ -155,6 +155,10 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   &.change-wallet {
     width: 185px;
   }
+
+  &.dashboard-sectionLink {
+    width: 220px;
+  }
 `
 
 export const ButtonText = styled.div<{ theme: MavrykTheme }>`

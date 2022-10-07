@@ -30,7 +30,7 @@ export const FarmsTab = () => {
       <div className="top">
         <BGPrimaryTitle>Yield Farms</BGPrimaryTitle>
         <Link to="/yield-farms">
-          <Button text="Farms" icon="plant" kind={ACTION_PRIMARY} className="noStroke" />
+          <Button text="Farms" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
         </Link>
       </div>
 

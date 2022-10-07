@@ -68,7 +68,7 @@ export const TreasuryTab = () => {
       <div className="top">
         <BGPrimaryTitle>Treasury</BGPrimaryTitle>
         <Link to="/treasury">
-          <Button text="Treasury" icon="treasury" kind={ACTION_PRIMARY} className="noStroke" />
+          <Button text="Treasury" icon="treasury" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
         </Link>
       </div>
 
@@ -146,7 +146,7 @@ export const TreasuryTab = () => {
       <div className="descr">
         <div className="title">What is the purpose of the Treasury?</div>
         <div className="text">
-          The treasury is managed by the Mavryk DAO through on chain voting. Governance votes, whether for the business
+          The treasury is managed by the Mavryk DAO through on-chain voting. Governance votes, whether for the business
           logic or upgrades to the Mavryk ecosystem, are rewarded with a portion of the earned income from the on-chain
           Treasury. <a href="#">Read more</a>
         </div>
