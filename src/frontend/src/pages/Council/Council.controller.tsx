@@ -140,14 +140,22 @@ export const Council = () => {
   }, [currentPage, currentCouncilPastActions])
 
   useEffect(() => {
+    // redirect to review or main page when member changes
     history.push(isUserInCouncilMembers ? `${pathname}` : `${pathname}?${stringifiedQP}`)
   }, [isUserInCouncilMembers])
+
+  useEffect(() => {
+    // check authorization when clicking on a review or a header in the menu
+    if (!isUserInCouncilMembers) {
+      history.push(`${pathname}?${stringifiedQP}`)
+    }
+  }, [search])
 
   return (
     <Page>
       <PageHeader page={'council'} />
       <CouncilStyled>
-        {isReviewPage ? (
+        {isReviewPage && isUserInCouncilMembers ? (
           <button
             onClick={handleClickGoBack}
             className="go-back"
