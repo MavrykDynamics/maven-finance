@@ -245,7 +245,10 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
     <ModalPopup className="modal-roi scroll-block" onClose={onClose}>
       <RoiCalculatorStyled>
         <header>
-          <CoinsIcons firstAssetLogoSrc={farm.lpToken1.thumbnailUri} secondAssetLogoSrc={farm.lpToken2.thumbnailUri} />
+          <CoinsIcons
+            firstAssetLogoSrc={farm.lpToken1.thumbnailUri ?? farm.lpToken1.address}
+            secondAssetLogoSrc={farm.lpToken2.thumbnailUri ?? farm.lpToken2.address}
+          />
           <h2>ROI Calculator</h2>
         </header>
 
