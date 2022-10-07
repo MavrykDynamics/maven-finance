@@ -3,7 +3,7 @@ import { createHash } from "crypto";
 const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
-import { Utils, zeroAddress, TEZ } from "./helpers/Utils";
+import { Utils, zeroAddress, TEZ, MVK } from "./helpers/Utils";
 import * as lendingHelper from "./helpers/lendingHelpers"
 import fs from "fs";
 import BigNumber from 'bignumber.js';
@@ -16,7 +16,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../env";
-import { alice, bob, eve, mallory, oscar, trudy } from "../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory, oscar, trudy, oracleMaintainer } from "../scripts/sandbox/accounts";
 
 import doormanAddress           from '../deployments/doormanAddress.json';
 import delegationAddress        from '../deployments/delegationAddress.json';
@@ -54,11 +54,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     var eveVaultSet = []
     var malloryVaultSet = [] 
 
-    // const oneMinuteLevelBlocks = 3
-    // const oneDayLevelBlocks = 4320
-    // const oneMonthLevelBlocks = 129600
-    // const oneYearLevelBlocks = 1576800
-
     // 3 seconds blocks (docker sandbox)
     const oneMinuteLevelBlocks = 20
     const oneDayLevelBlocks   = 28800
@@ -80,6 +75,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
     let mockUsdXtzAggregatorInstance
+    let mockUsdMvkAggregatorInstance
 
     let lpTokenPoolMockFa12TokenInstance
     let lpTokenPoolMockFa2TokenInstance
@@ -101,15 +97,17 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let mockFa2TokenStorage
     let governanceStorage
     let governanceProxyStorage
+
     let mockUsdMockFa12TokenAggregatorStorage
     let mockUsdMockFa2TokenAggregatorStorage
     let mockUsdXtzAggregatorStorage
+    let mockUsdMvkAggregatorStorage
 
     let lendingControllerStorage
     let vaultFactoryStorage
 
     let tokenOracles : {name : string, price : number, priceDecimals : number, tokenDecimals : number}[] = []
-    
+
     // Begin Helper Functions
 
     const almostEqual = (actual, expected, delta) => {
@@ -152,6 +150,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(mockUsdXtzAggregatorAddress.address);
+        mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(mockUsdMvkAggregatorAddress.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
         vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
@@ -169,76 +168,24 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         lendingControllerStorage                = await lendingControllerInstance.storage();
         vaultFactoryStorage                     = await vaultFactoryInstance.storage();
 
-        // Reset Oracle Price for mockFA2 Token for continuous testing
-        
-        // const resetPrice = 3500000; // e.g. $3.50
-
-        // const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
-
-        // // using Oracle v1 contracts
-
-        // await signerFactory(bob.sk);
-
-        // const beforeStorage: aggregatorStorageType = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        // const round = beforeStorage.round;
-
-        // const price = new BigNumber(resetPrice);
-        // const data: MichelsonData = {
-        // prim: 'Pair',
-        // args: [
-        //     { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-        //     { string: bob.pkh },
-        // ],
-        // };
-        // const type: MichelsonType = {
-        // prim: 'pair',
-        // args: [
-        //     { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-        //     { prim: 'address' },
-        // ],
-        // };
-        // const priceCodec = packDataBytes(data, type);
-
-        // const hash = createHash('sha256')
-        //     .update(priceCodec.bytes, 'hex')
-        //     .digest('hex');
-        // const setObservationCommitOp = mockUsdMockFa2TokenAggregatorInstance.methods.setObservationCommit(round, hash);
-
-        // const bobSetObservationCommitOp = await setObservationCommitOp.send();
-        // await bobSetObservationCommitOp.confirmation();
-
-        // // eve commits
-        // await signerFactory(eve.sk);
-        // const eveSetObservationCommitOp = await setObservationCommitOp.send();
-        // await eveSetObservationCommitOp.confirmation();
-
-        // // mallory commits
-        // await signerFactory(mallory.sk);
-        // const mallorySetObservationCommitOp = await setObservationCommitOp.send();
-        // await mallorySetObservationCommitOp.confirmation();
-
-        // // reveal new price
-        // await signerFactory(bob.sk);
-        // const setObservationRevealOp = mockUsdMockFa2TokenAggregatorInstance.methods.setObservationReveal(round, price, salt, bob.pkh);
-
-        // const bobSetObservationRevealOp = await setObservationRevealOp.send();
-        // await bobSetObservationRevealOp.confirmation();
-
-        // const afterPriceChangeStorage: aggregatorStorageType = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        // const updatedLastCompletedData = afterPriceChangeStorage.lastCompletedData.data;
-        
-        // console.log('updatedLastCompletedData: '+ updatedLastCompletedData);
-        // assert.equal(updatedLastCompletedData, price);
-
         // set up token oracles for testing
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
         mockUsdXtzAggregatorStorage             = await mockUsdXtzAggregatorInstance.storage();
+        mockUsdMvkAggregatorStorage             = await mockUsdMvkAggregatorInstance.storage();
 
+        // ------------------------------------------------------------------
+        //
         // Basic price setup
-        // MockFA12 price -> 1500000 or $1.50
-        // MockFA2 price  -> 3500000 or $3.50 
-        // Tez price      -> 1800000 or $1.80
+        //
+        // MockFA12 price -> 1,500,000 or $1.50
+        // MockFA2 price  -> 3,500,000 or $3.50 
+        // Tez price      -> 1,800,000 or $1.80
+        // Mvk price      -> 1,000,000,000 or $1.00
+        //
+        // Note: oracle/aggregator prices follow the same default price set in Lending Helpers 
+        //
+        // ------------------------------------------------------------------
     
         tokenOracles.push({
             'name': 'mockFa12', 
@@ -261,6 +208,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             'tokenDecimals': 0
         })
 
+        tokenOracles.push({
+            'name': 'mvk', 
+            'price': parseInt(mockUsdMvkAggregatorStorage.lastCompletedData.data),
+            'priceDecimals': parseInt(mockUsdMvkAggregatorStorage.config.decimals),
+            'tokenDecimals': 0
+        })
+
         console.log('-- -- -- -- -- Lending Controller (Mock Time) Tests -- -- -- --')
         console.log('Doorman Contract deployed at:'             , doormanInstance.address);
         console.log('Delegation Contract deployed at:'          , delegationInstance.address);
@@ -280,6 +234,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:'    , mockUsdMockFa12TokenAggregatorInstance.address);
         console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:'     , mockUsdMockFa2TokenAggregatorInstance.address);
         console.log('Mock Aggregator - USD / XTZ - deployed at:'                , mockUsdXtzAggregatorInstance.address);
+        console.log('Mock Aggregator - USD / MVK - deployed at:'                , mockUsdMvkAggregatorInstance.address);
 
         console.log('Lending Controller Mock Time Contract deployed at:'        , lendingControllerInstance.address);
 
@@ -289,6 +244,110 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         console.log('Mallory address: ' + mallory.pkh);
         console.log('Oscar address: ' + oscar.pkh);
         console.log('Trudy address: ' + trudy.pkh);
+
+        // Setup governance satellites for action snapshot later
+        // ------------------------------------------------------------------
+
+        const bobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
+        const mallorySatellite  = await delegationStorage.satelliteLedger.get(mallory.pkh);
+        const eveSatellite      = await delegationStorage.satelliteLedger.get(eve.pkh);
+        const oscarSatellite    = await delegationStorage.satelliteLedger.get(oscar.pkh);
+        
+        if(bobSatellite === undefined){
+
+            // Bob stakes 100 MVK tokens and registers as a satellite
+            await signerFactory(bob.sk);
+            var updateOperators = await mvkTokenInstance.methods
+                .update_operators([
+                {
+                    add_operator: {
+                        owner: bob.pkh,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                },
+                ])
+                .send()
+            await updateOperators.confirmation();  
+            const bobStakeAmount                  = MVK(100);
+            const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
+            await bobStakeAmountOperation.confirmation();                        
+            const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "1000").send();
+            await bobRegisterAsSatelliteOperation.confirmation();
+
+        }
+
+
+        if(eveSatellite === undefined){
+
+            // Eve stakes 100 MVK tokens and registers as a satellite 
+            await signerFactory(eve.sk);
+            updateOperators = await mvkTokenInstance.methods
+                .update_operators([
+                {
+                    add_operator: {
+                        owner: eve.pkh,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                },
+                ])
+                .send()
+            await updateOperators.confirmation(); 
+            const eveStakeAmount                  = MVK(100);
+            const eveStakeAmountOperation         = await doormanInstance.methods.stake(eveStakeAmount).send();
+            await eveStakeAmountOperation.confirmation();                        
+            const eveRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Eve", "New Satellite Description - Eve", "https://image.url", "https://image.url", "1000").send();
+            await eveRegisterAsSatelliteOperation.confirmation();
+        }
+
+
+        if(mallorySatellite === undefined){
+
+            // Mallory stakes 100 MVK tokens and registers as a satellite 
+            await signerFactory(mallory.sk);
+            updateOperators = await mvkTokenInstance.methods
+                .update_operators([
+                {
+                    add_operator: {
+                        owner: mallory.pkh,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                },
+                ])
+                .send()
+            await updateOperators.confirmation(); 
+            const malloryStakeAmount                  = MVK(100);
+            const malloryStakeAmountOperation         = await doormanInstance.methods.stake(malloryStakeAmount).send();
+            await malloryStakeAmountOperation.confirmation();                        
+            const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Mallory", "New Satellite Description - Mallory", "https://image.url", "https://image.url", "1000").send();
+            await malloryRegisterAsSatelliteOperation.confirmation();
+        }
+
+
+        if(oscarSatellite === undefined){
+
+            // Oscar stakes 100 MVK tokens and registers as a satellite 
+            await signerFactory(oscar.sk);
+            updateOperators = await mvkTokenInstance.methods
+                .update_operators([
+                {
+                    add_operator: {
+                        owner: oscar.pkh,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                },
+                ])
+                .send()
+            await updateOperators.confirmation(); 
+            const oscarStakeAmount                  = MVK(100);
+            const oscarStakeAmountOperation         = await doormanInstance.methods.stake(oscarStakeAmount).send();
+            await oscarStakeAmountOperation.confirmation();                        
+            const oscarRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Oscar", "New Satellite Description - Oscar", "https://image.url", "https://image.url", "1000").send();
+            await oscarRegisterAsSatelliteOperation.confirmation();
+        }
 
     });
 
@@ -883,7 +942,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 await signerFactory(bob.sk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
-                const tokenName                         = "sMVK";
+                const tokenName                         = "mvk";
                 const tokenContractAddress              = mvkTokenAddress.address;
                 const tokenType                         = "fa2";
                 const tokenId                           = 0;
@@ -1257,13 +1316,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
  
         it('user (mallory) can mark eve\'s vault for liquidation (interest accumulated over time) and liquidate vault', async () => {
             
-            // init variables and storage
-            lendingControllerStorage = await lendingControllerInstance.storage();
-            vaultFactoryStorage      = await vaultFactoryInstance.storage();
-
-            let currentMockLevel      = lendingControllerStorage.mockLevel;
+            let currentMockLevel      
             let newMockLevel
             let mockLevelChange
+            let markedForLiquidationLevel
             let minutesPassed
             
             let vaultRecord
@@ -1272,16 +1328,91 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             let vaultLoanInterestTotal
             let vaultBorrowIndex
             let lastUpdatedBlockLevel
+            
+            let initialVaultBorrowIndex
+            let initialVaultLoanOutstandingTotal
+            let initialVaultLoanPrincipalTotal
+            let updatedVaultBorrowIndex
+            let updatedVaultLoanOutstandingTotal
+            let loanOutstandingWithAccruedInterest
+            let totalInterest
 
             let loanTokenRecord
             let loanTokenDecimals
             let loanTokenBorrowIndex
+            let initialLoanTokenBorrowIndex
+            let updatedLoanTokenBorrowIndex
 
+            let vaultMaxLiquidationAmount
+            let totalLiquidationAmount
+            let totalInterestPaid
+            let interestSentToTreasury
+            let interestSentToRewardPool
+
+            let liquidatorMockFa12TokenAccount
+            let liquidatorMockFa2TokenAccount
+            let liquidatorTezAccount
+            let liquidatorStakedMvkAccount
+
+            let vaultMockFa12TokenAccount
+            let vaultMockFa2TokenAccount
+            let vaultTezAccount
+            let vaultStakedMvkAccount
+
+            let vaultOwnerMockFa12TokenAccount
+            let vaultOwnerMockFa2TokenAccount
+            let vaultOwnerTezAccount
+            let vaultOwnerStakedMvkAccount
+
+            let treasuryMockFa12TokenAccount
+            let treasuryMockFa2TokenAccount
+            let treasuryTezAccount
+            let treasuryStakedMvkAccount
+
+            let rewardPoolMockFa12TokenAccount
+            let rewardPoolMockFa2TokenAccount
+            let rewardPoolTezAccount
+            let rewardPoolStakedMvkAccount
+
+            let initialVaultMockFa12TokenBalance
+            let initialVaultOwnerMockFa12TokenBalance
+            let initialLiquidatorMockFa12TokenBalance
+            let initialTreasuryMockFa12TokenBalance
+            let initialRewardPoolMockFa12TokenBalance
+
+            let initialVaultMockFa2TokenBalance
+            let initialVaultOwnerMockFa2TokenBalance
+            let initialLiquidatorMockFa2TokenBalance
+            let initialTreasuryMockFa2TokenBalance
+            let initialRewardPoolMockFa2TokenBalance
+
+            let initialVaultTezBalance
+            let initialVaultOwnerTezBalance
+            let initialLiquidatorTezBalance
+            let initialTreasuryTezBalance
+            let initialRewardPoolTezBalance
+
+            let initialVaultStakedMvkBalance
+            let initialVaultOwnerStakedMvkBalance
+            let initialLiquidatorStakedMvkBalance
+            let initialTreasuryStakedMvkBalance
+            let initialRewardPoolStakedMvkBalance
+            
             let tempMap
 
+            // init variables and storage
+            lendingControllerStorage = await lendingControllerInstance.storage();
+            vaultFactoryStorage      = await vaultFactoryInstance.storage();
+
+            currentMockLevel      = lendingControllerStorage.mockLevel;
+
             // config variables
-            const liquidationDelayInMins   = parseInt(lendingControllerStorage.config.liquidationDelayInMins);
-            const liquidationMaxDuration   = parseInt(lendingControllerStorage.config.liquidationMaxDuration);
+            const liquidationDelayInMins        = parseInt(lendingControllerStorage.config.liquidationDelayInMins);
+            const liquidationMaxDuration        = parseInt(lendingControllerStorage.config.liquidationMaxDuration);
+            const maxVaultLiquidationPercent    = parseInt(lendingControllerStorage.config.maxVaultLiquidationPercent);
+            const adminLiquidationFeePercent    = parseInt(lendingControllerStorage.config.adminLiquidationFeePercent);
+            const liquidationFeePercent         = parseInt(lendingControllerStorage.config.liquidationFeePercent);
+            const interestTreasuryShare         = parseInt(lendingControllerStorage.config.interestTreasuryShare);
             
 
             // ----------------------------------------------------------------------------------------------
@@ -1293,6 +1424,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
             const vaultId       = parseInt(vaultCounter);
             const vaultOwner    = eve.pkh;
+            const liquidator    = mallory.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
 
@@ -1364,15 +1496,21 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             console.log('   - borrowed: ' + borrowAmount + " | type: " + loanTokenName);
 
-            // get initial Mock FA12 Token balance for Eve, Treasury and Token Pool Reward Contract
-            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
-            const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : parseInt(eveMockFa12Ledger.balance);
+            // get initial Mock FA12 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
+            vaultOwnerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(vaultOwner);            
+            initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
 
-            const treasuryMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
-            const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : parseInt(treasuryMockFa12Ledger.balance);
+            vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
+            initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
 
-            const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
+            liquidatorMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(liquidator);            
+            initialLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa12TokenAccount.balance);
+
+            treasuryMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
+            initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
+
+            rewardPoolMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
+            initialRewardPoolMockFa12TokenBalance   = rewardPoolMockFa12TokenAccount == undefined ? 0 : parseInt(rewardPoolMockFa12TokenAccount.balance);
 
             // get token pool stats
             lendingControllerStorage    = await lendingControllerInstance.storage();
@@ -1391,7 +1529,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
             // ----------------------------------------------------------------------------------------------
-            // Set Block Levels For Mock Time Test - 6 months
+            // Set Block Levels For Mock Time Test - 7 years
             // ----------------------------------------------------------------------------------------------
 
             await signerFactory(bob.sk); // temporarily set to tester to increase block levels
@@ -1412,7 +1550,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             assert.equal(currentMockLevel, newMockLevel);
 
-            console.log('   - time set to 6 years ahead: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
+            console.log('   - time set to ' + yearsPassed + ' years ahead: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
             // ----------------------------------------------------------------------------------------------
             // Vault Marked for liquidation
@@ -1428,29 +1566,25 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             currentMockLevel           = parseInt(lendingControllerStorage.config.mockLevel);            
             tempMap                    = lendingControllerStorage.tempMap;
 
-            const blocksPerMinute = await tempMap.get('blocksPerMinute');
-            const blocksPerMinuteTwo = await tempMap.get('blocksPerMinuteTwo');
-            const minBlockTime = await tempMap.get('minBlockTime');
-            const getMinBlockTime = await tempMap.get('getMinBlockTime');
-
             const expectedMarkedForLiquidationLevel = currentMockLevel;
             const expectedLiquidationEndLevel       = currentMockLevel + (liquidationMaxDuration * oneMinuteLevelBlocks);
-            
-            console.log('blocksPerMinute: '+ blocksPerMinute);
-            console.log('blocksPerMinuteTwo: '+ blocksPerMinuteTwo);
-            console.log('minBlockTime: '+ minBlockTime);
-            console.log('getMinBlockTime: '+ getMinBlockTime);
 
-            console.log('currentMockLevel: '+ currentMockLevel);
-            console.log('liquidationDelayInMins * oneMinuteLevelBlocks: '+ liquidationDelayInMins * oneMinuteLevelBlocks);
-            console.log('liquidationMaxDuration: '+ liquidationMaxDuration);
-            console.log('expectedLiquidationEndLevel: '+ expectedLiquidationEndLevel);
+            initialVaultLoanOutstandingTotal = vaultRecord.loanOutstandingTotal;
+            initialVaultLoanPrincipalTotal   = vaultRecord.loanPrincipalTotal;
+            initialVaultBorrowIndex          = vaultRecord.borrowIndex;
 
             const vaultMarkedForLiquidationLevel    = vaultRecord.markedForLiquidationLevel;
             const vaultLiquidationEndLevel          = vaultRecord.liquidationEndLevel;
 
             assert.equal(vaultMarkedForLiquidationLevel, expectedMarkedForLiquidationLevel);
             assert.equal(vaultLiquidationEndLevel, expectedLiquidationEndLevel);
+
+            console.log('currentMockLevel: '+ currentMockLevel);
+            console.log('liquidationDelayInMins * oneMinuteLevelBlocks: '+ liquidationDelayInMins * oneMinuteLevelBlocks);
+            console.log('liquidationMaxDuration: '+ liquidationMaxDuration);
+            console.log('expectedLiquidationEndLevel: '+ expectedLiquidationEndLevel);
+            console.log('vaultMarkedForLiquidationLevel: '+ vaultMarkedForLiquidationLevel);
+            console.log('vaultLiquidationEndLevel: '+ vaultLiquidationEndLevel);
 
             // test vault cannot be marked for liquidation if it has already been marked
             const failMarkVaultForLiquidation = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
@@ -1464,11 +1598,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             lendingControllerStorage    = await lendingControllerInstance.storage();
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
-            lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
+            markedForLiquidationLevel   = vaultRecord.markedForLiquidationLevel;
 
             minutesPassed  = liquidationDelayInMins / 2; 
             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
-            newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
+            newMockLevel = parseInt(markedForLiquidationLevel) + mockLevelChange;
 
             const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
             await setMockLevelOperationTwo.confirmation();
@@ -1478,11 +1612,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             assert.equal(currentMockLevel, newMockLevel);
 
-            console.log('   - time set to middle of vault liquidation delay: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
+            console.log('   - time set to middle of vault liquidation delay: ' + markedForLiquidationLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
             // test vault cannot be marked for liquidation if it has already been marked
-            // const failMarkVaultForLiquidationAgain = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
-            // await chai.expect(failMarkVaultForLiquidationAgain.send()).to.be.rejected;
+            const failMarkVaultForLiquidationAgain = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
+            await chai.expect(failMarkVaultForLiquidationAgain.send()).to.be.rejected;
 
             // test vault cannot be liquidated if delay has not been passed
             const failTestLiquidationAmount = 10;
@@ -1497,11 +1631,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             lendingControllerStorage    = await lendingControllerInstance.storage();
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
-            lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
+            markedForLiquidationLevel   = vaultRecord.markedForLiquidationLevel;
 
             minutesPassed  = liquidationDelayInMins + 1;
             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
-            newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
+            newMockLevel = parseInt(markedForLiquidationLevel) + mockLevelChange;
 
             const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
             await setMockLevelOperationThree.confirmation();
@@ -1511,74 +1645,197 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             assert.equal(currentMockLevel, newMockLevel);
 
-            console.log('   - time set to immediately after vault liquidation delay: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
+            console.log('   - time set to immediately after vault liquidation delay: ' + markedForLiquidationLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
             // ----------------------------------------------------------------------------------------------
             // Liquidate Vault
             // ----------------------------------------------------------------------------------------------
 
-            await signerFactory(oscar.sk); // different user than the one who marked the vault for liquidation
-            const liquidationAmount = 1;
+            await signerFactory(mallory.sk); 
+            const liquidationAmount = 100;
 
-            // On-chain views to vault and loan token
+            // Update storage
             lendingControllerStorage    = await lendingControllerInstance.storage();
-            vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
-            loanTokenRecord             = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            mockFa12TokenStorage        = await mockFa12TokenInstance.storage();
 
+            // vault record
+            vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
             vaultLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal;
             vaultLoanPrincipalTotal     = vaultRecord.loanPrincipalTotal;
             vaultLoanInterestTotal      = vaultRecord.loanInterestTotal;
             vaultBorrowIndex            = vaultRecord.borrowIndex;
 
-            loanTokenBorrowIndex        = loanTokenRecord.borrowIndex;
+            // loan token record
+            loanTokenRecord             = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            updatedLoanTokenBorrowIndex = loanTokenRecord.borrowIndex;
+
+            // vault calculations
+            loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
+            totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+
+            // check that calculations are correct
+            assert.equal(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest);
+            assert.equal(vaultLoanInterestTotal, totalInterest);
+
+            // liquidation calculations
+            vaultMaxLiquidationAmount   = lendingHelper.calculateVaultMaxLiquidationAmount(vaultLoanOutstandingTotal, maxVaultLiquidationPercent);
+            totalLiquidationAmount      = lendingHelper.calculateTotalLiquidationAmount(liquidationAmount, vaultMaxLiquidationAmount);
+            totalInterestPaid           = lendingHelper.calculateTotalInterestPaid(totalLiquidationAmount, vaultLoanInterestTotal);
+            interestSentToTreasury      = lendingHelper.calculateInterestSentToTreasury(interestTreasuryShare, totalInterestPaid)
+            interestSentToRewardPool    = lendingHelper.calculateInterestSentToRewardPool(interestSentToTreasury, totalInterestPaid);
+
 
             tempMap = await lendingControllerStorage.tempMap;
-            const liquidatorTokenQuantityTotal  = await tempMap.get('liquidatorTokenQuantityTotal');
-            const treasuryTokenQuantityTotal    = await tempMap.get('treasuryTokenQuantityTotal');
+            const tempTokenBalance                      = await tempMap.get('tokenBalance');
 
-            const interestTreasuryShare         = await tempMap.get('interestTreasuryShare');
-            const interestRewardPool            = await tempMap.get('interestRewardPool');
+            const tempInterestSentToTreasuryShare       = await tempMap.get('interestSentToTreasury');
+            const tempInterestSentToRewardPool          = await tempMap.get('interestSentToRewardPool');
 
-            console.log(vaultRecord);
+            const tempMaultMaxLiquidationAmount         = await tempMap.get('vaultMaxLiquidationAmount');
+            const vaultCollateralValueRebased           = await tempMap.get('vaultCollateralValueRebased');
+
+            const liquidationIncentive                  = await tempMap.get('liquidationIncentive');
+            const liquidatorAmountAndIncentive          = await tempMap.get('liquidatorAmountAndIncentive');
+            const adminLiquidationFee                   = await tempMap.get('adminLiquidationFee');
+
+            const rebaseDecimals                        = await tempMap.get('rebaseDecimals');
+            const tokenValueRaw                         = await tempMap.get('tokenValueRaw');
+            const tokenValueRebased                     = await tempMap.get('tokenValueRebased');
+            const tokenProportion                       = await tempMap.get('tokenProportion');
+
+            const liquidatorTokenProportionalValue      = await tempMap.get('liquidatorTokenProportionalValue');
+            const liquidatorTokenQuantityTotal          = await tempMap.get('liquidatorTokenQuantityTotal');
+            const afterLiquidatorTokenCollateralBalance = await tempMap.get('afterLiquidatorTokenCollateralBalance');
+
+            const treasuryTokenProportionalValue        = await tempMap.get('treasuryTokenProportionalValue');
+            const treasuryTokenQuantityTotal            = await tempMap.get('treasuryTokenQuantityTotal');
+            const afterTreasuryTokenCollateralBalance   = await tempMap.get('afterTreasuryTokenCollateralBalance');
+
+
+            console.log("liquidationIncentive: "+ liquidationIncentive);
+            console.log("liquidatorAmountAndIncentive: "+ liquidatorAmountAndIncentive);
+            console.log("adminLiquidationFee: "+ adminLiquidationFee);
+            
+            console.log("rebaseDecimals: "+ rebaseDecimals);
+            console.log("tokenValueRaw: "+ tokenValueRaw);
+            console.log("tokenValueRebased: "+ tokenValueRebased);
+            console.log("tokenProportion: "+ tokenProportion);
+            console.log("vaultCollateralValueRebased: " + vaultCollateralValueRebased);            
+            console.log("tempTokenBalance: " + tempTokenBalance);
+
+            console.log("---");
+
+            console.log("liquidatorTokenProportionalValue: "+ liquidatorTokenProportionalValue);
+            console.log("liquidatorTokenQuantityTotal: "+ liquidatorTokenQuantityTotal);
+            console.log("afterLiquidatorTokenCollateralBalance: "+ afterLiquidatorTokenCollateralBalance);
+
+            console.log("---");
+
+            console.log("treasuryTokenProportionalValue: "+ treasuryTokenProportionalValue);
+            console.log("treasuryTokenQuantityTotal: "+ treasuryTokenQuantityTotal);
+            console.log("afterTreasuryTokenCollateralBalance: "+ afterTreasuryTokenCollateralBalance);
+
+            console.log("---");
+
+
+            // console.log(vaultRecord);
             console.log(tempMap);
-            console.log("liquidatorTokenQuantityTotal: " + liquidatorTokenQuantityTotal);
-            console.log("treasuryTokenQuantityTotal: " + treasuryTokenQuantityTotal);
-            console.log("interestTreasuryShare: " + interestTreasuryShare);
-            console.log("interestRewardPool: " + interestRewardPool);
-
-            // const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            // const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            // console.log("liquidatorTokenQuantityTotal: " + liquidatorTokenQuantityTotal);
+            // console.log("treasuryTokenQuantityTotal: " + treasuryTokenQuantityTotal);
             
-            // const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
-            // const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
+            console.log("tempMaultMaxLiquidationAmount: " + tempMaultMaxLiquidationAmount);
+            console.log("tempInterestSentToTreasuryShare: " + tempInterestSentToTreasuryShare);
+            console.log("tempInterestSentToRewardPool: " + tempInterestSentToRewardPool);
+
             
-            console.log("vaultLoanOutstandingTotal: " + vaultLoanOutstandingTotal);
-            console.log("vaultLoanPrincipalTotal: " + vaultLoanPrincipalTotal);
-            console.log("vaultLoanInterestTotal: " + vaultLoanInterestTotal);
-            console.log("vaultBorrowIndex: " + vaultBorrowIndex);
+            // console.log("vaultLoanOutstandingTotal: " + vaultLoanOutstandingTotal);
+            // console.log("calc loanOutstandingWithAccruedInterest: " + loanOutstandingWithAccruedInterest);
             
-            console.log("loanTokenBorrowIndex: " + loanTokenBorrowIndex);
+            // console.log("---");
+
+            // console.log("vaultLoanPrincipalTotal: " + vaultLoanPrincipalTotal);
+            // console.log("initialVaultLoanPrincipalTotal: " + initialVaultLoanPrincipalTotal);
+
+            // console.log("---");
+
+            // console.log("vaultLoanInterestTotal: " + vaultLoanInterestTotal);
+            // console.log("calc totalInterest: " + totalInterest);
+
+            // console.log("---");
+
+            // console.log("vaultBorrowIndex: " + vaultBorrowIndex);
+            // console.log("updatedLoanTokenBorrowIndex: " + updatedLoanTokenBorrowIndex);
+
+            // console.log("vaultMaxLiquidationAmount: " + vaultMaxLiquidationAmount);
+
+            // console.log("---");
+
+            // console.log("tempTotalLiquidationAmount: " + tempTotalLiquidationAmount);
+            // console.log("totalLiquidationAmount: " + totalLiquidationAmount);
+            
+            // console.log("---");
+
+            // console.log("totalInterestPaid: " + totalInterestPaid);
+            // console.log("interestSentToTreasury: " + interestSentToTreasury);
+            // console.log("interestSentToRewardPool: " + interestSentToRewardPool);
 
 
-            const liquidateVault        = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).send();
+            // mallory resets mock FA12 tokens allowance then set new allowance to liquidate amount
+            // reset token allowance
+            const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                lendingControllerAddress.address,
+                0
+            ).send();
+            await resetTokenAllowance.confirmation();
+
+            // set new token allowance
+            const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                lendingControllerAddress.address,
+                liquidationAmount
+            ).send();
+            await setNewTokenAllowance.confirmation();
+
+            const liquidateVault = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).send();
             await liquidateVault.confirmation();
 
 
         })
 
- 
+
         // it('user (mallory) can mark eve\'s vault for liquidation (oracle price shock) and liquidate vault', async () => {
+            
+        //     // init variables and storage
+        //     lendingControllerStorage = await lendingControllerInstance.storage();
+        //     vaultFactoryStorage      = await vaultFactoryInstance.storage();
 
-        //     // init variables
-        //     await signerFactory(eve.sk);
-        //     const lendingControllerStorage = await lendingControllerInstance.storage();
-        //     const vaultFactoryStorage      = await vaultFactoryInstance.storage();
+        //     let currentMockLevel      = lendingControllerStorage.mockLevel;
+        //     let newMockLevel
+        //     let mockLevelChange
+        //     let minutesPassed
+            
+        //     let vaultRecord
+        //     let vaultLoanOutstandingTotal
+        //     let vaultLoanPrincipalTotal
+        //     let vaultLoanInterestTotal
+        //     let vaultBorrowIndex
+        //     let lastUpdatedBlockLevel
 
-        //     const liquidationDelayInMins   = lendingControllerStorage.config.liquidationDelayInMins;
+        //     let loanTokenRecord
+        //     let loanTokenDecimals
+        //     let loanTokenBorrowIndex
+
+        //     let tempMap
+
+        //     // config variables
+        //     const liquidationDelayInMins   = parseInt(lendingControllerStorage.config.liquidationDelayInMins);
+        //     const liquidationMaxDuration   = parseInt(lendingControllerStorage.config.liquidationMaxDuration);
+            
 
         //     // ----------------------------------------------------------------------------------------------
         //     // Create Vault
         //     // ----------------------------------------------------------------------------------------------
+
+        //     await signerFactory(eve.sk);
 
         //     const vaultCounter  = vaultFactoryStorage.vaultCounter;
         //     const vaultId       = parseInt(vaultCounter);
@@ -1597,8 +1854,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //         "id"    : vaultId,
         //         "owner" : vaultOwner
         //     };
-        //     const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
-        //     const vaultAddress   = newVaultRecord.address;
+        //     vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+        //     const vaultAddress   = vaultRecord.address;
         //     const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
         //     console.log('   - vault originated: ' + vaultAddress);
@@ -1611,30 +1868,33 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //     // Deposit Collateral into Vault
         //     // ----------------------------------------------------------------------------------------------
 
-        //     const mockFa2DepositAmount   = 8000000;   // 6 Mock FA2 Tokens - USD $28.00
+        //     const mockFa12DepositAmount  = 8000000;   // 8 Mock FA12 Tokens - USD $12.00
 
         //     // ---------------------------------
-        //     // Deposit Mock FA2 Tokens
+        //     // Deposit Mock FA12 Tokens
         //     // ---------------------------------
 
-        //     // update operators for vault
-        //     const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-        //     {
-        //         add_operator: {
-        //             owner: eve.pkh,
-        //             operator: vaultAddress,
-        //             token_id: 0,
-        //         },
-        //     }])
-        //     .send()
-        //     await updateOperatorsOperation.confirmation();
-
-        //     // eve deposits mock FA2 tokens into vault
-        //     const eveDepositTokenOperation  = await vaultInstance.methods.deposit(
-        //         mockFa2DepositAmount,   
-        //         "mockFa2"
+        //     // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
+        //     // reset token allowance
+        //     const resetTokenAllowanceForDeposit = await mockFa12TokenInstance.methods.approve(
+        //         vaultAddress,
+        //         0
         //     ).send();
-        //     await eveDepositTokenOperation.confirmation();
+        //     await resetTokenAllowanceForDeposit.confirmation();
+
+        //     // set new token allowance
+        //     const setNewTokenAllowanceForDeposit = await mockFa12TokenInstance.methods.approve(
+        //         vaultAddress,
+        //         mockFa12DepositAmount
+        //     ).send();
+        //     await setNewTokenAllowanceForDeposit.confirmation();
+
+        //     // eve deposits mock FA12 tokens into vault
+        //     const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+        //         mockFa12DepositAmount,           
+        //         "mockFa12"
+        //     ).send();
+        //     await eveDepositMockFa12TokenOperation.confirmation();
 
         //     console.log('   - vault collateral deposited');
 
@@ -1642,8 +1902,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //     // Borrow with Vault
         //     // ----------------------------------------------------------------------------------------------
 
-        //     // borrow amount - 5 Mock FA12 Tokens - USD $7.50
-        //     const borrowAmount = 5000000;   
+        //     // borrow amount - 4 Mock FA12 Tokens
+        //     const borrowAmount = 4000000;   
 
         //     // borrow operation
         //     const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -1662,83 +1922,44 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //     const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
 
         //     // get token pool stats
-        //     const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-        //     const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
-        //     const interestRateDecimals = (27 - 2); 
+        //     lendingControllerStorage    = await lendingControllerInstance.storage();
+        //     vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
+        //     loanTokenRecord             = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            
+        //     loanTokenDecimals           = loanTokenRecord.tokenDecimals;
+        //     const interestRateDecimals  = (27 - 2); 
 
-        //     const tokenPoolTotal           = parseInt(afterBorrowloanTokenRecordView.tokenPoolTotal) / (10 ** loanTokenDecimals);
-        //     const totalBorrowed            = parseInt(afterBorrowloanTokenRecordView.totalBorrowed) / (10 ** loanTokenDecimals);
-        //     const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-        //     const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-        //     const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+        //     const tokenPoolTotal           = parseInt(loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals);
+        //     const totalBorrowed            = parseInt(loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals);
+        //     const optimalUtilisationRate   = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+        //     const utilisationRate          = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+        //     const currentInterestRate      = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
         //     console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
         //     // ----------------------------------------------------------------------------------------------
-        //     // Oracle Price Shock - drop price of mockFA2 tokens
+        //     // Simulate Oracle Price Shock
         //     // ----------------------------------------------------------------------------------------------
 
-        //     // update token oracle with new token price
-        //     const newPrice = 1000000; // e.g. $1
-        //     const mockFa2TokenIndex = tokenOracles.findIndex((o => o.name === "mockFa2"));
-        //     tokenOracles[mockFa2TokenIndex].data = newPrice;
+        //     await signerFactory(bob.sk); // temporarily set to tester to increase block levels
 
-        //     const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
+        //     lendingControllerStorage    = await lendingControllerInstance.storage();
+        //     vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
+        //     lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
-        //     // using Oracle v1 contracts
+        //     const yearsPassed  = 7; 
+        //     mockLevelChange = yearsPassed * oneYearLevelBlocks;
+        //     newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
 
-        //     await signerFactory(bob.sk);
+        //     const setMockLevelOperationOne = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
+        //     await setMockLevelOperationOne.confirmation();
 
-        //     const beforeStorage: aggregatorStorageType = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        //     const round = beforeStorage.round;
+        //     lendingControllerStorage = await lendingControllerInstance.storage();
+        //     currentMockLevel = lendingControllerStorage.config.mockLevel;
 
-        //     const price = new BigNumber(newPrice);
-        //     const data: MichelsonData = {
-        //     prim: 'Pair',
-        //     args: [
-        //         { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-        //         { string: bob.pkh },
-        //     ],
-        //     };
-        //     const type: MichelsonType = {
-        //     prim: 'pair',
-        //     args: [
-        //         { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-        //         { prim: 'address' },
-        //     ],
-        //     };
-        //     const priceCodec = packDataBytes(data, type);
+        //     assert.equal(currentMockLevel, newMockLevel);
 
-        //     const hash = createHash('sha256')
-        //         .update(priceCodec.bytes, 'hex')
-        //         .digest('hex');
-        //     const setObservationCommitOp = mockUsdMockFa2TokenAggregatorInstance.methods.setObservationCommit(round, hash);
-
-        //     const bobSetObservationCommitOp = await setObservationCommitOp.send();
-        //     await bobSetObservationCommitOp.confirmation();
-
-        //     // eve commits
-        //     await signerFactory(eve.sk);
-        //     const eveSetObservationCommitOp = await setObservationCommitOp.send();
-        //     await eveSetObservationCommitOp.confirmation();
-
-        //     // mallory commits
-        //     await signerFactory(mallory.sk);
-        //     const mallorySetObservationCommitOp = await setObservationCommitOp.send();
-        //     await mallorySetObservationCommitOp.confirmation();
-
-        //     // reveal new price
-        //     await signerFactory(bob.sk);
-        //     const setObservationRevealOp = mockUsdMockFa2TokenAggregatorInstance.methods.setObservationReveal(round, price, salt, bob.pkh);
-
-        //     const bobSetObservationRevealOp = await setObservationRevealOp.send();
-        //     await bobSetObservationRevealOp.confirmation();
-
-        //     const afterPriceChangeStorage: aggregatorStorageType = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        //     const updatedLastCompletedData = afterPriceChangeStorage.lastCompletedData.data;
-            
-        //     console.log('updatedLastCompletedData: '+ updatedLastCompletedData);
-        //     assert.equal(updatedLastCompletedData, price);
+        //     console.log('   - time set to 6 years ahead: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
         //     // ----------------------------------------------------------------------------------------------
         //     // Vault Marked for liquidation
@@ -1749,100 +1970,128 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //     const markVaultForLiquidationOperation = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner).send();
         //     await markVaultForLiquidationOperation.confirmation();
 
-        //     console.log("test view");            
+        //     lendingControllerStorage   = await lendingControllerInstance.storage();
+        //     vaultRecord                = await lendingControllerStorage.vaults.get(vaultHandle);
+        //     currentMockLevel           = parseInt(lendingControllerStorage.config.mockLevel);            
+        //     tempMap                    = lendingControllerStorage.tempMap;
 
-        //     // get vault and loan token views, and storage
-        //     const vaultRecordView        = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: vaultOwner}).executeView({ viewCaller : bob.pkh});
-        //     const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-        //     const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-        //     const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle)
+        //     const blocksPerMinute = await tempMap.get('blocksPerMinute');
+        //     const blocksPerMinuteTwo = await tempMap.get('blocksPerMinuteTwo');
+        //     const minBlockTime = await tempMap.get('minBlockTime');
+        //     const getMinBlockTime = await tempMap.get('getMinBlockTime');
 
-        //     const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-        //     const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-        //     const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-        //     const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-        //     const beforeRepaymentVaultInterestTotal        = vaultRecordView.loanInterestTotal;
-        //     const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
-
-        //     console.log("initialVaultLoanOutstandingTotal: "        + initialVaultLoanOutstandingTotal);
-        //     console.log("beforeRepaymentVaultOutstandingTotal: "    + beforeRepaymentVaultOutstandingTotal);
-        //     console.log("beforeRepaymentVaultPrincipalTotal: "      + beforeRepaymentVaultPrincipalTotal);
-        //     console.log("beforeRepaymentVaultInterestTotal: "       + beforeRepaymentVaultInterestTotal);
-
-
-        //     console.log(vaultRecordView);
-        //     console.log(updatedVault);
+        //     const expectedMarkedForLiquidationLevel = currentMockLevel;
+        //     const expectedLiquidationEndLevel       = currentMockLevel + (liquidationMaxDuration * oneMinuteLevelBlocks);
             
+        //     console.log('blocksPerMinute: '+ blocksPerMinute);
+        //     console.log('blocksPerMinuteTwo: '+ blocksPerMinuteTwo);
+        //     console.log('minBlockTime: '+ minBlockTime);
+        //     console.log('getMinBlockTime: '+ getMinBlockTime);
 
-        //     const tempMap                      = await updatedLendingControllerStorage.tempMap;
-        //     const vaultCollateralValueRebased  = await updatedLendingControllerStorage.tempMap.get("isLiquidatable - vaultCollateralValueRebased");
-        //     const loanOutstandingRebased       = await updatedLendingControllerStorage.tempMap.get("isLiquidatable - loanOutstandingRebased");
-        //     const isLiquidatable               = await updatedLendingControllerStorage.tempMap.get("isLiquidatable - isLiquidatable");
-        //     const liquidationPoint             = await updatedLendingControllerStorage.tempMap.get("isLiquidatable - liquidationPoint");
+        //     console.log('currentMockLevel: '+ currentMockLevel);
+        //     console.log('liquidationDelayInMins * oneMinuteLevelBlocks: '+ liquidationDelayInMins * oneMinuteLevelBlocks);
+        //     console.log('liquidationMaxDuration: '+ liquidationMaxDuration);
+        //     console.log('expectedLiquidationEndLevel: '+ expectedLiquidationEndLevel);
 
-        //     const initialLoanPrincipalTotal   = await updatedLendingControllerStorage.tempMap.get("markForLiquidation - initialLoanPrincipalTotal");
-        //     const newLoanInterestTotal        = await updatedLendingControllerStorage.tempMap.get("markForLiquidation - newLoanInterestTotal");
-        //     const currentLoanOutstandingTotal = await updatedLendingControllerStorage.tempMap.get("markForLiquidation - currentLoanOutstandingTotal");
-        //     const newLoanOutstandingTotal     = await updatedLendingControllerStorage.tempMap.get("markForLiquidation - newLoanOutstandingTotal");
+        //     const vaultMarkedForLiquidationLevel    = vaultRecord.markedForLiquidationLevel;
+        //     const vaultLiquidationEndLevel          = vaultRecord.liquidationEndLevel;
 
-        //     console.log(tempMap);
-        //     console.log("vaultCollateralValueRebased: " + vaultCollateralValueRebased);
-        //     console.log("loanOutstandingRebased: "      + loanOutstandingRebased);
-        //     console.log("isLiquidatable: "              + isLiquidatable);
-        //     console.log("liquidationPoint: "            + liquidationPoint);
-
-        //     console.log("initialLoanPrincipalTotal: "   + initialLoanPrincipalTotal);
-        //     console.log("newLoanInterestTotal: "        + newLoanInterestTotal);
-        //     console.log("currentLoanOutstandingTotal: " + currentLoanOutstandingTotal);
-        //     console.log("newLoanOutstandingTotal: "     + newLoanOutstandingTotal);
+        //     assert.equal(vaultMarkedForLiquidationLevel, expectedMarkedForLiquidationLevel);
+        //     assert.equal(vaultLiquidationEndLevel, expectedLiquidationEndLevel);
 
         //     // test vault cannot be marked for liquidation if it has already been marked
-        //     const failMarkVaultForLiquidationTwice = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
-        //     await chai.expect(failMarkVaultForLiquidationTwice.send()).to.be.rejected;
+        //     const failMarkVaultForLiquidation = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
+        //     await chai.expect(failMarkVaultForLiquidation.send()).to.be.rejected;
 
         //     // ----------------------------------------------------------------------------------------------
         //     // After marked for liquidation: set block level ahead by half of liquidationDelayinMins
         //     // ----------------------------------------------------------------------------------------------
 
-        //     // 
-        //     //
+        //     await signerFactory(bob.sk); // temporarily set to tester to increase block levels
+
+        //     lendingControllerStorage    = await lendingControllerInstance.storage();
+        //     vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
+        //     lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
+
+        //     minutesPassed  = liquidationDelayInMins / 2; 
+        //     mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
+        //     newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
+
+        //     const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
+        //     await setMockLevelOperationTwo.confirmation();
+
+        //     lendingControllerStorage = await lendingControllerInstance.storage();
+        //     currentMockLevel = lendingControllerStorage.config.mockLevel;
+
+        //     assert.equal(currentMockLevel, newMockLevel);
+
+        //     console.log('   - time set to middle of vault liquidation delay: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
+
+        //     // test vault cannot be marked for liquidation if it has already been marked
+        //     // const failMarkVaultForLiquidationAgain = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
+        //     // await chai.expect(failMarkVaultForLiquidationAgain.send()).to.be.rejected;
+
+        //     // test vault cannot be liquidated if delay has not been passed
+        //     const failTestLiquidationAmount = 10;
+        //     const failLiquidateVault = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, failTestLiquidationAmount);
+        //     await chai.expect(failLiquidateVault.send()).to.be.rejected;
 
         //     // ----------------------------------------------------------------------------------------------
-        //     // Set Block Levels For Mock Time Test - 2 hours ahead
+        //     // Set Block Levels For Mock Time Test - immediately after delay ends
         //     // ----------------------------------------------------------------------------------------------
 
-        //     // await signerFactory(bob.sk); // temporarily set to tester to increase block levels
+        //     await signerFactory(bob.sk); // temporarily set to tester to increase block levels
 
-        //     // const mockTwoLendingControllerStorage   = await lendingControllerInstance.storage();
-        //     // const mockTwoVault                      = await mockTwoLendingControllerStorage.vaults.get(vaultHandle);
-        //     // const mockTwoBlockLevel                 = mockTwoVault.lastUpdatedBlockLevel;
+        //     lendingControllerStorage    = await lendingControllerInstance.storage();
+        //     vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
+        //     lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
-        //     // const minutesPassed  = 60; 
-        //     // const newMockTwoBlockLevel = parseInt(mockOneBlockLevel) + (minutesPassed * oneMinuteLevelBlocks);
+        //     minutesPassed  = liquidationDelayInMins + 1;
+        //     mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
+        //     newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
 
-        //     // const setMockTwoLevelOperation = await lendingControllerInstance.methods.updateConfig(newMockTwoBlockLevel, 'configMockLevel').send();
-        //     // await setMockTwoLevelOperation.confirmation();
+        //     const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
+        //     await setMockLevelOperationThree.confirmation();
 
-        //     // const updatedMockTwoLendingControllerStorage = await lendingControllerInstance.storage();
-        //     // const updatedMockTwoLevel = updatedMockTwoLendingControllerStorage.config.mockLevel;
+        //     lendingControllerStorage = await lendingControllerInstance.storage();
+        //     currentMockLevel = lendingControllerStorage.config.mockLevel;
 
-        //     // assert.equal(updatedMockTwoLevel, newMockTwoBlockLevel);
+        //     assert.equal(currentMockLevel, newMockLevel);
 
-        //     // console.log('   - time set to 2 hours ahead: ' + mockTwoBlockLevel + ' to ' + newMockTwoBlockLevel);
+        //     console.log('   - time set to immediately after vault liquidation delay: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
 
-        //     // // ----------------------------------------------------------------------------------------------
-        //     // // Liquidate Vault
-        //     // // ----------------------------------------------------------------------------------------------
+        //     // ----------------------------------------------------------------------------------------------
+        //     // Liquidate Vault
+        //     // ----------------------------------------------------------------------------------------------
 
-        //     // await signerFactory(oscar.sk); // different user than the one who marked the vault for liquidation
+        //     await signerFactory(oscar.sk); // different user than the one who marked the vault for liquidation
+        //     const liquidationAmount = 1;
 
-        //     // // On-chain views to vault and loan token
-        //     // const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-        //     // const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
+        //     // On-chain views to vault and loan token
+        //     lendingControllerStorage    = await lendingControllerInstance.storage();
+        //     vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
+        //     loanTokenRecord             = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
 
-        //     // const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-        //     // const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-        //     // const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+        //     vaultLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal;
+        //     vaultLoanPrincipalTotal     = vaultRecord.loanPrincipalTotal;
+        //     vaultLoanInterestTotal      = vaultRecord.loanInterestTotal;
+        //     vaultBorrowIndex            = vaultRecord.borrowIndex;
+
+        //     loanTokenBorrowIndex        = loanTokenRecord.borrowIndex;
+
+        //     tempMap = await lendingControllerStorage.tempMap;
+        //     const liquidatorTokenQuantityTotal  = await tempMap.get('liquidatorTokenQuantityTotal');
+        //     const treasuryTokenQuantityTotal    = await tempMap.get('treasuryTokenQuantityTotal');
+
+        //     const interestTreasuryShare         = await tempMap.get('interestTreasuryShare');
+        //     const interestRewardPool            = await tempMap.get('interestRewardPool');
+
+        //     console.log(vaultRecord);
+        //     console.log(tempMap);
+        //     console.log("liquidatorTokenQuantityTotal: " + liquidatorTokenQuantityTotal);
+        //     console.log("treasuryTokenQuantityTotal: " + treasuryTokenQuantityTotal);
+        //     console.log("interestTreasuryShare: " + interestTreasuryShare);
+        //     console.log("interestRewardPool: " + interestRewardPool);
 
         //     // const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
         //     // const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
@@ -1850,12 +2099,440 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //     // const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
         //     // const totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanOutstandingTotal);
             
-        //     // console.log("updatedLoanOutstandingTotal: " + updatedLoanOutstandingTotal);
-        //     // console.log("updatedLoanPrincipalTotal: " + updatedLoanPrincipalTotal);
-        //     // console.log("updatedLoanInterestTotal: " + updatedLoanInterestTotal);
+        //     console.log("vaultLoanOutstandingTotal: " + vaultLoanOutstandingTotal);
+        //     console.log("vaultLoanPrincipalTotal: " + vaultLoanPrincipalTotal);
+        //     console.log("vaultLoanInterestTotal: " + vaultLoanInterestTotal);
+        //     console.log("vaultBorrowIndex: " + vaultBorrowIndex);
+            
+        //     console.log("loanTokenBorrowIndex: " + loanTokenBorrowIndex);
 
+
+        //     const liquidateVault        = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).send();
+        //     await liquidateVault.confirmation();
 
         // })
+
+    })
+
+
+
+    describe('%closeVault - test close vault', function () {
+
+        it('user (eve) can close her vaults (single collateral token) - open, borrow, repay all after one day, close', async () => {
+            
+            let resetTokenAllowance
+            let setNewTokenAllowance
+
+            let currentMockLevel      
+            let newMockLevel
+            let mockLevelChange
+            let markedForLiquidationLevel
+            let minutesPassed
+            
+            let vaultRecord
+            let vaultLoanOutstandingTotal
+            let vaultLoanPrincipalTotal
+            let vaultLoanInterestTotal
+            let vaultBorrowIndex
+            let lastUpdatedBlockLevel
+            
+            let initialVaultBorrowIndex
+            let initialVaultLoanOutstandingTotal
+            let initialVaultLoanPrincipalTotal
+            let updatedVaultBorrowIndex
+            let updatedVaultLoanOutstandingTotal
+            let loanOutstandingWithAccruedInterest
+            let totalInterest
+            let remainingInterest
+
+            let loanTokenRecord
+            let loanTokenDecimals
+            let loanTokenBorrowIndex
+            let initialLoanTokenBorrowIndex
+            let updatedLoanTokenBorrowIndex
+
+            let finalLoanOutstandingTotal
+            let finalLoanPrincipalTotal
+            let finalLoanInterestTotal
+
+            let vaultMaxLiquidationAmount
+            let totalLiquidationAmount
+            let totalInterestPaid
+            let interestSentToTreasury
+            let interestSentToRewardPool
+
+            let liquidatorMockFa12TokenAccount
+            let liquidatorMockFa2TokenAccount
+            let liquidatorTezAccount
+            let liquidatorStakedMvkAccount
+
+            let vaultMockFa12TokenAccount
+            let vaultMockFa2TokenAccount
+            let vaultTezAccount
+            let vaultStakedMvkAccount
+
+            let vaultOwnerMockFa12TokenAccount
+            let vaultOwnerMockFa2TokenAccount
+            let vaultOwnerTezAccount
+            let vaultOwnerStakedMvkAccount
+
+            let treasuryMockFa12TokenAccount
+            let treasuryMockFa2TokenAccount
+            let treasuryTezAccount
+            let treasuryStakedMvkAccount
+
+            let rewardPoolMockFa12TokenAccount
+            let rewardPoolMockFa2TokenAccount
+            let rewardPoolTezAccount
+            let rewardPoolStakedMvkAccount
+
+            let initialVaultMockFa12TokenBalance
+            let initialVaultOwnerMockFa12TokenBalance
+            let initialLiquidatorMockFa12TokenBalance
+            let initialTreasuryMockFa12TokenBalance
+            let initialRewardPoolMockFa12TokenBalance
+
+            let updatedVaultMockFa12TokenBalance
+            let updatedVaultOwnerMockFa12TokenBalance
+            let updatedLiquidatorMockFa12TokenBalance
+            let updatedTreasuryMockFa12TokenBalance
+            let updatedRewardPoolMockFa12TokenBalance
+
+            // let initialVaultMockFa2TokenBalance
+            // let initialVaultOwnerMockFa2TokenBalance
+            // let initialLiquidatorMockFa2TokenBalance
+            // let initialTreasuryMockFa2TokenBalance
+            // let initialRewardPoolMockFa2TokenBalance
+
+            // let initialVaultTezBalance
+            // let initialVaultOwnerTezBalance
+            // let initialLiquidatorTezBalance
+            // let initialTreasuryTezBalance
+            // let initialRewardPoolTezBalance
+
+            // let initialVaultStakedMvkBalance
+            // let initialVaultOwnerStakedMvkBalance
+            // let initialLiquidatorStakedMvkBalance
+            // let initialTreasuryStakedMvkBalance
+            // let initialRewardPoolStakedMvkBalance
+            
+            // let tempMap
+
+            // init variables and storage
+            lendingControllerStorage = await lendingControllerInstance.storage();
+            vaultFactoryStorage      = await vaultFactoryInstance.storage();
+
+            currentMockLevel      = lendingControllerStorage.mockLevel;
+
+            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+
+            // ----------------------------------------------------------------------------------------------
+            // Create Vault
+            // ----------------------------------------------------------------------------------------------
+
+            await signerFactory(eve.sk);
+
+            const vaultCounter  = vaultFactoryStorage.vaultCounter;
+            const vaultId       = parseInt(vaultCounter);
+            const vaultOwner    = eve.pkh;
+            const depositors    = "any";
+            const loanTokenName = "mockFa12";
+
+            const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
+                eve.pkh,                // delegate to
+                loanTokenName,          // loan token type
+                depositors              // depositors type
+            ).send();
+            await userCreatesNewVaultOperation.confirmation();
+
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
+            vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+            const vaultAddress   = vaultRecord.address;
+            const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            console.log('   - vault originated: ' + vaultAddress);
+            console.log('   - vault id: ' + vaultId);
+
+            // push new vault id to vault set
+            eveVaultSet.push(vaultId);
+
+            // ----------------------------------------------------------------------------------------------
+            // Deposit Collateral into Vault
+            // ----------------------------------------------------------------------------------------------
+
+            const mockFa12DepositAmount  = 8000000;   // 8 Mock FA12 Tokens - USD $12.00
+
+            // ---------------------------------
+            // Deposit Mock FA12 Tokens
+            // ---------------------------------
+
+            // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
+            // reset token allowance
+            resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                vaultAddress,
+                0
+            ).send();
+            await resetTokenAllowance.confirmation();
+
+            // set new token allowance
+            setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                vaultAddress,
+                mockFa12DepositAmount
+            ).send();
+            await setNewTokenAllowance.confirmation();
+
+            // eve deposits mock FA12 tokens into vault
+            const eveDepositMockFa12TokenOperation  = await vaultInstance.methods.deposit(
+                mockFa12DepositAmount,           
+                "mockFa12"
+            ).send();
+            await eveDepositMockFa12TokenOperation.confirmation();
+
+            console.log('   - vault collateral deposited');
+
+            // ----------------------------------------------------------------------------------------------
+            // Borrow with Vault
+            // ----------------------------------------------------------------------------------------------
+
+            // borrow amount - 4 Mock FA12 Tokens
+            const borrowAmount = 4000000;   
+
+            // borrow operation
+            const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
+            await eveBorrowOperation.confirmation();
+
+            console.log('   - borrowed: ' + borrowAmount + " | type: " + loanTokenName);
+
+            // get initial Mock FA12 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
+            vaultOwnerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(vaultOwner);            
+            initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
+
+            vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
+            initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
+
+            treasuryMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
+            initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
+
+            rewardPoolMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
+            initialRewardPoolMockFa12TokenBalance   = rewardPoolMockFa12TokenAccount == undefined ? 0 : parseInt(rewardPoolMockFa12TokenAccount.balance);
+
+            // get token pool stats
+            lendingControllerStorage         = await lendingControllerInstance.storage();
+            vaultRecord                      = await lendingControllerStorage.vaults.get(vaultHandle);
+            loanTokenRecord                  = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            
+            loanTokenDecimals                = loanTokenRecord.tokenDecimals;
+            const interestRateDecimals       = (27 - 2); 
+
+            const tokenPoolTotal             = parseInt(loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals);
+            const totalBorrowed              = parseInt(loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate     = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate            = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate        = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+
+            initialVaultLoanOutstandingTotal = vaultRecord.loanOutstandingTotal;
+            initialVaultLoanPrincipalTotal   = vaultRecord.loanPrincipalTotal;
+            initialVaultBorrowIndex          = vaultRecord.borrowIndex;
+
+            console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
+
+            // ----------------------------------------------------------------------------------------------
+            // Set Block Levels For Mock Time Test - 1 month
+            // ----------------------------------------------------------------------------------------------
+
+            await signerFactory(bob.sk); // temporarily set to tester to increase block levels
+
+            lendingControllerStorage    = await lendingControllerInstance.storage();
+            vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
+            lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
+
+            const monthsPassed  = 1; 
+            mockLevelChange = monthsPassed * oneMonthLevelBlocks;
+            newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
+
+            const setMockLevelOperationOne = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
+            await setMockLevelOperationOne.confirmation();
+
+            lendingControllerStorage = await lendingControllerInstance.storage();
+            currentMockLevel = lendingControllerStorage.config.mockLevel;
+
+            assert.equal(currentMockLevel, newMockLevel);
+
+            console.log('   - time set to ' + monthsPassed + ' months ahead: ' + lastUpdatedBlockLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
+
+            // ----------------------------------------------------------------------------------------------
+            // Calculate new loan outstanding with accrued interest
+            // ----------------------------------------------------------------------------------------------
+
+            await signerFactory(eve.sk); // mallory as liquidator
+
+            lendingControllerStorage   = await lendingControllerInstance.storage();
+            vaultRecord                = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            // vault record
+            vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
+            vaultLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal;
+            vaultLoanPrincipalTotal     = vaultRecord.loanPrincipalTotal;
+            vaultLoanInterestTotal      = vaultRecord.loanInterestTotal;
+            vaultBorrowIndex            = vaultRecord.borrowIndex;
+
+            // loan token record
+            loanTokenRecord             = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            updatedLoanTokenBorrowIndex = loanTokenRecord.borrowIndex;
+
+            // vault calculations
+            loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
+            totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+
+            // check that calculations are correct
+            assert.equal(almostEqual(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest, 0.00001), true);
+            assert.equal(vaultLoanInterestTotal, totalInterest);
+
+            // ----------------------------------------------------------------------------------------------
+            // Repay all loans and test refund
+            // ----------------------------------------------------------------------------------------------
+
+            // repayment amount - set greater than loan outstanding to test refund
+            const overflowRefundAmount = 50000;
+            const repayAmount          = loanOutstandingWithAccruedInterest + overflowRefundAmount; 
+
+            // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
+            // reset token allowance
+            resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                lendingControllerMockTimeAddress.address,
+                0
+            ).send();
+            await resetTokenAllowance.confirmation();
+
+            // set new token allowance
+            setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                lendingControllerMockTimeAddress.address,
+                repayAmount
+            ).send();
+            await setNewTokenAllowance.confirmation();
+
+            // repay operation
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            await eveRepayOperation.confirmation();
+
+            console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
+
+            // update storage
+            lendingControllerStorage   = await lendingControllerInstance.storage();
+            mockFa12TokenStorage       = await mockFa12TokenInstance.storage();
+
+            // vault record
+            vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
+            vaultLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal;
+            vaultLoanPrincipalTotal     = vaultRecord.loanPrincipalTotal;
+            vaultLoanInterestTotal      = vaultRecord.loanInterestTotal;
+            vaultBorrowIndex            = vaultRecord.borrowIndex;
+
+            console.log(vaultRecord);
+
+            // loan token record
+            loanTokenRecord            = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            loanTokenBorrowIndex       = loanTokenRecord.borrowIndex;
+
+            
+            // check that vault borrow index is equal to loan token borrow index
+            assert.equal(parseInt(vaultBorrowIndex), parseInt(loanTokenBorrowIndex));
+
+
+            // check if repayAmount covers whole or partial of total interest 
+            totalInterestPaid                       = lendingHelper.calculateTotalInterestPaid(repayAmount, vaultLoanInterestTotal);
+            remainingInterest                       = lendingHelper.calculateRemainingInterest(repayAmount, totalInterest);
+
+            finalLoanOutstandingTotal               = lendingHelper.calculateFinalLoanOutstandingTotal(repayAmount, loanOutstandingWithAccruedInterest);
+            finalLoanPrincipalTotal                 = lendingHelper.calculateFinalLoanPrincipalTotal(repayAmount, loanOutstandingWithAccruedInterest, remainingInterest, initialVaultLoanPrincipalTotal);
+            finalLoanInterestTotal                  = lendingHelper.calculateFinalLoanInterestTotal(remainingInterest);
+
+
+            // check that calculations are correct and that loans are now 0
+            assert.equal(vaultLoanOutstandingTotal, finalLoanOutstandingTotal);
+            assert.equal(vaultLoanOutstandingTotal, 0);
+
+            assert.equal(vaultLoanPrincipalTotal, finalLoanPrincipalTotal);
+            assert.equal(vaultLoanPrincipalTotal, 0);
+
+            assert.equal(vaultLoanInterestTotal, finalLoanInterestTotal);
+            assert.equal(vaultLoanInterestTotal, 0);
+
+
+            // get updated Mock FA12 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
+            vaultOwnerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(vaultOwner);            
+            updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
+
+            vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
+            updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
+
+            treasuryMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
+            updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
+
+            rewardPoolMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
+            updatedRewardPoolMockFa12TokenBalance   = rewardPoolMockFa12TokenAccount == undefined ? 0 : parseInt(rewardPoolMockFa12TokenAccount.balance);
+
+            
+            // check that repay amount refunds the overflow amount
+            assert.equal(updatedVaultOwnerMockFa12TokenBalance, initialVaultOwnerMockFa12TokenBalance - loanOutstandingWithAccruedInterest);
+
+            // check that there are no changes to vault Mock FA12 token balance
+            assert.equal(updatedVaultMockFa12TokenBalance, initialVaultMockFa12TokenBalance);
+
+            // check treasury fees and interest to token pool reward contract
+            interestSentToTreasury                  = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
+            interestSentToRewardPool                = totalInterestPaid - interestSentToTreasury;
+
+            assert.equal(updatedTreasuryMockFa12TokenBalance, initialTreasuryMockFa12TokenBalance + interestSentToTreasury)
+            assert.equal(updatedRewardPoolMockFa12TokenBalance, initialRewardPoolMockFa12TokenBalance + interestSentToRewardPool)
+
+
+            // ----------------------------------------------------------------------------------------------
+            // Close vault
+            // ----------------------------------------------------------------------------------------------
+
+            // set balances for comparison below
+            initialVaultOwnerMockFa12TokenBalance = updatedVaultOwnerMockFa12TokenBalance
+            initialVaultMockFa12TokenBalance      = updatedVaultMockFa12TokenBalance
+
+
+            // update storage
+            lendingControllerStorage   = await lendingControllerInstance.storage();
+            vaultRecord                = await lendingControllerStorage.vaults.get(vaultHandle);
+            mockFa12TokenStorage       = await mockFa12TokenInstance.storage();
+
+
+            // get updated Mock FA12 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
+            vaultOwnerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(vaultOwner);            
+            updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
+
+            vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
+            updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
+
+
+            // get remaining Mock FA12 token balance in vault collateral
+            const remainingMockFa12CollateralBalance = await vaultRecord.collateralBalanceLedger.get('mockFa12');
+            console.log('   - remaining collateral - Mock FA12 token: ' + remainingMockFa12CollateralBalance);
+
+            // close vault operation
+            const closeVaultOperation = await lendingControllerInstance.methods.closeVault(vaultId).send();
+            await closeVaultOperation.confirmation();
+            console.log('   - close vault id: ' + vaultId);
+
+            // check that vault owner receives the remaining mock FA12 token balance
+            assert.equal(updatedVaultOwnerMockFa12TokenBalance, initialVaultOwnerMockFa12TokenBalance + remainingMockFa12CollateralBalance);
+
+            // update storage
+            lendingControllerStorage   = await lendingControllerInstance.storage();
+            vaultRecord                = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            // check that vault has been removed, and is now undefined
+            assert.equal(vaultRecord, undefined);
+
+        })
 
     })
 

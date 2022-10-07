@@ -1370,7 +1370,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -1643,7 +1643,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -1915,7 +1915,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -2186,7 +2186,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -2462,7 +2462,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -2735,7 +2735,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -3008,7 +3008,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -3280,7 +3280,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -3543,7 +3543,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -3803,7 +3803,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -4064,7 +4064,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);
@@ -4324,7 +4324,7 @@
 //             const finalLoanPrincipalTotal                 = remainingInterest > 0 ? beforeRepaymentVaultPrincipalTotal : loanOutstandingWithAccruedInterest - repayAmount;
 //             const finalLoanInterestTotal                  = remainingInterest > 0 ? remainingInterest : 0;
 
-//             const interestTreasuryShare                   = lendingHelper.calculateInterestTreasuryShare(configInterestTreasuryShare, totalInterestPaid);
+//             const interestTreasuryShare                   = lendingHelper.calculateInterestSentToTreasury(configInterestTreasuryShare, totalInterestPaid);
 //             const interestRewardPoolShare                 = totalInterestPaid - interestTreasuryShare;
 
 //             console.log('   - final vault stats >> outstanding total: ' + finalLoanOutstandingTotal + " | principal total: " + finalLoanPrincipalTotal  + " | interest total: " + finalLoanInterestTotal);

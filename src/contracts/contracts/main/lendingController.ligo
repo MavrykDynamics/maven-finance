@@ -126,11 +126,6 @@ const fpa10e5 : nat = 1_000_00n;                                // 10^5
 const fpa10e4 : nat = 1_000_0n;                                 // 10^4
 const fpa10e3 : nat = 1_000n;                                   // 10^3
 
-const minBlockTime              : nat   = Tezos.get_min_block_time();
-const blocksPerMinute           : nat   = 60n / minBlockTime;
-// const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
-// const blocksPerYear             : nat   = blocksPerDay * 365n;
-
 const secondsInYear             : nat   = 31_536_000n;  // 365 days
 
 const defaultTimestamp  : timestamp = ("2000-01-01T00:00:00Z" : timestamp);
@@ -988,6 +983,25 @@ block {
 
 } with tokenValueRebased
 
+
+
+// helper function to calculate loan token value (without rebasing)
+function calculateLoanTokenValue(const tokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
+block {
+
+    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[tokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+    // get last completed round price of token from Oracle view
+    const loanTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
+    const tokenPrice       : nat  = loanTokenLastCompletedData.data;            
+
+    // calculate raw value of collateral balance
+    const tokenValueRaw : nat = tokenBalance * tokenPrice;
+
+} with tokenValueRaw
 
 
 
