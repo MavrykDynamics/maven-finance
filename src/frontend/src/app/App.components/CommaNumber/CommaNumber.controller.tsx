@@ -37,8 +37,7 @@ export const CommaNumber = ({
   // it's exponential number if e-7 it will scientific notation, every that are < -7 normal notation
   if (value.toString().includes('e') && useAccurateParsing) {
     const [number, tenGrade] = value.toString().split('e')
-    const [integer, decimals] = number.split('.')
-
+    const [integer = '', decimals = ''] = number.split('.')
     // extra low number
     if (+tenGrade < 0) {
       // how much zeroes we will have
