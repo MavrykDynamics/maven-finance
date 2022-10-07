@@ -46,7 +46,10 @@ const LogoHeaderContent = ({
   subtitle?: string
 }) => (
   <div className="farm-card-header">
-    <CoinsIcons firstAssetLogoSrc={firstToken.address} secondAssetLogoSrc={secondToken.address} />
+    <CoinsIcons
+      firstAssetLogoSrc={firstToken.thumbnailUri ?? firstToken.address}
+      secondAssetLogoSrc={secondToken.thumbnailUri ?? secondToken.address}
+    />
     <div className="farm-card-section">
       <h3>{name}</h3>
       {subtitle && <div className="subtitle">{subtitle}</div>}
