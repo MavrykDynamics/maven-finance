@@ -802,6 +802,7 @@ block {
                 const currentBlockLevel             : nat = Tezos.get_level();
                 const configLiquidationDelayInMins  : nat = s.config.liquidationDelayInMins;
                 const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
+                const blocksPerMinute               : nat = 60n / Tezos.get_min_block_time();
 
                 const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
                 const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
@@ -921,6 +922,7 @@ block {
                 const amount             : nat       = liquidateVaultParams.amount;
                 const liquidator         : address   = Tezos.get_sender();
                 const currentBlockLevel  : nat       = Tezos.get_level();
+                const blocksPerMinute    : nat       = 60n / Tezos.get_min_block_time();
 
                 // Config variables
                 const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
@@ -1054,7 +1056,14 @@ block {
                 // if total liquidation amount is greater than vault max liquidation amount, set the max to the vault max liquidation amount
                 // e.g. helpful in race conditions where instead of reverting failure, the transaction can still go through
                 var totalLiquidationAmount : nat := amount;
-                if totalLiquidationAmount > vaultMaxLiquidationAmount then totalLiquidationAmount := vaultMaxLiquidationAmount else skip;
+                var refundTotal            : nat := 0n;
+                
+                if totalLiquidationAmount > vaultMaxLiquidationAmount then {
+                    
+                    totalLiquidationAmount := vaultMaxLiquidationAmount; 
+                    refundTotal            := abs(totalLiquidationAmount - vaultMaxLiquidationAmount);
+
+                } else skip;
 
                 // Calculate vault collateral value rebased (1e32 or 10^32)
                 // - this will be the denominator used to calculate proportion of collateral to be liquidated
@@ -1107,8 +1116,11 @@ block {
                         // Calculate Liquidator's Amount 
                         // ------------------------------------------------------------------
 
-                        // get value to be extracted and sent to liquidator
-                        const liquidatorTokenProportionalValue : nat = tokenProportion * liquidatorAmountAndIncentive;
+                        // get value to be extracted and sent to liquidator (1e27 * token decimals e.g. 1e6 => 1e33)
+                        const liquidatorTokenProportionalAmount : nat = tokenProportion * liquidatorAmountAndIncentive;
+
+                        // multiply amount by loan token price - with on chain view to get loan token price from aggregator
+                        const liquidatorTokenProportionalValue : nat = calculateLoanTokenValue(vaultLoanTokenName, liquidatorTokenProportionalAmount, s);
 
                         // get quantity of tokens to be liquidated
                         const liquidatorTokenQuantityTotal : nat = (liquidatorTokenProportionalValue / tokenPrice) / fixedPointAccuracy;
@@ -1122,7 +1134,10 @@ block {
                         // ------------------------------------------------------------------
 
                         // get value to be extracted and sent to liquidator
-                        const treasuryTokenProportionalValue : nat = tokenProportion * adminLiquidationFee;
+                        const treasuryTokenProportionalAmount : nat = tokenProportion * adminLiquidationFee;
+                        
+                        // multiply amount by loan token price - with on chain view to get loan token price from aggregator
+                        const treasuryTokenProportionalValue : nat = calculateLoanTokenValue(vaultLoanTokenName, treasuryTokenProportionalAmount, s);
 
                         // get quantity of tokens to be liquidated
                         const treasuryTokenQuantityTotal : nat = (treasuryTokenProportionalValue / tokenPrice) / fixedPointAccuracy;
@@ -1201,7 +1216,7 @@ block {
                 // ------------------------------------------------------------------
 
                 var totalInterestPaid       : nat := 0n;
-                var totalPrincipalRepaid    : nat := 0n;                
+                var totalPrincipalRepaid    : nat := 0n;             
 
                 if totalLiquidationAmount > newLoanInterestTotal then {
                     
@@ -1219,6 +1234,7 @@ block {
                     newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
 
                     // set total principal repaid amount
+                    // - note: liquidation will not be able to cover entire principal amount as compared to %repay
                     totalPrincipalRepaid := principalReductionAmount;
 
                 } else {
@@ -1290,14 +1306,28 @@ block {
 
                 } else skip;
 
-                const transferTotalLiquidationAmountOperation : operation = tokenPoolTransfer(
+                const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
                     liquidator,                 // from_
                     Tezos.get_self_address(),   // to_
-                    totalLiquidationAmount,     // amount
+                    amount,                     // amount
                     loanTokenType               // token type
                 );
 
-                operations := transferTotalLiquidationAmountOperation # operations;
+                operations := transferLiquidationAmountOperation # operations;
+
+                // process refund if liquidation amount exceeds vault max liquidation amount
+                if refundTotal > 0n then {
+
+                    const processRefundOperation : operation = tokenPoolTransfer(
+                        Tezos.get_self_address(),   // from_
+                        liquidator,                 // to_
+                        refundTotal,                // amount
+                        loanTokenType               // token type
+                    );
+
+                    operations := processRefundOperation # operations;
+
+                } else skip;
 
                 // ------------------------------------------------------------------
                 // Update Storage
@@ -1872,10 +1902,11 @@ block {
                         // note: refundTotal will always be smaller than finalRepaymentAmount 
                         //  - since refundTotal = finalRepaymentAmount - newLoanInterestTotal - initialLoanPrincipalTotal
                         finalRepaymentAmount := abs(finalRepaymentAmount - refundTotal);
-                    } else skip;
-
-                    // set total principal repaid amount
-                    totalPrincipalRepaid := principalReductionAmount;
+                        totalPrincipalRepaid := finalRepaymentAmount;
+                    } else {
+                        // set total principal repaid amount
+                        totalPrincipalRepaid := principalReductionAmount;
+                    }
 
                 } else {
 
