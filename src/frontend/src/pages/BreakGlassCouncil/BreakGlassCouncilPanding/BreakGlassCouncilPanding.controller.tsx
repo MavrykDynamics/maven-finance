@@ -119,7 +119,6 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
           <div className="parameters grid">
             <article>
-              <p>Profile Pic</p>
               {newCouncilMemberImage ? (
                 <article className="parameters-img">
                   <AvatarStyle>
@@ -127,7 +126,10 @@ export const BreakGlassCouncilPanding = (props: Props) => {
                   </AvatarStyle>
                 </article>
               ) : (
-                <span className="parameters-value">-</span>
+                <>
+                  <p>Profile Pic</p>
+                  <span className="parameters-value">-</span>
+                </>
               )}
             </article>
 
@@ -192,7 +194,6 @@ export const BreakGlassCouncilPanding = (props: Props) => {
             <div></div>
 
             <article>
-              <p>Profile Pic</p>
               {newCouncilMemberImage ? (
                 <article className="parameters-img">
                   <AvatarStyle>
@@ -200,7 +201,10 @@ export const BreakGlassCouncilPanding = (props: Props) => {
                   </AvatarStyle>
                 </article>
               ) : (
-                <span className="parameters-value">-</span>
+                <>
+                  <p>Profile Pic</p>
+                  <span className="parameters-value">-</span>
+                </>
               )}
             </article>
 
