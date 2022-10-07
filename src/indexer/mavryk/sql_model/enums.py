@@ -17,6 +17,8 @@ class StakeType(IntEnum):
     FARM_CLAIM          = 2
     COMPOUND            = 3
     SATELLITE_REWARD    = 4
+    VAULT_DEPOSIT_SMVK  = 5
+    VAULT_WITHDRAW_SMVK = 5
 
 class ActionStatus(IntEnum):
     PENDING             = 0

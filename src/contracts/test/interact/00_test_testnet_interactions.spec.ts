@@ -29,6 +29,7 @@ import breakGlassAddress from '../../deployments/breakGlassAddress.json';
 import lpTokenPoolMockFa12TokenAddress from '../../deployments/lpTokenPoolMockFa12TokenAddress.json';
 import mockUsdMockFa12TokenAggregatorAddress from "../../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
 import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorAddress.json";
+import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";
 import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
 import mavrykFa2TokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
 import treasuryAddress from '../../deployments/treasuryAddress.json';
@@ -49,10 +50,10 @@ import { config } from "yargs";
 import { MichelsonMap } from "@taquito/taquito";
 
 interface IOracleObservationType {
-    price: BigNumber;
-    epoch: number;
-    round: number;
-    aggregatorAddress: string;
+    data                : BigNumber;
+    epoch               : number;
+    round               : number;
+    aggregatorAddress   : string;
 }
 
 function wait(ms: number) {
@@ -238,16 +239,21 @@ describe("Testnet interactions helper", async () => {
             console.log('Token Pool Reward Contract deployed at:', tokenPoolRewardInstance.address);
             console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
 
-            // Admin sends 2000XTZ to treasury contract
-            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
-            await transferOperation.confirmation();
-
         } catch(e){
             console.log(e)
         }
     });
 
     describe("MVK TOKEN", async () => {
+
+        before("Send XTZ to treasury", async () => {
+            await signerFactory(bob.sk)
+
+            // Admin sends 2000XTZ to treasury contract
+            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
+            await transferOperation.confirmation();
+        });
+
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
         });
@@ -2359,21 +2365,21 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates price', async () => {
+        it('Admin updates data', async () => {
             try{
                 // Initial values
                 const observations = [
                 {
                     "oracle": bob.pkh,
-                    "price": new BigNumber(10142857143)
+                    "data": new BigNumber(10142857143)
                 }
                 ];
                 const epoch: number = 1;
                 const round: number = 1;
                 const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
-                for (const { oracle, price } of observations) {
+                for (const { oracle, data } of observations) {
                    oracleObservations.set(oracle, {
-                       price,
+                       data,
                        epoch,
                        round,
                        aggregatorAddress: aggregatorAddress.address
@@ -2383,7 +2389,7 @@ describe("Testnet interactions helper", async () => {
                 const signatures = new MichelsonMap<string, string>();
        
                 await signerFactory(bob.sk);
-                signatures.set(bob.pkh, await utils.signOraclePriceResponses(oracleObservations));
+                signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
        
                 // Operation
                 aggregatorStorage   = await aggregatorInstance.storage()
@@ -3808,26 +3814,6 @@ describe("Testnet interactions helper", async () => {
                 console.dir(e, {depth: 5})
             }
         });
-
-        it('Admin updates whitelist contracts', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates general contracts', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateGeneralContracts("test", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
         
         it('Admin updates whitelist token contracts', async () => {
             try{
@@ -3939,10 +3925,40 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin pauses updateCollateralToken', async () => {
+        it('Admin pauses setLoanToken', async () => {
             try{
                 // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("updateCollateralToken", true).send();
+                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses setCollateralToken', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("setCollateralToken", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses addLiquidity', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses removeLiquidity', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4049,16 +4065,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin pauses vaultLiquidateStakedMvk', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultLiquidateStakedMvk", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin pauses vaultWithdraw', async () => {
             try{
                 // Operation
@@ -4073,6 +4079,16 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDeposit", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses vaultOnLiquidate', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultOnLiquidate", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4108,7 +4124,7 @@ describe("Testnet interactions helper", async () => {
                 const tokenDecimals                         = 6;
 
                 const oracleType                            = "oracle";
-                const oracleAddress                         = bob.pkh;
+                const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
                 const lpTokenId                             = 0;
@@ -4121,15 +4137,15 @@ describe("Testnet interactions helper", async () => {
                 const interestRateBelowOptimalUtilisation   = 10 * (10 ** (interestRateDecimals - 2));  // 10% 
                 const interestRateAboveOptimalUtilisation   = 20 * (10 ** (interestRateDecimals - 2));  // 20%
 
-                const minRepaymentAmount                    = 10000;
+                const minRepaymentAmount                    = 1000;
 
                 // Operation
                 const operation = await lendingControllerInstance.methods.setLoanToken(
-                        
+                    "createLoanToken",
+
                     tokenName,
                     tokenDecimals,
 
-                    oracleType,
                     oracleAddress,
 
                     lpTokenContractAddress,
@@ -4194,7 +4210,7 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates collateral token', async () => {
+        it('Admin sets collateral token', async () => {
             try{
                 // Initial values
                 const tokenName                  = "mockFa12";
@@ -4206,14 +4222,15 @@ describe("Testnet interactions helper", async () => {
                 const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
 
                 // Operation
-                const operation = await lendingControllerInstance.methods.updateCollateralToken(
-                    
+                const operation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
                     tokenName,
                     tokenContractAddress,
                     tokenDecimals,
 
-                    oracleType,
                     oracleAddress,
+                    false,
 
                     // fa12 token type - token contract address
                     tokenType,
@@ -4267,7 +4284,7 @@ describe("Testnet interactions helper", async () => {
                 // Save newly created vault address
                 lendingControllerStorage    = await lendingControllerInstance.storage();
                 vaultFactoryStorage         = await vaultFactoryInstance.storage();
-                vaultId                     = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+                var vaultId                     = vaultFactoryStorage.vaultCounter.toNumber() - 1;
                 const vaultHandle = {
                     "id"    : vaultId,
                     "owner" : bob.pkh
@@ -4282,18 +4299,18 @@ describe("Testnet interactions helper", async () => {
                 const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
-                const oracleType                            = "oracle";
                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
 
                 // Operation
-                const updateCollateralOperation = await lendingControllerInstance.methods.updateCollateralToken(
-                    
+                const updateCollateralOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
                     tokenName,
                     tokenContractAddress,
                     tokenDecimals,
 
-                    oracleType,
                     oracleAddress,
+                    false,
                     
                     // fa2 token type - token contract address + token id
                     tokenType,
@@ -4367,6 +4384,63 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
+        it('Admin deposits smvk into the vault', async () => {
+            try{
+                // Initial values
+                vaultFactoryStorage                     = await vaultFactoryInstance.storage();
+                const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+                const depositAmount                     = 1000;
+                const tokenName                         = "sMVK";
+                const tokenContractAddress              = mvkTokenAddress.address;
+                const tokenType                         = "fa2";
+                const tokenId                           = 0;
+
+                const tokenDecimals                     = 9;
+                const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
+                const tokenProtected                    = true; // sMVK is protected
+
+                // Add SMVK as collateral
+                const setCollateralTokenOperation       = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    tokenName,
+                    tokenContractAddress,
+                    tokenDecimals,
+
+                    oracleAddress,
+                    tokenProtected,
+
+                    // fa2 token type - token contract address
+                    tokenType,
+                    tokenContractAddress,
+                    tokenId
+
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+
+                // Operation
+                const operation                         = await lendingControllerInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin withdraws smvk from the vault', async () => {
+            try{
+                // Initial values
+                vaultFactoryStorage         = await vaultFactoryInstance.storage();
+                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+                const withdrawAmount        = 1000;
+
+                // Operation
+                const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
         it('Admin claims rewards', async () => {
             try{
                 // Operation
@@ -4377,33 +4451,33 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin marks a vault for liquidation', async () => {
-            try{
-                // Initial values
-                lendingControllerStorage    = await lendingControllerInstance.storage();
-                const vaultId               = lendingControllerStorage.vaultCounter.toNumber() - 1;
+        // it('Admin marks a vault for liquidation', async () => {
+        //     try{
+        //         // Initial values
+        //         lendingControllerStorage    = await lendingControllerInstance.storage();
+        //         const vaultId               = lendingControllerStorage.vaultCounter.toNumber() - 1;
 
-                // Operation
-                const operation = await lendingControllerInstance.methods.markForLiquidation(bob.pkh, vaultId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+        //         // Operation
+        //         const operation = await lendingControllerInstance.methods.markForLiquidation(bob.pkh, vaultId).send();
+        //         await operation.confirmation();
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     }
+        // });
 
-        it('Admin liquidates a vault', async () => {
-            try{
-                // Initial values
-                lendingControllerStorage    = await lendingControllerInstance.storage();
-                const vaultId               = lendingControllerStorage.vaultCounter.toNumber() - 1;
+        // it('Admin liquidates a vault', async () => {
+        //     try{
+        //         // Initial values
+        //         lendingControllerStorage    = await lendingControllerInstance.storage();
+        //         const vaultId               = lendingControllerStorage.vaultCounter.toNumber() - 1;
 
-                // Operation
-                const operation = await lendingControllerInstance.methods.markForLiquidation(bob.pkh, vaultId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+        //         // Operation
+        //         const operation = await lendingControllerInstance.methods.markForLiquidation(bob.pkh, vaultId).send();
+        //         await operation.confirmation();
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     }
+        // });
     });
 
     describe("VAULT FACTORY", async () => {

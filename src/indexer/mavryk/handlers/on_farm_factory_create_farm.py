@@ -42,84 +42,90 @@ async def on_farm_factory_create_farm(
     paid_rewards                    = float(farm_origination.storage.claimedRewards.paid)
     contract_metadata               = json.loads(bytes.fromhex(create_farm.parameter.metadata).decode('utf-8'))
 
-    # Create a contract and index it
-    await ctx.add_contract(
-        name=farm_address + 'contract',
-        address=farm_address,
-        typename="farm"
-    )
-    await ctx.add_index(
-        name=farm_address + 'index',
-        template="farm_template",
-        values=dict(
-            farm_contract=farm_address + 'contract'
-        )
-    )
-
-    # Get Farm Contract Metadata and save the two Tokens involved in the LP Token
-    token0_address              = ""
-    token1_address              = ""
-
-    if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token0' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token0'] and len(contract_metadata['liquidityPairToken']['token0']['tokenAddress']) > 0:
-        token0_address  = contract_metadata['liquidityPairToken']['token0']['tokenAddress'][0]
-    if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token1' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token1'] and len(contract_metadata['liquidityPairToken']['token1']['tokenAddress']) > 0:
-        token1_address  = contract_metadata['liquidityPairToken']['token1']['tokenAddress'][0]
-
-    await persist_token_metadata(
-        ctx=ctx,
-        token_address=token0_address
-    )
-
-    await persist_token_metadata(
-        ctx=ctx,
-        token_address=token1_address
-    )
-
-    # Persist contract metadata
-    await persist_contract_metadata(
-        ctx=ctx,
-        contract_address=farm_address
-    )
-
-    # Persist LP Token Metadata
-    await persist_token_metadata(
-        ctx=ctx,
-        token_address=lp_token_address,
-        token_id=str(lp_token_id)
-    )
-
-    # Create record
-    farm_factory    = await models.FarmFactory.get(
-        address = farm_factory_address
-    )
-    governance      = await models.Governance.get(
-        address = governance_address
-    )
-    farm, _         = await models.Farm.get_or_create(
+    # Check farm does not already exists
+    farm_exists                     = await models.Farm.get_or_none(
         address     = farm_address
     )
-    farm.governance                      = governance
-    farm.admin                           = admin
-    farm.name                            = name
-    farm.creation_timestamp              = creation_timestamp 
-    farm.factory                         = farm_factory
-    farm.force_rewards_from_transfer     = force_rewards_from_transfer
-    farm.infinite                        = infinite
-    farm.lp_token_address                = lp_token_address
-    farm.lp_token_balance                = lp_token_balance
-    farm.token0_address                  = token0_address
-    farm.token1_address                  = token1_address
-    farm.total_blocks                    = total_blocks
-    farm.current_reward_per_block        = current_reward_per_block
-    farm.total_rewards                   = total_rewards
-    farm.deposit_paused                  = deposit_paused
-    farm.withdraw_paused                 = withdraw_paused
-    farm.claim_paused                    = claim_paused
-    farm.last_block_update               = last_block_update
-    farm.open                            = open
-    farm.init                            = init
-    farm.init_block                      = init_block
-    farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
-    farm.unpaid_rewards                  = unpaid_rewards
-    farm.paid_rewards                    = paid_rewards
-    await farm.save()
+
+    if not farm_exists:
+        # Create a contract and index it
+        await ctx.add_contract(
+            name=farm_address + 'contract',
+            address=farm_address,
+            typename="farm"
+        )
+        await ctx.add_index(
+            name=farm_address + 'index',
+            template="farm_template",
+            values=dict(
+                farm_contract=farm_address + 'contract'
+            )
+        )
+
+        # Get Farm Contract Metadata and save the two Tokens involved in the LP Token
+        token0_address              = ""
+        token1_address              = ""
+
+        if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token0' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token0'] and len(contract_metadata['liquidityPairToken']['token0']['tokenAddress']) > 0:
+            token0_address  = contract_metadata['liquidityPairToken']['token0']['tokenAddress'][0]
+        if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token1' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token1'] and len(contract_metadata['liquidityPairToken']['token1']['tokenAddress']) > 0:
+            token1_address  = contract_metadata['liquidityPairToken']['token1']['tokenAddress'][0]
+
+        await persist_token_metadata(
+            ctx=ctx,
+            token_address=token0_address
+        )
+
+        await persist_token_metadata(
+            ctx=ctx,
+            token_address=token1_address
+        )
+
+        # Persist contract metadata
+        await persist_contract_metadata(
+            ctx=ctx,
+            contract_address=farm_address
+        )
+
+        # Persist LP Token Metadata
+        await persist_token_metadata(
+            ctx=ctx,
+            token_address=lp_token_address,
+            token_id=str(lp_token_id)
+        )
+
+        # Create record
+        farm_factory    = await models.FarmFactory.get(
+            address = farm_factory_address
+        )
+        governance      = await models.Governance.get(
+            address = governance_address
+        )
+        farm, _         = await models.Farm.get_or_create(
+            address     = farm_address
+        )
+        farm.governance                      = governance
+        farm.admin                           = admin
+        farm.name                            = name
+        farm.creation_timestamp              = creation_timestamp 
+        farm.factory                         = farm_factory
+        farm.force_rewards_from_transfer     = force_rewards_from_transfer
+        farm.infinite                        = infinite
+        farm.lp_token_address                = lp_token_address
+        farm.lp_token_balance                = lp_token_balance
+        farm.token0_address                  = token0_address
+        farm.token1_address                  = token1_address
+        farm.total_blocks                    = total_blocks
+        farm.current_reward_per_block        = current_reward_per_block
+        farm.total_rewards                   = total_rewards
+        farm.deposit_paused                  = deposit_paused
+        farm.withdraw_paused                 = withdraw_paused
+        farm.claim_paused                    = claim_paused
+        farm.last_block_update               = last_block_update
+        farm.open                            = open
+        farm.init                            = init
+        farm.init_block                      = init_block
+        farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
+        farm.unpaid_rewards                  = unpaid_rewards
+        farm.paid_rewards                    = paid_rewards
+        await farm.save()

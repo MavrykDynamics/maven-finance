@@ -129,7 +129,6 @@ from mavryk.sql_model.parents import LinkedContract, ContractLambda
 #     token_contract_address                  = fields.CharField(max_length=36)
 #     token_type                              = fields.IntEnumField(enum_type=TokenType)
 #     decimals                                = fields.SmallIntField(default=0)
-#     oracle_type                             = fields.CharField(max_length=36)
 #     oracle_address                          = fields.CharField(max_length=36)
 
 #     class Meta:

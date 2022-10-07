@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.16.1
+    tag: v0.17.0
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -18,70 +18,70 @@ dipdup:
         address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
         typename: liquidity_baking
       mvk:
-        address: KT1WESG5zjPWpTJvupm1HbaGSZG1YpNNHrk9
+        address: KT1PXu2dse3QrtsDNvJUEB8NwpvZN2reecC4
         typename: mvk
       governance_proxy:
-        address: KT1RAFnMEyjDAvzFdbbfNdserGwdrFTJT9c6
+        address: KT1X4cvX1x6stcZpCnWQ5sJy2nhFssTiRC5y
         typename: governance_proxy
       governance:
-        address: KT1UhppqfnxScFsTaEvwLVjbCjrTA8B9Twt3
+        address: KT1WiSvMyKuhBbXefQEJVpvu83AgTxr3kXBP
         typename: governance
       doorman:
-        address: KT1Jx3ntKnxfouejfFVdjMDyw2Evu6KriqDq
+        address: KT19G72NDhCkL7X3tYKedqsqTAjhkCDxgbvV
         typename: doorman
       farm:
-        address: KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH #KT1CWpE36u7Xt1C8doKbJ7iUVhV5YDL51sjH
+        address: KT1E9w4vRfCASS6eu8dxMDNShDzk85KoHEZp #KT1JmzhFzjiehs1NgUbaCCuVk3WBzsBkfwpE
         typename: farm
       farm_factory:
-        address: KT1HQAwWUVE8MweJGMiVSnBRccm7vzoHK1KS
+        address: KT1L3WdwfrEoy53U8QfVFTRiYtzHL8oAj4s3
         typename: farm_factory
       delegation:
-        address: KT1F9GLKRNH3Bvz91BMoKqm7DcUagbZNmvLE
+        address: KT1QMqypK4MdaGy7UVv93nfaXUNUvXuzBNbc
         typename: delegation
       vesting:
-        address: KT1BFKLJZswWw6R6JTvxwqR4717NyrbB4XcK
+        address: KT1HB4PjaP9YCM3zLxPD6tJdGBvLXLxqLBGN
         typename: vesting
       emergency_governance:
-        address: KT1VX35UiMQtK4bX1tsbF26eRWiDvDiPXeLW
+        address: KT1NGVx629atMfQJfXxAAL4bB9TphMY6foPd
         typename: emergency_governance
       council:
-        address: KT1Mh2Snx3B952Pi7uKw2aRFgSsrEKf2ZDpR
+        address: KT1HsbSozpYrSryavbZJB1no58fAnVDdK84R
         typename: council
       break_glass:
-        address: KT1Cwo8UotSZa9jwtidbMG7FEbEN3WNQBPRn
+        address: KT1FwGNXKoVE6GJ68mqK9VuGexySCTWBiTVs
         typename: break_glass
       governance_financial:
-        address: KT1W4SNraUVbSrKCiCoVppffGRiaw6B5vdfz
+        address: KT1HAS78k87YQUC3wjfPGu62ke5WisDBbFA9
         typename: governance_financial
       governance_satellite:
-        address: KT1Jo7ZBCMo5jUvHSQ9G3Hf5y6r49TmbSGrk
+        address: KT1X65mCJyq7YrDffR1zm5UM3wa3HcJeD4Zw
         typename: governance_satellite
       aggregator:
-        address: KT19J8AT2yJ8X8a9uHVHZzSSCXafMufhbQLV
+        address: KT1SBrUdD7vUoYyj6jNWpiVVghsaiDd6Ubgx
         typename: aggregator
       aggregator_factory:
-        address: KT1Qwjupn4a8kSRmkKq4jMJxcCGKqcJRbBi2
+        address: KT1ACNnTdVtGWaSbv9NJamdcP5iW2Y19mRQp
         typename: aggregator_factory
       treasury:
-        address: KT1RahUBbjVuhS8BsLjcMRMmfijZMABmf5Ws
+        address: KT1AQkjCJbfQhpZ8hGh1DH73vokE1figmU6S
         typename: treasury
       treasury_factory:
-        address: KT1SSqUwiGqKbhML3V2cZCKMVM41nEAgVE4h
+        address: KT1SfUbUWTPHY9SjiGXFwqf6cNsw29ZGKDEZ
         typename: treasury_factory
       token_sale:
-        address: KT1DM3EjTwYWrwZeLjQXMPcNDXdzrTVviq4H
+        address: KT1RiEVdrC6CycBaNzpFQFaanGjUVQ6mFMZo
         typename: token_sale
       lending_controller:
-        address: KT1Ue69eWZuVSMoL48xTEYUygtEUyupERyzy
+        address: KT1KxTyZTVKTgKavYPPJ5GEc1sZTXJ2dWnGm
         typename: lending_controller
       token_pool_reward:
-        address: KT19kSXhbQiEsHDsWB59GfCCEWvGy1cXpVED
+        address: KT1K5CVb9Xw1KXjgHoksGZn6K9oEjGHudWPC
         typename: token_pool_reward
       vault:
-        address: KT1AtXxxxetVTB8mqSNikhxwG6BJM9cjktim
+        address: KT1Qn4Dc2DPCUNfXKkJLTi2jBxDJL2MH4oDy
         typename: vault
       vault_factory:
-        address: KT1GXPY2pU8bd5za9WUgSGmyV33ZizXKDXEE
+        address: KT1SMBFPt3Q95DXnHFyCQJVdtz2kz79LGC3G
         typename: vault_factory
 
     templates:
@@ -579,6 +579,18 @@ dipdup:
             pattern:
               - destination: doorman
                 entrypoint: farmClaim
+          - callback: on_doorman_on_vault_deposit_staked_mvk
+            pattern:
+              - destination: doorman
+                entrypoint: onVaultDepositStakedMvk
+          - callback: on_doorman_on_vault_withdraw_staked_mvk
+            pattern:
+              - destination: doorman
+                entrypoint: onVaultWithdrawStakedMvk
+          - callback: on_doorman_on_vault_liquidate_staked_mvk
+            pattern:
+              - destination: doorman
+                entrypoint: onVaultLiquidateStakedMvk
           - callback: on_doorman_set_lambda
             pattern:
               - destination: doorman
@@ -1692,14 +1704,6 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: updateConfig
-          - callback: on_lending_controller_update_whitelist_contracts
-            pattern:
-              - destination: lending_controller
-                entrypoint: updateWhitelistContracts
-          - callback: on_lending_controller_update_general_contracts
-            pattern:
-              - destination: lending_controller
-                entrypoint: updateGeneralContracts
           - callback: on_lending_controller_update_whitelist_token_contracts
             pattern:
               - destination: lending_controller
@@ -1720,6 +1724,14 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: setLoanToken
+          - callback: on_lending_controller_set_collateral_token
+            pattern:
+              - destination: lending_controller
+                entrypoint: setCollateralToken
+          - callback: on_lending_controller_register_vault_creation
+            pattern:
+              - destination: lending_controller
+                entrypoint: registerVaultCreation
           - callback: on_lending_controller_add_liquidity
             pattern:
               - destination: lending_controller
@@ -1728,14 +1740,6 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: removeLiquidity
-          - callback: on_lending_controller_update_collateral_token
-            pattern:
-              - destination: lending_controller
-                entrypoint: updateCollateralToken
-          - callback: on_lending_controller_register_vault_creation
-            pattern:
-              - destination: lending_controller
-                entrypoint: registerVaultCreation
           - callback: on_lending_controller_close_vault
             pattern:
               - destination: lending_controller
@@ -1748,14 +1752,14 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: registerWithdrawal
-          - callback: on_lending_controller_mark_for_liquidation
-            pattern:
-              - destination: lending_controller
-                entrypoint: markForLiquidation
-          - callback: on_lending_controller_liquidate_vault
-            pattern:
-              - destination: lending_controller
-                entrypoint: liquidateVault
+          # - callback: on_lending_controller_mark_for_liquidation
+          #   pattern:
+          #     - destination: lending_controller
+          #       entrypoint: markForLiquidation
+          # - callback: on_lending_controller_liquidate_vault
+          #   pattern:
+          #     - destination: lending_controller
+          #       entrypoint: liquidateVault
           - callback: on_lending_controller_borrow
             pattern:
               - destination: lending_controller
@@ -1764,6 +1768,14 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: repay
+          - callback: on_lending_controller_vault_deposit_staked_mvk
+            pattern:
+              - destination: lending_controller
+                entrypoint: vaultDepositStakedMvk
+          - callback: on_lending_controller_vault_withdraw_staked_mvk
+            pattern:
+              - destination: lending_controller
+                entrypoint: vaultWithdrawStakedMvk
           - callback: on_lending_controller_set_lambda
             pattern:
               - destination: lending_controller

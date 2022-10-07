@@ -82,14 +82,14 @@ class TargetEntrypointItem10(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    setLoanToken: bool
+    setCollateralToken: bool
 
 
 class TargetEntrypointItem11(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    updateCollateralToken: bool
+    setLoanToken: bool
 
 
 class TargetEntrypointItem12(BaseModel):
@@ -110,24 +110,17 @@ class TargetEntrypointItem14(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultLiquidateStakedMvk: bool
+    vaultOnLiquidate: bool
 
 
 class TargetEntrypointItem15(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vaultOnLiquidate: bool
-
-
-class TargetEntrypointItem16(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     vaultWithdraw: bool
 
 
-class TargetEntrypointItem17(BaseModel):
+class TargetEntrypointItem16(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -156,6 +149,5 @@ class TogglePauseEntrypointParameter(BaseModel):
         TargetEntrypointItem14,
         TargetEntrypointItem15,
         TargetEntrypointItem16,
-        TargetEntrypointItem17,
     ]
     empty: Dict[str, Any]

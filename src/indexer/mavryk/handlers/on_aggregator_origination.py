@@ -26,11 +26,11 @@ async def on_aggregator_origination(
     update_data_paused                          = aggregator_origination.storage.breakGlassConfig.updateDataIsPaused
     withdraw_reward_xtz_paused                  = aggregator_origination.storage.breakGlassConfig.withdrawRewardXtzIsPaused
     withdraw_reward_smvk_paused                 = aggregator_origination.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
-    last_completed_price_round                  = int(aggregator_origination.storage.lastCompletedPrice.round)
-    last_completed_epoch                        = int(aggregator_origination.storage.lastCompletedPrice.epoch)
-    last_completed_price                        = float(aggregator_origination.storage.lastCompletedPrice.price)
-    last_completed_price_pct_oracle_resp        = int(aggregator_origination.storage.lastCompletedPrice.percentOracleResponse)
-    last_completed_price_datetime               = parser.parse(aggregator_origination.storage.lastCompletedPrice.priceDateTime)
+    last_completed_data_round                   = int(aggregator_origination.storage.lastCompletedData.round)
+    last_completed_epoch                        = int(aggregator_origination.storage.lastCompletedData.epoch)
+    last_completed_data                         = float(aggregator_origination.storage.lastCompletedData.data)
+    last_completed_data_pct_oracle_resp         = int(aggregator_origination.storage.lastCompletedData.percentOracleResponse)
+    last_completed_data_datetime                = parser.parse(aggregator_origination.storage.lastCompletedData.lastUpdatedAt)
     oracles                                     = aggregator_origination.storage.oracleAddresses
 
     # Persist contract metadata
@@ -60,11 +60,11 @@ async def on_aggregator_origination(
         update_data_paused                          = update_data_paused,
         withdraw_reward_xtz_paused                  = withdraw_reward_xtz_paused,
         withdraw_reward_smvk_paused                 = withdraw_reward_smvk_paused,
-        last_completed_price_round                  = last_completed_price_round,
-        last_completed_price_epoch                  = last_completed_epoch,
-        last_completed_price                        = last_completed_price,
-        last_completed_price_pct_oracle_resp        = last_completed_price_pct_oracle_resp,
-        last_completed_price_datetime               = last_completed_price_datetime
+        last_completed_data_round                  = last_completed_data_round,
+        last_completed_data_epoch                  = last_completed_epoch,
+        last_completed_data                        = last_completed_data,
+        last_completed_data_pct_oracle_resp        = last_completed_data_pct_oracle_resp,
+        last_completed_data_datetime               = last_completed_data_datetime
     )
 
     await aggregator.save()

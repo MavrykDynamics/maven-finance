@@ -24,6 +24,7 @@ class Config(BaseModel):
     maxDecimalsForCalculation: str
     maxVaultLiquidationPercent: str
     liquidationDelayInMins: str
+    liquidationMaxDuration: str
 
 
 class BreakGlassConfig(BaseModel):
@@ -40,11 +41,10 @@ class BreakGlassConfig(BaseModel):
     registerWithdrawalIsPaused: bool
     removeLiquidityIsPaused: bool
     repayIsPaused: bool
+    setCollateralTokenIsPaused: bool
     setLoanTokenIsPaused: bool
-    updateCollateralTokenIsPaused: bool
     vaultDepositIsPaused: bool
     vaultDepositStakedMvkIsPaused: bool
-    vaultLiquidateStakedMvkIsPaused: bool
     vaultOnLiquidateIsPaused: bool
     vaultWithdrawIsPaused: bool
     vaultWithdrawStakedMvkIsPaused: bool
@@ -88,7 +88,8 @@ class Value(BaseModel):
     borrowIndex: str
     lastUpdatedBlockLevel: str
     lastUpdatedTimestamp: str
-    markedForLiquidationTimestamp: str
+    markedForLiquidationLevel: str
+    liquidationEndLevel: str
 
 
 class Vault(BaseModel):
@@ -135,8 +136,8 @@ class CollateralTokenLedger(BaseModel):
     tokenName: str
     tokenContractAddress: str
     tokenDecimals: str
-    oracleType: str
     oracleAddress: str
+    protected: bool
     tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
 
 
@@ -176,7 +177,6 @@ class LoanTokenLedger(BaseModel):
     tokenName: str
     tokenType: Union[TokenTypeItem3, TokenTypeItem4, TokenTypeItem5]
     tokenDecimals: str
-    oracleType: str
     oracleAddress: str
     lpTokensTotal: str
     lpTokenContractAddress: str
@@ -196,7 +196,6 @@ class LoanTokenLedger(BaseModel):
     lastUpdatedBlockLevel: str
     accumulatedRewardsPerShare: str
     borrowIndex: str
-    isPaused: bool
 
 
 class LendingControllerStorage(BaseModel):

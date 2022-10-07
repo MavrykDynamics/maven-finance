@@ -13,7 +13,7 @@ async def on_aggregator_update_data(
     # Get operation info
     aggregator_address              = update_data.data.target_address
     oracle_address                  = update_data.data.sender_address
-    last_completed_price            = update_data.storage.lastCompletedPrice
+    last_completed_data             = update_data.storage.lastCompletedData
     oracle_reward_xtz_amount        = float(update_data.storage.oracleRewardXtz[oracle_address])
     oracle_reward_smvk_amount       = float(update_data.storage.oracleRewardStakedMvk[oracle_address])
 
@@ -21,11 +21,11 @@ async def on_aggregator_update_data(
     aggregator                      = await models.Aggregator.get(
         address = aggregator_address
     )
-    aggregator.last_completed_price_round              = int(last_completed_price.round)
-    aggregator.last_completed_price_epoch              = int(last_completed_price.epoch)
-    aggregator.last_completed_price                    = float(last_completed_price.price)
-    aggregator.last_completed_price_pct_oracle_resp    = int(last_completed_price.percentOracleResponse)
-    aggregator.last_completed_price_datetime           = parser.parse(last_completed_price.priceDateTime)
+    aggregator.last_completed_data_round            = int(last_completed_data.round)
+    aggregator.last_completed_data_epoch            = int(last_completed_data.epoch)
+    aggregator.last_completed_data                  = float(last_completed_data.data)
+    aggregator.last_completed_data_pct_oracle_resp  = int(last_completed_data.percentOracleResponse)
+    aggregator.last_completed_data_datetime         = parser.parse(last_completed_data.lastUpdatedAt)
     await aggregator.save()
 
     user, _                         = await models.MavrykUser.get_or_create(
