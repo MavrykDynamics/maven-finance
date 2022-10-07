@@ -28,9 +28,11 @@ async def on_vault_factory_create_vault(
     elif type(depositors) == Whitelist:
         allowance_type  = models.VaultAllowance.WHITELIST
 
+    # Check vault does not already exists
     vault_exists            = await models.Vault.get_or_none(
         address = vault_address
     )
+
     if not vault_exists:
         # Create a contract and index it
         await ctx.add_contract(

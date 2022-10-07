@@ -24,28 +24,29 @@ async def on_token_pool_reward_update_rewards(
     user, _                     = await models.MavrykUser.get_or_create(
         address     = user_address
     )
-    lending_controller          = await models.LendingController.get(
+    lending_controller          = await models.LendingController.get_or_none(
         address     = lending_controller_address 
     )
-    await user.save()
-    for reward_record_storage in reward_ledger_storage:
-        # Get rewards attributes
-        unpaid                  = float(reward_record_storage.value.unpaid)
-        paid                    = float(reward_record_storage.value.paid)
-        rewards_per_share       = float(reward_record_storage.value.rewardsPerShare)
-        loan_token, _           = await models.LendingControllerLoanToken.get_or_create(
-            lending_controller  = lending_controller,
-            loan_token_name     = loan_token_name
-        )
-        await loan_token.save()
+    if lending_controller:
+        await user.save()
+        for reward_record_storage in reward_ledger_storage:
+            # Get rewards attributes
+            unpaid                  = float(reward_record_storage.value.unpaid)
+            paid                    = float(reward_record_storage.value.paid)
+            rewards_per_share       = float(reward_record_storage.value.rewardsPerShare)
+            loan_token, _           = await models.LendingControllerLoanToken.get_or_create(
+                lending_controller  = lending_controller,
+                loan_token_name     = loan_token_name
+            )
+            await loan_token.save()
 
-        # Save token pool reward
-        token_pool_reward_reward, _ = await models.TokenPoolRewardReward.get_or_create(
-            token_pool_reward               = token_pool_reward,
-            user                            = user,
-            lending_controller_loan_token   = loan_token
-        )
-        token_pool_reward_reward.unpaid             = unpaid
-        token_pool_reward_reward.paid               = paid
-        token_pool_reward_reward.rewards_per_share  = rewards_per_share
-        await token_pool_reward_reward.save()
+            # Save token pool reward
+            token_pool_reward_reward, _ = await models.TokenPoolRewardReward.get_or_create(
+                token_pool_reward               = token_pool_reward,
+                user                            = user,
+                lending_controller_loan_token   = loan_token
+            )
+            token_pool_reward_reward.unpaid             = unpaid
+            token_pool_reward_reward.paid               = paid
+            token_pool_reward_reward.rewards_per_share  = rewards_per_share
+            await token_pool_reward_reward.save()

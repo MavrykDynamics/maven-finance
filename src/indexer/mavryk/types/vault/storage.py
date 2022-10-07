@@ -40,3 +40,4 @@ class VaultStorage(BaseModel):
     handle: Handle
     lambdaLedger: Dict[str, str]
     metadata: Dict[str, str]
+    mvkTokenAddress: str

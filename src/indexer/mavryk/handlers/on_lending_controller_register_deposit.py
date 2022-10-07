@@ -26,6 +26,7 @@ async def on_lending_controller_register_deposit(
         address = vault_owner_address
     )
     await vault_owner.save()
+    
     for vault_storage in vaults_storage:
         if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
             vault_loan_oustanding_total             = float(vault_storage.value.loanOutstandingTotal)
@@ -35,7 +36,8 @@ async def on_lending_controller_register_deposit(
             vault_borrow_index                      = float(vault_storage.value.borrowIndex)
             vault_last_updated_block_level          = int(vault_storage.value.lastUpdatedBlockLevel)
             vault_last_updated_timestamp            = parser.parse(vault_storage.value.lastUpdatedTimestamp)
-            vault_marked_for_liquidation_timestamp  = parser.parse(vault_storage.value.markedForLiquidationTimestamp)
+            vault_marked_for_liquidation_level      = int(vault_storage.value.markedForLiquidationLevel)
+            vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
             vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
 
             # Save updated vault
@@ -52,7 +54,8 @@ async def on_lending_controller_register_deposit(
             lending_controller_vault.borrow_index                       = vault_borrow_index
             lending_controller_vault.last_updated_block_level           = vault_last_updated_block_level
             lending_controller_vault.last_updated_timestamp             = vault_last_updated_timestamp
-            lending_controller_vault.marked_for_liquidation_timestamp   = vault_marked_for_liquidation_timestamp
+            lending_controller_vault.marked_for_liquidation_level       = vault_marked_for_liquidation_level
+            lending_controller_vault.liquidation_end_level              = vault_liquidation_end_level
             await lending_controller_vault.save()
 
             # Save loan token

@@ -37,15 +37,15 @@ class OracleAddresses(BaseModel):
     oraclePeerId: str
 
 
-class LastCompletedPrice(BaseModel):
+class LastCompletedData(BaseModel):
     class Config:
         extra = Extra.forbid
 
     round: str
     epoch: str
-    price: str
+    data: str
     percentOracleResponse: str
-    priceDateTime: str
+    lastUpdatedAt: str
 
 
 class AggregatorStorage(BaseModel):
@@ -62,7 +62,7 @@ class AggregatorStorage(BaseModel):
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     oracleAddresses: Dict[str, OracleAddresses]
-    lastCompletedPrice: LastCompletedPrice
+    lastCompletedData: LastCompletedData
     oracleRewardStakedMvk: Dict[str, str]
     oracleRewardXtz: Dict[str, str]
     lambdaLedger: Dict[str, str]

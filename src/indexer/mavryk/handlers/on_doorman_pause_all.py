@@ -10,12 +10,15 @@ async def on_doorman_pause_all(
     pause_all: Transaction[PauseAllParameter, DoormanStorage],
 ) -> None:
     # Get doorman contract
-    doorman_address = pause_all.data.target_address
-    doorman         = await models.Doorman.get(address=doorman_address)
+    doorman_address                         = pause_all.data.target_address
+    doorman                                 = await models.Doorman.get(address=doorman_address)
 
     # Update doorman
-    doorman.stake_paused        = pause_all.storage.breakGlassConfig.stakeIsPaused
-    doorman.unstake_paused      = pause_all.storage.breakGlassConfig.unstakeIsPaused
-    doorman.compound_paused     = pause_all.storage.breakGlassConfig.compoundIsPaused
-    doorman.farm_claim_paused   = pause_all.storage.breakGlassConfig.farmClaimIsPaused
+    doorman.stake_paused                    = pause_all.storage.breakGlassConfig.stakeIsPaused
+    doorman.unstake_paused                  = pause_all.storage.breakGlassConfig.unstakeIsPaused
+    doorman.compound_paused                 = pause_all.storage.breakGlassConfig.compoundIsPaused
+    doorman.farm_claim_paused               = pause_all.storage.breakGlassConfig.farmClaimIsPaused
+    doorman.on_vault_deposit_smvk_paused    = pause_all.storage.breakGlassConfig.onVaultDepositStakedMvkIsPaused
+    doorman.on_vault_withdraw_smvk_paused   = pause_all.storage.breakGlassConfig.onVaultWithdrawStakedMvkIsPaused
+    doorman.on_vault_liquidate_smvk_paused  = pause_all.storage.breakGlassConfig.onVaultLiquidateStakedMvkIsPaused
     await doorman.save()

@@ -24,6 +24,9 @@ class BreakGlassConfig(BaseModel):
     unstakeIsPaused: bool
     compoundIsPaused: bool
     farmClaimIsPaused: bool
+    onVaultDepositStakedMvkIsPaused: bool
+    onVaultWithdrawStakedMvkIsPaused: bool
+    onVaultLiquidateStakedMvkIsPaused: bool
 
 
 class UserStakeBalanceLedger(BaseModel):

@@ -2,7 +2,7 @@
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.utils.persisters import persist_token_metadata
-from mavryk.types.lending_controller.parameter.set_loan_token import SetLoanTokenParameter
+from mavryk.types.lending_controller.parameter.set_loan_token import SetLoanTokenParameter, ActionItem as createLoanToken
 from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
 import mavryk.models as models
 
@@ -12,11 +12,14 @@ async def on_lending_controller_set_loan_token(
 ) -> None:
 
     # Get operation info
+    action_class                                        = type(set_loan_token.parameter.action)
+    if action_class == createLoanToken:
+        loan_token_name                                 = set_loan_token.parameter.action.createLoanToken.tokenName
+    else:
+        loan_token_name                                 = set_loan_token.parameter.action.updateLoanToken.tokenName
+
     lending_controller_address                          = set_loan_token.data.target_address
-    loan_token_name                                     = set_loan_token.parameter.tokenName
     loan_token_storage                                  = set_loan_token.storage.loanTokenLedger[loan_token_name]
-    loan_token_oracle_type_storage                      = loan_token_storage.oracleType
-    loan_token_oracle_type                              = models.OracleType.CFMM
     loan_token_oracle_address                           = loan_token_storage.oracleAddress
     loan_token_lp_token_total                           = float(loan_token_storage.lpTokensTotal)
     loan_token_lp_token_address                         = loan_token_storage.lpTokenContractAddress
@@ -39,12 +42,6 @@ async def on_lending_controller_set_loan_token(
     loan_token_type_storage                             = loan_token_storage.tokenType
     loan_token_address                                  = ""
     loan_token_id                                       = 0
-
-    # Oracle 
-    if loan_token_oracle_type_storage == "cfmm":
-        loan_token_oracle_type  = models.OracleType.CFMM
-    elif loan_token_oracle_type_storage == "oracle":
-        loan_token_oracle_type  = models.OracleType.ORACLE
     
     # Loan Token attributes
     if type(loan_token_type_storage) == fa12:
@@ -84,7 +81,6 @@ async def on_lending_controller_set_loan_token(
         lp_token_address    = loan_token_lp_token_address
     )
     lending_controller_loan_token.oracle                                    = oracle
-    lending_controller_loan_token.oracle_type                               = loan_token_oracle_type
     lending_controller_loan_token.lp_token_total                            = loan_token_lp_token_total
     lending_controller_loan_token.reserve_ratio                             = loan_token_reserve_ratio
     lending_controller_loan_token.token_pool_total                          = loan_token_token_pool_total

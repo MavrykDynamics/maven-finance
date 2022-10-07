@@ -38,12 +38,13 @@ async def on_doorman_compound(
     await stake_account.save()
     
     # Get doorman info
-    doorman_user    = await models.MavrykUser.get(
+    doorman_user, _     = await models.MavrykUser.get_or_create(
         address = doorman_address
     )
     smvk_total_supply   = doorman_user.mvk_balance
     smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
     avg_smvk_per_user   = smvk_total_supply / smvk_users
+    await doorman_user.save()
 
     # Create a stake record
     stake_record = models.StakeHistoryData(
