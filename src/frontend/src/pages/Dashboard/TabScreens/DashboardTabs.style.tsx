@@ -23,8 +23,7 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
     justify-content: space-between;
 
     button {
-      width: fit-content;
-      padding: 0 50px;
+      margin: 0 auto;
     }
 
     h1 {
@@ -114,7 +113,7 @@ export const SatellitesContentStyled = styled.div<{ theme: MavrykTheme }>`
   padding-left: 20px;
   grid-template-columns: repeat(3, auto);
   flex-direction: column;
-  margin-top: 42px;
+  margin-top: 25px;
   row-gap: 20px;
   column-gap: 50px;
   max-width: 600px;

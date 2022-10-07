@@ -136,7 +136,7 @@ export const GOVERNANCE_STORAGE_QUERY_VARIABLE = {}
 
 export const CURRENT_ROUND_PROPOSALS_QUERY = `
 query GetCurrentRoundProposalsQuery {
-    governance_proposal(where: {current_round_proposal: {_eq: true}}) {
+  governance_proposal(where: {current_round_proposal: {_eq: true}, _and: {status: {_eq: "0"}}}) {
       current_cycle_end_level
       current_cycle_start_level
       current_round_proposal

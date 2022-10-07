@@ -44,7 +44,7 @@ export const OraclesTab = () => {
       <div className="top">
         <BGPrimaryTitle>Oracles</BGPrimaryTitle>
         <Link to="/satellites">
-          <Button text="Oracle Feeds" icon="plant" kind={ACTION_PRIMARY} className="noStroke" />
+          <Button text="Oracle Feeds" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
         </Link>
       </div>
 

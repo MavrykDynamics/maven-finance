@@ -38,7 +38,7 @@ type StageOneFormViewProps = {
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
     formField: string,
   ) => void
-  handleSubmitProposal: () => void
+  handleSubmitProposal: (e: React.FormEvent) => void
   proposalId: number | undefined
   proposalTitle: string
   proposalDescription: string
@@ -146,13 +146,7 @@ export const StageOneFormView = ({
       )}
 
       <FormButtonContainer>
-        <Button
-          icon="auction"
-          kind="actionPrimary"
-          disabled={disabled}
-          text={'Submit Proposal'}
-          type={SUBMIT}
-        />
+        <Button icon="auction" kind="actionPrimary" disabled={disabled} text={'Submit Proposal'} type={SUBMIT} />
       </FormButtonContainer>
     </form>
   )

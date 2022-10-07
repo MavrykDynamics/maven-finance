@@ -16,7 +16,8 @@ export default function useGovernence(): {
   const proposalLedgerList = proposalLedger
 
   const watingProposals = proposalLedgerList.filter(
-    (item) => isProposalRound && governanceStorage.timelockProposalId === item.id && !item?.executed,
+    (item) =>
+      isProposalRound && governanceStorage.timelockProposalId === item.id && !item?.executed && item.status === 0,
   )
 
   const waitingForPaymentToBeProcessed = proposalLedgerList.filter(
