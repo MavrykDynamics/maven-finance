@@ -13,13 +13,13 @@ const config = {
     collateralRatio             : 2000,    // collateral ratio (%)
     liquidationRatio            : 1500,    // liquidation ratio (%)
 
-    liquidationFeePercent       : 600,
-    adminLiquidationFeePercent  : 600,
+    liquidationFeePercent       : 600,     // 6%
+    adminLiquidationFeePercent  : 600,     // 6%
 
     minimumLoanFeePercent       : 100,
 
     minimumLoanFeeTreasuryShare : 4000,
-    interestTreasuryShare       : 100,
+    interestTreasuryShare       : 100,     // i.e. 1%
 
     decimals                    : 4,       // decimals 
     interestRateDecimals        : 27,      // interest rate decimals
