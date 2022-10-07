@@ -27,7 +27,7 @@ export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
     }
 
     .tvlBlock {
-      background-image: url('/images/dashboard/dashboardTVLbg.png?v=0'), ${({ theme }) => theme.dashboardTvlGradient};
+      background-image: url('/images/dashboard/dashboardTVLbg.svg?v=0'), ${({ theme }) => theme.dashboardTvlGradient};
       background-size: cover;
       background-repeat: no-repeat;
 
@@ -65,7 +65,8 @@ export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
       transition: 0.3s all;
       color: ${({ theme }) => theme.navTitleColor};
 
-      &.selected {
+      &.selected,
+      &:hover {
         &:before {
           position: absolute;
           bottom: -1px;
