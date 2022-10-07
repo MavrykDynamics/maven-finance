@@ -948,7 +948,7 @@
 //                 await signerFactory(bob.sk);
 
 //                 const setCollateralTokenActionType      = "createCollateralToken";
-//                 const tokenName                         = "sMVK";
+//                 const tokenName                         = "mvk";
 //                 const tokenContractAddress              = mvkTokenAddress.address;
 //                 const tokenType                         = "fa2";
 //                 const tokenId                           = 0;
@@ -3869,7 +3869,7 @@
 //             const vaultOwner     = eve.pkh;
 //             const userStake      = MVK(10);
 //             const depositAmount  = MVK(5);
-//             const tokenName      = 'sMVK';
+//             const tokenName      = 'mvk';
 
 //             const vaultHandle = {
 //                 "id"     : vaultId,
@@ -3986,7 +3986,7 @@
 //             await signerFactory(eve.sk);
 //             const vaultId        = eveVaultSet[0]; 
 //             const vaultOwner     = eve.pkh;
-//             const tokenName      = 'sMVK';
+//             const tokenName      = 'mvk';
 
 //             const vaultHandle = {
 //                 "id"     : vaultId,
@@ -4076,7 +4076,7 @@
 //             const vaultId        = eveVaultSet[0]; 
 //             const vaultOwner     = eve.pkh;
 //             const initiator      = mallory.pkh;
-//             const tokenName      = 'sMVK';
+//             const tokenName      = 'mvk';
 //             const userStake      = MVK(10);
 //             const depositAmount  = MVK(5);
 
@@ -4217,7 +4217,7 @@
 //             const vaultId        = eveVaultSet[0]; 
 //             const vaultOwner     = eve.pkh;
 //             const withdrawAmount = MVK(2);
-//             const tokenName      = 'sMVK';
+//             const tokenName      = 'mvk';
 
 //             const vaultHandle = {
 //                 "id"     : vaultId,
@@ -4289,7 +4289,7 @@
 //             await signerFactory(eve.sk);
 //             const vaultId        = eveVaultSet[0]; 
 //             const vaultOwner     = eve.pkh;
-//             const tokenName      = 'sMVK';
+//             const tokenName      = 'mvk';
 
 //             const vaultHandle = {
 //                 "id"     : vaultId,
@@ -4365,7 +4365,7 @@
 //             const vaultId        = eveVaultSet[0]; 
 //             const vaultOwner     = eve.pkh;
 //             const initiator      = mallory.pkh;
-//             const tokenName      = 'sMVK';
+//             const tokenName      = 'mvk';
 
 //             const vaultHandle = {
 //                 "id"     : vaultId,

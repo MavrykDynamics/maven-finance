@@ -15,7 +15,7 @@ chai.use(chaiAsPromised)
 chai.should()
 
 import env from '../../env'
-import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
+import { bob, alice, eve, mallory, oscar, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
 
 
 // ------------------------------------------------------------------------------
@@ -200,9 +200,9 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
                 oraclePublicKey : mallory.pk,
                 oraclePeerId : mallory.peerId
             },
-            [oracleMaintainer.pkh] : {
-                oraclePublicKey : oracleMaintainer.pk,
-                oraclePeerId : oracleMaintainer.peerId
+            [oscar.pkh] : {
+                oraclePublicKey : oscar.pk,
+                oraclePeerId : oscar.peerId
             }
         });
 

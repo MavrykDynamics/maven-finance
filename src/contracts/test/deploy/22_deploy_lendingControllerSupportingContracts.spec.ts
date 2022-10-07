@@ -8,7 +8,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob, eve, mallory, oracleMaintainer } from '../../scripts/sandbox/accounts'
+import { bob, eve, mallory, oracleMaintainer, oscar } from '../../scripts/sandbox/accounts'
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -110,9 +110,9 @@ describe('Lending Controller Supporting Contracts', async () => {
                     oraclePublicKey : mallory.pk,
                     oraclePeerId : mallory.peerId
                 },
-                [oracleMaintainer.pkh] : {
-                    oraclePublicKey : oracleMaintainer.pk,
-                    oraclePeerId : oracleMaintainer.peerId
+                [oscar.pkh] : {
+                    oraclePublicKey : oscar.pk,
+                    oraclePeerId : oscar.peerId
                 }
             });
 

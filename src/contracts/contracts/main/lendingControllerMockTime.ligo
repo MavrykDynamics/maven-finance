@@ -95,8 +95,8 @@ type lendingControllerUnpackLambdaFunctionType is (lendingControllerLambdaAction
 
 const zeroAddress            : address  = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 const fixedPointAccuracy     : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27     - // for use in division
-// const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;           // 10^18    - // for use in division with tez
-const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000_000_000_000n;           // 10^27    - // for use in division with tez
+// const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;            // 10^18    - // for use in division with tez
+const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27    - // for use in division with tez
 
 // for use in division from oracle where price decimals may vary
 const fpa10e27 : nat = 1_000_000_000_000_000_000_000_000_000n;   // 10^27 
@@ -125,12 +125,6 @@ const fpa10e6 : nat = 1_000_000n;                               // 10^6
 const fpa10e5 : nat = 1_000_00n;                                // 10^5
 const fpa10e4 : nat = 1_000_0n;                                 // 10^4
 const fpa10e3 : nat = 1_000n;                                   // 10^3
-
-const minBlockTime              : nat   = Tezos.get_min_block_time();
-const blocksPerMinute           : nat   = 60n / minBlockTime;
-// const blocksPerMinute           : nat   = 20n;                              // sandbox - 3 secs per block
-const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;      // 2880 blocks per day -> if 2 blocks per minute 
-const blocksPerYear             : nat   = blocksPerDay * 365n;
 
 const secondsInYear             : nat   = 31_536_000n;  // 365 days
 
@@ -396,13 +390,13 @@ function getOnVaultLiquidateStakedMvkEntrypoint(const contractAddress : address)
 
 
 // helper function to get %transfer entrypoint in a FA2 Token Contract
-function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(fa2TransferType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        tokenAddress) : option(contract(fa2TransferType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(fa2TransferType))
-        ];
+// function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(fa2TransferType) is
+//     case (Tezos.get_entrypoint_opt(
+//         "%transfer",
+//         tokenAddress) : option(contract(fa2TransferType))) of [
+//                 Some(contr) -> contr
+//             |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(fa2TransferType))
+//         ];
 
 
 
@@ -990,6 +984,26 @@ block {
     const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);                
 
 } with tokenValueRebased
+
+
+// helper function to calculate loan token value (without rebasing)
+function calculateLoanTokenValue(const tokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
+block {
+
+    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[tokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+    // get last completed round price of token from Oracle view
+    const loanTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
+    const tokenPrice       : nat  = loanTokenLastCompletedData.data;            
+
+    // calculate raw value of collateral balance
+    const tokenValueRaw : nat = tokenBalance * tokenPrice;
+
+} with tokenValueRaw
+
 
 
 
