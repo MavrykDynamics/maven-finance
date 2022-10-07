@@ -34,7 +34,6 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
         <div>
           <h4>
             MVK Price
-
             <a
               href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
               target="_blank"

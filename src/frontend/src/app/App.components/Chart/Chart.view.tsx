@@ -69,41 +69,37 @@ export default function Chart({ list }: Props) {
     : []
 
   return (
-      <AreaChart
-        width={chartStyle.width}
-        height={chartStyle.height}
-        data={data}
-      >
-        <defs>
-          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="10%" stopColor="rgba(174, 237, 225, 1)" stopOpacity={1} />
-            <stop offset="100%" stopColor="rgba(22, 14, 63, 1)" stopOpacity={1} />
-          </linearGradient>
-        </defs>
-        
-        <XAxis
-          tickLine={false}
-          tick={{ fill: chartStyle.color }}
-          stroke={chartStyle.color}
-          padding={{left: chartStyle.padding.left}}
-          tickMargin={chartStyle.tickMargin}
-          fontSize={chartStyle.fontSize}
-          dataKey='time'
-          allowDuplicatedCategory={false}
-        />
+    <AreaChart width={chartStyle.width} height={chartStyle.height} data={data}>
+      <defs>
+        <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="10%" stopColor="rgba(174, 237, 225, 1)" stopOpacity={1} />
+          <stop offset="100%" stopColor="rgba(22, 14, 63, 1)" stopOpacity={1} />
+        </linearGradient>
+      </defs>
 
-        <YAxis
-          tickLine={false}
-          tick={{ fill: chartStyle.color }}
-          stroke={chartStyle.color}
-          padding={{top: chartStyle.padding.top}}
-          tickMargin={chartStyle.tickMargin}
-          fontSize={chartStyle.fontSize}
-          orientation='right'
-        />
+      <XAxis
+        tickLine={false}
+        tick={{ fill: chartStyle.color }}
+        stroke={chartStyle.color}
+        padding={{ left: chartStyle.padding.left }}
+        tickMargin={chartStyle.tickMargin}
+        fontSize={chartStyle.fontSize}
+        dataKey="time"
+        allowDuplicatedCategory={false}
+      />
 
-        <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
-        <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
-      </AreaChart>
+      <YAxis
+        tickLine={false}
+        tick={{ fill: chartStyle.color }}
+        stroke={chartStyle.color}
+        padding={{ top: chartStyle.padding.top }}
+        tickMargin={chartStyle.tickMargin}
+        fontSize={chartStyle.fontSize}
+        orientation="right"
+      />
+
+      <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
+      <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
+    </AreaChart>
   )
 }

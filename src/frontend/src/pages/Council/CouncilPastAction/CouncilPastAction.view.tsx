@@ -20,7 +20,7 @@ type Props = {
 
 export const CouncilPastActionView = (props: Props) => {
   const { execution_datetime, action_type, signers_count, num_council_members, council_id } = props
-  const isMoreThanHalf = (num_council_members / 2) < signers_count
+  const isMoreThanHalf = num_council_members / 2 < signers_count
 
   return (
     <CouncilPastActionStyled>

@@ -68,7 +68,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
             ) : null}
           </div>
 
-          <div className='parameters'>
+          <div className="parameters">
             <article className="signed-article">
               <div>
                 <p>Signed</p>
@@ -78,7 +78,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
               </div>
             </article>
 
-            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} /> 
+            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
           </div>
         </CouncilPendingStyled>
       </>

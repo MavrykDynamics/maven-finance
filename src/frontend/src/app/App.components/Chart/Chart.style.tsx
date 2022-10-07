@@ -17,7 +17,6 @@ export const ChartTooltip = styled.div`
     font-weight: 500;
     font-size: 9px;
     line-height: 18px;
-    color: #8D86EB;
+    color: #8d86eb;
   }
 `
-
