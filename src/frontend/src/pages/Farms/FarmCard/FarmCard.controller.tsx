@@ -169,7 +169,7 @@ const FarmingBlock = ({
           {isFarmLive ? (
             <div className="circle-buttons">
               <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
-              <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
+              <Button text="Unstake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
             </div>
           ) : null}
         </FarmStakeStyled>
@@ -208,7 +208,7 @@ const VerticalFarmComponent = ({
   triggerCalculatorModal,
 }: FarmCardViewProps) => {
   return (
-    <FarmCardStyled key={farm.address} className={`contractCard accordion} vertical ${isOpenedCard ? 'opened' : ''}`}>
+    <FarmCardStyled key={farm.address} className={`accordion vertical ${isOpenedCard ? 'opened' : ''}`}>
       <QuestionLinkBlock />
       <LogoHeaderContent
         name={
@@ -270,10 +270,11 @@ const HorisontalFarmComponent = ({
   triggerCalculatorModal,
 }: FarmCardViewProps) => {
   return (
-    <FarmCardStyled className={`contractCard  horizontal ${isOpenedCard ? 'opened' : ''}`}>
+    <FarmCardStyled className={`horizontal ${isOpenedCard ? 'opened' : ''}`}>
       <QuestionLinkBlock />
       <Expand
         onClickCallback={expandBlockCallback}
+        className="prevent-hover"
         isExpandedByDefault={isOpenedCard}
         header={
           <>

@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-import { Card, skyColor, cyanColor, headerColor, royalPurpleColor } from 'styles'
+import { Card, skyColor, cyanColor, headerColor, royalPurpleColor, boxShadowColor } from 'styles'
 
 export const FarmCardStyled = styled(Card)`
   margin: 0;
@@ -95,6 +95,18 @@ export const FarmCardStyled = styled(Card)`
       padding-left: 40px;
     }
 
+    .farm-info {
+      .btn-info {
+        position: relative;
+        width: fit-content;
+        .calc-button {
+          position: absolute;
+          right: -23px;
+          margin: 0;
+        }
+      }
+    }
+
     .farm-card-section {
       p {
         display: none;
@@ -103,7 +115,6 @@ export const FarmCardStyled = styled(Card)`
 
     .farm-card-header {
       figure {
-        top: 5px;
         right: 12px;
         flex-shrink: 0;
       }
@@ -263,11 +274,26 @@ export const FarmCardStyled = styled(Card)`
       width: 19px;
       height: 19px;
       fill: ${headerColor};
+      transition: 0.3s fill;
+
+      &:hover {
+        fill: ${cyanColor};
+      }
     }
   }
 
   &.opened {
-    border: 0.5px solid ${cyanColor};
+    border: 1px solid ${cyanColor};
+    box-shadow: 0px 4px 4px ${boxShadowColor};
+  }
+
+  &.opened {
+    .prevent-hover {
+      &:hover {
+        border-color: transparent;
+        box-shadow: unset;
+      }
+    }
   }
 ` // CARD
 

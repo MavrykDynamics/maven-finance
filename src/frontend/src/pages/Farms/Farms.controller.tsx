@@ -157,13 +157,13 @@ export const Farms = () => {
             break
           case 'highestAPY':
             res =
-              calculateAPY(a.currentRewardPerBlock, a.lpBalance) < calculateAPY(a.currentRewardPerBlock, a.lpBalance)
+              calculateAPY(a.currentRewardPerBlock, a.lpBalance) < calculateAPY(b.currentRewardPerBlock, b.lpBalance)
                 ? 1
                 : -1
             break
           case 'lowestAPY':
             res =
-              calculateAPY(a.currentRewardPerBlock, a.lpBalance) > calculateAPY(a.currentRewardPerBlock, a.lpBalance)
+              calculateAPY(a.currentRewardPerBlock, a.lpBalance) > calculateAPY(b.currentRewardPerBlock, b.lpBalance)
                 ? 1
                 : -1
             break
@@ -245,16 +245,15 @@ export const Farms = () => {
             {farmsCards.map((farm, index: number) => {
               const depositAmount = getSummDepositedAmount(farm.farmAccounts)
               return (
-                <div key={farm.address + index}>
-                  <FarmCard
-                    farm={farm}
-                    variant={farmsViewVariant}
-                    currentRewardPerBlock={farm.currentRewardPerBlock}
-                    depositAmount={depositAmount}
-                    expandCallback={handleOpenCard}
-                    isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
-                  />
-                </div>
+                <FarmCard
+                  farm={farm}
+                  key={farm.address + index}
+                  variant={farmsViewVariant}
+                  currentRewardPerBlock={farm.currentRewardPerBlock}
+                  depositAmount={depositAmount}
+                  expandCallback={handleOpenCard}
+                  isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
+                />
               )
             })}
             <Pagination itemsCount={farmsList.length} listName={listName} />

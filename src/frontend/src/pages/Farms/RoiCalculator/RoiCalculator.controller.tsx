@@ -164,7 +164,9 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
     const toggleBtn = TOGGLE_BALANCE_TABS.find(({ actualValue }) => +value === actualValue)
 
     if (name === 'amount') {
-      toggleDisablingBalanceTabs(Boolean(toggleBtn))
+      console.log('toggleBtn', toggleBtn)
+
+      toggleDisablingBalanceTabs(!toggleBtn)
       selectTab({
         ...tabsSelected,
         balanceTab: toggleBtn ?? null,
@@ -240,10 +242,10 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
   }
 
   return (
-    <ModalPopup className="modal-roi" onClose={onClose}>
+    <ModalPopup className="modal-roi scroll-block" onClose={onClose}>
       <RoiCalculatorStyled>
         <header>
-          <CoinsIcons />
+          <CoinsIcons firstAssetLogoSrc={farm.lpToken1.thumbnailUri} secondAssetLogoSrc={farm.lpToken2.thumbnailUri} />
           <h2>ROI Calculator</h2>
         </header>
 
@@ -303,6 +305,7 @@ export default function RoiCalculator({ onClose }: RoiCalcProps) {
               tabItems={COMPOUNDING_ITEMS}
               onClick={handleChangeCompounding}
               disabled={!compoundEverythingActive}
+              disableAll={!compoundEverythingActive}
             />
           </div>
         </div>

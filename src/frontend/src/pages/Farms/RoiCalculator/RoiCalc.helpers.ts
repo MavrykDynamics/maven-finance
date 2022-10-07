@@ -17,10 +17,29 @@ export const COMPOUNDING_ITEMS = [
   { text: '30D', id: 4, active: false, actualValue: 30 },
 ]
 
-export const LP_EXCHANGE_RATE = 0.001
+export const LP_EXCHANGE_RATE = 0.5
 export const TOP_INPUT = 'amount'
 export const BOTTOM_INPUT = 'backwardAmount'
 
+/**
+ * FORMULAS LINKS ---------
+ * ROI formula: https://www.youtube.com/watch?v=wPVZBPWYYXY
+ * Compouding formula: https://corporatefinanceinstitute.com/resources/knowledge/finance/compound-interest-formula/
+ * THOUGHTS ---------------
+ * the formula is (profit / startValue * 100) => it's and annual roi
+ * (from here a need to get a profit, is it a 2 rewards per minute for staked time and * by rewards rate to usd? but then for 1$ and 100$ it will be the same reward, now it's calculating by apr% of the farm)
+ *
+ * Then we need to calc periodRoi, so take a annual roi, and use this formula ((1 + annualRoi)^(stakedPeriod / 365) - 1), but also, there is no place for compound periods
+ * I suggest to use compound it will be our return value: returnValue = 100$ * (1 + (periodRoi / compoundFrequency)) ^ (compoundFrequency * (stakedDays / 365)) =>
+ * => calcs return amount in$, so if we invest 100$ based on other values it will return like 128$ so 28$ profit
+ *
+ * @constructor
+ * @param {numebr} startUSDAmount - Investment start value
+ * @param {numebr} stakedDays - Days to stake this amount
+ * @param {boolean} useCompound - Flag to see is we're using compound periods
+ * @param {number | undefined} compoundFrequency - Compound periods selected
+ * @param {FarmStorage[number]} farm - Selected farm
+ */
 export const calcRoi = ({
   startUSDAmount,
   stakedDays,
@@ -34,33 +53,50 @@ export const calcRoi = ({
   compoundFrequency?: number
   farm: FarmStorage[number]
 }) => {
+  console.log(
+    'startUSDAmount: ',
+    startUSDAmount,
+    'stakedDays: ',
+    stakedDays,
+    'useCompound: ',
+    useCompound,
+    'compoundFrequency: ',
+    compoundFrequency,
+  )
+
+  // amount of block for staked period
   const blocksAmount = 2 * 60 * 24 * stakedDays
+  // get profit% of farm via apr
+  const apr = calculateAPR(farm.currentRewardPerBlock, blocksAmount, farm.lpBalance)
+  // get revenue if invest inputted amount
+  const revenue = (startUSDAmount / 100) * apr - startUSDAmount
+  // get annual ROI%
+  const annualizedROI = (revenue / startUSDAmount) * 100
+  // get ROI% for staked time
+  const roiPerStakedPeriod = Math.pow(1 + annualizedROI, stakedDays / 365) - 1
+
+  console.log(
+    'revenue: ',
+    revenue,
+    'annualizedROI: ',
+    `${annualizedROI}%`,
+    'roiPerStakedPeriod: ',
+    `${roiPerStakedPeriod}%`,
+  )
+
+  // If we using compouding periods
   if (useCompound && compoundFrequency) {
-    // with compound
-    return Math.pow((startUSDAmount + 1) / startUSDAmount, 1 / (stakedDays / 365))
-  } else {
-    // without compound
+    const amountWithCompound =
+      startUSDAmount * (1 + Math.pow(roiPerStakedPeriod / compoundFrequency, compoundFrequency * (stakedDays / 365)))
+    const persentWithCompound = (amountWithCompound * 100) / startUSDAmount
 
-    // FORMULAS LINKS ---------
-    // ROI formula: https://www.youtube.com/watch?v=wPVZBPWYYXY
-    // Compouding formula: https://corporatefinanceinstitute.com/resources/knowledge/finance/compound-interest-formula/
-
-    // THOUGHTS ---------------
-    // the formula is (profit / startValue * 100) => it's and annual roi, from here a need to get a profit, is it a 2 rewards per minute for staked time and * by rewards rate to usd? but then for 1$ and 100$ it will be the same reward
-    // then we need to calc periodRoi, so take a annual roi, and use this formula ((1 + annualRoi)^(stakedPeriod / 365) - 1), but also, there is no place
-    // I suggest to use compound it will be our return value: returnValue = 100$ * (1 + (periodRoi / compoundFrequency)) ^ (compoundFrequency * (stakedDays / 365)) => calcs return amount in$, so if we invest 100$ based on other values it will return like 128$ so 28$ profit
-
-    const revenue = blocksAmount * farm.currentRewardPerBlock * LP_EXCHANGE_RATE // getting how many revenue for this period
-    const annualizedROI = (revenue / startUSDAmount) * 100
-    const roiPerStakedPeriod = Math.pow(1 + annualizedROI, stakedDays / 365) - 1
-
-    console.log('usd value to stake: ', startUSDAmount)
-    console.log('annualizedROI: ', `${annualizedROI}%`, 'revenue: ', revenue)
-    console.log('roiPerStakedPeriod: ', `${roiPerStakedPeriod}%`, 'years staked:', stakedDays / 365)
+    console.log('amountWithCompound: ', `${amountWithCompound}$`, 'persentWithCompound: ', `${persentWithCompound}%`)
     console.log('------------------')
-
-    return roiPerStakedPeriod
+    return persentWithCompound
   }
+
+  console.log('------------------')
+  return roiPerStakedPeriod
 }
 
 export const getOppositeROIvalue = (

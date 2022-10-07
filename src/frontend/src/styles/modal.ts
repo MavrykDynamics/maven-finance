@@ -65,6 +65,17 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
 
   &.modal-roi {
     padding: 0;
+    padding-right: 5px;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-right: 3px solid transparent;
+      border-top: 3px solid transparent;
+      border-bottom: 3px solid transparent;
+      background-clip: padding-box;
+    }
   }
 `
 

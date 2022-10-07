@@ -17,7 +17,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   .oracle-list-wrapper {
     position: relative;
 
-    .see-all-link{
+    .see-all-link {
       display: flex;
       align-items: center;
       position: absolute;
@@ -27,7 +27,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
       font-size: 14px;
       line-height: 21px;
       text-decoration-line: underline;
-      color: #8D86EB;
+      color: #8d86eb;
       cursor: pointer;
       transition: 0.5s all;
 
@@ -43,7 +43,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
         height: 13px;
         width: 18px;
         transform: rotate(180deg);
-        stroke: #8D86EB;
+        stroke: #8d86eb;
         transition: 0.5s all;
       }
     }
@@ -120,6 +120,4 @@ export const PageContent = styled.section`
   align-items: baseline;
   align-items: start;
   padding-top: 30px;
-
-  
 `
