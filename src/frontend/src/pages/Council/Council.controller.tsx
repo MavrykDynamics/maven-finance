@@ -91,7 +91,7 @@ export const Council = () => {
 
   const { review: isReviewPage = false } = qs.parse(search, { ignoreQueryPrefix: true }) as { review?: boolean }
   const stringifiedQP = qs.stringify({ review: true })
-  
+
   const handleClickReview = () => {
     setIsPendingSignature(false)
     history.push(`${pathname}?${stringifiedQP}`)
@@ -156,10 +156,7 @@ export const Council = () => {
       <PageHeader page={'council'} />
       <CouncilStyled>
         {isReviewPage && isUserInCouncilMembers ? (
-          <button
-            onClick={handleClickGoBack}
-            className="go-back"
-          >
+          <button onClick={handleClickGoBack} className="go-back">
             <Icon id="arrow-left-stroke" />
             Back to Member Dashboard
           </button>
@@ -201,7 +198,7 @@ export const Council = () => {
                   <h2>Available Actions</h2>
                   <DropDown
                     clickOnDropDown={handleClickDropdown}
-                    placeholder='Choose action'
+                    placeholder="Choose action"
                     isOpen={ddIsOpen}
                     itemSelected={chosenDdItem?.text}
                     items={ddItems}
@@ -249,9 +246,7 @@ export const Council = () => {
               isPendingList && isPendingSignature ? 'is-pending-list' : ''
             }`}
           >
-            {isPendingSignature ? (
-              <CouncilPendingReviewView onClick={handleClickReview} />
-            ) : null}
+            {isPendingSignature ? <CouncilPendingReviewView onClick={handleClickReview} /> : null}
 
             {sortedCouncilMembers.length ? (
               <div>

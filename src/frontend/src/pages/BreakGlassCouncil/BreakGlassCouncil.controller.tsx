@@ -272,11 +272,7 @@ export const BreakGlassCouncil: FC = () => {
             <ReviewPastCouncilActionsCard displayPendingSignature={displayPendingSignature}>
               <h2>Review Past Council Actions</h2>
 
-              <Button
-                text="Review"
-                kind={ACTION_SECONDARY}
-                onClick={handleClickReview}
-              />
+              <Button text="Review" kind={ACTION_SECONDARY} onClick={handleClickReview} />
             </ReviewPastCouncilActionsCard>
           )}
 

@@ -17,7 +17,6 @@ import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 
-
 export const Doorman = () => {
   const dispatch = useDispatch()
 
