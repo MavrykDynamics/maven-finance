@@ -84,14 +84,13 @@ export const normalizeFarmStorage = (
 
 // helper functions
 export const BLOCKS_PER_YEAR = 1051200 // 2 blocks per minute
+// TODO: this functions calc apy and apr in LPTOkens, but we need in USD, check with Sam
 export const calculateAPY = (currentRewardPerBlock: number, lpTokenBalance: number): number => {
-  let rewardRate = currentRewardPerBlock / Math.pow(10, 9)
-  return lpTokenBalance > 0 ? ((rewardRate * BLOCKS_PER_YEAR) / lpTokenBalance) * 100 : 0
+  return lpTokenBalance > 0 ? ((currentRewardPerBlock * BLOCKS_PER_YEAR) / lpTokenBalance) * 100 : 0
 }
 
 export const calculateAPR = (currentRewardPerBlock: number, blocksAmount: number, lpTokenBalance: number): number => {
-  let rewardRate = currentRewardPerBlock / Math.pow(10, 9)
-  return lpTokenBalance > 0 ? ((rewardRate * blocksAmount) / lpTokenBalance) * 100 : 0
+  return lpTokenBalance > 0 ? ((currentRewardPerBlock * blocksAmount) / lpTokenBalance) * 100 : 0
 }
 
 export const getSummDepositedAmount = (farmAccounts: FarmAccountsType[]): number => {
