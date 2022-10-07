@@ -143,8 +143,16 @@ export const BreakGlassCouncil: FC = () => {
   }, [dispatch, accountPkh])
 
   useEffect(() => {
+    // redirect to review or main page when member changes
     history.push(isUserInBreakCouncilMember ? `${pathname}` : `${pathname}?${stringifiedQP}`)
   }, [isUserInBreakCouncilMember])
+
+  useEffect(() => {
+    // check authorization when clicking on a review or a header in the menu
+    if (!isUserInBreakCouncilMember) {
+      history.push(`${pathname}?${stringifiedQP}`)
+    }
+  }, [search])
 
   return (
     <Page>
