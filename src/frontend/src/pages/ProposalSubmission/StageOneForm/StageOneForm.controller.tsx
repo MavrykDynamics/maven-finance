@@ -1,6 +1,6 @@
 import { StageOneFormView } from './StageOneForm.view'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { State } from 'reducers'
 
 import {
@@ -131,7 +131,8 @@ export const StageOneForm = ({
     if (!isProposalRound) clearState()
   }, [isProposalRound])
 
-  const handleSubmitProposal = async () => {
+  const handleSubmitProposal = async (e: React.FormEvent) => {
+    e.preventDefault()
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) await dispatch(submitProposal(form, fee, clearState))
   }

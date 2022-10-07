@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -56,6 +56,7 @@ export const PROPOSAL_BYTE = {
   title: '',
   validTitle: '',
   validBytes: '',
+  order: 1,
 } as ProposalUpdateFormProposalBytes
 
 type CleanData = {
@@ -68,6 +69,7 @@ function isSameForm(first: CleanData[], second: CleanData[]): boolean {
 
   return result
 }
+
 interface Entity {
   id: number
 }
@@ -107,6 +109,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     title: '',
     proposalBytes: [PROPOSAL_BYTE],
   })
+  const [DnDSelectedProposal, setDnDSeletedProposal] = useState<ProposalUpdateFormProposalBytes | null>(null)
 
   const [proposalBytesUpdate, setPoposalBytesUpdate] = useState<any[]>([])
 
@@ -122,6 +125,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     })
   }, [findUserCurrentRoundProposal, proposalTitle])
   const disabled = !isProposalRound || !form.title
+
   const cleanFormData = form.proposalBytes.map((item) => {
     return {
       title: item.title,
@@ -215,6 +219,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
           title: '',
           validTitle: '',
           validBytes: '',
+          order: form.proposalBytes.length + 1,
         },
       ],
     })
@@ -249,6 +254,27 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     setForm({ ...form, proposalBytes: cloneProposalBytes })
   }
 
+  const isDraggable = useMemo(() => form.proposalBytes.length > 2, [form.proposalBytes])
+
+  const dropHandler = (e: React.DragEvent<HTMLElement>, byte: ProposalUpdateFormProposalBytes) => {
+    e.preventDefault()
+  }
+
+  const dragLeaveHandler = (e: React.DragEvent<HTMLElement>) => {}
+
+  const dragEndHandler = (e: React.DragEvent<HTMLElement>) => {
+    e.currentTarget.style.background = 'none'
+  }
+
+  const dragStartHandler = (e: React.DragEvent<HTMLElement>, byte: ProposalUpdateFormProposalBytes) => {
+    setDnDSeletedProposal(byte)
+  }
+
+  const dragOverHandler = (e: React.DragEvent<HTMLElement>) => {
+    e.preventDefault()
+    e.currentTarget.style.background = 'lightgrey'
+  }
+
   return (
     <>
       <FormHeaderGroup>
@@ -280,7 +306,16 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
           const existInServer = proposalData.find((data) => item.title === data.title && item.id === data.id)
 
           return (
-            <article key={item.id}>
+            <article
+              key={item.id}
+              className={isDraggable ? 'draggabe' : ''}
+              draggable={isDraggable}
+              onDragEnd={dragEndHandler}
+              onDragLeave={dragLeaveHandler}
+              onDragStart={(e) => dragStartHandler(e, item)}
+              onDragOver={dragOverHandler}
+              onDrop={(e) => dropHandler(e, item)}
+            >
               <div className="step-bytes-title">
                 <label>
                   <span>{i + 4}a</span> - Enter Proposal Bytes Title

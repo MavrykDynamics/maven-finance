@@ -71,6 +71,10 @@ export const ProposalSubmissionForm = styled(Card)`
       margin-top: 27px;
       display: flex;
       flex-direction: column;
+
+      &.draggabe {
+        cursor: grab;
+      }
     }
 
     .delete-pair {
