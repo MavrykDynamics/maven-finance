@@ -13,7 +13,7 @@ export const CarouselStyle = styled.div`
     line-height: 21px;
     color: ${headerColor};
     right: 16px;
-    top: -50px;
+    top: -54px;
   }
 `
 
