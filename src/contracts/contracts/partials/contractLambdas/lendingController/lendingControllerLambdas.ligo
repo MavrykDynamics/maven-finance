@@ -333,7 +333,7 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaSetLoanToken(setLoanTokenParams) -> {
 
-                case setLoanTokenParams of [
+                case setLoanTokenParams.action of [
                     |   CreateLoanToken(createLoanTokenParams) -> block {
 
                             // Check if loan token already exists
@@ -385,7 +385,7 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaSetCollateralToken(setCollateralTokenParams) -> {
 
-                case setCollateralTokenParams of [
+                case setCollateralTokenParams.action of [
                     |   CreateCollateralToken(createCollateralTokenParams) -> block {
 
                             // Check if collateral token already exists
