@@ -230,9 +230,14 @@ type updateLoanTokenActionType is [@layout:comb] record [
 ]
 
 
-type setLoanTokenActionType is 
+type setLoanTokenType is 
     |   CreateLoanToken      of createLoanTokenActionType
     |   UpdateLoanToken      of updateLoanTokenActionType
+
+type setLoanTokenActionType is [@layout:comb] record [
+    action      : setLoanTokenType;
+    empty       : unit;
+]
 
 
 
@@ -255,9 +260,14 @@ type updateCollateralTokenActionType is [@layout:comb] record [
 ]
 
 
-type setCollateralTokenActionType is 
+type setCollateralTokenType is 
     |   CreateCollateralToken      of createCollateralTokenActionType
     |   UpdateCollateralToken      of updateCollateralTokenActionType
+
+type setCollateralTokenActionType is [@layout:comb] record [
+    action      : setCollateralTokenType;
+    empty       : unit;
+]
 
 
 type registerWithdrawalActionType is [@layout:comb] record [
