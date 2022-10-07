@@ -22,11 +22,11 @@ class Aggregator(MavrykContract, Model):
     update_data_paused                      = fields.BooleanField(default=False)
     withdraw_reward_xtz_paused              = fields.BooleanField(default=False)
     withdraw_reward_smvk_paused             = fields.BooleanField(default=False)
-    last_completed_price_round              = fields.BigIntField(default=0, index=True)
-    last_completed_price_epoch              = fields.BigIntField(default=0, index=True)
-    last_completed_price                    = fields.FloatField(default=0.0)
-    last_completed_price_pct_oracle_resp    = fields.SmallIntField(default=0)
-    last_completed_price_datetime           = fields.DatetimeField(null=True, index=True)
+    last_completed_data_round               = fields.BigIntField(default=0, index=True)
+    last_completed_data_epoch               = fields.BigIntField(default=0, index=True)
+    last_completed_data                     = fields.FloatField(default=0.0)
+    last_completed_data_pct_oracle_resp     = fields.SmallIntField(default=0)
+    last_completed_data_datetime            = fields.DatetimeField(null=True, index=True)
 
     class Meta:
         table = 'aggregator'

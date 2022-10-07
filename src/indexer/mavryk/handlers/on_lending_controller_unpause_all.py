@@ -23,10 +23,10 @@ async def on_lending_controller_unpause_all(
     borrow_paused                           = unpause_all.storage.breakGlassConfig.borrowIsPaused
     repay_paused                            = unpause_all.storage.breakGlassConfig.repayIsPaused
     set_loan_token_paused                   = unpause_all.storage.breakGlassConfig.setLoanTokenIsPaused
-    update_collateral_token_paused          = unpause_all.storage.breakGlassConfig.updateCollateralTokenIsPaused
+    set_collateral_token_paused             = unpause_all.storage.breakGlassConfig.setCollateralTokenIsPaused
     vault_deposit_smvk_paused               = unpause_all.storage.breakGlassConfig.vaultDepositStakedMvkIsPaused
     vault_withdraw_smvk_paused              = unpause_all.storage.breakGlassConfig.vaultWithdrawStakedMvkIsPaused
-    vault_liquidate_smvk_paused             = unpause_all.storage.breakGlassConfig.vaultLiquidateStakedMvkIsPaused
+    vault_on_liquidate_paused               = unpause_all.storage.breakGlassConfig.vaultOnLiquidateIsPaused
     vault_deposit_paused                    = unpause_all.storage.breakGlassConfig.vaultDepositIsPaused
     vault_withdraw_paused                   = unpause_all.storage.breakGlassConfig.vaultWithdrawIsPaused
 
@@ -45,10 +45,10 @@ async def on_lending_controller_unpause_all(
     lending_controller.borrow_paused                            = borrow_paused
     lending_controller.repay_paused                             = repay_paused
     lending_controller.set_loan_token_paused                    = set_loan_token_paused
-    lending_controller.update_collateral_token_paused           = update_collateral_token_paused
+    lending_controller.set_collateral_token_paused              = set_collateral_token_paused
     lending_controller.vault_deposit_smvk_paused                = vault_deposit_smvk_paused
     lending_controller.vault_withdraw_smvk_paused               = vault_withdraw_smvk_paused
-    lending_controller.vault_liquidate_smvk_paused              = vault_liquidate_smvk_paused
+    lending_controller.vault_on_liquidate_paused                = vault_on_liquidate_paused
     lending_controller.vault_deposit_paused                     = vault_deposit_paused
     lending_controller.vault_withdraw_paused                    = vault_withdraw_paused
     await lending_controller.save()

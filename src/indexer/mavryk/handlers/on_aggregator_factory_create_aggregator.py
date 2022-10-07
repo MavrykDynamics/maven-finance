@@ -33,87 +33,93 @@ async def on_aggregator_factory_create_aggregator(
     update_data_paused                          = aggregator_origination.storage.breakGlassConfig.updateDataIsPaused
     withdraw_reward_xtz_paused                  = aggregator_origination.storage.breakGlassConfig.withdrawRewardXtzIsPaused
     withdraw_reward_smvk_paused                 = aggregator_origination.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
-    last_completed_price_round                  = int(aggregator_origination.storage.lastCompletedPrice.round)
-    last_completed_epoch                        = int(aggregator_origination.storage.lastCompletedPrice.epoch)
-    last_completed_price                        = float(aggregator_origination.storage.lastCompletedPrice.price)
-    last_completed_price_pct_oracle_resp        = int(aggregator_origination.storage.lastCompletedPrice.percentOracleResponse)
-    last_completed_price_datetime               = parser.parse(aggregator_origination.storage.lastCompletedPrice.priceDateTime)
+    last_completed_data_round                   = int(aggregator_origination.storage.lastCompletedData.round)
+    last_completed_epoch                        = int(aggregator_origination.storage.lastCompletedData.epoch)
+    last_completed_data                         = float(aggregator_origination.storage.lastCompletedData.data)
+    last_completed_data_pct_oracle_resp         = int(aggregator_origination.storage.lastCompletedData.percentOracleResponse)
+    last_completed_data_datetime                = parser.parse(aggregator_origination.storage.lastCompletedData.lastUpdatedAt)
     oracles                                     = aggregator_origination.storage.oracleAddresses
 
-    # Create a contract and index it
-    await ctx.add_contract(
-        name=aggregator_address + 'contract',
-        address=aggregator_address,
-        typename="aggregator"
-    )
-    await ctx.add_index(
-        name=aggregator_address + 'index',
-        template="aggregator_template",
-        values=dict(
-            aggregator_contract=aggregator_address + 'contract'
-        )
-    )
-
-    # Persist contract metadata
-    await persist_contract_metadata(
-        ctx=ctx,
-        contract_address=aggregator_address
-    )
-
-    # Create record
-    aggregator_factory          = await models.AggregatorFactory.get(
-        address     = aggregator_factory_address
-    )
-    governance                  = await models.Governance.get(
-        address     = governance_address
-    )
-    existing_aggregator         = await models.Aggregator.get_or_none(
-        token_0_symbol      = token_0_symbol,
-        token_1_symbol      = token_1_symbol,
-        factory             = aggregator_factory
-    )
-    if existing_aggregator:
-        existing_aggregator.factory  = None
-        await existing_aggregator.save()
-    aggregator, _               = await models.Aggregator.get_or_create(
+    # Check aggregator does not already exists
+    aggregator_exists                     = await models.Aggregator.get_or_none(
         address     = aggregator_address
     )
-    aggregator.governance                                   = governance
-    aggregator.admin                                        = admin
-    aggregator.token_0_symbol                               = token_0_symbol
-    aggregator.token_1_symbol                               = token_1_symbol
-    aggregator.factory                                      = aggregator_factory
-    aggregator.creation_timestamp                           = creation_timestamp
-    aggregator.name                                         = name
-    aggregator.decimals                                     = decimals
-    aggregator.alpha_pct_per_thousand                       = alpha_pct_per_thousand
-    aggregator.pct_oracle_threshold                         = pct_oracle_threshold
-    aggregator.heart_beat_seconds                           = heart_beat_seconds
-    aggregator.reward_amount_smvk                           = reward_amount_smvk
-    aggregator.reward_amount_xtz                            = reward_amount_xtz
-    aggregator.update_data_paused                           = update_data_paused
-    aggregator.withdraw_reward_xtz_paused                   = withdraw_reward_xtz_paused
-    aggregator.withdraw_reward_smvk_paused                  = withdraw_reward_smvk_paused
-    aggregator.last_completed_price_round                   = last_completed_price_round
-    aggregator.last_completed_price_epoch                   = last_completed_epoch
-    aggregator.last_completed_price                         = last_completed_price
-    aggregator.last_completed_price_pct_oracle_resp         = last_completed_price_pct_oracle_resp
-    aggregator.last_completed_price_datetime                = last_completed_price_datetime
-    await aggregator.save()
 
-    # Add oracles to aggregator
-    for oracle_address in oracles:
-        oracle_storage_record   = oracles[oracle_address]
-        oracle_pk               = oracle_storage_record.oraclePublicKey
-        oracle_peer_id          = oracle_storage_record.oraclePeerId
+    if not aggregator_exists:
+        # Create a contract and index it
+        await ctx.add_contract(
+            name=aggregator_address + 'contract',
+            address=aggregator_address,
+            typename="aggregator"
+        )
+        await ctx.add_index(
+            name=aggregator_address + 'index',
+            template="aggregator_template",
+            values=dict(
+                aggregator_contract=aggregator_address + 'contract'
+            )
+        )
+
+        # Persist contract metadata
+        await persist_contract_metadata(
+            ctx=ctx,
+            contract_address=aggregator_address
+        )
 
         # Create record
-        oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
-        await oracle.save()
-        aggregator_oracle       = models.AggregatorOracle(
-            aggregator  = aggregator,
-            user        = oracle,
-            public_key  = oracle_pk,
-            peer_id     = oracle_peer_id
+        aggregator_factory          = await models.AggregatorFactory.get(
+            address     = aggregator_factory_address
         )
-        await aggregator_oracle.save()
+        governance                  = await models.Governance.get(
+            address     = governance_address
+        )
+        existing_aggregator         = await models.Aggregator.get_or_none(
+            token_0_symbol      = token_0_symbol,
+            token_1_symbol      = token_1_symbol,
+            factory             = aggregator_factory
+        )
+        if existing_aggregator:
+            existing_aggregator.factory  = None
+            await existing_aggregator.save()
+        aggregator, _               = await models.Aggregator.get_or_create(
+            address     = aggregator_address
+        )
+        aggregator.governance                                   = governance
+        aggregator.admin                                        = admin
+        aggregator.token_0_symbol                               = token_0_symbol
+        aggregator.token_1_symbol                               = token_1_symbol
+        aggregator.factory                                      = aggregator_factory
+        aggregator.creation_timestamp                           = creation_timestamp
+        aggregator.name                                         = name
+        aggregator.decimals                                     = decimals
+        aggregator.alpha_pct_per_thousand                       = alpha_pct_per_thousand
+        aggregator.pct_oracle_threshold                         = pct_oracle_threshold
+        aggregator.heart_beat_seconds                           = heart_beat_seconds
+        aggregator.reward_amount_smvk                           = reward_amount_smvk
+        aggregator.reward_amount_xtz                            = reward_amount_xtz
+        aggregator.update_data_paused                           = update_data_paused
+        aggregator.withdraw_reward_xtz_paused                   = withdraw_reward_xtz_paused
+        aggregator.withdraw_reward_smvk_paused                  = withdraw_reward_smvk_paused
+        aggregator.last_completed_data_round                   = last_completed_data_round
+        aggregator.last_completed_data_epoch                   = last_completed_epoch
+        aggregator.last_completed_data                         = last_completed_data
+        aggregator.last_completed_data_pct_oracle_resp         = last_completed_data_pct_oracle_resp
+        aggregator.last_completed_data_datetime                = last_completed_data_datetime
+        await aggregator.save()
+
+        # Add oracles to aggregator
+        for oracle_address in oracles:
+            oracle_storage_record   = oracles[oracle_address]
+            oracle_pk               = oracle_storage_record.oraclePublicKey
+            oracle_peer_id          = oracle_storage_record.oraclePeerId
+
+            # Create record
+            oracle, _               = await models.MavrykUser.get_or_create(address   = oracle_address)
+            await oracle.save()
+            aggregator_oracle       = models.AggregatorOracle(
+                aggregator  = aggregator,
+                user        = oracle,
+                public_key  = oracle_pk,
+                peer_id     = oracle_peer_id
+            )
+            await aggregator_oracle.save()

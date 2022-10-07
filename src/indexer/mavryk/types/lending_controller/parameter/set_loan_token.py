@@ -37,13 +37,12 @@ class TokenTypeItem2(BaseModel):
     tez: Dict[str, Any]
 
 
-class SetLoanTokenParameter(BaseModel):
+class CreateLoanToken(BaseModel):
     class Config:
         extra = Extra.forbid
 
     tokenName: str
     tokenDecimals: str
-    oracleType: str
     oracleAddress: str
     lpTokenContractAddress: str
     lpTokenId: str
@@ -55,3 +54,40 @@ class SetLoanTokenParameter(BaseModel):
     interestRateAboveOptimalUtilisation: str
     minRepaymentAmount: str
     tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
+
+
+class ActionItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    createLoanToken: CreateLoanToken
+
+
+class UpdateLoanToken(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    tokenName: str
+    oracleAddress: str
+    reserveRatio: str
+    optimalUtilisationRate: str
+    baseInterestRate: str
+    maxInterestRate: str
+    interestRateBelowOptimalUtilisation: str
+    interestRateAboveOptimalUtilisation: str
+    minRepaymentAmount: str
+
+
+class ActionItem1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    updateLoanToken: UpdateLoanToken
+
+
+class SetLoanTokenParameter(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    action: Union[ActionItem, ActionItem1]
+    empty: Dict[str, Any]

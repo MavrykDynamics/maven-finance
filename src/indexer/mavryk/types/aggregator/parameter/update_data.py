@@ -12,7 +12,7 @@ class OracleObservations(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    price: str
+    data: str
     epoch: str
     round: str
     aggregatorAddress: str

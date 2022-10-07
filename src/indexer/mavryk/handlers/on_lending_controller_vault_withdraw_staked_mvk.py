@@ -1,22 +1,21 @@
 
-from dipdup.context import HandlerContext
 from dipdup.models import Transaction
-from mavryk.utils.persisters import persist_token_metadata
-from mavryk.types.lending_controller.parameter.register_withdrawal import RegisterWithdrawalParameter
+from mavryk.types.lending_controller.parameter.vault_withdraw_staked_mvk import VaultWithdrawStakedMvkParameter
 from mavryk.types.lending_controller.storage import LendingControllerStorage
+from dipdup.context import HandlerContext
 import mavryk.models as models
 from dateutil import parser
 
-async def on_lending_controller_register_withdrawal(
+async def on_lending_controller_vault_withdraw_staked_mvk(
     ctx: HandlerContext,
-    register_withdrawal: Transaction[RegisterWithdrawalParameter, LendingControllerStorage],
+    vault_withdraw_staked_mvk: Transaction[VaultWithdrawStakedMvkParameter, LendingControllerStorage],
 ) -> None:
 
     # Get operation info
-    lending_controller_address  = register_withdrawal.data.target_address
-    vault_owner_address         = register_withdrawal.parameter.handle.owner
-    vault_internal_id           = int(register_withdrawal.parameter.handle.id)
-    vaults_storage              = register_withdrawal.storage.vaults
+    lending_controller_address  = vault_withdraw_staked_mvk.data.target_address
+    vault_internal_id           = int(vault_withdraw_staked_mvk.parameter.vaultId)
+    vault_owner_address         = vault_withdraw_staked_mvk.data.sender_address
+    vaults_storage              = vault_withdraw_staked_mvk.storage.vaults
 
     # Update record
     lending_controller          = await models.LendingController.get(
@@ -61,7 +60,7 @@ async def on_lending_controller_register_withdrawal(
             # Save loan token
             loan_token                              = await lending_controller_vault.loan_token
             loan_token_name                         = loan_token.loan_token_name
-            loan_token_storage                      = register_withdrawal.storage.loanTokenLedger[loan_token_name]
+            loan_token_storage                      = vault_withdraw_staked_mvk.storage.loanTokenLedger[loan_token_name]
             loan_token.token_pool_total             = float(loan_token_storage.tokenPoolTotal)
             loan_token.lp_token_total               = float(loan_token_storage.lpTokensTotal)
             loan_token.total_remaining              = float(loan_token_storage.totalRemaining)
@@ -74,7 +73,7 @@ async def on_lending_controller_register_withdrawal(
             # Save collateral balance ledger
             for collateral_token_name in vault_collateral_balance_ledger:
                 collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
-                collateral_token_storage                    = register_withdrawal.storage.collateralTokenLedger[collateral_token_name]
+                collateral_token_storage                    = vault_withdraw_staked_mvk.storage.collateralTokenLedger[collateral_token_name]
                 collateral_token_address                    = collateral_token_storage.tokenContractAddress
                 
                 lending_controller_collateral_token         = await models.LendingControllerCollateralToken.get(

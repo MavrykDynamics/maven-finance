@@ -35,7 +35,8 @@ async def on_lending_controller_register_vault_creation(
         vault_borrow_index                      = float(vault_storage.value.borrowIndex)
         vault_last_updated_block_level          = int(vault_storage.value.lastUpdatedBlockLevel)
         vault_last_updated_timestamp            = parser.parse(vault_storage.value.lastUpdatedTimestamp)
-        vault_marked_for_liquidation_timestamp  = parser.parse(vault_storage.value.markedForLiquidationTimestamp)
+        vault_marked_for_liquidation_level      = int(vault_storage.value.markedForLiquidationLevel)
+        vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
         vault_internal_id                       = int(vault_storage.key.id)
         loan_token_storage                      = register_vault_creation.storage.loanTokenLedger[vault_loan_token_name]
         loan_token_type_storage                 = loan_token_storage.tokenType
@@ -71,5 +72,6 @@ async def on_lending_controller_register_vault_creation(
         lending_controller_vault.borrow_index                       = vault_borrow_index
         lending_controller_vault.last_updated_block_level           = vault_last_updated_block_level
         lending_controller_vault.last_updated_timestamp             = vault_last_updated_timestamp
-        lending_controller_vault.marked_for_liquidation_timestamp   = vault_marked_for_liquidation_timestamp
+        lending_controller_vault.marked_for_liquidation_level       = vault_marked_for_liquidation_level
+        lending_controller_vault.liquidation_end_level              = vault_liquidation_end_level
         await lending_controller_vault.save()

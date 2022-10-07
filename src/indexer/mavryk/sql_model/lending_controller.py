@@ -31,10 +31,10 @@ class LendingController(MavrykContract, Model):
     borrow_paused                           = fields.BooleanField(default=False)
     repay_paused                            = fields.BooleanField(default=False)
     set_loan_token_paused                   = fields.BooleanField(default=False)
-    update_collateral_token_paused          = fields.BooleanField(default=False)
+    set_collateral_token_paused             = fields.BooleanField(default=False)
     vault_deposit_smvk_paused               = fields.BooleanField(default=False)
     vault_withdraw_smvk_paused              = fields.BooleanField(default=False)
-    vault_liquidate_smvk_paused             = fields.BooleanField(default=False)
+    vault_on_liquidate_paused               = fields.BooleanField(default=False)
     vault_deposit_paused                    = fields.BooleanField(default=False)
     vault_withdraw_paused                   = fields.BooleanField(default=False)
 
@@ -79,7 +79,8 @@ class LendingControllerVault(Model):
     borrow_index                            = fields.FloatField(default=0)
     last_updated_block_level                = fields.BigIntField(default=0, index=True)
     last_updated_timestamp                  = fields.DatetimeField(null=True, index=True)
-    marked_for_liquidation_timestamp        = fields.DatetimeField(null=True, index=True)
+    marked_for_liquidation_level            = fields.BigIntField(default=0, index=True)
+    liquidation_end_level                   = fields.BigIntField(default=0, index=True)
     open                                    = fields.BooleanField(default=True, index=True)
 
     class Meta:
@@ -109,7 +110,7 @@ class LendingControllerCollateralToken(Model):
     lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='collateral_tokens', null=True)
     token_address                           = fields.CharField(max_length=36, default="", index=True)
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_collateral_token_oracles', null=True, index=True)
-    oracle_type                             = fields.IntEnumField(enum_type=OracleType, default=OracleType.CFMM, index=True)
+    protected                               = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'lending_controller_collateral_token'
@@ -121,7 +122,6 @@ class LendingControllerLoanToken(Model):
     loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
     loan_token_address                      = fields.CharField(max_length=36, default="", index=True)
     lp_token_address                        = fields.CharField(max_length=36, default="", index=True)
-    oracle_type                             = fields.IntEnumField(enum_type=OracleType, default=OracleType.CFMM, index=True)
     lp_token_total                          = fields.FloatField(default=0.0)
     reserve_ratio                           = fields.SmallIntField(default=0)
     token_pool_total                        = fields.FloatField(default=0.0)
@@ -138,7 +138,6 @@ class LendingControllerLoanToken(Model):
     accumulated_rewards_per_share           = fields.FloatField(default=0.0)
     borrow_index                            = fields.FloatField(default=0)
     min_repayment_amount                    = fields.FloatField(default=0.0)
-    is_paused                               = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'lending_controller_loan_token'
