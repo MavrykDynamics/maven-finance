@@ -57,7 +57,7 @@ const queryParameters = {
 export const BreakGlassCouncil: FC = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const { search } = useLocation()
+  const { search, pathname } = useLocation()
 
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
@@ -83,23 +83,21 @@ export const BreakGlassCouncil: FC = () => {
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
   const [sliderKey, setSliderKey] = useState(1)
-  const [isPendingSignature, setIsPendingSignature] = useState(true)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
-  const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
-  const displayPendingSignature = Boolean(
-    isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
-  )
 
   const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
   const { review: isReviewPage } = useParams<{ review: string }>()
 
+  const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
+  const displayPendingSignature = Boolean(
+    !isReviewPage && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
+  )
+
   const handleClickReview = () => {
-    setIsPendingSignature(false)
     history.replace(`${queryParameters.pathname}${queryParameters.review}`)
   }
 
   const handleClickGoBack = () => {
-    setIsPendingSignature(true)
     history.replace(queryParameters.pathname)
   }
 
@@ -157,7 +155,7 @@ export const BreakGlassCouncil: FC = () => {
     if (!isUserInBreakCouncilMember) {
       history.replace(`${queryParameters.pathname}${queryParameters.review}`)
     }
-  }, [history, isUserInBreakCouncilMember, search])
+  }, [history, isUserInBreakCouncilMember, pathname])
 
   return (
     <Page>
