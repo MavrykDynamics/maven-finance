@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 
-import { containerColor, royalPurpleColor, headerColor, darkColor } from 'styles'
+import { containerColor, royalPurpleColor, darkColor } from 'styles'
 
 export const CheckboxStyled = styled.div`
   label {

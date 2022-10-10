@@ -1,4 +1,3 @@
-import { ERROR } from './Toaster.constants'
 import {
   ToasterClose,
   ToasterContent,
