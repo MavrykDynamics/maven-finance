@@ -13,15 +13,18 @@ export function toHHMMSS(sec: number): string {
 
 type TimeFormatTypes =
   | 'MMM DD, HH:mm:ss'
+  | 'MMM Do, YYYY, HH:mm:ss UTC'
   | 'DD MMM YYYY / HH:mm'
   | 'MMMM DD HH:mm Z'
   | 'MMM DD, YYYY'
   | 'YYYY-MM-DD'
   | 'HH:mm'
+  | 'MMM DD, HH:mm'
   | 'MMM DD, HH:mm Z'
   | 'MMMM Do HH:mm Z'
+  | 'MMM Do, YYYY'
 
-export const parseData = ({ time, timeFormat }: { time?: string | number | null; timeFormat: TimeFormatTypes }) => {
+export const parseDate = ({ time, timeFormat }: { time?: string | number | null; timeFormat: TimeFormatTypes }) => {
   if (!time) return null
   const dateObj = new Date(time)
 

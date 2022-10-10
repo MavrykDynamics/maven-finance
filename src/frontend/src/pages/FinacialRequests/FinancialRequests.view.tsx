@@ -33,7 +33,7 @@ import {
   InfoBlockTitle,
 } from './FinancialRequests.style'
 import { EmptyContainer } from 'app/App.style'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 import { State } from 'reducers'
 
 type FinancialRequestsViewProps = {
@@ -125,7 +125,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
 
         <div className="voting_ending">
           Voting {rightItemStatus !== ProposalStatus.ONGOING ? 'ended' : 'ending'} on{' '}
-          {parseData({
+          {parseDate({
             time: rightSideContent.execution_datetime || rightSideContent.expiration_datetime,
             timeFormat: 'MMM DD, HH:mm:ss',
           })}
@@ -192,7 +192,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
         <div className="info_section">
           <InfoBlockTitle>Date Requested</InfoBlockTitle>
           <InfoBlockDescr>
-            {parseData({ time: rightSideContent.requested_datetime, timeFormat: 'MMM DD, HH:mm:ss' })}
+            {parseDate({ time: rightSideContent.requested_datetime, timeFormat: 'MMM DD, HH:mm:ss' })}
           </InfoBlockDescr>
         </div>
 
