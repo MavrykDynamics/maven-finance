@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Page } from 'styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -11,7 +10,6 @@ import useGovernence from '../Governance/UseGovernance'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { GovernancePhase } from '../../reducers/governance'
 import { ProposalSubmissionForm } from './ProposalSubmission.style'
 import { PropSubmissionTopBar } from './PropSubmissionTopBar/PropSubmissionTopBar.controller'
 import { StageOneForm } from './StageOneForm/StageOneForm.controller'
@@ -22,10 +20,6 @@ import { Info } from '../../app/App.components/Info/Info.view'
 import '@silevis/reactgrid/styles.css'
 
 type ProposalSubmissionViewProps = {
-  loading: boolean
-  accountPkh?: string
-  governancePhase: GovernancePhase
-  isInEmergencyGovernance: boolean
   activeTab: number
   handleChangeTab: (tabId?: number) => void
   locked: boolean
