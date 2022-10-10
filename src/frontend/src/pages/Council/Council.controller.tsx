@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useHistory, useLocation } from 'react-router-dom'
-import qs from 'qs'
+import { useParams } from 'react-router'
 
 // type
 import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
@@ -45,10 +45,15 @@ import { Page } from 'styles'
 import { CouncilStyled } from './Council.style'
 import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
 
+const queryParameters = {
+  pathname: '/mavryk-council',
+  review: '/review',
+}
+
 export const Council = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const { search, pathname } = useLocation()
+  const { search } = useLocation()
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
@@ -88,18 +93,16 @@ export const Council = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const sortedCouncilMembers = memberIsFirstOfList(councilMembers, accountPkh)
-
-  const { review: isReviewPage = false } = qs.parse(search, { ignoreQueryPrefix: true }) as { review?: boolean }
-  const stringifiedQP = qs.stringify({ review: true })
+  const { review: isReviewPage } = useParams<{ review: string }>()
 
   const handleClickReview = () => {
     setIsPendingSignature(false)
-    history.push(`${pathname}?${stringifiedQP}`)
+    history.replace(`${queryParameters.pathname}${queryParameters.review}`)
   }
 
   const handleClickGoBack = () => {
     setIsPendingSignature(true)
-    history.push(`${pathname}`)
+    history.replace(queryParameters.pathname)
   }
 
   const handleClickDropdown = () => {
@@ -141,15 +144,15 @@ export const Council = () => {
 
   useEffect(() => {
     // redirect to review or main page when member changes
-    history.push(isUserInCouncilMembers ? `${pathname}` : `${pathname}?${stringifiedQP}`)
-  }, [isUserInCouncilMembers])
+    history.replace(isUserInCouncilMembers ? queryParameters.pathname : `${queryParameters.pathname}${queryParameters.review}`)
+  }, [history, isUserInCouncilMembers])
 
   useEffect(() => {
     // check authorization when clicking on a review or a header in the menu
     if (!isUserInCouncilMembers) {
-      history.push(`${pathname}?${stringifiedQP}`)
+      history.replace(`${queryParameters.pathname}${queryParameters.review}`)
     }
-  }, [search])
+  }, [history, isUserInCouncilMembers, search])
 
   return (
     <Page>

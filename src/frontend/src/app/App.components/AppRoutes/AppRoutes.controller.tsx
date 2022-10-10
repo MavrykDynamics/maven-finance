@@ -80,10 +80,10 @@ export const AppRoutes = () => {
       <Route exact path="/emergency-governance">
         <EmergencyGovernance />
       </Route>
-      <Route exact path="/mavryk-council">
+      <Route exact path="/mavryk-council/:review?">
         <Council />
       </Route>
-      <Route exact path="/break-glass-council">
+      <Route exact path="/break-glass-council/:review?">
         <BreakGlassCouncil />
       </Route>
       <Route exact path="/oracle-users">
