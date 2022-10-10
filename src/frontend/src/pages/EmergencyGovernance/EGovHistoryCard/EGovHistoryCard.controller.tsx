@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
-/* @ts-ignore */
-import Time from 'react-pure-time'
 
 import type { EmergencyGovernanceStorage } from '../../../utils/TypesAndInterfaces/EmergencyGovernance'
 
@@ -21,6 +19,7 @@ import {
   EGovHistoryCardTitleTextGroup,
   EGovHistoryCardTopSection,
 } from './EGovHistoryCard.style'
+import { parseDate } from 'utils/time'
 
 type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceStorage['emergencyGovernanceLedger'][0]
@@ -41,8 +40,6 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
 
   const status = emergencyGovernance.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
 
-  const currentData = emergencyGovernance.startTimestamp
-
   const votingStatistic = useMemo(
     () => ({
       forVotesMVKTotal: emergencyGovernance.totalsMvkVotes,
@@ -62,7 +59,10 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
         <EGovHistoryCardTitleTextGroup>
           <h3>Date</h3>
           <p className="group-data">
-            <Time value={currentData} format="M d\t\h, Y, H:m:s \U\T\C" />
+            {parseDate({
+              time: new Date(emergencyGovernance.startTimestamp).getTime(),
+              timeFormat: 'MMM Do, YYYY, HH:mm:ss UTC',
+            })}
           </p>
         </EGovHistoryCardTitleTextGroup>
         <EGovHistoryCardTitleTextGroup>

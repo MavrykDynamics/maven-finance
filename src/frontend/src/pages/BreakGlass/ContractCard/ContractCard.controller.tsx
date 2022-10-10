@@ -3,7 +3,7 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { BGAccordion } from '../Accordeon/Accordeon.view'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 
 type ContractCardProps = {
   contract: Record<string, unknown>
@@ -36,7 +36,7 @@ export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleEx
 
         <div className="card-info-item">
           Last Update
-          <div>{parseData({ time: lastUpdated, timeFormat: 'MMM DD, YYYY' })}</div>
+          <div>{parseDate({ time: lastUpdated, timeFormat: 'MMM DD, YYYY' })}</div>
         </div>
 
         <div className="card-info-item">

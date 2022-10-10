@@ -19,7 +19,7 @@ import { DropDown, DropdownItemType } from 'app/App.components/DropDown/DropDown
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
 import { useState } from 'react'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 
 const emptyContainer = (
   <EmptyContainer>
@@ -113,7 +113,7 @@ const UserDetailsView = ({
 
             <div className="item">
               <h5>User since</h5>
-              <var>{parseData({ time: user.creationDate, timeFormat: 'MMM DD, YYYY' })}</var>
+              <var>{parseDate({ time: user.creationDate, timeFormat: 'MMM DD, YYYY' })}</var>
             </div>
           </div>
         </div>

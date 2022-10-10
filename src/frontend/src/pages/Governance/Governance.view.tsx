@@ -26,7 +26,7 @@ import {
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { PRECISION_NUMBER } from 'utils/constants'
 import { dropProposal } from '../ProposalSubmission/ProposalSubmission.actions'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 
 // components
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -326,7 +326,7 @@ export const GovernanceView = ({
           {votingEnding ? (
             <RightSideSubContent id="votingDeadline">
               Voting {isEndedVotingTime ? 'ended' : 'ending'} on{' '}
-              {parseData({ time: votingTime, timeFormat: 'MMMM Do HH:mm Z' })} CEST
+              {parseDate({ time: votingTime, timeFormat: 'MMMM Do HH:mm Z' })} CEST
             </RightSideSubContent>
           ) : null}
 

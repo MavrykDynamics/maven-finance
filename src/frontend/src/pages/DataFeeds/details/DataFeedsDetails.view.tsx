@@ -37,7 +37,7 @@ import { EmptyContainer } from 'app/App.style'
 import { cyanColor, downColor, Page, upColor } from 'styles'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 import dayjs from 'dayjs'
 
 type FeedDetailsProps = {
@@ -65,7 +65,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
   const heartbeatUpdateInfo =
     dayjs(Date.now()).diff(dayjs(feed?.last_completed_price_datetime), 'minutes') >= 30
       ? `
-  Price feed is outdated, missed the schedule price update at ${parseData({
+  Price feed is outdated, missed the schedule price update at ${parseDate({
     time: new Date(feed?.last_completed_price_datetime || '').getTime() + 1000 * 60 * 30,
     timeFormat: 'MMM DD, HH:mm:ss',
   })}
@@ -132,7 +132,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {parseData({ time: feed.last_completed_price_datetime, timeFormat: 'MMM DD, YYYY' })}
+                  {parseDate({ time: feed.last_completed_price_datetime, timeFormat: 'MMM DD, YYYY' })}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {feed.last_completed_price_datetime ? (

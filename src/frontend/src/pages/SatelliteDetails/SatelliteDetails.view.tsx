@@ -1,6 +1,3 @@
-import * as React from 'react'
-/* @ts-ignore */
-import Time from 'react-pure-time'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { State } from 'reducers'
@@ -29,6 +26,7 @@ import { EmptyContainer } from '../../app/App.style'
 import { SatelliteListItem } from 'pages/Satellites/SatelliteList/ListCards/SateliteCard.view'
 import { UserSatelliteRewardsData } from 'utils/TypesAndInterfaces/User'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { parseDate } from 'utils/time'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
@@ -58,7 +56,7 @@ const renderVotingHistoryItem = (item: SatelliteProposalVotingHistory | Satellit
         ) : (
           <b className="voting-no">NO </b>
         )}
-        <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
+        on {parseDate({ time: new Date(item.timestamp).getTime(), timeFormat: 'MMM Do, YYYY' })}
       </span>
     </SatelliteVotingHistoryListItem>
   )

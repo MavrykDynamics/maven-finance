@@ -3,7 +3,7 @@ import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 import { Link } from 'react-router-dom'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
@@ -32,7 +32,7 @@ export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
         </div>
         <div className="item">
           <h5>Date</h5>
-          <var>{parseData({ time: feed.last_completed_price_datetime, timeFormat: 'MMM DD, YYYY' })}</var>
+          <var>{parseDate({ time: feed.last_completed_price_datetime, timeFormat: 'MMM DD, YYYY' })}</var>
         </div>
       </SatelliteItemStyle>
     </Link>
