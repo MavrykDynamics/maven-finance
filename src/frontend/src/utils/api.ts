@@ -1,7 +1,7 @@
 const axios = require('axios').default
 
 // const network = process.env.REACT_APP_API_NETWORK
-const network = 'ghostnet'
+export const network = 'ghostnet'
 
 export async function getContractBigmapKeys(contractAddress: string, name: string) {
   return await axios

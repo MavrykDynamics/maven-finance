@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-import { Card, skyColor, cyanColor, headerColor, royalPurpleColor } from 'styles'
+import { Card, skyColor, cyanColor, headerColor, royalPurpleColor, boxShadowColor } from 'styles'
 
 export const FarmCardStyled = styled(Card)`
   margin: 0;
@@ -17,9 +17,12 @@ export const FarmCardStyled = styled(Card)`
     var {
       font-weight: 700;
       font-size: 14px;
-      line-height: 14px;
       color: ${cyanColor};
       font-style: normal;
+
+      p {
+        margin: 0;
+      }
     }
   }
 
@@ -31,9 +34,11 @@ export const FarmCardStyled = styled(Card)`
     h3 {
       font-weight: 600;
       font-size: 22px;
-      line-height: 18px;
       color: ${cyanColor};
-      word-break: break-all;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 210px;
     }
 
     p {
@@ -42,6 +47,14 @@ export const FarmCardStyled = styled(Card)`
       line-height: 11px;
       color: ${headerColor};
       margin: 3px 0;
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      font-weight: 400;
+      font-size: 11px;
+      text-align: right;
+      color: ${({ theme }) => theme.headerColor};
     }
   }
 
@@ -82,6 +95,18 @@ export const FarmCardStyled = styled(Card)`
       padding-left: 40px;
     }
 
+    .farm-info {
+      .btn-info {
+        position: relative;
+        width: fit-content;
+        .calc-button {
+          position: absolute;
+          right: -23px;
+          margin: 0;
+        }
+      }
+    }
+
     .farm-card-section {
       p {
         display: none;
@@ -90,9 +115,16 @@ export const FarmCardStyled = styled(Card)`
 
     .farm-card-header {
       figure {
-        top: 5px;
         right: 12px;
         flex-shrink: 0;
+      }
+    }
+
+    .horizontal-expand {
+      .farm-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
     }
   } //horizontal
@@ -154,12 +186,13 @@ export const FarmCardStyled = styled(Card)`
       }
 
       .start-farming {
-        padding: 0;
+        padding: 70px 20px 56px 20px;
         flex-direction: column;
-        align-items: baseline;
-        padding-left: 20px;
-        padding-right: 20px;
+        row-gap: 27px;
+        align-items: center;
         margin-bottom: 10px;
+        border: 1px solid ${({ theme }) => theme.cardBorderColor};
+        border-radius: 10px;
 
         h3 {
           margin-bottom: 13px;
@@ -216,10 +249,15 @@ export const FarmCardStyled = styled(Card)`
   .start-farming {
     display: flex;
     align-items: center;
+    justify-content: space-around;
     padding-left: 40px;
+    border: 1px solid ${({ theme }) => theme.cardBorderColor};
+    border-radius: 10px;
+    height: 100%;
 
     div {
       margin: 0;
+      width: fit-content;
     }
 
     h3 {
@@ -236,11 +274,26 @@ export const FarmCardStyled = styled(Card)`
       width: 19px;
       height: 19px;
       fill: ${headerColor};
+      transition: 0.3s fill;
+
+      &:hover {
+        fill: ${cyanColor};
+      }
     }
   }
 
   &.opened {
-    border: 0.5px solid ${cyanColor};
+    border: 1px solid ${cyanColor};
+    box-shadow: 0px 4px 4px ${boxShadowColor};
+  }
+
+  &.opened {
+    .prevent-hover {
+      &:hover {
+        border-color: transparent;
+        box-shadow: unset;
+      }
+    }
   }
 ` // CARD
 
@@ -360,5 +413,14 @@ export const FarmInputSection = styled.form`
     width: 262px;
     margin-top: auto;
     margin-bottom: 10px;
+  }
+
+  .farm-modal-input {
+    .pinned-text {
+      font-size: 14px;
+    }
+    .with-text {
+      right: -25px;
+    }
   }
 `

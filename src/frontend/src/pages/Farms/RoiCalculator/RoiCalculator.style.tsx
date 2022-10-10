@@ -76,7 +76,9 @@ export const RoiCalculatorStyled = styled.section`
     p {
       margin: 0;
       font-weight: 400;
-      margin-top: 10px;
+      margin-top: 35кpx;
+      display: flex;
+      column-gap: 10px;
     }
 
     button {
@@ -84,6 +86,54 @@ export const RoiCalculatorStyled = styled.section`
         width: 24px;
         height: 24px;
         stroke: ${headerColor};
+      }
+
+      &.active {
+        svg {
+          stroke: ${cyanColor};
+        }
+      }
+    }
+
+    .input-wrapper {
+      position: relative;
+
+      .farm-modal-backward-input {
+        #input-roi-backward {
+          height: 60px;
+          width: 200px;
+          padding: 5px 0px 25px 10px;
+        }
+
+        .pinned-text {
+          font-size: 16px;
+          top: 12px;
+        }
+
+        .with-text {
+          right: 55px;
+        }
+      }
+
+      .exchange-roi-backward {
+        width: 200px;
+        position: absolute;
+        bottom: 5px;
+        left: 10px;
+
+        span {
+          display: flex;
+          column-gap: 10px;
+
+          div {
+            p {
+              font-weight: 600;
+              font-size: 12px;
+              line-height: 18px;
+              color: ${skyColor};
+            }
+          }
+        }
       }
     }
   }
@@ -184,6 +234,10 @@ export const RoiExpandStyled = styled.div`
           font-weight: 600;
           font-size: 14px;
           color: ${cyanColor};
+
+          p {
+            margin: 0;
+          }
         }
       }
     }

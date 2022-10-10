@@ -32,8 +32,8 @@ export const FarmCardSecondTokenIcon = styled.img<{ theme: MavrykTheme }>`
 `
 
 export default function CoinsIcons({
-  firstAssetLogoSrc = '/images/coin-gold.svg',
-  secondAssetLogoSrc = '/images/coin-silver.svg',
+  firstAssetLogoSrc,
+  secondAssetLogoSrc,
 }: {
   firstAssetLogoSrc?: string
   secondAssetLogoSrc?: string
@@ -41,14 +41,16 @@ export default function CoinsIcons({
   return (
     <FarmCardTokenLogoContainer>
       <FarmCardFirstTokenIcon
-        src={firstAssetLogoSrc}
+        src={firstAssetLogoSrc ? `https://services.tzkt.io/v1/avatars/${firstAssetLogoSrc}` : '/images/coin-gold.svg'}
         onError={({ currentTarget }) => {
           currentTarget.onerror = null
           currentTarget.src = '/images/coin-gold.svg'
         }}
       />
       <FarmCardSecondTokenIcon
-        src={secondAssetLogoSrc}
+        src={
+          secondAssetLogoSrc ? `https://services.tzkt.io/v1/avatars/${secondAssetLogoSrc}` : '/images/coin-silver.svg'
+        }
         onError={({ currentTarget }) => {
           currentTarget.onerror = null
           currentTarget.src = '/images/coin-silver.svg'

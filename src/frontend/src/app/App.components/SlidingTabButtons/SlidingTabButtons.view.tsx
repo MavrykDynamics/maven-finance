@@ -3,7 +3,7 @@ import { TabItem } from './SlidingTabButtons.controller'
 
 type SlidingTabButtonViewProps = {
   onClick: (tabId: number) => void
-  activeTab: number
+  activeTab?: number
   tabValues: TabItem[]
   className?: string
 }
@@ -15,6 +15,7 @@ export const SlidingTabButtonsView = ({ onClick, activeTab, tabValues, className
         <TabButton
           key={tabItem.id}
           text={tabItem.text}
+          disabled={tabItem.isDisabled}
           onClick={() => onClick(tabItem.id)}
           buttonActiveStatus={activeTab === tabItem.id}
         />
@@ -27,10 +28,11 @@ type TabButtonProps = {
   text: string
   onClick: () => void
   buttonActiveStatus: boolean
+  disabled?: boolean
 }
-const TabButton = ({ text, buttonActiveStatus, onClick }: TabButtonProps) => {
+const TabButton = ({ text, buttonActiveStatus, onClick, disabled = false }: TabButtonProps) => {
   return (
-    <ButtonStyled buttonActive={buttonActiveStatus} onClick={onClick}>
+    <ButtonStyled buttonActive={buttonActiveStatus} disabled={disabled} onClick={onClick}>
       <ButtonText>
         <div>{text}</div>
       </ButtonText>
