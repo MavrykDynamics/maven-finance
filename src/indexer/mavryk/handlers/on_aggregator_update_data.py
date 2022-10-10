@@ -25,7 +25,7 @@ async def on_aggregator_update_data(
     aggregator.last_completed_data_epoch            = int(last_completed_data.epoch)
     aggregator.last_completed_data                  = float(last_completed_data.data)
     aggregator.last_completed_data_pct_oracle_resp  = int(last_completed_data.percentOracleResponse)
-    aggregator.last_completed_data_datetime         = parser.parse(last_completed_data.lastUpdatedAt)
+    aggregator.last_completed_data_last_updated_at  = parser.parse(last_completed_data.lastUpdatedAt)
     await aggregator.save()
 
     user, _                         = await models.MavrykUser.get_or_create(

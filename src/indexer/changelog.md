@@ -4,16 +4,48 @@
 
 ### Deployment
 
-- DEV: 0.16
-- PROD: 0.13
+- DEV: 0.17
+- PROD: 0.16
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## Version 0.17
+
+### What's new
+
+- Doorman
+  - OnVaultDepositSMvkPaused
+  - OnVaultWithdrawSMvkPaused
+  - OnVaultLiquidateSMvkPaused
+- StakeHistoryData
+  - VAULT_DEPOSIT_SMVK = 5
+  - VAULT_WITHDRAW_SMVK = 6
+  - VAULT_LIQUIDATE_SMVK = 6
+- LendingControllerVault
+  - LiquidationEndLevel
+- LendingControllerCollateralToken
+  - Protected
+
+### Breaking changes
+
+- Aggregator
+  - LastCompletedPrice* columns refactored to LastCompletedData*
+- LendingController
+  - UpdateCollateralTokenPaused renamed to SetCollateralTokenPaused
+  - VaultLiquidateSMvkPaused renamed to VaultOnLiquidateSMvkPaused
+- LendingControllerVault
+  - MarkedForLiquidationTimestamp renamed to MarkedForLiquidationLevel
+- LendingControllerLoanToken
+  - OracleType removed
+  - IsPaused removed
+- LendingControllerCollateralToken
+  - OracleType removed
+
 ## Version 0.16
 
-### New contracts indexed
+### What's new
 
 - Oracle V2 Indexed
 - Lending Indexed
