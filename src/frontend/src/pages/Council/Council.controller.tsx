@@ -53,24 +53,24 @@ const queryParameters = {
 export const Council = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const { search } = useLocation()
+  const { search, pathname } = useLocation()
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [sliderKey, setSliderKey] = useState(1)
-  const [isPendingSignature, setIsPendingSignature] = useState(false)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
+  const { review: isReviewPage } = useParams<{ review: string }>()
 
   const currentCouncilPastActions = useMemo(
     () =>
-      isPendingSignature
+      !isReviewPage
         ? councilPastActions?.filter((item: CouncilPastAction) => item.initiator_id === accountPkh)
         : councilPastActions,
-    [councilPastActions, accountPkh, isPendingSignature],
+    [councilPastActions, accountPkh, isReviewPage],
   )
 
   const itemsForDropDown = [
@@ -93,15 +93,12 @@ export const Council = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const sortedCouncilMembers = memberIsFirstOfList(councilMembers, accountPkh)
-  const { review: isReviewPage } = useParams<{ review: string }>()
 
   const handleClickReview = () => {
-    setIsPendingSignature(false)
     history.replace(`${queryParameters.pathname}${queryParameters.review}`)
   }
 
   const handleClickGoBack = () => {
-    setIsPendingSignature(true)
     history.replace(queryParameters.pathname)
   }
 
@@ -127,10 +124,6 @@ export const Council = () => {
     setSliderKey(sliderKey + 1)
   }, [accountPkh])
 
-  useEffect(() => {
-    setIsPendingSignature(Boolean(isUserInCouncilMembers))
-  }, [isUserInCouncilMembers])
-
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
   }
@@ -152,7 +145,7 @@ export const Council = () => {
     if (!isUserInCouncilMembers) {
       history.replace(`${queryParameters.pathname}${queryParameters.review}`)
     }
-  }, [history, isUserInCouncilMembers, search])
+  }, [history, isUserInCouncilMembers, pathname])
 
   return (
     <Page>
@@ -167,11 +160,11 @@ export const Council = () => {
 
         <article
           className={`council-details ${isPendingList ? 'is-user-member' : ''} ${
-            isPendingSignature ? 'is-pending-signature' : ''
+            !isReviewPage ? 'is-pending-signature' : ''
           }`}
         >
           <div className="council-actions">
-            {isPendingSignature && isPendingList ? (
+            {!isReviewPage && isPendingList ? (
               <>
                 <h1>Pending Signature</h1>
                 <article className="pending">
@@ -195,7 +188,7 @@ export const Council = () => {
                 </article>
               </>
             ) : null}
-            {isPendingSignature ? (
+            {!isReviewPage ? (
               <DropdownCard className="pending-dropdown">
                 <DropdownWrap>
                   <h2>Available Actions</h2>
@@ -226,8 +219,8 @@ export const Council = () => {
 
             {currentCouncilPastActions?.length ? (
               <>
-                <h1 className={`past-actions ${isPendingSignature ? 'is-user-member' : ''}`}>
-                  {isPendingSignature ? 'My ' : null}Past Council Actions
+                <h1 className={`past-actions ${!isReviewPage ? 'is-user-member' : ''}`}>
+                  {!isReviewPage ? 'My ' : null}Past Council Actions
                 </h1>
                 {paginatedItemsList.map((item: CouncilPastAction) => (
                   <CouncilPastActionView
@@ -245,11 +238,11 @@ export const Council = () => {
           </div>
 
           <aside
-            className={`council-members ${isPendingSignature ? 'is-user-member' : ''} ${
-              isPendingList && isPendingSignature ? 'is-pending-list' : ''
+            className={`council-members ${!isReviewPage ? 'is-user-member' : ''} ${
+              isPendingList && !isReviewPage ? 'is-pending-list' : ''
             }`}
           >
-            {isPendingSignature ? <CouncilPendingReviewView onClick={handleClickReview} /> : null}
+            {!isReviewPage ? <CouncilPendingReviewView onClick={handleClickReview} /> : null}
 
             {sortedCouncilMembers.length ? (
               <div>
