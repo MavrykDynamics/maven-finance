@@ -29,11 +29,9 @@ export type VoteStatistics = {
 }
 export const Governance = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
-
   const { watingProposals, waitingForPaymentToBeProcessed } = useGovernence()
 
-  const { ready, accountPkh } = useSelector((state: State) => state.wallet)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage, governancePhase, currentRoundProposals, pastProposals } = useSelector(
     (state: State) => state.governance,
   )
@@ -42,18 +40,16 @@ export const Governance = () => {
   // Period end time calculation
   const { headData } = useSelector((state: State) => state.preferences)
 
-  const timeToEndOfPeriod =
+  const daysLeftOfPeriod =
     headData?.knownLevel && governanceStorage?.currentRoundEndLevel
       ? calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)
       : 0
-
-  const daysLeftOfPeriod = timeToEndOfPeriod
 
   useEffect(() => {
     dispatch(getCurrentRoundProposals())
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getDelegationStorage())
-  }, [dispatch])
+  }, [])
 
   const isVotingRound = governancePhase === 'VOTING'
   const isTimeLockRound = governancePhase === 'TIME_LOCK'
@@ -75,8 +71,6 @@ export const Governance = () => {
       {accountPkh && <GovernanceTopBar governancePhase={governancePhase} />}
       <GovernanceView
         handleExecuteProposal={handleExecuteProposal}
-        ready={ready}
-        loading={loading}
         accountPkh={accountPkh}
         userIsSatellite={userIsSatellite}
         ongoingProposals={ongoingProposals}

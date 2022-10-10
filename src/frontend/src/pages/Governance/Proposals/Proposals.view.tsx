@@ -23,7 +23,6 @@ type ProposalsViewProps = {
   handleItemSelect: (proposalListItem: ProposalRecordType | undefined) => void
   selectedProposal: ProposalRecordType | undefined
   isProposalPhase: boolean
-  firstVisible: boolean
   listName: string
 }
 export const ProposalsView = ({
@@ -32,21 +31,11 @@ export const ProposalsView = ({
   handleItemSelect,
   selectedProposal,
   isProposalPhase,
-  firstVisible,
   listName,
 }: ProposalsViewProps) => {
   const { governancePhase, governanceStorage } = useSelector((state: State) => state.governance)
-  const location = useLocation()
 
-  useEffect(() => {
-    if (firstVisible) handleItemSelect(proposalsList[0])
-  }, [proposalsList, firstVisible])
-
-  useEffect(() => {
-    handleItemSelect(undefined)
-  }, [location.pathname, proposalsList])
-
-  const { pathname, search } = useLocation()
+  const { search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
   const paginatedItemsList = useMemo(() => {
