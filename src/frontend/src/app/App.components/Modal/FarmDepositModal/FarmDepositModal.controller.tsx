@@ -40,8 +40,12 @@ export const FarmDepositModal = () => {
   }
 
   const getUserBalance = async () => {
-    const userBalanceFetched = Number(await getUserBalanceByAddress(farm?.lpTokenAddress))
-    setUserBalance(userBalanceFetched)
+    try {
+      const userBalanceFetched = Number(await getUserBalanceByAddress(farm?.lpTokenAddress))
+      setUserBalance(userBalanceFetched)
+    } catch (e) {
+      console.error('getUserBalance farms depositModal error:', e)
+    }
   }
 
   useEffect(() => {
@@ -127,7 +131,7 @@ export const FarmDepositModal = () => {
             onBlur={handleBlur}
             onFocus={handleFocus}
             value={amount}
-            pinnedText={tokesnNames + ' LP'}
+            pinnedText={`${tokesnNames} LP`}
             inputStatus={status}
             className="farm-modal-input"
           />

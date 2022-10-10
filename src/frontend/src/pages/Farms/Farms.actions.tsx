@@ -32,7 +32,7 @@ export const getFarmStorage = () => async (dispatch: AppDispatch, getState: GetS
       // try/catch to fetch farms contracts, if fails it will log error and dispatch farms cards without contacts data
       try {
         const urls = farmLPTokensInfo.reduce<string[]>(
-          (acc, item: { liquidityPairToken: { tokenAddress: Array<string> } }) => {
+          (acc, item: { liquidityPairToken: { tokenAddress: string[] } }) => {
             if (item?.liquidityPairToken?.tokenAddress?.[0]) {
               acc.push(`https://api.tzkt.io/v1/contracts/${item.liquidityPairToken.tokenAddress[0]}`)
             }
