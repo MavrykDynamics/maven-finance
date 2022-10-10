@@ -1,4 +1,7 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+import themeColors from 'styles/colors'
 import { AreaChart, Area, Tooltip, XAxis, YAxis } from 'recharts'
 
 // styles
@@ -14,6 +17,7 @@ type ChartItem = {
 
 type Props = {
   list: ChartItem[]
+  className?: string;
 }
 
 type ChartData = {
@@ -57,7 +61,9 @@ const getTime = (time: string) => parseData({ time, timeFormat }) || ''
 const dateFormat = 'MMM DD, HH:mm Z'
 const getParsedDate = (time: string) => parseData({ time, timeFormat: dateFormat }) || ''
 
-export default function Chart({ list }: Props) {
+export default function Chart({ list, className }: Props) {
+  const { themeSelected } = useSelector((state: State) => state.preferences)
+
   const data = list?.length
     ? list.map(({ mvk, timestamp }) => {
         return {
@@ -69,11 +75,11 @@ export default function Chart({ list }: Props) {
     : []
 
   return (
-    <AreaChart width={chartStyle.width} height={chartStyle.height} data={data}>
+    <AreaChart className={className} width={chartStyle.width} height={chartStyle.height} data={data}>
       <defs>
         <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="10%" stopColor="rgba(174, 237, 225, 1)" stopOpacity={1} />
-          <stop offset="100%" stopColor="rgba(22, 14, 63, 1)" stopOpacity={1} />
+          <stop offset="10%" stopColor={themeColors[themeSelected].chartLinerGradientPrimary} stopOpacity={1} />
+          <stop offset="100%" stopColor={themeColors[themeSelected].chartLinerGradientSecondary} stopOpacity={1} />
         </linearGradient>
       </defs>
 
@@ -98,7 +104,7 @@ export default function Chart({ list }: Props) {
         orientation="right"
       />
 
-      <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
+      <Tooltip cursor={{ stroke: themeColors[themeSelected].cardBorderColor, strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
       <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
     </AreaChart>
   )
