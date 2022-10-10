@@ -12,7 +12,7 @@ import BigNumber from 'bignumber.js';
 // ------------------------------------------------------------------
 
 
-const secondsInYears = 31536000
+const secondsInYears     = 31536000
 const fixedPointAccuracy = 10**27
 
 
@@ -20,10 +20,6 @@ const fixedPointAccuracy = 10**27
 // General Helpers
 //
 
-
-export const rebaseTokenValue = (tokenValueRaw, rebaseDecimals) => {
-    return tokenValueRaw * (10 ** rebaseDecimals);
-}
 
 
 // 
@@ -189,6 +185,59 @@ export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLed
 }
 
 
+export const multiplyByTokenPrice = (tokenName, tokenOracles, tokenAmount) => {
+
+    if(tokenName = "mockFa12"){
+        
+        let mockFa12TokenPrice = tokenOracles.find(o => o.name === "mockFa12").price;
+        return tokenAmount * mockFa12TokenPrice;
+
+    } else if(tokenName = "mockFa2"){
+
+        let mockFa2TokenPrice = tokenOracles.find(o => o.name === "mockFa2").price;
+        return tokenAmount * mockFa2TokenPrice;
+
+    } else if(tokenName = "tez"){
+
+        let tezPrice = tokenOracles.find(o => o.name === "tez").price;
+        return tokenAmount * tezPrice;
+
+    } else if(tokenName = "mvk"){
+
+        let mvkPrice = tokenOracles.find(o => o.name === "mvk").price;
+        return tokenAmount * mvkPrice;
+
+    }
+}
+
+
+export const divideByTokenPrice = (tokenName, tokenOracles, dollarValue) => {
+
+    if(tokenName = "mockFa12"){
+        
+        let mockFa12TokenPrice = tokenOracles.find(o => o.name === "mockFa12").price;
+        return Math.floor(dollarValue / mockFa12TokenPrice);
+
+    } else if(tokenName = "mockFa2"){
+
+        let mockFa2TokenPrice = tokenOracles.find(o => o.name === "mockFa2").price;
+        return Math.floor(dollarValue / mockFa2TokenPrice);
+
+    } else if(tokenName = "tez"){
+
+        let tezPrice = tokenOracles.find(o => o.name === "tez").price;
+        return Math.floor(dollarValue / tezPrice);
+
+    } else if(tokenName = "mvk"){
+
+        let mvkPrice = tokenOracles.find(o => o.name === "mvk").price;
+        return Math.floor(dollarValue / mvkPrice);
+
+    }
+}
+
+
+
 export const isUnderCollaterized = (collateralRatio, loanOutstandingTotal, vaultCollateralValue) => {
     let maxLoanValue = (vaultCollateralValue * collateralRatio) / 1000;
     if(loanOutstandingTotal > maxLoanValue){
@@ -218,6 +267,38 @@ export const isLiquidatable = (liquidationRatio, loanOutstandingTotal, vaultColl
 }
 
 
+export const calculateTokenRebaseDecimals = (maxDecimals, tokenDecimals, priceDecimals) => {
+    return maxDecimals - tokenDecimals - priceDecimals;
+}
+
+
+export const rebaseTokenValueRaw = (tokenValueRaw, rebaseDecimals) => {
+    return tokenValueRaw * (10 ** rebaseDecimals);
+}
+
+
+export const calculateTokenValueRebased = (tokenBalance, tokenPrice, rebaseDecimals) => {
+    const tokenValueRaw     = tokenBalance * tokenPrice;
+    const tokenValueRebased = tokenValueRaw * (10 ** rebaseDecimals);
+    return tokenValueRebased
+}
+
+
+export const calculateTokenProportion = (tokenValueRebased, vaultCollateralValueRebased) => {
+    return Math.floor(tokenValueRebased / vaultCollateralValueRebased);
+}
+
+
+export const calculateLiquidationIncentive = (liquidationFeePercent, liquidationAmount) => {
+    return Math.floor((liquidationFeePercent * liquidationAmount) / 10000);
+}
+
+
+export const calculateAdminLiquidationFee = (adminLiquidationFeePercent, liquidationAmount) => {
+    return Math.floor((adminLiquidationFeePercent * liquidationAmount) / 10000);
+}
+
+
 export const calculateVaultMaxLiquidationAmount = (newLoanOutstandingTotal, maxVaultLiquidationPercent) => {
     return Math.floor((newLoanOutstandingTotal * maxVaultLiquidationPercent) / 10000);
 }
@@ -242,87 +323,96 @@ export const calculateTotalLiquidationAmount = (liquidationAmount, vaultMaxLiqui
 export const defaultPriceObservations = [
         
     {
-        "mockFa12" : { // 1,500,000 -> $1.50
-            "bob": {
+        "name" : "mockFa12",
+        "medianPrice": 1500000, // 1,500,000 -> $1.50
+        "observations" : [ 
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(1499995)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(1500000)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1500000)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(1500005)
             }
-        }
+        ]
     },
 
     {
-        "mockFa2" : { // 3,500,000 -> $3.50
-            "bob": {
+        "name": "mockFa2",
+        "medianPrice": 3500000, // 3,500,000 -> $3.50
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(3499995)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(3500000)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(3500000)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(3500005)
             }
-        }
+        ]
     },
 
     {
-        "tez" : { // 1,800,000 -> $1.80
-            "bob": {
+        "name": "tez",
+        "medianPrice": 1800000, // 1,800,000 -> $1.80
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(1799995)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(1800000)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1800000)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(1800005)
             }
-        }
+        ]
     },
 
+
     {
-        "mvk" : { // 1,000,000,000 -> $1
-            "bob": {
+        "name": "mvk",
+        "medianPrice": 1000000000, // 1,000,000,000 -> $1
+        "observations" : [ 
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(999999995)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(1000000000)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1000000000)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(1000000005)
             }
-        }
+        ]
     },
     
 ];
@@ -332,87 +422,95 @@ export const defaultPriceObservations = [
 export const priceDecreaseObservations = [
     
     {
-        "mockFa12" : { // 500,000 -> $0.50
-            "bob": {
+        "name": "mockFa12",
+        "medianPrice": 500000, // 500,000 -> $0.50
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(499995)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(500000)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(500000)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(500005)
             }
-        }
+        ]
     },
 
     {
-        "mockFa2" : { // 1,166,666 -> $1.16
-            "bob": {
+        "name": "mockFa2",
+        "medianPrice": 1166666, // 1,166,666 -> $1.16
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(1166660)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(1166666)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1166666)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(1166671)
             }
-        }
+        ]
     },
 
     {
-        "tez" : { // 600,000 -> $0.60
-            "bob": {
+        "name": "tez",
+        "medianPrice": 600000, // 600,000 -> $0.60
+        "observations" : [ 
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(599995)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(600000)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(600000)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(600005)
             }
-        }
+        ]
     },
 
     {
-        "mvk" : { // 333,333,333 -> $0.33
-            "bob": {
+        "name": "mvk",
+        "medianPrice": 333333333, // 333,333,333 -> $0.33
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(333333328)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(333333333)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(333333333)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(333333338)
             }
-        }
+        ]
     },
     
 ];
@@ -423,87 +521,96 @@ export const priceDecreaseObservations = [
 export const priceIncreaseObservations = [
     
     {
-        "mockFa12" : { // 2,500,000 -> $2.50
-            "bob": {
+        "name": "mockFa12",
+        "medianPrice": 2500000, // 2,500,000 -> $2.50
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(2499995)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(2500000)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(2500000)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(2500005)
             }
-        }
+        ]
     },
 
     {
-        "mockFa2" : { // 5,833,333 -> $5.83
-            "bob": {
+        "name": "mockFa2",
+        "medianPrice": 5833333, // 5,833,333 -> $5.83
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(5833328)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(5833333)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(5833333)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(5833338)
             }
-        }
+        ]
     },
 
     {
-        "tez" : { // 3,000,000 -> $3.00
-            "bob": {
+        "name": "tez",
+        "medianPrice": 3000000, // 3,000,000 -> $3.00
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(2999995)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(3000000)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(3000000)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(3000005)
             }
-        }
+        ]
     },
 
     {
-        "mvk" : { // 1,666,666,666 -> $1.66
-            "bob": {
+        "name": "mvk",
+        "medianPrice": 1666666666, // 1,666,666,666 -> $1.66
+        "observations" : [
+            {
                 "oracle": bob.pkh,
                 "data" :new BigNumber(1666666661)
             },
-            "eve": {
+            {
                 "oracle": eve.pkh,
                 "data" :new BigNumber(1666666666)
             },
-            "mallory": {
+            {
                 "oracle": mallory.pkh,
                 "data" :new BigNumber(1666666666)
             },
-            "oscar": {
+            {
                 "oracle": oscar.pkh,
                 "data" :new BigNumber(1666666671)
             }
-        }
+        ]
     },
+
     
 ];
