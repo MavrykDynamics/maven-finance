@@ -23,8 +23,11 @@ export const SlidingTabButtons = ({
   disableAll = false,
   disabled = false,
 }: SlidingTabButtonsProps) => {
+  // if we found active item by default set it, othervise set first item active, if it's not disabled
   const [activeTab, setActiveTab] = useState<number | undefined>(
-    tabItems.find(({ active }) => active)?.id || tabItems[0]?.id,
+    tabItems.find(({ active, isDisabled }) => active && !isDisabled)?.id ?? tabItems[0]?.isDisabled
+      ? tabItems[0]?.id
+      : undefined,
   )
 
   useEffect(() => {
