@@ -221,8 +221,8 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
             rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
         };
         aggregatorStorage.lastCompletedData = {
-            round                   : new BigNumber(1),
-            epoch                   : new BigNumber(1),
+            round                   : new BigNumber(0),
+            epoch                   : new BigNumber(0),
             data                    : new BigNumber(1500000),
             percentOracleResponse   : new BigNumber(100),
             lastUpdatedAt           : '1'
@@ -243,8 +243,8 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         // Mock USD/MockFA2 Token Aggregator Contract
         //----------------------------
         aggregatorStorage.lastCompletedData = {
-            round                   : new BigNumber(1),
-            epoch                   : new BigNumber(1),
+            round                   : new BigNumber(0),
+            epoch                   : new BigNumber(0),
             data                    : new BigNumber(3500000),
             percentOracleResponse   : new BigNumber(100),
             lastUpdatedAt           : '1'
@@ -262,8 +262,8 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         // Mock USD/XTZ Token Aggregator Contract
         //----------------------------
         aggregatorStorage.lastCompletedData = {
-            round                   : new BigNumber(1),
-            epoch                   : new BigNumber(1),
+            round                   : new BigNumber(0),
+            epoch                   : new BigNumber(0),
             data                    : new BigNumber(1800000),
             percentOracleResponse   : new BigNumber(100),
             lastUpdatedAt           : '1'
@@ -283,8 +283,8 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
 
         aggregatorStorage.config.decimals = new BigNumber(9);
         aggregatorStorage.lastCompletedData = {
-            round                   : new BigNumber(1),
-            epoch                   : new BigNumber(1),
+            round                   : new BigNumber(0),
+            epoch                   : new BigNumber(0),
             data                    : new BigNumber(2000000),
             percentOracleResponse   : new BigNumber(100),
             lastUpdatedAt           : '1'

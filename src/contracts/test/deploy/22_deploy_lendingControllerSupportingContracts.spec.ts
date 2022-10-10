@@ -134,8 +134,8 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             // Mock USD/MockFa12Token Aggregator
             aggregatorStorage.lastCompletedData = {
-                round                   : new BigNumber(1),
-                epoch                   : new BigNumber(1),
+                round                   : new BigNumber(0),
+                epoch                   : new BigNumber(0),
                 data                    : new BigNumber(1500000),
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
@@ -152,8 +152,8 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             // Mock USD/MockFa2Token Aggregator
             aggregatorStorage.lastCompletedData = {
-                round                   : new BigNumber(1),
-                epoch                   : new BigNumber(1),
+                round                   : new BigNumber(0),
+                epoch                   : new BigNumber(0),
                 data                    : new BigNumber(3500000),
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
@@ -170,8 +170,8 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             // Mock USD/Xtz Aggregator
             aggregatorStorage.lastCompletedData = {
-                round                   : new BigNumber(1),
-                epoch                   : new BigNumber(1),
+                round                   : new BigNumber(0),
+                epoch                   : new BigNumber(0),
                 data                    : new BigNumber(1800000),
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
@@ -191,8 +191,8 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             aggregatorStorage.config.decimals = new BigNumber(9);
             aggregatorStorage.lastCompletedData = {
-                round                   : new BigNumber(1),
-                epoch                   : new BigNumber(1),
+                round                   : new BigNumber(0),
+                epoch                   : new BigNumber(0),
                 data                    : new BigNumber(2000000),
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
