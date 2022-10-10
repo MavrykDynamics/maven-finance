@@ -26,7 +26,7 @@ class Aggregator(MavrykContract, Model):
     last_completed_data_epoch               = fields.BigIntField(default=0, index=True)
     last_completed_data                     = fields.FloatField(default=0.0)
     last_completed_data_pct_oracle_resp     = fields.SmallIntField(default=0)
-    last_completed_data_datetime            = fields.DatetimeField(null=True, index=True)
+    last_completed_data_last_updated_at     = fields.DatetimeField(null=True, index=True)
 
     class Meta:
         table = 'aggregator'
