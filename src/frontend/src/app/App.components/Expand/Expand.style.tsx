@@ -59,7 +59,6 @@ export const ExpandArticleStyled = styled.article<{ show?: boolean; theme: Mavry
   max-height: 0;
   height: fit-content;
   cursor: pointer;
-  transition: 0.6s all;
   overflow: hidden;
   position: relative;
 

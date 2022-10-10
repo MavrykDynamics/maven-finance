@@ -58,8 +58,12 @@ export const CommaNumber = ({
         numberWithCommas = `0.${''.padEnd(Math.abs(+newTenGrade), '0')}${integer}${decimals}`
       }
     }
+  }
 
-    //TODO: if need add case for large numbers
+  if (useAccurateParsing && numberWithCommas.length > 12) {
+    const splittedDigits = numberWithCommas.split(',')
+    titleForNumber = numberWithCommas
+    numberWithCommas = `${splittedDigits.at(0)},${splittedDigits.at(1)}...${splittedDigits.at(-1)}`
   }
 
   return (

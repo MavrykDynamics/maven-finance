@@ -6,10 +6,11 @@ import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { EmptyContainer } from 'app/App.style'
 import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
-import { calculateAPR } from 'pages/Farms/Farms.helpers'
+import { getFarmStorage } from 'pages/Farms/Farms.actions'
+import { calculateAPY } from 'pages/Farms/Farms.helpers'
 import qs from 'qs'
-import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { FarmsContentStyled, TabWrapperStyled } from './DashboardTabs.style'
@@ -22,8 +23,13 @@ const emptyContainer = (
 )
 
 export const FarmsTab = () => {
+  const dispatch = useDispatch()
   const { farmStorage } = useSelector((state: State) => state.farm)
   const hasLiveFarms = useMemo(() => farmStorage.some(({ isLive }) => isLive), [farmStorage])
+
+  useEffect(() => {
+    dispatch(getFarmStorage())
+  }, [])
 
   return (
     <TabWrapperStyled backgroundImage="dashboard_farmsTab_bg.png">
@@ -39,7 +45,7 @@ export const FarmsTab = () => {
           ? farmStorage.map((farmCardData) => {
               if (!farmCardData.isLive) return null
 
-              const apr = calculateAPR(farmCardData.currentRewardPerBlock, farmCardData.lpBalance)
+              const apy = calculateAPY(farmCardData.currentRewardPerBlock, farmCardData.lpBalance)
               return (
                 <Link
                   to={`/yield-farms?${qs.stringify({ openedCards: [farmCardData.address] })}`}
@@ -56,8 +62,8 @@ export const FarmsTab = () => {
                     </div>
 
                     <div className="row-info">
-                      <div className="name">APR: </div>
-                      <div className="value">{apr}</div>
+                      <div className="name">APY: </div>
+                      <div className="value">{apy}</div>
                     </div>
 
                     <div className="row-info">

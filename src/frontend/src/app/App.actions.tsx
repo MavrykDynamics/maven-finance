@@ -54,16 +54,6 @@ export const onStart = () => async (dispatch: AppDispatch) => {
 
   await dispatch(getDipDupTokensStorage())
 
-  try {
-    const farmStorage = await normalizeFarmStorage(res[4]?.farm)
-    dispatch({
-      type: GET_FARM_STORAGE,
-      farmStorage: farmStorage,
-    })
-  } catch (e) {
-    console.error('normalizingFarmStorage error: ', e)
-  }
-
   const emergencyGovernanceStorage: EmergencyGovernanceStorage = normalizeEmergencyGovernance(
     res[5]?.emergency_governance[0],
   )

@@ -12,7 +12,9 @@ import { getOracleStorage, registerFeedAction } from 'pages/Satellites/Satellite
 
 const DataFeedDetails = () => {
   const dispatch = useDispatch()
-  const { oraclesStorage } = useSelector((state: State) => state.oracles)
+  const {
+    oraclesStorage: { feeds = [] },
+  } = useSelector((state: State) => state.oracles)
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
   const isLoading = useSelector((state: State) => Boolean(state.loading))
 
@@ -25,8 +27,8 @@ const DataFeedDetails = () => {
   }, [])
 
   useEffect(() => {
-    setSelectedFeed(oraclesStorage.feeds.find((feed) => feed.address === feedId) || null)
-  }, [feedId, oraclesStorage.feeds])
+    setSelectedFeed(feeds.find((feed) => feed.address === feedId) || null)
+  }, [feedId, feeds])
 
   return (
     <DataFeedDetailsView

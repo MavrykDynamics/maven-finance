@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components/macro'
+import styled, { css, keyframes } from 'styled-components/macro'
 
 import { royalPurpleColor, darkColor, primaryColor } from '../../../styles'
 import { BUTTON_RADIUS } from '../../../styles/constants'
@@ -39,9 +39,18 @@ export const SlidingTabButtonsStyled = styled.div<{ theme: MavrykTheme }>`
       margin-right: 1px;
     }
   }
+
+  &.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+
+    > button {
+      cursor: not-allowed;
+    }
+  }
 `
 
-export const ButtonStyled = styled.button<{ buttonActive: boolean; theme: MavrykTheme }>`
+export const ButtonStyled = styled.button<{ buttonActive: boolean; disabled: boolean; theme: MavrykTheme }>`
   border: none;
   font-weight: bold;
   font-size: 14px;
@@ -58,6 +67,14 @@ export const ButtonStyled = styled.button<{ buttonActive: boolean; theme: Mavryk
     pointer-events: none;
     opacity: 0.8;
   }
+
+  ${({ disabled }) =>
+    disabled
+      ? css`
+          opacity: 0.7;
+          cursor: not-allowed;
+        `
+      : ''}
 `
 
 export const ButtonText = styled.div<{ theme: MavrykTheme }>`

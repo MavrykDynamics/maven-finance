@@ -1,18 +1,50 @@
 // types
-import { FarmAccountsType, FarmGraphQL } from '../../utils/TypesAndInterfaces/Farm'
+import { FarmAccountsType, FarmContractType, FarmGraphQL } from '../../utils/TypesAndInterfaces/Farm'
 
 // helpers
-import { getContractBigmapKeys } from 'utils/api'
+import { getContractBigmapKeys, network } from 'utils/api'
+import { DipDupTokensGraphQl } from 'utils/TypesAndInterfaces/DipDupTokens'
 
-export const normalizeFarmStorage = async (farmList: FarmGraphQL[]) => {
+type EndsInType = {
+  endsIn: any
+  address: string
+}[]
+
+type TokensInfoType = {
+  liquidityPairToken: {
+    tokenAddress: string[]
+    token0: {
+      symbol: string[]
+      tokenAddress: string[]
+      thumbnailUri: string
+    }
+    token1: {
+      symbol: string[]
+      tokenAddress: string[]
+      thumbnailUri: string
+    }
+  }
+}[]
+
+export const normalizeFarmStorage = (
+  farmList: FarmGraphQL[],
+  dipDupTokens: DipDupTokensGraphQl[],
+  farmCardEndsIn: EndsInType,
+  farmLPTokensInfo: TokensInfoType,
+  farmContracts: FarmContractType[],
+) => {
   if (!farmList?.length) return []
-
-  const farmCardEndsIn = await getEndsInTimestampForFarmCards(farmList)
-  const farmLPTokensInfo = await getLPTokensInfo(farmList)
 
   return farmList.map((farmItem: FarmGraphQL, idx: number) => {
     const endsIn = farmCardEndsIn[idx].endsIn
     const lpMetadata = farmLPTokensInfo[idx]
+    const contract = farmContracts.find(
+      ({ address }) =>
+        lpMetadata?.liquidityPairToken?.tokenAddress?.[0] &&
+        address === lpMetadata?.liquidityPairToken?.tokenAddress?.[0],
+    )
+    const dipDupToken = dipDupTokens.find(({ contract }) => farmItem.lp_token_address === contract)
+
     return {
       address: farmItem.address,
       name: farmItem.name,
@@ -23,15 +55,14 @@ export const normalizeFarmStorage = async (farmList: FarmGraphQL[]) => {
       claimPaused: farmItem.claim_paused,
       depositPaused: farmItem.deposit_paused,
       blocksPerMinute: 0,
-      currentRewardPerBlock: farmItem.current_reward_per_block,
+      currentRewardPerBlock: farmItem.current_reward_per_block / Math.pow(10, 9),
       farmFactoryId: farmItem.factory_id || '',
       infinite: farmItem.infinite,
       initBlock: farmItem.init_block,
       accumulatedMvkPerShare: 0,
       lastBlockUpdate: farmItem.last_block_update,
-      lpTokenAddress: lpMetadata?.liquidityPairToken?.tokenAddress?.[0],
-      // TODO: ask about decimals
-      lpBalance: farmItem.lp_token_balance, // / Math.pow(10, farmItem.lp_token?.decimals ?? 0),
+      lpTokenAddress: lpMetadata?.liquidityPairToken?.tokenAddress?.[0] ?? '',
+      lpBalance: farmItem.lp_token_balance / Math.pow(10, Number(dipDupToken?.metadata.decimals)),
       lpToken1: {
         symbol: lpMetadata?.liquidityPairToken?.token0?.symbol?.[0],
         address: lpMetadata?.liquidityPairToken?.token0?.tokenAddress?.[0],
@@ -46,16 +77,20 @@ export const normalizeFarmStorage = async (farmList: FarmGraphQL[]) => {
       rewardsFromTreasury: false,
       totalBlocks: farmItem.total_blocks,
       farmAccounts: farmItem.farm_accounts,
+      farmContract: contract,
     }
   })
 }
 
 // helper functions
-export const calculateAPR = (currentRewardPerBlock: number, lpTokenBalance: number): string => {
-  const rewardRate = currentRewardPerBlock / Math.pow(10, 9)
-  const blocksPerYear = 2 * 60 * 24 * 365 // 2 blocks per minute -> 1051200 blocks per year
-  const result = lpTokenBalance ? (((rewardRate * blocksPerYear) / lpTokenBalance) * 100).toFixed(2) : 0
-  return `${result}%`
+export const BLOCKS_PER_YEAR = 1051200 // 2 blocks per minute
+// TODO: this functions calc apy and apr in LPTOkens, but we need in USD, check with Sam
+export const calculateAPY = (currentRewardPerBlock: number, lpTokenBalance: number): number => {
+  return lpTokenBalance > 0 ? ((currentRewardPerBlock * BLOCKS_PER_YEAR) / lpTokenBalance) * 100 : 0
+}
+
+export const calculateAPR = (currentRewardPerBlock: number, blocksAmount: number, lpTokenBalance: number): number => {
+  return lpTokenBalance > 0 ? ((currentRewardPerBlock * blocksAmount) / lpTokenBalance) * 100 : 0
 }
 
 export const getSummDepositedAmount = (farmAccounts: FarmAccountsType[]): number => {
@@ -105,7 +140,7 @@ export async function getFarmMetadata(farmAddress: string) {
   try {
     const farmMetadata = await getContractBigmapKeys(farmAddress, 'metadata')
     const targetMetadataItem =
-      farmMetadata.filter((farmItem: any) => {
+      farmMetadata.filter((farmItem: { value: string }) => {
         const output = Buffer.from(farmItem.value, 'hex').toString()
         return !output.endsWith('tezos-storage:data')
       })[0] || {}
@@ -126,4 +161,11 @@ export async function getFarmMetadata(farmAddress: string) {
       },
     }
   }
+}
+
+// get user tokens balance
+export const getUserBalanceByAddress = async (tokenAddress?: string) => {
+  if (!tokenAddress) return 0
+
+  return await (await fetch(`https://api.${network}.tzkt.io/v1/accounts/${tokenAddress}/balance`)).json()
 }
