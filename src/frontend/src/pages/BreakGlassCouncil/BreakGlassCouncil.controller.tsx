@@ -2,7 +2,7 @@ import React, { FC, useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useHistory, useLocation } from 'react-router-dom'
-import qs from 'qs'
+import { useParams } from 'react-router'
 
 // components
 import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
@@ -49,10 +49,16 @@ import {
   getBreakGlassCouncilMember,
 } from './BreakGlassCouncil.actions'
 
+const queryParameters = {
+  pathname: '/break-glass-council',
+  review: '/review',
+}
+
 export const BreakGlassCouncil: FC = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const { search, pathname } = useLocation()
+  const { search } = useLocation()
+
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
     breakGlassCouncilMember,
@@ -85,17 +91,16 @@ export const BreakGlassCouncil: FC = () => {
   )
 
   const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
-  const { review: isReviewPage = false } = qs.parse(search, { ignoreQueryPrefix: true }) as { review?: boolean }
-  const stringifiedQP = qs.stringify({ review: true })
+  const { review: isReviewPage } = useParams<{ review: string }>()
 
   const handleClickReview = () => {
     setIsPendingSignature(false)
-    history.push(`${pathname}?${stringifiedQP}`)
+    history.replace(`${queryParameters.pathname}${queryParameters.review}`)
   }
 
   const handleClickGoBack = () => {
     setIsPendingSignature(true)
-    history.push(`${pathname}`)
+    history.replace(queryParameters.pathname)
   }
 
   const handleOpenleModal = () => {
@@ -144,15 +149,15 @@ export const BreakGlassCouncil: FC = () => {
 
   useEffect(() => {
     // redirect to review or main page when member changes
-    history.push(isUserInBreakCouncilMember ? `${pathname}` : `${pathname}?${stringifiedQP}`)
-  }, [isUserInBreakCouncilMember])
+    history.replace(isUserInBreakCouncilMember ? queryParameters.pathname : `${queryParameters.pathname}${queryParameters.review}`)
+  }, [history, isUserInBreakCouncilMember])
 
   useEffect(() => {
     // check authorization when clicking on a review or a header in the menu
     if (!isUserInBreakCouncilMember) {
-      history.push(`${pathname}?${stringifiedQP}`)
+      history.replace(`${queryParameters.pathname}${queryParameters.review}`)
     }
-  }, [search])
+  }, [history, isUserInBreakCouncilMember, search])
 
   return (
     <Page>
