@@ -91,7 +91,7 @@ export const CouncilPendingStyled = styled(Card)`
     }
   }
 
-  .parameters-btn {
+  .parameters-link {
     display: block;
 
     color: ${cyanColor};

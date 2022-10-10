@@ -136,7 +136,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
             <article>
               <p>Council Member Website</p>
               {newCouncilMemberWebsite ? (
-                <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
+                <a className="parameters-link" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
                   {newCouncilMemberWebsite}
                 </a>
               ) : (
@@ -211,7 +211,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
             <article>
               <p>Council Member Website</p>
               {newCouncilMemberWebsite ? (
-                <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
+                <a className="parameters-link" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
                   {newCouncilMemberWebsite}
                 </a>
               ) : (
