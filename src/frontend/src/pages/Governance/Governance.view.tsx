@@ -1,7 +1,5 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-/* @ts-ignore */
-import Time from 'react-pure-time'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -28,6 +26,7 @@ import {
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { PRECISION_NUMBER } from 'utils/constants'
 import { dropProposal } from '../ProposalSubmission/ProposalSubmission.actions'
+import { parseData } from 'utils/time'
 
 // components
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -51,8 +50,6 @@ import { InfoBlock } from '../../app/App.components/Info/info.style'
 import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
 
 type GovernanceViewProps = {
-  ready: boolean
-  loading: boolean
   accountPkh: string | undefined
   ongoingProposals: CurrentRoundProposalsStorageType
   nextProposals: CurrentRoundProposalsStorageType
@@ -73,8 +70,6 @@ const emptyContainer = (
 )
 
 export const GovernanceView = ({
-  ready,
-  loading,
   accountPkh,
   ongoingProposals,
   nextProposals,
@@ -87,24 +82,14 @@ export const GovernanceView = ({
   waitingForPaymentToBeProcessed,
 }: GovernanceViewProps) => {
   const dispatch = useDispatch()
-  const blockRef = useRef(null)
-  const location = useLocation()
-  const onProposalHistoryPage = location.pathname === '/proposal-history'
-  const [votingEnding, setVotingEnding] = useState<string>('')
-  const [visibleMeta, setVisibleMeta] = useState<string>('')
-  const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
+  const { pathname } = useLocation()
+
   const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
   const { dipDupTokens } = useSelector((state: State) => state.tokens)
 
-  const findUserCurrentRoundProposal = useMemo(
-    () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
-    [accountPkh, currentRoundProposals],
-  )
-
-  const isProposalRound = governancePhase === 'PROPOSAL'
-  const isVotingRound = governancePhase === 'VOTING'
-  const isTimeLockRound = governancePhase === 'TIME_LOCK'
-
+  const [votingEnding, setVotingEnding] = useState<string>('')
+  const [visibleMeta, setVisibleMeta] = useState<string>('')
+  const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
     abstainVotesMVKTotal: 0,
     againstVotesMVKTotal: 0,
@@ -112,6 +97,12 @@ export const GovernanceView = ({
     unusedVotesMVKTotal: 0,
     quorum: 0,
   })
+
+  const findUserCurrentRoundProposal = useMemo(
+    () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
+    [accountPkh, currentRoundProposals],
+  )
+  const onProposalHistoryPage = useMemo(() => pathname === '/proposal-history', [pathname])
 
   useEffect(() => {
     if (rightSideContent) {
@@ -131,7 +122,6 @@ export const GovernanceView = ({
   }, [rightSideContent])
 
   const handleProposalRoundVote = (proposalId: number) => {
-    console.log('Here in Proposal round vote', proposalId)
     //TODO: Adjust for the number of votes / voting power each satellite has
     setVoteStatistics({
       ...voteStatistics,
@@ -146,9 +136,7 @@ export const GovernanceView = ({
   }
 
   const _handleItemSelect = (chosenProposal: ProposalRecordType | undefined) => {
-    if (chosenProposal) {
-      setRightSideContent(chosenProposal)
-    }
+    setRightSideContent(chosenProposal)
   }
 
   const isVisibleOngoingVoting =
@@ -167,7 +155,12 @@ export const GovernanceView = ({
     history: false,
   })
 
-  const statusInfo = getProposalStatusInfo(
+  const {
+    statusFlag,
+    anyUserCanExecuteProposal,
+    anyUserCanProcessProposalPayment,
+    satelliteAbleToMakeProposalRoundVote,
+  } = getProposalStatusInfo(
     governancePhase,
     rightSideContent,
     governanceStorage.timelockProposalId,
@@ -176,17 +169,12 @@ export const GovernanceView = ({
     governanceStorage.cycleCounter,
   )
 
-  const isExecuteProposal = statusInfo.anyUserCanExecuteProposal && accountPkh
-  const isPaymentProposal = statusInfo.anyUserCanProcessProposalPayment && accountPkh
+  const isExecuteProposal = anyUserCanExecuteProposal && accountPkh
+  const isPaymentProposal = anyUserCanProcessProposalPayment && accountPkh
   const isVisibleWating = !onProposalHistoryPage && Boolean(watingProposals?.length)
   const isVisibleWatingPayment = !onProposalHistoryPage && Boolean(waitingForPaymentToBeProcessed?.length)
-  const isAbleToMakeProposalRoundVote = statusInfo.satelliteAbleToMakeProposalRoundVote
+  const isAbleToMakeProposalRoundVote = satelliteAbleToMakeProposalRoundVote
 
-  const rightSideContentStatus = statusInfo.statusFlag
-
-  const isInfoBlock = rightSideContentStatus === 'UNLOCKED'
-
-  const [firstVisibleProposal, setFirstVisibleProposal] = useState<string>('')
   const someVisible = Object.values(visibleLists).some((item) => item)
 
   useEffect(() => {
@@ -199,14 +187,37 @@ export const GovernanceView = ({
     }
     setVisibleLists(visibleTypes)
 
-    const firstVisible: string = Object.keys(visibleTypes).find((key: string) => Boolean(visibleTypes[key])) as string
-    setFirstVisibleProposal(firstVisible)
+    const defaultProposalSelectedListName = Object.keys(visibleTypes).find((key: string) =>
+      Boolean(visibleTypes[key]),
+    ) as 'wating' | 'ongoingVoiting' | 'ongoingTimeLock' | 'next' | 'history' | undefined
+
+    switch (defaultProposalSelectedListName) {
+      case 'wating':
+        setRightSideContent(watingProposals[0])
+        break
+      case 'ongoingVoiting':
+        setRightSideContent(ongoingProposals[0])
+        break
+      case 'ongoingTimeLock':
+        setRightSideContent(ongoingProposals[0])
+        break
+      case 'next':
+        setRightSideContent(nextProposals[0])
+        break
+      case 'history':
+        setRightSideContent(pastProposals[0])
+        break
+    }
   }, [
     isVisibleWating,
     isVisibleOngoingVoting,
     isVisibleOngoingTimeLock,
     isVisibleNextProposal,
     isVisibleHistoryProposal,
+    watingProposals,
+    ongoingProposals,
+    nextProposals,
+    pastProposals,
   ])
 
   const handleGetTimestampByLevel = async (level: number) => {
@@ -229,10 +240,8 @@ export const GovernanceView = ({
     }
   }, [someVisible])
 
-  const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
-  const timeFormat = new Date(votingEnding).getHours() + ':' + new Date(votingEnding).getMinutes()
-  const isEndedVotingTime = votingTime < timeNow
+  const isEndedVotingTime = votingTime < Date.now()
 
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -246,7 +255,7 @@ export const GovernanceView = ({
   return (
     <GovernanceStyled>
       {someVisible ? (
-        <GovernanceLeftContainer ref={blockRef}>
+        <GovernanceLeftContainer>
           {isVisibleWating && (
             <Proposals
               proposalsList={watingProposals}
@@ -254,7 +263,6 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               title="Waiting for Execution"
               type="wating"
-              firstVisible={firstVisibleProposal === 'wating'}
               listName={WAITING_PROPOSALS_LIST_NAME}
             />
           )}
@@ -265,7 +273,6 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               title="Waiting For Payment To Be Processed"
               type="wating"
-              firstVisible={firstVisibleProposal === 'wating'}
               listName={WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME}
             />
           )}
@@ -275,7 +282,6 @@ export const GovernanceView = ({
               handleItemSelect={_handleItemSelect}
               selectedProposal={rightSideContent}
               type="ongoingVoiting"
-              firstVisible={firstVisibleProposal === 'ongoingVoiting'}
               listName={ONGOING_VOTING_PROPOSALS_LIST_NAME}
             />
           )}
@@ -285,7 +291,6 @@ export const GovernanceView = ({
               handleItemSelect={_handleItemSelect}
               selectedProposal={rightSideContent}
               type="ongoingTimeLock"
-              firstVisible={firstVisibleProposal === 'ongoingTimeLock'}
               listName={ONGOING_PROPOSALS_LIST_NAME}
             />
           )}
@@ -295,7 +300,6 @@ export const GovernanceView = ({
               handleItemSelect={_handleItemSelect}
               selectedProposal={rightSideContent}
               type="next"
-              firstVisible={firstVisibleProposal === 'next'}
               listName={NEXT_PROPOSALS_LIST_NAME}
             />
           )}
@@ -305,7 +309,6 @@ export const GovernanceView = ({
               handleItemSelect={_handleItemSelect}
               selectedProposal={rightSideContent}
               type="history"
-              firstVisible={firstVisibleProposal === 'history'}
               listName={HISTORY_PROPOSALS_LIST_NAME}
             />
           )}
@@ -317,17 +320,17 @@ export const GovernanceView = ({
         <GovernanceRightContainer>
           <GovRightContainerTitleArea>
             <h1>{rightSideContent.title}</h1>
-            <StatusFlag text={rightSideContentStatus} status={rightSideContentStatus} />
+            <StatusFlag text={statusFlag} status={statusFlag} />
           </GovRightContainerTitleArea>
 
           {votingEnding ? (
             <RightSideSubContent id="votingDeadline">
-              Voting {isEndedVotingTime ? 'ended' : 'ending'} on <Time value={votingTime} format="F d\t\h" />{' '}
-              {timeFormat} CEST
+              Voting {isEndedVotingTime ? 'ended' : 'ending'} on{' '}
+              {parseData({ time: votingTime, timeFormat: 'MMMM Do HH:mm Z' })} CEST
             </RightSideSubContent>
           ) : null}
 
-          {isInfoBlock ? (
+          {statusFlag === 'UNLOCKED' ? (
             <InfoBlock className="info-block">
               <Icon id="info" />
               {userIsSatellite ? (
@@ -398,7 +401,7 @@ export const GovernanceView = ({
             <RightSideSubHeader>Meta-Data</RightSideSubHeader>
             {rightSideContent.proposalData?.length ? (
               <ol className="proposal-list">
-                {rightSideContent.proposalData.map((item, i: number) => {
+                {rightSideContent.proposalData.map((item) => {
                   const unique = `proposalDataItem${item.id}`
                   return (
                     <li key={item.id}>
@@ -484,7 +487,7 @@ export const GovernanceView = ({
             <article>
               <RightSideSubHeader>Proposer</RightSideSubHeader>
               <RightSideSubContent>
-                <div className='address'>
+                <div className="address">
                   <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
                 </div>
               </RightSideSubContent>
