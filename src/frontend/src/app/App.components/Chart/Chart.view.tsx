@@ -5,7 +5,7 @@ import { AreaChart, Area, Tooltip, XAxis, YAxis } from 'recharts'
 import { ChartTooltip } from './Chart.style'
 
 // helpers
-import { parseData } from '../../../utils/time'
+import { parseDate } from '../../../utils/time'
 
 type ChartItem = {
   timestamp: string
@@ -52,10 +52,10 @@ const chartStyle = {
 }
 
 const timeFormat = 'HH:mm'
-const getTime = (time: string) => parseData({ time, timeFormat }) || ''
+const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
 
 const dateFormat = 'MMM DD, HH:mm Z'
-const getParsedDate = (time: string) => parseData({ time, timeFormat: dateFormat }) || ''
+const getParsedDate = (time: string) => parseDate({ time, timeFormat: dateFormat }) || ''
 
 export default function Chart({ list }: Props) {
   const data = list?.length
@@ -69,41 +69,37 @@ export default function Chart({ list }: Props) {
     : []
 
   return (
-      <AreaChart
-        width={chartStyle.width}
-        height={chartStyle.height}
-        data={data}
-      >
-        <defs>
-          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="10%" stopColor="rgba(174, 237, 225, 1)" stopOpacity={1} />
-            <stop offset="100%" stopColor="rgba(22, 14, 63, 1)" stopOpacity={1} />
-          </linearGradient>
-        </defs>
-        
-        <XAxis
-          tickLine={false}
-          tick={{ fill: chartStyle.color }}
-          stroke={chartStyle.color}
-          padding={{left: chartStyle.padding.left}}
-          tickMargin={chartStyle.tickMargin}
-          fontSize={chartStyle.fontSize}
-          dataKey='time'
-          allowDuplicatedCategory={false}
-        />
+    <AreaChart width={chartStyle.width} height={chartStyle.height} data={data}>
+      <defs>
+        <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="10%" stopColor="rgba(174, 237, 225, 1)" stopOpacity={1} />
+          <stop offset="100%" stopColor="rgba(22, 14, 63, 1)" stopOpacity={1} />
+        </linearGradient>
+      </defs>
 
-        <YAxis
-          tickLine={false}
-          tick={{ fill: chartStyle.color }}
-          stroke={chartStyle.color}
-          padding={{top: chartStyle.padding.top}}
-          tickMargin={chartStyle.tickMargin}
-          fontSize={chartStyle.fontSize}
-          orientation='right'
-        />
+      <XAxis
+        tickLine={false}
+        tick={{ fill: chartStyle.color }}
+        stroke={chartStyle.color}
+        padding={{ left: chartStyle.padding.left }}
+        tickMargin={chartStyle.tickMargin}
+        fontSize={chartStyle.fontSize}
+        dataKey="time"
+        allowDuplicatedCategory={false}
+      />
 
-        <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
-        <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
-      </AreaChart>
+      <YAxis
+        tickLine={false}
+        tick={{ fill: chartStyle.color }}
+        stroke={chartStyle.color}
+        padding={{ top: chartStyle.padding.top }}
+        tickMargin={chartStyle.tickMargin}
+        fontSize={chartStyle.fontSize}
+        orientation="right"
+      />
+
+      <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
+      <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
+    </AreaChart>
   )
 }

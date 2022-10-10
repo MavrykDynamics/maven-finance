@@ -7,7 +7,7 @@ export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   width: 100%;
   flex-direction: row;
-  justify-content: center;
+  margin-top: 32px;
 `
 
 export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
@@ -248,7 +248,8 @@ export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
   font-weight: normal;
   word-break: break-all;
 
-  &, a {
+  &,
+  a {
     color: ${skyColor};
   }
 
@@ -257,7 +258,7 @@ export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
       color: ${cyanColor};
       stroke: ${cyanColor};
     }
-  } 
+  }
 
   &#votingDeadline {
     color: ${cyanColor};

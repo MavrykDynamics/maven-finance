@@ -11,7 +11,6 @@ type ProposalsProps = {
   title?: string
   type: string
   listName: string
-  firstVisible: boolean
 }
 export const Proposals = ({
   proposalsList,
@@ -19,7 +18,6 @@ export const Proposals = ({
   selectedProposal,
   title = '',
   type,
-  firstVisible,
   listName,
 }: ProposalsProps) => {
   const location = useLocation()
@@ -56,7 +54,6 @@ export const Proposals = ({
       handleItemSelect={handleItemSelect}
       selectedProposal={selectedProposal}
       isProposalPhase={!onProposalHistoryPage}
-      firstVisible={firstVisible}
       listName={listName}
     />
   )

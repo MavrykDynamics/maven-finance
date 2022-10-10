@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import Icon from './Icon.view'

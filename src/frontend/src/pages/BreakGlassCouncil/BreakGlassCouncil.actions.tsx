@@ -22,11 +22,11 @@ import {
 
 // helpers
 import { normalizeBreakGlassAction, normalizeBreakGlassCouncilMember } from './BreakGlassCouncil.helpers'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 
 const time = String(new Date())
 const timeFormat = 'YYYY-MM-DD'
-const timestamptz = parseData({ time, timeFormat }) || undefined
+const timestamptz = parseDate({ time, timeFormat }) || undefined
 
 // getMyPastBreakGlassCouncilAction
 export const GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION = 'GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION'
@@ -36,12 +36,12 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
 
   try {
     const myPastBreakGlassCouncilAction = accountPkh
-    ?  await fetchFromIndexerWithPromise(
-        MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
-        MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
-        MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE({ _lt: timestamptz, userAddress: accountPkh }),
-      )
-    : { break_glass_action: [] }
+      ? await fetchFromIndexerWithPromise(
+          MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
+          MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
+          MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE({ _lt: timestamptz, userAddress: accountPkh }),
+        )
+      : { break_glass_action: [] }
 
     await dispatch({
       type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
@@ -68,12 +68,12 @@ export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppD
 
   try {
     const breakGlassActionPendingMySignature = accountPkh
-    ? await fetchFromIndexerWithPromise(
-        BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
-        BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
-        BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz, userAddress: accountPkh }),
-      )
-    : { break_glass_action: [] }
+      ? await fetchFromIndexerWithPromise(
+          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
+          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
+          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz, userAddress: accountPkh }),
+        )
+      : { break_glass_action: [] }
 
     await dispatch({
       type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
