@@ -225,7 +225,7 @@ export const FarmCardStyled = styled(Card)`
   .horizontal-expand {
     display: grid;
     align-items: center;
-    grid-template-columns: auto auto 140px;
+    grid-template-columns: auto auto 170px;
     padding: 20px;
     margin: 0;
     gap: 20px;
