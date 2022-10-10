@@ -5,11 +5,9 @@ export const ORACLE_STORAGE_QUERY = `
       admin
       decimals
       governance_id
-      last_completed_price
-      last_completed_price_datetime
-      last_completed_price_epoch
-      last_completed_price_pct_oracle_resp
-      last_completed_price_round
+      last_completed_data
+      last_completed_data_last_updated_at
+      last_completed_data_pct_oracle_resp
       last_updated_at
       name
       token_1_symbol

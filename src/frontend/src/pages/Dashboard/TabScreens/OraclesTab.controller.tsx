@@ -80,7 +80,7 @@ export const OraclesTab = () => {
                 <StatBlock>
                   <div className="name">Answer</div>
                   <div className="value">
-                    <CommaNumber beginningText="$" value={feed.last_completed_price} />
+                    <CommaNumber beginningText="$" value={feed.last_completed_data} />
                   </div>
                 </StatBlock>
                 <StatBlock>
@@ -92,7 +92,7 @@ export const OraclesTab = () => {
                 <StatBlock>
                   <div className="name">Date/Time</div>
                   <div className="value">
-                    {parseDate({ time: feed.last_completed_price_datetime, timeFormat: 'DD MMM YYYY / HH:mm' })}
+                    {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'DD MMM YYYY / HH:mm' })}
                   </div>
                 </StatBlock>
               </div>

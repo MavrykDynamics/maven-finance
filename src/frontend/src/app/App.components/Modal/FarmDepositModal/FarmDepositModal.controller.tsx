@@ -8,9 +8,6 @@ import { Input } from '../../Input/Input.controller'
 import { InputStatusType } from '../../Input/Input.constants'
 import CoinsIcons from '../../Icon/CoinsIcons.view'
 
-// helpers
-import { mathRoundTwoDigit } from '../../../../utils/validatorFunctions'
-
 // actions
 import { deposit, SELECT_FARM_ADDRESS } from '../../../../pages/Farms/Farms.actions'
 
