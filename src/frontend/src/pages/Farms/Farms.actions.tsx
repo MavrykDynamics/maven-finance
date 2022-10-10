@@ -105,7 +105,7 @@ export const harvest = (farmAddress: string) => async (dispatch: AppDispatch, ge
     })
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
     console.log('contract', contract)
-    const transaction = await contract?.methods.claim().send()
+    const transaction = await contract?.methods.claim(farmAddress).send()
     console.log('transaction', transaction)
 
     await dispatch(showToaster(INFO, 'Harvesting...', 'Please wait 30s'))
