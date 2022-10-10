@@ -34,10 +34,10 @@ async def on_aggregator_factory_create_aggregator(
     withdraw_reward_xtz_paused                  = aggregator_origination.storage.breakGlassConfig.withdrawRewardXtzIsPaused
     withdraw_reward_smvk_paused                 = aggregator_origination.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
     last_completed_data_round                   = int(aggregator_origination.storage.lastCompletedData.round)
-    last_completed_epoch                        = int(aggregator_origination.storage.lastCompletedData.epoch)
+    last_completed_data_epoch                   = int(aggregator_origination.storage.lastCompletedData.epoch)
     last_completed_data                         = float(aggregator_origination.storage.lastCompletedData.data)
     last_completed_data_pct_oracle_resp         = int(aggregator_origination.storage.lastCompletedData.percentOracleResponse)
-    last_completed_data_datetime                = parser.parse(aggregator_origination.storage.lastCompletedData.lastUpdatedAt)
+    last_completed_data_last_updated_at         = parser.parse(aggregator_origination.storage.lastCompletedData.lastUpdatedAt)
     oracles                                     = aggregator_origination.storage.oracleAddresses
 
     # Check aggregator does not already exists
@@ -100,11 +100,11 @@ async def on_aggregator_factory_create_aggregator(
         aggregator.update_data_paused                           = update_data_paused
         aggregator.withdraw_reward_xtz_paused                   = withdraw_reward_xtz_paused
         aggregator.withdraw_reward_smvk_paused                  = withdraw_reward_smvk_paused
-        aggregator.last_completed_data_round                   = last_completed_data_round
-        aggregator.last_completed_data_epoch                   = last_completed_epoch
-        aggregator.last_completed_data                         = last_completed_data
-        aggregator.last_completed_data_pct_oracle_resp         = last_completed_data_pct_oracle_resp
-        aggregator.last_completed_data_datetime                = last_completed_data_datetime
+        aggregator.last_completed_data_round                    = last_completed_data_round
+        aggregator.last_completed_data_epoch                    = last_completed_data_epoch
+        aggregator.last_completed_data                          = last_completed_data
+        aggregator.last_completed_data_pct_oracle_resp          = last_completed_data_pct_oracle_resp
+        aggregator.last_completed_data_last_updated_at          = last_completed_data_last_updated_at
         await aggregator.save()
 
         # Add oracles to aggregator

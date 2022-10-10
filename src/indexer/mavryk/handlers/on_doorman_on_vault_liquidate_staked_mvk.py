@@ -73,7 +73,7 @@ async def on_doorman_on_vault_liquidate_staked_mvk(
     # Create two stake records
     vault_owner_stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
-        type                = models.StakeType.VAULT_DEPOSIT_SMVK,
+        type                = models.StakeType.VAULT_LIQUIDATE_SMVK,
         desired_amount      = vault_owner_smvk_amount,
         final_amount        = vault_owner_smvk_amount,
         doorman             = doorman,
@@ -85,7 +85,7 @@ async def on_doorman_on_vault_liquidate_staked_mvk(
 
     vault_stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
-        type                = models.StakeType.VAULT_DEPOSIT_SMVK,
+        type                = models.StakeType.VAULT_LIQUIDATE_SMVK,
         desired_amount      = vault_smvk_amount,
         final_amount        = vault_smvk_amount,
         doorman             = doorman,
