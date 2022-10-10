@@ -29,7 +29,6 @@ export const coinGeckoClient = new CoinGecko()
 
 const AppContainer = () => {
   const dispatch = useDispatch()
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const loader = useSelector((state: State) => state.loading)
   const { changeNodePopupOpen, sidebarOpened } = useSelector((state: State) => state.preferences)
   const showSidebarOpened = useMedia('(min-width: 1400px)')

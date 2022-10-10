@@ -21,7 +21,7 @@ export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
         <div className="item">
           <h5>Answer</h5>
           <var>
-            <CommaNumber beginningText="$" value={feed.last_completed_price} />
+            <CommaNumber beginningText="$" value={feed.last_completed_data} />
           </var>
         </div>
         <div className="item">
@@ -32,7 +32,7 @@ export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
         </div>
         <div className="item">
           <h5>Date</h5>
-          <var>{parseDate({ time: feed.last_completed_price_datetime, timeFormat: 'MMM DD, YYYY' })}</var>
+          <var>{parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'MMM DD, YYYY' })}</var>
         </div>
       </SatelliteItemStyle>
     </Link>

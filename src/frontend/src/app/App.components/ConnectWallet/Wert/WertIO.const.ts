@@ -1,4 +1,3 @@
-import { WERT_IO_LOADER } from './../../../../utils/constants'
 export const getWertOptions = (
   commodity: string,
   setPopupActive: (open: boolean) => void,
@@ -7,7 +6,7 @@ export const getWertOptions = (
 ) => ({
   partner_id: '01G0MCBQFJE47YZ0SECRKM81CD',
   commodity,
-  origin: 'https://sandbox.wert.io',
+  origin: process.env.WERT_IO_ORIGIN,
   container_id: 'wert-io-popup-wrapper',
   color_background: 'transparent',
   color_buttons: '#86D4C9',

@@ -28,8 +28,9 @@ export const getOracleStatus = (oracle: SatelliteRecord, feeds: FeedGQL[]): 'res
       // if timestamp or all feeds from this satellite is >= than 30m ago, feed is not active, if all feeds are not active oracle status is responded, if at least 1 feed is still active, satellite status is awaiting
       if (
         currentOracleFeeds.every(
-          ({ last_completed_price_datetime }) =>
-            (Number(Date.now()) - Number(new Date(last_completed_price_datetime || Date.now()))) / 1000 / 60 >= 30,
+          ({ last_completed_data_last_updated_at }) =>
+            (Number(Date.now()) - Number(new Date(last_completed_data_last_updated_at || Date.now()))) / 1000 / 60 >=
+            30,
         )
       ) {
         status = 'responded'
