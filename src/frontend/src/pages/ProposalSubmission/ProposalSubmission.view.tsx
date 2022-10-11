@@ -61,7 +61,7 @@ export const ProposalSubmissionView = ({
         switchItems={multyProposalsItems}
         switchProposal={changeActiveProposal}
         createNewProposal={createNewProposalHander}
-        isButtonDisabled={userCreatedProposals.length >= 2 || userCreatedProposals.length === 0}
+        isButtonDisabled={userCreatedProposals.length >= 2 || !currentProposal}
       />
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       {!isEditing ? (

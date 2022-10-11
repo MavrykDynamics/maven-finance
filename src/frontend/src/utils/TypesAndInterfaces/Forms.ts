@@ -57,6 +57,7 @@ export type ProposalUpdateFormProposalBytes = {
   record_internal_id: number
   title: string
   order: number
+  isUnderTheDrop: boolean
 }
 
 export type ProposalUpdateForm = {
