@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 
 import { IPFSUploaderView } from './IPFSUploader.view'
-import { create, Options } from 'ipfs-http-client'
+import { create } from 'ipfs-http-client'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 import { useDispatch } from 'react-redux'

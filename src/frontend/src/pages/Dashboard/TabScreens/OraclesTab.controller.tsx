@@ -10,7 +10,7 @@ import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { State } from 'reducers'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 import { StatBlock } from '../Dashboard.style'
 import { OraclesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 
@@ -80,7 +80,7 @@ export const OraclesTab = () => {
                 <StatBlock>
                   <div className="name">Answer</div>
                   <div className="value">
-                    <CommaNumber beginningText="$" value={feed.last_completed_price} />
+                    <CommaNumber beginningText="$" value={feed.last_completed_data} />
                   </div>
                 </StatBlock>
                 <StatBlock>
@@ -92,7 +92,7 @@ export const OraclesTab = () => {
                 <StatBlock>
                   <div className="name">Date/Time</div>
                   <div className="value">
-                    {parseData({ time: feed.last_completed_price_datetime, timeFormat: 'DD MMM YYYY / HH:mm' })}
+                    {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'DD MMM YYYY / HH:mm' })}
                   </div>
                 </StatBlock>
               </div>

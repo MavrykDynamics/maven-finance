@@ -37,7 +37,7 @@ import { EmptyContainer } from 'app/App.style'
 import { cyanColor, downColor, Page, upColor } from 'styles'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 import dayjs from 'dayjs'
 
 type FeedDetailsProps = {
@@ -61,12 +61,12 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
     [oracles],
   )
 
-  const isTrustedAnswer = feed && feed.last_completed_price_pct_oracle_resp >= feed.pct_oracle_threshold
+  const isTrustedAnswer = feed && feed.last_completed_data_pct_oracle_resp >= feed.pct_oracle_threshold
   const heartbeatUpdateInfo =
-    dayjs(Date.now()).diff(dayjs(feed?.last_completed_price_datetime), 'minutes') >= 30
+    dayjs(Date.now()).diff(dayjs(feed?.last_completed_data_last_updated_at), 'minutes') >= 30
       ? `
-  Price feed is outdated, missed the schedule price update at ${parseData({
-    time: new Date(feed?.last_completed_price_datetime || '').getTime() + 1000 * 60 * 30,
+  Price feed is outdated, missed the schedule price update at ${parseDate({
+    time: new Date(feed?.last_completed_data_last_updated_at || '').getTime() + 1000 * 60 * 30,
     timeFormat: 'MMM DD, HH:mm:ss',
   })}
   `
@@ -98,7 +98,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
               <div className="price-part">
                 <DataFeedValueText fontSize={22} fontWeidth={600}>
                   <Icon id={isTrustedAnswer ? 'trustShield' : 'notTrustedShield'} />
-                  <CommaNumber beginningText="$" value={feed.last_completed_price} />
+                  <CommaNumber beginningText="$" value={feed.last_completed_data} />
                 </DataFeedValueText>
                 <DataFeedsTitle className="margin-r">
                   {isTrustedAnswer ? 'Trusted answer' : 'Not Trusted'}
@@ -123,7 +123,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   Minimum of {feed.pct_oracle_threshold}%
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_price_pct_oracle_resp}% / {feed.pct_oracle_threshold}%
+                  {feed.last_completed_data_pct_oracle_resp}% / {feed.pct_oracle_threshold}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
@@ -132,17 +132,17 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {parseData({ time: feed.last_completed_price_datetime, timeFormat: 'MMM DD, YYYY' })}
+                  {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'MMM DD, YYYY' })}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_price_datetime ? (
+                  {feed.last_completed_data_last_updated_at ? (
                     <Timer
                       options={{
                         showZeros: false,
                         negativeColor: downColor,
                         defaultColor: cyanColor,
                       }}
-                      timestamp={new Date(feed.last_completed_price_datetime).getTime() + 1000 * 60 * 30}
+                      timestamp={new Date(feed.last_completed_data_last_updated_at).getTime() + 1000 * 60 * 30}
                     />
                   ) : null}
                 </DataFeedValueText>
@@ -162,14 +162,14 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
                   <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} />
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_price_datetime ? (
+                  {feed.last_completed_data_last_updated_at ? (
                     <Timer
                       options={{
                         showZeros: false,
                         negativeColor: downColor,
                         defaultColor: cyanColor,
                       }}
-                      timestamp={new Date(feed.last_completed_price_datetime).getTime() + 1000 * 60 * 30}
+                      timestamp={new Date(feed.last_completed_data_last_updated_at).getTime() + 1000 * 60 * 30}
                     />
                   ) : null}
                 </DataFeedValueText>

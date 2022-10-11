@@ -8,7 +8,7 @@ import { AreaChart, Area, Tooltip, XAxis, YAxis } from 'recharts'
 import { ChartTooltip } from './Chart.style'
 
 // helpers
-import { parseData } from '../../../utils/time'
+import { parseDate } from '../../../utils/time'
 
 type ChartItem = {
   timestamp: string
@@ -56,10 +56,10 @@ const chartStyle = {
 }
 
 const timeFormat = 'HH:mm'
-const getTime = (time: string) => parseData({ time, timeFormat }) || ''
+const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
 
 const dateFormat = 'MMM DD, HH:mm Z'
-const getParsedDate = (time: string) => parseData({ time, timeFormat: dateFormat }) || ''
+const getParsedDate = (time: string) => parseDate({ time, timeFormat: dateFormat }) || ''
 
 export default function Chart({ list, className }: Props) {
   const { themeSelected } = useSelector((state: State) => state.preferences)

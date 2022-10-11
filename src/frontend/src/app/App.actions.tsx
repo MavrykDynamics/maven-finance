@@ -5,9 +5,13 @@ import type { EmergencyGovernanceStorage } from '../utils/TypesAndInterfaces/Eme
 
 import { getInitialData } from '../gql/fetchGraphQL'
 
-import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE, GET_STAKE_HISTORY_DATA, GET_SMVK_HISTORY_DATA } from '../pages/Doorman/Doorman.actions'
+import {
+  GET_DOORMAN_STORAGE,
+  GET_MVK_TOKEN_STORAGE,
+  GET_STAKE_HISTORY_DATA,
+  GET_SMVK_HISTORY_DATA,
+} from '../pages/Doorman/Doorman.actions'
 import { GET_DELEGATION_STORAGE, GET_ORACLES_STORAGE } from '../pages/Satellites/Satellites.actions'
-import { GET_FARM_STORAGE } from '../pages/Farms/Farms.actions'
 import {
   GET_EMERGENCY_GOVERNANCE_STORAGE,
   SET_EMERGENCY_GOVERNANCE_ACTIVE,
@@ -23,8 +27,12 @@ import {
 
 // helpers
 import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } from './App.helpers'
-import { normalizeDoormanStorage, normalizeMvkToken, normalizeStakeHistoryData, normalizeSmvkHistoryData } from '../pages/Doorman/Doorman.converter'
-import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from '../pages/Farms/Farms.helpers'
+import {
+  normalizeDoormanStorage,
+  normalizeMvkToken,
+  normalizeStakeHistoryData,
+  normalizeSmvkHistoryData,
+} from '../pages/Doorman/Doorman.converter'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
 import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/EmergencyGovernance.helpers'
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
@@ -53,16 +61,6 @@ export const onStart = () => async (dispatch: AppDispatch) => {
   const delegationStorage = normalizeDelegationStorage(res[3]?.delegation[0])
 
   await dispatch(getDipDupTokensStorage())
-
-  try {
-    const farmStorage = await normalizeFarmStorage(res[4]?.farm)
-    dispatch({
-      type: GET_FARM_STORAGE,
-      farmStorage: farmStorage,
-    })
-  } catch (e) {
-    console.error('normalizingFarmStorage error: ', e)
-  }
 
   const emergencyGovernanceStorage: EmergencyGovernanceStorage = normalizeEmergencyGovernance(
     res[5]?.emergency_governance[0],

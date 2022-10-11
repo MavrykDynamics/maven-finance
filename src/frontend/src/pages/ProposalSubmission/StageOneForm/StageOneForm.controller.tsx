@@ -8,14 +8,7 @@ import {
   SubmitProposalForm,
   ValidSubmitProposalForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
-import {
-  getFormErrors,
-  isNotAllWhitespace,
-  isValidHttpUrl,
-  validateFormAndThrowErrors,
-} from '../../../utils/validatorFunctions'
-import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
-import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
+import { isNotAllWhitespace, isValidHttpUrl, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { submitProposal } from '../ProposalSubmission.actions'
 
 type StageOneFormProps = {
@@ -25,6 +18,34 @@ type StageOneFormProps = {
   proposalDescription: string
   proposalSourceCode: string
 }
+
+const DEFAULT_FORM: SubmitProposalForm = {
+  title: '',
+  description: '',
+  ipfs: '',
+  successMVKReward: 0,
+  invoiceTable: '',
+  sourceCodeLink: '',
+}
+
+const DEFAULT_VALIDITY: ValidSubmitProposalForm = {
+  title: false,
+  description: false,
+  ipfs: true,
+  successMVKReward: true,
+  invoiceTable: true,
+  sourceCodeLink: false,
+}
+
+const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
+  title: '',
+  description: '',
+  ipfs: '',
+  successMVKReward: '',
+  invoiceTable: 'success',
+  sourceCodeLink: '',
+}
+
 export const StageOneForm = ({
   locked,
   proposalId,
@@ -33,66 +54,43 @@ export const StageOneForm = ({
   proposalTitle,
 }: StageOneFormProps) => {
   const dispatch = useDispatch()
-  const { governanceStorage } = useSelector((state: State) => state.governance)
-  const { fee, currentRound } = governanceStorage
+  const {
+    fee,
+    currentRound,
+    config: { successReward },
+  } = useSelector((state: State) => state.governance.governanceStorage)
   const isProposalRound = currentRound === 'PROPOSAL'
-  const successReward = governanceStorage.config.successReward
-  const [form, setForm] = useState<SubmitProposalForm>({
-    title: '',
-    description: '',
-    ipfs: '',
-    successMVKReward: 0,
-    invoiceTable: '',
-    sourceCodeLink: '',
-  })
-  const [validForm, setValidForm] = useState<ValidSubmitProposalForm>({
-    title: false,
-    description: false,
-    ipfs: true,
-    successMVKReward: true,
-    invoiceTable: true,
-    sourceCodeLink: false,
-  })
-  const [formInputStatus, setFormInputStatus] = useState<SubmitProposalFormInputStatus>({
-    title: '',
-    description: '',
-    ipfs: '',
-    successMVKReward: '',
-    invoiceTable: 'success',
-    sourceCodeLink: '',
-  })
+  const [form, setForm] = useState<SubmitProposalForm>(DEFAULT_FORM)
+  const [validForm, setValidForm] = useState<ValidSubmitProposalForm>(DEFAULT_VALIDITY)
+  const [formInputStatus, setFormInputStatus] = useState<SubmitProposalFormInputStatus>(DEFAULT_INPUT_STATUSES)
 
   const handleOnBlur = (
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
     formField: string,
   ) => {
-    let updatedState, validityCheckResult
+    let validityCheckResult
     switch (formField) {
       case 'TITLE':
         validityCheckResult = isNotAllWhitespace(form.title)
         setValidForm({ ...validForm, title: validityCheckResult })
-        updatedState = { ...validForm, title: validityCheckResult }
-        setFormInputStatus({ ...formInputStatus, title: updatedState.title ? 'success' : 'error' })
+        setFormInputStatus({ ...formInputStatus, title: validityCheckResult ? 'success' : 'error' })
         break
       case 'DESCRIPTION':
         validityCheckResult = isNotAllWhitespace(form.description)
         setValidForm({ ...validForm, description: validityCheckResult })
-        updatedState = { ...validForm, description: validityCheckResult }
-        setFormInputStatus({ ...formInputStatus, description: updatedState.description ? 'success' : 'error' })
+        setFormInputStatus({ ...formInputStatus, description: validityCheckResult ? 'success' : 'error' })
         break
       case 'SUCCESS_MVK_REWARD':
         setValidForm({ ...validForm, successMVKReward: form.successMVKReward >= 0 })
-        updatedState = { ...validForm, successMVKReward: form.successMVKReward >= 0 }
         setFormInputStatus({
           ...formInputStatus,
-          successMVKReward: updatedState.successMVKReward ? 'success' : 'error',
+          successMVKReward: form.successMVKReward >= 0 ? 'success' : 'error',
         })
         break
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(form.sourceCodeLink)
         setValidForm({ ...validForm, sourceCodeLink: validityCheckResult })
-        updatedState = { ...validForm, sourceCodeLink: validityCheckResult }
-        setFormInputStatus({ ...formInputStatus, sourceCodeLink: updatedState.sourceCodeLink ? 'success' : 'error' })
+        setFormInputStatus({ ...formInputStatus, sourceCodeLink: validityCheckResult ? 'success' : 'error' })
         break
       case 'IPFS':
         setValidForm({ ...validForm, ipfs: Boolean(e) })
@@ -101,30 +99,9 @@ export const StageOneForm = ({
   }
 
   const clearState = (): void => {
-    setForm({
-      title: '',
-      description: '',
-      ipfs: '',
-      successMVKReward: 0,
-      invoiceTable: '',
-      sourceCodeLink: '',
-    })
-    setValidForm({
-      title: false,
-      description: false,
-      ipfs: true,
-      successMVKReward: true,
-      invoiceTable: true,
-      sourceCodeLink: false,
-    })
-    setFormInputStatus({
-      title: '',
-      description: '',
-      ipfs: '',
-      successMVKReward: '',
-      invoiceTable: 'success',
-      sourceCodeLink: '',
-    })
+    setForm(DEFAULT_FORM)
+    setValidForm(DEFAULT_VALIDITY)
+    setFormInputStatus(DEFAULT_INPUT_STATUSES)
   }
 
   useEffect(() => {

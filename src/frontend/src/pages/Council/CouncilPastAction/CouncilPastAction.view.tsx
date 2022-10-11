@@ -1,10 +1,8 @@
-/* @ts-ignore */
-import Time from 'react-pure-time'
-
 // view
 import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // helpers
+import { parseDate } from 'utils/time'
 import { getSeparateCamelCase } from '../../../utils/parse'
 
 // style
@@ -26,9 +24,7 @@ export const CouncilPastActionView = (props: Props) => {
     <CouncilPastActionStyled>
       <div>
         <p>Date</p>
-        <h4>
-          <Time value={execution_datetime} format="M d\t\h, Y" />
-        </h4>
+        <h4>{parseDate({ time: execution_datetime, timeFormat: 'MMM Do, YYYY' })}</h4>
       </div>
       <div>
         <p>Purpose</p>

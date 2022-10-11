@@ -7,7 +7,7 @@ export const FarmsStyled = styled.div<{ theme: MavrykTheme }>`
     gap: 30px;
 
     &.vertical {
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(3, 32%);
       align-items: baseline;
     }
 

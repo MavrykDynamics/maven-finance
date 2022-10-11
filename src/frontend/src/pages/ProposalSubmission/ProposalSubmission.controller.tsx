@@ -5,11 +5,11 @@ import { State } from 'reducers'
 import { ProposalSubmissionView } from './ProposalSubmission.view'
 
 export const ProposalSubmission = () => {
-  const loading = useSelector((state: State) => Boolean(state.loading))
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
+  const { currentRoundProposals } = useSelector((state: State) => state.governance)
   const [activeTab, setActiveTab] = useState<number>(1)
 
+  // TODO: remove it when multiple proposals creating functional adding
   const findUserCurrentRoundProposal = useMemo(
     () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
     [accountPkh, currentRoundProposals],
@@ -21,12 +21,9 @@ export const ProposalSubmission = () => {
 
   return (
     <ProposalSubmissionView
-      loading={loading}
       activeTab={activeTab}
       handleChangeTab={handleChangeTab}
-      accountPkh={accountPkh}
-      governancePhase={governancePhase}
-      isInEmergencyGovernance={false}
+      // TODO: review thos locked functionality when multiple proposals creating functional adding
       locked={Boolean(findUserCurrentRoundProposal?.locked)}
       proposalId={findUserCurrentRoundProposal?.id}
       proposalTitle={findUserCurrentRoundProposal?.title || ''}

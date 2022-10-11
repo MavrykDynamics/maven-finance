@@ -22,11 +22,11 @@ import {
 
 // helpers
 import { normalizeBreakGlassAction, normalizeBreakGlassCouncilMember } from './BreakGlassCouncil.helpers'
-import { parseData } from 'utils/time'
+import { parseDate } from 'utils/time'
 
 const time = String(new Date())
 const timeFormat = 'YYYY-MM-DD'
-const timestamptz = parseData({ time, timeFormat }) || undefined
+const timestamptz = parseDate({ time, timeFormat }) || undefined
 
 // getMyPastBreakGlassCouncilAction
 export const GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION = 'GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION'

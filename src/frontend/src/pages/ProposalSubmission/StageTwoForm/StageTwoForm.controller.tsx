@@ -6,7 +6,6 @@ import { State } from 'reducers'
 // types
 import type { ProposalDataType } from '../../../utils/TypesAndInterfaces/Governance'
 import type { ProposalUpdateFormProposalBytes } from '../../../utils/TypesAndInterfaces/Forms'
-import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 
 // components
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -22,12 +21,7 @@ import useGovernence from '../../Governance/UseGovernance'
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
-import {
-  ProposalUpdateForm,
-  ProposalUpdateFormInputStatus,
-  ValidProposalUpdateForm,
-} from '../../../utils/TypesAndInterfaces/Forms'
-import { validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import { ProposalUpdateForm } from '../../../utils/TypesAndInterfaces/Forms'
 
 import { dropProposal, updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
 
@@ -59,44 +53,19 @@ export const PROPOSAL_BYTE = {
   order: 1,
 } as ProposalUpdateFormProposalBytes
 
-type CleanData = {
-  bytes: string
-  title: string
-}
-
-function isSameForm(first: CleanData[], second: CleanData[]): boolean {
-  const result = JSON.stringify(first) === JSON.stringify(second)
-
-  return result
-}
-
-interface Entity {
-  id: number
-}
-
-export const normalizeData = <T extends Entity>(data: Array<T>) => {
-  const stub: [Record<number, T>, Entity['id'][]] = [{}, []]
-  if (!Array.isArray(data)) {
-    throw new Error('Incorrect data received from server. Check normalization function call')
-  }
-  const newRes = data.reduce((acc, element) => {
-    acc[0][element.id] = element
-    acc[1].push(element.id)
-    return acc
-  }, stub)
-  return newRes
-}
-
 export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoFormProps) => {
   const dispatch = useDispatch()
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
-  const { fee, currentRound } = governanceStorage
-
   const { watingProposals } = useGovernence()
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const {
+    governanceStorage: {
+      fee,
+      config: { successReward },
+    },
+    currentRoundProposals,
+  } = useSelector((state: State) => state.governance)
   const { governancePhase } = useSelector((state: State) => state.governance)
   const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
-  const successReward = governanceStorage.config.successReward
 
   const findUserCurrentRoundProposal = useMemo(
     () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
@@ -109,6 +78,10 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     title: '',
     proposalBytes: [PROPOSAL_BYTE],
   })
+
+  const disabled = !isProposalRound || !form.title
+
+  // TODO: DnD proposals
   const [DnDSelectedProposal, setDnDSeletedProposal] = useState<ProposalUpdateFormProposalBytes | null>(null)
 
   const [proposalBytesUpdate, setPoposalBytesUpdate] = useState<any[]>([])
@@ -124,30 +97,8 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
       proposalBytes: proposalBytes as ProposalUpdateFormProposalBytes[],
     })
   }, [findUserCurrentRoundProposal, proposalTitle])
-  const disabled = !isProposalRound || !form.title
 
-  const cleanFormData = form.proposalBytes.map((item) => {
-    return {
-      title: item.title,
-      bytes: item.bytes,
-    }
-  }) as CleanData[]
-  const cleanData = proposalData.map((item) => {
-    return {
-      title: item.title,
-      bytes: item.bytes,
-    }
-  }) as CleanData[]
-
-  const [validForm, setValidForm] = useState<ValidProposalUpdateForm>({
-    title: false,
-    proposalBytes: false,
-  })
-  const [formInputStatus, setFormInputStatus] = useState<ProposalUpdateFormInputStatus>({
-    title: '',
-    proposalBytes: '',
-  })
-
+  // Bytes input handlers
   const handleOnBlur = (index: number, text: string, type: string) => {
     const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes))
 
@@ -162,18 +113,24 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     setForm({ ...form, proposalBytes: cloneProposalBytes })
   }
 
+  const handleOnCange = (index: number, text: string, type: string) => {
+    const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes))
+
+    if (type === 'title') {
+      cloneProposalBytes[index].title = text
+    }
+
+    if (type === 'data') {
+      cloneProposalBytes[index].bytes = text
+    }
+
+    setForm({ ...form, proposalBytes: cloneProposalBytes })
+  }
+
   const clearState = (): void => {
     setForm({
       title: proposalTitle,
       proposalBytes: [PROPOSAL_BYTE],
-    })
-    setValidForm({
-      title: false,
-      proposalBytes: false,
-    })
-    setFormInputStatus({
-      title: '',
-      proposalBytes: '',
     })
   }
 
@@ -183,6 +140,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
       await dispatch(updateProposal(form, proposalId, clearState))
     }
   }
+
   const prepareToUpdate = form.proposalBytes.filter((item) => {
     const findedInProposalData = proposalData.find((data) => data.id === item.id)
     return findedInProposalData?.title === item.title && findedInProposalData?.bytes === item.bytes ? null : item
@@ -197,12 +155,12 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     await dispatch(updateProposal({ title: form.title, proposalBytes: prepareToUpdate }, proposalId, clearState))
   }
 
-  const handleDeleteProposal = async () => {
-    if (proposalId) await dispatch(dropProposal(proposalId))
-  }
+  // Drop proposal on stage 2 handler
+  // const handleDeleteProposal = async () => {
+  //   if (proposalId) await dispatch(dropProposal(proposalId))
+  // }
 
   const isAllBytesExist = form.proposalBytes.every((item) => Boolean(item.title) && Boolean(item.bytes))
-  const isProposalBytesUpdate = proposalBytesUpdate.every((item) => Boolean(item.title) && Boolean(item.bytes))
 
   const isEdit = proposalData?.length
 
@@ -225,35 +183,22 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
     })
   }
 
-  const handleClosePair = (id: number) => {
-    const findInOrigin = proposalData.find((item) => item.id === id)
-    if (findInOrigin) {
-      setPoposalBytesUpdate((prev) => {
-        return prev.concat(findInOrigin)
-      })
+  const handleDeletePair = (id: number, existInServer: boolean) => {
+    if (existInServer) {
+      const findOriginPair = proposalData.find((item) => item.id === id)
+      if (findOriginPair) dispatch(deleteProposalDataPair(findOriginPair.title, findOriginPair.bytes, proposalId))
+    } else {
+      const findInOrigin = proposalData.find((item) => item.id === id)
+      if (findInOrigin) {
+        setPoposalBytesUpdate((prev) => {
+          return prev.concat(findInOrigin)
+        })
+      }
+      setForm({ ...form, proposalBytes: form.proposalBytes.filter((item) => item.id !== id) })
     }
-    setForm({ ...form, proposalBytes: form.proposalBytes.filter((item) => item.id !== id) })
   }
 
-  const handleDeletePair = (id: number) => {
-    const findOriginPair = proposalData.find((item) => item.id === id)
-    if (findOriginPair) dispatch(deleteProposalDataPair(findOriginPair.title, findOriginPair.bytes, proposalId))
-  }
-
-  const handleOnCange = (index: number, text: string, type: string) => {
-    const cloneProposalBytes = JSON.parse(JSON.stringify(form.proposalBytes))
-
-    if (type === 'title') {
-      cloneProposalBytes[index].title = text
-    }
-
-    if (type === 'data') {
-      cloneProposalBytes[index].bytes = text
-    }
-
-    setForm({ ...form, proposalBytes: cloneProposalBytes })
-  }
-
+  // TODO: DnD handlers
   const isDraggable = useMemo(() => form.proposalBytes.length > 2, [form.proposalBytes])
 
   const dropHandler = (e: React.DragEvent<HTMLElement>, byte: ProposalUpdateFormProposalBytes) => {
@@ -303,7 +248,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
       </FormTitleAndFeeContainer>
       <div className="step-bytes">
         {form.proposalBytes.map((item, i) => {
-          const existInServer = proposalData.find((data) => item.title === data.title && item.id === data.id)
+          const existInServer = Boolean(proposalData.find((data) => item.title === data.title && item.id === data.id))
 
           return (
             <article
@@ -327,7 +272,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOnCange(i, e.target.value, 'title')}
                   onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(i, e.target.value, 'title')}
                   inputStatus={item.validTitle}
-                  disabled={disabled || Boolean(existInServer)}
+                  disabled={disabled || existInServer}
                 />
               </div>
 
@@ -348,7 +293,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId }: StageTwoForm
                 className="close delete-pair"
                 text="Delete Proposal Byte Pair"
                 kind="actionSecondary"
-                onClick={() => (existInServer ? handleDeletePair(item.id) : handleClosePair(item.id))}
+                onClick={() => handleDeletePair(item.id, existInServer)}
               />
             </article>
           )

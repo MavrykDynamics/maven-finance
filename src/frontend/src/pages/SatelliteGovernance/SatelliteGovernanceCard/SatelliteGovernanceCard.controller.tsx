@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
-/* @ts-ignore */
-import Time from 'react-pure-time'
 import { Link } from 'react-router-dom'
 
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -17,6 +15,7 @@ import { dropAction, voteForAction } from '../SatelliteGovernance.actions'
 import { SatelliteGovernanceCardDropDown, SatelliteGovernanceCardTitleTextGroup } from './SatelliteGovernanceCard.style'
 import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
 import { PRECISION_NUMBER } from 'utils/constants'
+import { parseDate } from 'utils/time'
 
 type Props = {
   satelliteId: string
@@ -103,9 +102,7 @@ export const SatelliteGovernanceCard = ({
         <>
           <SatelliteGovernanceCardTitleTextGroup>
             <h3>Date</h3>
-            <p className="inner">
-              <Time value={date} format="M d\t\h, Y" />
-            </p>
+            <p className="inner">{parseDate({ time: date, timeFormat: 'MMM Do, YYYY' })}</p>
           </SatelliteGovernanceCardTitleTextGroup>
           <SatelliteGovernanceCardTitleTextGroup>
             <h3>Action</h3>
@@ -149,8 +146,8 @@ export const SatelliteGovernanceCard = ({
         <div className="voting-block">
           <h3>Vote Statistics</h3>
           <b className="voting-ends">
-            Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" /> {timeFormat}{' '}
-            CEST
+            Voting {!isEndingVotingTime ? 'ended' : 'ending'} on{' '}
+            {parseDate({ time: date, timeFormat: 'MMM DD, HH:mm' })} CEST
           </b>
 
           <VotingArea
