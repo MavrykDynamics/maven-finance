@@ -1,9 +1,10 @@
 import { Page } from 'styles'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { ProposalDataType, ProposalPaymentType } from '../../utils/TypesAndInterfaces/Governance'
+import type { CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
+import type { TabItem } from 'app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 // hooks
 import useGovernence from '../Governance/UseGovernance'
@@ -16,37 +17,52 @@ import { StageOneForm } from './StageOneForm/StageOneForm.controller'
 import { StageThreeForm } from './StageThreeForm/StageThreeForm.controller'
 import { StageTwoForm } from './StageTwoForm/StageTwoForm.controller'
 import { Info } from '../../app/App.components/Info/Info.view'
+import { MultyProposals } from './MultyProposals/MultyProposals.controller'
 
 import '@silevis/reactgrid/styles.css'
 
 type ProposalSubmissionViewProps = {
   activeTab: number
   handleChangeTab: (tabId?: number) => void
-  locked: boolean
-  proposalId: number | undefined
-  proposalTitle: string
-  proposalDescription: string
-  proposalSourceCode: string
-  proposalData: ProposalDataType[] | undefined
-  proposalPayments: ProposalPaymentType[]
+  multyProposalsItems: TabItem[]
+  createNewProposalHander: () => void
+  changeActiveProposal: (proposalId: number) => void
+  userCreatedProposals: CurrentRoundProposalsStorageType
+  currentProposal?: CurrentRoundProposalsStorageType[number]
 }
+
 export const ProposalSubmissionView = ({
-  locked,
   activeTab,
   handleChangeTab,
-  proposalId,
-  proposalTitle,
-  proposalData,
-  proposalPayments,
-  proposalDescription,
-  proposalSourceCode,
+  currentProposal,
+  multyProposalsItems,
+  createNewProposalHander,
+  changeActiveProposal,
+  userCreatedProposals,
 }: ProposalSubmissionViewProps) => {
   const { watingProposals } = useGovernence()
   const { governancePhase } = useSelector((state: State) => state.governance)
   const isEditing = governancePhase === 'PROPOSAL' && !watingProposals.length
+
+  const {
+    locked = false,
+    id: proposalId,
+    title: proposalTitle = '',
+    proposalData = [],
+    description: proposalDescription = '',
+    sourceCode: proposalSourceCode = '',
+    proposalPayments = [],
+  } = currentProposal || {}
+
   return (
     <Page>
       <PageHeader page={'proposal submission'} />
+      <MultyProposals
+        switchItems={multyProposalsItems}
+        switchProposal={changeActiveProposal}
+        createNewProposal={createNewProposalHander}
+        isButtonDisabled={userCreatedProposals.length >= 2 || userCreatedProposals.length === 0}
+      />
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       {!isEditing ? (
         <Info
