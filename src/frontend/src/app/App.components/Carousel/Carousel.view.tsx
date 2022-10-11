@@ -47,6 +47,8 @@ const Carousel = (props: Props) => {
 
   return (
     <CarouselStyle>
+      <div className='gradient-left'></div>
+      <div className='gradient-right'></div>
       <small className="selected">
         {selectedIndex + 1} from {itemLength}
       </small>
