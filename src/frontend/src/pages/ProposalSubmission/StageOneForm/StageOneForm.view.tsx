@@ -60,7 +60,7 @@ export const StageOneFormView = ({
   const { governancePhase } = useSelector((state: State) => state.governance)
   const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
 
-  // TODO: check it when doing multiple proposals creating
+  // TODO: check it when doing multiple proposals creating (Can i create new proposal if I've created 1 and it's locked, and on voting period?)
   const disabled = Boolean(proposalId) || !isProposalRound
 
   return (

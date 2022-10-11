@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 
-import { Card, headerColor, downColor } from '../../styles'
+import { Card, headerColor, downColor, cyanColor } from '../../styles'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const ProposalSubmissionStyled = styled.div<{ theme: MavrykTheme }>`
@@ -74,6 +74,11 @@ export const ProposalSubmissionForm = styled(Card)`
 
       &.draggabe {
         cursor: grab;
+      }
+
+      &.underDrop {
+        border: 1px solid ${cyanColor};
+        padding: 7px 10px;
       }
     }
 
