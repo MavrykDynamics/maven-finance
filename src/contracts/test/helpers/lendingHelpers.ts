@@ -187,22 +187,22 @@ export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLed
 
 export const multiplyByTokenPrice = (tokenName, tokenOracles, tokenAmount) => {
 
-    if(tokenName = "mockFa12"){
+    if(tokenName == "mockFa12"){
         
         let mockFa12TokenPrice = tokenOracles.find(o => o.name === "mockFa12").price;
         return tokenAmount * mockFa12TokenPrice;
 
-    } else if(tokenName = "mockFa2"){
+    } else if(tokenName == "mockFa2"){
 
         let mockFa2TokenPrice = tokenOracles.find(o => o.name === "mockFa2").price;
         return tokenAmount * mockFa2TokenPrice;
 
-    } else if(tokenName = "tez"){
+    } else if(tokenName == "tez"){
 
         let tezPrice = tokenOracles.find(o => o.name === "tez").price;
         return tokenAmount * tezPrice;
 
-    } else if(tokenName = "mvk"){
+    } else if(tokenName == "mvk"){
 
         let mvkPrice = tokenOracles.find(o => o.name === "mvk").price;
         return tokenAmount * mvkPrice;
@@ -213,22 +213,22 @@ export const multiplyByTokenPrice = (tokenName, tokenOracles, tokenAmount) => {
 
 export const divideByTokenPrice = (tokenName, tokenOracles, dollarValue) => {
 
-    if(tokenName = "mockFa12"){
+    if(tokenName == "mockFa12"){
         
         let mockFa12TokenPrice = tokenOracles.find(o => o.name === "mockFa12").price;
         return Math.floor(dollarValue / mockFa12TokenPrice);
 
-    } else if(tokenName = "mockFa2"){
+    } else if(tokenName == "mockFa2"){
 
         let mockFa2TokenPrice = tokenOracles.find(o => o.name === "mockFa2").price;
         return Math.floor(dollarValue / mockFa2TokenPrice);
 
-    } else if(tokenName = "tez"){
+    } else if(tokenName == "tez"){
 
         let tezPrice = tokenOracles.find(o => o.name === "tez").price;
         return Math.floor(dollarValue / tezPrice);
 
-    } else if(tokenName = "mvk"){
+    } else if(tokenName == "mvk"){
 
         let mvkPrice = tokenOracles.find(o => o.name === "mvk").price;
         return Math.floor(dollarValue / mvkPrice);
