@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 // types
 import type { FarmsViewVariantType } from '../Farms.controller'
@@ -17,19 +17,18 @@ import { FarmTopBarStyled } from './FarmTopBar.style'
 export type FarmTopBarViewProps = {
   ready: boolean
   handleToggleStakedOnly: () => void
-  handleLiveFinishedToggleButtons: () => void
+  handleLiveFinishedToggleButtons: (tabId: number) => void
   handleSetFarmsViewVariant: (arg0: FarmsViewVariantType) => void
   className: string
   searchValue: string
   onSearch: (val: string) => void
   onSort: (val: string) => void
   toggleChecked: boolean
+  liveFinishedIdSelected: number
 }
 
-const LIVE_FINISHED_TABS = [
-  { text: 'Live', id: 1, active: true },
-  { text: 'Finished', id: 2, active: false },
-]
+export const LIVE_TAB_ID = 1
+export const FINISHED_TAB_ID = 2
 
 export const FarmTopBar = ({
   ready,
@@ -41,6 +40,7 @@ export const FarmTopBar = ({
   handleSetFarmsViewVariant,
   className,
   toggleChecked,
+  liveFinishedIdSelected,
 }: FarmTopBarViewProps) => {
   const itemsForDropDown = [
     { text: 'Active', value: 'active' },
@@ -65,6 +65,14 @@ export const FarmTopBar = ({
     onSort(chosenItem.value)
   }
 
+  const liveFinishedTabs = useMemo(
+    () => [
+      { text: 'Live', id: LIVE_TAB_ID, active: liveFinishedIdSelected === LIVE_TAB_ID },
+      { text: 'Finished', id: FINISHED_TAB_ID, active: liveFinishedIdSelected === FINISHED_TAB_ID },
+    ],
+    [liveFinishedIdSelected],
+  )
+
   return (
     <FarmTopBarStyled className={className}>
       <Toggle
@@ -74,16 +82,16 @@ export const FarmTopBar = ({
         className="farm-toggle"
         sufix="Staked Only"
       />
-      <SlidingTabButtons tabItems={LIVE_FINISHED_TABS} className="tab-bar" onClick={handleLiveFinishedToggleButtons} />
+      <SlidingTabButtons tabItems={liveFinishedTabs} className="tab-bar" onClick={handleLiveFinishedToggleButtons} />
       <Input
         type="text"
-        placeholder="Search..."
+        placeholder="Search by..."
         value={searchValue}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearch(e.target.value)}
         onBlur={() => {}}
       />
       <DropdownContainer className="order-by">
-        <h4>Order By:</h4>
+        <h4>Order by:</h4>
         <DropDown
           clickOnDropDown={handleClickDropdown}
           placeholder={'Choose order'}

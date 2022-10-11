@@ -29,7 +29,7 @@ import { Vaults } from '../../../pages/Vaults/Vaults.controller'
 import ProtectedRoute from './ProtectedRoute'
 
 export const AppRoutes = () => {
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
 

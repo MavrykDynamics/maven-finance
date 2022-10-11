@@ -1,5 +1,4 @@
 import { setItemInStorage } from '../../../utils/storage'
-import { State } from '../../../reducers'
 import { AppDispatch } from 'app/App.controller'
 
 export const LIGHT_THEME = 'light'

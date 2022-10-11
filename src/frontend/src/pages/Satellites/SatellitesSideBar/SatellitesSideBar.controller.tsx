@@ -18,7 +18,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const numSatellites = satelliteLedger?.length || 0
   const dataPointsCount = useMemo(
     () =>
-      feeds?.filter((feed) => dayjs(Date.now()).diff(dayjs(feed?.last_completed_price_datetime), 'minutes') <= 60)
+      feeds?.filter((feed) => dayjs(Date.now()).diff(dayjs(feed?.last_completed_data_last_updated_at), 'minutes') <= 60)
         .length,
     [feeds],
   )

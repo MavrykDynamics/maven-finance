@@ -49,7 +49,6 @@ query GetGovernanceStorageQuery {
       token_address
       treasury_id
       governance_financial_id
-      key_hash
       pass_vote_smvk_total
       nay_vote_smvk_total
       yay_vote_smvk_total

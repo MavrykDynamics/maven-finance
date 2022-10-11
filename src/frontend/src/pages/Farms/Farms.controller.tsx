@@ -1,93 +1,154 @@
-// type
-import { FarmStorage } from '../../utils/TypesAndInterfaces/Farm'
-
+import { useHistory, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { State } from '../../reducers'
-import { useEffect, useMemo, useState } from 'react'
+import qs from 'qs'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
+// view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { Page } from 'styles'
-import { FarmTopBar } from './FarmTopBar/FarmTopBar.controller'
+import { FarmTopBar, LIVE_TAB_ID } from './FarmTopBar/FarmTopBar.controller'
 import { FarmCard } from './FarmCard/FarmCard.controller'
 import { Modal } from '../../app/App.components/Modal/Modal.controller'
 
 // helpers
-import { calculateAPR, getSummDepositedAmount } from './Farms.helpers'
+import { calculateAPY, getSummDepositedAmount } from './Farms.helpers'
 
 // styles
 import { FarmsStyled } from './Farms.style'
+import { Page } from 'styles'
 import { EmptyContainer as EmptyList } from 'app/App.style'
-import { useHistory, useLocation } from 'react-router-dom'
-import qs from 'qs'
+import { getFarmStorage } from './Farms.actions'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import {
+  calculateSlicePositions,
+  FARMS_HORIZONTAL_CARDS,
+  FARMS_VERTICAL_CARDS,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 
-export type FarmsViewVariantType = 'vertical' | 'horizontal'
+// types
+import { State } from '../../reducers'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+
+export const VERTICAL_FARM_VIEW = 'vertical'
+export const HORIZONTAL_FARM_VIEW = 'horizontal'
+export type FarmsViewVariantType = typeof VERTICAL_FARM_VIEW | typeof HORIZONTAL_FARM_VIEW
 
 const EmptyContainer = () => (
   <EmptyList>
     <img src="/images/not-found.svg" alt=" No results to show" />
-    <figcaption> No results to show</figcaption>
+    <figcaption> No farms to show</figcaption>
   </EmptyList>
 )
 
 export const Farms = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
+  const { ready } = useSelector((state: State) => state.wallet)
+  const { farmStorage } = useSelector((state: State) => state.farm)
 
   const [farmsList, setFarmsList] = useState(farmStorage)
-  const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage>([])
+
+  // filters states
   const [toggleChecked, setToggleChecked] = useState(false)
-  const [liveFinished, setLiveFinished] = useState<number | undefined>(1)
-  const [stakedFarmsOnly, setStakeFarmsOnly] = useState(false)
+  const [openedFarmsCards, setOpenedFarmsCards] = useState<Array<string>>([])
+  const [liveFinished, setLiveFinished] = useState<number>(LIVE_TAB_ID)
   const [searchValue, setSearchValue] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
-  const [farmsViewVariant, setFarmsViewVariant] = useState<FarmsViewVariantType>('vertical')
+  const [farmsViewVariant, setFarmsViewVariant] = useState<FarmsViewVariantType>(VERTICAL_FARM_VIEW)
 
   const { search, pathname } = useLocation()
-  const { openedCards = [] } = qs.parse(search, { ignoreQueryPrefix: true }) as { openedCards?: Array<string> }
-
-  const addOpenedCardToQP = (cardAddress: string) => {
-    const arrayOfCards = openedCards.find((address) => cardAddress === address)
-      ? openedCards.filter((address) => address !== cardAddress)
-      : [...openedCards, cardAddress]
-
-    const stringifiedQP = qs.stringify({ openedCards: arrayOfCards })
-    history.push(`${pathname}?${stringifiedQP}`)
-  }
-
-  const farmsTVL = useMemo(
+  const {
+    openedCards = [],
+    isLive = LIVE_TAB_ID,
+    searchFarm = '',
+    sortType = '',
+    isStakedOny = false,
+  } = useMemo(
     () =>
-      farmStorage.reduce((acc, farm) => {
-        return (acc += farm.lpBalance)
-      }, 0),
-    [],
+      qs.parse(search, { ignoreQueryPrefix: true }) as {
+        openedCards?: Array<string>
+        isLive?: number
+        searchFarm?: string
+        sortType?: string
+        isStakedOny?: boolean
+      },
+    [search],
   )
 
+  // pagination stuff
+  const listName = useMemo(
+    () => (farmsViewVariant === VERTICAL_FARM_VIEW ? FARMS_VERTICAL_CARDS : FARMS_HORIZONTAL_CARDS),
+    [farmsViewVariant],
+  )
+
+  const currentPage = useMemo(() => getPageNumber(search, listName), [search, listName])
+
+  const farmsCards = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, listName)
+    return farmsList?.slice(from, to)
+  }, [farmsList, isLive, searchFarm, sortType, isStakedOny, currentPage, listName])
+
+  // effect to set all filters state from queryParams on mount
   useEffect(() => {
-    const filterStakedOnly = toggleChecked
-      ? farmStorage.filter(
+    dispatch(getFarmStorage())
+
+    setToggleChecked(isStakedOny)
+    setSearchValue(searchFarm)
+    setSortBy(sortType)
+    setLiveFinished(Number(isLive))
+    setOpenedFarmsCards(openedCards)
+  }, [])
+
+  // fn to add/remove card address fron query params, is it open or not
+  const handleOpenCard = useCallback(
+    (cardAdrress: string) => {
+      const newOpenCardArr = openedFarmsCards.find((openCardAddress) => openCardAddress === cardAdrress)
+        ? openedFarmsCards.filter((openCardAddress) => openCardAddress !== cardAdrress)
+        : openedFarmsCards.concat(cardAdrress)
+
+      setOpenedFarmsCards(newOpenCardArr)
+
+      const filtersQP = {
+        openedCards: newOpenCardArr,
+        isLive: liveFinished,
+        ...(searchFarm ? { searchFarm: searchValue } : {}),
+        ...(sortType ? { sortType: sortBy } : {}),
+        ...(isStakedOny ? { isStakedOny: isStakedOny } : {}),
+      }
+
+      const stringifiedQP = qs.stringify(filtersQP, { addQueryPrefix: true })
+      history.push(`${pathname}${stringifiedQP}`)
+    },
+    [isStakedOny, liveFinished, openedFarmsCards, pathname, searchFarm, searchValue, sortBy, sortType],
+  )
+
+  // effect to handle all sortings and filters in top bar
+  useEffect(() => {
+    let farmsToSortFilter = [...farmStorage]
+
+    // apply live finished filter
+    farmsToSortFilter = farmsToSortFilter.filter(({ isLive }) =>
+      liveFinished === 1 ? isLive === true : isLive === false,
+    )
+
+    // apply staked only filter
+    farmsToSortFilter = toggleChecked
+      ? farmsToSortFilter.filter(
           (item) => item.farmAccounts?.length && item.farmAccounts.some((account) => account?.deposited_amount > 0),
         )
-      : farmStorage
+      : farmsToSortFilter
 
-    const isLive = liveFinished === 1
-    const filteredLiveFinished = filterStakedOnly.filter((item) => item.open === isLive)
-    const filteredSearch = searchValue.length
-      ? filteredLiveFinished.filter((farm) => {
-          const isIncludesTokenAddress = farm.lpTokenAddress.includes(searchValue)
-          const isIncludesName = farm.name.includes(searchValue)
-          const lpTokenAddress = farm.lpTokenAddress || ''
-          const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
-          const isIncludesAlias =
-            farmContract?.creator?.alias?.includes(searchValue) || farmContract?.metadata?.alias?.includes(searchValue)
-          return isIncludesTokenAddress || isIncludesName || isIncludesAlias
+    // apply search
+    farmsToSortFilter = searchValue.length
+      ? farmsToSortFilter.filter(({ lpTokenAddress, name }) => {
+          const isIncludesTokenAddress = lpTokenAddress.includes(searchValue)
+          const isIncludesName = name.includes(searchValue)
+          return isIncludesTokenAddress || isIncludesName
         })
-      : filteredLiveFinished
+      : farmsToSortFilter
 
+    // apply sorting
     if (sortBy) {
-      const dataToSort = filteredSearch ? [...filteredSearch] : []
-
+      const dataToSort = farmsToSortFilter ? [...farmsToSortFilter] : []
       dataToSort.sort((a, b) => {
         let res = 0
         switch (sortBy) {
@@ -96,16 +157,13 @@ export const Farms = () => {
             break
           case 'highestAPY':
             res =
-              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpBalance)) <
-              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpBalance))
+              calculateAPY(a.currentRewardPerBlock, a.lpBalance) < calculateAPY(b.currentRewardPerBlock, b.lpBalance)
                 ? 1
                 : -1
-
             break
           case 'lowestAPY':
             res =
-              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpBalance)) >
-              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpBalance))
+              calculateAPY(a.currentRewardPerBlock, a.lpBalance) > calculateAPY(b.currentRewardPerBlock, b.lpBalance)
                 ? 1
                 : -1
             break
@@ -127,13 +185,25 @@ export const Farms = () => {
         }
         return res
       })
-
       setFarmsList(dataToSort)
     } else {
-      setFarmsList(filteredSearch)
+      setFarmsList(farmsToSortFilter)
     }
+
+    // creating qp object and update qp
+    const filtersQP = {
+      openedCards,
+      isLive: liveFinished,
+      ...(searchValue ? { searchFarm: searchValue } : {}),
+      ...(sortBy ? { sortType: sortBy } : {}),
+      ...(toggleChecked ? { isStakedOny: toggleChecked } : {}),
+    }
+
+    const stringifiedQP = qs.stringify(filtersQP)
+    history.push(`${pathname}?${stringifiedQP}`)
   }, [farmStorage, liveFinished, searchValue, toggleChecked, sortBy])
 
+  // Handler for top bar
   const handleToggleStakedFarmsOnly = (e?: { target: { checked: boolean } }) => {
     setToggleChecked(Boolean(e?.target?.checked))
   }
@@ -142,7 +212,7 @@ export const Farms = () => {
     setFarmsViewVariant(variant)
   }
 
-  const handleLiveFinishedToggleButtons = (tabId?: number) => {
+  const handleLiveFinishedToggleButtons = (tabId: number) => {
     setLiveFinished(tabId)
   }
 
@@ -168,34 +238,26 @@ export const Farms = () => {
           handleSetFarmsViewVariant={handleSetFarmsViewVariant}
           className={farmsViewVariant}
           toggleChecked={toggleChecked}
+          liveFinishedIdSelected={liveFinished}
         />
         {farmsList.length ? (
-          <>
-            <section className={`farm-list ${farmsViewVariant}`}>
-              {farmsList.map((farm, index: number) => {
-                const depositAmount = getSummDepositedAmount(farm.farmAccounts)
-                return (
-                  <div key={farm.address + index}>
-                    <FarmCard
-                      variant={farmsViewVariant}
-                      farmAddress={farm.address}
-                      name={farm.name}
-                      lpTokenBalance={farm.lpBalance}
-                      lpTokenAddress={farm.lpTokenAddress}
-                      currentRewardPerBlock={farm.currentRewardPerBlock}
-                      depositAmount={depositAmount}
-                      firstToken={farm.lpToken1}
-                      secondToken={farm.lpToken2}
-                      liquidity={farm.lpBalance}
-                      totalLiquidity={farmsTVL}
-                      expandCallback={addOpenedCardToQP}
-                      isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
-                    />
-                  </div>
-                )
-              })}
-            </section>
-          </>
+          <section className={`farm-list ${farmsViewVariant}`}>
+            {farmsCards.map((farm, index: number) => {
+              const depositAmount = getSummDepositedAmount(farm.farmAccounts)
+              return (
+                <FarmCard
+                  farm={farm}
+                  key={farm.address + index}
+                  variant={farmsViewVariant}
+                  currentRewardPerBlock={farm.currentRewardPerBlock}
+                  depositAmount={depositAmount}
+                  expandCallback={handleOpenCard}
+                  isOpenedCard={Boolean(openedCards.find((address) => farm.address === address))}
+                />
+              )
+            })}
+            <Pagination itemsCount={farmsList.length} listName={listName} />
+          </section>
         ) : (
           <EmptyContainer />
         )}

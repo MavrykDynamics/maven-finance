@@ -1,15 +1,13 @@
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // components
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
-import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 import { SubmitProposalForm, SubmitProposalFormInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
-import { Info } from '../../../app/App.components/Info/Info.view'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
@@ -62,6 +60,7 @@ export const StageOneFormView = ({
   const { governancePhase } = useSelector((state: State) => state.governance)
   const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
 
+  // TODO: check it when doing multiple proposals creating
   const disabled = Boolean(proposalId) || !isProposalRound
 
   return (

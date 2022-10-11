@@ -133,7 +133,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
   {
     title: 'Farms',
     id: 5,
-    path: 'yield-farms',
+    path: 'yield-farms?isLive=1',
     routePath: '/yield-farms',
     icon: 'plant',
     protectedRoute: false,
