@@ -15,13 +15,18 @@ import { Button } from '../Button/Button.controller'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
 
+type VotingType = VotingProps & {
+  className?: string
+}
+
 export const VotingArea = ({
   showVotingButtons = true,
   handleVote,
   isVotingActive,
   quorumText,
   voteStatistics,
-}: VotingProps) => {
+  className,
+}: VotingType) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
 
@@ -43,11 +48,15 @@ export const VotingArea = ({
   )
 
   return (
-    <VotingAreaStyled>
+    <VotingAreaStyled className={className}>
       <VotingBar voteStatistics={voteStatistics} quorumText={quorumText} />
       {isVotingActive && showVotingButtons ? votingButtons : null}
     </VotingAreaStyled>
   )
+}
+
+type VotingProposalsType = VotingProposalsProps & {
+  className?: string
 }
 
 export const VotingProposalsArea = ({
@@ -55,7 +64,8 @@ export const VotingProposalsArea = ({
   handleProposalVote,
   voteStatistics,
   currentProposalStage: { isPastProposals, isTimeLock, isAbleToMakeProposalRoundVote },
-}: VotingProposalsProps) => {
+  className,
+}: VotingProposalsType) => {
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
   const { accountPkh } = useSelector((state: State) => state.wallet)
 
@@ -70,7 +80,7 @@ export const VotingProposalsArea = ({
 
   if (isTimeLock && !accountPkh) {
     return (
-      <VotingAreaStyled>
+      <VotingAreaStyled className={className}>
         <div className="voted-block">
           <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
           <ConnectWallet />
@@ -81,7 +91,7 @@ export const VotingProposalsArea = ({
 
   if (isTimeLock && !isUserSatellite && accountPkh) {
     return (
-      <VotingAreaStyled>
+      <VotingAreaStyled className={className}>
         <div className="voted-block">
           <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
         </div>
@@ -91,7 +101,7 @@ export const VotingProposalsArea = ({
 
   if (isAbleToMakeProposalRoundVote) {
     return (
-      <VotingAreaStyled>
+      <VotingAreaStyled className={className}>
         <div className="voted-block">
           <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
           <Button
