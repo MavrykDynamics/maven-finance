@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -6,6 +6,7 @@ import { State } from 'reducers'
 // types
 import type { ProposalDataType } from '../../../utils/TypesAndInterfaces/Governance'
 import type { ProposalUpdateFormProposalBytes } from '../../../utils/TypesAndInterfaces/Forms'
+import { ProposalUpdateForm } from '../../../utils/TypesAndInterfaces/Forms'
 
 // components
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -20,9 +21,7 @@ import useGovernence from '../../Governance/UseGovernance'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-
-import { ProposalUpdateForm } from '../../../utils/TypesAndInterfaces/Forms'
-
+import { checkWtheterBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
 import { dropProposal, updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
 
 // styles
@@ -33,7 +32,6 @@ import {
   FormTitleContainer,
   FormTitleEntry,
 } from '../ProposalSubmission.style'
-import { checkWtheterBytesIsValid, getBytesPairValidationStatus } from '../ProposalSubmition.helpers'
 
 type StageTwoFormProps = {
   locked: boolean
@@ -41,18 +39,6 @@ type StageTwoFormProps = {
   proposalTitle: string
   proposalData?: ProposalDataType[]
 }
-
-export const PROPOSAL_BYTE = {
-  bytes: '',
-  governance_proposal_record_id: 0,
-  id: 1,
-  record_internal_id: 0,
-  title: '',
-  validTitle: '',
-  validBytes: '',
-  order: 1,
-  isUnderTheDrop: false,
-} as ProposalUpdateFormProposalBytes
 
 export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }: StageTwoFormProps) => {
   const dispatch = useDispatch()
