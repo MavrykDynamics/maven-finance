@@ -1344,6 +1344,7 @@ block {
                 );
                 operations := sendInterestRewardToTokenPoolRewardContractOperation # operations;
 
+                s.tempMap["totalInterestPaid"]          := totalInterestPaid;
                 s.tempMap["interestSentToTreasury"]     := interestSentToTreasury;
                 s.tempMap["interestSentToRewardPool"]   := interestSentToRewardPool;
                 s.tempMap["totalLiquidationAmount"]     := totalLiquidationAmount;
