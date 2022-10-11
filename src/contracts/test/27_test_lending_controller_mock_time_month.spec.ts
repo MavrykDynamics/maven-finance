@@ -169,21 +169,21 @@
 
 //         tokenOracles.push({
 //             'name': 'mockFa12', 
-//             'price': parseInt(mockUsdMockFa12TokenAggregatorStorage.lastCompletedRoundPrice.price),
+//             'price': parseInt(mockUsdMockFa12TokenAggregatorStorage.lastCompletedRoundData.data),
 //             'priceDecimals': parseInt(mockUsdMockFa12TokenAggregatorStorage.config.decimals),
 //             'tokenDecimals': 0
 //         })
 
 //         tokenOracles.push({
 //             'name': 'mockFa2', 
-//             'price': parseInt(mockUsdMockFa2TokenAggregatorStorage.lastCompletedRoundPrice.price),
+//             'price': parseInt(mockUsdMockFa2TokenAggregatorStorage.lastCompletedRoundData.data),
 //             'priceDecimals': parseInt(mockUsdMockFa2TokenAggregatorStorage.config.decimals),
 //             'tokenDecimals': 0
 //         })
 
 //         tokenOracles.push({
 //             'name': 'tez', 
-//             'price': parseInt(mockUsdXtzAggregatorStorage.lastCompletedRoundPrice.price),
+//             'price': parseInt(mockUsdXtzAggregatorStorage.lastCompletedRoundData.data),
 //             'priceDecimals': parseInt(mockUsdXtzAggregatorStorage.config.decimals),
 //             'tokenDecimals': 0
 //         })
