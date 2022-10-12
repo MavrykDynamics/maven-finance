@@ -41,11 +41,19 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     transition: 0.6s all;
   }
 
+  .icon-copy {
+    margin-left: 5px;
+    width: 15px;
+    height: 15px;
+    stroke: transparent;
+    transition: 0.6s all;
+  }
+
   ${
     isMobileDetails
       ? ''
       : ` &:hover {
-      var, .wallet, .end-icon {
+      var, .wallet, .end-icon, .icon-copy {
         color: ${cyanColor};
         fill: ${cyanColor};
 
@@ -55,6 +63,10 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
 
         svg {
           fill: ${cyanColor};
+        }
+
+        .icon-copy {
+          stroke: ${cyanColor};
         }
       }
     }
@@ -153,6 +165,9 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
     }
 
     .wallet-details-address {
+      display: flex;
+      align-items: center;
+
       font-weight: 600;
       font-size: 22px;
       line-height: 22px;
@@ -165,7 +180,7 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
     }
 
     .wallet-details-body {
-      padding: 13px 30px 11px;
+      padding: 13px 30px 26px;
     }
 
     .wallet-details-footer {
