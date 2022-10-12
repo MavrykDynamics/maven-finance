@@ -55,10 +55,10 @@ export const CouncilPastActionStyled = styled(CardHover)`
   }
 
   .is-green {
-    color: ${upColor}
+    color: ${upColor};
   }
 
   .is-red {
-    color: ${downColor}
+    color: ${downColor};
   }
 `

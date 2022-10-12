@@ -34,21 +34,14 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
   }
 
   .card-title {
-    display: flex;
-    align-items: center;
     font-weight: 600;
     font-size: 24px;
     line-height: 24px;
     width: 180px;
+    height: 60px;
     color: ${headerColor};
     padding-right: 10px;
     text-transform: capitalize;
-  }
-
-  .card-flag-wrapper {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
   }
 
   .card-info-item {

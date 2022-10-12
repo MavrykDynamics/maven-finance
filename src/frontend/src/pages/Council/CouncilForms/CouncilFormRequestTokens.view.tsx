@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 
 // type
@@ -9,6 +9,7 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // action
 import { requestTokens } from '../Council.actions'
@@ -21,40 +22,61 @@ const INIT_FORM = {
   tokenContractAddress: '',
   tokenName: '',
   tokenAmount: 0,
-  tokenType: '',
   tokenId: 0,
   purpose: '',
 }
 
+const itemsForDropDown = [
+  {
+    text: 'FA12',
+    value: 'FA12',
+  },
+  {
+    text: 'FA2',
+    value: 'FA2',
+  },
+  {
+    text: 'TEZ',
+    value: 'TEZ',
+  },
+]
+
+
 export const CouncilFormRequestTokens = () => {
   const dispatch = useDispatch()
   const [form, setForm] = useState(INIT_FORM)
+
+  const ddItems = useMemo(() => itemsForDropDown.map(({ text }) => text), [])
+  const [ddIsOpen, setDdIsOpen] = useState(false)
+  const [tokenType, setTokenType] = useState<DropdownItemType | undefined>()
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     treasuryAddress: '',
     tokenContractAddress: '',
     tokenName: '',
     tokenAmount: '',
-    tokenType: '',
     tokenId: '',
     purpose: '',
   })
 
-  const { treasuryAddress, tokenContractAddress, tokenName, tokenAmount, tokenType, tokenId, purpose } = form
+  const { treasuryAddress, tokenContractAddress, tokenName, tokenAmount, tokenId, purpose } = form
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
+      const typeOfToken = tokenType?.value || ''
       await dispatch(
-        requestTokens(treasuryAddress, tokenContractAddress, tokenName, +tokenAmount, tokenType, +tokenId, purpose),
+        requestTokens(treasuryAddress, tokenContractAddress, tokenName, +tokenAmount, typeOfToken, +tokenId, purpose),
       )
+
+      setTokenType(undefined)
+      setDdIsOpen(false)
       setForm(INIT_FORM)
       setFormInputStatus({
         treasuryAddress: '',
         tokenContractAddress: '',
         tokenName: '',
         tokenAmount: '',
-        tokenType: '',
         tokenId: '',
         purpose: '',
       })
@@ -74,6 +96,16 @@ export const CouncilFormRequestTokens = () => {
       return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
     })
   }
+
+  const handleClickDropdown = useCallback(() => {
+    setDdIsOpen(!ddIsOpen)
+  }, [ddIsOpen])
+
+  const handleClickDropdownItem = useCallback((e: string) => {
+    const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
+    setTokenType(chosenItem)
+    setDdIsOpen(!ddIsOpen)
+  }, [ddIsOpen])
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>
@@ -149,17 +181,13 @@ export const CouncilFormRequestTokens = () => {
 
         <div>
           <label>Token Type (FA12, FA2, TEZ)</label>
-          <Input
-            type="text"
-            required
-            value={tokenType}
-            name="tokenType"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleChange(e)
-              handleBlur(e)
-            }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
-            inputStatus={formInputStatus.tokenType}
+          <DropDown
+            clickOnDropDown={handleClickDropdown}
+            placeholder={'Choose token type'}
+            isOpen={ddIsOpen}
+            itemSelected={tokenType?.text}
+            items={ddItems}
+            clickOnItem={handleClickDropdownItem}
           />
         </div>
 

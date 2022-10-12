@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 // type
 import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
@@ -44,26 +45,32 @@ import { Page } from 'styles'
 import { CouncilStyled } from './Council.style'
 import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
 
+const queryParameters = {
+  pathname: '/mavryk-council',
+  review: '/review',
+}
+
 export const Council = () => {
   const dispatch = useDispatch()
+  const history = useHistory()
+  const { search, pathname } = useLocation()
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
-  const [isPendingSignature, setIsPendingSignature] = useState(false)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
+  const { review: isReviewPage } = useParams<{ review: string }>()
 
   const currentCouncilPastActions = useMemo(
     () =>
-      isPendingSignature
+      !isReviewPage
         ? councilPastActions?.filter((item: CouncilPastAction) => item.initiator_id === accountPkh)
         : councilPastActions,
-    [councilPastActions, accountPkh, isPendingSignature],
+    [councilPastActions, accountPkh, isReviewPage],
   )
 
   const itemsForDropDown = [
@@ -87,6 +94,14 @@ export const Council = () => {
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const sortedCouncilMembers = memberIsFirstOfList(councilMembers, accountPkh)
 
+  const handleClickReview = () => {
+    history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+  }
+
+  const handleClickGoBack = () => {
+    history.replace(queryParameters.pathname)
+  }
+
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
@@ -109,15 +124,10 @@ export const Council = () => {
     setSliderKey(sliderKey + 1)
   }, [accountPkh])
 
-  useEffect(() => {
-    setIsPendingSignature(Boolean(isUserInCouncilMembers))
-  }, [isUserInCouncilMembers])
-
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
   }
 
-  const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, COUNCIL_LIST_NAME)
 
   const paginatedItemsList = useMemo(() => {
@@ -125,18 +135,24 @@ export const Council = () => {
     return currentCouncilPastActions?.slice(from, to)
   }, [currentPage, currentCouncilPastActions])
 
+  useEffect(() => {
+    // redirect to review or main page when member changes
+    history.replace(isUserInCouncilMembers ? queryParameters.pathname : `${queryParameters.pathname}${queryParameters.review}`)
+  }, [history, isUserInCouncilMembers])
+
+  useEffect(() => {
+    // check authorization when clicking on a review or a header in the menu
+    if (!isUserInCouncilMembers) {
+      history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+    }
+  }, [history, isUserInCouncilMembers, pathname])
+
   return (
     <Page>
       <PageHeader page={'council'} />
       <CouncilStyled>
-        {isGoBack ? (
-          <button
-            onClick={() => {
-              setIsPendingSignature(true)
-              setIsGoBack(false)
-            }}
-            className="go-back"
-          >
+        {isReviewPage && isUserInCouncilMembers ? (
+          <button onClick={handleClickGoBack} className="go-back">
             <Icon id="arrow-left-stroke" />
             Back to Member Dashboard
           </button>
@@ -144,11 +160,11 @@ export const Council = () => {
 
         <article
           className={`council-details ${isPendingList ? 'is-user-member' : ''} ${
-            isPendingSignature ? 'is-pending-signature' : ''
+            !isReviewPage ? 'is-pending-signature' : ''
           }`}
         >
           <div className="council-actions">
-            {isPendingSignature && isPendingList ? (
+            {!isReviewPage && isPendingList ? (
               <>
                 <h1>Pending Signature</h1>
                 <article className="pending">
@@ -172,13 +188,13 @@ export const Council = () => {
                 </article>
               </>
             ) : null}
-            {isPendingSignature ? (
+            {!isReviewPage ? (
               <DropdownCard className="pending-dropdown">
                 <DropdownWrap>
                   <h2>Available Actions</h2>
                   <DropDown
                     clickOnDropDown={handleClickDropdown}
-                    placeholder='Choose action'
+                    placeholder="Choose action"
                     isOpen={ddIsOpen}
                     itemSelected={chosenDdItem?.text}
                     items={ddItems}
@@ -203,8 +219,8 @@ export const Council = () => {
 
             {currentCouncilPastActions?.length ? (
               <>
-                <h1 className={`past-actions ${isPendingSignature ? 'is-user-member' : ''}`}>
-                  {isPendingSignature ? 'My ' : null}Past Council Actions
+                <h1 className={`past-actions ${!isReviewPage ? 'is-user-member' : ''}`}>
+                  {!isReviewPage ? 'My ' : null}Past Council Actions
                 </h1>
                 {paginatedItemsList.map((item: CouncilPastAction) => (
                   <CouncilPastActionView
@@ -222,18 +238,11 @@ export const Council = () => {
           </div>
 
           <aside
-            className={`council-members ${isPendingSignature ? 'is-user-member' : ''} ${
-              isPendingList && isPendingSignature ? 'is-pending-list' : ''
+            className={`council-members ${!isReviewPage ? 'is-user-member' : ''} ${
+              isPendingList && !isReviewPage ? 'is-pending-list' : ''
             }`}
           >
-            {isPendingSignature ? (
-              <CouncilPendingReviewView
-                onClick={() => {
-                  setIsGoBack(true)
-                  setIsPendingSignature(false)
-                }}
-              />
-            ) : null}
+            {!isReviewPage ? <CouncilPendingReviewView onClick={handleClickReview} /> : null}
 
             {sortedCouncilMembers.length ? (
               <div>
