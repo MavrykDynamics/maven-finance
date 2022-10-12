@@ -60,10 +60,8 @@ export type ProposalUpdateFormProposalBytes = {
   isUnderTheDrop: boolean
 }
 
-export type ProposalUpdateForm = {
-  title: string
-  proposalBytes: ProposalUpdateFormProposalBytes[]
-}
+export type ProposalUpdateForm = ProposalUpdateFormProposalBytes[]
+
 export type ValidProposalUpdateForm = {
   title: boolean | undefined
   proposalBytes: boolean | undefined
