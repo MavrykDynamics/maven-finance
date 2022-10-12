@@ -258,7 +258,17 @@ export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme 
     border-bottom: none;
   }
 
+  svg {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+  }
+
   .left-part {
+    display: flex;
+  }
+
+  .left-part-info {
     display: flex;
     flex-direction: column;
 
