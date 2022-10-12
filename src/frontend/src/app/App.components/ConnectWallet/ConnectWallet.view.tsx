@@ -140,8 +140,7 @@ export const ConnectedWalletBlock = ({
         <Icon id="paginationArrowLeft" className="end-icon" />
       </div>
 
-      {/* <div className={`wallet-details ${detailsShown ? 'visible' : ''} ${isMobile ? 'mobile' : ''}`}> */}
-      <div className={`wallet-details ${true ? 'visible' : ''} ${isMobile ? 'mobile' : ''}`}>
+      <div className={`wallet-details ${detailsShown ? 'visible' : ''} ${isMobile ? 'mobile' : ''}`}>
         <div className='wallet-details-header'>
           <div className="top-visible-part ">
             <Icon id="wallet" className="wallet" />
@@ -172,7 +171,7 @@ export const ConnectedWalletBlock = ({
             coinName={'MVK'}
             buttonHandler={detailsHandlers.stakeMVKHandler}
             subtextInfo="Total staked MVK"
-            icon="mvkTokenGold"
+            icon="mvkTokenSilver"
           />
           <ConnectedWalletDetailsItem
             buttonText={'Buy XTZ'}
