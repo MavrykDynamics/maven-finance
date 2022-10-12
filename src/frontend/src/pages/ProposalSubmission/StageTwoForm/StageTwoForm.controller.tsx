@@ -37,6 +37,7 @@ import {
   FormTitleContainer,
   FormTitleEntry,
 } from '../ProposalSubmission.style'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 type StageTwoFormProps = {
   locked: boolean
@@ -104,9 +105,9 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
   // }
 
   // Drop proposal on stage 2 handler
-  // const handleDeleteProposal = async () => {
-  //   if (proposalId) await dispatch(dropProposal(proposalId))
-  // }
+  const handleDeleteProposal = async () => {
+    if (proposalId) await dispatch(dropProposal(proposalId))
+  }
 
   // adding new empty bytes pair
   const handleCreateNewByte = () => {
@@ -260,7 +261,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
                 icon="close-stroke"
                 className="close delete-pair"
                 text="Delete Proposal Byte Pair"
-                kind="actionSecondary"
+                kind={ACTION_SECONDARY}
                 onClick={() => handleDeletePair(item.id)}
               />
             </article>
@@ -274,33 +275,30 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
       </div>
 
       <FormButtonContainer>
-        {/* {isEdit ? (
-          <>
-            <Button
-              icon="lock"
-              className="lock"
-              text="Delete Proposal"
-              kind="actionSecondary"
-              onClick={handleDeleteProposal}
-            />
-            <Button
-              icon="pencil-stroke"
-              text="Edit Proposal"
-              kind="actionPrimary"
-              disabled={isDisabledEdit}
-              onClick={handleUpdateProposal}
-            />
-          </>
-        ) : ( */}
+        <Button
+          icon="close-stroke"
+          className="close delete-pair"
+          text="Delete Proposal"
+          kind={ACTION_SECONDARY}
+          onClick={handleDeleteProposal}
+        />
+
+        <Button
+          icon="pencil-stroke"
+          text="Edit Proposal"
+          kind={ACTION_PRIMARY}
+          disabled={!isProposalPeriod}
+          onClick={() => console.log('update proposal')}
+          // onClick={handleUpdateProposal}
+        />
         <Button
           icon="bytes"
           className="bytes"
           text="Submit Bytes"
-          kind="actionPrimary"
+          kind={ACTION_PRIMARY}
           disabled={submitBytesButtonDisabled}
           onClick={submitBytePairs}
         />
-        {/* )} */}
       </FormButtonContainer>
     </>
   )
