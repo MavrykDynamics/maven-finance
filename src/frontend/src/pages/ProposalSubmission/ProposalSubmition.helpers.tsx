@@ -32,3 +32,12 @@ export const PROPOSAL_BYTE = {
   order: 1,
   isUnderTheDrop: false,
 }
+
+export const setDefaultProposalBytes = (proposalData?: Array<ProposalDataType>) =>
+  proposalData?.length
+    ? proposalData.map((item, idx) => ({
+        ...PROPOSAL_BYTE,
+        ...item,
+        order: idx + 1,
+      }))
+    : [PROPOSAL_BYTE]

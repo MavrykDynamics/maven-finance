@@ -75,7 +75,7 @@ export const PROPOSAL_UPDATE_REQUEST = 'PROPOSAL_UPDATE_REQUEST'
 export const PROPOSAL_UPDATE_RESULT = 'PROPOSAL_UPDATE_RESULT'
 export const PROPOSAL_UPDATE_ERROR = 'PROPOSAL_UPDATE_ERROR'
 export const updateProposal =
-  (form: ProposalUpdateForm, proposalId: number | undefined, callback: () => void) =>
+  (proposalBytes: ProposalUpdateForm, proposalId: number | undefined, callback: () => void) =>
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
@@ -92,11 +92,11 @@ export const updateProposal =
     try {
       dispatch({
         type: PROPOSAL_UPDATE_REQUEST,
-        form,
+        proposalBytes,
       })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
 
-      const listTransactions = form.proposalBytes.map((item) => {
+      const listTransactions = proposalBytes.map((item) => {
         return {
           kind: OpKind.TRANSACTION,
           ...contract?.methods.updateProposalData(proposalId, item.title, item.bytes).toTransferParams(),

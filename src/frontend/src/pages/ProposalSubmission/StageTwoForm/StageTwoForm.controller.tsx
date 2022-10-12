@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -21,7 +21,12 @@ import useGovernence from '../../Governance/UseGovernance'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { checkWtheterBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
+import {
+  checkWtheterBytesIsValid,
+  getBytesPairValidationStatus,
+  PROPOSAL_BYTE,
+  setDefaultProposalBytes,
+} from '../ProposalSubmition.helpers'
 import { dropProposal, updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
 
 // styles
@@ -51,52 +56,39 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
     },
   } = useSelector((state: State) => state.governance)
 
-  const [form, setForm] = useState<ProposalUpdateForm>({
-    title: proposalTitle,
-    proposalBytes: proposalData?.length
-      ? proposalData.map((item, idx) => ({
-          ...PROPOSAL_BYTE,
-          ...item,
-          order: idx + 1,
-        }))
-      : [PROPOSAL_BYTE],
-  })
+  const [proposalBytes, setProposalBytes] = useState<ProposalUpdateForm>([PROPOSAL_BYTE])
+
+  // Effect to change proposal bytes based on selected proposal
+  useEffect(() => {
+    setProposalBytes(setDefaultProposalBytes(proposalData))
+  }, [proposalId, proposalData])
+
   const [isBytesChanged, setBytesChanged] = useState<boolean>(false)
 
-  // TODO: check this disable
-  const disabled = !(governancePhase === 'PROPOSAL' && !watingProposals.length) || !form.title
+  const isProposalPeriod = governancePhase === 'PROPOSAL' && !watingProposals.length
 
   const handleOnBlur = (byte: ProposalUpdateFormProposalBytes, text: string, type: 'validTitle' | 'validBytes') => {
     const validationStatus = getBytesPairValidationStatus(text, type, byte.id, proposalData)
-    setForm({
-      ...form,
-      proposalBytes: form.proposalBytes.map((formByte) =>
-        formByte.id === byte.id ? { ...formByte, [type]: validationStatus } : formByte,
-      ),
-    })
+    setProposalBytes(
+      proposalBytes.map((formByte) => (formByte.id === byte.id ? { ...formByte, [type]: validationStatus } : formByte)),
+    )
   }
 
   const handleOnCange = (byte: ProposalUpdateFormProposalBytes, text: string, type: 'title' | 'bytes') => {
-    setForm({
-      ...form,
-      proposalBytes: form.proposalBytes.map((formByte) =>
-        formByte.id === byte.id ? { ...formByte, [type]: text } : formByte,
-      ),
-    })
+    setProposalBytes(
+      proposalBytes.map((formByte) => (formByte.id === byte.id ? { ...formByte, [type]: text } : formByte)),
+    )
   }
 
   const clearState = (): void => {
-    setForm({
-      title: proposalTitle,
-      proposalBytes: [PROPOSAL_BYTE],
-    })
+    setProposalBytes([PROPOSAL_BYTE])
     setBytesChanged(false)
   }
 
   // add new bute pairs from local to server
   const submitBytePairs = async () => {
-    if (checkWtheterBytesIsValid(form.proposalBytes)) {
-      await dispatch(updateProposal(form, proposalId, clearState))
+    if (checkWtheterBytesIsValid(proposalBytes)) {
+      await dispatch(updateProposal(proposalBytes, proposalId, clearState))
     }
   }
 
@@ -118,17 +110,14 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
 
   // adding new empty bytes pair
   const handleCreateNewByte = () => {
-    setForm({
-      ...form,
-      proposalBytes: [
-        ...form.proposalBytes,
-        {
-          ...PROPOSAL_BYTE,
-          id: form.proposalBytes.length + 1,
-          order: form.proposalBytes.length + 1,
-        },
-      ],
-    })
+    setProposalBytes([
+      ...proposalBytes,
+      {
+        ...PROPOSAL_BYTE,
+        id: proposalBytes.length + 1,
+        order: proposalBytes.length + 1,
+      },
+    ])
     setBytesChanged(true)
   }
 
@@ -138,29 +127,25 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
     if (findOriginPair) {
       dispatch(deleteProposalDataPair(findOriginPair.title, findOriginPair.bytes, proposalId))
     } else {
-      setForm({
-        ...form,
-        proposalBytes: form.proposalBytes.filter(({ id: proposalToFilterId }) => id !== proposalToFilterId),
-      })
+      setProposalBytes(proposalBytes.filter(({ id: proposalToFilterId }) => id !== proposalToFilterId))
     }
     setBytesChanged(true)
   }
 
   // submit btn is disabled if no changes in bytes or if something is changed, but it doesn't pass the validation
   const submitBytesButtonDisabled = useMemo(() => {
-    return !isBytesChanged || (isBytesChanged && !checkWtheterBytesIsValid(form.proposalBytes))
-  }, [form.proposalBytes, isBytesChanged])
+    return !isBytesChanged || (isBytesChanged && !checkWtheterBytesIsValid(proposalBytes))
+  }, [proposalBytes, isBytesChanged])
 
   // Drag & drop variables and event handlers
   const [DnDSelectedProposal, setDnDSeletedProposal] = useState<ProposalUpdateFormProposalBytes | null>(null)
-  const isDraggable = useMemo(() => form.proposalBytes.length > 1, [form.proposalBytes])
+  const isDraggable = useMemo(() => proposalBytes.length > 1, [proposalBytes])
 
   // handling changing order of elements on drop event
   const dropHandler = (e: React.DragEvent<HTMLElement>, byteToDrop: ProposalUpdateFormProposalBytes) => {
     e.preventDefault()
-    setForm({
-      ...form,
-      proposalBytes: form.proposalBytes
+    setProposalBytes(
+      proposalBytes
         .map((byte) => {
           if (byte.id === byteToDrop.id) {
             return { ...byte, order: Number(DnDSelectedProposal?.order) }
@@ -173,19 +158,18 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
           return byte
         })
         .sort((a, b) => a.order - b.order),
-    })
+    )
     setBytesChanged(true)
   }
 
   // removing classNames for under grad event cards
   const dragRemoveStyling = () => {
-    setForm({
-      ...form,
-      proposalBytes: form.proposalBytes.map((byte) => ({
+    setProposalBytes(
+      proposalBytes.map((byte) => ({
         ...byte,
         isUnderTheDrop: false,
       })),
-    })
+    )
   }
 
   // selecting card to drag
@@ -196,13 +180,12 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
   // adding class names to under drag cards
   const dragOverHandler = (e: React.DragEvent<HTMLElement>, bytePairId: number) => {
     e.preventDefault()
-    setForm({
-      ...form,
-      proposalBytes: form.proposalBytes.map((byte) => ({
+    setProposalBytes(
+      proposalBytes.map((byte) => ({
         ...byte,
         ...(bytePairId === byte.id ? { isUnderTheDrop: true } : {}),
       })),
-    })
+    )
   }
 
   return (
@@ -220,7 +203,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
           <label>1 - Enter Proposal Title</label>
-          <FormTitleEntry>{form.title}</FormTitleEntry>
+          <FormTitleEntry>{proposalTitle}</FormTitleEntry>
         </FormTitleContainer>
         <div>
           <label>2 - Proposal Success Reward</label>
@@ -232,7 +215,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
         </div>
       </FormTitleAndFeeContainer>
       <div className="step-bytes">
-        {form.proposalBytes.map((item, i) => {
+        {proposalBytes.map((item, i) => {
           const existInServer = Boolean(proposalData?.find(({ id }) => item.id === id))
 
           return (
@@ -257,7 +240,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOnCange(item, e.target.value, 'title')}
                   onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(item, e.target.value, 'validTitle')}
                   inputStatus={item.validTitle}
-                  disabled={disabled || existInServer}
+                  disabled={existInServer}
                 />
               </div>
 
@@ -270,7 +253,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnCange(item, e.target.value, 'bytes')}
                 onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(item, e.target.value, 'validBytes')}
                 inputStatus={item.validBytes}
-                disabled={disabled}
+                disabled={!isProposalPeriod}
               />
 
               <Button
@@ -284,7 +267,7 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
           )
         })}
         <StyledTooltip placement="top" title="Insert new bytes pair">
-          <button disabled={disabled} onClick={handleCreateNewByte} className="step-plus-bytes">
+          <button disabled={!isProposalPeriod} onClick={handleCreateNewByte} className="step-plus-bytes">
             +
           </button>
         </StyledTooltip>
