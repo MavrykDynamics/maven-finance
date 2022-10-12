@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 
 // type
@@ -91,15 +91,15 @@ export const CouncilFormTransferTokens = () => {
     })
   }
 
-  const handleClickDropdown = () => {
+  const handleClickDropdown = useCallback(() => {
     setDdIsOpen(!ddIsOpen)
-  }
+  }, [ddIsOpen])
 
-  const handleClickDropdownItem = (e: string) => {
+  const handleClickDropdownItem = useCallback((e: string) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setTokenType(chosenItem)
     setDdIsOpen(!ddIsOpen)
-  }
+  }, [ddIsOpen])
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>
@@ -167,7 +167,7 @@ export const CouncilFormTransferTokens = () => {
             isOpen={ddIsOpen}
             itemSelected={tokenType?.text}
             items={ddItems}
-            clickOnItem={(e) => handleClickDropdownItem(e)}
+            clickOnItem={handleClickDropdownItem}
           />
         </div>
 
