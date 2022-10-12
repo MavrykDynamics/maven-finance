@@ -66,3 +66,14 @@ class AggregatorWhitelistContract(LinkedContract, Model):
 
     class Meta:
         table = 'aggregator_whitelist_contract'
+
+class AggregatorHistoryData(ContractLambda, Model):
+    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='history_data', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
+    round                                   = fields.BigIntField(default=0, index=True)
+    epoch                                   = fields.BigIntField(default=0, index=True)
+    data                                    = fields.FloatField(default=0.0)
+    pct_oracle_resp                         = fields.SmallIntField(default=0)
+
+    class Meta:
+        table = 'aggregator_history_data'
