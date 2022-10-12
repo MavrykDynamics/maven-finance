@@ -114,17 +114,14 @@ export type RegisterAsSatelliteFormInputStatus = {
 export type EmergencyGovernanceProposalForm = {
   title: string
   description: string
-  screenshots: string
 }
 export type ValidEmergencyGovernanceProposalForm = {
   title: boolean
   description: boolean
-  screenshots: boolean
 }
 export type EmergencyGovernanceProposalFormInputStatus = {
   title: InputStatusType
   description: InputStatusType
-  screenshots: InputStatusType
 }
 
 export type StakeUnstakeForm = {

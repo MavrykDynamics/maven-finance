@@ -15,28 +15,21 @@ import {
 
 export const EmergencyGovProposalModal = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
   const { showing } = useSelector((state: State) => state.exitFeeModal)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
-  const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
   const { governanceStorage } = useSelector((state: State) => state.governance)
-  const { fee, address } = governanceStorage
+  const { fee } = governanceStorage
 
   const [form, setForm] = useState<EmergencyGovernanceProposalForm>({
     title: '',
     description: '',
-    screenshots: '',
   })
   const [validForm, setValidForm] = useState<ValidEmergencyGovernanceProposalForm>({
     title: false,
     description: false,
-    screenshots: true,
   })
   const [formInputStatus, setFormInputStatus] = useState<EmergencyGovernanceProposalFormInputStatus>({
     title: '',
     description: '',
-    screenshots: 'success',
   })
 
   const cancelCallback = () => {
@@ -70,7 +63,6 @@ export const EmergencyGovProposalModal = () => {
 
   return (
     <EmergencyGovProposalModalView
-      loading={loading}
       showing={showing}
       fee={fee}
       submitEmergencyGovProposalCallback={submitEmergencyGovProposalCallback}

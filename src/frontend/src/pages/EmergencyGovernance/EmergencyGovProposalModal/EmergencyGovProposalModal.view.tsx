@@ -19,7 +19,6 @@ import {
 } from '../../../utils/TypesAndInterfaces/Forms'
 
 type EmergencyGovProposalModalViewProps = {
-  loading: boolean
   showing: boolean
   submitEmergencyGovProposalCallback: (form: EmergencyGovernanceProposalForm | {}) => void
   cancelCallback: () => void
@@ -34,7 +33,6 @@ type EmergencyGovProposalModalViewProps = {
 }
 
 export const EmergencyGovProposalModalView = ({
-  loading,
   showing,
   submitEmergencyGovProposalCallback,
   cancelCallback,
@@ -110,18 +108,11 @@ export const EmergencyGovProposalModalView = ({
                   </div> */}
                 </ModalFormContentContainer>
                 <EmergencyGovProposalModalButtons>
-                  <Button
-                    text="Cancel"
-                    kind="actionSecondary"
-                    icon="error"
-                    loading={loading}
-                    onClick={cancelCallback}
-                  />
+                  <Button text="Cancel" kind="actionSecondary" icon="error" onClick={cancelCallback} />
                   <Button
                     text="Initiate"
                     kind="actionPrimary"
                     icon="auction"
-                    loading={loading}
                     onClick={() => submitEmergencyGovProposalCallback({})}
                   />
                 </EmergencyGovProposalModalButtons>
