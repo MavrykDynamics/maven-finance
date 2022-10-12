@@ -49,3 +49,14 @@ async def on_aggregator_update_data(
     )
     oracle_reward_smvk.reward       = oracle_reward_smvk_amount
     await oracle_reward_smvk.save()
+
+    # Save history data
+    aggregator_history_data         = models.AggregatorHistoryData(
+        aggregator      = aggregator,
+        timestamp       = aggregator.last_completed_data_last_updated_at,
+        round           = aggregator.last_completed_data_round,
+        epoch           = aggregator.last_completed_data_epoch,
+        data            = aggregator.last_completed_data,
+        pct_oracle_resp = aggregator.last_completed_data_pct_oracle_resp
+    )
+    await aggregator_history_data.save()

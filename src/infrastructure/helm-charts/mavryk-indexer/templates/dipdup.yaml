@@ -54,49 +54,49 @@ spec:
     spec:
       imagePullSecrets:
         - name: '{{ .Values.dipdup.image.pullSecret }}'
-      # initContainers:
-      #   - name: schema-approve-{{ .Release.Name }}
-      #     args: ['-c', 'dipdup.yml', 'schema', 'approve']
-      #     env:
-      #       - name: POSTGRES_HOST
-      #         valueFrom:
-      #           secretKeyRef:
-      #             name: indexer
-      #             key: POSTGRES_HOST
-      #       - name: POSTGRES_PORT
-      #         valueFrom:
-      #           secretKeyRef:
-      #             name: indexer
-      #             key: POSTGRES_PORT
-      #       - name: POSTGRES_USERNAME
-      #         valueFrom:
-      #           secretKeyRef:
-      #             name: indexer
-      #             key: POSTGRES_USERNAME
-      #       - name: POSTGRES_PASSWORD
-      #         valueFrom:
-      #           secretKeyRef:
-      #             name: indexer
-      #             key: POSTGRES_PASSWORD
-      #       - name: ADMIN_SECRET
-      #         valueFrom:
-      #           secretKeyRef:
-      #             name: indexer
-      #             key: HASURA_GRAPHQL_ADMIN_SECRET
-      #       - name: TZKT_GHOSTNET_URL
-      #         value: https://api.ghostnet.tzkt.io
-      #       - name: TZKT_MAINNET_URL
-      #         value: https://api.tzkt.io
-      #     image: '{{ .Values.dipdup.image.registry }}/{{ .Values.dipdup.image.repository }}:{{ .Values.dipdup.image.tag }}'
-      #     imagePullPolicy: '{{ .Values.dipdup.image.pullPolicy }}'
-      #     ports:
-      #       - name: metrics
-      #         containerPort: 9090
-      #         protocol: TCP
-      #     volumeMounts:
-      #       - name: config-volume
-      #         mountPath: /mavryk/dipdup.yml
-      #         subPath: dipdup.yml
+      initContainers:
+        - name: schema-approve-{{ .Release.Name }}
+          args: ['-c', 'dipdup.yml', 'schema', 'wipe', '--force']
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PORT
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PASSWORD
+            - name: ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: HASURA_GRAPHQL_ADMIN_SECRET
+            - name: TZKT_GHOSTNET_URL
+              value: https://api.ghostnet.tzkt.io
+            - name: TZKT_MAINNET_URL
+              value: https://api.tzkt.io
+          image: '{{ .Values.dipdup.image.registry }}/{{ .Values.dipdup.image.repository }}:{{ .Values.dipdup.image.tag }}'
+          imagePullPolicy: '{{ .Values.dipdup.image.pullPolicy }}'
+          ports:
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /mavryk/dipdup.yml
+              subPath: dipdup.yml
       containers:
         - name: dipdup-{{ .Release.Name }}
           args: ['-c', 'dipdup.yml', 'run']

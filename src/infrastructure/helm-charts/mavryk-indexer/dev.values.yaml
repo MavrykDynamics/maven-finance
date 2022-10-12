@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.17.1
+    tag: v0.18.0
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -1836,6 +1836,10 @@ dipdup:
                 entrypoint: claimRewards
 
 hasura:
+  image:
+    registry: docker.io
+    repository: hasura/graphql-engine
+    tag: v2.13.0
   ingress:
     host: api-dev.mavryk.finance
     secretName: api-dev-mavryk-tls
