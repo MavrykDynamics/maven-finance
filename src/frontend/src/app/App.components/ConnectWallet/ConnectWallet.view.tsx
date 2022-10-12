@@ -163,6 +163,7 @@ export const ConnectedWalletBlock = ({
             coinName={'MVK'}
             buttonHandler={detailsHandlers.buyMVKHandler}
             subtextAmount={coinsInfo.userMVKBalance * coinsInfo.MVKExchangeRate}
+            icon="mvkTokenGold"
           />
           <ConnectedWalletDetailsItem
             buttonText={'Stake MVK'}
@@ -170,6 +171,7 @@ export const ConnectedWalletBlock = ({
             coinName={'MVK'}
             buttonHandler={detailsHandlers.stakeMVKHandler}
             subtextInfo="Total staked MVK"
+            icon="mvkTokenGold"
           />
           <ConnectedWalletDetailsItem
             buttonText={'Buy XTZ'}
@@ -177,6 +179,7 @@ export const ConnectedWalletBlock = ({
             coinName={'XTZ'}
             buttonHandler={detailsHandlers.buyXTZHandler}
             subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
+            icon="xtzTezos"
           />
         </div>
 
@@ -235,6 +238,7 @@ type ConnectedWalletDetailsItemProps = {
   buttonHandler: (e: React.MouseEvent<HTMLElement>) => void
   subtextInfo?: string
   subtextAmount?: number
+  icon?: string
 }
 
 const ConnectedWalletDetailsItem = ({
@@ -244,17 +248,25 @@ const ConnectedWalletDetailsItem = ({
   buttonHandler,
   subtextInfo,
   subtextAmount,
+  icon,
 }: ConnectedWalletDetailsItemProps) => {
   return (
     <ConnectedWalletDetailsItemStyled>
-      <div className="left-part">
-        <CommaNumber value={coinAmount} endingText={coinName} showDecimal className="main" />
-        {subtextAmount !== undefined ? (
-          <CommaNumber value={subtextAmount} endingText={'USD'} showDecimal className="subtext" />
-        ) : (
-          <div className="subtext">{subtextInfo}</div>
-        )}
+      <div className='left-part'>
+        {icon && <Icon id={icon} />}
+
+        <div className="left-part-info">
+          <CommaNumber value={coinAmount} endingText={coinName} showDecimal className="main" />
+          
+  
+          {subtextAmount !== undefined ? (
+            <CommaNumber value={subtextAmount} endingText={'USD'} showDecimal className="subtext" />
+          ) : (
+            <div className="subtext">{subtextInfo}</div>
+          )}
+        </div>
       </div>
+
 
       <div className="btn-wrapper">
         <Button text={buttonText} kind={TRANSPARENT} onClick={buttonHandler} className="connect-wallet-details" />
