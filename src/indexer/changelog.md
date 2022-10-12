@@ -5,7 +5,7 @@
 ### Deployment
 
 - DEV: 0.17
-- PROD: 0.16
+- PROD: 0.17
 
 ### Updated ERD Model
 
