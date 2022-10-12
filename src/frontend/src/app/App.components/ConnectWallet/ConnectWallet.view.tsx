@@ -140,12 +140,13 @@ export const ConnectedWalletBlock = ({
         <Icon id="paginationArrowLeft" className="end-icon" />
       </div>
 
-      <div className={`wallet-details ${detailsShown ? 'visible' : ''} ${isMobile ? 'mobile' : ''}`}>
+      {/* <div className={`wallet-details ${detailsShown ? 'visible' : ''} ${isMobile ? 'mobile' : ''}`}> */}
+      <div className={`wallet-details ${true ? 'visible' : ''} ${isMobile ? 'mobile' : ''}`}>
         <div className='wallet-details-header'>
           <div className="top-visible-part ">
             <Icon id="wallet" className="wallet" />
             <var className='wallet-details-address'>
-              <TzAddress tzAddress={accountPkh} hasIcon={false} shouldCopy={true} />
+              <TzAddress tzAddress={accountPkh} hasIcon={false} type={BLUE} />
             </var>
           </div>
 
