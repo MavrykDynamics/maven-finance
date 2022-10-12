@@ -146,6 +146,7 @@ export const ConnectedWalletBlock = ({
             <Icon id="wallet" className="wallet" />
             <var className='wallet-details-address'>
               <TzAddress tzAddress={accountPkh} hasIcon={false} type={BLUE} />
+              <Icon id='copyToClipboard' className='icon-copy' />
             </var>
           </div>
 
