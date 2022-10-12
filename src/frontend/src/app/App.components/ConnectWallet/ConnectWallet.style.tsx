@@ -116,10 +116,16 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
     }
   }
 
+  hr {
+    border: none;
+    margin: 0;
+    height: 1px;
+    background-color: ${({ theme }) => theme.cardBorderColor};
+  }
+
   .wallet-details {
     position: absolute;
     visibility: hidden;
-    padding: 30px;
     top: 85px;
     opacity: 0;
     right: 15px;
@@ -136,6 +142,44 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
 
     &.mobile {
       display: none;
+    }
+
+    .icon-send {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: ${({ theme }) => theme.textColor};
+      cursor: pointer;
+    }
+
+    .wallet-details-address {
+      font-weight: 600;
+      font-size: 22px;
+      line-height: 22px;
+    }
+
+    .wallet-details-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 35px 30px;
+    }
+
+    .wallet-details-body {
+      padding: 13px 30px 11px;
+    }
+
+    .wallet-details-footer {
+      padding: 0 20px 44px;
+      display: flex;
+      justify-content: space-between;
+
+      button:first-of-type {
+        width: 140px;
+      }
+
+      button:last-of-type {
+        width: 185px;
+      }
     }
   }
 
@@ -207,8 +251,12 @@ export const MobileDetailsStyled = styled.div<{ theme: MavrykTheme }>`
 export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  position: relative;
+  padding: 10px 0 7px;
+  border-bottom: 1px solid ${({ theme }) => theme.cardBorderColor};
+
+  &:last-of-type {
+    border-bottom: none;
+  }
 
   .left-part {
     display: flex;
@@ -216,16 +264,17 @@ export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme 
 
     > div {
       &.main {
-        font-size: 20px;
-        line-height: 20px;
-        color: #8d86eb;
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 18px;
+        color: ${({ theme }) => theme.dashboardTextColor};
       }
 
       &.subtext {
         font-weight: 600;
-        font-size: 12px;
-        line-height: 22px;
-        color: #77a4f2;
+        font-size: 14px;
+        line-height: 21px;
+        color: ${({ theme }) => theme.headerSkyColor};
       }
 
       p {
@@ -239,25 +288,25 @@ export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme 
   .btn-wrapper {
     display: flex;
     align-items: center;
+
+    button {
+      height: 21px;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 21px;
+    }
+
     svg {
       width: 6px;
       height: 13px;
       transform: rotate(180deg);
     }
+  
     &:hover {
       svg {
         stroke: ${cyanColor};
       }
     }
-  }
-
-  &:not(:nth-last-child(2)):before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 1px;
-    background: #503eaa;
   }
 `
 
