@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ACTION_PRIMARY, TRANSPARENT } from '../Button/Button.constants'
+import { ACTION_PRIMARY, ACTION_SECONDARY, TRANSPARENT } from '../Button/Button.constants'
 import { Button } from '../Button/Button.controller'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import Icon from '../Icon/Icon.view'
@@ -141,30 +141,53 @@ export const ConnectedWalletBlock = ({
       </div>
 
       <div className={`wallet-details ${detailsShown ? 'visible' : ''} ${isMobile ? 'mobile' : ''}`}>
-        <ConnectedWalletDetailsItem
-          buttonText={'Buy MVK'}
-          coinAmount={coinsInfo.userMVKBalance}
-          coinName={'MVK'}
-          buttonHandler={detailsHandlers.buyMVKHandler}
-          subtextAmount={coinsInfo.userMVKBalance * coinsInfo.MVKExchangeRate}
-        />
-        <ConnectedWalletDetailsItem
-          buttonText={'Stake MVK'}
-          coinAmount={coinsInfo.userMVKStaked}
-          coinName={'MVK'}
-          buttonHandler={detailsHandlers.stakeMVKHandler}
-          subtextInfo="Total staked MVK"
-        />
-        <ConnectedWalletDetailsItem
-          buttonText={'Buy XTZ'}
-          coinAmount={coinsInfo.userXTZBalance}
-          coinName={'XTZ'}
-          buttonHandler={detailsHandlers.buyXTZHandler}
-          subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
-        />
+        <div className='wallet-details-header'>
+          <div className="top-visible-part ">
+            <Icon id="wallet" className="wallet" />
+            <var className='wallet-details-address'>
+              <TzAddress tzAddress={accountPkh} hasIcon={false} shouldCopy={true} />
+            </var>
+          </div>
 
-        <div className="buttons-wrapper">
-          <SignOutButton onClick={signOutHandler}>Sign out</SignOutButton>
+          <a href={`https://tzstats.com/${accountPkh}`} target="_blank" rel="noreferrer">
+            <Icon id="send" className="icon-send" />
+          </a>
+        </div>
+
+        <hr />
+
+        <div className='wallet-details-body'>
+          <ConnectedWalletDetailsItem
+            buttonText={'Buy MVK'}
+            coinAmount={coinsInfo.userMVKBalance}
+            coinName={'MVK'}
+            buttonHandler={detailsHandlers.buyMVKHandler}
+            subtextAmount={coinsInfo.userMVKBalance * coinsInfo.MVKExchangeRate}
+          />
+          <ConnectedWalletDetailsItem
+            buttonText={'Stake MVK'}
+            coinAmount={coinsInfo.userMVKStaked}
+            coinName={'MVK'}
+            buttonHandler={detailsHandlers.stakeMVKHandler}
+            subtextInfo="Total staked MVK"
+          />
+          <ConnectedWalletDetailsItem
+            buttonText={'Buy XTZ'}
+            coinAmount={coinsInfo.userXTZBalance}
+            coinName={'XTZ'}
+            buttonHandler={detailsHandlers.buyXTZHandler}
+            subtextAmount={coinsInfo.userXTZBalance * coinsInfo.XTZExchnageRate}
+          />
+        </div>
+
+        <div className="wallet-details-footer">
+          <Button
+            text="Sign out"
+            onClick={signOutHandler}
+            kind={ACTION_SECONDARY}
+            icon="exit"
+          />
+
           <Button
             text="Change Wallet"
             onClick={changeWalletHandler}
