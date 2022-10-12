@@ -19,7 +19,6 @@ import { GovernanceFinancialRequestGraphQL } from '../../utils/TypesAndInterface
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
-import { VotingArea } from 'app/App.components/VotingArea/VotingArea.controller'
 import FRList from './FRList/FRList.view'
 
 // styles
@@ -31,6 +30,7 @@ import {
   InfoBlockDescr,
   InfoBlockListValue,
   InfoBlockTitle,
+  VotingArea,
 } from './FinancialRequests.style'
 import { EmptyContainer } from 'app/App.style'
 import { parseDate } from 'utils/time'

@@ -1,7 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
 
 import { MavrykTheme } from '../../../styles/interfaces'
-import { primaryColor, headerColor, cyanColor, downColor } from 'styles'
+import { primaryColor, headerColor, downColor } from 'styles'
 
 export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 5px;
@@ -40,7 +40,11 @@ export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%2386D4C9FF' stroke-width='2' stroke-dasharray='10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
 
     figcaption {
-      color: ${cyanColor};
+      color: ${({ theme }) => theme.secondaryColor};
+    }
+
+    svg {
+      stroke: ${({ theme }) => theme.secondaryColor};
     }
   }
 

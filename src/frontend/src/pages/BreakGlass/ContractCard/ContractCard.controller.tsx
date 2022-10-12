@@ -26,12 +26,10 @@ export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleEx
         <div className="top-row">
           <div className="card-title">{title}</div>
 
-          <div className="card-flag-wrapper">
-            <StatusFlag
-              text={isStatusPaused ? 'PAUSED' : 'LIVE'}
-              status={isStatusPaused ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
-            />
-          </div>
+          <StatusFlag
+            text={isStatusPaused ? 'PAUSED' : 'LIVE'}
+            status={isStatusPaused ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+          />
         </div>
 
         <div className="card-info-item">
