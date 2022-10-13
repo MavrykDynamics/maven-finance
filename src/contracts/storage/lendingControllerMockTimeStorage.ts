@@ -1,5 +1,4 @@
 import { MichelsonMap } from "@taquito/michelson-encoder"
-
 import { BigNumber } from "bignumber.js"
 
 const { alice, bob } = require('../scripts/sandbox/accounts')
@@ -25,7 +24,7 @@ const config = {
     interestRateDecimals        : 27,      // interest rate decimals
     maxDecimalsForCalculation   : 32,
 
-    maxVaultLiquidationPercent  : 500,
+    maxVaultLiquidationPercent  : 5000,    // 50%
     liquidationDelayInMins      : 120,
     liquidationMaxDuration      : 1440,
 
