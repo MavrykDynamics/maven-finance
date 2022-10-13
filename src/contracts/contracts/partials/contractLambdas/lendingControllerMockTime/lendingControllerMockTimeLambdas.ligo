@@ -741,7 +741,7 @@ block {
                             |   None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                         ];
 
-                        if collateralTokenRecord.tokenName = "sMVK" then block {
+                        if collateralTokenRecord.tokenName = "mvk" then block {
 
                             // for special case of sMVK
                             const withdrawAllStakedMvkOperation : operation = onWithdrawStakedMvkFromVaultOperation(
@@ -960,20 +960,11 @@ block {
                 const maxDecimalsForCalculation     : nat   = s.config.maxDecimalsForCalculation;
 
                 const liquidationDelayInMins        : nat   = s.config.liquidationDelayInMins;
-                const liquidationDelayInBlockLevel  : nat   = liquidationDelayInMins * blocksPerMinute; 
-
-                // calculate final amounts to be liquidated
-                const liquidationIncentive          : nat   = ((liquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
-                const liquidatorAmountAndIncentive  : nat   = amount + liquidationIncentive;
-                const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const liquidationDelayInBlockLevel  : nat   = liquidationDelayInMins * blocksPerMinute;                 
 
                 // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
                 const treasuryAddress               : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
                 const tokenPoolRewardAddress        : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
-
-                s.tempMap["liquidationIncentive"]           := liquidationIncentive;
-                s.tempMap["liquidatorAmountAndIncentive"]   := liquidatorAmountAndIncentive;
-                s.tempMap["adminLiquidationFee"]            := adminLiquidationFee;
 
                 // ------------------------------------------------------------------
                 // Get Vault record and parameters
@@ -1100,6 +1091,12 @@ block {
                 
                 } else skip;
 
+                // calculate final amounts to be liquidated
+                const liquidationIncentive          : nat   = ((liquidationFeePercent * totalLiquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const liquidatorAmountAndIncentive  : nat   = totalLiquidationAmount + liquidationIncentive;
+                const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * totalLiquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                
+
                 // calculate vault collateral value rebased (1e32 or 10^32)
                 const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
 
@@ -1132,7 +1129,7 @@ block {
                         // if token is sMVK, get latest balance from Doorman Contract through on-chain views
                         // - may differ from token balance if rewards have been claimed 
                         // - requires a call to %compound on doorman contract to compound rewards for the vault and get the latest balance
-                        if tokenName = "sMVK" then {
+                        if tokenName = "mvk" then {
                     
                             tokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
 
@@ -1207,7 +1204,7 @@ block {
                         s.tempMap["liquidatorTokenQuantityTotal"]   := liquidatorTokenQuantityTotal;
                         s.tempMap["treasuryTokenQuantityTotal"]     := treasuryTokenQuantityTotal;
                         
-                        if tokenName = "sMVK" then {
+                        if tokenName = "mvk" then {
 
                             // use %onVaultLiquidateStakedMvk entrypoint in Doorman Contract to transfer staked MVK balances
 
@@ -1368,15 +1365,6 @@ block {
 
                 } else skip;
 
-                const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
-                    liquidator,                 // from_
-                    Tezos.get_self_address(),   // to_
-                    amount,                     // amount
-                    loanTokenType               // token type
-                );
-
-                operations := transferLiquidationAmountOperation # operations;
-
                 // process refund if liquidation amount exceeds vault max liquidation amount
                 if refundTotal > 0n then {
 
@@ -1390,6 +1378,16 @@ block {
                     operations := processRefundOperation # operations;
 
                 } else skip;
+
+                // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
+                const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
+                    liquidator,                 // from_
+                    Tezos.get_self_address(),   // to_
+                    totalLiquidationAmount,     // totalLiquidationAmount
+                    loanTokenType               // token type
+                );
+
+                operations := transferLiquidationAmountOperation # operations;
 
                 // ------------------------------------------------------------------
                 // Update Storage
@@ -2140,7 +2138,7 @@ block {
                 const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
                 const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "sMVK";
+                const tokenName       : string            = "mvk";
 
                 // check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
@@ -2261,7 +2259,7 @@ block {
                 const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
                 const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "sMVK";
+                const tokenName       : string            = "mvk";
 
                 // check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
