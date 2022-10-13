@@ -1,5 +1,6 @@
-import { alice, bob, eve, mallory, oscar, trudy, oracleMaintainer } from "../../scripts/sandbox/accounts";
 import BigNumber from 'bignumber.js';
+
+import { alice, bob, eve, mallory, oracleMaintainer, oscar, trudy } from "../../scripts/sandbox/accounts";
 
 // ------------------------------------------------------------------
 //
@@ -299,8 +300,8 @@ export const calculateAdminLiquidationFee = (adminLiquidationFeePercent, liquida
 }
 
 
-export const calculateVaultMaxLiquidationAmount = (newLoanOutstandingTotal, maxVaultLiquidationPercent) => {
-    return Math.floor((newLoanOutstandingTotal * maxVaultLiquidationPercent) / 10000);
+export const calculateVaultMaxLiquidationAmount = (loanOutstandingTotal, maxVaultLiquidationPercent) => {
+    return Math.floor((loanOutstandingTotal * maxVaultLiquidationPercent) / 10000);
 }
 
 
@@ -610,7 +611,5 @@ export const priceIncreaseObservations = [
                 "data" :new BigNumber(1666666671)
             }
         ]
-    },
-
-    
+    }    
 ];

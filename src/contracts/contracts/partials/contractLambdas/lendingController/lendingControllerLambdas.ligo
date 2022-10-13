@@ -731,7 +731,7 @@ block {
                             |   None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                         ];
 
-                        if collateralTokenRecord.tokenName = "sMVK" then block {
+                        if collateralTokenRecord.tokenName = "mvk" then block {
 
                             // call compound 
 
@@ -934,11 +934,6 @@ block {
                 const liquidationDelayInMins        : nat = s.config.liquidationDelayInMins;
                 const liquidationDelayInBlockLevel  : nat = liquidationDelayInMins * blocksPerMinute; 
 
-                // Calculate final amounts to be liquidated
-                const liquidationIncentive          : nat = ((liquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
-                const liquidatorAmountAndIncentive  : nat = amount + liquidationIncentive;
-                const adminLiquidationFee           : nat = ((adminLiquidationFeePercent * amount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
-
                 // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
                 const treasuryAddress           : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
                 const tokenPoolRewardAddress    : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
@@ -1067,6 +1062,12 @@ block {
 
                 } else skip;
 
+                // calculate final amounts to be liquidated
+                const liquidationIncentive          : nat   = ((liquidationFeePercent * totalLiquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const liquidatorAmountAndIncentive  : nat   = totalLiquidationAmount + liquidationIncentive;
+                const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * totalLiquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+
+
                 // Calculate vault collateral value rebased (1e32 or 10^32)
                 // - this will be the denominator used to calculate proportion of collateral to be liquidated
                 const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
@@ -1095,7 +1096,7 @@ block {
                         // if token is sMVK, get latest balance from Doorman Contract through on-chain views
                         // - may differ from token balance if rewards have been claimed 
                         // - requires a call to %compound on doorman contract to compound rewards for the vault and get the latest balance
-                        if tokenName = "sMVK" then {
+                        if tokenName = "mvk" then {
                     
                             tokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
 
@@ -1152,7 +1153,7 @@ block {
                         // Process liquidation transfer of collateral token
                         // ------------------------------------------------------------------
                         
-                        if tokenName = "sMVK" then {
+                        if tokenName = "mvk" then {
 
                             // use %onVaultLiquidateStakedMvk entrypoint in Doorman Contract to transfer staked MVK balances
 
@@ -1308,15 +1309,6 @@ block {
 
                 } else skip;
 
-                const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
-                    liquidator,                 // from_
-                    Tezos.get_self_address(),   // to_
-                    amount,                     // amount
-                    loanTokenType               // token type
-                );
-
-                operations := transferLiquidationAmountOperation # operations;
-
                 // process refund if liquidation amount exceeds vault max liquidation amount
                 if refundTotal > 0n then {
 
@@ -1330,6 +1322,16 @@ block {
                     operations := processRefundOperation # operations;
 
                 } else skip;
+
+                // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
+                const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
+                    liquidator,                 // from_
+                    Tezos.get_self_address(),   // to_
+                    amount,                     // amount
+                    loanTokenType               // token type
+                );
+
+                operations := transferLiquidationAmountOperation # operations;
 
                 // ------------------------------------------------------------------
                 // Update Storage
@@ -1380,8 +1382,8 @@ block {
                 const tokenName       : string            = registerDepositParams.tokenName;
                 const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
-                // Check that token name is not protected (e.g. sMVK)
-                if tokenName = "sMVK" then failwith(error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK) else skip;
+                // Check that token name is not protected (e.g. mvk)
+                if tokenName = "mvk" then failwith(error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK) else skip;
 
                 // get vault
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
@@ -1498,7 +1500,7 @@ block {
                 const initiator           : address           = Tezos.get_sender(); // vault address that initiated withdrawal
 
                 // Check that token name is not protected (e.g. sMVK)
-                if tokenName = "sMVK" then failwith(error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK) else skip;
+                if tokenName = "mvk" then failwith(error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK) else skip;
 
                 // get vault
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
@@ -2057,7 +2059,7 @@ block {
                 const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
                 const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "sMVK";
+                const tokenName       : string            = "mvk";
 
                 // Check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
@@ -2172,7 +2174,7 @@ block {
                 const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
                 const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "sMVK";
+                const tokenName       : string            = "mvk";
 
                 // Check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
