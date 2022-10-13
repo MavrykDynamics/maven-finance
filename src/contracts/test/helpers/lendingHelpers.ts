@@ -30,18 +30,18 @@ const fixedPointAccuracy = 10**27
     
 export const calculateCompoundedInterest = (interestRate, lastUpdatedBlockLevel, blockLevel) => {
 
-    let interestRateOverSecondsInYear = Math.floor(interestRate / secondsInYears)
+    let interestRateOverSecondsInYear = Math.trunc(interestRate / secondsInYears)
     let exp = blockLevel - lastUpdatedBlockLevel
 
     let expMinusOne = exp - 1
     let expMinusTwo = exp - 2
 
-    let basePowerTwo = Math.floor((interestRateOverSecondsInYear ** 2) / (secondsInYears ** 2))
-    let basePowerThree = Math.floor((interestRateOverSecondsInYear ** 3) / (secondsInYears ** 3))
+    let basePowerTwo = Math.trunc((interestRateOverSecondsInYear ** 2) / (secondsInYears ** 2))
+    let basePowerThree = Math.trunc((interestRateOverSecondsInYear ** 3) / (secondsInYears ** 3))
 
-    let firstTerm  = Math.floor(exp * interestRateOverSecondsInYear)
-    let secondTerm = Math.floor((exp * expMinusOne * basePowerTwo) / 2)
-    let thirdTerm  = Math.floor((exp * expMinusOne * expMinusTwo * basePowerThree) / 6)
+    let firstTerm  = Math.trunc(exp * interestRateOverSecondsInYear)
+    let secondTerm = Math.trunc((exp * expMinusOne * basePowerTwo) / 2)
+    let thirdTerm  = Math.trunc((exp * expMinusOne * expMinusTwo * basePowerThree) / 6)
 
     let compoundedInterest = fixedPointAccuracy + firstTerm + secondTerm + thirdTerm
 
@@ -52,7 +52,7 @@ export const calculateCompoundedInterest = (interestRate, lastUpdatedBlockLevel,
 
 export const calculateUtilisationRate = (tokenPoolTotal, totalBorrowed) => {
 
-    let utilisationRate = Math.floor(totalBorrowed / tokenPoolTotal)
+    let utilisationRate = Math.trunc(totalBorrowed / tokenPoolTotal)
     return utilisationRate
 
 }
@@ -70,14 +70,14 @@ export const calculateCurrentInterestRate = (utilisationRate, optimalUtilisation
         let utilisationRateLessOptimalRate = utilisationRate - optimalUtilisationRate
         let coefficientDenominator = fixedPointAccuracy - optimalUtilisationRate
 
-        let thirdTerm = Math.floor((utilisationRateLessOptimalRate / coefficientDenominator) * interestRateAboveOptimalUtilisation)
+        let thirdTerm = Math.trunc((utilisationRateLessOptimalRate / coefficientDenominator) * interestRateAboveOptimalUtilisation)
 
         currentInterestRate = firstTerm + secondTerm + thirdTerm
 
     } else {
 
-        let secondTermCoefficient = Math.floor(utilisationRate / optimalUtilisationRate)
-        let secondTerm = Math.floor(secondTermCoefficient * interestRateBelowOptimalUtilisation)
+        let secondTermCoefficient = Math.trunc(utilisationRate / optimalUtilisationRate)
+        let secondTerm = Math.trunc(secondTermCoefficient * interestRateBelowOptimalUtilisation)
 
         currentInterestRate = firstTerm + secondTerm
     }
@@ -87,7 +87,7 @@ export const calculateCurrentInterestRate = (utilisationRate, optimalUtilisation
 
 
 export const calculateBorrowIndex = (compoundedInterest, currentBorrowIndex) => {
-    return Math.floor((currentBorrowIndex * compoundedInterest) / fixedPointAccuracy)
+    return Math.trunc((currentBorrowIndex * compoundedInterest) / fixedPointAccuracy)
 }
 
 
@@ -97,7 +97,7 @@ export const calculateAccruedInterest = (currentLoanOutstandingTotal, vaultBorro
     
     if(currentLoanOutstandingTotal > 0){
         if(vaultBorrowIndex > 0){
-            newLoanOutstandingTotal = Math.floor((currentLoanOutstandingTotal * tokenBorrowIndex) / vaultBorrowIndex)
+            newLoanOutstandingTotal = Math.trunc((currentLoanOutstandingTotal * tokenBorrowIndex) / vaultBorrowIndex)
         }
     }
 
@@ -147,7 +147,7 @@ export const calculateFinalLoanInterestTotal = (remainingInterest) => {
 
 
 export const calculateInterestSentToTreasury = (interestTreasuryShare, totalInterestPaid) => {
-    let interestSentToTreasury = Math.floor((totalInterestPaid * interestTreasuryShare) / 10000);
+    let interestSentToTreasury = Math.trunc((totalInterestPaid * interestTreasuryShare) / 10000);
     return interestSentToTreasury
 }
 
@@ -175,10 +175,10 @@ export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLed
     let mockFa2TokenDecimals        = tokenOracles.find(o => o.name === "mockFa2").tokenDecimals;
     let tezTokenDecimals            = tokenOracles.find(o => o.name === "tez").tokenDecimals;
 
-    // rebased to no decimals (Math.floor to simulate smart contract division)
-    let vaultMockFa12TokenValue     = Math.floor(Math.floor(mockFa12Balance / (10 ** mockFa12TokenDecimals)) * mockFa12TokenPrice) / (10 ** mockFa12TokenPriceDecimals);
-    let vaultMockFa2TokenValue      = Math.floor(Math.floor(mockFa2Balance  / (10 ** mockFa2TokenDecimals))  * mockFa2TokenPrice)  / (10 ** mockFa2TokenPriceDecimals);
-    let vaultXtzValue               = Math.floor(Math.floor(xtzBalance      / (10 ** tezTokenDecimals))      * tezPrice)           / (10 ** tezPriceDecimals);
+    // rebased to no decimals (Math.trunc to simulate smart contract division)
+    let vaultMockFa12TokenValue     = Math.trunc(Math.trunc(mockFa12Balance / (10 ** mockFa12TokenDecimals)) * mockFa12TokenPrice) / (10 ** mockFa12TokenPriceDecimals);
+    let vaultMockFa2TokenValue      = Math.trunc(Math.trunc(mockFa2Balance  / (10 ** mockFa2TokenDecimals))  * mockFa2TokenPrice)  / (10 ** mockFa2TokenPriceDecimals);
+    let vaultXtzValue               = Math.trunc(Math.trunc(xtzBalance      / (10 ** tezTokenDecimals))      * tezPrice)           / (10 ** tezPriceDecimals);
     
     let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultXtzValue;
 
@@ -217,22 +217,22 @@ export const divideByTokenPrice = (tokenName, tokenOracles, dollarValue) => {
     if(tokenName == "mockFa12"){
         
         let mockFa12TokenPrice = tokenOracles.find(o => o.name === "mockFa12").price;
-        return Math.floor(dollarValue / mockFa12TokenPrice);
+        return Math.trunc(dollarValue / mockFa12TokenPrice);
 
     } else if(tokenName == "mockFa2"){
 
         let mockFa2TokenPrice = tokenOracles.find(o => o.name === "mockFa2").price;
-        return Math.floor(dollarValue / mockFa2TokenPrice);
+        return Math.trunc(dollarValue / mockFa2TokenPrice);
 
     } else if(tokenName == "tez"){
 
         let tezPrice = tokenOracles.find(o => o.name === "tez").price;
-        return Math.floor(dollarValue / tezPrice);
+        return Math.trunc(dollarValue / tezPrice);
 
     } else if(tokenName == "mvk"){
 
         let mvkPrice = tokenOracles.find(o => o.name === "mvk").price;
-        return Math.floor(dollarValue / mvkPrice);
+        return Math.trunc(dollarValue / mvkPrice);
 
     }
 }
@@ -286,22 +286,22 @@ export const calculateTokenValueRebased = (tokenBalance, tokenPrice, rebaseDecim
 
 
 export const calculateTokenProportion = (tokenValueRebased, vaultCollateralValueRebased) => {
-    return Math.floor(tokenValueRebased / vaultCollateralValueRebased);
+    return Math.trunc(tokenValueRebased / vaultCollateralValueRebased);
 }
 
 
 export const calculateLiquidationIncentive = (liquidationFeePercent, liquidationAmount) => {
-    return Math.floor((liquidationFeePercent * liquidationAmount) / 10000);
+    return Math.trunc((liquidationFeePercent * liquidationAmount) / 10000);
 }
 
 
 export const calculateAdminLiquidationFee = (adminLiquidationFeePercent, liquidationAmount) => {
-    return Math.floor((adminLiquidationFeePercent * liquidationAmount) / 10000);
+    return Math.trunc((adminLiquidationFeePercent * liquidationAmount) / 10000);
 }
 
 
 export const calculateVaultMaxLiquidationAmount = (loanOutstandingTotal, maxVaultLiquidationPercent) => {
-    return Math.floor((loanOutstandingTotal * maxVaultLiquidationPercent) / 10000);
+    return Math.trunc((loanOutstandingTotal * maxVaultLiquidationPercent) / 10000);
 }
 
 
