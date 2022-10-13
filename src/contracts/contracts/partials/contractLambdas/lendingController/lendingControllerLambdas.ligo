@@ -805,7 +805,7 @@ block {
                 const configLiquidationDelayInMins  : nat = s.config.liquidationDelayInMins;
                 const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
                 const blocksPerMinute               : nat = 60n / Tezos.get_min_block_time();
-
+                
                 const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
                 const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
 
@@ -930,9 +930,8 @@ block {
                 const liquidationFeePercent         : nat  = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator
                 const adminLiquidationFeePercent    : nat  = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
                 const maxDecimalsForCalculation     : nat  = s.config.maxDecimalsForCalculation;
-
-                const liquidationDelayInMins        : nat = s.config.liquidationDelayInMins;
-                const liquidationDelayInBlockLevel  : nat = liquidationDelayInMins * blocksPerMinute; 
+                const liquidationDelayInMins        : nat  = s.config.liquidationDelayInMins;
+                const liquidationDelayInBlockLevel  : nat  = liquidationDelayInMins * blocksPerMinute; 
 
                 // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
                 const treasuryAddress           : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
@@ -1406,7 +1405,7 @@ block {
                 ];
 
                 // Get loan token parameters
-                const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
+                const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
 
                 // ------------------------------------------------------------------
                 // Accrue interest to vault oustanding
@@ -1980,15 +1979,6 @@ block {
 
                 } else skip;
 
-                const processRepayOperation : operation = tokenPoolTransfer(
-                    initiator,                  // from_
-                    Tezos.get_self_address(),   // to_
-                    initialRepaymentAmount,     // amount
-                    loanTokenType               // token type
-                );
-
-                operations := processRepayOperation # operations;
-
                 // process refund if necessary
                 if refundTotal > 0n then {
 
@@ -2002,6 +1992,16 @@ block {
                     operations := processRefundOperation # operations;   
 
                 } else skip;
+
+                // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
+                const processRepayOperation : operation = tokenPoolTransfer(
+                    initiator,                  // from_
+                    Tezos.get_self_address(),   // to_
+                    initialRepaymentAmount,     // amount
+                    loanTokenType               // token type
+                );
+
+                operations := processRepayOperation # operations;
 
                 // ------------------------------------------------------------------
                 // Update Storage
