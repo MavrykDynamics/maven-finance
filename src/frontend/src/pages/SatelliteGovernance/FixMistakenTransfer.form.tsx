@@ -94,7 +94,7 @@ export const FixMistakenTransferForm = () => {
         </a>
         <div>
           <h1>Fix Mistaken Transfer</h1>
-          <p>Please enter a valid tz1 adress of the satellite to take action on</p>
+          <p>Please enter a valid tz1 address of the satellite to take action on</p>
           <fieldset>
             <div className="satellite-address">
               <label>Target Contract Address</label>
