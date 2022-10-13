@@ -39,6 +39,7 @@ export const Governance = () => {
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
   // Period end time calculation
   const { headData } = useSelector((state: State) => state.preferences)
+  const [isTimelineVisible, setIsTimelineVisible] = useState(false)
 
   const daysLeftOfPeriod =
     headData?.knownLevel && governanceStorage?.currentRoundEndLevel
@@ -68,7 +69,7 @@ export const Governance = () => {
   return (
     <Page>
       <PageHeader page={'governance'} />
-      {accountPkh && <GovernanceTopBar governancePhase={governancePhase} />}
+      {isTimelineVisible && <GovernanceTopBar governancePhase={governancePhase} />}
       <GovernanceView
         handleExecuteProposal={handleExecuteProposal}
         accountPkh={accountPkh}
@@ -80,6 +81,7 @@ export const Governance = () => {
         pastProposals={pastProposals}
         governancePhase={governancePhase}
         timeLeftInPhase={daysLeftOfPeriod}
+        setIsTimelineVisible={setIsTimelineVisible}
       />
     </Page>
   )
