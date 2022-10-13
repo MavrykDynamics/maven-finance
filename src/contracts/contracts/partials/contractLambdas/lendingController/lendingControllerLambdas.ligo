@@ -733,6 +733,8 @@ block {
 
                         if collateralTokenRecord.tokenName = "sMVK" then block {
 
+                            // call compound 
+
                             const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
 
                             // for special case of sMVK
@@ -748,7 +750,7 @@ block {
                         } else block {
 
                             // for other collateral token types besides sMVK
-                            const withdrawTokenOperation : operation = withdrawFromVaultOperation(
+                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
                                 tokenName,                          // token name
                                 tokenBalance,                       // token amount to be withdrawn
                                 collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
