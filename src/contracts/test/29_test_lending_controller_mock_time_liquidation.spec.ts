@@ -84,6 +84,14 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let defaultObservations
     let defaultPriceObservations
 
+    let mockFa12TokenIndex
+    let mockFa2TokenIndex
+    let tezIndex
+    let mvkIndex
+
+    // if required to check temp variables from internal smart contract computations
+    let tempMap 
+
     // ------------------------------------------------
     //  Contract Instances
     // ------------------------------------------------
@@ -140,8 +148,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     // ------------------------------------------------
 
     // mock levels, rounds, and epochs
-    let epoch
-    let lastEpoch
+    let epoch : number
+    let lastEpoch : number
     let round
     let currentMockLevel      
     let newMockLevel
@@ -151,7 +159,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let lastUpdatedBlockLevel
 
     // operations
-    let resetPriceOperation
+    let setPriceOperation
     let resetTokenAllowance
     let setNewTokenAllowance
     let updateOperatorsOperation
@@ -283,6 +291,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let updatedRewardPoolMockFa2TokenBalance   
     // ------------------------------------------------
 
+    // ------------------------------------------------
+    // Tez balances (initial and updated)
+    // ------------------------------------------------
+    
     // Initial token balances for Tez
     let initialLendingControllerTezBalance
     let initialVaultTezBalance
@@ -291,15 +303,32 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let initialTreasuryTezBalance
     let initialRewardPoolTezBalance
 
+    // Updated token balances for Tez
+    let updatedLendingControllerTezBalance
+    let updatedVaultTezBalance
+    let updatedVaultOwnerTezBalance
+    let updatedLiquidatorTezBalance
+    let updatedTreasuryTezBalance
+    let updatedRewardPoolTezBalance
+
+    // ------------------------------------------------
+    // Staked MVK balances (initial and updated)
+    // ------------------------------------------------
+
     // Initial token balances for staked MVK
     let initialVaultStakedMvkBalance
     let initialVaultOwnerStakedMvkBalance
     let initialLiquidatorStakedMvkBalance
     let initialTreasuryStakedMvkBalance
     let initialRewardPoolStakedMvkBalance
-    
-    let tempMap // if required to check temp variables from internal smart contract computations
 
+    // Updated token balances for staked MVK
+    let updatedVaultStakedMvkBalance
+    let updatedVaultOwnerStakedMvkBalance
+    let updatedLiquidatorStakedMvkBalance
+    let updatedTreasuryStakedMvkBalance
+    let updatedRewardPoolStakedMvkBalance
+    
 
     // Begin Helper Functions
 
@@ -310,6 +339,86 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         // console.log("LOWER: ", lowerLimit)
         // console.log("STUDIED: ", actual)
         return actual <= greaterLimit && actual >= lowerLimit
+    }
+
+    // helper functions to set token prices
+    async function setTokenPrice(epoch, round, observations, tokenName){
+            
+        const oracleObservations     = new MichelsonMap<string, IOracleObservationType>();
+        const oracleVotingPowers     = new Map<string, number>();
+        var totalVotingPower         = 0;
+
+        for (const { oracle, data } of observations) {
+            
+            // Get oracle voting power
+            const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
+            const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
+            totalVotingPower                    += votingPower;
+            oracleVotingPowers.set(oracle, votingPower)
+
+            if(tokenName == "mockFa12"){
+                // Set observations
+                oracleObservations.set(oracle, {
+                    data,
+                    epoch,
+                    round,
+                    aggregatorAddress: mockUsdMockFa12TokenAggregatorAddress.address
+                });
+            } else if(tokenName == "mockFa2"){
+                // Set observations
+                oracleObservations.set(oracle, {
+                    data,
+                    epoch,
+                    round,
+                    aggregatorAddress: mockUsdMockFa2TokenAggregatorAddress.address
+                });
+            } else if(tokenName == "tez"){
+                // Set observations
+                oracleObservations.set(oracle, {
+                    data,
+                    epoch,
+                    round,
+                    aggregatorAddress: mockUsdXtzAggregatorAddress.address
+                });
+            } else if(tokenName == "mvk"){
+                // Set observations
+                oracleObservations.set(oracle, {
+                    data,
+                    epoch,
+                    round,
+                    aggregatorAddress: mockUsdMvkAggregatorAddress.address
+                });
+            }
+
+        };
+        
+        const signatures = new MichelsonMap<string, string>();
+        
+        // Sign observations
+        await signerFactory(bob.sk);
+        signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+        await signerFactory(eve.sk);
+        signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
+        await signerFactory(mallory.sk);
+        signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+        await signerFactory(oscar.sk);
+        signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+
+        // Operations
+        if(tokenName == "mockFa12"){
+            setPriceOperation = await mockUsdMockFa12TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
+            await setPriceOperation.confirmation();
+        } else if(tokenName == "mockFa2"){
+            setPriceOperation = await mockUsdMockFa2TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
+            await setPriceOperation.confirmation();
+        } else if(tokenName == "tez"){
+            setPriceOperation = await mockUsdXtzAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
+            await setPriceOperation.confirmation();
+        } else if(tokenName == "mvk"){
+            setPriceOperation = await mockUsdMvkAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
+            await setPriceOperation.confirmation();
+        }
+        
     }
     
     // End Helper Functions
@@ -517,115 +626,115 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         const mockUsdTezLastData                = await mockUsdXtzAggregatorStorage.lastCompletedData.data;
         const mockUsdMvkLastData                = await mockUsdMvkAggregatorStorage.lastCompletedData.data;
 
-        const mockFa12TokenIndex                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa12"));
-        const mockFa2TokenIndex                 = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa2"));
-        const tezIndex                          = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
-        const mvkIndex                          = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
+        mockFa12TokenIndex                      = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa12"));
+        mockFa2TokenIndex                       = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa2"));
+        tezIndex                                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
+        mvkIndex                                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
 
         const defaultMockFa12TokenMedianPrice   = lendingHelper.defaultPriceObservations[mockFa12TokenIndex].medianPrice;
         const defaultMockFa2TokenMedianPrice    = lendingHelper.defaultPriceObservations[mockFa2TokenIndex].medianPrice;
         const defaultTezMedianPrice             = lendingHelper.defaultPriceObservations[tezIndex].medianPrice;
         const defaultMvkMedianPrice             = lendingHelper.defaultPriceObservations[mvkIndex].medianPrice;
 
-        // helper functions to set token prices
-        async function setTokenPrice(epoch, round, defaultObservations, tokenIndex){
+        // // helper functions to set token prices
+        // async function setTokenPrice(epoch, round, defaultObservations, tokenIndex){
             
-            // default observation data for mock FA-12 token
-            defaultObservations = lendingHelper.defaultPriceObservations[tokenIndex].observations;
+        //     // default observation data for mock FA-12 token
+        //     defaultObservations = lendingHelper.defaultPriceObservations[tokenIndex].observations;
 
-            const oracleObservations     = new MichelsonMap<string, IOracleObservationType>();
-            const oracleVotingPowers     = new Map<string, number>();
-            var totalVotingPower         = 0;
+        //     const oracleObservations     = new MichelsonMap<string, IOracleObservationType>();
+        //     const oracleVotingPowers     = new Map<string, number>();
+        //     var totalVotingPower         = 0;
 
-            for (const { oracle, data } of defaultObservations) {
+        //     for (const { oracle, data } of defaultObservations) {
                 
-                // Get oracle voting power
-                const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
-                const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
-                totalVotingPower                    += votingPower;
-                oracleVotingPowers.set(oracle, votingPower)
+        //         // Get oracle voting power
+        //         const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
+        //         const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
+        //         totalVotingPower                    += votingPower;
+        //         oracleVotingPowers.set(oracle, votingPower)
 
-                // Set observations
-                oracleObservations.set(oracle, {
-                    data,
-                    epoch,
-                    round,
-                    aggregatorAddress: mockUsdMockFa12TokenAggregatorAddress.address
-                });
+        //         // Set observations
+        //         oracleObservations.set(oracle, {
+        //             data,
+        //             epoch,
+        //             round,
+        //             aggregatorAddress: mockUsdMockFa12TokenAggregatorAddress.address
+        //         });
 
-            };
+        //     };
             
-            const signatures = new MichelsonMap<string, string>();
+        //     const signatures = new MichelsonMap<string, string>();
             
-            // Sign observations
-            await signerFactory(bob.sk);
-            signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(eve.sk);
-            signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(mallory.sk);
-            signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(oscar.sk);
-            signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
+        //     // Sign observations
+        //     await signerFactory(bob.sk);
+        //     signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
+        //     await signerFactory(eve.sk);
+        //     signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
+        //     await signerFactory(mallory.sk);
+        //     signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
+        //     await signerFactory(oscar.sk);
+        //     signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
 
-            // Operation
-            resetPriceOperation = await mockUsdMockFa12TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
-            await resetPriceOperation.confirmation();
-        }
+        //     // Operation
+        //     resetPriceOperation = await mockUsdMockFa12TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
+        //     await resetPriceOperation.confirmation();
+        // }
 
 
         // reset Mock FA12 token price
         if(mockUsdMockFa12TokenLastData != defaultMockFa12TokenMedianPrice){
 
-            epoch = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch + 1;
+            epoch = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch + new BigNumber(1);
             round = 1;
 
             // default observation data for mock FA-12 token
             defaultObservations = lendingHelper.defaultPriceObservations[mockFa12TokenIndex].observations;
 
             // reset token price to default observations
-            setTokenPrice(epoch, round, defaultObservations, mockFa12TokenIndex);
+            await setTokenPrice(epoch, round, defaultObservations, "mockFa12");
         }
 
 
         // reset Mock FA2 token price
         if(mockUsdMockFa2TokenLastData != defaultMockFa2TokenMedianPrice){
 
-            epoch = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch + 1;
+            epoch = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch + new BigNumber(1);
             round = 1;
 
             // default observation data for mock FA-2 token
             defaultObservations = lendingHelper.defaultPriceObservations[mockFa2TokenIndex].observations;
 
             // reset token price to default observations
-            setTokenPrice(epoch, round, defaultObservations, mockFa2TokenIndex);
+            await setTokenPrice(epoch, round, defaultObservations, "mockFa2");
         }
 
 
         // reset Tez price
         if(mockUsdTezLastData != defaultTezMedianPrice){
 
-            epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch + 1;
+            epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch + new BigNumber(1);
             round = 1;
 
             // default observation data for xtz
             defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
 
             // reset token price to default observations
-            setTokenPrice(epoch, round, defaultObservations, tezIndex);
+            await setTokenPrice(epoch, round, defaultObservations, "tez");
         }
 
 
         // reset Mvk price
         if(mockUsdMvkLastData != defaultMvkMedianPrice){
 
-            epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch + 1;
+            epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch + new BigNumber(1);
             round = 1;
 
             // default observation data for mvk
             defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
 
             // reset token price to default observations
-            setTokenPrice(epoch, round, defaultObservations, mvkIndex);
+            await setTokenPrice(epoch, round, defaultObservations, "mvk");
         }
 
         // Update token oracles for local test calulations
@@ -701,7 +810,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const minRepaymentAmount                    = 10000;
 
                 // update token oracle with token decimals
-                const mockFa12TokenIndex = tokenOracles.findIndex((o => o.name === "mockFa12"));
+                mockFa12TokenIndex = tokenOracles.findIndex((o => o.name === "mockFa12"));
                 tokenOracles[mockFa12TokenIndex].tokenDecimals = tokenDecimals;
 
                 // check if loan token exists
@@ -741,7 +850,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
-                    // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
     
                     assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
                     assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -764,9 +872,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     lendingControllerStorage  = await lendingControllerInstance.storage();
                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
-                    // other variables will be affected by repeated tests
+                    // other variables will be affected from repeated tests
                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
-                    // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
 
                 }
 
@@ -870,10 +977,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     lendingControllerStorage = await lendingControllerInstance.storage();
                     const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
-                    // other variables will be affected by repeated tests
-                    assert.equal(mockFa2LoanToken.tokenName              , tokenName);
-                    // assert.equal(mockFa2LoanToken.tokenContractAddress   , tokenContractAddress);
-                    // assert.equal(mockFa2LoanToken.tokenId                , tokenId);
+                    // other variables will be affected from repeated tests
+                    assert.equal(mockFa2LoanToken.tokenName, tokenName);
 
                 }
                 
@@ -976,7 +1081,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     lendingControllerStorage  = await lendingControllerInstance.storage();
                     const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
-                    // other variables will be affected by repeated tests
+                    // other variables will be affected from repeated tests
                     assert.equal(tezLoanToken.tokenName              , tokenName);
                     
                 }
@@ -1111,9 +1216,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     const mockFa12CollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
                 
                     assert.equal(mockFa12CollateralToken.tokenName              , tokenName);
-                    // assert.equal(mockFa12CollateralToken.tokenContractAddress   , tokenContractAddress);
-                    // assert.equal(mockFa12CollateralToken.tokenId                , tokenId);
-
                     assert.equal(mockFa12CollateralToken.tokenDecimals          , tokenDecimals);
                     assert.equal(mockFa12CollateralToken.oracleAddress          , oracleAddress);
                     assert.equal(mockFa12CollateralToken.protected              , tokenProtected);
@@ -1172,9 +1274,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                     assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
-                    // assert.equal(mockFa2CollateralToken.tokenContractAddress   , tokenContractAddress);
-                    // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
-
                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
                     assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
                     assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
@@ -1232,9 +1331,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                     assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
-                    // assert.equal(mockFa2CollateralToken.tokenContractAddress   , tokenContractAddress);
-                    // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
-
                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
                     assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
                     assert.equal(mockFa2CollateralToken.protected              , tokenProtected);
@@ -2014,6 +2110,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Test refund with liquidation amount greater than the maximum allowed
             // ----------------------------------------------------------------------------------------------
 
+
             // set initial variables to be used for subsequent calculations and comparisons
             initialVaultBorrowIndex                 = vaultBorrowIndex;
             initialVaultLoanOutstandingTotal        = vaultLoanOutstandingTotal; 
@@ -2142,7 +2239,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await chai.expect(failLiquidateVaultOperation.send()).to.be.rejected;
 
         })
-
 
 
         
@@ -2324,57 +2420,21 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const currentPrice           = tokenOracles[tokenOraclesIndex].price;
 
             // price shock observation data for mock FA-12 token
-            const mockFa12TokenIndex     = lendingHelper.priceDecreaseObservations.findIndex((o => o.name === "mockFa12"));
+            mockFa12TokenIndex     = lendingHelper.priceDecreaseObservations.findIndex((o => o.name === "mockFa12"));
             const priceShockObservations = lendingHelper.priceDecreaseObservations[mockFa12TokenIndex].observations;
             const newMedianPrice         = lendingHelper.priceDecreaseObservations[mockFa12TokenIndex].medianPrice;
 
-            // setTokenPrice(epoch, round, defaultObservations, mvkIndex);
-
-            const oracleObservations     = new MichelsonMap<string, IOracleObservationType>();
-            const oracleVotingPowers     = new Map<string, number>();
-            var totalVotingPower         = 0;
-
-            for (const { oracle, data } of priceShockObservations) {
-                
-                // Get oracle voting power
-                const satelliteRecord  = await delegationStorage.satelliteLedger.get(oracle);
-                const votingPower      = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
-                totalVotingPower       += votingPower;
-                oracleVotingPowers.set(oracle, votingPower)
-
-                // Set observations
-                oracleObservations.set(oracle, {
-                    data,
-                    epoch,
-                    round,
-                    aggregatorAddress: mockUsdMockFa12TokenAggregatorAddress.address
-                });
-
-            };
-            
-            const signatures = new MichelsonMap<string, string>();
-            
-            // Sign observations
-            await signerFactory(bob.sk);
-            signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(eve.sk);
-            signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(mallory.sk);
-            signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(oscar.sk);
-            signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
-
-            // Operation
-            const priceShockOperation = await mockUsdMockFa12TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
-            await priceShockOperation.confirmation();
+            // set price shock for mock FA-12 token
+            await setTokenPrice(epoch, round, priceShockObservations, "mockFa12");
 
             // Update price in token oracles array for local calculations
             tokenOracles[tokenOraclesIndex].price = newMedianPrice;
 
             mockUsdMockFa12TokenAggregatorStorage = await mockUsdMockFa12TokenAggregatorInstance.storage();
-            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.round,new BigNumber(round));
-            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data,new BigNumber(newMedianPrice));
+            
+            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.round, new BigNumber(round));
+            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch, new BigNumber(epoch));
+            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data,  new BigNumber(newMedianPrice));
             assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
 
             console.log('   - Mock FA-12 Token price change from ' + currentPrice + ' to ' + newMedianPrice);
@@ -2682,7 +2742,70 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const liquidationFeePercent         = parseInt(lendingControllerStorage.config.liquidationFeePercent);
             const interestTreasuryShare         = parseInt(lendingControllerStorage.config.interestTreasuryShare);
             
-    
+            // reset token prices
+            mockFa12TokenIndex                  = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa12"));
+            mockFa2TokenIndex                   = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa2"));
+            tezIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
+            mvkIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
+
+            round = 1;
+
+            // reset Mock FA-12 token prices to default observation data
+            epoch = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch + 1;
+            defaultObservations = lendingHelper.defaultPriceObservations[mockFa12TokenIndex].observations;
+            await setTokenPrice(epoch, round, defaultObservations, "mockFa12");
+
+            const mockFa12TokenMedianPrice = lendingHelper.defaultPriceObservations[mockFa12TokenIndex].medianPrice;
+            tokenOracles[mockFa12TokenIndex].price = mockFa12TokenMedianPrice;
+
+            mockUsdMockFa12TokenAggregatorStorage = await mockUsdMockFa12TokenAggregatorInstance.storage();
+            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.round,new BigNumber(round));
+            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
+            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data,new BigNumber(mockFa12TokenMedianPrice));
+            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
+
+            // reset Mock FA-2 token prices to default observation data
+            epoch = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch + 1;
+            defaultObservations = lendingHelper.defaultPriceObservations[mockFa2TokenIndex].observations;
+            await setTokenPrice(epoch, round, defaultObservations, "mockFa2");
+
+            const mockFa2TokenMedianPrice = lendingHelper.defaultPriceObservations[mockFa2TokenIndex].medianPrice;
+            tokenOracles[mockFa2TokenIndex].price = mockFa2TokenMedianPrice;
+
+            mockUsdMockFa2TokenAggregatorStorage = await mockUsdMockFa2TokenAggregatorInstance.storage();
+            assert.deepEqual(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.round,new BigNumber(round));
+            assert.deepEqual(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
+            assert.deepEqual(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data,new BigNumber(mockFa2TokenMedianPrice));
+            assert.deepEqual(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
+
+            // reset tez prices to default observation data
+            epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch + 1;
+            defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
+            await setTokenPrice(epoch, round, defaultObservations, "tez");
+
+            const tezMedianPrice = lendingHelper.defaultPriceObservations[tezIndex].medianPrice;
+            tokenOracles[tezIndex].price = tezMedianPrice;
+
+            mockUsdXtzAggregatorStorage = await mockUsdXtzAggregatorInstance.storage();
+            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.round,new BigNumber(round));
+            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
+            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.data,new BigNumber(tezMedianPrice));
+            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
+
+            // reset mvk prices to default observation data
+            epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch + 1;
+            defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
+            await setTokenPrice(epoch, round, defaultObservations, "mvk");
+
+            const mvkMedianPrice = lendingHelper.defaultPriceObservations[mvkIndex].medianPrice;
+            tokenOracles[mvkIndex].price = mvkMedianPrice;
+
+            mockUsdMvkAggregatorStorage = await mockUsdMvkAggregatorInstance.storage();
+            assert.deepEqual(mockUsdMvkAggregatorStorage.lastCompletedData.round,new BigNumber(round));
+            assert.deepEqual(mockUsdMvkAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
+            assert.deepEqual(mockUsdMvkAggregatorStorage.lastCompletedData.data,new BigNumber(mvkMedianPrice));
+            assert.deepEqual(mockUsdMvkAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
+
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
@@ -2814,8 +2937,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
     
-            // borrow amount - 10 Mock FA2 Tokens - USD $35.00 
-            const borrowAmount = 10000000;   
+            // borrow amount - 8 Mock FA2 Tokens - USD $28.00 
+            const borrowAmount = 8000000;   
     
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -2919,77 +3042,73 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
     
             // ----------------------------------------------------------------------------------------------
-            // Set Oracle price shock - token price drops by 2/3
+            // Set oracle price changes
+            // - price shock for Mock FA-12 Token (collateral token) - price drops by 2/3
+            // - price shock for Tez (collateral token) - price drops by 2/3
             // ----------------------------------------------------------------------------------------------
     
             await signerFactory(bob.sk); // temporarily set to tester to increase block levels
     
             mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
-            lastEpoch = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch
-            epoch = lastEpoch + 1;
-            round = 1;
+            lastEpoch                               = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch
+            epoch                                   = lastEpoch + 1;
+            round                                   = 1;
     
             lendingControllerStorage     = await lendingControllerInstance.storage();
             vaultRecord                  = await lendingControllerStorage.vaults.get(vaultHandle);
             lastUpdatedBlockLevel        = vaultRecord.lastUpdatedBlockLevel;
     
             // local token oracles array map
-            const tokenOraclesIndex      = tokenOracles.findIndex((o => o.name === "mockFa12"));
-            const currentPrice           = tokenOracles[tokenOraclesIndex].price;
-    
+            const mockFa12TokenCurrentPrice           = tokenOracles[mockFa12TokenIndex].price;
+
             // price shock observation data for mock FA-12 token
-            const mockFa12TokenIndex     = lendingHelper.priceDecreaseObservations.findIndex((o => o.name === "mockFa12"));
-            const priceShockObservations = lendingHelper.priceDecreaseObservations[mockFa12TokenIndex].observations;
-            const newMedianPrice         = lendingHelper.priceDecreaseObservations[mockFa12TokenIndex].medianPrice;
-    
-            const oracleObservations     = new MichelsonMap<string, IOracleObservationType>();
-            const oracleVotingPowers     = new Map<string, number>();
-            var totalVotingPower         = 0;
-    
-            for (const { oracle, data } of priceShockObservations) {
-                
-                // Get oracle voting power
-                const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
-                const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
-                totalVotingPower                    += votingPower;
-                oracleVotingPowers.set(oracle, votingPower)
-    
-                // Set observations
-                oracleObservations.set(oracle, {
-                    data,
-                    epoch,
-                    round,
-                    aggregatorAddress: mockUsdMockFa12TokenAggregatorAddress.address
-                });
-    
-            };
-            
-            const signatures = new MichelsonMap<string, string>();
-            
-            // Sign observations
-            await signerFactory(bob.sk);
-            signatures.set(bob.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(eve.sk);
-            signatures.set(eve.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(mallory.sk);
-            signatures.set(mallory.pkh, await utils.signOracleDataResponses(oracleObservations));
-            await signerFactory(oscar.sk);
-            signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
-    
-            // Operation
-            const priceShockOperation = await mockUsdMockFa12TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
-            await priceShockOperation.confirmation();
+            mockFa12TokenIndex     = lendingHelper.priceDecreaseObservations.findIndex((o => o.name === "mockFa12"));
+            const mockFa12TokenPriceShockObservations = lendingHelper.priceDecreaseObservations[mockFa12TokenIndex].observations;
+            const newMockFa12TokenMedianPrice         = lendingHelper.priceDecreaseObservations[mockFa12TokenIndex].medianPrice;
+
+            // set price shock for mock FA-12 token
+            await setTokenPrice(epoch, round, mockFa12TokenPriceShockObservations, "mockFa12");
     
             // Update price in token oracles array for local calculations
-            tokenOracles[tokenOraclesIndex].price = newMedianPrice;
+            tokenOracles[mockFa12TokenIndex].price = newMockFa12TokenMedianPrice;
     
             mockUsdMockFa12TokenAggregatorStorage = await mockUsdMockFa12TokenAggregatorInstance.storage();
             assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.round,new BigNumber(round));
             assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data,new BigNumber(newMedianPrice));
+            assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data,new BigNumber(newMockFa12TokenMedianPrice));
             assert.deepEqual(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
     
-            console.log('   - token price change from ' + currentPrice + ' to ' + newMedianPrice);
+            console.log('   - Mock FA-12 Token price change from ' + mockFa12TokenCurrentPrice + ' to ' + newMockFa12TokenMedianPrice);
+
+            mockUsdXtzAggregatorStorage   = await mockUsdXtzAggregatorInstance.storage();
+            lastEpoch                     = mockUsdXtzAggregatorStorage.lastCompletedData.epoch
+            epoch                         = lastEpoch + 1;
+            round                         = 1;
+    
+            lendingControllerStorage     = await lendingControllerInstance.storage();
+            vaultRecord                  = await lendingControllerStorage.vaults.get(vaultHandle);
+            lastUpdatedBlockLevel        = vaultRecord.lastUpdatedBlockLevel;
+    
+            // local token oracles array map
+            const tezCurrentPrice           = tokenOracles[tezIndex].price;
+
+            // price shock observation data for mock FA-12 token
+            const tezPriceShockObservations = lendingHelper.priceDecreaseObservations[tezIndex].observations;
+            const newTezMedianPrice         = lendingHelper.priceDecreaseObservations[tezIndex].medianPrice;
+
+            // set price shock for mock FA-12 token
+            await setTokenPrice(epoch, round, tezPriceShockObservations, "tez");
+    
+            // Update price in token oracles array for local calculations
+            tokenOracles[tezIndex].price = newTezMedianPrice;
+    
+            mockUsdXtzAggregatorStorage = await mockUsdXtzAggregatorInstance.storage();
+            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.round,new BigNumber(round));
+            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
+            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.data,new BigNumber(newTezMedianPrice));
+            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(4));
+    
+            console.log('   - XTZ price change from ' + tezCurrentPrice + ' to ' + newTezMedianPrice);
     
             // ----------------------------------------------------------------------------------------------
             // Vault Marked for liquidation
