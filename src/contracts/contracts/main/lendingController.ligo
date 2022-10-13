@@ -1117,7 +1117,7 @@ block{
     *
     * To avoid expensive exponentiation, the calculation is performed using a binomial approximation:
     *
-    *  (1+x)^n = 1+n*x+[n/2*(n-1)]*x^2+[n/6*(n-1)*(n-2)*x^3...
+    *  (1+x)^n = 1+n*x + [n/2*(n-1)]*x^2 + [n/6*(n-1)*(n-2)*x^3 ...
     *
     *  The approximation slightly underpays liquidity providers and undercharges borrowers, with the advantage of great
     *  gas cost reductions. The whitepaper contains reference to the approximation and a table showing the margin of
@@ -1129,9 +1129,6 @@ block{
     exp := exp * Tezos.get_min_block_time(); // number of seconds
     
     const interestRateOverSecondsInYear : nat = ((interestRate * fixedPointAccuracy) / secondsInYear) / fixedPointAccuracy; // 1e27 * 1e27 / const / 1e27 -> 1e27
-
-    // s.tempMap["calculateCompoundedInterest - exp"] := exp;
-    // s.tempMap["calculateCompoundedInterest - interestRateOverSecondsInYear"] := interestRateOverSecondsInYear;
 
     var compoundedInterest : nat := 0n;
 
@@ -1148,12 +1145,7 @@ block{
 
         compoundedInterest := fixedPointAccuracy + (interestRateOverSecondsInYear * exp) + secondTerm + thirdTerm;
 
-        // s.tempMap["calculateCompoundedInterest - secondTerm"] := secondTerm;
-        // s.tempMap["calculateCompoundedInterest - thirdTerm"] := thirdTerm;
-
     } else skip;
-
-    // s.tempMap["calculateCompoundedInterest - compoundedInterest"] := compoundedInterest;
    
 } with (compoundedInterest)
 
@@ -1182,6 +1174,8 @@ block{
     // if total borrowed is greater than 0
     if totalBorrowed > 0n then {
 
+        // Calculations based on AAVE's variable borrow rate calculation: https://github.com/aave/aave-protocol/blob/master/docs/Aave_Protocol_Whitepaper_v1_0.pdf
+
         if utilisationRate > optimalUtilisationRate then {
 
             // utilisation rate is above optimal rate
@@ -1208,9 +1202,6 @@ block{
 
         };
 
-        // s.tempMap["updateInterestRate - utilisationRate"]       := utilisationRate;
-        // s.tempMap["updateInterestRate - currentInterestRate"]   := currentInterestRate;
-
     } else skip;
     
 
@@ -1218,9 +1209,6 @@ block{
 
         const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel); // 1e27 
         borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1e27 x 1e27 / 1e27 -> 1e27
-
-        // s.tempMap["updateLoanTokenState - compoundedInterest"] := compoundedInterest;
-        // s.tempMap["updateLoanTokenState - borrowIndex"]        := borrowIndex;
 
     } else skip;
 
