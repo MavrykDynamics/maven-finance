@@ -89,6 +89,7 @@ export const StageOneForm = ({
         break
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(form.sourceCodeLink)
+        // uncomment if this field needs to be validated
         // setValidForm({ ...validForm, sourceCodeLink: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, sourceCodeLink: validityCheckResult ? 'success' : 'error' })
         break
