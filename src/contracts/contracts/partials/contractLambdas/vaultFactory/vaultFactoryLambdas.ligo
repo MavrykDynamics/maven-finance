@@ -321,7 +321,7 @@ block{
                 operations := vaultOrigination.0 # operations; 
 
                 // increment vault counter 
-                s.vaultCounter            := s.vaultCounter + 1n;
+                s.vaultCounter := s.vaultCounter + 1n;
 
             }
         |   _ -> skip

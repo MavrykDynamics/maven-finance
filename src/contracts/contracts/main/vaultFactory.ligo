@@ -203,7 +203,7 @@ function verifyVaultHandleIsUnique(const vaultHandle : vaultHandleType;  const s
 block {
 
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
-    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+    const lendingControllerAddress : address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
         
     // get vault from Lending Controller contract
     const getVaultOptView : option (loanTokenRecordType) = Tezos.call_view ("getVaultOpt", vaultHandle, lendingControllerAddress);
