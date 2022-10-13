@@ -139,7 +139,6 @@ export const StageOneFormView = ({
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
             inputStatus={formInputStatus.sourceCodeLink}
             disabled={disabled}
-            required
           />
         </div>
       )}
