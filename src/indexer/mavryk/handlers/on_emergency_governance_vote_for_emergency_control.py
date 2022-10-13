@@ -14,8 +14,8 @@ async def on_emergency_governance_vote_for_emergency_control(
     # Get operation values
     emergency_address           = vote_for_emergency_control.data.target_address
     voter_address               = vote_for_emergency_control.data.sender_address
-    emergency_id                = int(vote_for_emergency_control.storage.currentEmergencyGovernanceId)
-    emergency_storage           = vote_for_emergency_control.storage.emergencyGovernanceLedger[vote_for_emergency_control.storage.currentEmergencyGovernanceId]
+    emergency_id                = int(vote_for_emergency_control.storage.nextEmergencyGovernanceId) - 1
+    emergency_storage           = vote_for_emergency_control.storage.emergencyGovernanceLedger[str(emergency_id)]
     voter_storage               = emergency_storage.voters[voter_address]
     timestamp                   = vote_for_emergency_control.data.timestamp
     total_smvk_votes            = float(emergency_storage.totalStakedMvkVotes)
