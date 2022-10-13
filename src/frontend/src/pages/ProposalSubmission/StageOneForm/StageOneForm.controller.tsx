@@ -34,7 +34,7 @@ const DEFAULT_VALIDITY: ValidSubmitProposalForm = {
   ipfs: true,
   successMVKReward: true,
   invoiceTable: true,
-  sourceCodeLink: false,
+  sourceCodeLink: true,
 }
 
 const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
@@ -89,7 +89,7 @@ export const StageOneForm = ({
         break
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(form.sourceCodeLink)
-        setValidForm({ ...validForm, sourceCodeLink: validityCheckResult })
+        // setValidForm({ ...validForm, sourceCodeLink: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, sourceCodeLink: validityCheckResult ? 'success' : 'error' })
         break
       case 'IPFS':
