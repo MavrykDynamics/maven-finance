@@ -203,8 +203,8 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
       {
         id: 35587,
         subTitle: 'Contract Status',
-        subPath: 'break-glass',
-        routeSubPath: '/break-glass',
+        subPath: 'contract-status',
+        routeSubPath: '/contract-status',
         protectedRoute: false,
       },
     ],

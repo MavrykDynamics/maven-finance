@@ -71,7 +71,7 @@ export const AppRoutes = () => {
       <Route exact path="/proposal-history">
         <Governance />
       </Route>
-      <Route exact path="/break-glass">
+      <Route exact path="/contract-status">
         <BreakGlass />
       </Route>
       <Route exact path="/financial-requests">
