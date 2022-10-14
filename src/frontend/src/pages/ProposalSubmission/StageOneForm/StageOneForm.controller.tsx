@@ -1,22 +1,40 @@
-import { StageOneFormView } from './StageOneForm.view'
 import { useDispatch, useSelector } from 'react-redux'
 import React, { useEffect, useState } from 'react'
 import { State } from 'reducers'
 
+// view
 import {
   SubmitProposalFormInputStatus,
   SubmitProposalForm,
   ValidSubmitProposalForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
+import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
+import { TextArea } from 'app/App.components/TextArea/TextArea.controller'
+import { ProposalRecordType, ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
+import {
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+  FormTitleEntry,
+  FormButtonContainer,
+} from '../ProposalSubmission.style'
+import { Input } from 'app/App.components/Input/Input.controller'
+import Icon from 'app/App.components/Icon/Icon.view'
+import { Button } from 'app/App.components/Button/Button.controller'
+
+// helpers, constants, types
 import { isNotAllWhitespace, isValidHttpUrl, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { submitProposal } from '../ProposalSubmission.actions'
+import { SUBMIT } from 'app/App.components/Button/Button.constants'
+import { ChangeProposalFnType } from '../ProposalSubmission.controller'
+
+import '@silevis/reactgrid/styles.css'
 
 type StageOneFormProps = {
   locked: boolean
-  proposalId: number | undefined
-  proposalTitle: string
-  proposalDescription: string
-  proposalSourceCode: string
+  proposalId: number
+  updateLocalProposalData: ChangeProposalFnType
+  currentProposal: ProposalRecordType
 }
 
 const DEFAULT_FORM: SubmitProposalForm = {
@@ -46,13 +64,9 @@ const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
   sourceCodeLink: '',
 }
 
-export const StageOneForm = ({
-  locked,
-  proposalId,
-  proposalDescription,
-  proposalSourceCode,
-  proposalTitle,
-}: StageOneFormProps) => {
+// TODO: mb remove local state and use parent state of current proposal
+
+export const StageOneForm = ({ locked, proposalId, updateLocalProposalData, currentProposal }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const {
     fee,
@@ -63,6 +77,15 @@ export const StageOneForm = ({
   const [form, setForm] = useState<SubmitProposalForm>(DEFAULT_FORM)
   const [validForm, setValidForm] = useState<ValidSubmitProposalForm>(DEFAULT_VALIDITY)
   const [formInputStatus, setFormInputStatus] = useState<SubmitProposalFormInputStatus>(DEFAULT_INPUT_STATUSES)
+
+  useEffect(() => {
+    setForm({
+      ...form,
+      title: currentProposal.title,
+      description: currentProposal.description,
+      sourceCodeLink: currentProposal.sourceCode,
+    })
+  }, [proposalId])
 
   const handleOnBlur = (
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
@@ -98,6 +121,22 @@ export const StageOneForm = ({
     }
   }
 
+  const inputHandler = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    const newForm = { ...form, [name]: value }
+
+    setForm({ ...form, [name]: value })
+
+    updateLocalProposalData(
+      {
+        title: newForm.title,
+        description: newForm.description,
+        sourceCode: newForm.sourceCodeLink,
+      },
+      proposalId,
+    )
+  }
+
   const clearState = (): void => {
     setForm(DEFAULT_FORM)
     setValidForm(DEFAULT_VALIDITY)
@@ -114,20 +153,96 @@ export const StageOneForm = ({
     if (formIsValid) await dispatch(submitProposal(form, fee, clearState))
   }
 
+  const isProposalSubmitted = proposalId !== -1
+  const disabled = !isProposalRound || isProposalSubmitted
+
   return (
-    <StageOneFormView
-      locked={locked}
-      form={form}
-      fee={fee}
-      proposalId={proposalId}
-      successReward={successReward}
-      setForm={setForm}
-      formInputStatus={formInputStatus}
-      handleOnBlur={handleOnBlur}
-      handleSubmitProposal={handleSubmitProposal}
-      proposalTitle={proposalTitle}
-      proposalDescription={proposalDescription}
-      proposalSourceCode={proposalSourceCode}
-    />
+    <form onSubmit={handleSubmitProposal}>
+      <FormHeaderGroup>
+        <h1>Stage 1 </h1>
+        <StatusFlag
+          text={locked ? 'LOCKED' : 'UNLOCKED'}
+          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+        />
+        <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+          <Icon id="question" />
+        </a>
+      </FormHeaderGroup>
+      <FormTitleAndFeeContainer>
+        <FormTitleContainer>
+          {isProposalSubmitted ? (
+            <div>
+              <label>1 - Proposal Title</label>
+              <FormTitleEntry>{currentProposal.title}</FormTitleEntry>
+            </div>
+          ) : (
+            <>
+              <label>1 - Enter Proposal Title</label>
+              <Input
+                type="text"
+                name="title"
+                value={form.title}
+                onChange={inputHandler}
+                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'TITLE')}
+                inputStatus={formInputStatus.title}
+                disabled={disabled}
+              />
+            </>
+          )}
+        </FormTitleContainer>
+        <div>
+          <label>2 - Proposal Success Reward</label>
+          <FormTitleEntry>{successReward} MVK</FormTitleEntry>
+        </div>
+        <div>
+          <label>3 - Fee</label>
+          <FormTitleEntry>{fee} XTZ</FormTitleEntry>
+        </div>
+      </FormTitleAndFeeContainer>
+      {isProposalSubmitted ? (
+        <div className="desr-block">
+          <label>4 - Proposal Description</label>
+          <FormTitleEntry>{currentProposal.description}</FormTitleEntry>
+        </div>
+      ) : (
+        <>
+          <label>4 - Enter a description</label>
+          <TextArea
+            className="description-textarea"
+            name="description"
+            value={form.description}
+            onChange={inputHandler}
+            onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(e, 'DESCRIPTION')}
+            inputStatus={formInputStatus.description}
+            disabled={disabled}
+          />
+        </>
+      )}
+
+      {isProposalSubmitted ? (
+        <div className="desr-block">
+          <label>5 - Proposal source code</label>
+          <FormTitleEntry>{currentProposal.sourceCode}</FormTitleEntry>
+        </div>
+      ) : (
+        <div className="source-code-input-wrap">
+          <label>5 - Please add a link to the source code changes (if you have)</label>
+          <Input
+            type="text"
+            value={form.sourceCodeLink}
+            name="sourceCodeLink"
+            onChange={inputHandler}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
+            inputStatus={formInputStatus.sourceCodeLink}
+            disabled={disabled}
+            required
+          />
+        </div>
+      )}
+
+      <FormButtonContainer>
+        <Button icon="auction" kind="actionPrimary" disabled={disabled} text={'Submit Proposal'} type={SUBMIT} />
+      </FormButtonContainer>
+    </form>
   )
 }
