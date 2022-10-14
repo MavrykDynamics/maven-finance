@@ -50,8 +50,6 @@ export const ProposalSubmissionView = ({
     [userSubmittedProposalsData, currentProposalId],
   )
 
-  console.log('currentProposal 1', currentProposal)
-
   const { locked = false, title = '', proposalData = [], proposalPayments = [] } = currentProposal
 
   return (
@@ -70,10 +68,9 @@ export const ProposalSubmissionView = ({
       <ProposalSubmissionForm>
         {activeTab === 1 && (
           <StageOneForm
-            locked={locked}
             proposalId={currentProposalId}
-            updateLocalProposalData={updateLocalProposalData}
             currentProposal={currentProposal}
+            updateLocalProposalData={updateLocalProposalData}
           />
         )}
         {activeTab === 2 && (

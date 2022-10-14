@@ -14,6 +14,7 @@ export const MultyProposals = ({ switchItems, switchProposal }: Props) => {
     <MultyProposalsStyled>
       {switchItems.map(({ text, active, value }) => (
         <Button
+          key={value}
           text={text}
           onClick={() => switchProposal(value)}
           kind={ACTION_SIMPLE}
