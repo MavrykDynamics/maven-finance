@@ -9,6 +9,10 @@ import { ChartCard, ChartSlidingTabButtons } from './DoormanChart.style'
 import Chart from '../../../app/App.components/Chart/Chart.view'
 import { SlidingTabButtons, TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
+type Props = {
+  className?: string
+}
+
 const tabsList: TabItem[] = [
   {
     text: 'MVK Total Supply',
@@ -22,18 +26,18 @@ const tabsList: TabItem[] = [
   },
 ]
 
-export const DoormanChart: FC = () => {
+export const DoormanChart: FC<Props> = ({ className }) => {
   const { stakeHistoryData, smvkHistoryData } = useSelector((state: State) => state.doorman)
 
-  const [activeTab, setActiveTab] = useState('')
+  const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isStakingHistory = activeTab === tabsList[1].text
 
   const handleChangeTabs = (tabId?: number) => {
-    setActiveTab(tabId === 1 ? 'MVK Total Supply' : 'Staking History')
+    setActiveTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
   }
 
   return (
-    <ChartCard>
+    <ChartCard className={className}>
       <ChartSlidingTabButtons>
         {tabsList?.length ? <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
       </ChartSlidingTabButtons>

@@ -3,7 +3,7 @@ import { MichelsonMap } from '@taquito/taquito'
 import type { DelegateRecord, SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import type { MavrykUserGraphQl } from '../../utils/TypesAndInterfaces/User'
 import type { SatelliteRecordGraphQl, DelegationGraphQl } from '../../utils/TypesAndInterfaces/Delegation'
-
+import type { DataFeedsHistoryGraphQL } from './helpers/Satellites.types'
 // helpers
 import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
 
@@ -176,4 +176,31 @@ export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl)
     numberActiveSatellites: delegationStorage?.max_satellites,
     totalDelegatedMVK: delegationStorage?.max_satellites,
   }
+}
+
+// Data Feeds History Normalizer
+type DataFeedsHistoryProps = {
+  aggregator_history_data: DataFeedsHistoryGraphQL[]
+}
+
+export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
+  const { aggregator_history_data = [] } = storage
+
+  return aggregator_history_data?.length
+    ? aggregator_history_data.map((item) => {
+        return {
+          aggregator: item.aggregator,
+          aggregatorId: item.aggregator_id,
+          data: item.data,
+          epoch: item.epoch,
+          id: item.id,
+          lambdaBytes: item.lambda_bytes,
+          lambdaName: item.lambda_name,
+          lastUpdatedAt: item.last_updated_at,
+          pctOracleResp: item.pct_oracle_resp,
+          round: item.round,
+          timestamp: item.timestamp,
+        }
+      })
+    : []
 }

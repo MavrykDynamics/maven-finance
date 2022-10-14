@@ -1,6 +1,6 @@
-import type { Aggregator } from 'utils/generated/graphqlTypes'
-
+import type { Aggregator, Aggregator_History_Data } from 'utils/generated/graphqlTypes'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
+import { normalizeDataFeedsHistory } from '../Satellites.helpers'
 
 type callbackFunction = (arg0: string) => void
 
@@ -45,3 +45,6 @@ export type SatelliteListItemProps = {
   className?: string
   children?: JSX.Element
 }
+
+export type DataFeedsHistory = ReturnType<typeof normalizeDataFeedsHistory>
+export type DataFeedsHistoryGraphQL = Omit<Aggregator_History_Data, '__typename'>
