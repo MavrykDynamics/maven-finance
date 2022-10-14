@@ -1,30 +1,25 @@
-import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
+import { ACTION_SIMPLE } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
-import { SlidingTabButtons, TabItem } from 'app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { MultyProposalsStyled } from './MultyProposals.style'
 
+export type MultyProposalItem = { text: string; active: boolean; value: number }
+
 type Props = {
-  switchItems: TabItem[]
+  switchItems: MultyProposalItem[]
   switchProposal: (proposalId: number) => void
-  createNewProposal: () => void
-  isButtonDisabled: boolean
 }
 
-export const MultyProposals = ({ switchItems, switchProposal, createNewProposal, isButtonDisabled }: Props) => {
+export const MultyProposals = ({ switchItems, switchProposal }: Props) => {
   return (
     <MultyProposalsStyled>
-      {switchItems.length ? (
-        <SlidingTabButtons onClick={switchProposal} tabItems={switchItems} className="multyProposalsSwitcher" />
-      ) : (
-        <div className="empty-proposals">You don't have submitted proposals, create 1 below please</div>
-      )}
-
-      <Button
-        text="Create new proposal"
-        onClick={createNewProposal}
-        disabled={isButtonDisabled}
-        kind={ACTION_PRIMARY}
-      />
+      {switchItems.map(({ text, active, value }) => (
+        <Button
+          text={text}
+          onClick={() => switchProposal(value)}
+          kind={ACTION_SIMPLE}
+          className={active ? 'active' : ''}
+        />
+      ))}
     </MultyProposalsStyled>
   )
 }

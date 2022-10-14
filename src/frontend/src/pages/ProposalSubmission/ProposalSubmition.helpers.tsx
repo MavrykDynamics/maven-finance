@@ -1,6 +1,6 @@
 import { InputStatusType, INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import { ProposalUpdateFormProposalBytes } from 'utils/TypesAndInterfaces/Forms'
-import { ProposalDataType } from 'utils/TypesAndInterfaces/Governance'
+import { CurrentRoundProposalsStorageType, ProposalDataType } from 'utils/TypesAndInterfaces/Governance'
 
 export const checkWtheterBytesIsValid = (bytes: Array<ProposalUpdateFormProposalBytes>): boolean => {
   return bytes.every(({ bytes }) => Boolean(bytes))
@@ -23,9 +23,7 @@ export const getBytesPairValidationStatus = (
 
 export const PROPOSAL_BYTE = {
   bytes: '',
-  governance_proposal_record_id: 0,
   id: 1,
-  record_internal_id: 0,
   title: '',
   validTitle: '' as InputStatusType,
   validBytes: '' as InputStatusType,
@@ -41,3 +39,34 @@ export const setDefaultProposalBytes = (proposalData?: Array<ProposalDataType>) 
         order: idx + 1,
       }))
     : [PROPOSAL_BYTE]
+
+export const DEFAULT_PROPOSAL: CurrentRoundProposalsStorageType[number] = {
+  id: -1,
+  proposerId: '',
+  status: 0,
+  title: '',
+  description: '',
+  invoice: '',
+  successReward: 0,
+  startDateTime: '',
+  executed: false,
+  locked: false,
+  sourceCode: '',
+  passVoteMvkTotal: 0,
+  upvoteMvkTotal: 0,
+  downvoteMvkTotal: 0,
+  abstainMvkTotal: 0,
+  minProposalRoundVoteRequirement: 0,
+  minProposalRoundVotePercentage: 0,
+  minQuorumPercentage: 0,
+  minQuorumMvkTotal: 0,
+  quorumMvkTotal: 0,
+  currentRoundProposal: true,
+  currentCycleStartLevel: 0,
+  currentCycleEndLevel: 0,
+  cycle: 0,
+  proposalData: [],
+  proposalPayments: [],
+  governanceId: '',
+  paymentProcessed: false,
+}

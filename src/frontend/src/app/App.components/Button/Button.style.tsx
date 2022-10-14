@@ -73,6 +73,35 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     background-color: ${skyColor};
   }
 
+  &.actionSimple {
+    width: fit-content;
+    height: fit-content;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 600;
+    padding: 3px 7px;
+    position: relative;
+    transition: 0.3s all;
+    color: ${({ theme }) => theme.navTitleColor};
+    max-width: unset;
+
+    &.active,
+    &:hover {
+      &:before {
+        position: absolute;
+        bottom: -3px;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: 0.3s all;
+        content: '';
+        width: 30px;
+        height: 1px;
+        background-color: ${({ theme }) => theme.navLinkSubTitleActive};
+      }
+      color: ${({ theme }) => theme.navLinkSubTitleActive};
+    }
+  }
+
   &.actionPrimary {
     color: ${({ theme }) => theme.containerColor};
     background-color: ${({ theme }) => theme.actionPrimaryBtnColor};

@@ -38,15 +38,23 @@ import {
   FormTitleEntry,
 } from '../ProposalSubmission.style'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { ChangeProposalFnType } from '../ProposalSubmission.controller'
 
 type StageTwoFormProps = {
   locked: boolean
-  proposalId?: number
+  proposalId: number
   proposalTitle: string
   proposalData?: ProposalDataType[]
+  updateLocalProposalData: ChangeProposalFnType
 }
 
-export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }: StageTwoFormProps) => {
+export const StageTwoForm = ({
+  locked,
+  proposalTitle,
+  proposalId,
+  proposalData,
+  updateLocalProposalData,
+}: StageTwoFormProps) => {
   const dispatch = useDispatch()
   const { watingProposals } = useGovernence()
   const {
@@ -58,13 +66,19 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
   } = useSelector((state: State) => state.governance)
 
   const [proposalBytes, setProposalBytes] = useState<ProposalUpdateForm>([PROPOSAL_BYTE])
+  const [isBytesChanged, setBytesChanged] = useState<boolean>(false)
 
   // Effect to change proposal bytes based on selected proposal
   useEffect(() => {
     setProposalBytes(setDefaultProposalBytes(proposalData))
   }, [proposalId, proposalData])
 
-  const [isBytesChanged, setBytesChanged] = useState<boolean>(false)
+  useEffect(() => {
+    if (isBytesChanged) {
+      updateLocalProposalData({ proposalData: proposalBytes } as any, proposalId)
+      setBytesChanged(false)
+    }
+  }, [isBytesChanged])
 
   const isProposalPeriod = governancePhase === 'PROPOSAL' && !watingProposals.length
 
@@ -73,12 +87,14 @@ export const StageTwoForm = ({ locked, proposalTitle, proposalId, proposalData }
     setProposalBytes(
       proposalBytes.map((formByte) => (formByte.id === byte.id ? { ...formByte, [type]: validationStatus } : formByte)),
     )
+    setBytesChanged(true)
   }
 
   const handleOnCange = (byte: ProposalUpdateFormProposalBytes, text: string, type: 'title' | 'bytes') => {
     setProposalBytes(
       proposalBytes.map((formByte) => (formByte.id === byte.id ? { ...formByte, [type]: text } : formByte)),
     )
+    setBytesChanged(true)
   }
 
   const clearState = (): void => {

@@ -1,68 +1,63 @@
+import { useMemo } from 'react'
 import { Page } from 'styles'
 import { useSelector } from 'react-redux'
-import { State } from 'reducers'
 
 // types
-import type { CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
-import type { TabItem } from 'app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { State } from 'reducers'
 
 // hooks
 import useGovernence from '../Governance/UseGovernance'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { ProposalSubmissionForm } from './ProposalSubmission.style'
 import { PropSubmissionTopBar } from './PropSubmissionTopBar/PropSubmissionTopBar.controller'
 import { StageOneForm } from './StageOneForm/StageOneForm.controller'
 import { StageThreeForm } from './StageThreeForm/StageThreeForm.controller'
 import { StageTwoForm } from './StageTwoForm/StageTwoForm.controller'
 import { Info } from '../../app/App.components/Info/Info.view'
-import { MultyProposals } from './MultyProposals/MultyProposals.controller'
+import { MultyProposalItem, MultyProposals } from './MultyProposals/MultyProposals.controller'
+import { SubmittedProposalsMapper, ChangeProposalFnType } from './ProposalSubmission.controller'
+
+import { ProposalSubmissionForm } from './ProposalSubmission.style'
 
 import '@silevis/reactgrid/styles.css'
 
 type ProposalSubmissionViewProps = {
   activeTab: number
   handleChangeTab: (tabId?: number) => void
-  multyProposalsItems: TabItem[]
-  createNewProposalHander: () => void
+  multyProposalsItems: MultyProposalItem[]
   changeActiveProposal: (proposalId: number) => void
-  userCreatedProposals: CurrentRoundProposalsStorageType
-  currentProposal?: CurrentRoundProposalsStorageType[number]
+  currentProposalId: number
+  userSubmittedProposalsData: SubmittedProposalsMapper['mapper']
+  updateLocalProposalData: ChangeProposalFnType
 }
 
 export const ProposalSubmissionView = ({
   activeTab,
   handleChangeTab,
-  currentProposal,
+  currentProposalId,
   multyProposalsItems,
-  createNewProposalHander,
   changeActiveProposal,
-  userCreatedProposals,
+  userSubmittedProposalsData,
+  updateLocalProposalData,
 }: ProposalSubmissionViewProps) => {
   const { watingProposals } = useGovernence()
   const { governancePhase } = useSelector((state: State) => state.governance)
   const isEditing = governancePhase === 'PROPOSAL' && !watingProposals.length
 
-  const {
-    locked = false,
-    id: proposalId,
-    title: proposalTitle = '',
-    proposalData = [],
-    description: proposalDescription = '',
-    sourceCode: proposalSourceCode = '',
-    proposalPayments = [],
-  } = currentProposal || {}
+  const currentProposal = useMemo(
+    () => userSubmittedProposalsData[currentProposalId],
+    [userSubmittedProposalsData, currentProposalId],
+  )
+
+  console.log('currentProposal 1', currentProposal)
+
+  const { locked = false, title = '', proposalData = [], proposalPayments = [] } = currentProposal
 
   return (
     <Page>
       <PageHeader page={'proposal submission'} />
-      <MultyProposals
-        switchItems={multyProposalsItems}
-        switchProposal={changeActiveProposal}
-        createNewProposal={createNewProposalHander}
-        isButtonDisabled={userCreatedProposals.length >= 2 || !currentProposal}
-      />
+      <MultyProposals switchItems={multyProposalsItems} switchProposal={changeActiveProposal} />
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       {!isEditing ? (
         <Info
@@ -76,25 +71,25 @@ export const ProposalSubmissionView = ({
         {activeTab === 1 && (
           <StageOneForm
             locked={locked}
-            proposalId={proposalId}
-            proposalTitle={proposalTitle}
-            proposalDescription={proposalDescription}
-            proposalSourceCode={proposalSourceCode}
+            proposalId={currentProposalId}
+            updateLocalProposalData={updateLocalProposalData}
+            currentProposal={currentProposal}
           />
         )}
         {activeTab === 2 && (
           <StageTwoForm
             locked={locked}
-            proposalId={proposalId}
-            proposalTitle={proposalTitle}
+            proposalId={currentProposalId}
+            proposalTitle={title}
             proposalData={proposalData}
+            updateLocalProposalData={updateLocalProposalData}
           />
         )}
         {activeTab === 3 && (
           <StageThreeForm
             locked={locked}
-            proposalId={proposalId}
-            proposalTitle={proposalTitle}
+            proposalId={currentProposalId}
+            proposalTitle={title}
             proposalPayments={proposalPayments}
           />
         )}
