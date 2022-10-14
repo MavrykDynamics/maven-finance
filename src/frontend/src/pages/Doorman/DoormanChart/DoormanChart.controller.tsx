@@ -42,7 +42,7 @@ export const DoormanChart: FC<Props> = ({ className }) => {
         {tabsList?.length ? <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
       </ChartSlidingTabButtons>
 
-      <Chart list={isStakingHistory ? stakeHistoryData : smvkHistoryData} />
+      <Chart style={{ secondCurrency: ' MVK' }} list={isStakingHistory ? stakeHistoryData : smvkHistoryData} />
     </ChartCard>
   )
 }
