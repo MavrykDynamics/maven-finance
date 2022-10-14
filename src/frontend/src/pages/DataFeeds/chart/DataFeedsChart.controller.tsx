@@ -36,6 +36,7 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isHistory = activeTab === tabsList[0].text
 
+  // TODO: test data
   const volatility = [
     {
       "xAxis": "2022-10-03T08:34:40+00:00",
@@ -92,7 +93,7 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
     <Chart
       list={isHistory ? dataFeedsHistory : volatility}
       style={{
-        width: 1000,
+        width: '100%',
         height: 300,
       }}
       tickFormater={tickFormater}

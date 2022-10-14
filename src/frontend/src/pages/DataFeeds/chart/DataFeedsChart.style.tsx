@@ -3,7 +3,7 @@ import { MavrykTheme } from '../../../styles/interfaces'
 import { Card } from 'styles'
 
 export const ChartCard = styled(Card)<{ theme: MavrykTheme }>`
-  padding: 30px 0 14px 40px;
+  padding: 30px 12px 14px 40px;
 `
 
 export const ChartSlidingTabButtons = styled.div`
