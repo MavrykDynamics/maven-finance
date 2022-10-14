@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 import themeColors from 'styles/colors'
@@ -10,14 +10,27 @@ import { ChartTooltip } from './Chart.style'
 // helpers
 import { parseDate } from '../../../utils/time'
 
+type ChartStyle = {
+  color?: string
+  width?: number
+  height?: number
+  fontSize?: number
+  tickMargin?: number
+  paddingTop?: number
+  paddingBottom?: number
+  paddingRight?: number
+  paddingLeft?: number
+}
+
 type ChartItem = {
-  timestamp: string
-  mvk: number
+  yAxis: string
+  xAxis: number
 }
 
 type Props = {
   list: ChartItem[]
   className?: string;
+  style?: ChartStyle
 }
 
 type ChartData = {
@@ -41,18 +54,16 @@ const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
   )
 }
 
-const chartStyle = {
+const initialChartStyle: ChartStyle = {
   color: '#8D86EB',
   width: 655,
   height: 345,
   fontSize: 12,
   tickMargin: 11,
-  padding: {
-    top: 17,
-    right: 0,
-    left: 22,
-    bottom: 0,
-  },
+  paddingTop: 17,
+  paddingBottom: 0,
+  paddingRight: 0,
+  paddingLeft: 22,
 }
 
 const timeFormat = 'HH:mm'
@@ -61,18 +72,30 @@ const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
 const dateFormat = 'MMM DD, HH:mm Z'
 const getParsedDate = (time: string) => parseDate({ time, timeFormat: dateFormat }) || ''
 
-export default function Chart({ list, className }: Props) {
+export default function Chart({ list, style, className }: Props) {
   const { themeSelected } = useSelector((state: State) => state.preferences)
+  const [chartStyle, setChartStyle] = useState(initialChartStyle)
 
   const data = list?.length
-    ? list.map(({ mvk, timestamp }) => {
+    ? list.map(({ xAxis, yAxis }) => {
         return {
-          uv: mvk,
-          pv: getParsedDate(timestamp),
-          time: getTime(timestamp),
+          uv: xAxis,
+          pv: getParsedDate(yAxis),
+          time: getTime(yAxis),
         }
       })
     : []
+
+  useEffect(() => {
+    if (style) {
+      const updatedStyle = {
+        ...initialChartStyle, 
+        ...style,
+      }
+
+      setChartStyle(updatedStyle)
+    }
+  }, [style])
 
   return (
     <AreaChart className={className} width={chartStyle.width} height={chartStyle.height} data={data}>
@@ -87,7 +110,7 @@ export default function Chart({ list, className }: Props) {
         tickLine={false}
         tick={{ fill: chartStyle.color }}
         stroke={chartStyle.color}
-        padding={{ left: chartStyle.padding.left }}
+        padding={{ left: chartStyle.paddingLeft }}
         tickMargin={chartStyle.tickMargin}
         fontSize={chartStyle.fontSize}
         dataKey="time"
@@ -98,7 +121,7 @@ export default function Chart({ list, className }: Props) {
         tickLine={false}
         tick={{ fill: chartStyle.color }}
         stroke={chartStyle.color}
-        padding={{ top: chartStyle.padding.top }}
+        padding={{ top: chartStyle.paddingTop }}
         tickMargin={chartStyle.tickMargin}
         fontSize={chartStyle.fontSize}
         orientation="right"
