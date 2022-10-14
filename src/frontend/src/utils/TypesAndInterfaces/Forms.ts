@@ -19,9 +19,7 @@ export type SubmitProposalForm = {
   title: string
   description: string
   ipfs: string
-  successMVKReward: number
-  invoiceTable: string
-  sourceCodeLink: string
+  sourceCode: string
 }
 
 export type ValidSubmitProposalForm = {
@@ -30,7 +28,7 @@ export type ValidSubmitProposalForm = {
   ipfs: boolean | undefined
   successMVKReward: boolean | undefined
   invoiceTable: boolean | undefined
-  sourceCodeLink: boolean | undefined
+  sourceCode: boolean | undefined
 }
 
 export type SubmitProposalFormInputStatus = {
@@ -39,7 +37,7 @@ export type SubmitProposalFormInputStatus = {
   ipfs: InputStatusType
   successMVKReward: InputStatusType
   invoiceTable: InputStatusType
-  sourceCodeLink: InputStatusType
+  sourceCode: InputStatusType
 }
 
 export type ProposalBytesType = {

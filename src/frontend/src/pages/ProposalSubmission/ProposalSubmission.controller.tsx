@@ -1,20 +1,27 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 // view
-import { MultyProposalItem } from './MultyProposals/MultyProposals.controller'
-import { ProposalSubmissionView } from './ProposalSubmission.view'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { PropSubmissionTopBar } from './PropSubmissionTopBar/PropSubmissionTopBar.controller'
+import { StageOneForm } from './StageOneForm/StageOneForm.controller'
+import { StageThreeForm } from './StageThreeForm/StageThreeForm.controller'
+import { StageTwoForm } from './StageTwoForm/StageTwoForm.controller'
+import { MultyProposalItem, MultyProposals } from './MultyProposals/MultyProposals.controller'
+import { ProposalSubmissionForm } from './ProposalSubmission.style'
+import { Page } from 'styles'
 
 // types
 import { State } from 'reducers'
-import { CurrentRoundProposalsStorageType } from 'utils/TypesAndInterfaces/Governance'
+import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 
 // helpers
 import { DEFAULT_PROPOSAL } from './ProposalSubmition.helpers'
+import { dropProposal } from './ProposalSubmission.actions'
 
 export type SubmittedProposalsMapper = {
   keys: number[]
-  mapper: Record<number, CurrentRoundProposalsStorageType[number]>
+  mapper: Record<number, ProposalRecordType>
 }
 
 export type ChangeProposalFnType = (
@@ -23,6 +30,8 @@ export type ChangeProposalFnType = (
 ) => void
 
 export const ProposalSubmission = () => {
+  const dispatch = useDispatch()
+
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { currentRoundProposals } = useSelector((state: State) => state.governance)
   const [activeTab, setActiveTab] = useState<number>(1)
@@ -82,7 +91,7 @@ export const ProposalSubmission = () => {
     [proposalState],
   )
 
-  const changeProposalData = useCallback(
+  const updateLocalProposalData = useCallback(
     (newProposalData: Partial<CurrentRoundProposalsStorageType[number]>, proposalId: number) => {
       setProposalsState({
         ...proposalState,
@@ -95,21 +104,61 @@ export const ProposalSubmission = () => {
     [proposalState],
   )
 
+  // Drop proposal on stage 2 handler
+  const handleDropProposal = async (proposalId: number) => {
+    if (proposalId && proposalId !== -1) await dispatch(dropProposal(proposalId))
+  }
+
   useEffect(() => {
-    setProposalsState(mappedProposals)
+    setProposalsState(
+      proposalKeys.length
+        ? mappedProposals
+        : {
+            [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL,
+          },
+    )
   }, [mappedProposals])
 
-  console.log('proposalState parent el:', proposalState)
+  console.log('proposalState parent el:', proposalState, selectedUserProposalId)
+
+  const currentProposal = useMemo(
+    () => proposalState[selectedUserProposalId] ?? {},
+    [proposalState, selectedUserProposalId],
+  )
+  const { locked = false, title = '', proposalPayments = [] } = currentProposal
 
   return (
-    <ProposalSubmissionView
-      activeTab={activeTab}
-      handleChangeTab={handleChangeTab}
-      multyProposalsItems={usersProposalsToSwitch}
-      changeActiveProposal={changeActiveProposal}
-      currentProposalId={selectedUserProposalId}
-      userSubmittedProposalsData={proposalState}
-      updateLocalProposalData={changeProposalData}
-    />
+    <Page>
+      <PageHeader page={'proposal submission'} />
+      <MultyProposals switchItems={usersProposalsToSwitch} switchProposal={changeActiveProposal} />
+      <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
+
+      <ProposalSubmissionForm>
+        {activeTab === 1 && (
+          <StageOneForm
+            proposalId={selectedUserProposalId}
+            currentProposal={currentProposal}
+            updateLocalProposalData={updateLocalProposalData}
+            handleDropProposal={handleDropProposal}
+          />
+        )}
+        {activeTab === 2 && (
+          <StageTwoForm
+            proposalId={selectedUserProposalId}
+            currentProposal={currentProposal}
+            updateLocalProposalData={updateLocalProposalData}
+            handleDropProposal={handleDropProposal}
+          />
+        )}
+        {activeTab === 3 && (
+          <StageThreeForm
+            locked={locked}
+            proposalId={selectedUserProposalId}
+            proposalTitle={title}
+            proposalPayments={proposalPayments}
+          />
+        )}
+      </ProposalSubmissionForm>
+    </Page>
   )
 }

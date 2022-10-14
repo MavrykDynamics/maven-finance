@@ -1,18 +1,22 @@
-import { InputStatusType, INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
-import { ProposalUpdateFormProposalBytes } from 'utils/TypesAndInterfaces/Forms'
-import { CurrentRoundProposalsStorageType, ProposalDataType } from 'utils/TypesAndInterfaces/Governance'
+import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
+import { Governance_Proposal } from 'utils/generated/graphqlTypes'
+import {
+  CurrentRoundProposalsStorageType,
+  ProposalDataType,
+  ProposalRecordType,
+} from 'utils/TypesAndInterfaces/Governance'
 
-export const checkWtheterBytesIsValid = (bytes: Array<ProposalUpdateFormProposalBytes>): boolean => {
-  return bytes.every(({ bytes }) => Boolean(bytes))
+export const checkWtheterBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
+  return proposalData.every(({ bytes, title }) => Boolean(bytes) && Boolean(title))
 }
 
 export const getBytesPairValidationStatus = (
   newText: string,
   fieldToValidate: 'validTitle' | 'validBytes',
   currentByteId: number,
-  proposalData?: Array<ProposalDataType>,
+  proposalData?: ProposalRecordType['proposalData'],
 ): typeof INPUT_STATUS_SUCCESS | typeof INPUT_STATUS_ERROR => {
-  const isExistTitleInServer = proposalData?.some(({ id }) => id === currentByteId)
+  const isExistTitleInServer = proposalData?.some(({ id, isLocalBytes }) => id === currentByteId && !isLocalBytes)
 
   if (fieldToValidate === 'validTitle') {
     return Boolean(newText) && !isExistTitleInServer ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR
@@ -25,10 +29,12 @@ export const PROPOSAL_BYTE = {
   bytes: '',
   id: 1,
   title: '',
-  validTitle: '' as InputStatusType,
-  validBytes: '' as InputStatusType,
   order: 1,
   isUnderTheDrop: false,
+  isLocalBytes: true,
+  governance_proposal: {} as Governance_Proposal,
+  governance_proposal_id: 0,
+  record_internal_id: 0,
 }
 
 export const setDefaultProposalBytes = (proposalData?: Array<ProposalDataType>) =>

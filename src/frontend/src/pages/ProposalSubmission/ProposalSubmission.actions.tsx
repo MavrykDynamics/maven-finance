@@ -10,6 +10,7 @@ import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
 import { ProposalUpdateForm, SubmitProposalForm } from '../../utils/TypesAndInterfaces/Forms'
 import { getGovernanceStorage, getCurrentRoundProposals } from '../Governance/Governance.actions'
+import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 
 export const SUBMIT_PROPOSAL_REQUEST = 'SUBMIT_PROPOSAL_REQUEST'
 export const SUBMIT_PROPOSAL_RESULT = 'SUBMIT_PROPOSAL_RESULT'
@@ -39,7 +40,7 @@ export const submitProposal =
       const proposalName = form.title
       const proposalDesc = form.description
       const proposalIpfs = form.ipfs
-      const proposalSourceCode = form.sourceCodeLink
+      const proposalSourceCode = form.sourceCode
 
       const transaction = await contract?.methods
         .propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode)
@@ -75,7 +76,7 @@ export const PROPOSAL_UPDATE_REQUEST = 'PROPOSAL_UPDATE_REQUEST'
 export const PROPOSAL_UPDATE_RESULT = 'PROPOSAL_UPDATE_RESULT'
 export const PROPOSAL_UPDATE_ERROR = 'PROPOSAL_UPDATE_ERROR'
 export const updateProposal =
-  (proposalBytes: ProposalUpdateForm, proposalId: number | undefined, callback: () => void) =>
+  (proposalBytes: ProposalRecordType['proposalData'], proposalId: number | undefined) =>
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
