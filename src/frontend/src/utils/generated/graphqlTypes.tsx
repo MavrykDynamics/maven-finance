@@ -100,6 +100,10 @@ export type Aggregator = {
   governance_satellite_aggregators_aggregate: Governance_Satellite_Aggregator_Aggregate;
   heart_beat_seconds: Scalars['bigint'];
   /** An array relationship */
+  history_data: Array<Aggregator_History_Data>;
+  /** An aggregate relationship */
+  history_data_aggregate: Aggregator_History_Data_Aggregate;
+  /** An array relationship */
   lambdas: Array<Aggregator_Lambda>;
   /** An aggregate relationship */
   lambdas_aggregate: Aggregator_Lambda_Aggregate;
@@ -166,6 +170,26 @@ export type AggregatorGovernance_Satellite_Aggregators_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']>;
   order_by?: InputMaybe<Array<Governance_Satellite_Aggregator_Order_By>>;
   where?: InputMaybe<Governance_Satellite_Aggregator_Bool_Exp>;
+};
+
+
+/** columns and relationships of "aggregator" */
+export type AggregatorHistory_DataArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_History_Data_Order_By>>;
+  where?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "aggregator" */
+export type AggregatorHistory_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_History_Data_Order_By>>;
+  where?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
 };
 
 
@@ -319,6 +343,7 @@ export type Aggregator_Bool_Exp = {
   governance_id?: InputMaybe<String_Comparison_Exp>;
   governance_satellite_aggregators?: InputMaybe<Governance_Satellite_Aggregator_Bool_Exp>;
   heart_beat_seconds?: InputMaybe<Bigint_Comparison_Exp>;
+  history_data?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
   lambdas?: InputMaybe<Aggregator_Lambda_Bool_Exp>;
   last_completed_data?: InputMaybe<Float8_Comparison_Exp>;
   last_completed_data_epoch?: InputMaybe<Bigint_Comparison_Exp>;
@@ -722,6 +747,22 @@ export type Aggregator_Factory_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "aggregator_factory_general_contract" */
+export type Aggregator_Factory_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Factory_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Factory_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Aggregator_Factory_General_Contract_Sum_Fields = {
   __typename?: 'aggregator_factory_general_contract_sum_fields';
@@ -940,6 +981,23 @@ export type Aggregator_Factory_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "aggregator_factory_lambda" */
 export type Aggregator_Factory_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "aggregator_factory_lambda" */
+export type Aggregator_Factory_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Factory_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Factory_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -1220,6 +1278,23 @@ export type Aggregator_Factory_Product_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "aggregator_factory_product_lambda" */
+export type Aggregator_Factory_Product_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Factory_Product_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Factory_Product_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Aggregator_Factory_Product_Lambda_Sum_Fields = {
   __typename?: 'aggregator_factory_product_lambda_sum_fields';
@@ -1319,6 +1394,28 @@ export type Aggregator_Factory_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "aggregator_factory" */
 export type Aggregator_Factory_Stddev_Samp_Order_By = {
   aggregator_name_max_length?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "aggregator_factory" */
+export type Aggregator_Factory_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Factory_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Factory_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  aggregator_name_max_length?: InputMaybe<Scalars['smallint']>;
+  create_aggregator_paused?: InputMaybe<Scalars['Boolean']>;
+  distribute_reward_smvk_paused?: InputMaybe<Scalars['Boolean']>;
+  distribute_reward_xtz_paused?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  track_aggregator_paused?: InputMaybe<Scalars['Boolean']>;
+  untrack_aggregator_paused?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** aggregate sum on columns */
@@ -1532,6 +1629,22 @@ export type Aggregator_Factory_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "aggregator_factory_whitelist_contract" */
+export type Aggregator_Factory_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Factory_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Factory_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Aggregator_Factory_Whitelist_Contract_Sum_Fields = {
   __typename?: 'aggregator_factory_whitelist_contract_sum_fields';
@@ -1743,6 +1856,22 @@ export type Aggregator_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "aggregator_general_contract" */
+export type Aggregator_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Aggregator_General_Contract_Sum_Fields = {
   __typename?: 'aggregator_general_contract_sum_fields';
@@ -1785,6 +1914,357 @@ export type Aggregator_General_Contract_Variance_Fields = {
 /** order by variance() on columns of table "aggregator_general_contract" */
 export type Aggregator_General_Contract_Variance_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** columns and relationships of "aggregator_history_data" */
+export type Aggregator_History_Data = {
+  __typename?: 'aggregator_history_data';
+  /** An object relationship */
+  aggregator: Aggregator;
+  aggregator_id: Scalars['String'];
+  data: Scalars['float8'];
+  epoch: Scalars['bigint'];
+  id: Scalars['bigint'];
+  lambda_bytes: Scalars['String'];
+  lambda_name: Scalars['String'];
+  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  pct_oracle_resp: Scalars['smallint'];
+  round: Scalars['bigint'];
+  timestamp: Scalars['timestamptz'];
+};
+
+/** aggregated selection of "aggregator_history_data" */
+export type Aggregator_History_Data_Aggregate = {
+  __typename?: 'aggregator_history_data_aggregate';
+  aggregate?: Maybe<Aggregator_History_Data_Aggregate_Fields>;
+  nodes: Array<Aggregator_History_Data>;
+};
+
+/** aggregate fields of "aggregator_history_data" */
+export type Aggregator_History_Data_Aggregate_Fields = {
+  __typename?: 'aggregator_history_data_aggregate_fields';
+  avg?: Maybe<Aggregator_History_Data_Avg_Fields>;
+  count: Scalars['Int'];
+  max?: Maybe<Aggregator_History_Data_Max_Fields>;
+  min?: Maybe<Aggregator_History_Data_Min_Fields>;
+  stddev?: Maybe<Aggregator_History_Data_Stddev_Fields>;
+  stddev_pop?: Maybe<Aggregator_History_Data_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Aggregator_History_Data_Stddev_Samp_Fields>;
+  sum?: Maybe<Aggregator_History_Data_Sum_Fields>;
+  var_pop?: Maybe<Aggregator_History_Data_Var_Pop_Fields>;
+  var_samp?: Maybe<Aggregator_History_Data_Var_Samp_Fields>;
+  variance?: Maybe<Aggregator_History_Data_Variance_Fields>;
+};
+
+
+/** aggregate fields of "aggregator_history_data" */
+export type Aggregator_History_Data_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Aggregator_History_Data_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** order by aggregate values of table "aggregator_history_data" */
+export type Aggregator_History_Data_Aggregate_Order_By = {
+  avg?: InputMaybe<Aggregator_History_Data_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Aggregator_History_Data_Max_Order_By>;
+  min?: InputMaybe<Aggregator_History_Data_Min_Order_By>;
+  stddev?: InputMaybe<Aggregator_History_Data_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Aggregator_History_Data_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Aggregator_History_Data_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Aggregator_History_Data_Sum_Order_By>;
+  var_pop?: InputMaybe<Aggregator_History_Data_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Aggregator_History_Data_Var_Samp_Order_By>;
+  variance?: InputMaybe<Aggregator_History_Data_Variance_Order_By>;
+};
+
+/** aggregate avg on columns */
+export type Aggregator_History_Data_Avg_Fields = {
+  __typename?: 'aggregator_history_data_avg_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  pct_oracle_resp?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by avg() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Avg_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "aggregator_history_data". All fields are combined with a logical 'AND'. */
+export type Aggregator_History_Data_Bool_Exp = {
+  _and?: InputMaybe<Array<Aggregator_History_Data_Bool_Exp>>;
+  _not?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
+  _or?: InputMaybe<Array<Aggregator_History_Data_Bool_Exp>>;
+  aggregator?: InputMaybe<Aggregator_Bool_Exp>;
+  aggregator_id?: InputMaybe<String_Comparison_Exp>;
+  data?: InputMaybe<Float8_Comparison_Exp>;
+  epoch?: InputMaybe<Bigint_Comparison_Exp>;
+  id?: InputMaybe<Bigint_Comparison_Exp>;
+  lambda_bytes?: InputMaybe<String_Comparison_Exp>;
+  lambda_name?: InputMaybe<String_Comparison_Exp>;
+  last_updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  pct_oracle_resp?: InputMaybe<Smallint_Comparison_Exp>;
+  round?: InputMaybe<Bigint_Comparison_Exp>;
+  timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** aggregate max on columns */
+export type Aggregator_History_Data_Max_Fields = {
+  __typename?: 'aggregator_history_data_max_fields';
+  aggregator_id?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['float8']>;
+  epoch?: Maybe<Scalars['bigint']>;
+  id?: Maybe<Scalars['bigint']>;
+  lambda_bytes?: Maybe<Scalars['String']>;
+  lambda_name?: Maybe<Scalars['String']>;
+  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  pct_oracle_resp?: Maybe<Scalars['smallint']>;
+  round?: Maybe<Scalars['bigint']>;
+  timestamp?: Maybe<Scalars['timestamptz']>;
+};
+
+/** order by max() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Max_Order_By = {
+  aggregator_id?: InputMaybe<Order_By>;
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  lambda_bytes?: InputMaybe<Order_By>;
+  lambda_name?: InputMaybe<Order_By>;
+  last_updated_at?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Aggregator_History_Data_Min_Fields = {
+  __typename?: 'aggregator_history_data_min_fields';
+  aggregator_id?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['float8']>;
+  epoch?: Maybe<Scalars['bigint']>;
+  id?: Maybe<Scalars['bigint']>;
+  lambda_bytes?: Maybe<Scalars['String']>;
+  lambda_name?: Maybe<Scalars['String']>;
+  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  pct_oracle_resp?: Maybe<Scalars['smallint']>;
+  round?: Maybe<Scalars['bigint']>;
+  timestamp?: Maybe<Scalars['timestamptz']>;
+};
+
+/** order by min() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Min_Order_By = {
+  aggregator_id?: InputMaybe<Order_By>;
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  lambda_bytes?: InputMaybe<Order_By>;
+  lambda_name?: InputMaybe<Order_By>;
+  last_updated_at?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+};
+
+/** Ordering options when selecting data from "aggregator_history_data". */
+export type Aggregator_History_Data_Order_By = {
+  aggregator?: InputMaybe<Aggregator_Order_By>;
+  aggregator_id?: InputMaybe<Order_By>;
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  lambda_bytes?: InputMaybe<Order_By>;
+  lambda_name?: InputMaybe<Order_By>;
+  last_updated_at?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+};
+
+/** select columns of table "aggregator_history_data" */
+export enum Aggregator_History_Data_Select_Column {
+  /** column name */
+  AggregatorId = 'aggregator_id',
+  /** column name */
+  Data = 'data',
+  /** column name */
+  Epoch = 'epoch',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  LambdaBytes = 'lambda_bytes',
+  /** column name */
+  LambdaName = 'lambda_name',
+  /** column name */
+  LastUpdatedAt = 'last_updated_at',
+  /** column name */
+  PctOracleResp = 'pct_oracle_resp',
+  /** column name */
+  Round = 'round',
+  /** column name */
+  Timestamp = 'timestamp'
+}
+
+/** aggregate stddev on columns */
+export type Aggregator_History_Data_Stddev_Fields = {
+  __typename?: 'aggregator_history_data_stddev_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  pct_oracle_resp?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Stddev_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Aggregator_History_Data_Stddev_Pop_Fields = {
+  __typename?: 'aggregator_history_data_stddev_pop_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  pct_oracle_resp?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_pop() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Stddev_Pop_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Aggregator_History_Data_Stddev_Samp_Fields = {
+  __typename?: 'aggregator_history_data_stddev_samp_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  pct_oracle_resp?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_samp() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Stddev_Samp_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "aggregator_history_data" */
+export type Aggregator_History_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_History_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_History_Data_Stream_Cursor_Value_Input = {
+  aggregator_id?: InputMaybe<Scalars['String']>;
+  data?: InputMaybe<Scalars['float8']>;
+  epoch?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  pct_oracle_resp?: InputMaybe<Scalars['smallint']>;
+  round?: InputMaybe<Scalars['bigint']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+};
+
+/** aggregate sum on columns */
+export type Aggregator_History_Data_Sum_Fields = {
+  __typename?: 'aggregator_history_data_sum_fields';
+  data?: Maybe<Scalars['float8']>;
+  epoch?: Maybe<Scalars['bigint']>;
+  id?: Maybe<Scalars['bigint']>;
+  pct_oracle_resp?: Maybe<Scalars['smallint']>;
+  round?: Maybe<Scalars['bigint']>;
+};
+
+/** order by sum() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Sum_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_pop on columns */
+export type Aggregator_History_Data_Var_Pop_Fields = {
+  __typename?: 'aggregator_history_data_var_pop_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  pct_oracle_resp?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_pop() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Var_Pop_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Aggregator_History_Data_Var_Samp_Fields = {
+  __typename?: 'aggregator_history_data_var_samp_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  pct_oracle_resp?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_samp() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Var_Samp_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Aggregator_History_Data_Variance_Fields = {
+  __typename?: 'aggregator_history_data_variance_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  pct_oracle_resp?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by variance() on columns of table "aggregator_history_data" */
+export type Aggregator_History_Data_Variance_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  pct_oracle_resp?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
 };
 
 /** columns and relationships of "aggregator_lambda" */
@@ -1961,6 +2441,23 @@ export type Aggregator_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "aggregator_lambda" */
 export type Aggregator_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "aggregator_lambda" */
+export type Aggregator_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -2516,6 +3013,26 @@ export type Aggregator_Oracle_Reward_Stddev_Samp_Order_By = {
   type?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "aggregator_oracle_reward" */
+export type Aggregator_Oracle_Reward_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Oracle_Reward_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Oracle_Reward_Stream_Cursor_Value_Input = {
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  oracle_id?: InputMaybe<Scalars['bigint']>;
+  reward?: InputMaybe<Scalars['float8']>;
+  /** XTZ: 0\nSMVK: 1 */
+  type?: InputMaybe<Scalars['smallint']>;
+};
+
 /** aggregate sum on columns */
 export type Aggregator_Oracle_Reward_Sum_Fields = {
   __typename?: 'aggregator_oracle_reward_sum_fields';
@@ -2645,6 +3162,26 @@ export type Aggregator_Oracle_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "aggregator_oracle" */
+export type Aggregator_Oracle_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Oracle_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Oracle_Stream_Cursor_Value_Input = {
+  aggregator_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  peer_id?: InputMaybe<Scalars['String']>;
+  public_key?: InputMaybe<Scalars['String']>;
+  user_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Aggregator_Oracle_Sum_Fields = {
   __typename?: 'aggregator_oracle_sum_fields';
@@ -2703,6 +3240,7 @@ export type Aggregator_Order_By = {
   governance_id?: InputMaybe<Order_By>;
   governance_satellite_aggregators_aggregate?: InputMaybe<Governance_Satellite_Aggregator_Aggregate_Order_By>;
   heart_beat_seconds?: InputMaybe<Order_By>;
+  history_data_aggregate?: InputMaybe<Aggregator_History_Data_Aggregate_Order_By>;
   lambdas_aggregate?: InputMaybe<Aggregator_Lambda_Aggregate_Order_By>;
   last_completed_data?: InputMaybe<Order_By>;
   last_completed_data_epoch?: InputMaybe<Order_By>;
@@ -2858,6 +3396,41 @@ export type Aggregator_Stddev_Samp_Order_By = {
   pct_oracle_threshold?: InputMaybe<Order_By>;
   reward_amount_smvk?: InputMaybe<Order_By>;
   reward_amount_xtz?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "aggregator" */
+export type Aggregator_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  alpha_pct_per_thousand?: InputMaybe<Scalars['smallint']>;
+  creation_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  decimals?: InputMaybe<Scalars['smallint']>;
+  factory_id?: InputMaybe<Scalars['String']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  heart_beat_seconds?: InputMaybe<Scalars['bigint']>;
+  last_completed_data?: InputMaybe<Scalars['float8']>;
+  last_completed_data_epoch?: InputMaybe<Scalars['bigint']>;
+  last_completed_data_last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  last_completed_data_pct_oracle_resp?: InputMaybe<Scalars['smallint']>;
+  last_completed_data_round?: InputMaybe<Scalars['bigint']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  name?: InputMaybe<Scalars['String']>;
+  pct_oracle_threshold?: InputMaybe<Scalars['smallint']>;
+  reward_amount_smvk?: InputMaybe<Scalars['float8']>;
+  reward_amount_xtz?: InputMaybe<Scalars['float8']>;
+  token_0_symbol?: InputMaybe<Scalars['String']>;
+  token_1_symbol?: InputMaybe<Scalars['String']>;
+  update_data_paused?: InputMaybe<Scalars['Boolean']>;
+  withdraw_reward_smvk_paused?: InputMaybe<Scalars['Boolean']>;
+  withdraw_reward_xtz_paused?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** aggregate sum on columns */
@@ -3141,6 +3714,22 @@ export type Aggregator_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "aggregator_whitelist_contract" */
 export type Aggregator_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "aggregator_whitelist_contract" */
+export type Aggregator_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -3749,6 +4338,22 @@ export type Break_Glass_Action_Parameter_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "break_glass_action_parameter" */
+export type Break_Glass_Action_Parameter_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Break_Glass_Action_Parameter_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Break_Glass_Action_Parameter_Stream_Cursor_Value_Input = {
+  break_glass_action_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  name?: InputMaybe<Scalars['String']>;
+  value?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Break_Glass_Action_Parameter_Sum_Fields = {
   __typename?: 'break_glass_action_parameter_sum_fields';
@@ -3997,6 +4602,21 @@ export type Break_Glass_Action_Signer_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "break_glass_action_signer" */
+export type Break_Glass_Action_Signer_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Break_Glass_Action_Signer_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Break_Glass_Action_Signer_Stream_Cursor_Value_Input = {
+  break_glass_action_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  signer_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Break_Glass_Action_Signer_Sum_Fields = {
   __typename?: 'break_glass_action_signer_sum_fields';
@@ -4104,6 +4724,30 @@ export type Break_Glass_Action_Stddev_Samp_Order_By = {
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
   status?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "break_glass_action" */
+export type Break_Glass_Action_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Break_Glass_Action_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Break_Glass_Action_Stream_Cursor_Value_Input = {
+  action_type?: InputMaybe<Scalars['String']>;
+  break_glass_id?: InputMaybe<Scalars['String']>;
+  executed?: InputMaybe<Scalars['Boolean']>;
+  execution_datetime?: InputMaybe<Scalars['timestamptz']>;
+  execution_level?: InputMaybe<Scalars['bigint']>;
+  expiration_datetime?: InputMaybe<Scalars['timestamptz']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  initiator_id?: InputMaybe<Scalars['String']>;
+  signers_count?: InputMaybe<Scalars['smallint']>;
+  start_datetime?: InputMaybe<Scalars['timestamptz']>;
+  /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
+  status?: InputMaybe<Scalars['smallint']>;
 };
 
 /** aggregate sum on columns */
@@ -4461,6 +5105,24 @@ export type Break_Glass_Council_Member_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "break_glass_council_member" */
+export type Break_Glass_Council_Member_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Break_Glass_Council_Member_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Break_Glass_Council_Member_Stream_Cursor_Value_Input = {
+  break_glass_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  image?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  user_id?: InputMaybe<Scalars['String']>;
+  website?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Break_Glass_Council_Member_Sum_Fields = {
   __typename?: 'break_glass_council_member_sum_fields';
@@ -4670,6 +5332,22 @@ export type Break_Glass_General_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "break_glass_general_contract" */
 export type Break_Glass_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "break_glass_general_contract" */
+export type Break_Glass_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Break_Glass_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Break_Glass_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -4892,6 +5570,23 @@ export type Break_Glass_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "break_glass_lambda" */
+export type Break_Glass_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Break_Glass_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Break_Glass_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Break_Glass_Lambda_Sum_Fields = {
   __typename?: 'break_glass_lambda_sum_fields';
@@ -5102,6 +5797,29 @@ export type Break_Glass_Stddev_Samp_Order_By = {
   council_member_name_max_length?: InputMaybe<Order_By>;
   council_member_website_max_length?: InputMaybe<Order_By>;
   threshold?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "break_glass" */
+export type Break_Glass_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Break_Glass_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Break_Glass_Stream_Cursor_Value_Input = {
+  action_counter?: InputMaybe<Scalars['bigint']>;
+  action_expiry_days?: InputMaybe<Scalars['smallint']>;
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  council_member_image_max_length?: InputMaybe<Scalars['smallint']>;
+  council_member_name_max_length?: InputMaybe<Scalars['smallint']>;
+  council_member_website_max_length?: InputMaybe<Scalars['smallint']>;
+  glass_broken?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  threshold?: InputMaybe<Scalars['smallint']>;
 };
 
 /** aggregate sum on columns */
@@ -5353,6 +6071,22 @@ export type Break_Glass_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "break_glass_whitelist_contract" */
 export type Break_Glass_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "break_glass_whitelist_contract" */
+export type Break_Glass_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Break_Glass_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Break_Glass_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -5949,6 +6683,22 @@ export type Council_Action_Parameter_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "council_action_parameter" */
+export type Council_Action_Parameter_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Council_Action_Parameter_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Council_Action_Parameter_Stream_Cursor_Value_Input = {
+  council_action_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  name?: InputMaybe<Scalars['String']>;
+  value?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Council_Action_Parameter_Sum_Fields = {
   __typename?: 'council_action_parameter_sum_fields';
@@ -6197,6 +6947,21 @@ export type Council_Action_Signer_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "council_action_signer" */
+export type Council_Action_Signer_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Council_Action_Signer_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Council_Action_Signer_Stream_Cursor_Value_Input = {
+  council_action_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  signer_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Council_Action_Signer_Sum_Fields = {
   __typename?: 'council_action_signer_sum_fields';
@@ -6304,6 +7069,30 @@ export type Council_Action_Stddev_Samp_Order_By = {
   signers_count?: InputMaybe<Order_By>;
   /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
   status?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "council_action" */
+export type Council_Action_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Council_Action_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Council_Action_Stream_Cursor_Value_Input = {
+  action_type?: InputMaybe<Scalars['String']>;
+  council_id?: InputMaybe<Scalars['String']>;
+  executed?: InputMaybe<Scalars['Boolean']>;
+  execution_datetime?: InputMaybe<Scalars['timestamptz']>;
+  execution_level?: InputMaybe<Scalars['bigint']>;
+  expiration_datetime?: InputMaybe<Scalars['timestamptz']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  initiator_id?: InputMaybe<Scalars['String']>;
+  signers_count?: InputMaybe<Scalars['smallint']>;
+  start_datetime?: InputMaybe<Scalars['timestamptz']>;
+  /** PENDING: 0\nFLUSHED: 1\nEXECUTED: 2 */
+  status?: InputMaybe<Scalars['smallint']>;
 };
 
 /** aggregate sum on columns */
@@ -6666,6 +7455,24 @@ export type Council_Council_Member_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "council_council_member" */
+export type Council_Council_Member_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Council_Council_Member_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Council_Council_Member_Stream_Cursor_Value_Input = {
+  council_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  image?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  user_id?: InputMaybe<Scalars['String']>;
+  website?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Council_Council_Member_Sum_Fields = {
   __typename?: 'council_council_member_sum_fields';
@@ -6875,6 +7682,22 @@ export type Council_General_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "council_general_contract" */
 export type Council_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "council_general_contract" */
+export type Council_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Council_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Council_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -7095,6 +7918,23 @@ export type Council_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "council_lambda" */
 export type Council_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "council_lambda" */
+export type Council_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Council_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Council_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -7330,6 +8170,30 @@ export type Council_Stddev_Samp_Order_By = {
   request_purpose_max_length?: InputMaybe<Order_By>;
   request_token_name_max_length?: InputMaybe<Order_By>;
   threshold?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "council" */
+export type Council_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Council_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Council_Stream_Cursor_Value_Input = {
+  action_counter?: InputMaybe<Scalars['bigint']>;
+  action_expiry_days?: InputMaybe<Scalars['bigint']>;
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  council_member_image_max_length?: InputMaybe<Scalars['smallint']>;
+  council_member_name_max_length?: InputMaybe<Scalars['smallint']>;
+  council_member_website_max_length?: InputMaybe<Scalars['smallint']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  request_purpose_max_length?: InputMaybe<Scalars['smallint']>;
+  request_token_name_max_length?: InputMaybe<Scalars['smallint']>;
+  threshold?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -7599,6 +8463,22 @@ export type Council_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "council_whitelist_contract" */
+export type Council_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Council_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Council_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Council_Whitelist_Contract_Sum_Fields = {
   __typename?: 'council_whitelist_contract_sum_fields';
@@ -7642,6 +8522,14 @@ export type Council_Whitelist_Contract_Variance_Fields = {
 export type Council_Whitelist_Contract_Variance_Order_By = {
   id?: InputMaybe<Order_By>;
 };
+
+/** ordering argument of a cursor */
+export enum Cursor_Ordering {
+  /** ascending ordering of the cursor */
+  Asc = 'ASC',
+  /** descending ordering of the cursor */
+  Desc = 'DESC'
+}
 
 /** columns and relationships of "delegation" */
 export type Delegation = {
@@ -8077,6 +8965,22 @@ export type Delegation_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "delegation_general_contract" */
+export type Delegation_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Delegation_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Delegation_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Delegation_General_Contract_Sum_Fields = {
   __typename?: 'delegation_general_contract_sum_fields';
@@ -8295,6 +9199,23 @@ export type Delegation_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "delegation_lambda" */
 export type Delegation_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "delegation_lambda" */
+export type Delegation_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Delegation_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Delegation_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -8614,6 +9535,22 @@ export type Delegation_Record_Stddev_Samp_Order_By = {
   satellite_id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "delegation_record" */
+export type Delegation_Record_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Delegation_Record_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Delegation_Record_Stream_Cursor_Value_Input = {
+  delegation_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  satellite_id?: InputMaybe<Scalars['bigint']>;
+  user_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Delegation_Record_Sum_Fields = {
   __typename?: 'delegation_record_sum_fields';
@@ -8771,6 +9708,35 @@ export type Delegation_Stddev_Samp_Order_By = {
   satellite_image_max_length?: InputMaybe<Order_By>;
   satellite_name_max_length?: InputMaybe<Order_By>;
   satellite_website_max_length?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "delegation" */
+export type Delegation_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Delegation_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Delegation_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  delegate_to_satellite_paused?: InputMaybe<Scalars['Boolean']>;
+  delegation_ratio?: InputMaybe<Scalars['smallint']>;
+  distribute_reward_paused?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  max_satellites?: InputMaybe<Scalars['smallint']>;
+  minimum_smvk_balance?: InputMaybe<Scalars['float8']>;
+  register_as_satellite_paused?: InputMaybe<Scalars['Boolean']>;
+  satellite_description_max_length?: InputMaybe<Scalars['smallint']>;
+  satellite_image_max_length?: InputMaybe<Scalars['smallint']>;
+  satellite_name_max_length?: InputMaybe<Scalars['smallint']>;
+  satellite_website_max_length?: InputMaybe<Scalars['smallint']>;
+  undelegate_from_satellite_paused?: InputMaybe<Scalars['Boolean']>;
+  unregister_as_satellite_paused?: InputMaybe<Scalars['Boolean']>;
+  update_satellite_record_paused?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** aggregate sum on columns */
@@ -9032,6 +9998,22 @@ export type Delegation_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "delegation_whitelist_contract" */
+export type Delegation_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Delegation_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Delegation_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Delegation_Whitelist_Contract_Sum_Fields = {
   __typename?: 'delegation_whitelist_contract_sum_fields';
@@ -9271,6 +10253,25 @@ export type Dipdup_Contract_Metadata_Stddev_Samp_Fields = {
   update_id?: Maybe<Scalars['Float']>;
 };
 
+/** Streaming cursor of the table "dipdup_contract_metadata" */
+export type Dipdup_Contract_Metadata_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Dipdup_Contract_Metadata_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Dipdup_Contract_Metadata_Stream_Cursor_Value_Input = {
+  contract?: InputMaybe<Scalars['String']>;
+  created_at?: InputMaybe<Scalars['timestamptz']>;
+  id?: InputMaybe<Scalars['Int']>;
+  metadata?: InputMaybe<Scalars['jsonb']>;
+  network?: InputMaybe<Scalars['String']>;
+  update_id?: InputMaybe<Scalars['Int']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Dipdup_Contract_Metadata_Sum_Fields = {
   __typename?: 'dipdup_contract_metadata_sum_fields';
@@ -9331,6 +10332,23 @@ export enum Dipdup_Contract_Select_Column {
   /** column name */
   UpdatedAt = 'updated_at'
 }
+
+/** Streaming cursor of the table "dipdup_contract" */
+export type Dipdup_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Dipdup_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Dipdup_Contract_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  created_at?: InputMaybe<Scalars['timestamptz']>;
+  name?: InputMaybe<Scalars['String']>;
+  typename?: InputMaybe<Scalars['String']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
 
 /** columns and relationships of "dipdup_head" */
 export type Dipdup_Head = {
@@ -9506,6 +10524,20 @@ export enum Dipdup_Head_Status_Select_Column {
   Status = 'status'
 }
 
+/** Streaming cursor of the table "dipdup_head_status" */
+export type Dipdup_Head_Status_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Dipdup_Head_Status_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Dipdup_Head_Status_Stream_Cursor_Value_Input = {
+  name?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate stddev on columns */
 export type Dipdup_Head_Stddev_Fields = {
   __typename?: 'dipdup_head_stddev_fields';
@@ -9522,6 +10554,24 @@ export type Dipdup_Head_Stddev_Pop_Fields = {
 export type Dipdup_Head_Stddev_Samp_Fields = {
   __typename?: 'dipdup_head_stddev_samp_fields';
   level?: Maybe<Scalars['Float']>;
+};
+
+/** Streaming cursor of the table "dipdup_head" */
+export type Dipdup_Head_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Dipdup_Head_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Dipdup_Head_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']>;
+  hash?: InputMaybe<Scalars['String']>;
+  level?: InputMaybe<Scalars['Int']>;
+  name?: InputMaybe<Scalars['String']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -9703,6 +10753,29 @@ export type Dipdup_Index_Stddev_Pop_Fields = {
 export type Dipdup_Index_Stddev_Samp_Fields = {
   __typename?: 'dipdup_index_stddev_samp_fields';
   level?: Maybe<Scalars['Float']>;
+};
+
+/** Streaming cursor of the table "dipdup_index" */
+export type Dipdup_Index_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Dipdup_Index_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Dipdup_Index_Stream_Cursor_Value_Input = {
+  config_hash?: InputMaybe<Scalars['String']>;
+  created_at?: InputMaybe<Scalars['timestamptz']>;
+  level?: InputMaybe<Scalars['Int']>;
+  name?: InputMaybe<Scalars['String']>;
+  /** NEW: NEW\nSYNCING: SYNCING\nREALTIME: REALTIME\nROLLBACK: ROLLBACK\nONESHOT: ONESHOT */
+  status?: InputMaybe<Scalars['String']>;
+  template?: InputMaybe<Scalars['String']>;
+  template_values?: InputMaybe<Scalars['jsonb']>;
+  /** operation: operation\nbig_map: big_map\nhead: head\ntoken_transfer: token_transfer */
+  type?: InputMaybe<Scalars['String']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -9887,6 +10960,28 @@ export type Dipdup_Model_Update_Stddev_Samp_Fields = {
   level?: Maybe<Scalars['Float']>;
 };
 
+/** Streaming cursor of the table "dipdup_model_update" */
+export type Dipdup_Model_Update_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Dipdup_Model_Update_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Dipdup_Model_Update_Stream_Cursor_Value_Input = {
+  /** INSERT: INSERT\nUPDATE: UPDATE\nDELETE: DELETE */
+  action?: InputMaybe<Scalars['String']>;
+  created_at?: InputMaybe<Scalars['timestamptz']>;
+  data?: InputMaybe<Scalars['jsonb']>;
+  id?: InputMaybe<Scalars['Int']>;
+  index?: InputMaybe<Scalars['String']>;
+  level?: InputMaybe<Scalars['Int']>;
+  model_name?: InputMaybe<Scalars['String']>;
+  model_pk?: InputMaybe<Scalars['String']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Dipdup_Model_Update_Sum_Fields = {
   __typename?: 'dipdup_model_update_sum_fields';
@@ -10004,6 +11099,24 @@ export enum Dipdup_Schema_Select_Column {
   /** column name */
   UpdatedAt = 'updated_at'
 }
+
+/** Streaming cursor of the table "dipdup_schema" */
+export type Dipdup_Schema_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Dipdup_Schema_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Dipdup_Schema_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']>;
+  hash?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  /** manual: manual\nmigration: migration\nrollback: rollback\nconfig_modified: config_modified\nschema_modified: schema_modified */
+  reindex?: InputMaybe<Scalars['String']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
 
 /** columns and relationships of "dipdup_token_metadata" */
 export type Dipdup_Token_Metadata = {
@@ -10151,6 +11264,26 @@ export type Dipdup_Token_Metadata_Stddev_Samp_Fields = {
   __typename?: 'dipdup_token_metadata_stddev_samp_fields';
   id?: Maybe<Scalars['Float']>;
   update_id?: Maybe<Scalars['Float']>;
+};
+
+/** Streaming cursor of the table "dipdup_token_metadata" */
+export type Dipdup_Token_Metadata_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Dipdup_Token_Metadata_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Dipdup_Token_Metadata_Stream_Cursor_Value_Input = {
+  contract?: InputMaybe<Scalars['String']>;
+  created_at?: InputMaybe<Scalars['timestamptz']>;
+  id?: InputMaybe<Scalars['Int']>;
+  metadata?: InputMaybe<Scalars['jsonb']>;
+  network?: InputMaybe<Scalars['String']>;
+  token_id?: InputMaybe<Scalars['String']>;
+  update_id?: InputMaybe<Scalars['Int']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -10601,6 +11734,22 @@ export type Doorman_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "doorman_general_contract" */
+export type Doorman_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Doorman_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Doorman_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Doorman_General_Contract_Sum_Fields = {
   __typename?: 'doorman_general_contract_sum_fields';
@@ -10819,6 +11968,23 @@ export type Doorman_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "doorman_lambda" */
 export type Doorman_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "doorman_lambda" */
+export type Doorman_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Doorman_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Doorman_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -11164,6 +12330,23 @@ export type Doorman_Stake_Account_Stddev_Samp_Order_By = {
   smvk_balance?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "doorman_stake_account" */
+export type Doorman_Stake_Account_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Doorman_Stake_Account_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Doorman_Stake_Account_Stream_Cursor_Value_Input = {
+  doorman_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  participation_fees_per_share?: InputMaybe<Scalars['float8']>;
+  smvk_balance?: InputMaybe<Scalars['float8']>;
+  user_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Doorman_Stake_Account_Sum_Fields = {
   __typename?: 'doorman_stake_account_sum_fields';
@@ -11267,6 +12450,32 @@ export type Doorman_Stddev_Samp_Order_By = {
   accumulated_fees_per_share?: InputMaybe<Order_By>;
   min_mvk_amount?: InputMaybe<Order_By>;
   unclaimed_rewards?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "doorman" */
+export type Doorman_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Doorman_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Doorman_Stream_Cursor_Value_Input = {
+  accumulated_fees_per_share?: InputMaybe<Scalars['float8']>;
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  compound_paused?: InputMaybe<Scalars['Boolean']>;
+  farm_claimed_paused?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  min_mvk_amount?: InputMaybe<Scalars['float8']>;
+  on_vault_deposit_smvk_paused?: InputMaybe<Scalars['Boolean']>;
+  on_vault_liquidate_smvk_paused?: InputMaybe<Scalars['Boolean']>;
+  on_vault_withdraw_smvk_paused?: InputMaybe<Scalars['Boolean']>;
+  stake_paused?: InputMaybe<Scalars['Boolean']>;
+  unclaimed_rewards?: InputMaybe<Scalars['float8']>;
+  unstake_paused?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** aggregate sum on columns */
@@ -11494,6 +12703,22 @@ export type Doorman_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "doorman_whitelist_contract" */
 export type Doorman_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "doorman_whitelist_contract" */
+export type Doorman_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Doorman_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Doorman_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -11924,6 +13149,22 @@ export type Emergency_Governance_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "emergency_governance_general_contract" */
+export type Emergency_Governance_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Emergency_Governance_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Emergency_Governance_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Emergency_Governance_General_Contract_Sum_Fields = {
   __typename?: 'emergency_governance_general_contract_sum_fields';
@@ -12142,6 +13383,23 @@ export type Emergency_Governance_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "emergency_governance_lambda" */
 export type Emergency_Governance_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "emergency_governance_lambda" */
+export type Emergency_Governance_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Emergency_Governance_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Emergency_Governance_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -12613,6 +13871,33 @@ export type Emergency_Governance_Record_Stddev_Samp_Order_By = {
   total_smvk_votes?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "emergency_governance_record" */
+export type Emergency_Governance_Record_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Emergency_Governance_Record_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Emergency_Governance_Record_Stream_Cursor_Value_Input = {
+  description?: InputMaybe<Scalars['String']>;
+  dropped?: InputMaybe<Scalars['Boolean']>;
+  emergency_governance_id?: InputMaybe<Scalars['String']>;
+  executed?: InputMaybe<Scalars['Boolean']>;
+  execution_datetime?: InputMaybe<Scalars['timestamptz']>;
+  execution_level?: InputMaybe<Scalars['bigint']>;
+  expiration_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  proposer_id?: InputMaybe<Scalars['String']>;
+  smvk_percentage_required?: InputMaybe<Scalars['float8']>;
+  smvk_required_for_trigger?: InputMaybe<Scalars['float8']>;
+  start_level?: InputMaybe<Scalars['bigint']>;
+  start_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  title?: InputMaybe<Scalars['String']>;
+  total_smvk_votes?: InputMaybe<Scalars['float8']>;
+};
+
 /** aggregate sum on columns */
 export type Emergency_Governance_Record_Sum_Fields = {
   __typename?: 'emergency_governance_record_sum_fields';
@@ -12814,6 +14099,32 @@ export type Emergency_Governance_Stddev_Samp_Order_By = {
   required_fee_mutez?: InputMaybe<Order_By>;
   smvk_percentage_required?: InputMaybe<Order_By>;
   vote_expiry_days?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "emergency_governance" */
+export type Emergency_Governance_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Emergency_Governance_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Emergency_Governance_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  current_emergency_record_id?: InputMaybe<Scalars['bigint']>;
+  decimals?: InputMaybe<Scalars['smallint']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  min_smvk_required_to_trigger?: InputMaybe<Scalars['float8']>;
+  min_smvk_required_to_vote?: InputMaybe<Scalars['float8']>;
+  next_emergency_record_id?: InputMaybe<Scalars['bigint']>;
+  proposal_desc_max_length?: InputMaybe<Scalars['smallint']>;
+  proposal_title_max_length?: InputMaybe<Scalars['smallint']>;
+  required_fee_mutez?: InputMaybe<Scalars['bigint']>;
+  smvk_percentage_required?: InputMaybe<Scalars['smallint']>;
+  vote_expiry_days?: InputMaybe<Scalars['smallint']>;
 };
 
 /** aggregate sum on columns */
@@ -13128,6 +14439,23 @@ export type Emergency_Governance_Vote_Stddev_Samp_Order_By = {
   smvk_amount?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "emergency_governance_vote" */
+export type Emergency_Governance_Vote_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Emergency_Governance_Vote_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Emergency_Governance_Vote_Stream_Cursor_Value_Input = {
+  emergency_governance_record_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  smvk_amount?: InputMaybe<Scalars['float8']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  voter_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Emergency_Governance_Vote_Sum_Fields = {
   __typename?: 'emergency_governance_vote_sum_fields';
@@ -13353,6 +14681,22 @@ export type Emergency_Governance_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "emergency_governance_whitelist_contract" */
 export type Emergency_Governance_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "emergency_governance_whitelist_contract" */
+export type Emergency_Governance_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Emergency_Governance_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Emergency_Governance_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -13759,6 +15103,25 @@ export type Farm_Account_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
   participation_rewards_per_share?: InputMaybe<Order_By>;
   unclaimed_rewards?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "farm_account" */
+export type Farm_Account_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Account_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Account_Stream_Cursor_Value_Input = {
+  claimed_rewards?: InputMaybe<Scalars['float8']>;
+  deposited_amount?: InputMaybe<Scalars['bigint']>;
+  farm_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  participation_rewards_per_share?: InputMaybe<Scalars['float8']>;
+  unclaimed_rewards?: InputMaybe<Scalars['float8']>;
+  user_id?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -14330,6 +15693,22 @@ export type Farm_Factory_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "farm_factory_general_contract" */
+export type Farm_Factory_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Factory_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Factory_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Farm_Factory_General_Contract_Sum_Fields = {
   __typename?: 'farm_factory_general_contract_sum_fields';
@@ -14548,6 +15927,23 @@ export type Farm_Factory_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "farm_factory_lambda" */
 export type Farm_Factory_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "farm_factory_lambda" */
+export type Farm_Factory_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Factory_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Factory_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -14826,6 +16222,23 @@ export type Farm_Factory_Product_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "farm_factory_product_lambda" */
+export type Farm_Factory_Product_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Factory_Product_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Factory_Product_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Farm_Factory_Product_Lambda_Sum_Fields = {
   __typename?: 'farm_factory_product_lambda_sum_fields';
@@ -14921,6 +16334,26 @@ export type Farm_Factory_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "farm_factory" */
 export type Farm_Factory_Stddev_Samp_Order_By = {
   farm_name_max_length?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "farm_factory" */
+export type Farm_Factory_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Factory_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Factory_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  create_farm_paused?: InputMaybe<Scalars['Boolean']>;
+  farm_name_max_length?: InputMaybe<Scalars['smallint']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  track_farm_paused?: InputMaybe<Scalars['Boolean']>;
+  untrack_farm_paused?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** aggregate sum on columns */
@@ -15134,6 +16567,22 @@ export type Farm_Factory_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "farm_factory_whitelist_contract" */
+export type Farm_Factory_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Factory_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Factory_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Farm_Factory_Whitelist_Contract_Sum_Fields = {
   __typename?: 'farm_factory_whitelist_contract_sum_fields';
@@ -15343,6 +16792,22 @@ export type Farm_General_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "farm_general_contract" */
 export type Farm_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "farm_general_contract" */
+export type Farm_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -15563,6 +17028,23 @@ export type Farm_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "farm_lambda" */
 export type Farm_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "farm_lambda" */
+export type Farm_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -15889,6 +17371,45 @@ export type Farm_Stddev_Samp_Order_By = {
   unpaid_rewards?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "farm" */
+export type Farm_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Stream_Cursor_Value_Input = {
+  accumulated_rewards_per_share?: InputMaybe<Scalars['float8']>;
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  claim_paused?: InputMaybe<Scalars['Boolean']>;
+  creation_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  current_reward_per_block?: InputMaybe<Scalars['float8']>;
+  deposit_paused?: InputMaybe<Scalars['Boolean']>;
+  factory_id?: InputMaybe<Scalars['String']>;
+  force_rewards_from_transfer?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  infinite?: InputMaybe<Scalars['Boolean']>;
+  init?: InputMaybe<Scalars['Boolean']>;
+  init_block?: InputMaybe<Scalars['bigint']>;
+  last_block_update?: InputMaybe<Scalars['bigint']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  lp_token_address?: InputMaybe<Scalars['String']>;
+  lp_token_balance?: InputMaybe<Scalars['bigint']>;
+  min_block_time_snapshot?: InputMaybe<Scalars['smallint']>;
+  name?: InputMaybe<Scalars['String']>;
+  open?: InputMaybe<Scalars['Boolean']>;
+  paid_rewards?: InputMaybe<Scalars['float8']>;
+  token0_address?: InputMaybe<Scalars['String']>;
+  token1_address?: InputMaybe<Scalars['String']>;
+  total_blocks?: InputMaybe<Scalars['bigint']>;
+  total_rewards?: InputMaybe<Scalars['float8']>;
+  unpaid_rewards?: InputMaybe<Scalars['float8']>;
+  withdraw_paused?: InputMaybe<Scalars['Boolean']>;
+};
+
 /** aggregate sum on columns */
 export type Farm_Sum_Fields = {
   __typename?: 'farm_sum_fields';
@@ -16170,6 +17691,22 @@ export type Farm_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "farm_whitelist_contract" */
 export type Farm_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "farm_whitelist_contract" */
+export type Farm_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Farm_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Farm_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -17428,6 +18965,22 @@ export type Governance_Financial_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_financial_general_contract" */
+export type Governance_Financial_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Financial_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Financial_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Financial_General_Contract_Sum_Fields = {
   __typename?: 'governance_financial_general_contract_sum_fields';
@@ -17646,6 +19199,23 @@ export type Governance_Financial_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_financial_lambda" */
 export type Governance_Financial_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_financial_lambda" */
+export type Governance_Financial_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Financial_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Financial_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -18164,6 +19734,38 @@ export type Governance_Financial_Request_Stddev_Samp_Order_By = {
   yay_vote_smvk_total?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_financial_request" */
+export type Governance_Financial_Request_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Financial_Request_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Financial_Request_Stream_Cursor_Value_Input = {
+  executed?: InputMaybe<Scalars['Boolean']>;
+  execution_datetime?: InputMaybe<Scalars['timestamptz']>;
+  expiration_datetime?: InputMaybe<Scalars['timestamptz']>;
+  governance_financial_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  nay_vote_smvk_total?: InputMaybe<Scalars['float8']>;
+  pass_vote_smvk_total?: InputMaybe<Scalars['float8']>;
+  request_purpose?: InputMaybe<Scalars['String']>;
+  request_type?: InputMaybe<Scalars['String']>;
+  requested_datetime?: InputMaybe<Scalars['timestamptz']>;
+  requester_id?: InputMaybe<Scalars['String']>;
+  smvk_percentage_for_approval?: InputMaybe<Scalars['smallint']>;
+  smvk_required_for_approval?: InputMaybe<Scalars['float8']>;
+  snapshot_smvk_total_supply?: InputMaybe<Scalars['float8']>;
+  /** ACTIVE: 0\nDROPPED: 1 */
+  status?: InputMaybe<Scalars['smallint']>;
+  token_address?: InputMaybe<Scalars['String']>;
+  token_amount?: InputMaybe<Scalars['float8']>;
+  treasury_id?: InputMaybe<Scalars['String']>;
+  yay_vote_smvk_total?: InputMaybe<Scalars['float8']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Financial_Request_Sum_Fields = {
   __typename?: 'governance_financial_request_sum_fields';
@@ -18510,6 +20112,25 @@ export type Governance_Financial_Request_Vote_Stddev_Samp_Order_By = {
   vote?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_financial_request_vote" */
+export type Governance_Financial_Request_Vote_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Financial_Request_Vote_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Financial_Request_Vote_Stream_Cursor_Value_Input = {
+  governance_financial_request_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  satellite_snapshot_id?: InputMaybe<Scalars['bigint']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  /** NAY: 0\nYAY: 1\nPASS: 2 */
+  vote?: InputMaybe<Scalars['smallint']>;
+  voter_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Financial_Request_Vote_Sum_Fields = {
   __typename?: 'governance_financial_request_vote_sum_fields';
@@ -18647,6 +20268,25 @@ export type Governance_Financial_Stddev_Samp_Order_By = {
   fin_req_approval_percentage?: InputMaybe<Order_By>;
   fin_req_counter?: InputMaybe<Order_By>;
   fin_req_duration_in_days?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_financial" */
+export type Governance_Financial_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Financial_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Financial_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  fin_req_approval_percentage?: InputMaybe<Scalars['smallint']>;
+  fin_req_counter?: InputMaybe<Scalars['bigint']>;
+  fin_req_duration_in_days?: InputMaybe<Scalars['smallint']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -18876,6 +20516,22 @@ export type Governance_Financial_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_financial_whitelist_contract" */
+export type Governance_Financial_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Financial_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Financial_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Financial_Whitelist_Contract_Sum_Fields = {
   __typename?: 'governance_financial_whitelist_contract_sum_fields';
@@ -19087,6 +20743,22 @@ export type Governance_Financial_Whitelist_Token_Contract_Stddev_Samp_Order_By =
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_financial_whitelist_token_contract" */
+export type Governance_Financial_Whitelist_Token_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Financial_Whitelist_Token_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Financial_Whitelist_Token_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Financial_Whitelist_Token_Contract_Sum_Fields = {
   __typename?: 'governance_financial_whitelist_token_contract_sum_fields';
@@ -19296,6 +20968,22 @@ export type Governance_General_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_general_contract" */
 export type Governance_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_general_contract" */
+export type Governance_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -19516,6 +21204,23 @@ export type Governance_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_lambda" */
 export type Governance_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_lambda" */
+export type Governance_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -20160,6 +21865,23 @@ export type Governance_Proposal_Data_Stddev_Samp_Order_By = {
   record_internal_id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_proposal_data" */
+export type Governance_Proposal_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proposal_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proposal_Data_Stream_Cursor_Value_Input = {
+  bytes?: InputMaybe<Scalars['String']>;
+  governance_proposal_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  record_internal_id?: InputMaybe<Scalars['smallint']>;
+  title?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Proposal_Data_Sum_Fields = {
   __typename?: 'governance_proposal_data_sum_fields';
@@ -20629,6 +22351,25 @@ export type Governance_Proposal_Payment_Stddev_Samp_Order_By = {
   token_amount?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_proposal_payment" */
+export type Governance_Proposal_Payment_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proposal_Payment_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proposal_Payment_Stream_Cursor_Value_Input = {
+  governance_proposal_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  record_internal_id?: InputMaybe<Scalars['smallint']>;
+  title?: InputMaybe<Scalars['String']>;
+  to__id?: InputMaybe<Scalars['String']>;
+  token_address?: InputMaybe<Scalars['String']>;
+  token_amount?: InputMaybe<Scalars['float8']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Proposal_Payment_Sum_Fields = {
   __typename?: 'governance_proposal_payment_sum_fields';
@@ -20936,6 +22677,55 @@ export type Governance_Proposal_Stddev_Samp_Order_By = {
   total_voters_reward?: InputMaybe<Order_By>;
   yay_vote_count?: InputMaybe<Order_By>;
   yay_vote_smvk_total?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_proposal" */
+export type Governance_Proposal_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proposal_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proposal_Stream_Cursor_Value_Input = {
+  current_cycle_end_level?: InputMaybe<Scalars['bigint']>;
+  current_cycle_start_level?: InputMaybe<Scalars['bigint']>;
+  current_round_proposal?: InputMaybe<Scalars['Boolean']>;
+  cycle?: InputMaybe<Scalars['bigint']>;
+  description?: InputMaybe<Scalars['String']>;
+  executed?: InputMaybe<Scalars['Boolean']>;
+  execution_counter?: InputMaybe<Scalars['smallint']>;
+  execution_datetime?: InputMaybe<Scalars['timestamptz']>;
+  execution_ready?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  invoice?: InputMaybe<Scalars['String']>;
+  locked?: InputMaybe<Scalars['Boolean']>;
+  min_proposal_round_vote_pct?: InputMaybe<Scalars['bigint']>;
+  min_proposal_round_vote_req?: InputMaybe<Scalars['bigint']>;
+  min_quorum_percentage?: InputMaybe<Scalars['bigint']>;
+  min_yay_vote_percentage?: InputMaybe<Scalars['float8']>;
+  nay_vote_count?: InputMaybe<Scalars['bigint']>;
+  nay_vote_smvk_total?: InputMaybe<Scalars['float8']>;
+  pass_vote_count?: InputMaybe<Scalars['bigint']>;
+  pass_vote_smvk_total?: InputMaybe<Scalars['float8']>;
+  payment_processed?: InputMaybe<Scalars['Boolean']>;
+  proposal_vote_count?: InputMaybe<Scalars['bigint']>;
+  proposal_vote_smvk_total?: InputMaybe<Scalars['float8']>;
+  proposer_id?: InputMaybe<Scalars['String']>;
+  quorum_count?: InputMaybe<Scalars['bigint']>;
+  quorum_smvk_total?: InputMaybe<Scalars['float8']>;
+  reward_claim_ready?: InputMaybe<Scalars['Boolean']>;
+  source_code?: InputMaybe<Scalars['String']>;
+  start_datetime?: InputMaybe<Scalars['timestamptz']>;
+  /** ACTIVE: 0\nDROPPED: 1 */
+  status?: InputMaybe<Scalars['smallint']>;
+  success_reward?: InputMaybe<Scalars['float8']>;
+  title?: InputMaybe<Scalars['String']>;
+  total_voters_reward?: InputMaybe<Scalars['float8']>;
+  yay_vote_count?: InputMaybe<Scalars['bigint']>;
+  yay_vote_smvk_total?: InputMaybe<Scalars['float8']>;
 };
 
 /** aggregate sum on columns */
@@ -21419,6 +23209,28 @@ export type Governance_Proposal_Vote_Stddev_Samp_Order_By = {
   voting_power?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_proposal_vote" */
+export type Governance_Proposal_Vote_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proposal_Vote_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proposal_Vote_Stream_Cursor_Value_Input = {
+  current_round_vote?: InputMaybe<Scalars['Boolean']>;
+  governance_proposal_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  /** PROPOSAL: 0\nVOTING: 1\nTIMELOCK: 2 */
+  round?: InputMaybe<Scalars['smallint']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  /** NAY: 0\nYAY: 1\nPASS: 2 */
+  vote?: InputMaybe<Scalars['smallint']>;
+  voter_id?: InputMaybe<Scalars['String']>;
+  voting_power?: InputMaybe<Scalars['float8']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Proposal_Vote_Sum_Fields = {
   __typename?: 'governance_proposal_vote_sum_fields';
@@ -21855,6 +23667,22 @@ export type Governance_Proxy_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_proxy_general_contract" */
+export type Governance_Proxy_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proxy_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proxy_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Proxy_General_Contract_Sum_Fields = {
   __typename?: 'governance_proxy_general_contract_sum_fields';
@@ -22073,6 +23901,23 @@ export type Governance_Proxy_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_proxy_lambda" */
 export type Governance_Proxy_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_proxy_lambda" */
+export type Governance_Proxy_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proxy_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proxy_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -22343,6 +24188,23 @@ export type Governance_Proxy_Proxy_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_proxy_proxy_lambda" */
+export type Governance_Proxy_Proxy_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proxy_Proxy_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proxy_Proxy_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Proxy_Proxy_Lambda_Sum_Fields = {
   __typename?: 'governance_proxy_proxy_lambda_sum_fields';
@@ -22398,6 +24260,22 @@ export enum Governance_Proxy_Select_Column {
   /** column name */
   LastUpdatedAt = 'last_updated_at'
 }
+
+/** Streaming cursor of the table "governance_proxy" */
+export type Governance_Proxy_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proxy_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proxy_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
 
 /** columns and relationships of "governance_proxy_whitelist_contract" */
 export type Governance_Proxy_Whitelist_Contract = {
@@ -22564,6 +24442,22 @@ export type Governance_Proxy_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_proxy_whitelist_contract" */
 export type Governance_Proxy_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_proxy_whitelist_contract" */
+export type Governance_Proxy_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proxy_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proxy_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -22775,6 +24669,22 @@ export type Governance_Proxy_Whitelist_Token_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_proxy_whitelist_token_contract" */
 export type Governance_Proxy_Whitelist_Token_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_proxy_whitelist_token_contract" */
+export type Governance_Proxy_Whitelist_Token_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Proxy_Whitelist_Token_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Proxy_Whitelist_Token_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -23435,6 +25345,22 @@ export type Governance_Satellite_Action_Parameter_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_satellite_action_parameter" */
+export type Governance_Satellite_Action_Parameter_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Action_Parameter_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Action_Parameter_Stream_Cursor_Value_Input = {
+  governance_satellite_action_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  name?: InputMaybe<Scalars['String']>;
+  value?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Satellite_Action_Parameter_Sum_Fields = {
   __typename?: 'governance_satellite_action_parameter_sum_fields';
@@ -23602,6 +25528,35 @@ export type Governance_Satellite_Action_Stddev_Samp_Order_By = {
   /** ACTIVE: 0\nDROPPED: 1 */
   status?: InputMaybe<Order_By>;
   yay_vote_smvk_total?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_satellite_action" */
+export type Governance_Satellite_Action_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Action_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Action_Stream_Cursor_Value_Input = {
+  executed?: InputMaybe<Scalars['Boolean']>;
+  execution_datetime?: InputMaybe<Scalars['timestamptz']>;
+  expiration_datetime?: InputMaybe<Scalars['timestamptz']>;
+  governance_purpose?: InputMaybe<Scalars['String']>;
+  governance_satellite_id?: InputMaybe<Scalars['String']>;
+  governance_type?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  initiator_id?: InputMaybe<Scalars['String']>;
+  nay_vote_smvk_total?: InputMaybe<Scalars['float8']>;
+  pass_vote_smvk_total?: InputMaybe<Scalars['float8']>;
+  smvk_percentage_for_approval?: InputMaybe<Scalars['smallint']>;
+  smvk_required_for_approval?: InputMaybe<Scalars['float8']>;
+  snapshot_smvk_total_supply?: InputMaybe<Scalars['float8']>;
+  start_datetime?: InputMaybe<Scalars['timestamptz']>;
+  /** ACTIVE: 0\nDROPPED: 1 */
+  status?: InputMaybe<Scalars['smallint']>;
+  yay_vote_smvk_total?: InputMaybe<Scalars['float8']>;
 };
 
 /** aggregate sum on columns */
@@ -23940,6 +25895,25 @@ export type Governance_Satellite_Action_Vote_Stddev_Samp_Order_By = {
   satellite_snapshot_id?: InputMaybe<Order_By>;
   /** NAY: 0\nYAY: 1\nPASS: 2 */
   vote?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_satellite_action_vote" */
+export type Governance_Satellite_Action_Vote_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Action_Vote_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Action_Vote_Stream_Cursor_Value_Input = {
+  governance_satellite_action_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  satellite_snapshot_id?: InputMaybe<Scalars['bigint']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  /** NAY: 0\nYAY: 1\nPASS: 2 */
+  vote?: InputMaybe<Scalars['smallint']>;
+  voter_id?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -24413,6 +26387,21 @@ export type Governance_Satellite_Aggregator_Oracle_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_satellite_aggregator_oracle" */
+export type Governance_Satellite_Aggregator_Oracle_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Aggregator_Oracle_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Aggregator_Oracle_Stream_Cursor_Value_Input = {
+  governance_satellite_aggregator_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  oracle_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Satellite_Aggregator_Oracle_Sum_Fields = {
   __typename?: 'governance_satellite_aggregator_oracle_sum_fields';
@@ -24529,6 +26518,25 @@ export type Governance_Satellite_Aggregator_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_satellite_aggregator" */
 export type Governance_Satellite_Aggregator_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_satellite_aggregator" */
+export type Governance_Satellite_Aggregator_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Aggregator_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Aggregator_Stream_Cursor_Value_Input = {
+  active?: InputMaybe<Scalars['Boolean']>;
+  aggregator_id?: InputMaybe<Scalars['String']>;
+  creation_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  governance_satellite_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  token_0_symbol?: InputMaybe<Scalars['String']>;
+  token_1_symbol?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -24784,6 +26792,22 @@ export type Governance_Satellite_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_satellite_general_contract" */
+export type Governance_Satellite_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Satellite_General_Contract_Sum_Fields = {
   __typename?: 'governance_satellite_general_contract_sum_fields';
@@ -25002,6 +27026,23 @@ export type Governance_Satellite_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_satellite_lambda" */
 export type Governance_Satellite_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_satellite_lambda" */
+export type Governance_Satellite_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -25422,6 +27463,25 @@ export type Governance_Satellite_Satellite_Oracle_Aggregator_Pair_Stddev_Samp_Or
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_satellite_satellite_oracle_aggregator_pair" */
+export type Governance_Satellite_Satellite_Oracle_Aggregator_Pair_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Satellite_Oracle_Aggregator_Pair_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Satellite_Oracle_Aggregator_Pair_Stream_Cursor_Value_Input = {
+  governance_satellite_aggregator_id?: InputMaybe<Scalars['bigint']>;
+  governance_satellite_satellite_oracle_id?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  oracle_id?: InputMaybe<Scalars['String']>;
+  start_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  token_0_symbol?: InputMaybe<Scalars['String']>;
+  token_1_symbol?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Satellite_Satellite_Oracle_Aggregator_Pair_Sum_Fields = {
   __typename?: 'governance_satellite_satellite_oracle_aggregator_pair_sum_fields';
@@ -25603,6 +27663,22 @@ export type Governance_Satellite_Satellite_Oracle_Stddev_Samp_Fields = {
 export type Governance_Satellite_Satellite_Oracle_Stddev_Samp_Order_By = {
   aggregators_subscribed?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_satellite_satellite_oracle" */
+export type Governance_Satellite_Satellite_Oracle_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Satellite_Oracle_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Satellite_Oracle_Stream_Cursor_Value_Input = {
+  aggregators_subscribed?: InputMaybe<Scalars['bigint']>;
+  governance_satellite_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  oracle_id?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -25966,6 +28042,26 @@ export type Governance_Satellite_Snapshot_Stddev_Samp_Order_By = {
   total_voting_power?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_satellite_snapshot" */
+export type Governance_Satellite_Snapshot_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Snapshot_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Snapshot_Stream_Cursor_Value_Input = {
+  cycle?: InputMaybe<Scalars['bigint']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  ready?: InputMaybe<Scalars['Boolean']>;
+  total_delegated_amount?: InputMaybe<Scalars['float8']>;
+  total_smvk_balance?: InputMaybe<Scalars['float8']>;
+  total_voting_power?: InputMaybe<Scalars['float8']>;
+  user_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Satellite_Snapshot_Sum_Fields = {
   __typename?: 'governance_satellite_snapshot_sum_fields';
@@ -26097,6 +28193,27 @@ export type Governance_Satellite_Stddev_Samp_Order_By = {
   gov_sat_duration_in_days?: InputMaybe<Order_By>;
   governance_satellite_counter?: InputMaybe<Order_By>;
   max_actions_per_satellite?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_satellite" */
+export type Governance_Satellite_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  gov_purpose_max_length?: InputMaybe<Scalars['smallint']>;
+  gov_sat_approval_percentage?: InputMaybe<Scalars['smallint']>;
+  gov_sat_duration_in_days?: InputMaybe<Scalars['smallint']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  governance_satellite_counter?: InputMaybe<Scalars['bigint']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  max_actions_per_satellite?: InputMaybe<Scalars['smallint']>;
 };
 
 /** aggregate sum on columns */
@@ -26342,6 +28459,22 @@ export type Governance_Satellite_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "governance_satellite_whitelist_contract" */
+export type Governance_Satellite_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Satellite_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Satellite_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Governance_Satellite_Whitelist_Contract_Sum_Fields = {
   __typename?: 'governance_satellite_whitelist_contract_sum_fields';
@@ -26556,6 +28689,52 @@ export type Governance_Stddev_Samp_Fields = {
   proposal_title_max_length?: Maybe<Scalars['Float']>;
   success_reward?: Maybe<Scalars['Float']>;
   timelock_proposal_id?: Maybe<Scalars['Float']>;
+};
+
+/** Streaming cursor of the table "governance" */
+export type Governance_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Stream_Cursor_Value_Input = {
+  active?: InputMaybe<Scalars['Boolean']>;
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  blocks_per_proposal_round?: InputMaybe<Scalars['bigint']>;
+  blocks_per_timelock_round?: InputMaybe<Scalars['bigint']>;
+  blocks_per_voting_round?: InputMaybe<Scalars['bigint']>;
+  current_blocks_per_proposal_round?: InputMaybe<Scalars['bigint']>;
+  current_blocks_per_timelock_round?: InputMaybe<Scalars['bigint']>;
+  current_blocks_per_voting_round?: InputMaybe<Scalars['bigint']>;
+  current_cycle_end_level?: InputMaybe<Scalars['bigint']>;
+  current_cycle_total_voters_reward?: InputMaybe<Scalars['float8']>;
+  /** PROPOSAL: 0\nVOTING: 1\nTIMELOCK: 2 */
+  current_round?: InputMaybe<Scalars['smallint']>;
+  current_round_end_level?: InputMaybe<Scalars['bigint']>;
+  current_round_start_level?: InputMaybe<Scalars['bigint']>;
+  cycle_highest_voted_proposal_id?: InputMaybe<Scalars['bigint']>;
+  cycle_id?: InputMaybe<Scalars['bigint']>;
+  cycle_voters_reward?: InputMaybe<Scalars['float8']>;
+  governance_proxy_address?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  max_proposal_per_satellite?: InputMaybe<Scalars['smallint']>;
+  min_quorum_percentage?: InputMaybe<Scalars['smallint']>;
+  min_yay_vote_percentage?: InputMaybe<Scalars['smallint']>;
+  next_proposal_id?: InputMaybe<Scalars['bigint']>;
+  proposal_description_max_length?: InputMaybe<Scalars['bigint']>;
+  proposal_invoice_max_length?: InputMaybe<Scalars['bigint']>;
+  proposal_metadata_title_max_length?: InputMaybe<Scalars['bigint']>;
+  proposal_round_vote_percentage?: InputMaybe<Scalars['smallint']>;
+  proposal_round_vote_required?: InputMaybe<Scalars['bigint']>;
+  proposal_source_code_max_length?: InputMaybe<Scalars['bigint']>;
+  proposal_submission_fee_mutez?: InputMaybe<Scalars['bigint']>;
+  proposal_title_max_length?: InputMaybe<Scalars['bigint']>;
+  success_reward?: InputMaybe<Scalars['float8']>;
+  timelock_proposal_id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -26859,6 +29038,22 @@ export type Governance_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "governance_whitelist_contract" */
 export type Governance_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "governance_whitelist_contract" */
+export type Governance_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Governance_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Governance_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -27494,6 +29689,23 @@ export type Lending_Controller_Collateral_Token_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "lending_controller_collateral_token" */
+export type Lending_Controller_Collateral_Token_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Collateral_Token_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Collateral_Token_Stream_Cursor_Value_Input = {
+  id?: InputMaybe<Scalars['bigint']>;
+  lending_controller_id?: InputMaybe<Scalars['String']>;
+  oracle_id?: InputMaybe<Scalars['String']>;
+  protected?: InputMaybe<Scalars['Boolean']>;
+  token_address?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Lending_Controller_Collateral_Token_Sum_Fields = {
   __typename?: 'lending_controller_collateral_token_sum_fields';
@@ -27738,6 +29950,23 @@ export type Lending_Controller_Depositor_Stddev_Samp_Order_By = {
   loan_token_id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "lending_controller_depositor" */
+export type Lending_Controller_Depositor_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Depositor_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Depositor_Stream_Cursor_Value_Input = {
+  deposited_amount?: InputMaybe<Scalars['float8']>;
+  depositor_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lending_controller_id?: InputMaybe<Scalars['String']>;
+  loan_token_id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Lending_Controller_Depositor_Sum_Fields = {
   __typename?: 'lending_controller_depositor_sum_fields';
@@ -27965,6 +30194,22 @@ export type Lending_Controller_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "lending_controller_general_contract" */
+export type Lending_Controller_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Lending_Controller_General_Contract_Sum_Fields = {
   __typename?: 'lending_controller_general_contract_sum_fields';
@@ -28183,6 +30428,23 @@ export type Lending_Controller_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "lending_controller_lambda" */
 export type Lending_Controller_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "lending_controller_lambda" */
+export type Lending_Controller_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -28768,6 +31030,40 @@ export type Lending_Controller_Loan_Token_Stddev_Samp_Order_By = {
   utilisation_rate?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "lending_controller_loan_token" */
+export type Lending_Controller_Loan_Token_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Loan_Token_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Loan_Token_Stream_Cursor_Value_Input = {
+  accumulated_rewards_per_share?: InputMaybe<Scalars['float8']>;
+  base_interest_rate?: InputMaybe<Scalars['float8']>;
+  borrow_index?: InputMaybe<Scalars['float8']>;
+  current_interest_rate?: InputMaybe<Scalars['float8']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  interest_rate_above_optimal_utilisation?: InputMaybe<Scalars['float8']>;
+  interest_rate_below_optimal_utilisation?: InputMaybe<Scalars['float8']>;
+  last_updated_block_level?: InputMaybe<Scalars['bigint']>;
+  lending_controller_id?: InputMaybe<Scalars['String']>;
+  loan_token_address?: InputMaybe<Scalars['String']>;
+  loan_token_name?: InputMaybe<Scalars['String']>;
+  lp_token_address?: InputMaybe<Scalars['String']>;
+  lp_token_total?: InputMaybe<Scalars['float8']>;
+  max_interest_rate?: InputMaybe<Scalars['float8']>;
+  min_repayment_amount?: InputMaybe<Scalars['float8']>;
+  optimal_utilisation_rate?: InputMaybe<Scalars['float8']>;
+  oracle_id?: InputMaybe<Scalars['String']>;
+  reserve_ratio?: InputMaybe<Scalars['smallint']>;
+  token_pool_total?: InputMaybe<Scalars['float8']>;
+  total_borrowed?: InputMaybe<Scalars['float8']>;
+  total_remaining?: InputMaybe<Scalars['float8']>;
+  utilisation_rate?: InputMaybe<Scalars['float8']>;
+};
+
 /** aggregate sum on columns */
 export type Lending_Controller_Loan_Token_Sum_Fields = {
   __typename?: 'lending_controller_loan_token_sum_fields';
@@ -29235,6 +31531,51 @@ export type Lending_Controller_Stddev_Samp_Order_By = {
   max_vault_liquidation_pct?: InputMaybe<Order_By>;
   minimum_loan_fee_pct?: InputMaybe<Order_By>;
   minimum_loan_treasury_share?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "lending_controller" */
+export type Lending_Controller_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Stream_Cursor_Value_Input = {
+  add_liquidity_paused?: InputMaybe<Scalars['Boolean']>;
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  admin_liquidation_fee_pct?: InputMaybe<Scalars['smallint']>;
+  borrow_paused?: InputMaybe<Scalars['Boolean']>;
+  close_vault_paused?: InputMaybe<Scalars['Boolean']>;
+  collateral_ratio?: InputMaybe<Scalars['smallint']>;
+  decimals?: InputMaybe<Scalars['smallint']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  interest_rate_decimals?: InputMaybe<Scalars['smallint']>;
+  interest_treasury_share?: InputMaybe<Scalars['smallint']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  liquidate_vault_paused?: InputMaybe<Scalars['Boolean']>;
+  liquidation_delay_in_minutes?: InputMaybe<Scalars['bigint']>;
+  liquidation_fee_pct?: InputMaybe<Scalars['smallint']>;
+  liquidation_ratio?: InputMaybe<Scalars['smallint']>;
+  mark_for_liquidation_paused?: InputMaybe<Scalars['Boolean']>;
+  max_decimals_for_calculation?: InputMaybe<Scalars['smallint']>;
+  max_vault_liquidation_pct?: InputMaybe<Scalars['smallint']>;
+  minimum_loan_fee_pct?: InputMaybe<Scalars['smallint']>;
+  minimum_loan_treasury_share?: InputMaybe<Scalars['smallint']>;
+  register_deposit_paused?: InputMaybe<Scalars['Boolean']>;
+  register_vault_creation_paused?: InputMaybe<Scalars['Boolean']>;
+  register_withdrawal_paused?: InputMaybe<Scalars['Boolean']>;
+  remove_liquidity_paused?: InputMaybe<Scalars['Boolean']>;
+  repay_paused?: InputMaybe<Scalars['Boolean']>;
+  set_collateral_token_paused?: InputMaybe<Scalars['Boolean']>;
+  set_loan_token_paused?: InputMaybe<Scalars['Boolean']>;
+  vault_deposit_paused?: InputMaybe<Scalars['Boolean']>;
+  vault_deposit_smvk_paused?: InputMaybe<Scalars['Boolean']>;
+  vault_on_liquidate_paused?: InputMaybe<Scalars['Boolean']>;
+  vault_withdraw_paused?: InputMaybe<Scalars['Boolean']>;
+  vault_withdraw_smvk_paused?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** aggregate sum on columns */
@@ -29721,6 +32062,22 @@ export type Lending_Controller_Vault_Collateral_Balance_Stddev_Samp_Order_By = {
   token_id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "lending_controller_vault_collateral_balance" */
+export type Lending_Controller_Vault_Collateral_Balance_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Vault_Collateral_Balance_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Vault_Collateral_Balance_Stream_Cursor_Value_Input = {
+  balance?: InputMaybe<Scalars['float8']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lending_controller_vault_id?: InputMaybe<Scalars['bigint']>;
+  token_id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Lending_Controller_Vault_Collateral_Balance_Sum_Fields = {
   __typename?: 'lending_controller_vault_collateral_balance_sum_fields';
@@ -30021,6 +32378,34 @@ export type Lending_Controller_Vault_Stddev_Samp_Order_By = {
   marked_for_liquidation_level?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "lending_controller_vault" */
+export type Lending_Controller_Vault_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Vault_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Vault_Stream_Cursor_Value_Input = {
+  borrow_index?: InputMaybe<Scalars['float8']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  internal_id?: InputMaybe<Scalars['bigint']>;
+  last_updated_block_level?: InputMaybe<Scalars['bigint']>;
+  last_updated_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  lending_controller_id?: InputMaybe<Scalars['String']>;
+  liquidation_end_level?: InputMaybe<Scalars['bigint']>;
+  loan_decimals?: InputMaybe<Scalars['smallint']>;
+  loan_interest_total?: InputMaybe<Scalars['float8']>;
+  loan_outstanding_total?: InputMaybe<Scalars['float8']>;
+  loan_principal_total?: InputMaybe<Scalars['float8']>;
+  loan_token_id?: InputMaybe<Scalars['bigint']>;
+  marked_for_liquidation_level?: InputMaybe<Scalars['bigint']>;
+  open?: InputMaybe<Scalars['Boolean']>;
+  owner_id?: InputMaybe<Scalars['String']>;
+  vault_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Lending_Controller_Vault_Sum_Fields = {
   __typename?: 'lending_controller_vault_sum_fields';
@@ -30312,6 +32697,22 @@ export type Lending_Controller_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "lending_controller_whitelist_contract" */
+export type Lending_Controller_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Lending_Controller_Whitelist_Contract_Sum_Fields = {
   __typename?: 'lending_controller_whitelist_contract_sum_fields';
@@ -30521,6 +32922,22 @@ export type Lending_Controller_Whitelist_Token_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "lending_controller_whitelist_token_contract" */
 export type Lending_Controller_Whitelist_Token_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "lending_controller_whitelist_token_contract" */
+export type Lending_Controller_Whitelist_Token_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_Whitelist_Token_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_Whitelist_Token_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -30937,6 +33354,28 @@ export type Liquidity_Baking_History_Data_Stddev_Samp_Order_By = {
   xtz_token_price?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "liquidity_baking_history_data" */
+export type Liquidity_Baking_History_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Liquidity_Baking_History_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Liquidity_Baking_History_Data_Stream_Cursor_Value_Input = {
+  id?: InputMaybe<Scalars['bigint']>;
+  liquidity_baking_id?: InputMaybe<Scalars['String']>;
+  lqt_total?: InputMaybe<Scalars['bigint']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  token_pool?: InputMaybe<Scalars['bigint']>;
+  token_xtz_price?: InputMaybe<Scalars['float8']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
+  type?: InputMaybe<Scalars['smallint']>;
+  xtz_pool?: InputMaybe<Scalars['bigint']>;
+  xtz_token_price?: InputMaybe<Scalars['float8']>;
+};
+
 /** aggregate sum on columns */
 export type Liquidity_Baking_History_Data_Sum_Fields = {
   __typename?: 'liquidity_baking_history_data_sum_fields';
@@ -31134,6 +33573,28 @@ export type Liquidity_Baking_Stddev_Samp_Fields = {
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
   xtz_pool?: Maybe<Scalars['Float']>;
+};
+
+/** Streaming cursor of the table "liquidity_baking" */
+export type Liquidity_Baking_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Liquidity_Baking_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Liquidity_Baking_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  lqt_address?: InputMaybe<Scalars['String']>;
+  lqt_total?: InputMaybe<Scalars['bigint']>;
+  token_address?: InputMaybe<Scalars['String']>;
+  token_decimals?: InputMaybe<Scalars['smallint']>;
+  token_pool?: InputMaybe<Scalars['bigint']>;
+  xtz_decimals?: InputMaybe<Scalars['smallint']>;
+  xtz_pool?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -32459,6 +34920,21 @@ export type Mavryk_User_Operator_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "mavryk_user_operator" */
+export type Mavryk_User_Operator_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Mavryk_User_Operator_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Mavryk_User_Operator_Stream_Cursor_Value_Input = {
+  id?: InputMaybe<Scalars['bigint']>;
+  operator_id?: InputMaybe<Scalars['String']>;
+  owner_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Mavryk_User_Operator_Sum_Fields = {
   __typename?: 'mavryk_user_operator_sum_fields';
@@ -32581,6 +35057,21 @@ export type Mavryk_User_Stddev_Samp_Fields = {
   __typename?: 'mavryk_user_stddev_samp_fields';
   mvk_balance?: Maybe<Scalars['Float']>;
   smvk_balance?: Maybe<Scalars['Float']>;
+};
+
+/** Streaming cursor of the table "mavryk_user" */
+export type Mavryk_User_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Mavryk_User_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Mavryk_User_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  mvk_balance?: InputMaybe<Scalars['float8']>;
+  smvk_balance?: InputMaybe<Scalars['float8']>;
 };
 
 /** aggregate sum on columns */
@@ -32814,6 +35305,24 @@ export type Mvk_Mint_History_Data_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
   minted_amount?: InputMaybe<Order_By>;
   mvk_total_supply?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "mvk_mint_history_data" */
+export type Mvk_Mint_History_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Mvk_Mint_History_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Mvk_Mint_History_Data_Stream_Cursor_Value_Input = {
+  id?: InputMaybe<Scalars['bigint']>;
+  minted_amount?: InputMaybe<Scalars['float8']>;
+  mvk_token_id?: InputMaybe<Scalars['String']>;
+  mvk_total_supply?: InputMaybe<Scalars['float8']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  user_id?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -33234,6 +35743,22 @@ export type Mvk_Token_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "mvk_token_general_contract" */
+export type Mvk_Token_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Mvk_Token_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Mvk_Token_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Mvk_Token_General_Contract_Sum_Fields = {
   __typename?: 'mvk_token_general_contract_sum_fields';
@@ -33408,6 +35933,26 @@ export type Mvk_Token_Stddev_Samp_Order_By = {
   inflation_rate?: InputMaybe<Order_By>;
   maximum_supply?: InputMaybe<Order_By>;
   total_supply?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "mvk_token" */
+export type Mvk_Token_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Mvk_Token_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Mvk_Token_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  inflation_rate?: InputMaybe<Scalars['smallint']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  maximum_supply?: InputMaybe<Scalars['float8']>;
+  next_inflation_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  total_supply?: InputMaybe<Scalars['float8']>;
 };
 
 /** aggregate sum on columns */
@@ -33635,6 +36180,22 @@ export type Mvk_Token_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "mvk_token_whitelist_contract" */
 export type Mvk_Token_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "mvk_token_whitelist_contract" */
+export type Mvk_Token_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Mvk_Token_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Mvk_Token_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -33882,6 +36443,24 @@ export type Mvk_Transfer_History_Data_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "mvk_transfer_history_data" */
+export type Mvk_Transfer_History_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Mvk_Transfer_History_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Mvk_Transfer_History_Data_Stream_Cursor_Value_Input = {
+  amount?: InputMaybe<Scalars['bigint']>;
+  from__id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  mvk_token_id?: InputMaybe<Scalars['String']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  to__id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Mvk_Transfer_History_Data_Sum_Fields = {
   __typename?: 'mvk_transfer_history_data_sum_fields';
@@ -33994,6 +36573,12 @@ export type Query_Root = {
   aggregator_general_contract_aggregate: Aggregator_General_Contract_Aggregate;
   /** fetch data from the table: "aggregator_general_contract" using primary key columns */
   aggregator_general_contract_by_pk?: Maybe<Aggregator_General_Contract>;
+  /** fetch data from the table: "aggregator_history_data" */
+  aggregator_history_data: Array<Aggregator_History_Data>;
+  /** fetch aggregated fields from the table: "aggregator_history_data" */
+  aggregator_history_data_aggregate: Aggregator_History_Data_Aggregate;
+  /** fetch data from the table: "aggregator_history_data" using primary key columns */
+  aggregator_history_data_by_pk?: Maybe<Aggregator_History_Data>;
   /** fetch data from the table: "aggregator_lambda" */
   aggregator_lambda: Array<Aggregator_Lambda>;
   /** fetch aggregated fields from the table: "aggregator_lambda" */
@@ -35028,6 +37613,29 @@ export type Query_RootAggregator_General_Contract_AggregateArgs = {
 
 
 export type Query_RootAggregator_General_Contract_By_PkArgs = {
+  id: Scalars['bigint'];
+};
+
+
+export type Query_RootAggregator_History_DataArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_History_Data_Order_By>>;
+  where?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
+};
+
+
+export type Query_RootAggregator_History_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_History_Data_Order_By>>;
+  where?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
+};
+
+
+export type Query_RootAggregator_History_Data_By_PkArgs = {
   id: Scalars['bigint'];
 };
 
@@ -38862,6 +41470,26 @@ export type Satellite_Rewards_Stddev_Samp_Order_By = {
   unpaid?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "satellite_rewards" */
+export type Satellite_Rewards_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Satellite_Rewards_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Satellite_Rewards_Stream_Cursor_Value_Input = {
+  delegation_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  paid?: InputMaybe<Scalars['float8']>;
+  participation_rewards_per_share?: InputMaybe<Scalars['float8']>;
+  reference_id?: InputMaybe<Scalars['bigint']>;
+  satellite_accumulated_reward_per_share?: InputMaybe<Scalars['float8']>;
+  unpaid?: InputMaybe<Scalars['float8']>;
+  user_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Satellite_Rewards_Sum_Fields = {
   __typename?: 'satellite_rewards_sum_fields';
@@ -39019,6 +41647,29 @@ export type Satellite_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
   /** ACTIVE: 0\nSUSPENDED: 1\nBANNED: 2 */
   status?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "satellite" */
+export type Satellite_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Satellite_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Satellite_Stream_Cursor_Value_Input = {
+  currently_registered?: InputMaybe<Scalars['Boolean']>;
+  delegation_id?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  fee?: InputMaybe<Scalars['smallint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  image?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  /** ACTIVE: 0\nSUSPENDED: 1\nBANNED: 2 */
+  status?: InputMaybe<Scalars['smallint']>;
+  user_id?: InputMaybe<Scalars['String']>;
+  website?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -39292,6 +41943,23 @@ export type Smvk_History_Data_Stddev_Samp_Order_By = {
   avg_smvk_by_user?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   smvk_total_supply?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "smvk_history_data" */
+export type Smvk_History_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Smvk_History_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Smvk_History_Data_Stream_Cursor_Value_Input = {
+  avg_smvk_by_user?: InputMaybe<Scalars['float8']>;
+  doorman_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  smvk_total_supply?: InputMaybe<Scalars['float8']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -39589,6 +42257,26 @@ export type Stake_History_Data_Stddev_Samp_Order_By = {
   type?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "stake_history_data" */
+export type Stake_History_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Stake_History_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Stake_History_Data_Stream_Cursor_Value_Input = {
+  desired_amount?: InputMaybe<Scalars['float8']>;
+  doorman_id?: InputMaybe<Scalars['String']>;
+  final_amount?: InputMaybe<Scalars['float8']>;
+  from__id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  /** STAKE: 0\nUNSTAKE: 1\nFARM_CLAIM: 2\nCOMPOUND: 3\nSATELLITE_REWARD: 4\nVAULT_DEPOSIT_SMVK: 5\nVAULT_WITHDRAW_SMVK: 6\nVAULT_LIQUIDATE_SMVK: 7 */
+  type?: InputMaybe<Scalars['smallint']>;
+};
+
 /** aggregate sum on columns */
 export type Stake_History_Data_Sum_Fields = {
   __typename?: 'stake_history_data_sum_fields';
@@ -39685,36 +42373,58 @@ export type Subscription_Root = {
   aggregator_factory_general_contract_aggregate: Aggregator_Factory_General_Contract_Aggregate;
   /** fetch data from the table: "aggregator_factory_general_contract" using primary key columns */
   aggregator_factory_general_contract_by_pk?: Maybe<Aggregator_Factory_General_Contract>;
+  /** fetch data from the table in a streaming manner : "aggregator_factory_general_contract" */
+  aggregator_factory_general_contract_stream: Array<Aggregator_Factory_General_Contract>;
   /** fetch data from the table: "aggregator_factory_lambda" */
   aggregator_factory_lambda: Array<Aggregator_Factory_Lambda>;
   /** fetch aggregated fields from the table: "aggregator_factory_lambda" */
   aggregator_factory_lambda_aggregate: Aggregator_Factory_Lambda_Aggregate;
   /** fetch data from the table: "aggregator_factory_lambda" using primary key columns */
   aggregator_factory_lambda_by_pk?: Maybe<Aggregator_Factory_Lambda>;
+  /** fetch data from the table in a streaming manner : "aggregator_factory_lambda" */
+  aggregator_factory_lambda_stream: Array<Aggregator_Factory_Lambda>;
   /** fetch data from the table: "aggregator_factory_product_lambda" */
   aggregator_factory_product_lambda: Array<Aggregator_Factory_Product_Lambda>;
   /** fetch aggregated fields from the table: "aggregator_factory_product_lambda" */
   aggregator_factory_product_lambda_aggregate: Aggregator_Factory_Product_Lambda_Aggregate;
   /** fetch data from the table: "aggregator_factory_product_lambda" using primary key columns */
   aggregator_factory_product_lambda_by_pk?: Maybe<Aggregator_Factory_Product_Lambda>;
+  /** fetch data from the table in a streaming manner : "aggregator_factory_product_lambda" */
+  aggregator_factory_product_lambda_stream: Array<Aggregator_Factory_Product_Lambda>;
+  /** fetch data from the table in a streaming manner : "aggregator_factory" */
+  aggregator_factory_stream: Array<Aggregator_Factory>;
   /** fetch data from the table: "aggregator_factory_whitelist_contract" */
   aggregator_factory_whitelist_contract: Array<Aggregator_Factory_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "aggregator_factory_whitelist_contract" */
   aggregator_factory_whitelist_contract_aggregate: Aggregator_Factory_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "aggregator_factory_whitelist_contract" using primary key columns */
   aggregator_factory_whitelist_contract_by_pk?: Maybe<Aggregator_Factory_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "aggregator_factory_whitelist_contract" */
+  aggregator_factory_whitelist_contract_stream: Array<Aggregator_Factory_Whitelist_Contract>;
   /** fetch data from the table: "aggregator_general_contract" */
   aggregator_general_contract: Array<Aggregator_General_Contract>;
   /** fetch aggregated fields from the table: "aggregator_general_contract" */
   aggregator_general_contract_aggregate: Aggregator_General_Contract_Aggregate;
   /** fetch data from the table: "aggregator_general_contract" using primary key columns */
   aggregator_general_contract_by_pk?: Maybe<Aggregator_General_Contract>;
+  /** fetch data from the table in a streaming manner : "aggregator_general_contract" */
+  aggregator_general_contract_stream: Array<Aggregator_General_Contract>;
+  /** fetch data from the table: "aggregator_history_data" */
+  aggregator_history_data: Array<Aggregator_History_Data>;
+  /** fetch aggregated fields from the table: "aggregator_history_data" */
+  aggregator_history_data_aggregate: Aggregator_History_Data_Aggregate;
+  /** fetch data from the table: "aggregator_history_data" using primary key columns */
+  aggregator_history_data_by_pk?: Maybe<Aggregator_History_Data>;
+  /** fetch data from the table in a streaming manner : "aggregator_history_data" */
+  aggregator_history_data_stream: Array<Aggregator_History_Data>;
   /** fetch data from the table: "aggregator_lambda" */
   aggregator_lambda: Array<Aggregator_Lambda>;
   /** fetch aggregated fields from the table: "aggregator_lambda" */
   aggregator_lambda_aggregate: Aggregator_Lambda_Aggregate;
   /** fetch data from the table: "aggregator_lambda" using primary key columns */
   aggregator_lambda_by_pk?: Maybe<Aggregator_Lambda>;
+  /** fetch data from the table in a streaming manner : "aggregator_lambda" */
+  aggregator_lambda_stream: Array<Aggregator_Lambda>;
   /** fetch data from the table: "aggregator_oracle" */
   aggregator_oracle: Array<Aggregator_Oracle>;
   /** fetch aggregated fields from the table: "aggregator_oracle" */
@@ -39727,12 +42437,20 @@ export type Subscription_Root = {
   aggregator_oracle_reward_aggregate: Aggregator_Oracle_Reward_Aggregate;
   /** fetch data from the table: "aggregator_oracle_reward" using primary key columns */
   aggregator_oracle_reward_by_pk?: Maybe<Aggregator_Oracle_Reward>;
+  /** fetch data from the table in a streaming manner : "aggregator_oracle_reward" */
+  aggregator_oracle_reward_stream: Array<Aggregator_Oracle_Reward>;
+  /** fetch data from the table in a streaming manner : "aggregator_oracle" */
+  aggregator_oracle_stream: Array<Aggregator_Oracle>;
+  /** fetch data from the table in a streaming manner : "aggregator" */
+  aggregator_stream: Array<Aggregator>;
   /** fetch data from the table: "aggregator_whitelist_contract" */
   aggregator_whitelist_contract: Array<Aggregator_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "aggregator_whitelist_contract" */
   aggregator_whitelist_contract_aggregate: Aggregator_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "aggregator_whitelist_contract" using primary key columns */
   aggregator_whitelist_contract_by_pk?: Maybe<Aggregator_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "aggregator_whitelist_contract" */
+  aggregator_whitelist_contract_stream: Array<Aggregator_Whitelist_Contract>;
   /** fetch data from the table: "break_glass" */
   break_glass: Array<Break_Glass>;
   /** fetch data from the table: "break_glass_action" */
@@ -39747,12 +42465,18 @@ export type Subscription_Root = {
   break_glass_action_parameter_aggregate: Break_Glass_Action_Parameter_Aggregate;
   /** fetch data from the table: "break_glass_action_parameter" using primary key columns */
   break_glass_action_parameter_by_pk?: Maybe<Break_Glass_Action_Parameter>;
+  /** fetch data from the table in a streaming manner : "break_glass_action_parameter" */
+  break_glass_action_parameter_stream: Array<Break_Glass_Action_Parameter>;
   /** fetch data from the table: "break_glass_action_signer" */
   break_glass_action_signer: Array<Break_Glass_Action_Signer>;
   /** fetch aggregated fields from the table: "break_glass_action_signer" */
   break_glass_action_signer_aggregate: Break_Glass_Action_Signer_Aggregate;
   /** fetch data from the table: "break_glass_action_signer" using primary key columns */
   break_glass_action_signer_by_pk?: Maybe<Break_Glass_Action_Signer>;
+  /** fetch data from the table in a streaming manner : "break_glass_action_signer" */
+  break_glass_action_signer_stream: Array<Break_Glass_Action_Signer>;
+  /** fetch data from the table in a streaming manner : "break_glass_action" */
+  break_glass_action_stream: Array<Break_Glass_Action>;
   /** fetch aggregated fields from the table: "break_glass" */
   break_glass_aggregate: Break_Glass_Aggregate;
   /** fetch data from the table: "break_glass" using primary key columns */
@@ -39763,24 +42487,34 @@ export type Subscription_Root = {
   break_glass_council_member_aggregate: Break_Glass_Council_Member_Aggregate;
   /** fetch data from the table: "break_glass_council_member" using primary key columns */
   break_glass_council_member_by_pk?: Maybe<Break_Glass_Council_Member>;
+  /** fetch data from the table in a streaming manner : "break_glass_council_member" */
+  break_glass_council_member_stream: Array<Break_Glass_Council_Member>;
   /** fetch data from the table: "break_glass_general_contract" */
   break_glass_general_contract: Array<Break_Glass_General_Contract>;
   /** fetch aggregated fields from the table: "break_glass_general_contract" */
   break_glass_general_contract_aggregate: Break_Glass_General_Contract_Aggregate;
   /** fetch data from the table: "break_glass_general_contract" using primary key columns */
   break_glass_general_contract_by_pk?: Maybe<Break_Glass_General_Contract>;
+  /** fetch data from the table in a streaming manner : "break_glass_general_contract" */
+  break_glass_general_contract_stream: Array<Break_Glass_General_Contract>;
   /** fetch data from the table: "break_glass_lambda" */
   break_glass_lambda: Array<Break_Glass_Lambda>;
   /** fetch aggregated fields from the table: "break_glass_lambda" */
   break_glass_lambda_aggregate: Break_Glass_Lambda_Aggregate;
   /** fetch data from the table: "break_glass_lambda" using primary key columns */
   break_glass_lambda_by_pk?: Maybe<Break_Glass_Lambda>;
+  /** fetch data from the table in a streaming manner : "break_glass_lambda" */
+  break_glass_lambda_stream: Array<Break_Glass_Lambda>;
+  /** fetch data from the table in a streaming manner : "break_glass" */
+  break_glass_stream: Array<Break_Glass>;
   /** fetch data from the table: "break_glass_whitelist_contract" */
   break_glass_whitelist_contract: Array<Break_Glass_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "break_glass_whitelist_contract" */
   break_glass_whitelist_contract_aggregate: Break_Glass_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "break_glass_whitelist_contract" using primary key columns */
   break_glass_whitelist_contract_by_pk?: Maybe<Break_Glass_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "break_glass_whitelist_contract" */
+  break_glass_whitelist_contract_stream: Array<Break_Glass_Whitelist_Contract>;
   /** fetch data from the table: "council" */
   council: Array<Council>;
   /** fetch data from the table: "council_action" */
@@ -39795,12 +42529,18 @@ export type Subscription_Root = {
   council_action_parameter_aggregate: Council_Action_Parameter_Aggregate;
   /** fetch data from the table: "council_action_parameter" using primary key columns */
   council_action_parameter_by_pk?: Maybe<Council_Action_Parameter>;
+  /** fetch data from the table in a streaming manner : "council_action_parameter" */
+  council_action_parameter_stream: Array<Council_Action_Parameter>;
   /** fetch data from the table: "council_action_signer" */
   council_action_signer: Array<Council_Action_Signer>;
   /** fetch aggregated fields from the table: "council_action_signer" */
   council_action_signer_aggregate: Council_Action_Signer_Aggregate;
   /** fetch data from the table: "council_action_signer" using primary key columns */
   council_action_signer_by_pk?: Maybe<Council_Action_Signer>;
+  /** fetch data from the table in a streaming manner : "council_action_signer" */
+  council_action_signer_stream: Array<Council_Action_Signer>;
+  /** fetch data from the table in a streaming manner : "council_action" */
+  council_action_stream: Array<Council_Action>;
   /** fetch aggregated fields from the table: "council" */
   council_aggregate: Council_Aggregate;
   /** fetch data from the table: "council" using primary key columns */
@@ -39811,24 +42551,34 @@ export type Subscription_Root = {
   council_council_member_aggregate: Council_Council_Member_Aggregate;
   /** fetch data from the table: "council_council_member" using primary key columns */
   council_council_member_by_pk?: Maybe<Council_Council_Member>;
+  /** fetch data from the table in a streaming manner : "council_council_member" */
+  council_council_member_stream: Array<Council_Council_Member>;
   /** fetch data from the table: "council_general_contract" */
   council_general_contract: Array<Council_General_Contract>;
   /** fetch aggregated fields from the table: "council_general_contract" */
   council_general_contract_aggregate: Council_General_Contract_Aggregate;
   /** fetch data from the table: "council_general_contract" using primary key columns */
   council_general_contract_by_pk?: Maybe<Council_General_Contract>;
+  /** fetch data from the table in a streaming manner : "council_general_contract" */
+  council_general_contract_stream: Array<Council_General_Contract>;
   /** fetch data from the table: "council_lambda" */
   council_lambda: Array<Council_Lambda>;
   /** fetch aggregated fields from the table: "council_lambda" */
   council_lambda_aggregate: Council_Lambda_Aggregate;
   /** fetch data from the table: "council_lambda" using primary key columns */
   council_lambda_by_pk?: Maybe<Council_Lambda>;
+  /** fetch data from the table in a streaming manner : "council_lambda" */
+  council_lambda_stream: Array<Council_Lambda>;
+  /** fetch data from the table in a streaming manner : "council" */
+  council_stream: Array<Council>;
   /** fetch data from the table: "council_whitelist_contract" */
   council_whitelist_contract: Array<Council_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "council_whitelist_contract" */
   council_whitelist_contract_aggregate: Council_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "council_whitelist_contract" using primary key columns */
   council_whitelist_contract_by_pk?: Maybe<Council_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "council_whitelist_contract" */
+  council_whitelist_contract_stream: Array<Council_Whitelist_Contract>;
   /** fetch data from the table: "delegation" */
   delegation: Array<Delegation>;
   /** fetch aggregated fields from the table: "delegation" */
@@ -39841,24 +42591,34 @@ export type Subscription_Root = {
   delegation_general_contract_aggregate: Delegation_General_Contract_Aggregate;
   /** fetch data from the table: "delegation_general_contract" using primary key columns */
   delegation_general_contract_by_pk?: Maybe<Delegation_General_Contract>;
+  /** fetch data from the table in a streaming manner : "delegation_general_contract" */
+  delegation_general_contract_stream: Array<Delegation_General_Contract>;
   /** fetch data from the table: "delegation_lambda" */
   delegation_lambda: Array<Delegation_Lambda>;
   /** fetch aggregated fields from the table: "delegation_lambda" */
   delegation_lambda_aggregate: Delegation_Lambda_Aggregate;
   /** fetch data from the table: "delegation_lambda" using primary key columns */
   delegation_lambda_by_pk?: Maybe<Delegation_Lambda>;
+  /** fetch data from the table in a streaming manner : "delegation_lambda" */
+  delegation_lambda_stream: Array<Delegation_Lambda>;
   /** fetch data from the table: "delegation_record" */
   delegation_record: Array<Delegation_Record>;
   /** fetch aggregated fields from the table: "delegation_record" */
   delegation_record_aggregate: Delegation_Record_Aggregate;
   /** fetch data from the table: "delegation_record" using primary key columns */
   delegation_record_by_pk?: Maybe<Delegation_Record>;
+  /** fetch data from the table in a streaming manner : "delegation_record" */
+  delegation_record_stream: Array<Delegation_Record>;
+  /** fetch data from the table in a streaming manner : "delegation" */
+  delegation_stream: Array<Delegation>;
   /** fetch data from the table: "delegation_whitelist_contract" */
   delegation_whitelist_contract: Array<Delegation_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "delegation_whitelist_contract" */
   delegation_whitelist_contract_aggregate: Delegation_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "delegation_whitelist_contract" using primary key columns */
   delegation_whitelist_contract_by_pk?: Maybe<Delegation_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "delegation_whitelist_contract" */
+  delegation_whitelist_contract_stream: Array<Delegation_Whitelist_Contract>;
   /** fetch data from the table: "dipdup_contract" */
   dipdup_contract: Array<Dipdup_Contract>;
   /** fetch aggregated fields from the table: "dipdup_contract" */
@@ -39871,6 +42631,10 @@ export type Subscription_Root = {
   dipdup_contract_metadata_aggregate: Dipdup_Contract_Metadata_Aggregate;
   /** fetch data from the table: "dipdup_contract_metadata" using primary key columns */
   dipdup_contract_metadata_by_pk?: Maybe<Dipdup_Contract_Metadata>;
+  /** fetch data from the table in a streaming manner : "dipdup_contract_metadata" */
+  dipdup_contract_metadata_stream: Array<Dipdup_Contract_Metadata>;
+  /** fetch data from the table in a streaming manner : "dipdup_contract" */
+  dipdup_contract_stream: Array<Dipdup_Contract>;
   /** fetch data from the table: "dipdup_head" */
   dipdup_head: Array<Dipdup_Head>;
   /** fetch aggregated fields from the table: "dipdup_head" */
@@ -39881,30 +42645,42 @@ export type Subscription_Root = {
   dipdup_head_status: Array<Dipdup_Head_Status>;
   /** fetch aggregated fields from the table: "dipdup_head_status" */
   dipdup_head_status_aggregate: Dipdup_Head_Status_Aggregate;
+  /** fetch data from the table in a streaming manner : "dipdup_head_status" */
+  dipdup_head_status_stream: Array<Dipdup_Head_Status>;
+  /** fetch data from the table in a streaming manner : "dipdup_head" */
+  dipdup_head_stream: Array<Dipdup_Head>;
   /** fetch data from the table: "dipdup_index" */
   dipdup_index: Array<Dipdup_Index>;
   /** fetch aggregated fields from the table: "dipdup_index" */
   dipdup_index_aggregate: Dipdup_Index_Aggregate;
   /** fetch data from the table: "dipdup_index" using primary key columns */
   dipdup_index_by_pk?: Maybe<Dipdup_Index>;
+  /** fetch data from the table in a streaming manner : "dipdup_index" */
+  dipdup_index_stream: Array<Dipdup_Index>;
   /** fetch data from the table: "dipdup_model_update" */
   dipdup_model_update: Array<Dipdup_Model_Update>;
   /** fetch aggregated fields from the table: "dipdup_model_update" */
   dipdup_model_update_aggregate: Dipdup_Model_Update_Aggregate;
   /** fetch data from the table: "dipdup_model_update" using primary key columns */
   dipdup_model_update_by_pk?: Maybe<Dipdup_Model_Update>;
+  /** fetch data from the table in a streaming manner : "dipdup_model_update" */
+  dipdup_model_update_stream: Array<Dipdup_Model_Update>;
   /** fetch data from the table: "dipdup_schema" */
   dipdup_schema: Array<Dipdup_Schema>;
   /** fetch aggregated fields from the table: "dipdup_schema" */
   dipdup_schema_aggregate: Dipdup_Schema_Aggregate;
   /** fetch data from the table: "dipdup_schema" using primary key columns */
   dipdup_schema_by_pk?: Maybe<Dipdup_Schema>;
+  /** fetch data from the table in a streaming manner : "dipdup_schema" */
+  dipdup_schema_stream: Array<Dipdup_Schema>;
   /** fetch data from the table: "dipdup_token_metadata" */
   dipdup_token_metadata: Array<Dipdup_Token_Metadata>;
   /** fetch aggregated fields from the table: "dipdup_token_metadata" */
   dipdup_token_metadata_aggregate: Dipdup_Token_Metadata_Aggregate;
   /** fetch data from the table: "dipdup_token_metadata" using primary key columns */
   dipdup_token_metadata_by_pk?: Maybe<Dipdup_Token_Metadata>;
+  /** fetch data from the table in a streaming manner : "dipdup_token_metadata" */
+  dipdup_token_metadata_stream: Array<Dipdup_Token_Metadata>;
   /** fetch data from the table: "doorman" */
   doorman: Array<Doorman>;
   /** fetch aggregated fields from the table: "doorman" */
@@ -39917,24 +42693,34 @@ export type Subscription_Root = {
   doorman_general_contract_aggregate: Doorman_General_Contract_Aggregate;
   /** fetch data from the table: "doorman_general_contract" using primary key columns */
   doorman_general_contract_by_pk?: Maybe<Doorman_General_Contract>;
+  /** fetch data from the table in a streaming manner : "doorman_general_contract" */
+  doorman_general_contract_stream: Array<Doorman_General_Contract>;
   /** fetch data from the table: "doorman_lambda" */
   doorman_lambda: Array<Doorman_Lambda>;
   /** fetch aggregated fields from the table: "doorman_lambda" */
   doorman_lambda_aggregate: Doorman_Lambda_Aggregate;
   /** fetch data from the table: "doorman_lambda" using primary key columns */
   doorman_lambda_by_pk?: Maybe<Doorman_Lambda>;
+  /** fetch data from the table in a streaming manner : "doorman_lambda" */
+  doorman_lambda_stream: Array<Doorman_Lambda>;
   /** fetch data from the table: "doorman_stake_account" */
   doorman_stake_account: Array<Doorman_Stake_Account>;
   /** fetch aggregated fields from the table: "doorman_stake_account" */
   doorman_stake_account_aggregate: Doorman_Stake_Account_Aggregate;
   /** fetch data from the table: "doorman_stake_account" using primary key columns */
   doorman_stake_account_by_pk?: Maybe<Doorman_Stake_Account>;
+  /** fetch data from the table in a streaming manner : "doorman_stake_account" */
+  doorman_stake_account_stream: Array<Doorman_Stake_Account>;
+  /** fetch data from the table in a streaming manner : "doorman" */
+  doorman_stream: Array<Doorman>;
   /** fetch data from the table: "doorman_whitelist_contract" */
   doorman_whitelist_contract: Array<Doorman_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "doorman_whitelist_contract" */
   doorman_whitelist_contract_aggregate: Doorman_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "doorman_whitelist_contract" using primary key columns */
   doorman_whitelist_contract_by_pk?: Maybe<Doorman_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "doorman_whitelist_contract" */
+  doorman_whitelist_contract_stream: Array<Doorman_Whitelist_Contract>;
   /** fetch data from the table: "emergency_governance" */
   emergency_governance: Array<Emergency_Governance>;
   /** fetch aggregated fields from the table: "emergency_governance" */
@@ -39947,30 +42733,42 @@ export type Subscription_Root = {
   emergency_governance_general_contract_aggregate: Emergency_Governance_General_Contract_Aggregate;
   /** fetch data from the table: "emergency_governance_general_contract" using primary key columns */
   emergency_governance_general_contract_by_pk?: Maybe<Emergency_Governance_General_Contract>;
+  /** fetch data from the table in a streaming manner : "emergency_governance_general_contract" */
+  emergency_governance_general_contract_stream: Array<Emergency_Governance_General_Contract>;
   /** fetch data from the table: "emergency_governance_lambda" */
   emergency_governance_lambda: Array<Emergency_Governance_Lambda>;
   /** fetch aggregated fields from the table: "emergency_governance_lambda" */
   emergency_governance_lambda_aggregate: Emergency_Governance_Lambda_Aggregate;
   /** fetch data from the table: "emergency_governance_lambda" using primary key columns */
   emergency_governance_lambda_by_pk?: Maybe<Emergency_Governance_Lambda>;
+  /** fetch data from the table in a streaming manner : "emergency_governance_lambda" */
+  emergency_governance_lambda_stream: Array<Emergency_Governance_Lambda>;
   /** fetch data from the table: "emergency_governance_record" */
   emergency_governance_record: Array<Emergency_Governance_Record>;
   /** fetch aggregated fields from the table: "emergency_governance_record" */
   emergency_governance_record_aggregate: Emergency_Governance_Record_Aggregate;
   /** fetch data from the table: "emergency_governance_record" using primary key columns */
   emergency_governance_record_by_pk?: Maybe<Emergency_Governance_Record>;
+  /** fetch data from the table in a streaming manner : "emergency_governance_record" */
+  emergency_governance_record_stream: Array<Emergency_Governance_Record>;
+  /** fetch data from the table in a streaming manner : "emergency_governance" */
+  emergency_governance_stream: Array<Emergency_Governance>;
   /** fetch data from the table: "emergency_governance_vote" */
   emergency_governance_vote: Array<Emergency_Governance_Vote>;
   /** fetch aggregated fields from the table: "emergency_governance_vote" */
   emergency_governance_vote_aggregate: Emergency_Governance_Vote_Aggregate;
   /** fetch data from the table: "emergency_governance_vote" using primary key columns */
   emergency_governance_vote_by_pk?: Maybe<Emergency_Governance_Vote>;
+  /** fetch data from the table in a streaming manner : "emergency_governance_vote" */
+  emergency_governance_vote_stream: Array<Emergency_Governance_Vote>;
   /** fetch data from the table: "emergency_governance_whitelist_contract" */
   emergency_governance_whitelist_contract: Array<Emergency_Governance_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "emergency_governance_whitelist_contract" */
   emergency_governance_whitelist_contract_aggregate: Emergency_Governance_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "emergency_governance_whitelist_contract" using primary key columns */
   emergency_governance_whitelist_contract_by_pk?: Maybe<Emergency_Governance_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "emergency_governance_whitelist_contract" */
+  emergency_governance_whitelist_contract_stream: Array<Emergency_Governance_Whitelist_Contract>;
   /** fetch data from the table: "farm" */
   farm: Array<Farm>;
   /** fetch data from the table: "farm_account" */
@@ -39979,6 +42777,8 @@ export type Subscription_Root = {
   farm_account_aggregate: Farm_Account_Aggregate;
   /** fetch data from the table: "farm_account" using primary key columns */
   farm_account_by_pk?: Maybe<Farm_Account>;
+  /** fetch data from the table in a streaming manner : "farm_account" */
+  farm_account_stream: Array<Farm_Account>;
   /** fetch aggregated fields from the table: "farm" */
   farm_aggregate: Farm_Aggregate;
   /** fetch data from the table: "farm" using primary key columns */
@@ -39995,42 +42795,60 @@ export type Subscription_Root = {
   farm_factory_general_contract_aggregate: Farm_Factory_General_Contract_Aggregate;
   /** fetch data from the table: "farm_factory_general_contract" using primary key columns */
   farm_factory_general_contract_by_pk?: Maybe<Farm_Factory_General_Contract>;
+  /** fetch data from the table in a streaming manner : "farm_factory_general_contract" */
+  farm_factory_general_contract_stream: Array<Farm_Factory_General_Contract>;
   /** fetch data from the table: "farm_factory_lambda" */
   farm_factory_lambda: Array<Farm_Factory_Lambda>;
   /** fetch aggregated fields from the table: "farm_factory_lambda" */
   farm_factory_lambda_aggregate: Farm_Factory_Lambda_Aggregate;
   /** fetch data from the table: "farm_factory_lambda" using primary key columns */
   farm_factory_lambda_by_pk?: Maybe<Farm_Factory_Lambda>;
+  /** fetch data from the table in a streaming manner : "farm_factory_lambda" */
+  farm_factory_lambda_stream: Array<Farm_Factory_Lambda>;
   /** fetch data from the table: "farm_factory_product_lambda" */
   farm_factory_product_lambda: Array<Farm_Factory_Product_Lambda>;
   /** fetch aggregated fields from the table: "farm_factory_product_lambda" */
   farm_factory_product_lambda_aggregate: Farm_Factory_Product_Lambda_Aggregate;
   /** fetch data from the table: "farm_factory_product_lambda" using primary key columns */
   farm_factory_product_lambda_by_pk?: Maybe<Farm_Factory_Product_Lambda>;
+  /** fetch data from the table in a streaming manner : "farm_factory_product_lambda" */
+  farm_factory_product_lambda_stream: Array<Farm_Factory_Product_Lambda>;
+  /** fetch data from the table in a streaming manner : "farm_factory" */
+  farm_factory_stream: Array<Farm_Factory>;
   /** fetch data from the table: "farm_factory_whitelist_contract" */
   farm_factory_whitelist_contract: Array<Farm_Factory_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "farm_factory_whitelist_contract" */
   farm_factory_whitelist_contract_aggregate: Farm_Factory_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "farm_factory_whitelist_contract" using primary key columns */
   farm_factory_whitelist_contract_by_pk?: Maybe<Farm_Factory_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "farm_factory_whitelist_contract" */
+  farm_factory_whitelist_contract_stream: Array<Farm_Factory_Whitelist_Contract>;
   /** fetch data from the table: "farm_general_contract" */
   farm_general_contract: Array<Farm_General_Contract>;
   /** fetch aggregated fields from the table: "farm_general_contract" */
   farm_general_contract_aggregate: Farm_General_Contract_Aggregate;
   /** fetch data from the table: "farm_general_contract" using primary key columns */
   farm_general_contract_by_pk?: Maybe<Farm_General_Contract>;
+  /** fetch data from the table in a streaming manner : "farm_general_contract" */
+  farm_general_contract_stream: Array<Farm_General_Contract>;
   /** fetch data from the table: "farm_lambda" */
   farm_lambda: Array<Farm_Lambda>;
   /** fetch aggregated fields from the table: "farm_lambda" */
   farm_lambda_aggregate: Farm_Lambda_Aggregate;
   /** fetch data from the table: "farm_lambda" using primary key columns */
   farm_lambda_by_pk?: Maybe<Farm_Lambda>;
+  /** fetch data from the table in a streaming manner : "farm_lambda" */
+  farm_lambda_stream: Array<Farm_Lambda>;
+  /** fetch data from the table in a streaming manner : "farm" */
+  farm_stream: Array<Farm>;
   /** fetch data from the table: "farm_whitelist_contract" */
   farm_whitelist_contract: Array<Farm_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "farm_whitelist_contract" */
   farm_whitelist_contract_aggregate: Farm_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "farm_whitelist_contract" using primary key columns */
   farm_whitelist_contract_by_pk?: Maybe<Farm_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "farm_whitelist_contract" */
+  farm_whitelist_contract_stream: Array<Farm_Whitelist_Contract>;
   /** fetch data from the table: "governance" */
   governance: Array<Governance>;
   /** fetch aggregated fields from the table: "governance" */
@@ -40049,48 +42867,66 @@ export type Subscription_Root = {
   governance_financial_general_contract_aggregate: Governance_Financial_General_Contract_Aggregate;
   /** fetch data from the table: "governance_financial_general_contract" using primary key columns */
   governance_financial_general_contract_by_pk?: Maybe<Governance_Financial_General_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_financial_general_contract" */
+  governance_financial_general_contract_stream: Array<Governance_Financial_General_Contract>;
   /** fetch data from the table: "governance_financial_lambda" */
   governance_financial_lambda: Array<Governance_Financial_Lambda>;
   /** fetch aggregated fields from the table: "governance_financial_lambda" */
   governance_financial_lambda_aggregate: Governance_Financial_Lambda_Aggregate;
   /** fetch data from the table: "governance_financial_lambda" using primary key columns */
   governance_financial_lambda_by_pk?: Maybe<Governance_Financial_Lambda>;
+  /** fetch data from the table in a streaming manner : "governance_financial_lambda" */
+  governance_financial_lambda_stream: Array<Governance_Financial_Lambda>;
   /** fetch data from the table: "governance_financial_request" */
   governance_financial_request: Array<Governance_Financial_Request>;
   /** fetch aggregated fields from the table: "governance_financial_request" */
   governance_financial_request_aggregate: Governance_Financial_Request_Aggregate;
   /** fetch data from the table: "governance_financial_request" using primary key columns */
   governance_financial_request_by_pk?: Maybe<Governance_Financial_Request>;
+  /** fetch data from the table in a streaming manner : "governance_financial_request" */
+  governance_financial_request_stream: Array<Governance_Financial_Request>;
   /** fetch data from the table: "governance_financial_request_vote" */
   governance_financial_request_vote: Array<Governance_Financial_Request_Vote>;
   /** fetch aggregated fields from the table: "governance_financial_request_vote" */
   governance_financial_request_vote_aggregate: Governance_Financial_Request_Vote_Aggregate;
   /** fetch data from the table: "governance_financial_request_vote" using primary key columns */
   governance_financial_request_vote_by_pk?: Maybe<Governance_Financial_Request_Vote>;
+  /** fetch data from the table in a streaming manner : "governance_financial_request_vote" */
+  governance_financial_request_vote_stream: Array<Governance_Financial_Request_Vote>;
+  /** fetch data from the table in a streaming manner : "governance_financial" */
+  governance_financial_stream: Array<Governance_Financial>;
   /** fetch data from the table: "governance_financial_whitelist_contract" */
   governance_financial_whitelist_contract: Array<Governance_Financial_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "governance_financial_whitelist_contract" */
   governance_financial_whitelist_contract_aggregate: Governance_Financial_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "governance_financial_whitelist_contract" using primary key columns */
   governance_financial_whitelist_contract_by_pk?: Maybe<Governance_Financial_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_financial_whitelist_contract" */
+  governance_financial_whitelist_contract_stream: Array<Governance_Financial_Whitelist_Contract>;
   /** fetch data from the table: "governance_financial_whitelist_token_contract" */
   governance_financial_whitelist_token_contract: Array<Governance_Financial_Whitelist_Token_Contract>;
   /** fetch aggregated fields from the table: "governance_financial_whitelist_token_contract" */
   governance_financial_whitelist_token_contract_aggregate: Governance_Financial_Whitelist_Token_Contract_Aggregate;
   /** fetch data from the table: "governance_financial_whitelist_token_contract" using primary key columns */
   governance_financial_whitelist_token_contract_by_pk?: Maybe<Governance_Financial_Whitelist_Token_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_financial_whitelist_token_contract" */
+  governance_financial_whitelist_token_contract_stream: Array<Governance_Financial_Whitelist_Token_Contract>;
   /** fetch data from the table: "governance_general_contract" */
   governance_general_contract: Array<Governance_General_Contract>;
   /** fetch aggregated fields from the table: "governance_general_contract" */
   governance_general_contract_aggregate: Governance_General_Contract_Aggregate;
   /** fetch data from the table: "governance_general_contract" using primary key columns */
   governance_general_contract_by_pk?: Maybe<Governance_General_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_general_contract" */
+  governance_general_contract_stream: Array<Governance_General_Contract>;
   /** fetch data from the table: "governance_lambda" */
   governance_lambda: Array<Governance_Lambda>;
   /** fetch aggregated fields from the table: "governance_lambda" */
   governance_lambda_aggregate: Governance_Lambda_Aggregate;
   /** fetch data from the table: "governance_lambda" using primary key columns */
   governance_lambda_by_pk?: Maybe<Governance_Lambda>;
+  /** fetch data from the table in a streaming manner : "governance_lambda" */
+  governance_lambda_stream: Array<Governance_Lambda>;
   /** fetch data from the table: "governance_proposal" */
   governance_proposal: Array<Governance_Proposal>;
   /** fetch aggregated fields from the table: "governance_proposal" */
@@ -40103,18 +42939,26 @@ export type Subscription_Root = {
   governance_proposal_data_aggregate: Governance_Proposal_Data_Aggregate;
   /** fetch data from the table: "governance_proposal_data" using primary key columns */
   governance_proposal_data_by_pk?: Maybe<Governance_Proposal_Data>;
+  /** fetch data from the table in a streaming manner : "governance_proposal_data" */
+  governance_proposal_data_stream: Array<Governance_Proposal_Data>;
   /** fetch data from the table: "governance_proposal_payment" */
   governance_proposal_payment: Array<Governance_Proposal_Payment>;
   /** fetch aggregated fields from the table: "governance_proposal_payment" */
   governance_proposal_payment_aggregate: Governance_Proposal_Payment_Aggregate;
   /** fetch data from the table: "governance_proposal_payment" using primary key columns */
   governance_proposal_payment_by_pk?: Maybe<Governance_Proposal_Payment>;
+  /** fetch data from the table in a streaming manner : "governance_proposal_payment" */
+  governance_proposal_payment_stream: Array<Governance_Proposal_Payment>;
+  /** fetch data from the table in a streaming manner : "governance_proposal" */
+  governance_proposal_stream: Array<Governance_Proposal>;
   /** fetch data from the table: "governance_proposal_vote" */
   governance_proposal_vote: Array<Governance_Proposal_Vote>;
   /** fetch aggregated fields from the table: "governance_proposal_vote" */
   governance_proposal_vote_aggregate: Governance_Proposal_Vote_Aggregate;
   /** fetch data from the table: "governance_proposal_vote" using primary key columns */
   governance_proposal_vote_by_pk?: Maybe<Governance_Proposal_Vote>;
+  /** fetch data from the table in a streaming manner : "governance_proposal_vote" */
+  governance_proposal_vote_stream: Array<Governance_Proposal_Vote>;
   /** fetch data from the table: "governance_proxy" */
   governance_proxy: Array<Governance_Proxy>;
   /** fetch aggregated fields from the table: "governance_proxy" */
@@ -40127,30 +42971,42 @@ export type Subscription_Root = {
   governance_proxy_general_contract_aggregate: Governance_Proxy_General_Contract_Aggregate;
   /** fetch data from the table: "governance_proxy_general_contract" using primary key columns */
   governance_proxy_general_contract_by_pk?: Maybe<Governance_Proxy_General_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_proxy_general_contract" */
+  governance_proxy_general_contract_stream: Array<Governance_Proxy_General_Contract>;
   /** fetch data from the table: "governance_proxy_lambda" */
   governance_proxy_lambda: Array<Governance_Proxy_Lambda>;
   /** fetch aggregated fields from the table: "governance_proxy_lambda" */
   governance_proxy_lambda_aggregate: Governance_Proxy_Lambda_Aggregate;
   /** fetch data from the table: "governance_proxy_lambda" using primary key columns */
   governance_proxy_lambda_by_pk?: Maybe<Governance_Proxy_Lambda>;
+  /** fetch data from the table in a streaming manner : "governance_proxy_lambda" */
+  governance_proxy_lambda_stream: Array<Governance_Proxy_Lambda>;
   /** fetch data from the table: "governance_proxy_proxy_lambda" */
   governance_proxy_proxy_lambda: Array<Governance_Proxy_Proxy_Lambda>;
   /** fetch aggregated fields from the table: "governance_proxy_proxy_lambda" */
   governance_proxy_proxy_lambda_aggregate: Governance_Proxy_Proxy_Lambda_Aggregate;
   /** fetch data from the table: "governance_proxy_proxy_lambda" using primary key columns */
   governance_proxy_proxy_lambda_by_pk?: Maybe<Governance_Proxy_Proxy_Lambda>;
+  /** fetch data from the table in a streaming manner : "governance_proxy_proxy_lambda" */
+  governance_proxy_proxy_lambda_stream: Array<Governance_Proxy_Proxy_Lambda>;
+  /** fetch data from the table in a streaming manner : "governance_proxy" */
+  governance_proxy_stream: Array<Governance_Proxy>;
   /** fetch data from the table: "governance_proxy_whitelist_contract" */
   governance_proxy_whitelist_contract: Array<Governance_Proxy_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "governance_proxy_whitelist_contract" */
   governance_proxy_whitelist_contract_aggregate: Governance_Proxy_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "governance_proxy_whitelist_contract" using primary key columns */
   governance_proxy_whitelist_contract_by_pk?: Maybe<Governance_Proxy_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_proxy_whitelist_contract" */
+  governance_proxy_whitelist_contract_stream: Array<Governance_Proxy_Whitelist_Contract>;
   /** fetch data from the table: "governance_proxy_whitelist_token_contract" */
   governance_proxy_whitelist_token_contract: Array<Governance_Proxy_Whitelist_Token_Contract>;
   /** fetch aggregated fields from the table: "governance_proxy_whitelist_token_contract" */
   governance_proxy_whitelist_token_contract_aggregate: Governance_Proxy_Whitelist_Token_Contract_Aggregate;
   /** fetch data from the table: "governance_proxy_whitelist_token_contract" using primary key columns */
   governance_proxy_whitelist_token_contract_by_pk?: Maybe<Governance_Proxy_Whitelist_Token_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_proxy_whitelist_token_contract" */
+  governance_proxy_whitelist_token_contract_stream: Array<Governance_Proxy_Whitelist_Token_Contract>;
   /** fetch data from the table: "governance_satellite" */
   governance_satellite: Array<Governance_Satellite>;
   /** fetch data from the table: "governance_satellite_action" */
@@ -40165,12 +43021,18 @@ export type Subscription_Root = {
   governance_satellite_action_parameter_aggregate: Governance_Satellite_Action_Parameter_Aggregate;
   /** fetch data from the table: "governance_satellite_action_parameter" using primary key columns */
   governance_satellite_action_parameter_by_pk?: Maybe<Governance_Satellite_Action_Parameter>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_action_parameter" */
+  governance_satellite_action_parameter_stream: Array<Governance_Satellite_Action_Parameter>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_action" */
+  governance_satellite_action_stream: Array<Governance_Satellite_Action>;
   /** fetch data from the table: "governance_satellite_action_vote" */
   governance_satellite_action_vote: Array<Governance_Satellite_Action_Vote>;
   /** fetch aggregated fields from the table: "governance_satellite_action_vote" */
   governance_satellite_action_vote_aggregate: Governance_Satellite_Action_Vote_Aggregate;
   /** fetch data from the table: "governance_satellite_action_vote" using primary key columns */
   governance_satellite_action_vote_by_pk?: Maybe<Governance_Satellite_Action_Vote>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_action_vote" */
+  governance_satellite_action_vote_stream: Array<Governance_Satellite_Action_Vote>;
   /** fetch aggregated fields from the table: "governance_satellite" */
   governance_satellite_aggregate: Governance_Satellite_Aggregate;
   /** fetch data from the table: "governance_satellite_aggregator" */
@@ -40185,6 +43047,10 @@ export type Subscription_Root = {
   governance_satellite_aggregator_oracle_aggregate: Governance_Satellite_Aggregator_Oracle_Aggregate;
   /** fetch data from the table: "governance_satellite_aggregator_oracle" using primary key columns */
   governance_satellite_aggregator_oracle_by_pk?: Maybe<Governance_Satellite_Aggregator_Oracle>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_aggregator_oracle" */
+  governance_satellite_aggregator_oracle_stream: Array<Governance_Satellite_Aggregator_Oracle>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_aggregator" */
+  governance_satellite_aggregator_stream: Array<Governance_Satellite_Aggregator>;
   /** fetch data from the table: "governance_satellite" using primary key columns */
   governance_satellite_by_pk?: Maybe<Governance_Satellite>;
   /** fetch data from the table: "governance_satellite_general_contract" */
@@ -40193,12 +43059,16 @@ export type Subscription_Root = {
   governance_satellite_general_contract_aggregate: Governance_Satellite_General_Contract_Aggregate;
   /** fetch data from the table: "governance_satellite_general_contract" using primary key columns */
   governance_satellite_general_contract_by_pk?: Maybe<Governance_Satellite_General_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_general_contract" */
+  governance_satellite_general_contract_stream: Array<Governance_Satellite_General_Contract>;
   /** fetch data from the table: "governance_satellite_lambda" */
   governance_satellite_lambda: Array<Governance_Satellite_Lambda>;
   /** fetch aggregated fields from the table: "governance_satellite_lambda" */
   governance_satellite_lambda_aggregate: Governance_Satellite_Lambda_Aggregate;
   /** fetch data from the table: "governance_satellite_lambda" using primary key columns */
   governance_satellite_lambda_by_pk?: Maybe<Governance_Satellite_Lambda>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_lambda" */
+  governance_satellite_lambda_stream: Array<Governance_Satellite_Lambda>;
   /** fetch data from the table: "governance_satellite_satellite_oracle" */
   governance_satellite_satellite_oracle: Array<Governance_Satellite_Satellite_Oracle>;
   /** fetch aggregated fields from the table: "governance_satellite_satellite_oracle" */
@@ -40209,26 +43079,40 @@ export type Subscription_Root = {
   governance_satellite_satellite_oracle_aggregator_pair_aggregate: Governance_Satellite_Satellite_Oracle_Aggregator_Pair_Aggregate;
   /** fetch data from the table: "governance_satellite_satellite_oracle_aggregator_pair" using primary key columns */
   governance_satellite_satellite_oracle_aggregator_pair_by_pk?: Maybe<Governance_Satellite_Satellite_Oracle_Aggregator_Pair>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_satellite_oracle_aggregator_pair" */
+  governance_satellite_satellite_oracle_aggregator_pair_stream: Array<Governance_Satellite_Satellite_Oracle_Aggregator_Pair>;
   /** fetch data from the table: "governance_satellite_satellite_oracle" using primary key columns */
   governance_satellite_satellite_oracle_by_pk?: Maybe<Governance_Satellite_Satellite_Oracle>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_satellite_oracle" */
+  governance_satellite_satellite_oracle_stream: Array<Governance_Satellite_Satellite_Oracle>;
   /** fetch data from the table: "governance_satellite_snapshot" */
   governance_satellite_snapshot: Array<Governance_Satellite_Snapshot>;
   /** fetch aggregated fields from the table: "governance_satellite_snapshot" */
   governance_satellite_snapshot_aggregate: Governance_Satellite_Snapshot_Aggregate;
   /** fetch data from the table: "governance_satellite_snapshot" using primary key columns */
   governance_satellite_snapshot_by_pk?: Maybe<Governance_Satellite_Snapshot>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_snapshot" */
+  governance_satellite_snapshot_stream: Array<Governance_Satellite_Snapshot>;
+  /** fetch data from the table in a streaming manner : "governance_satellite" */
+  governance_satellite_stream: Array<Governance_Satellite>;
   /** fetch data from the table: "governance_satellite_whitelist_contract" */
   governance_satellite_whitelist_contract: Array<Governance_Satellite_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "governance_satellite_whitelist_contract" */
   governance_satellite_whitelist_contract_aggregate: Governance_Satellite_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "governance_satellite_whitelist_contract" using primary key columns */
   governance_satellite_whitelist_contract_by_pk?: Maybe<Governance_Satellite_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_satellite_whitelist_contract" */
+  governance_satellite_whitelist_contract_stream: Array<Governance_Satellite_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "governance" */
+  governance_stream: Array<Governance>;
   /** fetch data from the table: "governance_whitelist_contract" */
   governance_whitelist_contract: Array<Governance_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "governance_whitelist_contract" */
   governance_whitelist_contract_aggregate: Governance_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "governance_whitelist_contract" using primary key columns */
   governance_whitelist_contract_by_pk?: Maybe<Governance_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "governance_whitelist_contract" */
+  governance_whitelist_contract_stream: Array<Governance_Whitelist_Contract>;
   /** fetch data from the table: "lending_controller" */
   lending_controller: Array<Lending_Controller>;
   /** fetch aggregated fields from the table: "lending_controller" */
@@ -40241,30 +43125,42 @@ export type Subscription_Root = {
   lending_controller_collateral_token_aggregate: Lending_Controller_Collateral_Token_Aggregate;
   /** fetch data from the table: "lending_controller_collateral_token" using primary key columns */
   lending_controller_collateral_token_by_pk?: Maybe<Lending_Controller_Collateral_Token>;
+  /** fetch data from the table in a streaming manner : "lending_controller_collateral_token" */
+  lending_controller_collateral_token_stream: Array<Lending_Controller_Collateral_Token>;
   /** fetch data from the table: "lending_controller_depositor" */
   lending_controller_depositor: Array<Lending_Controller_Depositor>;
   /** fetch aggregated fields from the table: "lending_controller_depositor" */
   lending_controller_depositor_aggregate: Lending_Controller_Depositor_Aggregate;
   /** fetch data from the table: "lending_controller_depositor" using primary key columns */
   lending_controller_depositor_by_pk?: Maybe<Lending_Controller_Depositor>;
+  /** fetch data from the table in a streaming manner : "lending_controller_depositor" */
+  lending_controller_depositor_stream: Array<Lending_Controller_Depositor>;
   /** fetch data from the table: "lending_controller_general_contract" */
   lending_controller_general_contract: Array<Lending_Controller_General_Contract>;
   /** fetch aggregated fields from the table: "lending_controller_general_contract" */
   lending_controller_general_contract_aggregate: Lending_Controller_General_Contract_Aggregate;
   /** fetch data from the table: "lending_controller_general_contract" using primary key columns */
   lending_controller_general_contract_by_pk?: Maybe<Lending_Controller_General_Contract>;
+  /** fetch data from the table in a streaming manner : "lending_controller_general_contract" */
+  lending_controller_general_contract_stream: Array<Lending_Controller_General_Contract>;
   /** fetch data from the table: "lending_controller_lambda" */
   lending_controller_lambda: Array<Lending_Controller_Lambda>;
   /** fetch aggregated fields from the table: "lending_controller_lambda" */
   lending_controller_lambda_aggregate: Lending_Controller_Lambda_Aggregate;
   /** fetch data from the table: "lending_controller_lambda" using primary key columns */
   lending_controller_lambda_by_pk?: Maybe<Lending_Controller_Lambda>;
+  /** fetch data from the table in a streaming manner : "lending_controller_lambda" */
+  lending_controller_lambda_stream: Array<Lending_Controller_Lambda>;
   /** fetch data from the table: "lending_controller_loan_token" */
   lending_controller_loan_token: Array<Lending_Controller_Loan_Token>;
   /** fetch aggregated fields from the table: "lending_controller_loan_token" */
   lending_controller_loan_token_aggregate: Lending_Controller_Loan_Token_Aggregate;
   /** fetch data from the table: "lending_controller_loan_token" using primary key columns */
   lending_controller_loan_token_by_pk?: Maybe<Lending_Controller_Loan_Token>;
+  /** fetch data from the table in a streaming manner : "lending_controller_loan_token" */
+  lending_controller_loan_token_stream: Array<Lending_Controller_Loan_Token>;
+  /** fetch data from the table in a streaming manner : "lending_controller" */
+  lending_controller_stream: Array<Lending_Controller>;
   /** fetch data from the table: "lending_controller_vault" */
   lending_controller_vault: Array<Lending_Controller_Vault>;
   /** fetch aggregated fields from the table: "lending_controller_vault" */
@@ -40277,18 +43173,26 @@ export type Subscription_Root = {
   lending_controller_vault_collateral_balance_aggregate: Lending_Controller_Vault_Collateral_Balance_Aggregate;
   /** fetch data from the table: "lending_controller_vault_collateral_balance" using primary key columns */
   lending_controller_vault_collateral_balance_by_pk?: Maybe<Lending_Controller_Vault_Collateral_Balance>;
+  /** fetch data from the table in a streaming manner : "lending_controller_vault_collateral_balance" */
+  lending_controller_vault_collateral_balance_stream: Array<Lending_Controller_Vault_Collateral_Balance>;
+  /** fetch data from the table in a streaming manner : "lending_controller_vault" */
+  lending_controller_vault_stream: Array<Lending_Controller_Vault>;
   /** fetch data from the table: "lending_controller_whitelist_contract" */
   lending_controller_whitelist_contract: Array<Lending_Controller_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "lending_controller_whitelist_contract" */
   lending_controller_whitelist_contract_aggregate: Lending_Controller_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "lending_controller_whitelist_contract" using primary key columns */
   lending_controller_whitelist_contract_by_pk?: Maybe<Lending_Controller_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "lending_controller_whitelist_contract" */
+  lending_controller_whitelist_contract_stream: Array<Lending_Controller_Whitelist_Contract>;
   /** fetch data from the table: "lending_controller_whitelist_token_contract" */
   lending_controller_whitelist_token_contract: Array<Lending_Controller_Whitelist_Token_Contract>;
   /** fetch aggregated fields from the table: "lending_controller_whitelist_token_contract" */
   lending_controller_whitelist_token_contract_aggregate: Lending_Controller_Whitelist_Token_Contract_Aggregate;
   /** fetch data from the table: "lending_controller_whitelist_token_contract" using primary key columns */
   lending_controller_whitelist_token_contract_by_pk?: Maybe<Lending_Controller_Whitelist_Token_Contract>;
+  /** fetch data from the table in a streaming manner : "lending_controller_whitelist_token_contract" */
+  lending_controller_whitelist_token_contract_stream: Array<Lending_Controller_Whitelist_Token_Contract>;
   /** fetch data from the table: "liquidity_baking" */
   liquidity_baking: Array<Liquidity_Baking>;
   /** fetch aggregated fields from the table: "liquidity_baking" */
@@ -40301,6 +43205,10 @@ export type Subscription_Root = {
   liquidity_baking_history_data_aggregate: Liquidity_Baking_History_Data_Aggregate;
   /** fetch data from the table: "liquidity_baking_history_data" using primary key columns */
   liquidity_baking_history_data_by_pk?: Maybe<Liquidity_Baking_History_Data>;
+  /** fetch data from the table in a streaming manner : "liquidity_baking_history_data" */
+  liquidity_baking_history_data_stream: Array<Liquidity_Baking_History_Data>;
+  /** fetch data from the table in a streaming manner : "liquidity_baking" */
+  liquidity_baking_stream: Array<Liquidity_Baking>;
   /** fetch data from the table: "mavryk_user" */
   mavryk_user: Array<Mavryk_User>;
   /** fetch aggregated fields from the table: "mavryk_user" */
@@ -40313,12 +43221,18 @@ export type Subscription_Root = {
   mavryk_user_operator_aggregate: Mavryk_User_Operator_Aggregate;
   /** fetch data from the table: "mavryk_user_operator" using primary key columns */
   mavryk_user_operator_by_pk?: Maybe<Mavryk_User_Operator>;
+  /** fetch data from the table in a streaming manner : "mavryk_user_operator" */
+  mavryk_user_operator_stream: Array<Mavryk_User_Operator>;
+  /** fetch data from the table in a streaming manner : "mavryk_user" */
+  mavryk_user_stream: Array<Mavryk_User>;
   /** fetch data from the table: "mvk_mint_history_data" */
   mvk_mint_history_data: Array<Mvk_Mint_History_Data>;
   /** fetch aggregated fields from the table: "mvk_mint_history_data" */
   mvk_mint_history_data_aggregate: Mvk_Mint_History_Data_Aggregate;
   /** fetch data from the table: "mvk_mint_history_data" using primary key columns */
   mvk_mint_history_data_by_pk?: Maybe<Mvk_Mint_History_Data>;
+  /** fetch data from the table in a streaming manner : "mvk_mint_history_data" */
+  mvk_mint_history_data_stream: Array<Mvk_Mint_History_Data>;
   /** fetch data from the table: "mvk_token" */
   mvk_token: Array<Mvk_Token>;
   /** fetch aggregated fields from the table: "mvk_token" */
@@ -40331,18 +43245,26 @@ export type Subscription_Root = {
   mvk_token_general_contract_aggregate: Mvk_Token_General_Contract_Aggregate;
   /** fetch data from the table: "mvk_token_general_contract" using primary key columns */
   mvk_token_general_contract_by_pk?: Maybe<Mvk_Token_General_Contract>;
+  /** fetch data from the table in a streaming manner : "mvk_token_general_contract" */
+  mvk_token_general_contract_stream: Array<Mvk_Token_General_Contract>;
+  /** fetch data from the table in a streaming manner : "mvk_token" */
+  mvk_token_stream: Array<Mvk_Token>;
   /** fetch data from the table: "mvk_token_whitelist_contract" */
   mvk_token_whitelist_contract: Array<Mvk_Token_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "mvk_token_whitelist_contract" */
   mvk_token_whitelist_contract_aggregate: Mvk_Token_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "mvk_token_whitelist_contract" using primary key columns */
   mvk_token_whitelist_contract_by_pk?: Maybe<Mvk_Token_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "mvk_token_whitelist_contract" */
+  mvk_token_whitelist_contract_stream: Array<Mvk_Token_Whitelist_Contract>;
   /** fetch data from the table: "mvk_transfer_history_data" */
   mvk_transfer_history_data: Array<Mvk_Transfer_History_Data>;
   /** fetch aggregated fields from the table: "mvk_transfer_history_data" */
   mvk_transfer_history_data_aggregate: Mvk_Transfer_History_Data_Aggregate;
   /** fetch data from the table: "mvk_transfer_history_data" using primary key columns */
   mvk_transfer_history_data_by_pk?: Maybe<Mvk_Transfer_History_Data>;
+  /** fetch data from the table in a streaming manner : "mvk_transfer_history_data" */
+  mvk_transfer_history_data_stream: Array<Mvk_Transfer_History_Data>;
   /** fetch data from the table: "satellite" */
   satellite: Array<Satellite>;
   /** fetch aggregated fields from the table: "satellite" */
@@ -40355,18 +43277,26 @@ export type Subscription_Root = {
   satellite_rewards_aggregate: Satellite_Rewards_Aggregate;
   /** fetch data from the table: "satellite_rewards" using primary key columns */
   satellite_rewards_by_pk?: Maybe<Satellite_Rewards>;
+  /** fetch data from the table in a streaming manner : "satellite_rewards" */
+  satellite_rewards_stream: Array<Satellite_Rewards>;
+  /** fetch data from the table in a streaming manner : "satellite" */
+  satellite_stream: Array<Satellite>;
   /** fetch data from the table: "smvk_history_data" */
   smvk_history_data: Array<Smvk_History_Data>;
   /** fetch aggregated fields from the table: "smvk_history_data" */
   smvk_history_data_aggregate: Smvk_History_Data_Aggregate;
   /** fetch data from the table: "smvk_history_data" using primary key columns */
   smvk_history_data_by_pk?: Maybe<Smvk_History_Data>;
+  /** fetch data from the table in a streaming manner : "smvk_history_data" */
+  smvk_history_data_stream: Array<Smvk_History_Data>;
   /** fetch data from the table: "stake_history_data" */
   stake_history_data: Array<Stake_History_Data>;
   /** fetch aggregated fields from the table: "stake_history_data" */
   stake_history_data_aggregate: Stake_History_Data_Aggregate;
   /** fetch data from the table: "stake_history_data" using primary key columns */
   stake_history_data_by_pk?: Maybe<Stake_History_Data>;
+  /** fetch data from the table in a streaming manner : "stake_history_data" */
+  stake_history_data_stream: Array<Stake_History_Data>;
   /** fetch data from the table: "token_pool_reward" */
   token_pool_reward: Array<Token_Pool_Reward>;
   /** fetch aggregated fields from the table: "token_pool_reward" */
@@ -40379,24 +43309,34 @@ export type Subscription_Root = {
   token_pool_reward_general_contract_aggregate: Token_Pool_Reward_General_Contract_Aggregate;
   /** fetch data from the table: "token_pool_reward_general_contract" using primary key columns */
   token_pool_reward_general_contract_by_pk?: Maybe<Token_Pool_Reward_General_Contract>;
+  /** fetch data from the table in a streaming manner : "token_pool_reward_general_contract" */
+  token_pool_reward_general_contract_stream: Array<Token_Pool_Reward_General_Contract>;
   /** fetch data from the table: "token_pool_reward_reward" */
   token_pool_reward_reward: Array<Token_Pool_Reward_Reward>;
   /** fetch aggregated fields from the table: "token_pool_reward_reward" */
   token_pool_reward_reward_aggregate: Token_Pool_Reward_Reward_Aggregate;
   /** fetch data from the table: "token_pool_reward_reward" using primary key columns */
   token_pool_reward_reward_by_pk?: Maybe<Token_Pool_Reward_Reward>;
+  /** fetch data from the table in a streaming manner : "token_pool_reward_reward" */
+  token_pool_reward_reward_stream: Array<Token_Pool_Reward_Reward>;
+  /** fetch data from the table in a streaming manner : "token_pool_reward" */
+  token_pool_reward_stream: Array<Token_Pool_Reward>;
   /** fetch data from the table: "token_pool_reward_whitelist_contract" */
   token_pool_reward_whitelist_contract: Array<Token_Pool_Reward_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "token_pool_reward_whitelist_contract" */
   token_pool_reward_whitelist_contract_aggregate: Token_Pool_Reward_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "token_pool_reward_whitelist_contract" using primary key columns */
   token_pool_reward_whitelist_contract_by_pk?: Maybe<Token_Pool_Reward_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "token_pool_reward_whitelist_contract" */
+  token_pool_reward_whitelist_contract_stream: Array<Token_Pool_Reward_Whitelist_Contract>;
   /** fetch data from the table: "token_pool_reward_whitelist_token_contract" */
   token_pool_reward_whitelist_token_contract: Array<Token_Pool_Reward_Whitelist_Token_Contract>;
   /** fetch aggregated fields from the table: "token_pool_reward_whitelist_token_contract" */
   token_pool_reward_whitelist_token_contract_aggregate: Token_Pool_Reward_Whitelist_Token_Contract_Aggregate;
   /** fetch data from the table: "token_pool_reward_whitelist_token_contract" using primary key columns */
   token_pool_reward_whitelist_token_contract_by_pk?: Maybe<Token_Pool_Reward_Whitelist_Token_Contract>;
+  /** fetch data from the table in a streaming manner : "token_pool_reward_whitelist_token_contract" */
+  token_pool_reward_whitelist_token_contract_stream: Array<Token_Pool_Reward_Whitelist_Token_Contract>;
   /** fetch data from the table: "token_sale" */
   token_sale: Array<Token_Sale>;
   /** fetch aggregated fields from the table: "token_sale" */
@@ -40407,6 +43347,8 @@ export type Subscription_Root = {
   token_sale_buy_option_aggregate: Token_Sale_Buy_Option_Aggregate;
   /** fetch data from the table: "token_sale_buy_option" using primary key columns */
   token_sale_buy_option_by_pk?: Maybe<Token_Sale_Buy_Option>;
+  /** fetch data from the table in a streaming manner : "token_sale_buy_option" */
+  token_sale_buy_option_stream: Array<Token_Sale_Buy_Option>;
   /** fetch data from the table: "token_sale_buyer" */
   token_sale_buyer: Array<Token_Sale_Buyer>;
   /** fetch aggregated fields from the table: "token_sale_buyer" */
@@ -40419,14 +43361,22 @@ export type Subscription_Root = {
   token_sale_buyer_option_aggregate: Token_Sale_Buyer_Option_Aggregate;
   /** fetch data from the table: "token_sale_buyer_option" using primary key columns */
   token_sale_buyer_option_by_pk?: Maybe<Token_Sale_Buyer_Option>;
+  /** fetch data from the table in a streaming manner : "token_sale_buyer_option" */
+  token_sale_buyer_option_stream: Array<Token_Sale_Buyer_Option>;
+  /** fetch data from the table in a streaming manner : "token_sale_buyer" */
+  token_sale_buyer_stream: Array<Token_Sale_Buyer>;
   /** fetch data from the table: "token_sale" using primary key columns */
   token_sale_by_pk?: Maybe<Token_Sale>;
+  /** fetch data from the table in a streaming manner : "token_sale" */
+  token_sale_stream: Array<Token_Sale>;
   /** fetch data from the table: "token_sale_whitelisted_account" */
   token_sale_whitelisted_account: Array<Token_Sale_Whitelisted_Account>;
   /** fetch aggregated fields from the table: "token_sale_whitelisted_account" */
   token_sale_whitelisted_account_aggregate: Token_Sale_Whitelisted_Account_Aggregate;
   /** fetch data from the table: "token_sale_whitelisted_account" using primary key columns */
   token_sale_whitelisted_account_by_pk?: Maybe<Token_Sale_Whitelisted_Account>;
+  /** fetch data from the table in a streaming manner : "token_sale_whitelisted_account" */
+  token_sale_whitelisted_account_stream: Array<Token_Sale_Whitelisted_Account>;
   /** fetch data from the table: "treasury" */
   treasury: Array<Treasury>;
   /** fetch aggregated fields from the table: "treasury" */
@@ -40445,60 +43395,84 @@ export type Subscription_Root = {
   treasury_factory_general_contract_aggregate: Treasury_Factory_General_Contract_Aggregate;
   /** fetch data from the table: "treasury_factory_general_contract" using primary key columns */
   treasury_factory_general_contract_by_pk?: Maybe<Treasury_Factory_General_Contract>;
+  /** fetch data from the table in a streaming manner : "treasury_factory_general_contract" */
+  treasury_factory_general_contract_stream: Array<Treasury_Factory_General_Contract>;
   /** fetch data from the table: "treasury_factory_lambda" */
   treasury_factory_lambda: Array<Treasury_Factory_Lambda>;
   /** fetch aggregated fields from the table: "treasury_factory_lambda" */
   treasury_factory_lambda_aggregate: Treasury_Factory_Lambda_Aggregate;
   /** fetch data from the table: "treasury_factory_lambda" using primary key columns */
   treasury_factory_lambda_by_pk?: Maybe<Treasury_Factory_Lambda>;
+  /** fetch data from the table in a streaming manner : "treasury_factory_lambda" */
+  treasury_factory_lambda_stream: Array<Treasury_Factory_Lambda>;
   /** fetch data from the table: "treasury_factory_product_lambda" */
   treasury_factory_product_lambda: Array<Treasury_Factory_Product_Lambda>;
   /** fetch aggregated fields from the table: "treasury_factory_product_lambda" */
   treasury_factory_product_lambda_aggregate: Treasury_Factory_Product_Lambda_Aggregate;
   /** fetch data from the table: "treasury_factory_product_lambda" using primary key columns */
   treasury_factory_product_lambda_by_pk?: Maybe<Treasury_Factory_Product_Lambda>;
+  /** fetch data from the table in a streaming manner : "treasury_factory_product_lambda" */
+  treasury_factory_product_lambda_stream: Array<Treasury_Factory_Product_Lambda>;
+  /** fetch data from the table in a streaming manner : "treasury_factory" */
+  treasury_factory_stream: Array<Treasury_Factory>;
   /** fetch data from the table: "treasury_factory_whitelist_contract" */
   treasury_factory_whitelist_contract: Array<Treasury_Factory_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "treasury_factory_whitelist_contract" */
   treasury_factory_whitelist_contract_aggregate: Treasury_Factory_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "treasury_factory_whitelist_contract" using primary key columns */
   treasury_factory_whitelist_contract_by_pk?: Maybe<Treasury_Factory_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "treasury_factory_whitelist_contract" */
+  treasury_factory_whitelist_contract_stream: Array<Treasury_Factory_Whitelist_Contract>;
   /** fetch data from the table: "treasury_factory_whitelist_token_contract" */
   treasury_factory_whitelist_token_contract: Array<Treasury_Factory_Whitelist_Token_Contract>;
   /** fetch aggregated fields from the table: "treasury_factory_whitelist_token_contract" */
   treasury_factory_whitelist_token_contract_aggregate: Treasury_Factory_Whitelist_Token_Contract_Aggregate;
   /** fetch data from the table: "treasury_factory_whitelist_token_contract" using primary key columns */
   treasury_factory_whitelist_token_contract_by_pk?: Maybe<Treasury_Factory_Whitelist_Token_Contract>;
+  /** fetch data from the table in a streaming manner : "treasury_factory_whitelist_token_contract" */
+  treasury_factory_whitelist_token_contract_stream: Array<Treasury_Factory_Whitelist_Token_Contract>;
   /** fetch data from the table: "treasury_general_contract" */
   treasury_general_contract: Array<Treasury_General_Contract>;
   /** fetch aggregated fields from the table: "treasury_general_contract" */
   treasury_general_contract_aggregate: Treasury_General_Contract_Aggregate;
   /** fetch data from the table: "treasury_general_contract" using primary key columns */
   treasury_general_contract_by_pk?: Maybe<Treasury_General_Contract>;
+  /** fetch data from the table in a streaming manner : "treasury_general_contract" */
+  treasury_general_contract_stream: Array<Treasury_General_Contract>;
   /** fetch data from the table: "treasury_lambda" */
   treasury_lambda: Array<Treasury_Lambda>;
   /** fetch aggregated fields from the table: "treasury_lambda" */
   treasury_lambda_aggregate: Treasury_Lambda_Aggregate;
   /** fetch data from the table: "treasury_lambda" using primary key columns */
   treasury_lambda_by_pk?: Maybe<Treasury_Lambda>;
+  /** fetch data from the table in a streaming manner : "treasury_lambda" */
+  treasury_lambda_stream: Array<Treasury_Lambda>;
+  /** fetch data from the table in a streaming manner : "treasury" */
+  treasury_stream: Array<Treasury>;
   /** fetch data from the table: "treasury_transfer_history_data" */
   treasury_transfer_history_data: Array<Treasury_Transfer_History_Data>;
   /** fetch aggregated fields from the table: "treasury_transfer_history_data" */
   treasury_transfer_history_data_aggregate: Treasury_Transfer_History_Data_Aggregate;
   /** fetch data from the table: "treasury_transfer_history_data" using primary key columns */
   treasury_transfer_history_data_by_pk?: Maybe<Treasury_Transfer_History_Data>;
+  /** fetch data from the table in a streaming manner : "treasury_transfer_history_data" */
+  treasury_transfer_history_data_stream: Array<Treasury_Transfer_History_Data>;
   /** fetch data from the table: "treasury_whitelist_contract" */
   treasury_whitelist_contract: Array<Treasury_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "treasury_whitelist_contract" */
   treasury_whitelist_contract_aggregate: Treasury_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "treasury_whitelist_contract" using primary key columns */
   treasury_whitelist_contract_by_pk?: Maybe<Treasury_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "treasury_whitelist_contract" */
+  treasury_whitelist_contract_stream: Array<Treasury_Whitelist_Contract>;
   /** fetch data from the table: "treasury_whitelist_token_contract" */
   treasury_whitelist_token_contract: Array<Treasury_Whitelist_Token_Contract>;
   /** fetch aggregated fields from the table: "treasury_whitelist_token_contract" */
   treasury_whitelist_token_contract_aggregate: Treasury_Whitelist_Token_Contract_Aggregate;
   /** fetch data from the table: "treasury_whitelist_token_contract" using primary key columns */
   treasury_whitelist_token_contract_by_pk?: Maybe<Treasury_Whitelist_Token_Contract>;
+  /** fetch data from the table in a streaming manner : "treasury_whitelist_token_contract" */
+  treasury_whitelist_token_contract_stream: Array<Treasury_Whitelist_Token_Contract>;
   /** fetch data from the table: "vault" */
   vault: Array<Vault>;
   /** fetch aggregated fields from the table: "vault" */
@@ -40511,6 +43485,8 @@ export type Subscription_Root = {
   vault_depositor_aggregate: Vault_Depositor_Aggregate;
   /** fetch data from the table: "vault_depositor" using primary key columns */
   vault_depositor_by_pk?: Maybe<Vault_Depositor>;
+  /** fetch data from the table in a streaming manner : "vault_depositor" */
+  vault_depositor_stream: Array<Vault_Depositor>;
   /** fetch data from the table: "vault_factory" */
   vault_factory: Array<Vault_Factory>;
   /** fetch aggregated fields from the table: "vault_factory" */
@@ -40523,30 +43499,44 @@ export type Subscription_Root = {
   vault_factory_general_contract_aggregate: Vault_Factory_General_Contract_Aggregate;
   /** fetch data from the table: "vault_factory_general_contract" using primary key columns */
   vault_factory_general_contract_by_pk?: Maybe<Vault_Factory_General_Contract>;
+  /** fetch data from the table in a streaming manner : "vault_factory_general_contract" */
+  vault_factory_general_contract_stream: Array<Vault_Factory_General_Contract>;
   /** fetch data from the table: "vault_factory_lambda" */
   vault_factory_lambda: Array<Vault_Factory_Lambda>;
   /** fetch aggregated fields from the table: "vault_factory_lambda" */
   vault_factory_lambda_aggregate: Vault_Factory_Lambda_Aggregate;
   /** fetch data from the table: "vault_factory_lambda" using primary key columns */
   vault_factory_lambda_by_pk?: Maybe<Vault_Factory_Lambda>;
+  /** fetch data from the table in a streaming manner : "vault_factory_lambda" */
+  vault_factory_lambda_stream: Array<Vault_Factory_Lambda>;
   /** fetch data from the table: "vault_factory_product_lambda" */
   vault_factory_product_lambda: Array<Vault_Factory_Product_Lambda>;
   /** fetch aggregated fields from the table: "vault_factory_product_lambda" */
   vault_factory_product_lambda_aggregate: Vault_Factory_Product_Lambda_Aggregate;
   /** fetch data from the table: "vault_factory_product_lambda" using primary key columns */
   vault_factory_product_lambda_by_pk?: Maybe<Vault_Factory_Product_Lambda>;
+  /** fetch data from the table in a streaming manner : "vault_factory_product_lambda" */
+  vault_factory_product_lambda_stream: Array<Vault_Factory_Product_Lambda>;
+  /** fetch data from the table in a streaming manner : "vault_factory" */
+  vault_factory_stream: Array<Vault_Factory>;
   /** fetch data from the table: "vault_factory_whitelist_contract" */
   vault_factory_whitelist_contract: Array<Vault_Factory_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "vault_factory_whitelist_contract" */
   vault_factory_whitelist_contract_aggregate: Vault_Factory_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "vault_factory_whitelist_contract" using primary key columns */
   vault_factory_whitelist_contract_by_pk?: Maybe<Vault_Factory_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "vault_factory_whitelist_contract" */
+  vault_factory_whitelist_contract_stream: Array<Vault_Factory_Whitelist_Contract>;
   /** fetch data from the table: "vault_lambda" */
   vault_lambda: Array<Vault_Lambda>;
   /** fetch aggregated fields from the table: "vault_lambda" */
   vault_lambda_aggregate: Vault_Lambda_Aggregate;
   /** fetch data from the table: "vault_lambda" using primary key columns */
   vault_lambda_by_pk?: Maybe<Vault_Lambda>;
+  /** fetch data from the table in a streaming manner : "vault_lambda" */
+  vault_lambda_stream: Array<Vault_Lambda>;
+  /** fetch data from the table in a streaming manner : "vault" */
+  vault_stream: Array<Vault>;
   /** fetch data from the table: "vesting" */
   vesting: Array<Vesting>;
   /** fetch aggregated fields from the table: "vesting" */
@@ -40559,30 +43549,42 @@ export type Subscription_Root = {
   vesting_general_contract_aggregate: Vesting_General_Contract_Aggregate;
   /** fetch data from the table: "vesting_general_contract" using primary key columns */
   vesting_general_contract_by_pk?: Maybe<Vesting_General_Contract>;
+  /** fetch data from the table in a streaming manner : "vesting_general_contract" */
+  vesting_general_contract_stream: Array<Vesting_General_Contract>;
   /** fetch data from the table: "vesting_lambda" */
   vesting_lambda: Array<Vesting_Lambda>;
   /** fetch aggregated fields from the table: "vesting_lambda" */
   vesting_lambda_aggregate: Vesting_Lambda_Aggregate;
   /** fetch data from the table: "vesting_lambda" using primary key columns */
   vesting_lambda_by_pk?: Maybe<Vesting_Lambda>;
+  /** fetch data from the table in a streaming manner : "vesting_lambda" */
+  vesting_lambda_stream: Array<Vesting_Lambda>;
+  /** fetch data from the table in a streaming manner : "vesting" */
+  vesting_stream: Array<Vesting>;
   /** fetch data from the table: "vesting_vestee" */
   vesting_vestee: Array<Vesting_Vestee>;
   /** fetch aggregated fields from the table: "vesting_vestee" */
   vesting_vestee_aggregate: Vesting_Vestee_Aggregate;
   /** fetch data from the table: "vesting_vestee" using primary key columns */
   vesting_vestee_by_pk?: Maybe<Vesting_Vestee>;
+  /** fetch data from the table in a streaming manner : "vesting_vestee" */
+  vesting_vestee_stream: Array<Vesting_Vestee>;
   /** fetch data from the table: "vesting_whitelist_contract" */
   vesting_whitelist_contract: Array<Vesting_Whitelist_Contract>;
   /** fetch aggregated fields from the table: "vesting_whitelist_contract" */
   vesting_whitelist_contract_aggregate: Vesting_Whitelist_Contract_Aggregate;
   /** fetch data from the table: "vesting_whitelist_contract" using primary key columns */
   vesting_whitelist_contract_by_pk?: Maybe<Vesting_Whitelist_Contract>;
+  /** fetch data from the table in a streaming manner : "vesting_whitelist_contract" */
+  vesting_whitelist_contract_stream: Array<Vesting_Whitelist_Contract>;
   /** fetch data from the table: "whitelist_developer" */
   whitelist_developer: Array<Whitelist_Developer>;
   /** fetch aggregated fields from the table: "whitelist_developer" */
   whitelist_developer_aggregate: Whitelist_Developer_Aggregate;
   /** fetch data from the table: "whitelist_developer" using primary key columns */
   whitelist_developer_by_pk?: Maybe<Whitelist_Developer>;
+  /** fetch data from the table in a streaming manner : "whitelist_developer" */
+  whitelist_developer_stream: Array<Whitelist_Developer>;
 };
 
 
@@ -40655,6 +43657,13 @@ export type Subscription_RootAggregator_Factory_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootAggregator_Factory_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Factory_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Factory_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootAggregator_Factory_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Aggregator_Factory_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -40675,6 +43684,13 @@ export type Subscription_RootAggregator_Factory_Lambda_AggregateArgs = {
 
 export type Subscription_RootAggregator_Factory_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootAggregator_Factory_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Factory_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Factory_Lambda_Bool_Exp>;
 };
 
 
@@ -40701,6 +43717,20 @@ export type Subscription_RootAggregator_Factory_Product_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootAggregator_Factory_Product_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Factory_Product_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Factory_Product_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootAggregator_Factory_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Factory_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Factory_Bool_Exp>;
+};
+
+
 export type Subscription_RootAggregator_Factory_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Aggregator_Factory_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -40721,6 +43751,13 @@ export type Subscription_RootAggregator_Factory_Whitelist_Contract_AggregateArgs
 
 export type Subscription_RootAggregator_Factory_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootAggregator_Factory_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Factory_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Factory_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -40747,6 +43784,43 @@ export type Subscription_RootAggregator_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootAggregator_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_General_Contract_Bool_Exp>;
+};
+
+
+export type Subscription_RootAggregator_History_DataArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_History_Data_Order_By>>;
+  where?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
+};
+
+
+export type Subscription_RootAggregator_History_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_History_Data_Order_By>>;
+  where?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
+};
+
+
+export type Subscription_RootAggregator_History_Data_By_PkArgs = {
+  id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootAggregator_History_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_History_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_History_Data_Bool_Exp>;
+};
+
+
 export type Subscription_RootAggregator_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Aggregator_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -40767,6 +43841,13 @@ export type Subscription_RootAggregator_Lambda_AggregateArgs = {
 
 export type Subscription_RootAggregator_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootAggregator_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Lambda_Bool_Exp>;
 };
 
 
@@ -40816,6 +43897,27 @@ export type Subscription_RootAggregator_Oracle_Reward_By_PkArgs = {
 };
 
 
+export type Subscription_RootAggregator_Oracle_Reward_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Oracle_Reward_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Oracle_Reward_Bool_Exp>;
+};
+
+
+export type Subscription_RootAggregator_Oracle_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Oracle_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Oracle_Bool_Exp>;
+};
+
+
+export type Subscription_RootAggregator_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Bool_Exp>;
+};
+
+
 export type Subscription_RootAggregator_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Aggregator_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -40836,6 +43938,13 @@ export type Subscription_RootAggregator_Whitelist_Contract_AggregateArgs = {
 
 export type Subscription_RootAggregator_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootAggregator_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -40894,6 +44003,13 @@ export type Subscription_RootBreak_Glass_Action_Parameter_By_PkArgs = {
 };
 
 
+export type Subscription_RootBreak_Glass_Action_Parameter_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Break_Glass_Action_Parameter_Stream_Cursor_Input>>;
+  where?: InputMaybe<Break_Glass_Action_Parameter_Bool_Exp>;
+};
+
+
 export type Subscription_RootBreak_Glass_Action_SignerArgs = {
   distinct_on?: InputMaybe<Array<Break_Glass_Action_Signer_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -40914,6 +44030,20 @@ export type Subscription_RootBreak_Glass_Action_Signer_AggregateArgs = {
 
 export type Subscription_RootBreak_Glass_Action_Signer_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootBreak_Glass_Action_Signer_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Break_Glass_Action_Signer_Stream_Cursor_Input>>;
+  where?: InputMaybe<Break_Glass_Action_Signer_Bool_Exp>;
+};
+
+
+export type Subscription_RootBreak_Glass_Action_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Break_Glass_Action_Stream_Cursor_Input>>;
+  where?: InputMaybe<Break_Glass_Action_Bool_Exp>;
 };
 
 
@@ -40954,6 +44084,13 @@ export type Subscription_RootBreak_Glass_Council_Member_By_PkArgs = {
 };
 
 
+export type Subscription_RootBreak_Glass_Council_Member_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Break_Glass_Council_Member_Stream_Cursor_Input>>;
+  where?: InputMaybe<Break_Glass_Council_Member_Bool_Exp>;
+};
+
+
 export type Subscription_RootBreak_Glass_General_ContractArgs = {
   distinct_on?: InputMaybe<Array<Break_Glass_General_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -40974,6 +44111,13 @@ export type Subscription_RootBreak_Glass_General_Contract_AggregateArgs = {
 
 export type Subscription_RootBreak_Glass_General_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootBreak_Glass_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Break_Glass_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Break_Glass_General_Contract_Bool_Exp>;
 };
 
 
@@ -41000,6 +44144,20 @@ export type Subscription_RootBreak_Glass_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootBreak_Glass_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Break_Glass_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Break_Glass_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootBreak_Glass_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Break_Glass_Stream_Cursor_Input>>;
+  where?: InputMaybe<Break_Glass_Bool_Exp>;
+};
+
+
 export type Subscription_RootBreak_Glass_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Break_Glass_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41020,6 +44178,13 @@ export type Subscription_RootBreak_Glass_Whitelist_Contract_AggregateArgs = {
 
 export type Subscription_RootBreak_Glass_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootBreak_Glass_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Break_Glass_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Break_Glass_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -41078,6 +44243,13 @@ export type Subscription_RootCouncil_Action_Parameter_By_PkArgs = {
 };
 
 
+export type Subscription_RootCouncil_Action_Parameter_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Council_Action_Parameter_Stream_Cursor_Input>>;
+  where?: InputMaybe<Council_Action_Parameter_Bool_Exp>;
+};
+
+
 export type Subscription_RootCouncil_Action_SignerArgs = {
   distinct_on?: InputMaybe<Array<Council_Action_Signer_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41098,6 +44270,20 @@ export type Subscription_RootCouncil_Action_Signer_AggregateArgs = {
 
 export type Subscription_RootCouncil_Action_Signer_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootCouncil_Action_Signer_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Council_Action_Signer_Stream_Cursor_Input>>;
+  where?: InputMaybe<Council_Action_Signer_Bool_Exp>;
+};
+
+
+export type Subscription_RootCouncil_Action_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Council_Action_Stream_Cursor_Input>>;
+  where?: InputMaybe<Council_Action_Bool_Exp>;
 };
 
 
@@ -41138,6 +44324,13 @@ export type Subscription_RootCouncil_Council_Member_By_PkArgs = {
 };
 
 
+export type Subscription_RootCouncil_Council_Member_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Council_Council_Member_Stream_Cursor_Input>>;
+  where?: InputMaybe<Council_Council_Member_Bool_Exp>;
+};
+
+
 export type Subscription_RootCouncil_General_ContractArgs = {
   distinct_on?: InputMaybe<Array<Council_General_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41158,6 +44351,13 @@ export type Subscription_RootCouncil_General_Contract_AggregateArgs = {
 
 export type Subscription_RootCouncil_General_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootCouncil_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Council_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Council_General_Contract_Bool_Exp>;
 };
 
 
@@ -41184,6 +44384,20 @@ export type Subscription_RootCouncil_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootCouncil_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Council_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Council_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootCouncil_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Council_Stream_Cursor_Input>>;
+  where?: InputMaybe<Council_Bool_Exp>;
+};
+
+
 export type Subscription_RootCouncil_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Council_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41204,6 +44418,13 @@ export type Subscription_RootCouncil_Whitelist_Contract_AggregateArgs = {
 
 export type Subscription_RootCouncil_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootCouncil_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Council_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Council_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -41253,6 +44474,13 @@ export type Subscription_RootDelegation_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootDelegation_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Delegation_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Delegation_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootDelegation_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Delegation_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41273,6 +44501,13 @@ export type Subscription_RootDelegation_Lambda_AggregateArgs = {
 
 export type Subscription_RootDelegation_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootDelegation_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Delegation_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Delegation_Lambda_Bool_Exp>;
 };
 
 
@@ -41299,6 +44534,20 @@ export type Subscription_RootDelegation_Record_By_PkArgs = {
 };
 
 
+export type Subscription_RootDelegation_Record_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Delegation_Record_Stream_Cursor_Input>>;
+  where?: InputMaybe<Delegation_Record_Bool_Exp>;
+};
+
+
+export type Subscription_RootDelegation_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Delegation_Stream_Cursor_Input>>;
+  where?: InputMaybe<Delegation_Bool_Exp>;
+};
+
+
 export type Subscription_RootDelegation_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Delegation_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41319,6 +44568,13 @@ export type Subscription_RootDelegation_Whitelist_Contract_AggregateArgs = {
 
 export type Subscription_RootDelegation_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootDelegation_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Delegation_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Delegation_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -41368,6 +44624,20 @@ export type Subscription_RootDipdup_Contract_Metadata_By_PkArgs = {
 };
 
 
+export type Subscription_RootDipdup_Contract_Metadata_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Dipdup_Contract_Metadata_Stream_Cursor_Input>>;
+  where?: InputMaybe<Dipdup_Contract_Metadata_Bool_Exp>;
+};
+
+
+export type Subscription_RootDipdup_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Dipdup_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Dipdup_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootDipdup_HeadArgs = {
   distinct_on?: InputMaybe<Array<Dipdup_Head_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41409,6 +44679,20 @@ export type Subscription_RootDipdup_Head_Status_AggregateArgs = {
 };
 
 
+export type Subscription_RootDipdup_Head_Status_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Dipdup_Head_Status_Stream_Cursor_Input>>;
+  where?: InputMaybe<Dipdup_Head_Status_Bool_Exp>;
+};
+
+
+export type Subscription_RootDipdup_Head_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Dipdup_Head_Stream_Cursor_Input>>;
+  where?: InputMaybe<Dipdup_Head_Bool_Exp>;
+};
+
+
 export type Subscription_RootDipdup_IndexArgs = {
   distinct_on?: InputMaybe<Array<Dipdup_Index_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41429,6 +44713,13 @@ export type Subscription_RootDipdup_Index_AggregateArgs = {
 
 export type Subscription_RootDipdup_Index_By_PkArgs = {
   name: Scalars['String'];
+};
+
+
+export type Subscription_RootDipdup_Index_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Dipdup_Index_Stream_Cursor_Input>>;
+  where?: InputMaybe<Dipdup_Index_Bool_Exp>;
 };
 
 
@@ -41455,6 +44746,13 @@ export type Subscription_RootDipdup_Model_Update_By_PkArgs = {
 };
 
 
+export type Subscription_RootDipdup_Model_Update_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Dipdup_Model_Update_Stream_Cursor_Input>>;
+  where?: InputMaybe<Dipdup_Model_Update_Bool_Exp>;
+};
+
+
 export type Subscription_RootDipdup_SchemaArgs = {
   distinct_on?: InputMaybe<Array<Dipdup_Schema_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41478,6 +44776,13 @@ export type Subscription_RootDipdup_Schema_By_PkArgs = {
 };
 
 
+export type Subscription_RootDipdup_Schema_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Dipdup_Schema_Stream_Cursor_Input>>;
+  where?: InputMaybe<Dipdup_Schema_Bool_Exp>;
+};
+
+
 export type Subscription_RootDipdup_Token_MetadataArgs = {
   distinct_on?: InputMaybe<Array<Dipdup_Token_Metadata_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41498,6 +44803,13 @@ export type Subscription_RootDipdup_Token_Metadata_AggregateArgs = {
 
 export type Subscription_RootDipdup_Token_Metadata_By_PkArgs = {
   id: Scalars['Int'];
+};
+
+
+export type Subscription_RootDipdup_Token_Metadata_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Dipdup_Token_Metadata_Stream_Cursor_Input>>;
+  where?: InputMaybe<Dipdup_Token_Metadata_Bool_Exp>;
 };
 
 
@@ -41547,6 +44859,13 @@ export type Subscription_RootDoorman_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootDoorman_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Doorman_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Doorman_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootDoorman_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Doorman_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41567,6 +44886,13 @@ export type Subscription_RootDoorman_Lambda_AggregateArgs = {
 
 export type Subscription_RootDoorman_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootDoorman_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Doorman_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Doorman_Lambda_Bool_Exp>;
 };
 
 
@@ -41593,6 +44919,20 @@ export type Subscription_RootDoorman_Stake_Account_By_PkArgs = {
 };
 
 
+export type Subscription_RootDoorman_Stake_Account_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Doorman_Stake_Account_Stream_Cursor_Input>>;
+  where?: InputMaybe<Doorman_Stake_Account_Bool_Exp>;
+};
+
+
+export type Subscription_RootDoorman_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Doorman_Stream_Cursor_Input>>;
+  where?: InputMaybe<Doorman_Bool_Exp>;
+};
+
+
 export type Subscription_RootDoorman_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Doorman_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41613,6 +44953,13 @@ export type Subscription_RootDoorman_Whitelist_Contract_AggregateArgs = {
 
 export type Subscription_RootDoorman_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootDoorman_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Doorman_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Doorman_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -41662,6 +45009,13 @@ export type Subscription_RootEmergency_Governance_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootEmergency_Governance_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Emergency_Governance_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Emergency_Governance_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootEmergency_Governance_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Emergency_Governance_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41682,6 +45036,13 @@ export type Subscription_RootEmergency_Governance_Lambda_AggregateArgs = {
 
 export type Subscription_RootEmergency_Governance_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootEmergency_Governance_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Emergency_Governance_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Emergency_Governance_Lambda_Bool_Exp>;
 };
 
 
@@ -41708,6 +45069,20 @@ export type Subscription_RootEmergency_Governance_Record_By_PkArgs = {
 };
 
 
+export type Subscription_RootEmergency_Governance_Record_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Emergency_Governance_Record_Stream_Cursor_Input>>;
+  where?: InputMaybe<Emergency_Governance_Record_Bool_Exp>;
+};
+
+
+export type Subscription_RootEmergency_Governance_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Emergency_Governance_Stream_Cursor_Input>>;
+  where?: InputMaybe<Emergency_Governance_Bool_Exp>;
+};
+
+
 export type Subscription_RootEmergency_Governance_VoteArgs = {
   distinct_on?: InputMaybe<Array<Emergency_Governance_Vote_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41731,6 +45106,13 @@ export type Subscription_RootEmergency_Governance_Vote_By_PkArgs = {
 };
 
 
+export type Subscription_RootEmergency_Governance_Vote_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Emergency_Governance_Vote_Stream_Cursor_Input>>;
+  where?: InputMaybe<Emergency_Governance_Vote_Bool_Exp>;
+};
+
+
 export type Subscription_RootEmergency_Governance_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Emergency_Governance_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41751,6 +45133,13 @@ export type Subscription_RootEmergency_Governance_Whitelist_Contract_AggregateAr
 
 export type Subscription_RootEmergency_Governance_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootEmergency_Governance_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Emergency_Governance_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Emergency_Governance_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -41783,6 +45172,13 @@ export type Subscription_RootFarm_Account_AggregateArgs = {
 
 export type Subscription_RootFarm_Account_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootFarm_Account_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Account_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Account_Bool_Exp>;
 };
 
 
@@ -41846,6 +45242,13 @@ export type Subscription_RootFarm_Factory_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootFarm_Factory_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Factory_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Factory_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootFarm_Factory_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Farm_Factory_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41866,6 +45269,13 @@ export type Subscription_RootFarm_Factory_Lambda_AggregateArgs = {
 
 export type Subscription_RootFarm_Factory_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootFarm_Factory_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Factory_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Factory_Lambda_Bool_Exp>;
 };
 
 
@@ -41892,6 +45302,20 @@ export type Subscription_RootFarm_Factory_Product_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootFarm_Factory_Product_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Factory_Product_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Factory_Product_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootFarm_Factory_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Factory_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Factory_Bool_Exp>;
+};
+
+
 export type Subscription_RootFarm_Factory_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Farm_Factory_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41912,6 +45336,13 @@ export type Subscription_RootFarm_Factory_Whitelist_Contract_AggregateArgs = {
 
 export type Subscription_RootFarm_Factory_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootFarm_Factory_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Factory_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Factory_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -41938,6 +45369,13 @@ export type Subscription_RootFarm_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootFarm_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootFarm_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Farm_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41961,6 +45399,20 @@ export type Subscription_RootFarm_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootFarm_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootFarm_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Bool_Exp>;
+};
+
+
 export type Subscription_RootFarm_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Farm_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -41981,6 +45433,13 @@ export type Subscription_RootFarm_Whitelist_Contract_AggregateArgs = {
 
 export type Subscription_RootFarm_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootFarm_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Farm_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Farm_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -42053,6 +45512,13 @@ export type Subscription_RootGovernance_Financial_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Financial_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Financial_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Financial_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Financial_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Governance_Financial_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42073,6 +45539,13 @@ export type Subscription_RootGovernance_Financial_Lambda_AggregateArgs = {
 
 export type Subscription_RootGovernance_Financial_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Financial_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Financial_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Financial_Lambda_Bool_Exp>;
 };
 
 
@@ -42099,6 +45572,13 @@ export type Subscription_RootGovernance_Financial_Request_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Financial_Request_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Financial_Request_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Financial_Request_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Financial_Request_VoteArgs = {
   distinct_on?: InputMaybe<Array<Governance_Financial_Request_Vote_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42119,6 +45599,20 @@ export type Subscription_RootGovernance_Financial_Request_Vote_AggregateArgs = {
 
 export type Subscription_RootGovernance_Financial_Request_Vote_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Financial_Request_Vote_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Financial_Request_Vote_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Financial_Request_Vote_Bool_Exp>;
+};
+
+
+export type Subscription_RootGovernance_Financial_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Financial_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Financial_Bool_Exp>;
 };
 
 
@@ -42145,6 +45639,13 @@ export type Subscription_RootGovernance_Financial_Whitelist_Contract_By_PkArgs =
 };
 
 
+export type Subscription_RootGovernance_Financial_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Financial_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Financial_Whitelist_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Financial_Whitelist_Token_ContractArgs = {
   distinct_on?: InputMaybe<Array<Governance_Financial_Whitelist_Token_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42165,6 +45666,13 @@ export type Subscription_RootGovernance_Financial_Whitelist_Token_Contract_Aggre
 
 export type Subscription_RootGovernance_Financial_Whitelist_Token_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Financial_Whitelist_Token_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Financial_Whitelist_Token_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Financial_Whitelist_Token_Contract_Bool_Exp>;
 };
 
 
@@ -42191,6 +45699,13 @@ export type Subscription_RootGovernance_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Governance_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42211,6 +45726,13 @@ export type Subscription_RootGovernance_Lambda_AggregateArgs = {
 
 export type Subscription_RootGovernance_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Lambda_Bool_Exp>;
 };
 
 
@@ -42260,6 +45782,13 @@ export type Subscription_RootGovernance_Proposal_Data_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Proposal_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proposal_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proposal_Data_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Proposal_PaymentArgs = {
   distinct_on?: InputMaybe<Array<Governance_Proposal_Payment_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42283,6 +45812,20 @@ export type Subscription_RootGovernance_Proposal_Payment_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Proposal_Payment_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proposal_Payment_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proposal_Payment_Bool_Exp>;
+};
+
+
+export type Subscription_RootGovernance_Proposal_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proposal_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proposal_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Proposal_VoteArgs = {
   distinct_on?: InputMaybe<Array<Governance_Proposal_Vote_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42303,6 +45846,13 @@ export type Subscription_RootGovernance_Proposal_Vote_AggregateArgs = {
 
 export type Subscription_RootGovernance_Proposal_Vote_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Proposal_Vote_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proposal_Vote_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proposal_Vote_Bool_Exp>;
 };
 
 
@@ -42352,6 +45902,13 @@ export type Subscription_RootGovernance_Proxy_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Proxy_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proxy_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proxy_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Proxy_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Governance_Proxy_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42372,6 +45929,13 @@ export type Subscription_RootGovernance_Proxy_Lambda_AggregateArgs = {
 
 export type Subscription_RootGovernance_Proxy_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Proxy_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proxy_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proxy_Lambda_Bool_Exp>;
 };
 
 
@@ -42398,6 +45962,20 @@ export type Subscription_RootGovernance_Proxy_Proxy_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Proxy_Proxy_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proxy_Proxy_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proxy_Proxy_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootGovernance_Proxy_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proxy_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proxy_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Proxy_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Governance_Proxy_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42421,6 +45999,13 @@ export type Subscription_RootGovernance_Proxy_Whitelist_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Proxy_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proxy_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proxy_Whitelist_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Proxy_Whitelist_Token_ContractArgs = {
   distinct_on?: InputMaybe<Array<Governance_Proxy_Whitelist_Token_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42441,6 +46026,13 @@ export type Subscription_RootGovernance_Proxy_Whitelist_Token_Contract_Aggregate
 
 export type Subscription_RootGovernance_Proxy_Whitelist_Token_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Proxy_Whitelist_Token_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Proxy_Whitelist_Token_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Proxy_Whitelist_Token_Contract_Bool_Exp>;
 };
 
 
@@ -42499,6 +46091,20 @@ export type Subscription_RootGovernance_Satellite_Action_Parameter_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Satellite_Action_Parameter_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Action_Parameter_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Action_Parameter_Bool_Exp>;
+};
+
+
+export type Subscription_RootGovernance_Satellite_Action_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Action_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Action_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Satellite_Action_VoteArgs = {
   distinct_on?: InputMaybe<Array<Governance_Satellite_Action_Vote_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42519,6 +46125,13 @@ export type Subscription_RootGovernance_Satellite_Action_Vote_AggregateArgs = {
 
 export type Subscription_RootGovernance_Satellite_Action_Vote_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Satellite_Action_Vote_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Action_Vote_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Action_Vote_Bool_Exp>;
 };
 
 
@@ -42577,6 +46190,20 @@ export type Subscription_RootGovernance_Satellite_Aggregator_Oracle_By_PkArgs = 
 };
 
 
+export type Subscription_RootGovernance_Satellite_Aggregator_Oracle_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Aggregator_Oracle_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Aggregator_Oracle_Bool_Exp>;
+};
+
+
+export type Subscription_RootGovernance_Satellite_Aggregator_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Aggregator_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Aggregator_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Satellite_By_PkArgs = {
   address: Scalars['String'];
 };
@@ -42605,6 +46232,13 @@ export type Subscription_RootGovernance_Satellite_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Satellite_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Satellite_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Governance_Satellite_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42625,6 +46259,13 @@ export type Subscription_RootGovernance_Satellite_Lambda_AggregateArgs = {
 
 export type Subscription_RootGovernance_Satellite_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Satellite_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Lambda_Bool_Exp>;
 };
 
 
@@ -42669,8 +46310,22 @@ export type Subscription_RootGovernance_Satellite_Satellite_Oracle_Aggregator_Pa
 };
 
 
+export type Subscription_RootGovernance_Satellite_Satellite_Oracle_Aggregator_Pair_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Satellite_Oracle_Aggregator_Pair_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Satellite_Oracle_Aggregator_Pair_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Satellite_Satellite_Oracle_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Satellite_Satellite_Oracle_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Satellite_Oracle_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Satellite_Oracle_Bool_Exp>;
 };
 
 
@@ -42697,6 +46352,20 @@ export type Subscription_RootGovernance_Satellite_Snapshot_By_PkArgs = {
 };
 
 
+export type Subscription_RootGovernance_Satellite_Snapshot_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Snapshot_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Snapshot_Bool_Exp>;
+};
+
+
+export type Subscription_RootGovernance_Satellite_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Satellite_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Governance_Satellite_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42720,6 +46389,20 @@ export type Subscription_RootGovernance_Satellite_Whitelist_Contract_By_PkArgs =
 };
 
 
+export type Subscription_RootGovernance_Satellite_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Satellite_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Satellite_Whitelist_Contract_Bool_Exp>;
+};
+
+
+export type Subscription_RootGovernance_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Bool_Exp>;
+};
+
+
 export type Subscription_RootGovernance_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Governance_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42740,6 +46423,13 @@ export type Subscription_RootGovernance_Whitelist_Contract_AggregateArgs = {
 
 export type Subscription_RootGovernance_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootGovernance_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Governance_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Governance_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -42789,6 +46479,13 @@ export type Subscription_RootLending_Controller_Collateral_Token_By_PkArgs = {
 };
 
 
+export type Subscription_RootLending_Controller_Collateral_Token_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Collateral_Token_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Collateral_Token_Bool_Exp>;
+};
+
+
 export type Subscription_RootLending_Controller_DepositorArgs = {
   distinct_on?: InputMaybe<Array<Lending_Controller_Depositor_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42809,6 +46506,13 @@ export type Subscription_RootLending_Controller_Depositor_AggregateArgs = {
 
 export type Subscription_RootLending_Controller_Depositor_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootLending_Controller_Depositor_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Depositor_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Depositor_Bool_Exp>;
 };
 
 
@@ -42835,6 +46539,13 @@ export type Subscription_RootLending_Controller_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootLending_Controller_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootLending_Controller_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Lending_Controller_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42858,6 +46569,13 @@ export type Subscription_RootLending_Controller_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootLending_Controller_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Lambda_Bool_Exp>;
+};
+
+
 export type Subscription_RootLending_Controller_Loan_TokenArgs = {
   distinct_on?: InputMaybe<Array<Lending_Controller_Loan_Token_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42878,6 +46596,20 @@ export type Subscription_RootLending_Controller_Loan_Token_AggregateArgs = {
 
 export type Subscription_RootLending_Controller_Loan_Token_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootLending_Controller_Loan_Token_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Loan_Token_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Loan_Token_Bool_Exp>;
+};
+
+
+export type Subscription_RootLending_Controller_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Bool_Exp>;
 };
 
 
@@ -42927,6 +46659,20 @@ export type Subscription_RootLending_Controller_Vault_Collateral_Balance_By_PkAr
 };
 
 
+export type Subscription_RootLending_Controller_Vault_Collateral_Balance_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Vault_Collateral_Balance_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Vault_Collateral_Balance_Bool_Exp>;
+};
+
+
+export type Subscription_RootLending_Controller_Vault_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Vault_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Vault_Bool_Exp>;
+};
+
+
 export type Subscription_RootLending_Controller_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Lending_Controller_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42950,6 +46696,13 @@ export type Subscription_RootLending_Controller_Whitelist_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootLending_Controller_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Whitelist_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootLending_Controller_Whitelist_Token_ContractArgs = {
   distinct_on?: InputMaybe<Array<Lending_Controller_Whitelist_Token_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -42970,6 +46723,13 @@ export type Subscription_RootLending_Controller_Whitelist_Token_Contract_Aggrega
 
 export type Subscription_RootLending_Controller_Whitelist_Token_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootLending_Controller_Whitelist_Token_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_Whitelist_Token_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_Whitelist_Token_Contract_Bool_Exp>;
 };
 
 
@@ -43019,6 +46779,20 @@ export type Subscription_RootLiquidity_Baking_History_Data_By_PkArgs = {
 };
 
 
+export type Subscription_RootLiquidity_Baking_History_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Liquidity_Baking_History_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Liquidity_Baking_History_Data_Bool_Exp>;
+};
+
+
+export type Subscription_RootLiquidity_Baking_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Liquidity_Baking_Stream_Cursor_Input>>;
+  where?: InputMaybe<Liquidity_Baking_Bool_Exp>;
+};
+
+
 export type Subscription_RootMavryk_UserArgs = {
   distinct_on?: InputMaybe<Array<Mavryk_User_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43065,6 +46839,20 @@ export type Subscription_RootMavryk_User_Operator_By_PkArgs = {
 };
 
 
+export type Subscription_RootMavryk_User_Operator_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Mavryk_User_Operator_Stream_Cursor_Input>>;
+  where?: InputMaybe<Mavryk_User_Operator_Bool_Exp>;
+};
+
+
+export type Subscription_RootMavryk_User_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Mavryk_User_Stream_Cursor_Input>>;
+  where?: InputMaybe<Mavryk_User_Bool_Exp>;
+};
+
+
 export type Subscription_RootMvk_Mint_History_DataArgs = {
   distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43085,6 +46873,13 @@ export type Subscription_RootMvk_Mint_History_Data_AggregateArgs = {
 
 export type Subscription_RootMvk_Mint_History_Data_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootMvk_Mint_History_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Mvk_Mint_History_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
 };
 
 
@@ -43134,6 +46929,20 @@ export type Subscription_RootMvk_Token_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootMvk_Token_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Mvk_Token_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Mvk_Token_General_Contract_Bool_Exp>;
+};
+
+
+export type Subscription_RootMvk_Token_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Mvk_Token_Stream_Cursor_Input>>;
+  where?: InputMaybe<Mvk_Token_Bool_Exp>;
+};
+
+
 export type Subscription_RootMvk_Token_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Mvk_Token_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43157,6 +46966,13 @@ export type Subscription_RootMvk_Token_Whitelist_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootMvk_Token_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Mvk_Token_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Mvk_Token_Whitelist_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootMvk_Transfer_History_DataArgs = {
   distinct_on?: InputMaybe<Array<Mvk_Transfer_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43177,6 +46993,13 @@ export type Subscription_RootMvk_Transfer_History_Data_AggregateArgs = {
 
 export type Subscription_RootMvk_Transfer_History_Data_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootMvk_Transfer_History_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Mvk_Transfer_History_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Mvk_Transfer_History_Data_Bool_Exp>;
 };
 
 
@@ -43226,6 +47049,20 @@ export type Subscription_RootSatellite_Rewards_By_PkArgs = {
 };
 
 
+export type Subscription_RootSatellite_Rewards_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Satellite_Rewards_Stream_Cursor_Input>>;
+  where?: InputMaybe<Satellite_Rewards_Bool_Exp>;
+};
+
+
+export type Subscription_RootSatellite_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Satellite_Stream_Cursor_Input>>;
+  where?: InputMaybe<Satellite_Bool_Exp>;
+};
+
+
 export type Subscription_RootSmvk_History_DataArgs = {
   distinct_on?: InputMaybe<Array<Smvk_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43249,6 +47086,13 @@ export type Subscription_RootSmvk_History_Data_By_PkArgs = {
 };
 
 
+export type Subscription_RootSmvk_History_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Smvk_History_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Smvk_History_Data_Bool_Exp>;
+};
+
+
 export type Subscription_RootStake_History_DataArgs = {
   distinct_on?: InputMaybe<Array<Stake_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43269,6 +47113,13 @@ export type Subscription_RootStake_History_Data_AggregateArgs = {
 
 export type Subscription_RootStake_History_Data_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootStake_History_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Stake_History_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Stake_History_Data_Bool_Exp>;
 };
 
 
@@ -43318,6 +47169,13 @@ export type Subscription_RootToken_Pool_Reward_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootToken_Pool_Reward_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Pool_Reward_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Pool_Reward_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootToken_Pool_Reward_RewardArgs = {
   distinct_on?: InputMaybe<Array<Token_Pool_Reward_Reward_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43338,6 +47196,20 @@ export type Subscription_RootToken_Pool_Reward_Reward_AggregateArgs = {
 
 export type Subscription_RootToken_Pool_Reward_Reward_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootToken_Pool_Reward_Reward_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Pool_Reward_Reward_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Pool_Reward_Reward_Bool_Exp>;
+};
+
+
+export type Subscription_RootToken_Pool_Reward_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Pool_Reward_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Pool_Reward_Bool_Exp>;
 };
 
 
@@ -43364,6 +47236,13 @@ export type Subscription_RootToken_Pool_Reward_Whitelist_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootToken_Pool_Reward_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Pool_Reward_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Pool_Reward_Whitelist_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootToken_Pool_Reward_Whitelist_Token_ContractArgs = {
   distinct_on?: InputMaybe<Array<Token_Pool_Reward_Whitelist_Token_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43384,6 +47263,13 @@ export type Subscription_RootToken_Pool_Reward_Whitelist_Token_Contract_Aggregat
 
 export type Subscription_RootToken_Pool_Reward_Whitelist_Token_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootToken_Pool_Reward_Whitelist_Token_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Pool_Reward_Whitelist_Token_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Pool_Reward_Whitelist_Token_Contract_Bool_Exp>;
 };
 
 
@@ -43425,6 +47311,13 @@ export type Subscription_RootToken_Sale_Buy_Option_AggregateArgs = {
 
 export type Subscription_RootToken_Sale_Buy_Option_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootToken_Sale_Buy_Option_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Sale_Buy_Option_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Sale_Buy_Option_Bool_Exp>;
 };
 
 
@@ -43474,8 +47367,29 @@ export type Subscription_RootToken_Sale_Buyer_Option_By_PkArgs = {
 };
 
 
+export type Subscription_RootToken_Sale_Buyer_Option_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Sale_Buyer_Option_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Sale_Buyer_Option_Bool_Exp>;
+};
+
+
+export type Subscription_RootToken_Sale_Buyer_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Sale_Buyer_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Sale_Buyer_Bool_Exp>;
+};
+
+
 export type Subscription_RootToken_Sale_By_PkArgs = {
   address: Scalars['String'];
+};
+
+
+export type Subscription_RootToken_Sale_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Sale_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Sale_Bool_Exp>;
 };
 
 
@@ -43499,6 +47413,13 @@ export type Subscription_RootToken_Sale_Whitelisted_Account_AggregateArgs = {
 
 export type Subscription_RootToken_Sale_Whitelisted_Account_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootToken_Sale_Whitelisted_Account_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Token_Sale_Whitelisted_Account_Stream_Cursor_Input>>;
+  where?: InputMaybe<Token_Sale_Whitelisted_Account_Bool_Exp>;
 };
 
 
@@ -43571,6 +47492,13 @@ export type Subscription_RootTreasury_Factory_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootTreasury_Factory_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Factory_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Factory_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootTreasury_Factory_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Treasury_Factory_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43591,6 +47519,13 @@ export type Subscription_RootTreasury_Factory_Lambda_AggregateArgs = {
 
 export type Subscription_RootTreasury_Factory_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootTreasury_Factory_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Factory_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Factory_Lambda_Bool_Exp>;
 };
 
 
@@ -43617,6 +47552,20 @@ export type Subscription_RootTreasury_Factory_Product_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootTreasury_Factory_Product_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Factory_Product_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Factory_Product_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootTreasury_Factory_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Factory_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Factory_Bool_Exp>;
+};
+
+
 export type Subscription_RootTreasury_Factory_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Treasury_Factory_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43637,6 +47586,13 @@ export type Subscription_RootTreasury_Factory_Whitelist_Contract_AggregateArgs =
 
 export type Subscription_RootTreasury_Factory_Whitelist_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootTreasury_Factory_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Factory_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Factory_Whitelist_Contract_Bool_Exp>;
 };
 
 
@@ -43663,6 +47619,13 @@ export type Subscription_RootTreasury_Factory_Whitelist_Token_Contract_By_PkArgs
 };
 
 
+export type Subscription_RootTreasury_Factory_Whitelist_Token_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Factory_Whitelist_Token_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Factory_Whitelist_Token_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootTreasury_General_ContractArgs = {
   distinct_on?: InputMaybe<Array<Treasury_General_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43683,6 +47646,13 @@ export type Subscription_RootTreasury_General_Contract_AggregateArgs = {
 
 export type Subscription_RootTreasury_General_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootTreasury_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_General_Contract_Bool_Exp>;
 };
 
 
@@ -43709,6 +47679,20 @@ export type Subscription_RootTreasury_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootTreasury_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootTreasury_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Bool_Exp>;
+};
+
+
 export type Subscription_RootTreasury_Transfer_History_DataArgs = {
   distinct_on?: InputMaybe<Array<Treasury_Transfer_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43729,6 +47713,13 @@ export type Subscription_RootTreasury_Transfer_History_Data_AggregateArgs = {
 
 export type Subscription_RootTreasury_Transfer_History_Data_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootTreasury_Transfer_History_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Transfer_History_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Transfer_History_Data_Bool_Exp>;
 };
 
 
@@ -43755,6 +47746,13 @@ export type Subscription_RootTreasury_Whitelist_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootTreasury_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Whitelist_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootTreasury_Whitelist_Token_ContractArgs = {
   distinct_on?: InputMaybe<Array<Treasury_Whitelist_Token_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43775,6 +47773,13 @@ export type Subscription_RootTreasury_Whitelist_Token_Contract_AggregateArgs = {
 
 export type Subscription_RootTreasury_Whitelist_Token_Contract_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootTreasury_Whitelist_Token_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Treasury_Whitelist_Token_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Treasury_Whitelist_Token_Contract_Bool_Exp>;
 };
 
 
@@ -43824,6 +47829,13 @@ export type Subscription_RootVault_Depositor_By_PkArgs = {
 };
 
 
+export type Subscription_RootVault_Depositor_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vault_Depositor_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vault_Depositor_Bool_Exp>;
+};
+
+
 export type Subscription_RootVault_FactoryArgs = {
   distinct_on?: InputMaybe<Array<Vault_Factory_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43870,6 +47882,13 @@ export type Subscription_RootVault_Factory_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootVault_Factory_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vault_Factory_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vault_Factory_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootVault_Factory_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Vault_Factory_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43890,6 +47909,13 @@ export type Subscription_RootVault_Factory_Lambda_AggregateArgs = {
 
 export type Subscription_RootVault_Factory_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootVault_Factory_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vault_Factory_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vault_Factory_Lambda_Bool_Exp>;
 };
 
 
@@ -43916,6 +47942,20 @@ export type Subscription_RootVault_Factory_Product_Lambda_By_PkArgs = {
 };
 
 
+export type Subscription_RootVault_Factory_Product_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vault_Factory_Product_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vault_Factory_Product_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootVault_Factory_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vault_Factory_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vault_Factory_Bool_Exp>;
+};
+
+
 export type Subscription_RootVault_Factory_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Vault_Factory_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43939,6 +47979,13 @@ export type Subscription_RootVault_Factory_Whitelist_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootVault_Factory_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vault_Factory_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vault_Factory_Whitelist_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootVault_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Vault_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -43959,6 +48006,20 @@ export type Subscription_RootVault_Lambda_AggregateArgs = {
 
 export type Subscription_RootVault_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootVault_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vault_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vault_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootVault_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vault_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vault_Bool_Exp>;
 };
 
 
@@ -44008,6 +48069,13 @@ export type Subscription_RootVesting_General_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootVesting_General_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vesting_General_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vesting_General_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootVesting_LambdaArgs = {
   distinct_on?: InputMaybe<Array<Vesting_Lambda_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -44028,6 +48096,20 @@ export type Subscription_RootVesting_Lambda_AggregateArgs = {
 
 export type Subscription_RootVesting_Lambda_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootVesting_Lambda_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vesting_Lambda_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vesting_Lambda_Bool_Exp>;
+};
+
+
+export type Subscription_RootVesting_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vesting_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vesting_Bool_Exp>;
 };
 
 
@@ -44054,6 +48136,13 @@ export type Subscription_RootVesting_Vestee_By_PkArgs = {
 };
 
 
+export type Subscription_RootVesting_Vestee_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vesting_Vestee_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vesting_Vestee_Bool_Exp>;
+};
+
+
 export type Subscription_RootVesting_Whitelist_ContractArgs = {
   distinct_on?: InputMaybe<Array<Vesting_Whitelist_Contract_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -44077,6 +48166,13 @@ export type Subscription_RootVesting_Whitelist_Contract_By_PkArgs = {
 };
 
 
+export type Subscription_RootVesting_Whitelist_Contract_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Vesting_Whitelist_Contract_Stream_Cursor_Input>>;
+  where?: InputMaybe<Vesting_Whitelist_Contract_Bool_Exp>;
+};
+
+
 export type Subscription_RootWhitelist_DeveloperArgs = {
   distinct_on?: InputMaybe<Array<Whitelist_Developer_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -44097,6 +48193,13 @@ export type Subscription_RootWhitelist_Developer_AggregateArgs = {
 
 export type Subscription_RootWhitelist_Developer_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootWhitelist_Developer_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Whitelist_Developer_Stream_Cursor_Input>>;
+  where?: InputMaybe<Whitelist_Developer_Bool_Exp>;
 };
 
 /** Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'. */
@@ -44435,6 +48538,22 @@ export type Token_Pool_Reward_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "token_pool_reward_general_contract" */
+export type Token_Pool_Reward_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Pool_Reward_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Pool_Reward_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Token_Pool_Reward_General_Contract_Sum_Fields = {
   __typename?: 'token_pool_reward_general_contract_sum_fields';
@@ -44762,6 +48881,25 @@ export type Token_Pool_Reward_Reward_Stddev_Samp_Order_By = {
   unpaid?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "token_pool_reward_reward" */
+export type Token_Pool_Reward_Reward_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Pool_Reward_Reward_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Pool_Reward_Reward_Stream_Cursor_Value_Input = {
+  id?: InputMaybe<Scalars['bigint']>;
+  lending_controller_loan_token_id?: InputMaybe<Scalars['bigint']>;
+  paid?: InputMaybe<Scalars['float8']>;
+  rewards_per_share?: InputMaybe<Scalars['float8']>;
+  token_pool_reward_id?: InputMaybe<Scalars['String']>;
+  unpaid?: InputMaybe<Scalars['float8']>;
+  user_id?: InputMaybe<Scalars['String']>;
+};
+
 /** aggregate sum on columns */
 export type Token_Pool_Reward_Reward_Sum_Fields = {
   __typename?: 'token_pool_reward_reward_sum_fields';
@@ -44853,6 +48991,24 @@ export enum Token_Pool_Reward_Select_Column {
   /** column name */
   UpdateRewardPaused = 'update_reward_paused'
 }
+
+/** Streaming cursor of the table "token_pool_reward" */
+export type Token_Pool_Reward_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Pool_Reward_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Pool_Reward_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  claim_reward_paused?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  update_reward_paused?: InputMaybe<Scalars['Boolean']>;
+};
 
 /** columns and relationships of "token_pool_reward_whitelist_contract" */
 export type Token_Pool_Reward_Whitelist_Contract = {
@@ -45019,6 +49175,22 @@ export type Token_Pool_Reward_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "token_pool_reward_whitelist_contract" */
 export type Token_Pool_Reward_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "token_pool_reward_whitelist_contract" */
+export type Token_Pool_Reward_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Pool_Reward_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Pool_Reward_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -45230,6 +49402,22 @@ export type Token_Pool_Reward_Whitelist_Token_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "token_pool_reward_whitelist_token_contract" */
 export type Token_Pool_Reward_Whitelist_Token_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "token_pool_reward_whitelist_token_contract" */
+export type Token_Pool_Reward_Whitelist_Token_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Pool_Reward_Whitelist_Token_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Pool_Reward_Whitelist_Token_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -45759,6 +49947,28 @@ export type Token_Sale_Buy_Option_Stddev_Samp_Order_By = {
   whitelist_max_amount_total?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "token_sale_buy_option" */
+export type Token_Sale_Buy_Option_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Sale_Buy_Option_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Sale_Buy_Option_Stream_Cursor_Value_Input = {
+  buy_option_internal_id?: InputMaybe<Scalars['smallint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  max_amount_cap?: InputMaybe<Scalars['float8']>;
+  max_amount_per_wallet_total?: InputMaybe<Scalars['float8']>;
+  min_mvk_amount?: InputMaybe<Scalars['float8']>;
+  token_sale_id?: InputMaybe<Scalars['String']>;
+  token_xtz_price?: InputMaybe<Scalars['bigint']>;
+  total_bought?: InputMaybe<Scalars['float8']>;
+  vesting_periods?: InputMaybe<Scalars['smallint']>;
+  whitelist_max_amount_total?: InputMaybe<Scalars['float8']>;
+};
+
 /** aggregate sum on columns */
 export type Token_Sale_Buy_Option_Sum_Fields = {
   __typename?: 'token_sale_buy_option_sum_fields';
@@ -46257,6 +50467,26 @@ export type Token_Sale_Buyer_Option_Stddev_Samp_Order_By = {
   token_claimed?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "token_sale_buyer_option" */
+export type Token_Sale_Buyer_Option_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Sale_Buyer_Option_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Sale_Buyer_Option_Stream_Cursor_Value_Input = {
+  buy_option_id?: InputMaybe<Scalars['bigint']>;
+  buyer_id?: InputMaybe<Scalars['bigint']>;
+  claim_counter?: InputMaybe<Scalars['smallint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  last_claim_level?: InputMaybe<Scalars['bigint']>;
+  last_claim_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  token_bought?: InputMaybe<Scalars['float8']>;
+  token_claimed?: InputMaybe<Scalars['float8']>;
+};
+
 /** aggregate sum on columns */
 export type Token_Sale_Buyer_Option_Sum_Fields = {
   __typename?: 'token_sale_buyer_option_sum_fields';
@@ -46400,6 +50630,21 @@ export type Token_Sale_Buyer_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "token_sale_buyer" */
 export type Token_Sale_Buyer_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "token_sale_buyer" */
+export type Token_Sale_Buyer_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Sale_Buyer_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Sale_Buyer_Stream_Cursor_Value_Input = {
+  buyer_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  token_sale_id?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -46585,6 +50830,30 @@ export type Token_Sale_Stddev_Samp_Fields = {
 export type Token_Sale_Stddev_Samp_Order_By = {
   end_block_level?: InputMaybe<Order_By>;
   vesting_period_duration_sec?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "token_sale" */
+export type Token_Sale_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Sale_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Sale_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  end_block_level?: InputMaybe<Scalars['bigint']>;
+  end_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  ended?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  paused?: InputMaybe<Scalars['Boolean']>;
+  started?: InputMaybe<Scalars['Boolean']>;
+  vesting_period_duration_sec?: InputMaybe<Scalars['bigint']>;
+  whitelist_end_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  whitelist_start_timestamp?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -46799,6 +51068,21 @@ export type Token_Sale_Whitelisted_Account_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "token_sale_whitelisted_account" */
 export type Token_Sale_Whitelisted_Account_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "token_sale_whitelisted_account" */
+export type Token_Sale_Whitelisted_Account_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Token_Sale_Whitelisted_Account_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Token_Sale_Whitelisted_Account_Stream_Cursor_Value_Input = {
+  id?: InputMaybe<Scalars['bigint']>;
+  token_sale_id?: InputMaybe<Scalars['String']>;
+  whitelisted_user_id?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -47468,6 +51752,22 @@ export type Treasury_Factory_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "treasury_factory_general_contract" */
+export type Treasury_Factory_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Factory_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Factory_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Treasury_Factory_General_Contract_Sum_Fields = {
   __typename?: 'treasury_factory_general_contract_sum_fields';
@@ -47686,6 +51986,23 @@ export type Treasury_Factory_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "treasury_factory_lambda" */
 export type Treasury_Factory_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "treasury_factory_lambda" */
+export type Treasury_Factory_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Factory_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Factory_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -47965,6 +52282,23 @@ export type Treasury_Factory_Product_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "treasury_factory_product_lambda" */
+export type Treasury_Factory_Product_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Factory_Product_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Factory_Product_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Treasury_Factory_Product_Lambda_Sum_Fields = {
   __typename?: 'treasury_factory_product_lambda_sum_fields';
@@ -48060,6 +52394,26 @@ export type Treasury_Factory_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "treasury_factory" */
 export type Treasury_Factory_Stddev_Samp_Order_By = {
   treasury_name_max_length?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "treasury_factory" */
+export type Treasury_Factory_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Factory_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Factory_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  create_treasury_paused?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  track_treasury_paused?: InputMaybe<Scalars['Boolean']>;
+  treasury_name_max_length?: InputMaybe<Scalars['smallint']>;
+  untrack_treasury_paused?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** aggregate sum on columns */
@@ -48273,6 +52627,22 @@ export type Treasury_Factory_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "treasury_factory_whitelist_contract" */
+export type Treasury_Factory_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Factory_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Factory_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Treasury_Factory_Whitelist_Contract_Sum_Fields = {
   __typename?: 'treasury_factory_whitelist_contract_sum_fields';
@@ -48484,6 +52854,22 @@ export type Treasury_Factory_Whitelist_Token_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "treasury_factory_whitelist_token_contract" */
+export type Treasury_Factory_Whitelist_Token_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Factory_Whitelist_Token_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Factory_Whitelist_Token_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Treasury_Factory_Whitelist_Token_Contract_Sum_Fields = {
   __typename?: 'treasury_factory_whitelist_token_contract_sum_fields';
@@ -48693,6 +53079,22 @@ export type Treasury_General_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "treasury_general_contract" */
 export type Treasury_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "treasury_general_contract" */
+export type Treasury_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -48915,6 +53317,23 @@ export type Treasury_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "treasury_lambda" */
+export type Treasury_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Treasury_Lambda_Sum_Fields = {
   __typename?: 'treasury_lambda_sum_fields';
@@ -49053,6 +53472,29 @@ export enum Treasury_Select_Column {
   /** column name */
   UnstakeMvkPaused = 'unstake_mvk_paused'
 }
+
+/** Streaming cursor of the table "treasury" */
+export type Treasury_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  creation_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  factory_id?: InputMaybe<Scalars['String']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  mint_mvk_and_transfer_paused?: InputMaybe<Scalars['Boolean']>;
+  name?: InputMaybe<Scalars['String']>;
+  stake_mvk_paused?: InputMaybe<Scalars['Boolean']>;
+  transfer_paused?: InputMaybe<Scalars['Boolean']>;
+  unstake_mvk_paused?: InputMaybe<Scalars['Boolean']>;
+};
 
 /** columns and relationships of "treasury_transfer_history_data" */
 export type Treasury_Transfer_History_Data = {
@@ -49249,6 +53691,24 @@ export type Treasury_Transfer_History_Data_Stddev_Samp_Fields = {
 export type Treasury_Transfer_History_Data_Stddev_Samp_Order_By = {
   amount?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "treasury_transfer_history_data" */
+export type Treasury_Transfer_History_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Transfer_History_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Transfer_History_Data_Stream_Cursor_Value_Input = {
+  amount?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  to__id?: InputMaybe<Scalars['String']>;
+  token_address?: InputMaybe<Scalars['String']>;
+  treasury_id?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -49470,6 +53930,22 @@ export type Treasury_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "treasury_whitelist_contract" */
+export type Treasury_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Treasury_Whitelist_Contract_Sum_Fields = {
   __typename?: 'treasury_whitelist_contract_sum_fields';
@@ -49679,6 +54155,22 @@ export type Treasury_Whitelist_Token_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "treasury_whitelist_token_contract" */
 export type Treasury_Whitelist_Token_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "treasury_whitelist_token_contract" */
+export type Treasury_Whitelist_Token_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Treasury_Whitelist_Token_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Treasury_Whitelist_Token_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -50051,6 +54543,21 @@ export type Vault_Depositor_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "vault_depositor" */
 export type Vault_Depositor_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "vault_depositor" */
+export type Vault_Depositor_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vault_Depositor_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vault_Depositor_Stream_Cursor_Value_Input = {
+  depositor_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  vault_id?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -50472,6 +54979,22 @@ export type Vault_Factory_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "vault_factory_general_contract" */
+export type Vault_Factory_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vault_Factory_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vault_Factory_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Vault_Factory_General_Contract_Sum_Fields = {
   __typename?: 'vault_factory_general_contract_sum_fields';
@@ -50690,6 +55213,23 @@ export type Vault_Factory_Lambda_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "vault_factory_lambda" */
 export type Vault_Factory_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "vault_factory_lambda" */
+export type Vault_Factory_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vault_Factory_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vault_Factory_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -50966,6 +55506,23 @@ export type Vault_Factory_Product_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "vault_factory_product_lambda" */
+export type Vault_Factory_Product_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vault_Factory_Product_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vault_Factory_Product_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Vault_Factory_Product_Lambda_Sum_Fields = {
   __typename?: 'vault_factory_product_lambda_sum_fields';
@@ -51057,6 +55614,24 @@ export type Vault_Factory_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "vault_factory" */
 export type Vault_Factory_Stddev_Samp_Order_By = {
   vault_name_max_length?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "vault_factory" */
+export type Vault_Factory_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vault_Factory_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vault_Factory_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  create_vault_paused?: InputMaybe<Scalars['Boolean']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  vault_name_max_length?: InputMaybe<Scalars['smallint']>;
 };
 
 /** aggregate sum on columns */
@@ -51268,6 +55843,22 @@ export type Vault_Factory_Whitelist_Contract_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "vault_factory_whitelist_contract" */
 export type Vault_Factory_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "vault_factory_whitelist_contract" */
+export type Vault_Factory_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vault_Factory_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vault_Factory_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -51490,6 +56081,23 @@ export type Vault_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "vault_lambda" */
+export type Vault_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vault_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vault_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Vault_Lambda_Sum_Fields = {
   __typename?: 'vault_lambda_sum_fields';
@@ -51655,6 +56263,26 @@ export type Vault_Stddev_Samp_Fields = {
 export type Vault_Stddev_Samp_Order_By = {
   /** ANY: 0\nWHITELIST: 1 */
   allowance?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "vault" */
+export type Vault_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vault_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vault_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  /** ANY: 0\nWHITELIST: 1 */
+  allowance?: InputMaybe<Scalars['smallint']>;
+  creation_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  factory_id?: InputMaybe<Scalars['String']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
 };
 
 /** aggregate sum on columns */
@@ -52057,6 +56685,22 @@ export type Vesting_General_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "vesting_general_contract" */
+export type Vesting_General_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vesting_General_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vesting_General_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Vesting_General_Contract_Sum_Fields = {
   __typename?: 'vesting_general_contract_sum_fields';
@@ -52277,6 +56921,23 @@ export type Vesting_Lambda_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "vesting_lambda" */
+export type Vesting_Lambda_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vesting_Lambda_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vesting_Lambda_Stream_Cursor_Value_Input = {
+  contract_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lambda_bytes?: InputMaybe<Scalars['String']>;
+  lambda_name?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+};
+
 /** aggregate sum on columns */
 export type Vesting_Lambda_Sum_Fields = {
   __typename?: 'vesting_lambda_sum_fields';
@@ -52418,6 +57079,23 @@ export type Vesting_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "vesting" */
 export type Vesting_Stddev_Samp_Order_By = {
   total_vested_amount?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "vesting" */
+export type Vesting_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vesting_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vesting_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']>;
+  admin?: InputMaybe<Scalars['String']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  total_vested_amount?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
@@ -52812,6 +57490,35 @@ export type Vesting_Vestee_Stddev_Samp_Order_By = {
   vesting_months?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "vesting_vestee" */
+export type Vesting_Vestee_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vesting_Vestee_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vesting_Vestee_Stream_Cursor_Value_Input = {
+  claim_amount_per_month?: InputMaybe<Scalars['float8']>;
+  cliff_months?: InputMaybe<Scalars['smallint']>;
+  end_cliff_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  end_vesting_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  last_claimed_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  locked?: InputMaybe<Scalars['Boolean']>;
+  months_claimed?: InputMaybe<Scalars['smallint']>;
+  months_remaining?: InputMaybe<Scalars['smallint']>;
+  next_redemption_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  start_timestamp?: InputMaybe<Scalars['timestamptz']>;
+  total_allocated_amount?: InputMaybe<Scalars['float8']>;
+  total_claimed?: InputMaybe<Scalars['float8']>;
+  total_remainder?: InputMaybe<Scalars['float8']>;
+  vestee_id?: InputMaybe<Scalars['String']>;
+  vesting_id?: InputMaybe<Scalars['String']>;
+  vesting_months?: InputMaybe<Scalars['smallint']>;
+};
+
 /** aggregate sum on columns */
 export type Vesting_Vestee_Sum_Fields = {
   __typename?: 'vesting_vestee_sum_fields';
@@ -53087,6 +57794,22 @@ export type Vesting_Whitelist_Contract_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+/** Streaming cursor of the table "vesting_whitelist_contract" */
+export type Vesting_Whitelist_Contract_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Vesting_Whitelist_Contract_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Vesting_Whitelist_Contract_Stream_Cursor_Value_Input = {
+  contract_address?: InputMaybe<Scalars['String']>;
+  contract_id?: InputMaybe<Scalars['String']>;
+  contract_name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
+};
+
 /** aggregate sum on columns */
 export type Vesting_Whitelist_Contract_Sum_Fields = {
   __typename?: 'vesting_whitelist_contract_sum_fields';
@@ -53291,6 +58014,21 @@ export type Whitelist_Developer_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "whitelist_developer" */
 export type Whitelist_Developer_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "whitelist_developer" */
+export type Whitelist_Developer_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Whitelist_Developer_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Whitelist_Developer_Stream_Cursor_Value_Input = {
+  developer_id?: InputMaybe<Scalars['String']>;
+  governance_id?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['bigint']>;
 };
 
 /** aggregate sum on columns */
