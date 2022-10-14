@@ -31,3 +31,22 @@ export const ORACLE_STORAGE_QUERY = `
 
 export const ORACLE_STORAGE_QUERY_NAME = 'GetOracleDataFeeds'
 export const ORACLE_STORAGE_QUERY_VARIABLE = {}
+
+export const DATA_FEEDS_HISTORY_QUERY = `
+  query GetDataFeedHistory {
+    aggregator_history_data {
+      aggregator_id
+      data
+      epoch
+      id
+      lambda_bytes
+      lambda_name
+      last_updated_at
+      pct_oracle_resp
+      round
+      timestamp
+    }
+  }
+`
+export const DATA_FEEDS_HISTORY_QUERY_NAME = 'GetDataFeedHistory'
+export const DATA_FEEDS_HISTORY_QUERY_VARIABLE = {}

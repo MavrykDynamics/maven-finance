@@ -249,7 +249,3 @@ export const UserSmallCard = styled.div`
     cursor: pointer;
   }
 `
-
-export const ChartCard = styled(Card)<{ theme: MavrykTheme }>`
-  padding: 30px 20px 20px;
-`

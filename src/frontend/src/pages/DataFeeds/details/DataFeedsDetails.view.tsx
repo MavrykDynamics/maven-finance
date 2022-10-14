@@ -8,12 +8,12 @@ import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Paginatio
 // view
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { Button } from 'app/App.components/Button/Button.controller'
-import Chart from 'app/App.components/Chart/Chart.view'
 import Icon from 'app/App.components/Icon/Icon.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Timer } from 'app/App.components/Timer/Timer.controller'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { DataFeedsChart } from '../chart/DataFeedsChart.controller'
 
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
@@ -30,7 +30,6 @@ import {
   UsersListCardsWrapper,
   UsersListWrapper,
   UserSmallCard,
-  ChartCard,
 } from './DataFeedsDetails.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
@@ -228,9 +227,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
             <h1>Answer history</h1>
           </GovRightContainerTitleArea>
 
-          <ChartCard>
-            <Chart list={[]} />
-          </ChartCard>
+          <DataFeedsChart />
         </div>
       </DataFeedsStyled>
 
