@@ -20,11 +20,13 @@ type ChartStyle = {
   paddingBottom?: number
   paddingRight?: number
   paddingLeft?: number
+  firstCurrency?: string
+  secondCurrency?: string,
 }
 
 type ChartItem = {
-  yAxis: string
-  xAxis: number
+  xAxis: string
+  yAxis: number
 }
 
 type Props = {
@@ -41,19 +43,6 @@ type ChartData = {
 
 type TooltipContent = Pick<{ label?: string }, 'label'>
 
-const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
-  const { label } = o
-  const value = data.find((item) => item.time === label)?.uv || ''
-  const date = data.find((item) => item.time === label)?.pv || ''
-
-  return (
-    <ChartTooltip>
-      {value} MVK
-      <div>{date}</div>
-    </ChartTooltip>
-  )
-}
-
 const initialChartStyle: ChartStyle = {
   color: '#8D86EB',
   width: 655,
@@ -64,6 +53,8 @@ const initialChartStyle: ChartStyle = {
   paddingBottom: 0,
   paddingRight: 0,
   paddingLeft: 22,
+  firstCurrency: '',
+  secondCurrency: '',
 }
 
 const timeFormat = 'HH:mm'
@@ -76,12 +67,25 @@ export default function Chart({ list, style, className }: Props) {
   const { themeSelected } = useSelector((state: State) => state.preferences)
   const [chartStyle, setChartStyle] = useState(initialChartStyle)
 
+  const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
+    const { label } = o
+    const value = data.find((item) => item.time === label)?.uv || ''
+    const date = data.find((item) => item.time === label)?.pv || ''
+  
+    return (
+      <ChartTooltip>
+        {chartStyle.firstCurrency}{value}{chartStyle.secondCurrency}
+        <div>{date}</div>
+      </ChartTooltip>
+    )
+  }
+
   const data = list?.length
-    ? list.map(({ xAxis, yAxis }) => {
+    ? list.map(({ yAxis, xAxis }) => {
         return {
-          uv: xAxis,
-          pv: getParsedDate(yAxis),
-          time: getTime(yAxis),
+          uv: yAxis,
+          pv: getParsedDate(xAxis),
+          time: getTime(xAxis),
         }
       })
     : []

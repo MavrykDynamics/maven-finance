@@ -189,17 +189,19 @@ export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
   return aggregator_history_data?.length
     ? aggregator_history_data.map((item) => {
         return {
-          aggregator: item.aggregator,
-          aggregatorId: item.aggregator_id,
-          data: item.data,
-          epoch: item.epoch,
-          id: item.id,
-          lambdaBytes: item.lambda_bytes,
-          lambdaName: item.lambda_name,
-          lastUpdatedAt: item.last_updated_at,
-          pctOracleResp: item.pct_oracle_resp,
-          round: item.round,
-          timestamp: item.timestamp,
+          // aggregator: item.aggregator,
+          // aggregatorId: item.aggregator_id,
+          // data: item.data,
+          // epoch: item.epoch,
+          // id: item.id,
+          // lambdaBytes: item.lambda_bytes,
+          // lambdaName: item.lambda_name,
+          // lastUpdatedAt: item.last_updated_at,
+          // pctOracleResp: item.pct_oracle_resp,
+          // round: item.round,
+          // timestamp: item.timestamp,
+          xAxis: item.timestamp,
+          yAxis: item.data,
         }
       })
     : []

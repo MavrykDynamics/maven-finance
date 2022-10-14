@@ -42,8 +42,8 @@ export function normalizeStakeHistoryData(storage: StakeHistoryDataProps) {
   return stake_history_data?.length
     ? stake_history_data?.map((item) => {
         return {
-          xAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.final_amount)),
-          yAxis: item.timestamp,
+          yAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.final_amount)),
+          xAxis: item.timestamp,
           type: item.type,
         }
       })
@@ -60,8 +60,8 @@ export function normalizeSmvkHistoryData(storage: SmvkHistoryDataProps) {
   return smvk_history_data?.length
     ? smvk_history_data?.map((item) => {
         return {
-          xAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.smvk_total_supply)),
-          yAxis: item.timestamp,
+          yAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.smvk_total_supply)),
+          xAxis: item.timestamp,
         }
       })
     : []

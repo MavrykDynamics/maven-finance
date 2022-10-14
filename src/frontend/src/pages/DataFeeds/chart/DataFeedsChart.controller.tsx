@@ -36,45 +36,38 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isHistory = activeTab === tabsList[0].text
 
-  const history = dataFeedsHistory.map((item) => {
-    return {
-      xAxis: item.data,
-      yAxis: item.timestamp,
-    }
-  })
-
   const volatility = [
     {
-      "yAxis": "2022-10-03T08:34:40+00:00",
-      "xAxis": 64997577141
+      "xAxis": "2022-10-03T08:34:40+00:00",
+      "yAxis": 64997577141
     },
     {
-      "yAxis": "2022-10-03T14:20:00+00:00",
-      "xAxis": 1000
+      "xAxis": "2022-10-03T14:20:00+00:00",
+      "yAxis": 1000
     },
     {
-      "yAxis": "2022-10-03T14:20:45+00:00",
-      "xAxis": 1000
+      "xAxis": "2022-10-03T14:20:45+00:00",
+      "yAxis": 1000
     },
     {
-      "yAxis": "2022-10-03T14:20:45+00:00",
-      "xAxis": 0
+      "xAxis": "2022-10-03T14:20:45+00:00",
+      "yAxis": 0
     },
     {
-      "yAxis": "2022-10-06T15:18:25+00:00",
-      "xAxis": 100000000000
+      "xAxis": "2022-10-06T15:18:25+00:00",
+      "yAxis": 100000000000
     },
     {
-      "yAxis": "2022-10-07T07:50:50+00:00",
-      "xAxis": 10000000
+      "xAxis": "2022-10-07T07:50:50+00:00",
+      "yAxis": 10000000
     },
     {
-      "yAxis": "2022-10-07T08:00:35+00:00",
-      "xAxis": 300000000000
+      "xAxis": "2022-10-07T08:00:35+00:00",
+      "yAxis": 300000000000
     },
     {
-      "yAxis": "2022-10-07T08:03:10+00:00",
-      "xAxis": 300000000000
+      "xAxis": "2022-10-07T08:03:10+00:00",
+      "yAxis": 300000000000
     }
   ]
 
@@ -93,10 +86,11 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
     </ChartSlidingTabButtons>
 
     <Chart
-      list={isHistory ? history : volatility}
+      list={isHistory ? dataFeedsHistory : volatility}
       style={{
         width: 1000,
         height: 300,
+        firstCurrency: '$',
       }}
     />
   </ChartCard>
