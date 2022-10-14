@@ -1,15 +1,16 @@
 import { validateAddress } from '@taquito/utils'
 import { OpKind } from '@taquito/taquito'
 
-import type { AppDispatch, GetState } from '../../app/App.controller'
-import { Governance_Proposal_Payment } from '../../utils/generated/graphqlTypes'
-
-import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
+// helpres
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
-import { State } from 'reducers'
-import { ProposalUpdateForm, SubmitProposalForm } from '../../utils/TypesAndInterfaces/Forms'
 import { getGovernanceStorage, getCurrentRoundProposals } from '../Governance/Governance.actions'
+import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
+
+// types
+import type { AppDispatch, GetState } from '../../app/App.controller'
+import { SubmitProposalForm } from '../../utils/TypesAndInterfaces/Forms'
+import { State } from 'reducers'
 import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 
 export const SUBMIT_PROPOSAL_REQUEST = 'SUBMIT_PROPOSAL_REQUEST'

@@ -1,12 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react'
-
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
-import type { ProposalUpdateFormProposalBytes } from '../../../utils/TypesAndInterfaces/Forms'
-import { ProposalUpdateForm } from '../../../utils/TypesAndInterfaces/Forms'
+import { StageTwoFormProps, ValidationStateType, ProposalBytesType } from '../ProposalSybmittion.types'
 
 // components
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -16,18 +13,11 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 
-// hooks
-import useGovernence from '../../Governance/UseGovernance'
-
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import {
-  checkWtheterBytesIsValid,
-  getBytesPairValidationStatus,
-  PROPOSAL_BYTE,
-  setDefaultProposalBytes,
-} from '../ProposalSubmition.helpers'
+import { checkWtheterBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
 import { updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 // styles
 import {
@@ -37,28 +27,10 @@ import {
   FormTitleContainer,
   FormTitleEntry,
 } from '../ProposalSubmission.style'
-import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
-import { ChangeProposalFnType } from '../ProposalSubmission.controller'
-import { InputStatusType } from 'app/App.components/Input/Input.constants'
-
-type StageTwoFormProps = {
-  proposalId: number
-  currentProposal: ProposalRecordType
-  updateLocalProposalData: ChangeProposalFnType
-  handleDropProposal: (proposalId: number) => void
-}
-
-type ValidationStateType = {
-  validTitle: InputStatusType
-  validBytes: InputStatusType
-  proposalId: number
-}[]
-
-type ProposalBytesType = ProposalRecordType['proposalData'][number]
 
 export const StageTwoForm = ({
   proposalId,
-  currentProposal,
+  currentProposal: { proposalData, title, locked },
   updateLocalProposalData,
   handleDropProposal,
 }: StageTwoFormProps) => {
@@ -73,24 +45,24 @@ export const StageTwoForm = ({
   const isProposalPeriod = governancePhase === 'PROPOSAL'
   const [bytesValidation, setBytesValidation] = useState<ValidationStateType>([])
 
+  // effect to track chane of proposal, by tab clicking
   useEffect(() => {
-    if (currentProposal.proposalData.length === 0) {
+    if (proposalData.length === 0) {
       handleCreateNewByte()
     }
     setBytesValidation(
-      currentProposal.proposalData.map(({ id, title, bytes }) => ({
-        validTitle: getBytesPairValidationStatus(title, 'validTitle', id, currentProposal.proposalData),
-        validBytes: getBytesPairValidationStatus(bytes, 'validBytes', id, currentProposal.proposalData),
+      proposalData.map(({ id, title, bytes }) => ({
+        validTitle: getBytesPairValidationStatus(title, 'validTitle', id, proposalData),
+        validBytes: getBytesPairValidationStatus(bytes, 'validBytes', id, proposalData),
         proposalId: id,
       })),
     )
   }, [proposalId])
 
-  // const [proposalBytes, setProposalBytes] = useState<ProposalUpdateForm>([PROPOSAL_BYTE])
   const [isBytesChanged, setBytesChanged] = useState<boolean>(false)
 
   const handleOnBlur = (byte: ProposalBytesType, text: string, type: 'validTitle' | 'validBytes') => {
-    const validationStatus = getBytesPairValidationStatus(text, type, byte.id, currentProposal.proposalData)
+    const validationStatus = getBytesPairValidationStatus(text, type, byte.id, proposalData)
     setBytesValidation(
       bytesValidation.map((validationObj) =>
         validationObj.proposalId === byte.id ? { ...validationObj, [type]: validationStatus } : validationObj,
@@ -101,9 +73,7 @@ export const StageTwoForm = ({
   const handleOnCange = (byte: ProposalBytesType, text: string, type: 'title' | 'bytes') => {
     updateLocalProposalData(
       {
-        proposalData: currentProposal.proposalData.map((oldByte) =>
-          oldByte.id === byte.id ? { ...oldByte, [type]: text } : oldByte,
-        ),
+        proposalData: proposalData.map((oldByte) => (oldByte.id === byte.id ? { ...oldByte, [type]: text } : oldByte)),
       },
       proposalId,
     )
@@ -113,7 +83,7 @@ export const StageTwoForm = ({
   // add new bute pairs from local to server
   const submitBytePairs = async () => {
     if (bytesValidation.every(({ validBytes, validTitle }) => validBytes && validTitle)) {
-      await dispatch(updateProposal(currentProposal.proposalData, proposalId))
+      await dispatch(updateProposal(proposalData, proposalId))
     }
   }
 
@@ -133,11 +103,11 @@ export const StageTwoForm = ({
     updateLocalProposalData(
       {
         proposalData: [
-          ...currentProposal.proposalData,
+          ...proposalData,
           {
             ...PROPOSAL_BYTE,
-            id: currentProposal.proposalData.length + 1,
-            order: currentProposal.proposalData.length + 1,
+            id: proposalData.length + 1,
+            order: proposalData.length + 1,
           },
         ],
       },
@@ -148,12 +118,12 @@ export const StageTwoForm = ({
 
   // removing bytes pair
   const handleDeletePair = (removeId: number) => {
-    const pairToRemove = currentProposal.proposalData?.find((item) => item.id === removeId)
+    const pairToRemove = proposalData?.find((item) => item.id === removeId)
     if (pairToRemove) {
       if (pairToRemove?.isLocalBytes) {
         updateLocalProposalData(
           {
-            proposalData: currentProposal.proposalData.filter(({ id }) => id !== removeId),
+            proposalData: proposalData.filter(({ id }) => id !== removeId),
           },
           proposalId,
         )
@@ -166,23 +136,23 @@ export const StageTwoForm = ({
 
   // submit btn is disabled if no changes in bytes or if something is changed, but it doesn't pass the validation
   const submitBytesButtonDisabled = useMemo(() => {
-    return !isBytesChanged || (isBytesChanged && !checkWtheterBytesIsValid(currentProposal.proposalData))
-  }, [currentProposal, isBytesChanged])
+    return !isBytesChanged || (isBytesChanged && !checkWtheterBytesIsValid(proposalData))
+  }, [proposalData, isBytesChanged])
 
   // Drag & drop variables and event handlers
   const [dndBytes, setdndBytes] = useState<Array<ProposalBytesType>>([])
 
   useEffect(() => {
-    setdndBytes(currentProposal.proposalData)
-  }, [currentProposal])
+    setdndBytes(proposalData)
+  }, [proposalData])
 
   const [DnDSelectedProposal, setDnDSeletedProposal] = useState<ProposalBytesType | null>(null)
-  const isDraggable = useMemo(() => currentProposal.proposalData.length > 1, [currentProposal.proposalData])
+  const isDraggable = useMemo(() => proposalData.length > 1, [proposalData])
 
   // handling changing order of elements on drop event
   const dropHandler = (e: React.DragEvent<HTMLElement>, byteToDrop: ProposalBytesType) => {
     e.preventDefault()
-    const updatedBytes = currentProposal.proposalData
+    const updatedBytes = proposalData
       .map((byte) => {
         if (byte.id === byteToDrop.id) {
           return { ...byte, order: Number(DnDSelectedProposal?.order) }
@@ -238,8 +208,8 @@ export const StageTwoForm = ({
       <FormHeaderGroup>
         <h1>Stage 2</h1>
         <StatusFlag
-          text={currentProposal.locked ? 'LOCKED' : 'UNLOCKED'}
-          status={currentProposal.locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+          text={locked ? 'LOCKED' : 'UNLOCKED'}
+          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
         />
         <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
           <Icon id="question" />
@@ -248,7 +218,7 @@ export const StageTwoForm = ({
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
           <label>1 - Enter Proposal Title</label>
-          <FormTitleEntry>{currentProposal.title}</FormTitleEntry>
+          <FormTitleEntry>{title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
           <label>2 - Proposal Success Reward</label>
@@ -261,9 +231,7 @@ export const StageTwoForm = ({
       </FormTitleAndFeeContainer>
       <div className="step-bytes">
         {dndBytes.map((item, i) => {
-          const existInServer = Boolean(
-            currentProposal.proposalData?.find(({ id }) => item.id === id && !item.isLocalBytes),
-          )
+          const existInServer = Boolean(proposalData?.find(({ id }) => item.id === id && !item.isLocalBytes))
           const validityObject = bytesValidation.find(({ proposalId }) => proposalId === item.id)
 
           return (

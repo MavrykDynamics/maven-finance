@@ -1,10 +1,7 @@
 import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
-import {
-  CurrentRoundProposalsStorageType,
-  ProposalDataType,
-  ProposalRecordType,
-} from 'utils/TypesAndInterfaces/Governance'
+import { ValidSubmitProposalForm, SubmitProposalFormInputStatus } from 'utils/TypesAndInterfaces/Forms'
+import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 
 export const checkWtheterBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
   return proposalData.every(({ bytes, title }) => Boolean(bytes) && Boolean(title))
@@ -37,15 +34,6 @@ export const PROPOSAL_BYTE = {
   record_internal_id: 0,
 }
 
-export const setDefaultProposalBytes = (proposalData?: Array<ProposalDataType>) =>
-  proposalData?.length
-    ? proposalData.map((item, idx) => ({
-        ...PROPOSAL_BYTE,
-        ...item,
-        order: idx + 1,
-      }))
-    : [PROPOSAL_BYTE]
-
 export const DEFAULT_PROPOSAL: CurrentRoundProposalsStorageType[number] = {
   id: -1,
   proposerId: '',
@@ -75,4 +63,23 @@ export const DEFAULT_PROPOSAL: CurrentRoundProposalsStorageType[number] = {
   proposalPayments: [],
   governanceId: '',
   paymentProcessed: false,
+}
+
+// stage 1 default values
+export const DEFAULT_VALIDITY: ValidSubmitProposalForm = {
+  title: false,
+  description: false,
+  ipfs: true,
+  successMVKReward: true,
+  invoiceTable: true,
+  sourceCode: false,
+}
+
+export const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
+  title: '',
+  description: '',
+  ipfs: '',
+  successMVKReward: '',
+  invoiceTable: 'success',
+  sourceCode: '',
 }

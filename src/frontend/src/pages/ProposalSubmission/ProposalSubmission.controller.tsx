@@ -13,21 +13,12 @@ import { Page } from 'styles'
 
 // types
 import { State } from 'reducers'
-import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
+import { CurrentRoundProposalsStorageType } from 'utils/TypesAndInterfaces/Governance'
+import { SubmittedProposalsMapper } from './ProposalSybmittion.types'
 
 // helpers
 import { DEFAULT_PROPOSAL } from './ProposalSubmition.helpers'
 import { dropProposal } from './ProposalSubmission.actions'
-
-export type SubmittedProposalsMapper = {
-  keys: number[]
-  mapper: Record<number, ProposalRecordType>
-}
-
-export type ChangeProposalFnType = (
-  newProposalData: Partial<CurrentRoundProposalsStorageType[number]>,
-  proposalId: number,
-) => void
 
 export const ProposalSubmission = () => {
   const dispatch = useDispatch()
@@ -119,6 +110,7 @@ export const ProposalSubmission = () => {
     )
   }, [mappedProposals])
 
+  // TODO: remove log
   console.log('proposalState parent el:', proposalState, selectedUserProposalId)
 
   const currentProposal = useMemo(

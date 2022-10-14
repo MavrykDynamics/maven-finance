@@ -1,5 +1,4 @@
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
-import type { ProposalDataType } from '../../utils/TypesAndInterfaces/Governance'
 
 /**
  * Types for forms
@@ -45,18 +44,6 @@ export type ProposalBytesType = {
   title: string
   data: string
 }
-
-export type ProposalUpdateFormProposalBytes = {
-  validTitle: InputStatusType
-  validBytes: InputStatusType
-  bytes: string
-  id: number
-  title: string
-  order: number
-  isUnderTheDrop: boolean
-}
-
-export type ProposalUpdateForm = ProposalUpdateFormProposalBytes[]
 
 export type ValidProposalUpdateForm = {
   title: boolean | undefined
