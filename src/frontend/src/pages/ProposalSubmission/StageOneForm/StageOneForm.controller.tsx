@@ -31,7 +31,6 @@ import { ChangeProposalFnType } from '../ProposalSubmission.controller'
 import '@silevis/reactgrid/styles.css'
 
 type StageOneFormProps = {
-  locked: boolean
   proposalId: number
   updateLocalProposalData: ChangeProposalFnType
   currentProposal: ProposalRecordType
@@ -65,8 +64,7 @@ const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
 }
 
 // TODO: mb remove local state and use parent state of current proposal
-
-export const StageOneForm = ({ locked, proposalId, updateLocalProposalData, currentProposal }: StageOneFormProps) => {
+export const StageOneForm = ({ proposalId, updateLocalProposalData, currentProposal }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const {
     fee,
@@ -121,12 +119,12 @@ export const StageOneForm = ({ locked, proposalId, updateLocalProposalData, curr
     }
   }
 
+  // update local state value and parent state due to inputted info
   const inputHandler = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     const newForm = { ...form, [name]: value }
 
     setForm({ ...form, [name]: value })
-
     updateLocalProposalData(
       {
         title: newForm.title,
@@ -161,8 +159,8 @@ export const StageOneForm = ({ locked, proposalId, updateLocalProposalData, curr
       <FormHeaderGroup>
         <h1>Stage 1 </h1>
         <StatusFlag
-          text={locked ? 'LOCKED' : 'UNLOCKED'}
-          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+          text={currentProposal.locked ? 'LOCKED' : 'UNLOCKED'}
+          status={currentProposal.locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
         />
         <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
           <Icon id="question" />
