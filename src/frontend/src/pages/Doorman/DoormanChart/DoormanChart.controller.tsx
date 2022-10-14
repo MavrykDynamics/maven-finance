@@ -36,13 +36,15 @@ export const DoormanChart: FC<Props> = ({ className }) => {
     setActiveTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
   }
 
+  const tooltipValueFormatter = (value: string | number):string => `${value} MVK`
+
   return (
     <ChartCard className={className}>
       <ChartSlidingTabButtons>
         {tabsList?.length ? <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
       </ChartSlidingTabButtons>
 
-      <Chart style={{ secondCurrency: ' MVK' }} list={isStakingHistory ? stakeHistoryData : smvkHistoryData} />
+      <Chart tooltipValueFormatter={tooltipValueFormatter} list={isStakingHistory ? stakeHistoryData : smvkHistoryData} />
     </ChartCard>
   )
 }

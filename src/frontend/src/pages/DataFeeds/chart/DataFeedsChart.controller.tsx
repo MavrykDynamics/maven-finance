@@ -39,40 +39,44 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
   const volatility = [
     {
       "xAxis": "2022-10-03T08:34:40+00:00",
-      "yAxis": 64997577141
+      "yAxis": 29970
     },
     {
       "xAxis": "2022-10-03T14:20:00+00:00",
-      "yAxis": 1000
+      "yAxis": 6000
     },
     {
       "xAxis": "2022-10-03T14:20:45+00:00",
-      "yAxis": 1000
+      "yAxis": 10034
     },
     {
       "xAxis": "2022-10-03T14:20:45+00:00",
-      "yAxis": 0
+      "yAxis": 4323
     },
     {
       "xAxis": "2022-10-06T15:18:25+00:00",
-      "yAxis": 100000000000
+      "yAxis": 10000
     },
     {
       "xAxis": "2022-10-07T07:50:50+00:00",
-      "yAxis": 10000000
+      "yAxis": 10005
     },
     {
       "xAxis": "2022-10-07T08:00:35+00:00",
-      "yAxis": 300000000000
+      "yAxis": 30000
     },
     {
       "xAxis": "2022-10-07T08:03:10+00:00",
-      "yAxis": 300000000000
+      "yAxis": 30000
     }
   ]
 
   const handleChangeTabs = (tabId?: number) => {
     setActiveTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
+  }
+
+  const tickFormater = (value: string | number): string =>  {
+    return `$${value}`
   }
 
   useEffect(() => {
@@ -90,8 +94,9 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
       style={{
         width: 1000,
         height: 300,
-        firstCurrency: '$',
       }}
+      tickFormater={tickFormater}
+      tooltipValueFormatter={tickFormater}
     />
   </ChartCard>
  )

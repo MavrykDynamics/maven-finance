@@ -20,8 +20,6 @@ type ChartStyle = {
   paddingBottom?: number
   paddingRight?: number
   paddingLeft?: number
-  firstCurrency?: string
-  secondCurrency?: string,
 }
 
 type ChartItem = {
@@ -31,8 +29,10 @@ type ChartItem = {
 
 type Props = {
   list: ChartItem[]
-  className?: string;
   style?: ChartStyle
+  tickFormater?: (value: any, index: number) => string
+  tooltipValueFormatter?: (value: string | number) => string
+  className?: string
 }
 
 type ChartData = {
@@ -53,8 +53,6 @@ const initialChartStyle: ChartStyle = {
   paddingBottom: 0,
   paddingRight: 0,
   paddingLeft: 22,
-  firstCurrency: '',
-  secondCurrency: '',
 }
 
 const timeFormat = 'HH:mm'
@@ -63,7 +61,7 @@ const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
 const dateFormat = 'MMM DD, HH:mm Z'
 const getParsedDate = (time: string) => parseDate({ time, timeFormat: dateFormat }) || ''
 
-export default function Chart({ list, style, className }: Props) {
+export default function Chart({ list, style, tickFormater, tooltipValueFormatter, className }: Props) {
   const { themeSelected } = useSelector((state: State) => state.preferences)
   const [chartStyle, setChartStyle] = useState(initialChartStyle)
 
@@ -74,7 +72,7 @@ export default function Chart({ list, style, className }: Props) {
   
     return (
       <ChartTooltip>
-        {chartStyle.firstCurrency}{value}{chartStyle.secondCurrency}
+        {tooltipValueFormatter ? tooltipValueFormatter(value) : value}
         <div>{date}</div>
       </ChartTooltip>
     )
@@ -129,6 +127,7 @@ export default function Chart({ list, style, className }: Props) {
         tickMargin={chartStyle.tickMargin}
         fontSize={chartStyle.fontSize}
         orientation="right"
+        tickFormatter={tickFormater}
       />
 
       <Tooltip cursor={{ stroke: themeColors[themeSelected].cardBorderColor, strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
