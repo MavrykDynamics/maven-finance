@@ -6,7 +6,6 @@ import { State } from 'reducers'
 import { SubmitProposalFormInputStatus, ValidSubmitProposalForm } from '../../../utils/TypesAndInterfaces/Forms'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 import { TextArea } from 'app/App.components/TextArea/TextArea.controller'
-import { ProposalRecordType, ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import {
   FormHeaderGroup,
   FormTitleAndFeeContainer,
@@ -18,38 +17,17 @@ import { Input } from 'app/App.components/Input/Input.controller'
 import Icon from 'app/App.components/Icon/Icon.view'
 import { Button } from 'app/App.components/Button/Button.controller'
 
-// helpers, constants, types
+// types
+import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
+import { StageOneFormProps } from '../ProposalSybmittion.types'
+
+// helpers, constants
 import { isNotAllWhitespace, isValidHttpUrl, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { submitProposal } from '../ProposalSubmission.actions'
+import { DEFAULT_VALIDITY, DEFAULT_INPUT_STATUSES } from '../ProposalSubmition.helpers'
 import { ACTION_SECONDARY, SUBMIT } from 'app/App.components/Button/Button.constants'
-import { ChangeProposalFnType } from '../ProposalSubmission.controller'
 
 import '@silevis/reactgrid/styles.css'
-
-type StageOneFormProps = {
-  proposalId: number
-  currentProposal: ProposalRecordType
-  updateLocalProposalData: ChangeProposalFnType
-  handleDropProposal: (proposalId: number) => void
-}
-
-const DEFAULT_VALIDITY: ValidSubmitProposalForm = {
-  title: false,
-  description: false,
-  ipfs: true,
-  successMVKReward: true,
-  invoiceTable: true,
-  sourceCode: false,
-}
-
-const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
-  title: '',
-  description: '',
-  ipfs: '',
-  successMVKReward: '',
-  invoiceTable: 'success',
-  sourceCode: '',
-}
 
 export const StageOneForm = ({
   proposalId,
