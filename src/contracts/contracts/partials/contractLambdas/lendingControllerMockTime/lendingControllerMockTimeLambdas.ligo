@@ -1096,7 +1096,6 @@ block {
                 const liquidatorAmountAndIncentive  : nat   = totalLiquidationAmount + liquidationIncentive;
                 const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * totalLiquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
                 
-
                 // calculate vault collateral value rebased (1e32 or 10^32)
                 const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
 
@@ -1124,8 +1123,6 @@ block {
                         const tokenPrice       : nat  = collateralTokenLastCompletedData.data;            
                         var   tokenBalance     : nat := tokenBalance;
 
-                        s.tempMap["tokenBalance"] := tokenBalance;
-
                         // if token is sMVK, get latest balance from Doorman Contract through on-chain views
                         // - may differ from token balance if rewards have been claimed 
                         // - requires a call to %compound on doorman contract to compound rewards for the vault and get the latest balance
@@ -1148,6 +1145,7 @@ block {
                         // get proportion of collateral token balance against total vault's collateral value (returns 1e27)
                         const tokenProportion : nat = (tokenValueRebased * fixedPointAccuracy) / vaultCollateralValueRebased;
 
+                        s.tempMap["tokenBalance"] := tokenBalance;
                         s.tempMap["rebaseDecimals"]     := rebaseDecimals;
                         s.tempMap["tokenValueRaw"]      := tokenValueRaw;
                         s.tempMap["tokenValueRebased"]  := tokenValueRebased;
@@ -1170,10 +1168,6 @@ block {
                         if liquidatorTokenQuantityTotal > tokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
                         var newTokenCollateralBalance : nat := abs(tokenBalance - liquidatorTokenQuantityTotal);
 
-                        s.tempMap["liquidatorTokenProportionalValue"]       := liquidatorTokenProportionalValue;
-                        s.tempMap["liquidatorTokenQuantityTotal"]           := liquidatorTokenQuantityTotal;
-                        s.tempMap["afterLiquidatorTokenCollateralBalance"]  := newTokenCollateralBalance;
-
                         // ------------------------------------------------------------------
                         // Calculate Treasury's Amount 
                         // ------------------------------------------------------------------
@@ -1193,16 +1187,9 @@ block {
 
                         s.tempMap[tokenName] := newTokenCollateralBalance;
 
-                        s.tempMap["treasuryTokenProportionalValue"]         := treasuryTokenProportionalValue;
-                        s.tempMap["treasuryTokenQuantityTotal"]             := treasuryTokenQuantityTotal;
-                        s.tempMap["afterTreasuryTokenCollateralBalance"]    := newTokenCollateralBalance;
-
                         // ------------------------------------------------------------------
                         // Process liquidation transfer of collateral token
                         // ------------------------------------------------------------------
-
-                        s.tempMap["liquidatorTokenQuantityTotal"]   := liquidatorTokenQuantityTotal;
-                        s.tempMap["treasuryTokenQuantityTotal"]     := treasuryTokenQuantityTotal;
                         
                         if tokenName = "mvk" then {
 
@@ -1340,11 +1327,6 @@ block {
                     loanTokenType                   // token type
                 );
                 operations := sendInterestRewardToTokenPoolRewardContractOperation # operations;
-
-                s.tempMap["totalInterestPaid"]          := totalInterestPaid;
-                s.tempMap["interestSentToTreasury"]     := interestSentToTreasury;
-                s.tempMap["interestSentToRewardPool"]   := interestSentToRewardPool;
-                s.tempMap["totalLiquidationAmount"]     := totalLiquidationAmount;
 
                 // ------------------------------------------------------------------
                 // Process repayment of Principal
