@@ -751,6 +751,7 @@ block {
 
                             // for other collateral token types besides sMVK
                             const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                vaultOwner,                         // to_
                                 tokenName,                          // token name
                                 tokenBalance,                       // token amount to be withdrawn
                                 collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
@@ -805,7 +806,7 @@ block {
                 const configLiquidationDelayInMins  : nat = s.config.liquidationDelayInMins;
                 const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
                 const blocksPerMinute               : nat = 60n / Tezos.get_min_block_time();
-                
+
                 const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
                 const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
 
