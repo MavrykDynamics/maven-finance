@@ -162,25 +162,30 @@ export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLed
     let mockFa12Balance             = collateralBalanceLedger.get('mockFa12') == undefined ? 0 : collateralBalanceLedger.get('mockFa12');
     let mockFa2Balance              = collateralBalanceLedger.get('mockFa2')  == undefined ? 0 : collateralBalanceLedger.get('mockFa2');
     let xtzBalance                  = collateralBalanceLedger.get('tez')      == undefined ? 0 : collateralBalanceLedger.get('tez');
+    let mvkBalance                  = collateralBalanceLedger.get('mvk')      == undefined ? 0 : collateralBalanceLedger.get('mvk');
 
     let mockFa12TokenPrice          = tokenOracles.find(o => o.name === "mockFa12").price;
     let mockFa2TokenPrice           = tokenOracles.find(o => o.name === "mockFa2").price;
     let tezPrice                    = tokenOracles.find(o => o.name === "tez").price;
+    let mvkPrice                    = tokenOracles.find(o => o.name === "mvk").price;
 
     let mockFa12TokenPriceDecimals  = tokenOracles.find(o => o.name === "mockFa12").priceDecimals;
     let mockFa2TokenPriceDecimals   = tokenOracles.find(o => o.name === "mockFa2").priceDecimals;
     let tezPriceDecimals            = tokenOracles.find(o => o.name === "tez").priceDecimals;
+    let mvkPriceDecimals            = tokenOracles.find(o => o.name === "mvk").priceDecimals;
 
     let mockFa12TokenDecimals       = tokenOracles.find(o => o.name === "mockFa12").tokenDecimals;
     let mockFa2TokenDecimals        = tokenOracles.find(o => o.name === "mockFa2").tokenDecimals;
     let tezTokenDecimals            = tokenOracles.find(o => o.name === "tez").tokenDecimals;
+    let mvkTokenDecimals            = tokenOracles.find(o => o.name === "mvk").tokenDecimals;
 
     // rebased to no decimals (Math.trunc to simulate smart contract division)
-    let vaultMockFa12TokenValue     = Math.trunc(Math.trunc(mockFa12Balance / (10 ** mockFa12TokenDecimals)) * mockFa12TokenPrice) / (10 ** mockFa12TokenPriceDecimals);
-    let vaultMockFa2TokenValue      = Math.trunc(Math.trunc(mockFa2Balance  / (10 ** mockFa2TokenDecimals))  * mockFa2TokenPrice)  / (10 ** mockFa2TokenPriceDecimals);
-    let vaultXtzValue               = Math.trunc(Math.trunc(xtzBalance      / (10 ** tezTokenDecimals))      * tezPrice)           / (10 ** tezPriceDecimals);
+    let vaultMockFa12TokenValue     = Math.trunc(Math.trunc(mockFa12Balance / (10 ** mockFa12TokenDecimals)) * mockFa12TokenPrice ) / (10 ** mockFa12TokenPriceDecimals);
+    let vaultMockFa2TokenValue      = Math.trunc(Math.trunc(mockFa2Balance  / (10 ** mockFa2TokenDecimals )) * mockFa2TokenPrice  ) / (10 ** mockFa2TokenPriceDecimals);
+    let vaultXtzValue               = Math.trunc(Math.trunc(xtzBalance      / (10 ** tezTokenDecimals     )) * tezPrice           ) / (10 ** tezPriceDecimals);
+    let vaultMvkValue               = Math.trunc(Math.trunc(mvkBalance      / (10 ** mvkTokenDecimals     )) * mvkPrice           ) / (10 ** mvkPriceDecimals);
     
-    let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultXtzValue;
+    let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultXtzValue + vaultMvkValue;
 
     return vaultCollateralValue
 }
