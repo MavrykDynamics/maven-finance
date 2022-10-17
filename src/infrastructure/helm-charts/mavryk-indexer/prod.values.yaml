@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.17.1
+    tag: v0.18.1
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -42,7 +42,7 @@ dipdup:
         address: KT1HB4PjaP9YCM3zLxPD6tJdGBvLXLxqLBGN
         typename: vesting
       emergency_governance:
-        address: KT1NGVx629atMfQJfXxAAL4bB9TphMY6foPd
+        address: KT1FGQbqPmZ1fiL2brm5riuQBco4oQW4ZciP
         typename: emergency_governance
       council:
         address: KT1HsbSozpYrSryavbZJB1no58fAnVDdK84R
