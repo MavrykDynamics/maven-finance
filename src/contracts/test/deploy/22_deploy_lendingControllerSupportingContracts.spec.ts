@@ -193,7 +193,7 @@ describe('Lending Controller Supporting Contracts', async () => {
             aggregatorStorage.lastCompletedData = {
                 round                   : new BigNumber(0),
                 epoch                   : new BigNumber(0),
-                data                    : new BigNumber(2000000),
+                data                    : new BigNumber(1000000000),
                 percentOracleResponse   : new BigNumber(100),
                 lastUpdatedAt           : '1'
             };
