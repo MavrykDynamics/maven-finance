@@ -846,7 +846,9 @@ block {
 
     var tokenValueRebased : nat := tokenValueRaw;
 
-    if rebaseDecimals = 1n then 
+    if rebaseDecimals = 0n then 
+        skip
+    else if rebaseDecimals = 1n then 
         tokenValueRebased := tokenValueRebased * 10n
     else if rebaseDecimals = 2n then 
         tokenValueRebased := tokenValueRebased * 100n 
@@ -1002,6 +1004,11 @@ block {
     const tokenValueRaw : nat = tokenBalance * tokenPrice;
 
 } with tokenValueRaw
+
+
+
+// helper function for simple multiplication of token amount by price
+function multiplyTokenAmountByPrice(const tokenAmount : nat; const tokenPrice : nat) : nat is tokenAmount * tokenPrice
 
 
 
