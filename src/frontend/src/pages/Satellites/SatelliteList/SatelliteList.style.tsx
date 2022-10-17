@@ -41,7 +41,7 @@ export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme; oracle?:
       ? css`
           margin-top: 30px;
           input {
-            margin-left: 30px;
+            /* margin-left: 30px; */
             max-width: 375px;
           }
 
