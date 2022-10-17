@@ -90,7 +90,6 @@ export const StageThreeForm = ({
   useEffect(() => {
     if (proposalPayments.length === 0) {
       handleAddRow()
-      handleAddRow()
     }
 
     setValidForm(
