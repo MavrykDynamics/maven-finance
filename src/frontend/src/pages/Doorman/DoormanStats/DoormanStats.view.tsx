@@ -32,7 +32,16 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
       <DoormanStatsHeader>Key MVK Metrics</DoormanStatsHeader>
       <DoormanList>
         <div>
-          <h4>MVK Price</h4>
+          <h4>
+            MVK Price
+            <a
+              href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Icon id="question" />
+            </a>
+          </h4>
           <var>
             <CommaNumber value={exchangeRate} loading={loading} endingText={'USD'} />
           </var>

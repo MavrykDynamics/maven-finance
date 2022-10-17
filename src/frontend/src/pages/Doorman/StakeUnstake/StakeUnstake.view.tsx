@@ -160,11 +160,12 @@ export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstak
           <StakeUnstakeInputColumn>
             <StakeUnstakeInputLabels>
               <StakeUnstakeMin>Min 1 MVK</StakeUnstakeMin>
-              {accountPkh && 
+              {accountPkh && (
                 <>
                   <StakeUnstakeMax onClick={() => onUseMaxClick('UNSTAKE')}>Max Unstake</StakeUnstakeMax>
                   <StakeUnstakeMax onClick={() => onUseMaxClick('STAKE')}>Max Stake</StakeUnstakeMax>
-                </>}
+                </>
+              )}
             </StakeUnstakeInputLabels>
             <Input
               type={'number'}

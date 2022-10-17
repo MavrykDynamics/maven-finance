@@ -10,13 +10,13 @@ export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
   margin-top: 32px;
 `
 
-export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
+export const GovernanceRightContainer = styled(Card)<{ isAuthorized?: boolean, theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   width: calc(50% - 30px);
   padding: 28px 30px;
   border-radius: 10px;
   height: min-content;
-  margin-top: 0;
+  margin-top: ${({ isAuthorized }) => isAuthorized ? 0 : 28}px;
   flex-shrink: 0;
   margin-left: 30px;
   position: relative;

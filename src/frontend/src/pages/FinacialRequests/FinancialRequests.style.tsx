@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { Card, cyanColor, skyColor, royalPurpleColor, headerColor } from 'styles'
-
 import { MavrykTheme } from '../../styles/interfaces'
+import { VotingArea as VotingAreaBase } from 'app/App.components/VotingArea/VotingArea.controller'
 
 export const FinancialRequestsStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -43,7 +43,7 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
     border: none;
     height: 1px;
     background-color: ${({ theme }) => theme.cardBorderColor};
-    margin-top: 16px;
+    margin-bottom: 10px;
   }
 
   .info_section_wrapper {
@@ -54,7 +54,7 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
   .info_section {
     display: flex;
     flex-direction: column;
-    margin-top: 25px;
+    margin-top: 30px;
 
     .list {
       display: flex;
@@ -91,13 +91,18 @@ export const InfoBlockDescr = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const InfoBlockListValue = styled.div<{ fontColor: string; theme: MavrykTheme }>`
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 14px;
   color: ${({ fontColor }) => fontColor};
 `
 
 export const FinancialRequestsContainer = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
   padding-top: 28px;
+`
+
+export const VotingArea = styled(VotingAreaBase)`
+  margin-top: 25px;
+  margin-bottom: 20px;
 `
