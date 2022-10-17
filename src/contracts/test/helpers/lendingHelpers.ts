@@ -193,53 +193,43 @@ export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLed
 
 export const multiplyByTokenPrice = (tokenName, tokenOracles, tokenAmount) => {
 
-    if(tokenName == "mockFa12"){
-        
-        let mockFa12TokenPrice = tokenOracles.find(o => o.name === "mockFa12").price;
-        return tokenAmount * mockFa12TokenPrice;
+    let tokenPrice = tokenOracles.find(o => o.name === tokenName).price;
+    return tokenAmount * tokenPrice;
 
-    } else if(tokenName == "mockFa2"){
-
-        let mockFa2TokenPrice = tokenOracles.find(o => o.name === "mockFa2").price;
-        return tokenAmount * mockFa2TokenPrice;
-
-    } else if(tokenName == "tez"){
-
-        let tezPrice = tokenOracles.find(o => o.name === "tez").price;
-        return tokenAmount * tezPrice;
-
-    } else if(tokenName == "mvk"){
-
-        let mvkPrice = tokenOracles.find(o => o.name === "mvk").price;
-        return tokenAmount * mvkPrice;
-
-    }
 }
 
 
 export const divideByTokenPrice = (tokenName, tokenOracles, dollarValue) => {
 
-    if(tokenName == "mockFa12"){
-        
-        let mockFa12TokenPrice = tokenOracles.find(o => o.name === "mockFa12").price;
-        return Math.trunc(dollarValue / mockFa12TokenPrice);
+    let tokenPrice = tokenOracles.find(o => o.name === tokenName).price;
+    return Math.trunc(dollarValue / tokenPrice);
 
-    } else if(tokenName == "mockFa2"){
+}
 
-        let mockFa2TokenPrice = tokenOracles.find(o => o.name === "mockFa2").price;
-        return Math.trunc(dollarValue / mockFa2TokenPrice);
 
-    } else if(tokenName == "tez"){
 
-        let tezPrice = tokenOracles.find(o => o.name === "tez").price;
-        return Math.trunc(dollarValue / tezPrice);
+export const convertLoanTokenToCollateralToken = (loanTokenName, collateralTokenName, tokenOracles, loanTokenAmount) => {
 
-    } else if(tokenName == "mvk"){
+    let loanTokenPrice               = tokenOracles.find(o => o.name === loanTokenName).price;
+    let loanTokenDecimals            = tokenOracles.find(o => o.name === loanTokenName).tokenDecimals;
+    let loanTokenPriceDecimals       = tokenOracles.find(o => o.name === loanTokenName).priceDecimals;
 
-        let mvkPrice = tokenOracles.find(o => o.name === "mvk").price;
-        return Math.trunc(dollarValue / mvkPrice);
+    let collateralTokenPrice         = tokenOracles.find(o => o.name === collateralTokenName).price;
+    let collateralTokenDecimals      = tokenOracles.find(o => o.name === collateralTokenName).tokenDecimals;
+    let collateralTokenPriceDecimals = tokenOracles.find(o => o.name === collateralTokenName).priceDecimals;
 
-    }
+    const tokenDecimalsMultiplyExponent      = collateralTokenDecimals > loanTokenDecimals ? (10 ** (collateralTokenDecimals - loanTokenDecimals)) : 1;
+    const tokenDecimalsDivideExponent        = collateralTokenDecimals < loanTokenDecimals ? (10 ** (loanTokenDecimals - collateralTokenDecimals)) : 1;
+
+    const priceTokenDecimalsMultiplyExponent = collateralTokenPriceDecimals > loanTokenPriceDecimals ? (10 ** (collateralTokenPriceDecimals - loanTokenPriceDecimals)) : 1;
+    const priceTokenDecimalsDivideExponent   = collateralTokenPriceDecimals < loanTokenPriceDecimals ? (10 ** (loanTokenPriceDecimals - collateralTokenPriceDecimals)) : 1;
+
+    const loanTokenValue         = loanTokenAmount * loanTokenPrice;
+    const adjustedLoanTokenValue = Math.trunc(loanTokenValue * tokenDecimalsMultiplyExponent * priceTokenDecimalsMultiplyExponent / (tokenDecimalsDivideExponent * priceTokenDecimalsDivideExponent));
+    const collateralTokenQty     = Math.trunc(adjustedLoanTokenValue / collateralTokenPrice);
+
+    return collateralTokenQty
+
 }
 
 
@@ -283,6 +273,18 @@ export const rebaseTokenValueRaw = (tokenValueRaw, rebaseDecimals) => {
 }
 
 
+export const calculateTokenValue = (tokenBalance, tokenName, tokenOracles) => {
+    
+    let tokenPrice          = tokenOracles.find(o => o.name === tokenName).price;
+    let tokenPriceDecimals  = tokenOracles.find(o => o.name === tokenName).priceDecimals;
+    let tokenDecimals       = tokenOracles.find(o => o.name === tokenName).tokenDecimals;
+
+    const tokenValue        = tokenBalance * tokenPrice / (10 ** (tokenPriceDecimals + tokenDecimals));
+
+    return tokenValue
+}
+
+
 export const calculateTokenValueRebased = (tokenBalance, tokenPrice, rebaseDecimals) => {
     const tokenValueRaw     = tokenBalance * tokenPrice;
     const tokenValueRebased = tokenValueRaw * (10 ** rebaseDecimals);
@@ -290,8 +292,8 @@ export const calculateTokenValueRebased = (tokenBalance, tokenPrice, rebaseDecim
 }
 
 
-export const calculateTokenProportion = (tokenValueRebased, vaultCollateralValueRebased) => {
-    return Math.trunc(tokenValueRebased / vaultCollateralValueRebased);
+export const calculateTokenProportion = (tokenValue, vaultCollateralValue) => {
+    return tokenValue / vaultCollateralValue;
 }
 
 

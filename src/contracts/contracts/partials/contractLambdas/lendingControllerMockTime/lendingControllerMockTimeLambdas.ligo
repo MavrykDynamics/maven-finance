@@ -1029,8 +1029,14 @@ block {
                 const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
                 const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
                 const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
+                const loanTokenDecimals : nat         = loanTokenRecord.tokenDecimals;
                 const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
                 const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
+
+                // Get loan token price
+                const loanTokenLastCompletedData  : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
+                const loanTokenPrice              : nat = loanTokenLastCompletedData.data;            
+                const loanTokenPriceDecimals      : nat = loanTokenLastCompletedData.decimals;            
                 
                 // ------------------------------------------------------------------
                 // Update vault interest
@@ -1139,17 +1145,31 @@ block {
                         // calculate raw value of collateral balance (e.g. 1e6 * 1e6 => 1e12)
                         const tokenValueRaw : nat = tokenBalance * tokenPrice;
 
-                        // rebase token value to 1e32 (or 10^32) - (e.g. if above is 1e12, then rebase decimals will be 1e20)
+                        // rebase collateral token value to 1e32 (or 10^32) - (e.g. if above is 1e12, then rebase decimals will be 1e20)
                         const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);     
 
                         // get proportion of collateral token balance against total vault's collateral value (returns 1e27)
                         const tokenProportion : nat = (tokenValueRebased * fixedPointAccuracy) / vaultCollateralValueRebased;
 
-                        s.tempMap["tokenBalance"] := tokenBalance;
-                        s.tempMap["rebaseDecimals"]     := rebaseDecimals;
-                        s.tempMap["tokenValueRaw"]      := tokenValueRaw;
-                        s.tempMap["tokenValueRebased"]  := tokenValueRebased;
-                        s.tempMap["tokenProportion"]    := tokenProportion;
+                        // ------------------------------------------------------------------
+                        // Rebase decimals for calculation
+                        //  - account for exponent differences between collateral and loan token decimals
+                        //  - account for exponent differences between collateral price and loan token price decimals from aggregators
+                        // ------------------------------------------------------------------
+
+                        const tokenDecimalsMultiplyExponent         : nat = if tokenDecimals > loanTokenDecimals then abs(tokenDecimals - loanTokenDecimals) else 0n;
+                        const tokenDecimalsDivideExponent           : nat = if tokenDecimals < loanTokenDecimals then abs(loanTokenDecimals - tokenDecimals) else 0n;
+                        
+                        const priceTokenDecimalsMultiplyExponent    : nat = if priceDecimals > loanTokenPriceDecimals then abs(priceDecimals - loanTokenPriceDecimals) else 0n;
+                        const priceTokenDecimalsDivideExponent      : nat = if priceDecimals < loanTokenPriceDecimals then abs(loanTokenPriceDecimals - priceDecimals) else 0n;
+
+                        // multiple exponents by 10^exp
+                        // e.g. if tokenDecimalsMultiplyExponent is 3, then tokenDecimalsMultiplyDifference = 1 * 1000 = 1000;
+                        const tokenDecimalsMultiplyDifference       : nat = rebaseTokenValue(1n, tokenDecimalsMultiplyExponent);
+                        const tokenDecimalsDivideDifference         : nat = rebaseTokenValue(1n, tokenDecimalsDivideExponent);
+                        
+                        const priceTokenDecimalsMultiplyDifference  : nat = rebaseTokenValue(1n, priceTokenDecimalsMultiplyExponent);
+                        const priceTokenDecimalsDivideDifference    : nat = rebaseTokenValue(1n, priceTokenDecimalsDivideExponent);
 
                         // ------------------------------------------------------------------
                         // Calculate Liquidator's Amount 
@@ -1159,10 +1179,13 @@ block {
                         const liquidatorTokenProportionalAmount : nat = tokenProportion * liquidatorAmountAndIncentive;
 
                         // multiply amount by loan token price - with on chain view to get loan token price from aggregator
-                        const liquidatorTokenProportionalValue : nat = calculateLoanTokenValue(vaultLoanTokenName, liquidatorTokenProportionalAmount, s);
+                        const liquidatorTokenProportionalValue : nat = multiplyTokenAmountByPrice(liquidatorTokenProportionalAmount, loanTokenPrice);
+                        
+                        // adjust value by token decimals difference - no change if all decimals are the same (e.g. value * 1 * 1 / (1 * 1) )
+                        const liquidatorTokenProportionalValueAdjusted : nat = (liquidatorTokenProportionalValue * tokenDecimalsMultiplyDifference * priceTokenDecimalsMultiplyDifference) / (tokenDecimalsDivideDifference * priceTokenDecimalsDivideDifference);
 
-                        // get quantity of tokens to be liquidated 
-                        const liquidatorTokenQuantityTotal : nat = (liquidatorTokenProportionalValue / tokenPrice) / fixedPointAccuracy;
+                        // get quantity of tokens to be liquidated (final decimals should equal collateral token decimals)
+                        const liquidatorTokenQuantityTotal : nat = (liquidatorTokenProportionalValueAdjusted / tokenPrice) / fixedPointAccuracy;
 
                         // Calculate new collateral balance
                         if liquidatorTokenQuantityTotal > tokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
@@ -1176,16 +1199,34 @@ block {
                         const treasuryTokenProportionalAmount : nat = tokenProportion * adminLiquidationFee;
                         
                         // multiply amount by loan token price - with on chain view to get loan token price from aggregator
-                        const treasuryTokenProportionalValue : nat = calculateLoanTokenValue(vaultLoanTokenName, treasuryTokenProportionalAmount, s);
+                        const treasuryTokenProportionalValue : nat = multiplyTokenAmountByPrice(treasuryTokenProportionalAmount, loanTokenPrice);
 
-                        // get quantity of tokens to be liquidated
-                        const treasuryTokenQuantityTotal : nat = (treasuryTokenProportionalValue / tokenPrice) / fixedPointAccuracy;
+                        // adjust value by token decimals difference - no change if all decimals are the same (e.g. value * 1 * 1 / (1 * 1) )
+                        const treasuryTokenProportionalValueAdjusted : nat = (treasuryTokenProportionalValue * tokenDecimalsMultiplyDifference * priceTokenDecimalsMultiplyDifference) / (tokenDecimalsDivideDifference * priceTokenDecimalsDivideDifference);
+
+                        // get quantity of tokens to be liquidated (final decimals should equal collateral token decimals)
+                        const treasuryTokenQuantityTotal : nat = (treasuryTokenProportionalValueAdjusted / tokenPrice) / fixedPointAccuracy;
 
                         // Calculate new collateral balance
                         if treasuryTokenQuantityTotal > newTokenCollateralBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
                         newTokenCollateralBalance := abs(newTokenCollateralBalance - treasuryTokenQuantityTotal);
 
-                        s.tempMap[tokenName] := newTokenCollateralBalance;
+                        if tokenName = "mvk" then {
+                            
+                            s.tempMap[tokenName] := newTokenCollateralBalance;
+                            s.tempMap["tokenBalance"] := tokenBalance;
+                            s.tempMap["rebaseDecimals"]     := rebaseDecimals;
+                            s.tempMap["tokenValueRaw"]      := tokenValueRaw;
+                            s.tempMap["tokenValueRebased"]  := tokenValueRebased;
+                            s.tempMap["tokenProportion"]    := tokenProportion;
+
+                            s.tempMap["liquidatorTokenProportionalValue"]    := liquidatorTokenProportionalValue;
+                            s.tempMap["liquidatorTokenQuantityTotal"]    := liquidatorTokenQuantityTotal;
+
+                            s.tempMap["treasuryTokenProportionalValue"]    := treasuryTokenProportionalValue;
+                            s.tempMap["treasuryTokenQuantityTotal"]    := treasuryTokenQuantityTotal;
+
+                        } else skip;
 
                         // ------------------------------------------------------------------
                         // Process liquidation transfer of collateral token
