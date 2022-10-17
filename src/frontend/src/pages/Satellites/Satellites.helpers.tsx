@@ -6,7 +6,7 @@ import type { SatelliteRecordGraphQl, DelegationGraphQl } from '../../utils/Type
 import type { DataFeedsHistoryGraphQL } from './helpers/Satellites.types'
 // helpers
 import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
-import { symbolsAfterDecimalPoint } from 'pages/Doorman/Doorman.converter'
+import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
 
 export function normalizeSatelliteRecord(
   satelliteRecord: SatelliteRecordGraphQl,

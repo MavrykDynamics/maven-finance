@@ -4,10 +4,7 @@ import { MvkTokenGraphQL } from '../../utils/TypesAndInterfaces/MvkToken'
 
 // helpers
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
-
-export const symbolsAfterDecimalPoint = (nums: number) => {
-  return Number(nums.toFixed(2))
-}
+import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
 
 export function normalizeDoormanStorage(storage: DoormanGraphQl) {
   const totalStakedMvk = storage?.stake_accounts_aggregate?.aggregate?.sum?.smvk_balance ?? 0
