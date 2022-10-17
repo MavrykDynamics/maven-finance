@@ -116,7 +116,7 @@ export const DataFeeds = () => {
     <Page>
       <PageHeader page={'data-feeds'} />
       <SatelliteSearchFilter dataFeeds>
-        <DropdownContainer className="dropDown">
+        {/* <DropdownContainer className="dropDown">
           <h4>Category:</h4>
           <DropDown
             clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
@@ -131,7 +131,7 @@ export const DataFeeds = () => {
               handleSelect(chosenItem)
             }}
           />
-        </DropdownContainer>
+        </DropdownContainer> */}
         <Input
           type="text"
           kind={'search'}
