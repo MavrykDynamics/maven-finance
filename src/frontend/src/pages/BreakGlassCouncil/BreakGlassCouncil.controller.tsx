@@ -1,7 +1,8 @@
 import React, { FC, useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 // components
 import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
@@ -48,9 +49,16 @@ import {
   getBreakGlassCouncilMember,
 } from './BreakGlassCouncil.actions'
 
+const queryParameters = {
+  pathname: '/break-glass-council',
+  review: '/review',
+}
+
 export const BreakGlassCouncil: FC = () => {
   const dispatch = useDispatch()
-  const { search } = useLocation()
+  const history = useHistory()
+  const { search, pathname } = useLocation()
+
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
     breakGlassCouncilMember,
@@ -74,16 +82,24 @@ export const BreakGlassCouncil: FC = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
 
-  const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
-  const [isPendingSignature, setIsPendingSignature] = useState(true)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
-  const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
-  const displayPendingSignature = Boolean(
-    isPendingSignature && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
-  )
 
   const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
+  const { review: isReviewPage } = useParams<{ review: string }>()
+
+  const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
+  const displayPendingSignature = Boolean(
+    !isReviewPage && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
+  )
+
+  const handleClickReview = () => {
+    history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+  }
+
+  const handleClickGoBack = () => {
+    history.replace(queryParameters.pathname)
+  }
 
   const handleOpenleModal = () => {
     setIsUpdateCouncilMemberInfo(true)
@@ -101,7 +117,7 @@ export const BreakGlassCouncil: FC = () => {
 
   const currentPage = getPageNumber(
     search,
-    isGoBack ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
+    isReviewPage ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
 
   const paginatedMyPastCouncilActions = useMemo(() => {
@@ -130,25 +146,28 @@ export const BreakGlassCouncil: FC = () => {
   }, [dispatch, accountPkh])
 
   useEffect(() => {
-    setIsGoBack(isUserInBreakCouncilMember ? false : true)
-  }, [isUserInBreakCouncilMember])
+    // redirect to review or main page when member changes
+    history.replace(isUserInBreakCouncilMember ? queryParameters.pathname : `${queryParameters.pathname}${queryParameters.review}`)
+  }, [history, isUserInBreakCouncilMember])
+
+  useEffect(() => {
+    // check authorization when clicking on a review or a header in the menu
+    if (!isUserInBreakCouncilMember) {
+      history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+    }
+  }, [history, isUserInBreakCouncilMember, pathname])
 
   return (
     <Page>
       <PageHeader page={'break glass council'} />
-      {isGoBack && isUserInBreakCouncilMember && (
-        <GoBack
-          onClick={() => {
-            setIsPendingSignature(true)
-            setIsGoBack(false)
-          }}
-        >
+      {isReviewPage && isUserInBreakCouncilMember && (
+        <GoBack onClick={handleClickGoBack}>
           <Icon id="arrow-left-stroke" />
           Back to Member Dashboard
         </GoBack>
       )}
 
-      {isUserInBreakCouncilMember && !isGoBack && (
+      {isUserInBreakCouncilMember && !isReviewPage && (
         <PropagateBreakGlassCouncilCard>
           <h1>Propagate Break Glass</h1>
 
@@ -171,6 +190,7 @@ export const BreakGlassCouncil: FC = () => {
               <div className="pending-items">
                 <Carousel itemLength={breakGlassActionPendingMySignature.length} key={sliderKey}>
                   {breakGlassActionPendingMySignature.map((item) => (
+                    // @ts-ignore
                     <BreakGlassCouncilPanding
                       {...item}
                       key={item.id}
@@ -183,7 +203,7 @@ export const BreakGlassCouncil: FC = () => {
             </article>
           )}
 
-          {isGoBack ? (
+          {isReviewPage ? (
             <>
               {Boolean(pastBreakGlassCouncilAction.length) && (
                 <>
@@ -252,18 +272,11 @@ export const BreakGlassCouncil: FC = () => {
         </div>
 
         <div className="right-block">
-          {!isGoBack && (
+          {!isReviewPage && (
             <ReviewPastCouncilActionsCard displayPendingSignature={displayPendingSignature}>
               <h2>Review Past Council Actions</h2>
 
-              <Button
-                text="Review"
-                kind={ACTION_SECONDARY}
-                onClick={() => {
-                  setIsGoBack(true)
-                  setIsPendingSignature(false)
-                }}
-              />
+              <Button text="Review" kind={ACTION_SECONDARY} onClick={handleClickReview} />
             </ReviewPastCouncilActionsCard>
           )}
 

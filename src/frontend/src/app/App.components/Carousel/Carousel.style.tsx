@@ -13,7 +13,26 @@ export const CarouselStyle = styled.div`
     line-height: 21px;
     color: ${headerColor};
     right: 16px;
-    top: -50px;
+    top: -54px;
+  }
+
+  .gradient-left, 
+  .gradient-right {
+    position: absolute;
+    bottom: -20px;
+    height: 240px;
+    width: 30px;
+    z-index: 1;
+  }
+
+  .gradient-left {
+    background: linear-gradient(271.16deg, #080628 3.98%, rgba(8, 6, 40, 0) 108.12%);
+    transform: matrix(-1, 0, 0, 1, 0, 0);
+  }
+
+  .gradient-right {
+    right: 0;
+    background: linear-gradient(271.16deg, #080628 3.98%, rgba(8, 6, 40, 0) 108.12%);
   }
 `
 

@@ -36,7 +36,12 @@ import {
   UserSatelliteRewardsData,
 } from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
-import { normalizeDoormanStorage, normalizeMvkToken, normalizeStakeHistoryData, normalizeSmvkHistoryData } from './Doorman.converter'
+import {
+  normalizeDoormanStorage,
+  normalizeMvkToken,
+  normalizeStakeHistoryData,
+  normalizeSmvkHistoryData,
+} from './Doorman.converter'
 import { FarmContractType } from 'utils/TypesAndInterfaces/Farm'
 import { Farm } from 'utils/generated/graphqlTypes'
 import { UserState } from 'reducers/user'

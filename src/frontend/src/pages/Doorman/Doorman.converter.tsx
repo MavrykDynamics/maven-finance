@@ -5,6 +5,10 @@ import { MvkTokenGraphQL } from '../../utils/TypesAndInterfaces/MvkToken'
 // helpers
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
 
+const symbolsAfterDecimalPoint = (nums: number) => {
+  return Number(nums.toFixed(2))
+}
+
 export function normalizeDoormanStorage(storage: DoormanGraphQl) {
   const totalStakedMvk = storage?.stake_accounts_aggregate?.aggregate?.sum?.smvk_balance ?? 0
   return {
@@ -39,7 +43,7 @@ export function normalizeStakeHistoryData(storage: StakeHistoryDataProps) {
   return stake_history_data?.length
     ? stake_history_data?.map((item) => {
         return {
-          finalAmount: item.final_amount,
+          mvk: symbolsAfterDecimalPoint(calcWithoutPrecision(item.final_amount)),
           timestamp: item.timestamp,
           type: item.type,
         }
@@ -57,7 +61,7 @@ export function normalizeSmvkHistoryData(storage: SmvkHistoryDataProps) {
   return smvk_history_data?.length
     ? smvk_history_data?.map((item) => {
         return {
-          smvkTotalSupply: item.smvk_total_supply,
+          mvk: symbolsAfterDecimalPoint(calcWithoutPrecision(item.smvk_total_supply)),
           timestamp: item.timestamp,
         }
       })
