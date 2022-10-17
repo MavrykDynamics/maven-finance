@@ -65,6 +65,11 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
   const { themeSelected } = useSelector((state: State) => state.preferences)
   const [chartStyle, setChartStyle] = useState(initialChartStyle)
 
+  // this is necessary to ensure that a large number of figures are not cut
+  const maxValue = list.length ? list.reduce((acc, curr) => acc.yAxis > curr.yAxis ? acc : curr).yAxis : 0
+  const maxValueLength = String(maxValue).length
+  const marginRight = maxValueLength > 5 ? maxValueLength * 4.5 : 5
+  
   const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
     const { label } = o
     const value = data.find((item) => item.time === label)?.uv || ''
@@ -101,7 +106,7 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
 
   return (
     <ResponsiveContainer width={chartStyle.width} height={chartStyle.height}>
-      <AreaChart className={className} data={data}>
+      <AreaChart className={className} data={data} margin={{ right: marginRight }}>
         <defs>
           <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
             <stop offset="10%" stopColor={themeColors[themeSelected].chartLinerGradientPrimary} stopOpacity={1} />

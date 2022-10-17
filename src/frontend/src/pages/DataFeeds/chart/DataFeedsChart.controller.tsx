@@ -43,42 +43,6 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isHistory = activeTab === tabsList[0].text
 
-  // TODO: test data
-  const volatilityTest = [
-    {
-      "xAxis": "2022-10-03T08:34:40+00:00",
-      "yAxis": 29970
-    },
-    {
-      "xAxis": "2022-10-03T14:20:00+00:00",
-      "yAxis": 6000
-    },
-    {
-      "xAxis": "2022-10-03T14:20:45+00:00",
-      "yAxis": 10034
-    },
-    {
-      "xAxis": "2022-10-03T14:20:45+00:00",
-      "yAxis": 4323
-    },
-    {
-      "xAxis": "2022-10-06T15:18:25+00:00",
-      "yAxis": 10000
-    },
-    {
-      "xAxis": "2022-10-07T07:50:50+00:00",
-      "yAxis": 10005
-    },
-    {
-      "xAxis": "2022-10-07T08:00:35+00:00",
-      "yAxis": 30000
-    },
-    {
-      "xAxis": "2022-10-07T08:03:10+00:00",
-      "yAxis": 30000
-    }
-  ]
-
   const handleChangeTabs = (tabId?: number) => {
     setActiveTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
   }

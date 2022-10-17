@@ -45,6 +45,9 @@ export const DATA_FEEDS_HISTORY_QUERY = `
       pct_oracle_resp
       round
       timestamp
+      aggregator {
+        decimals
+      }
     }
   }
 `

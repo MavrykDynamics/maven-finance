@@ -5,7 +5,7 @@ import { MvkTokenGraphQL } from '../../utils/TypesAndInterfaces/MvkToken'
 // helpers
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
 
-const symbolsAfterDecimalPoint = (nums: number) => {
+export const symbolsAfterDecimalPoint = (nums: number) => {
   return Number(nums.toFixed(2))
 }
 
