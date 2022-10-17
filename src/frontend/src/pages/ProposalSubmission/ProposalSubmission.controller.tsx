@@ -18,7 +18,7 @@ import { SubmittedProposalsMapper } from './ProposalSybmittion.types'
 
 // helpers
 import { DEFAULT_PROPOSAL } from './ProposalSubmition.helpers'
-import { dropProposal } from './ProposalSubmission.actions'
+import { dropProposal, lockProposal } from './ProposalSubmission.actions'
 
 export const ProposalSubmission = () => {
   const dispatch = useDispatch()
@@ -95,6 +95,10 @@ export const ProposalSubmission = () => {
     [proposalState],
   )
 
+  const handleLockProposal = (proposalId: number) => {
+    dispatch(lockProposal(proposalId))
+  }
+
   // Drop proposal on stage 2 handler
   const handleDropProposal = async (proposalId: number) => {
     if (proposalId && proposalId !== -1) await dispatch(dropProposal(proposalId))
@@ -117,7 +121,6 @@ export const ProposalSubmission = () => {
     () => proposalState[selectedUserProposalId] ?? {},
     [proposalState, selectedUserProposalId],
   )
-  const { locked = false, title = '', proposalPayments = [] } = currentProposal
 
   return (
     <Page>
@@ -144,10 +147,11 @@ export const ProposalSubmission = () => {
         )}
         {activeTab === 3 && (
           <StageThreeForm
-            locked={locked}
             proposalId={selectedUserProposalId}
-            proposalTitle={title}
-            proposalPayments={proposalPayments}
+            currentProposal={currentProposal}
+            updateLocalProposalData={updateLocalProposalData}
+            handleDropProposal={handleDropProposal}
+            handleLockProposal={handleLockProposal}
           />
         )}
       </ProposalSubmissionForm>

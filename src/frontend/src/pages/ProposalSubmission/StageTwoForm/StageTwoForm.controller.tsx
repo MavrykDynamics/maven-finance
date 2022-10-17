@@ -52,7 +52,7 @@ export const StageTwoForm = ({
     }
     setBytesValidation(
       proposalData.map(({ id, title, bytes }) => ({
-        validTitle: getBytesPairValidationStatus(title, 'validTitle', id, proposalData),
+        validTitle: proposalId !== -1 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
         validBytes: getBytesPairValidationStatus(bytes, 'validBytes', id, proposalData),
         proposalId: id,
       })),
@@ -293,7 +293,7 @@ export const StageTwoForm = ({
         <Button
           icon="close-stroke"
           className="close delete-pair"
-          text="Delete Proposal"
+          text="Drop Proposal"
           kind={ACTION_SECONDARY}
           onClick={() => handleDropProposal(proposalId)}
         />

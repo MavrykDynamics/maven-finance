@@ -191,62 +191,60 @@ export const deleteProposalDataPair =
 export const LOCK_PROPOSAL_REQUEST = 'LOCK_PROPOSAL_REQUEST'
 export const LOCK_PROPOSAL_RESULT = 'LOCK_PROPOSAL_RESULT'
 export const LOCK_PROPOSAL_ERROR = 'LOCK_PROPOSAL_ERROR'
-export const lockProposal =
-  (proposalId: number, accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
-    const state: State = getState()
+export const lockProposal = (proposalId: number) => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
 
-    if (!state.wallet.ready) {
-      await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-      return
-    }
-
-    if (state.loading) {
-      await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-      return
-    }
-
-    try {
-      await dispatch({
-        type: LOCK_PROPOSAL_REQUEST,
-        proposalId: proposalId,
-      })
-      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-      console.log('contract', contract)
-
-      const transaction = await contract?.methods.lockProposal(proposalId).send()
-      console.log('transaction', transaction)
-      await dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
-      await dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
-
-      await dispatch({
-        type: LOCK_PROPOSAL_RESULT,
-      })
-      await dispatch(getGovernanceStorage())
-      await dispatch(getDelegationStorage())
-      await dispatch(getCurrentRoundProposals())
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error)
-        dispatch(showToaster(ERROR, 'Error', error.message))
-      }
-      dispatch({
-        type: LOCK_PROPOSAL_ERROR,
-        error,
-      })
-    }
+  if (!state.wallet.ready) {
+    await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
   }
+
+  if (state.loading) {
+    await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    await dispatch({
+      type: LOCK_PROPOSAL_REQUEST,
+      proposalId: proposalId,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+    console.log('contract', contract)
+
+    const transaction = await contract?.methods.lockProposal(proposalId).send()
+    console.log('transaction', transaction)
+    await dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    await dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
+
+    await dispatch({
+      type: LOCK_PROPOSAL_RESULT,
+    })
+    await dispatch(getGovernanceStorage())
+    await dispatch(getDelegationStorage())
+    await dispatch(getCurrentRoundProposals())
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+    dispatch({
+      type: LOCK_PROPOSAL_ERROR,
+      error,
+    })
+  }
+}
 
 export const SUBMIT_FINANCIAL_DATA_REQUEST = 'SUBMIT_FINANCIAL_DATA_REQUEST'
 export const SUBMIT_FINANCIAL_DATA_RESULT = 'SUBMIT_FINANCIAL_DATA_RESULT'
 export const SUBMIT_FINANCIAL_DATA_ERROR = 'SUBMIT_FINANCIAL_DATA_ERROR'
 export const submitFinancialRequestData =
-  (proposalId: number, submitData: string[][], tokenContractAddress: string) =>
+  (proposalId: number, newProposalPayments: ProposalRecordType['proposalPayments']) =>
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
-    console.log('Got to here in submitFinancialRequestData')
 
     if (!state.wallet.ready) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
@@ -265,21 +263,21 @@ export const submitFinancialRequestData =
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       console.log('contract', contract)
 
-      const listTransactions = submitData.map((form) => {
-        const [receiverAddress, dataName, amount, tokenType] = form
+      const listTransactions = newProposalPayments.map((payment) => {
+        const { token_address, token_amount, to__id, title } = payment
 
-        if (+amount < 1) {
+        if (+token_amount < 1) {
           throw new Error('Amount must be more 0')
         }
-        if (!validateAddress(receiverAddress)) {
+        if (!to__id || !validateAddress(to__id)) {
           throw new Error('Correct the addresses')
         }
 
-        if (tokenType === 'XTZ') {
+        if (token_address.toLowerCase() === 'xtz') {
           return {
             kind: OpKind.TRANSACTION,
             ...contract?.methods
-              .updatePaymentData(proposalId, dataName, receiverAddress, +amount * 1_000_000, 'tez')
+              .updatePaymentData(proposalId, title, to__id, +token_amount * 1_000_000, 'tez')
               .toTransferParams(),
           }
         }
@@ -289,11 +287,11 @@ export const submitFinancialRequestData =
           ...contract?.methods
             .updatePaymentData(
               proposalId,
-              dataName,
-              receiverAddress,
-              +amount * 1_000_000_000,
+              title,
+              to__id,
+              +token_amount * 1_000_000_000,
               'fa2',
-              tokenContractAddress,
+              state.mvkToken.mvkTokenStorage.address,
               0,
             )
             .toTransferParams(),
@@ -385,8 +383,7 @@ export const DELETE_PAYMENT_DATA_REQUEST = 'DELETE_PAYMENT_DATA_REQUEST'
 export const DELETE_PAYMENT_DATA_RESULT = 'DELETE_PAYMENT_DATA_RESULT'
 export const DELETE_PAYMENT_DATA_ERROR = 'DELETE_PAYMENT_DATA_ERROR'
 export const deletePaymentData =
-  (proposalId: number, data: string[], tokenContractAddress: string) =>
-  async (dispatch: AppDispatch, getState: GetState) => {
+  (proposalId: number, rowId: number) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -399,37 +396,38 @@ export const deletePaymentData =
       return
     }
 
+    // TODO: do like normal crud after tristan refactoring: https://www.notion.so/Proposal-methods-7bf458ba01a743fea243018efa3f472d?d=90437a16d7fe40c2bd3f1cb67b68b869
     try {
-      await dispatch({
-        type: DELETE_PAYMENT_DATA_REQUEST,
-      })
-      const [receiverAddress, dataName, amount, tokenType] = data
-      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-      console.log('contract', contract)
+      //   await dispatch({
+      //     type: DELETE_PAYMENT_DATA_REQUEST,
+      //   })
+      //   const [receiverAddress, dataName, amount, tokenType] = data
+      //   const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+      //   console.log('contract', contract)
 
-      let transaction = null
-      if (tokenType === 'XTZ') {
-        transaction = await contract?.methods
-          .updatePaymentData(proposalId, dataName, receiverAddress, +amount * 1_000_000, 'tez')
-          .send()
-      } else {
-        transaction = await contract?.methods
-          .updatePaymentData(
-            proposalId,
-            dataName,
-            receiverAddress,
-            +amount * 1_000_000_000,
-            'fa2',
-            tokenContractAddress,
-            0,
-          )
-          .send()
-      }
+      //   let transaction = null
+      //   if (tokenType === 'XTZ') {
+      //     transaction = await contract?.methods
+      //       .updatePaymentData(proposalId, dataName, receiverAddress, +amount * 1_000_000, 'tez')
+      //       .send()
+      //   } else {
+      //     transaction = await contract?.methods
+      //       .updatePaymentData(
+      //         proposalId,
+      //         dataName,
+      //         receiverAddress,
+      //         +amount * 1_000_000_000,
+      //         'fa2',
+      //         tokenContractAddress,
+      //         0,
+      //       )
+      //       .send()
+      //   }
 
-      await dispatch(showToaster(INFO, 'Delete Payment Data...', 'Please wait 30s'))
+      //   await dispatch(showToaster(INFO, 'Delete Payment Data...', 'Please wait 30s'))
 
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      //   const done = await transaction?.confirmation()
+      // console.log('done', done)
       await dispatch(showToaster(SUCCESS, 'Delete Payment Data.', 'All good :)'))
 
       await dispatch({

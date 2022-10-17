@@ -23,6 +23,7 @@ export function normalizeDoormanStorage(storage: DoormanGraphQl) {
 
 export function normalizeMvkToken(storage: MvkTokenGraphQL | null) {
   return {
+    address: storage?.address,
     totalSupply: storage?.total_supply ? calcWithoutPrecision(storage?.total_supply) : 0,
     maximumTotalSupply: storage?.maximum_supply ? calcWithoutPrecision(storage?.maximum_supply) : 0,
   }
@@ -37,12 +38,12 @@ export function normalizeStakeHistoryData(storage: StakeHistoryDataProps) {
 
   return stake_history_data?.length
     ? stake_history_data?.map((item) => {
-      return {
-        finalAmount: item.final_amount,
-        timestamp: item.timestamp,
-        type: item.type,
-      }
-    })
+        return {
+          finalAmount: item.final_amount,
+          timestamp: item.timestamp,
+          type: item.type,
+        }
+      })
     : []
 }
 
@@ -55,10 +56,10 @@ export function normalizeSmvkHistoryData(storage: SmvkHistoryDataProps) {
 
   return smvk_history_data?.length
     ? smvk_history_data?.map((item) => {
-      return {
-        smvkTotalSupply: item.smvk_total_supply,
-        timestamp: item.timestamp,
-      }
-    })
+        return {
+          smvkTotalSupply: item.smvk_total_supply,
+          timestamp: item.timestamp,
+        }
+      })
     : []
 }

@@ -220,6 +220,17 @@ export const FormTableGrid = styled.div`
   &.disabled {
     pointer-events: none;
   }
+
+  .input-cell {
+    padding: 0;
+
+    .submit-proposal-stage-3 {
+      input {
+        border: none;
+        width: 84%;
+      }
+    }
+  }
 `
 
 export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
