@@ -2,6 +2,7 @@ import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Inp
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 import { ValidSubmitProposalForm, SubmitProposalFormInputStatus } from 'utils/TypesAndInterfaces/Forms'
 import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
+import { StageThreeValidityItem } from './ProposalSybmittion.types'
 
 export const checkWtheterBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
   return proposalData.every(({ bytes, title }) => Boolean(bytes) && Boolean(title))
@@ -20,6 +21,21 @@ export const getBytesPairValidationStatus = (
   } else {
     return Boolean(newText) ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR
   }
+}
+
+export const getValidityStageThreeTable = (valueName: StageThreeValidityItem, value: string | number): boolean => {
+  switch (valueName) {
+    case 'token_amount':
+      if (Number(value) < 0) return false
+      break
+    case 'to__id':
+      if (!value) return false
+      break
+    case 'title':
+      if (!value) return false
+      break
+  }
+  return true
 }
 
 export const PROPOSAL_BYTE = {
@@ -83,3 +99,8 @@ export const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
   invoiceTable: 'success',
   sourceCode: '',
 }
+
+export const PAYMENTS_TYPES = ['XTZ', 'MVK']
+export const INIT_TABLE_HEADERS = ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)', '-', '-']
+export const INIT_TABLE_DATA = [INIT_TABLE_HEADERS, ['', '', '', PAYMENTS_TYPES[0], '-', '-']]
+export const MAX_ROWS = 10

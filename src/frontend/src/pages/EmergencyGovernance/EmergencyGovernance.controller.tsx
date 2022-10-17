@@ -13,13 +13,10 @@ import { proposalRoundVote, votingRoundVote } from '../Governance/Governance.act
 
 export const EmergencyGovernance = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
-  const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
-  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-
-  const emergencyGovernanceLedger = emergencyGovernanceStorage?.emergencyGovernanceLedger
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { emergencyGovernanceLedger } = useSelector(
+    (state: State) => state.emergencyGovernance.emergencyGovernanceStorage,
+  )
 
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
@@ -35,9 +32,7 @@ export const EmergencyGovernance = () => {
       <EmergencyGovProposalModal />
       <PageHeader page={'emergency governance'} />
       <EmergencyGovernanceView
-        ready={ready}
         handleTriggerEmergencyProposal={handleTriggerEmergencyProposal}
-        loading={loading}
         accountPkh={accountPkh}
         emergencyGovernanceLedger={emergencyGovernanceLedger}
       />

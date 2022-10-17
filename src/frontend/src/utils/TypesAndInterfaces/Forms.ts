@@ -9,7 +9,6 @@ import { InputStatusType } from 'app/App.components/Input/Input.constants'
 export type AllValidFormTypes =
   | ValidSubmitProposalForm
   | ValidProposalUpdateForm
-  | ValidFinancialRequestForm
   | ValidRegisterAsSatelliteForm
   | ValidEmergencyGovernanceProposalForm
   | ValidStakeUnstakeForm
@@ -56,18 +55,16 @@ export type ProposalUpdateFormInputStatus = {
 }
 
 export type ProposalFinancialRequestForm = {
-  title: string
   financialData: {
     jsonString: string
   }
 }
-export type ValidFinancialRequestForm = {
-  financialData: boolean | undefined
-}
 
-export type ProposalFinancialRequestInputStatus = {
-  financialData: InputStatusType
-}
+export type SubmitProposalStageThreeValidation = Array<{
+  token_amount: InputStatusType
+  to__id: InputStatusType
+  title: InputStatusType
+}>
 
 export type RegisterAsSatelliteForm = {
   name: string

@@ -1,16 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react'
-/* @ts-ignore */
-import Time from 'react-pure-time'
+import { useMemo, useState } from 'react'
 
 // actions, consts
-import { getTimestampByLevel } from '../Governance/Governance.actions'
 import {
   calculateSlicePositions,
   EMERGENCY_GOVERNANCE_LIST_NAME,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
-import type { EmergencyGovernanceStorage } from '../../utils/TypesAndInterfaces/EmergencyGovernance'
+import type {
+  EmergencyGovernanceStorage,
+  EmergergencyGovernanceItem,
+} from '../../utils/TypesAndInterfaces/EmergencyGovernance'
 
 // components
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -28,40 +28,49 @@ import {
   EmergencyGovernHistory,
 } from './EmergencyGovernance.style'
 
-import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from '../Governance/Governance.controller'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { useLocation } from 'react-router'
 
 type Props = {
-  ready: boolean
-  loading: boolean
   accountPkh?: string
   handleTriggerEmergencyProposal: () => void
   emergencyGovernanceLedger: EmergencyGovernanceStorage['emergencyGovernanceLedger']
 }
 
 export const EmergencyGovernanceView = ({
-  ready,
-  loading,
   accountPkh,
   handleTriggerEmergencyProposal,
   emergencyGovernanceLedger,
 }: Props) => {
-  const [votingEnding, setVotingEnding] = useState<string>('')
+  const { historyItems, activeItems } = useMemo(
+    () =>
+      emergencyGovernanceLedger.reduce<{
+        historyItems: Array<EmergergencyGovernanceItem>
+        activeItems: Array<EmergergencyGovernanceItem>
+      }>(
+        (acc, eGovItem) => {
+          const isExecutedDateTime = new Date(eGovItem.expirationTimestamp).getTime() < Date.now()
+          if (isExecutedDateTime || eGovItem.executed || eGovItem.dropped) {
+            acc.historyItems.push(eGovItem)
+          } else {
+            acc.activeItems.push(eGovItem)
+          }
+          return acc
+        },
+        { historyItems: [], activeItems: [] },
+      ),
+    [emergencyGovernanceLedger],
+  )
 
-  const timeNow = Date.now()
-  const votingTime = new Date(votingEnding).getTime()
-  const isEndedVotingTime = votingTime < timeNow
-
-  const { pathname, search } = useLocation()
+  const { search } = useLocation()
   const currentPage = getPageNumber(search, EMERGENCY_GOVERNANCE_LIST_NAME)
 
-  const paginatedItemsList = useMemo(() => {
+  const paginatedItemsListHistory = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, EMERGENCY_GOVERNANCE_LIST_NAME)
-    return emergencyGovernanceLedger.slice(from, to)
-  }, [currentPage, emergencyGovernanceLedger])
+    return historyItems.slice(from, to)
+  }, [currentPage, historyItems])
 
   return (
     <>
@@ -112,8 +121,17 @@ export const EmergencyGovernanceView = ({
       </EmergencyGovernanceCard>
 
       <EmergencyGovernHistory>
+        <h1>Emergency Governance Active Proposals</h1>
+        {activeItems.map((emergencyGovernance) => {
+          return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
+        })}
+
+        <Pagination itemsCount={emergencyGovernanceLedger.length} listName={EMERGENCY_GOVERNANCE_LIST_NAME} />
+      </EmergencyGovernHistory>
+
+      <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
-        {paginatedItemsList.map((emergencyGovernance, index) => {
+        {paginatedItemsListHistory.map((emergencyGovernance) => {
           return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
         })}
 
