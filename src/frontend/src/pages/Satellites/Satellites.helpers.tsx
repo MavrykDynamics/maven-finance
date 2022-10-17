@@ -206,3 +206,9 @@ export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
       })
     : []
 }
+
+export const percentageDifference = (a: number, b: number): number => {
+  const twoNumberDifference = ((a / b) - 1) * 100
+
+  return Number(twoNumberDifference.toFixed(2))
+}

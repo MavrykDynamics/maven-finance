@@ -12,6 +12,12 @@ import { ChartCard, ChartSlidingTabButtons } from './DataFeedsChart.style'
 // actions
 import { getDataFeedsHistory } from '../../Satellites/Satellites.actions'
 
+// types
+import { DataFeedsHistory } from 'pages/Satellites/helpers/Satellites.types'
+
+// helpers
+import { percentageDifference } from '../../Satellites/Satellites.helpers'
+
 type Props = {
   className?: string
 }
@@ -33,11 +39,12 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
   const dispatch = useDispatch()
   const { dataFeedsHistory } = useSelector((state: State) => state.oracles)
 
+  const [dataFeedsVolatility, setDataFeedsVolatility] = useState<DataFeedsHistory>([])
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isHistory = activeTab === tabsList[0].text
 
   // TODO: test data
-  const volatility = [
+  const volatilityTest = [
     {
       "xAxis": "2022-10-03T08:34:40+00:00",
       "yAxis": 29970
@@ -77,9 +84,27 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
   }
 
   const tickFormater = (value: string | number): string =>  {
-    return `$${value}`
+    return isHistory ? `$${value}` : `${value}%`
   }
 
+  // get volatility
+  useEffect(() => {
+    if (dataFeedsHistory.length >= 2) {
+      let volatilityList: DataFeedsHistory = [];
+  
+      for (let i = 1; i < dataFeedsHistory.length; i++) {
+        const yAxis = percentageDifference(dataFeedsHistory[i].yAxis, dataFeedsHistory[i - 1].yAxis)
+    
+        volatilityList.push({
+          xAxis: dataFeedsHistory[i].xAxis,
+          yAxis,
+        })
+      }
+    
+      setDataFeedsVolatility(volatilityList)
+    }
+  }, [dataFeedsHistory])
+  
   useEffect(() => {
     dispatch(getDataFeedsHistory())
   }, [dispatch])
@@ -91,7 +116,7 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
     </ChartSlidingTabButtons>
 
     <Chart
-      list={isHistory ? dataFeedsHistory : volatility}
+      list={isHistory ? dataFeedsHistory : dataFeedsVolatility}
       style={{
         width: '100%',
         height: 300,
