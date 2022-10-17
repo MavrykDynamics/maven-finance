@@ -13,7 +13,6 @@ export const EGovHistoryCardStyled = styled(CardHover)`
   overflow: hidden;
 `
 export const EGovHistoryCardTopSection = styled.div<{
-  height: number
   theme: MavrykTheme
 }>`
   width: 100%;
@@ -21,6 +20,26 @@ export const EGovHistoryCardTopSection = styled.div<{
   grid-template-columns: 180px 260px 150px auto 130px;
   padding: 20px 40px;
   padding-right: 26px;
+
+  &.show {
+    display: block;
+    padding-bottom: 0;
+  }
+
+  .expanded-top {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+
+    .arrow-btn {
+      margin-left: auto;
+      margin-right: 20px;
+    }
+
+    .statusFlag {
+      margin: 0;
+    }
+  }
 `
 
 export const EGovHistoryArrowButton = styled.div<{ theme: MavrykTheme }>`
@@ -77,7 +96,6 @@ export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const EGovHistoryCardDropDown = styled.div<{
-  height: number
   theme: MavrykTheme
 }>`
   width: 100%;
@@ -93,12 +111,25 @@ export const EGovHistoryCardDropDown = styled.div<{
   overflow: hidden;
   position: relative;
 
-  h3 {
-    margin: 0;
-    font-weight: 700;
-    font-size: 14px;
-    line-height: 14px;
-    color: ${({ theme }) => theme.headerColor};
+  .left {
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+
+    .voting-end {
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 21px;
+      color: ${({ theme }) => theme.navTitleColor};
+    }
+
+    .drop {
+      max-width: 200px;
+    }
+
+    p {
+      margin: 0;
+    }
   }
 
   ul {
@@ -114,17 +145,8 @@ export const EGovHistoryCardDropDown = styled.div<{
     list-style: none;
   }
 
-  &::before {
-    content: '';
-    position: absolute;
-    border-top: 1px solid ${royalPurpleColor};
-    width: 100%;
-    left: 0;
-    top: 1px;
-  }
-
   .accordion {
-    padding: 20px 40px;
+    padding: 5px 40px 20px 40px;
     text-align: left;
     width: 100%;
     display: grid;
@@ -145,8 +167,9 @@ export const EGovHistoryCardDropDown = styled.div<{
   }
 
   &.show {
-    height: ${({ height }) => height}px;
+    height: fit-content;
   }
+
   &.hide {
     height: 0; /* changed */
   }
