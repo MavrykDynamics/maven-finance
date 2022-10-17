@@ -1008,7 +1008,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
 
 (*  onVaultDepositStakedMvk lambda *)
-function lambdaOnVaultDepositStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaOnVaultDepositStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
     
     checkOnVaultDepositStakedMvkIsNotPaused(s);
@@ -1078,7 +1078,7 @@ block{
 
 
 (*  onVaultWithdrawStakedMvk lambda *)
-function lambdaOnVaultWithdrawStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaOnVaultWithdrawStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
     
     checkOnVaultWithdrawStakedMvkIsNotPaused(s);
@@ -1142,7 +1142,7 @@ block{
 
 
 (*  onVaultLiquidateStakedMvk lambda *)
-function lambdaOnVaultLiquidateStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaOnVaultLiquidateStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
     
     checkOnVaultLiquidateStakedMvkIsNotPaused(s);
@@ -1170,7 +1170,7 @@ block{
                 // find vault record in stake balance ledger
                 var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
                         Some(_val)  -> _val
-                    |    None       -> failwith(error_VAULT_STAKE_RECORD_NOT_FOUND)
+                    |   None        -> failwith(error_VAULT_STAKE_RECORD_NOT_FOUND)
                 ];
 
                 // find or create liquidator record in stake balance ledger 
@@ -1199,8 +1199,8 @@ block{
                 s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const liquidatorOnStakeChangeOperation  : operation = Tezos.transaction((liquidator)  , 0tez, delegationOnStakeChange(delegationAddress));
-                const vaultOnStakeChangeOperation       : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
+                const liquidatorOnStakeChangeOperation    : operation = Tezos.transaction((liquidator)  , 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation         : operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
 
                 operations  := list [liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
