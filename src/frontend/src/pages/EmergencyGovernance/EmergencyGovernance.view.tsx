@@ -3,7 +3,8 @@ import { useMemo, useState } from 'react'
 // actions, consts
 import {
   calculateSlicePositions,
-  EMERGENCY_GOVERNANCE_LIST_NAME,
+  EMERGENCY_GOVERNANCE_ACTIVE_LIST_NAME,
+  EMERGENCY_GOVERNANCE_HISTORY_LIST_NAME,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
@@ -19,7 +20,7 @@ import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants
 import { Button } from '../../app/App.components/Button/Button.controller'
 import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
 import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
-import { EGovHistoryCard } from './EGovHistoryCard/EGovHistoryCard.controller'
+import { EGovHistoryCard } from './EGovCard/EGovCard.controller'
 import {
   CardContent,
   CardContentLeftSide,
@@ -51,7 +52,7 @@ export const EmergencyGovernanceView = ({
         activeItems: Array<EmergergencyGovernanceItem>
       }>(
         (acc, eGovItem) => {
-          const isExecutedDateTime = new Date(eGovItem.expirationTimestamp).getTime() < Date.now()
+          const isExecutedDateTime = eGovItem.expirationTimestamp < Date.now()
           if (isExecutedDateTime || eGovItem.executed || eGovItem.dropped) {
             acc.historyItems.push(eGovItem)
           } else {
@@ -65,12 +66,18 @@ export const EmergencyGovernanceView = ({
   )
 
   const { search } = useLocation()
-  const currentPage = getPageNumber(search, EMERGENCY_GOVERNANCE_LIST_NAME)
+  const currentPageHistory = getPageNumber(search, EMERGENCY_GOVERNANCE_HISTORY_LIST_NAME)
+  const currentPageActive = getPageNumber(search, EMERGENCY_GOVERNANCE_ACTIVE_LIST_NAME)
 
   const paginatedItemsListHistory = useMemo(() => {
-    const [from, to] = calculateSlicePositions(currentPage, EMERGENCY_GOVERNANCE_LIST_NAME)
+    const [from, to] = calculateSlicePositions(currentPageHistory, EMERGENCY_GOVERNANCE_HISTORY_LIST_NAME)
     return historyItems.slice(from, to)
-  }, [currentPage, historyItems])
+  }, [currentPageHistory, historyItems])
+
+  const paginatedItemsListActive = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPageActive, EMERGENCY_GOVERNANCE_ACTIVE_LIST_NAME)
+    return activeItems.slice(from, to)
+  }, [currentPageActive, historyItems])
 
   return (
     <>
@@ -120,14 +127,16 @@ export const EmergencyGovernanceView = ({
         </CardContent>
       </EmergencyGovernanceCard>
 
-      <EmergencyGovernHistory>
-        <h1>Emergency Governance Active Proposals</h1>
-        {activeItems.map((emergencyGovernance) => {
-          return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
-        })}
+      {activeItems.length ? (
+        <EmergencyGovernHistory>
+          <h1>Emergency Governance Active Proposals</h1>
+          {paginatedItemsListActive.map((emergencyGovernance) => {
+            return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
+          })}
 
-        <Pagination itemsCount={emergencyGovernanceLedger.length} listName={EMERGENCY_GOVERNANCE_LIST_NAME} />
-      </EmergencyGovernHistory>
+          <Pagination itemsCount={activeItems.length} listName={EMERGENCY_GOVERNANCE_ACTIVE_LIST_NAME} />
+        </EmergencyGovernHistory>
+      ) : null}
 
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
@@ -135,7 +144,7 @@ export const EmergencyGovernanceView = ({
           return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
         })}
 
-        <Pagination itemsCount={emergencyGovernanceLedger.length} listName={EMERGENCY_GOVERNANCE_LIST_NAME} />
+        <Pagination itemsCount={historyItems.length} listName={EMERGENCY_GOVERNANCE_HISTORY_LIST_NAME} />
       </EmergencyGovernHistory>
     </>
   )
