@@ -88,7 +88,11 @@ export const StageThreeForm = ({
 
   // set up validity state for new proposal, on proposal change and add new row for proposal, if there are no rows in proposal
   useEffect(() => {
-    if (proposalPayments.length === 0) handleAddRow()
+    if (proposalPayments.length === 0) {
+      handleAddRow()
+      handleAddRow()
+    }
+
     setValidForm(
       proposalPayments.map(({ token_amount, title, to__id }) => ({
         token_amount: getValidityStageThreeTable('token_amount', token_amount) ? 'success' : 'error',
@@ -215,9 +219,14 @@ export const StageThreeForm = ({
         <TableGridWrap>
           <div className="table-wrap">
             <table>
+              <tr key="row-names">
+                <td key="row-names-address">Address</td>
+                <td key="row-names-purpose">Purpose</td>
+                <td key="row-names-amount">Amount</td>
+                <td key="row-names-asset">Payment Type (XTZ/MVK)</td>
+              </tr>
               {proposalPayments.map((rowItems, i) => {
                 const isLocal = rowItems.id < 0,
-                  isFirstRow = i === 0,
                   validationObj = validForm[i],
                   paymentTypeSymbol =
                     // TODO: temp slution cuz of saved wrong elements on back, also ask sam, cuz i can't find here xtz address
@@ -226,94 +235,83 @@ export const StageThreeForm = ({
 
                 return (
                   <tr key={i}>
-                    {isFirstRow ? (
-                      <>
-                        <td key={`${i}-address`}>Address</td>
-                        <td key={`${i}-purpose`}>Purpose</td>
-                        <td key={`${i}-amount`}>Amount</td>
-                        <td key={`${i}-asset`}>Payment Type (XTZ/MVK)</td>
-                      </>
-                    ) : (
-                      <>
-                        <td key={`${i}-address`} className="input-cell">
-                          <Input
-                            onFocus={() => setOpenDrop('')}
-                            value={rowItems.to__id ?? ''}
-                            type={'text'}
-                            name="to__id"
-                            disabled={disabledInputs}
-                            inputStatus={validationObj?.to__id}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
-                            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
-                            className="submit-proposal-stage-3"
-                          />
-                        </td>
-                        <td key={`${i}-purpose`} className="input-cell">
-                          <Input
-                            onFocus={() => setOpenDrop('')}
-                            value={rowItems.title}
-                            type={'text'}
-                            name="title"
-                            disabled={!isLocal || disabledInputs}
-                            inputStatus={validationObj?.title}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
-                            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
-                            className="submit-proposal-stage-3"
-                          />
-                        </td>
-                        <td key={`${i}-amount`} className="input-cell">
-                          <Input
-                            onFocus={() => setOpenDrop('')}
-                            value={rowItems.token_amount}
-                            type={'number'}
-                            name="token_amount"
-                            disabled={disabledInputs}
-                            inputStatus={validationObj?.token_amount}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
-                            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
-                            className="submit-proposal-stage-3"
-                          />
-                        </td>
-                        <td key={`${i}-asset`}>
-                          <div className="table-drop">
-                            <button onClick={() => handleToggleDrop(i)} className="table-drop-btn-cur">
-                              {paymentType === 'FA2' ? 'MVK' : paymentType}
-                            </button>
-                            {openDrop === `${i}-asset` && (
-                              <DropDownListContainer>
-                                <DropDownList>
-                                  {PAYMENTS_TYPES.map((symbol) => (
-                                    <DropDownListItem
-                                      onClick={() =>
-                                        handleChange(
-                                          {
-                                            target: { name: 'token_address', value: symbol },
-                                          },
-                                          i,
-                                        )
-                                      }
-                                      key={symbol}
-                                    >
-                                      {symbol} {paymentType === symbol ? <Icon id="check-stroke" /> : null}
-                                    </DropDownListItem>
-                                  ))}
-                                </DropDownList>
-                              </DropDownListContainer>
-                            )}
-                          </div>
+                    <td key={`${i}-address`} className="input-cell">
+                      <Input
+                        onFocus={() => setOpenDrop('')}
+                        value={rowItems.to__id ?? ''}
+                        type={'text'}
+                        name="to__id"
+                        disabled={disabledInputs}
+                        inputStatus={validationObj?.to__id}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        className="submit-proposal-stage-3"
+                      />
+                    </td>
+                    <td key={`${i}-purpose`} className="input-cell">
+                      <Input
+                        onFocus={() => setOpenDrop('')}
+                        value={rowItems.title}
+                        type={'text'}
+                        name="title"
+                        disabled={!isLocal || disabledInputs}
+                        inputStatus={validationObj?.title}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        className="submit-proposal-stage-3"
+                      />
+                    </td>
+                    <td key={`${i}-amount`} className="input-cell">
+                      <Input
+                        onFocus={() => setOpenDrop('')}
+                        value={rowItems.token_amount}
+                        type={'number'}
+                        name="token_amount"
+                        disabled={disabledInputs}
+                        inputStatus={validationObj?.token_amount}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        className="submit-proposal-stage-3"
+                      />
+                    </td>
+                    <td key={`${i}-asset`}>
+                      <div className="table-drop">
+                        <button onClick={() => handleToggleDrop(i)} className="table-drop-btn-cur">
+                          {paymentType === 'FA2' ? 'MVK' : paymentType}
+                        </button>
+                        {openDrop === `${i}-asset` && (
+                          <DropDownListContainer>
+                            <DropDownList>
+                              {PAYMENTS_TYPES.map((symbol) => (
+                                <DropDownListItem
+                                  onClick={() =>
+                                    handleChange(
+                                      {
+                                        target: { name: 'token_address', value: symbol },
+                                      },
+                                      i,
+                                    )
+                                  }
+                                  key={symbol}
+                                >
+                                  {symbol} {paymentType === symbol ? <Icon id="check-stroke" /> : null}
+                                </DropDownListItem>
+                              ))}
+                            </DropDownList>
+                          </DropDownListContainer>
+                        )}
+                      </div>
 
-                          {proposalPayments.length > 2 ? (
-                            <div className="delete-button-wrap">
-                              <StyledTooltip placement="top" title="Delete row">
-                                <button onClick={() => handleDeleteRow(i)} className="delete-button">
-                                  <Icon id="delete" />
-                                </button>
-                              </StyledTooltip>
-                            </div>
-                          ) : null}
-                        </td>
-                      </>
-                    )}
+                      {proposalPayments.length > 2 ? (
+                        <div className="delete-button-wrap">
+                          <StyledTooltip placement="top" title="Delete row">
+                            <button onClick={() => handleDeleteRow(i)} className="delete-button">
+                              <Icon id="delete" />
+                            </button>
+                          </StyledTooltip>
+                        </div>
+                      ) : null}
+                    </td>
                   </tr>
                 )
               })}
