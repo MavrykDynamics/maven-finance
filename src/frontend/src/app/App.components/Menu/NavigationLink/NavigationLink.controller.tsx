@@ -19,7 +19,7 @@ import {
 } from './NavigationLink.style'
 
 // costants
-import { isSubLinkShown } from './NavigationLink.constants'
+import { checkIfLinkSelected, isSubLinkShown } from './NavigationLink.constants'
 
 // view
 import Icon from 'app/App.components/Icon/Icon.view'
@@ -48,21 +48,21 @@ export const NavigationLink = ({
   id,
   path,
   icon,
-  subPages,
+  subPages = [],
   selectedMainLink,
   isMobMenuExpanded,
   accountPkh,
 }: NavigationLinkProps) => {
-  const location = useLocation()
+  const { pathname } = useLocation()
   const {
     delegationStorage: { satelliteLedger },
   } = useSelector((state: State) => state.delegation)
   const [showSubPages, setShowSubPages] = useState<boolean>(false)
 
   const isMainLinkDisabled = useMemo(() => {
-    const paths = [path].concat(subPages?.map(({ subPath }) => subPath) || [])
-    return paths.find((path) => Boolean(matchPath(location.pathname, { path: `/${path}`, exact: true, strict: true })))
-  }, [location.pathname])
+    const paths = subPages.reduce((acc, { routeSubPath }) => acc.concat(routeSubPath), [`/${path}`])
+    return paths.find((path) => matchPath(pathname, { path, exact: true, strict: true }))
+  }, [pathname])
 
   useEffect(() => {
     setShowSubPages(id === selectedMainLink)
@@ -104,9 +104,7 @@ export const NavigationLink = ({
           <div {...getCollapseProps()}>
             <NavigationSubLinks className="content">
               {subPages.map((subNavLink: SubNavigationRoute) => {
-                const selectedSubLink = Boolean(
-                  matchPath(location.pathname, { path: subNavLink.routeSubPath, exact: true, strict: true }),
-                )
+                const selectedSubLink = checkIfLinkSelected(pathname, subNavLink.routeSubPath)
                 const showSublink = isSubLinkShown(subNavLink, satelliteLedger, accountPkh)
 
                 return showSublink ? (
