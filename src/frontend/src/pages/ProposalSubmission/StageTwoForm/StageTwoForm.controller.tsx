@@ -57,7 +57,7 @@ export const StageTwoForm = ({
         proposalId: id,
       })),
     )
-  }, [proposalId])
+  }, [proposalId, proposalData])
 
   const [isBytesChanged, setBytesChanged] = useState<boolean>(false)
 
