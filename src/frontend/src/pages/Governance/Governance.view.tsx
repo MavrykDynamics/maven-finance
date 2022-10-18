@@ -60,7 +60,6 @@ type GovernanceViewProps = {
   userIsSatellite: boolean
   handleExecuteProposal: (arg: number) => void
   timeLeftInPhase: Date | number
-  setIsTimelineVisible: (arg: boolean) => void
 }
 
 const emptyContainer = (
@@ -81,7 +80,6 @@ export const GovernanceView = ({
   timeLeftInPhase,
   handleExecuteProposal,
   waitingForPaymentToBeProcessed,
-  setIsTimelineVisible,
 }: GovernanceViewProps) => {
   const dispatch = useDispatch()
   const { pathname } = useLocation()
@@ -237,12 +235,10 @@ export const GovernanceView = ({
   }, [rightSideContent?.currentCycleEndLevel])
 
   useEffect(() => {
-    setIsTimelineVisible(someVisible)
-
     if (!someVisible) {
       setRightSideContent(undefined)
     }
-  }, [setIsTimelineVisible, someVisible])
+  }, [someVisible])
 
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < Date.now()
