@@ -114,7 +114,7 @@ export const ProposalSubmission = () => {
     )
   }, [mappedProposals])
 
-  // TODO: remove log
+  // TODO: remove log, need it while Tristan won't update backEnd side of saving proposals
   console.log('proposalState parent el:', proposalState, selectedUserProposalId)
 
   const currentProposal = useMemo(

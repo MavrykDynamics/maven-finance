@@ -15,7 +15,7 @@ import { TextArea } from '../../../app/App.components/TextArea/TextArea.controll
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { checkWtheterBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
+import { checkWhetherBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
 import { updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
@@ -87,17 +87,6 @@ export const StageTwoForm = ({
     }
   }
 
-  // TODO: remove it later if no need
-  // const prepareToUpdate = form.proposalBytes.filter((item) => {
-  //   const findedInProposalData = proposalData.find((data) => data.id === item.id)
-  //   return findedInProposalData?.title === item.title && findedInProposalData?.bytes === item.bytes ? null : item
-  // })
-
-  // TODO: remove it later if no need
-  // const handleUpdateProposal = async () => {
-  //   await dispatch(updateProposal({ title: form.title, proposalBytes: prepareToUpdate }, proposalId, clearState))
-  // }
-
   // adding new empty bytes pair
   const handleCreateNewByte = () => {
     updateLocalProposalData(
@@ -136,7 +125,7 @@ export const StageTwoForm = ({
 
   // submit btn is disabled if no changes in bytes or if something is changed, but it doesn't pass the validation
   const submitBytesButtonDisabled = useMemo(() => {
-    return !isBytesChanged || (isBytesChanged && !checkWtheterBytesIsValid(proposalData))
+    return !isBytesChanged || (isBytesChanged && !checkWhetherBytesIsValid(proposalData)) || proposalData.length === 0
   }, [proposalData, isBytesChanged])
 
   // Drag & drop variables and event handlers
@@ -198,7 +187,7 @@ export const StageTwoForm = ({
     setdndBytes(
       dndBytes.map((byte) => ({
         ...byte,
-        ...(bytePairId === byte.id ? { isUnderTheDrop: true } : {}),
+        ...(bytePairId === byte.id && byte.id !== DnDSelectedProposal?.id ? { isUnderTheDrop: true } : {}),
       })),
     )
   }
@@ -245,10 +234,9 @@ export const StageTwoForm = ({
               onDragOver={(e) => dragOverHandler(e, item.id)}
               onDrop={(e) => dropHandler(e, item)}
             >
+              <div className="idx">{i + 1}</div>
               <div className="step-bytes-title">
-                <label>
-                  <span>{i + 4}a</span> - Enter Proposal Bytes Title
-                </label>
+                <label>Enter Proposal Bytes Title</label>
                 <Input
                   type="text"
                   value={item.title}
@@ -260,9 +248,7 @@ export const StageTwoForm = ({
                 />
               </div>
 
-              <label>
-                <span>{i + 4}b</span> - Enter Proposal Bytes data
-              </label>
+              <label>Enter Proposal Bytes Title</label>
               <TextArea
                 className="step-2-textarea"
                 value={item.bytes}
@@ -272,13 +258,13 @@ export const StageTwoForm = ({
                 disabled={!isProposalPeriod}
               />
 
-              <Button
-                icon="close-stroke"
-                className="close delete-pair"
-                text="Delete Proposal Byte Pair"
-                kind={ACTION_SECONDARY}
-                onClick={() => handleDeletePair(item.id)}
-              />
+              <div className="remove-byte">
+                <StyledTooltip placement="top" title="Delete bytes pair">
+                  <button onClick={() => handleDeletePair(item.id)} className="delete-button">
+                    <Icon id="delete" />
+                  </button>
+                </StyledTooltip>
+              </div>
             </article>
           )
         })}
@@ -298,14 +284,6 @@ export const StageTwoForm = ({
           onClick={() => handleDropProposal(proposalId)}
         />
 
-        <Button
-          icon="pencil-stroke"
-          text="Edit Proposal"
-          kind={ACTION_PRIMARY}
-          disabled={!isProposalPeriod}
-          onClick={() => console.log('update proposal')}
-          // onClick={handleUpdateProposal}
-        />
         <Button
           icon="bytes"
           className="bytes"
