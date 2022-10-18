@@ -15,7 +15,7 @@ import {
 } from 'gql/queries'
 import { fetchFromIndexer, fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import type { AppDispatch, GetState } from '../../app/App.controller'
-import { normalizeDelegationStorage, normalizeDataFeedsHistory } from './Satellites.helpers'
+import { normalizeDelegationStorage, normalizeDataFeedsHistory, normalizeDataFeedsVolatility } from './Satellites.helpers'
 import { normalizeOracle } from 'app/App.helpers'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
@@ -205,7 +205,7 @@ export const registerFeedAction = () => async (dispatch: AppDispatch, getState: 
   }
 }
 
-// get Data Feeds History
+// get Data Feeds History and Volatility
 export const GET_DATA_FEEDS_HISTORY = 'GET_DATA_FEEDS_HISTORY'
 export const getDataFeedsHistory = () => async (dispatch: AppDispatch, getState: GetState) => {
   try {
@@ -216,10 +216,12 @@ export const getDataFeedsHistory = () => async (dispatch: AppDispatch, getState:
     )
 
     const dataFeedsHistory = normalizeDataFeedsHistory(storage)
+    const dataFeedsVolatility = normalizeDataFeedsVolatility(storage)
 
     dispatch({
       type: GET_DATA_FEEDS_HISTORY,
       dataFeedsHistory,
+      dataFeedsVolatility,
     })
   } catch (error) {
     console.error('getDataFeedsHistory error: ', error)

@@ -12,12 +12,6 @@ import { ChartCard, ChartSlidingTabButtons } from './DataFeedsChart.style'
 // actions
 import { getDataFeedsHistory } from '../../Satellites/Satellites.actions'
 
-// types
-import { DataFeedsHistory } from 'pages/Satellites/helpers/Satellites.types'
-
-// helpers
-import { percentageDifference } from '../../Satellites/Satellites.helpers'
-
 type Props = {
   className?: string
 }
@@ -37,9 +31,8 @@ const tabsList: TabItem[] = [
 
 export const DataFeedsChart: FC<Props> = ({ className }) => {
   const dispatch = useDispatch()
-  const { dataFeedsHistory } = useSelector((state: State) => state.oracles)
+  const { dataFeedsHistory, dataFeedsVolatility } = useSelector((state: State) => state.oracles)
 
-  const [dataFeedsVolatility, setDataFeedsVolatility] = useState<DataFeedsHistory>([])
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isHistory = activeTab === tabsList[0].text
 
@@ -50,24 +43,6 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
   const tickFormater = (value: string | number): string =>  {
     return isHistory ? `$${value}` : `${value}%`
   }
-
-  // get volatility
-  useEffect(() => {
-    if (dataFeedsHistory.length >= 2) {
-      let volatilityList: DataFeedsHistory = [];
-  
-      for (let i = 1; i < dataFeedsHistory.length; i++) {
-        const yAxis = percentageDifference(dataFeedsHistory[i].yAxis, dataFeedsHistory[i - 1].yAxis)
-    
-        volatilityList.push({
-          xAxis: dataFeedsHistory[i].xAxis,
-          yAxis,
-        })
-      }
-    
-      setDataFeedsVolatility(volatilityList)
-    }
-  }, [dataFeedsHistory])
   
   useEffect(() => {
     dispatch(getDataFeedsHistory())
