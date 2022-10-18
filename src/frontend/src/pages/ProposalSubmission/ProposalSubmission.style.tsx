@@ -111,6 +111,12 @@ export const ProposalSubmissionForm = styled(Card)`
             fill: ${cyanColor};
           }
         }
+
+        &.disabled {
+          pointer-events: none;
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
       }
 
       &.draggabe {
