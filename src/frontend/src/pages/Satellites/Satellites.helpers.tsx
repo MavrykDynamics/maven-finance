@@ -191,7 +191,7 @@ export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
     ? aggregator_history_data.map((item) => {
         return {
           xAxis: item.timestamp,
-          // ask Sam if the decimal is right we use?
+          // TODO: ask Sam if the decimal is right we use?
           yAxis: symbolsAfterDecimalPoint(item.data / 10**item.aggregator.decimals),
         }
       })
