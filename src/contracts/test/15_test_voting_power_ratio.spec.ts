@@ -521,15 +521,18 @@
 //                 throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = [
+//                 const proposalData      = [
 //                     {
-//                         title: "Metadata#1",
-//                         data: packedUpdateConfigSuccessRewardParam
+//                         addOrSetProposalData: {
+//                             title: "Metadata#1",
+//                             encodedCode: packedUpdateConfigSuccessRewardParam,
+//                             code: ""
+//                         }
 //                     }
 //                 ]
 
 //                 // Operation
-//                 const proposeOperation  = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 const proposeOperation  = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                 await proposeOperation.confirmation();
 
 //                 const lockOperation     = await governanceInstance.methods.lockProposal(nextProposalId).send()
@@ -546,14 +549,14 @@
 //                 const cycleId = governanceStorage.cycleId
 //                 const finalNextProposalId = governanceStorage.nextProposalId;
 //                 const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
-//                 const proposalMetadataStorage = await newProposal.proposalMetadata.get("0");
+//                 const proposalDataStorage = await newProposal.proposalData.get("0");
 //                 const newCurrentRoundProposal = governanceStorage.cycleProposals.get(nextProposalId);
 
 //                 console.log("PROPOSAL: ", newProposal)
 
 //                 // Assertions
-//                 assert.notStrictEqual(proposalMetadataStorage, undefined);
-//                 assert.strictEqual(proposalMetadataStorage.data, packedUpdateConfigSuccessRewardParam);
+//                 assert.notStrictEqual(proposalDataStorage, undefined);
+//                 assert.strictEqual(proposalDataStorage.data, packedUpdateConfigSuccessRewardParam);
 //                 assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
 //                 assert.notStrictEqual(newCurrentRoundProposal, undefined);
 //                 assert.notStrictEqual(newProposal, undefined);
