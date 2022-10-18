@@ -258,7 +258,7 @@ export const StageTwoForm = ({
                 disabled={!isProposalPeriod}
               />
 
-              <div className="remove-byte">
+              <div className={`remove-byte ${proposalData.length === 1 ? 'disabled' : ''}`}>
                 <StyledTooltip placement="top" title="Delete bytes pair">
                   <button onClick={() => handleDeletePair(item.id)} className="delete-button">
                     <Icon id="delete" />
