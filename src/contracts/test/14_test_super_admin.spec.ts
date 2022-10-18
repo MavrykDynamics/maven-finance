@@ -349,10 +349,13 @@
 //                         throw `packing failed`
 //                         };
 
-//                         const proposalMetadata      = [
+//                         const proposalData      = [
 //                             {
-//                                 title: "Metadata#1",
-//                                 data: packedUpdateUpdateWhitelistDevelopersParam
+//                                 addOrSetProposalData: {
+//                                     title: "Metadata#1",
+//                                     encodedCode: packedUpdateUpdateWhitelistDevelopersParam,
+//                                     code: ""
+//                                 }
 //                             }
 //                         ]
 
@@ -360,7 +363,7 @@
 //                         var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                         await nextRoundOperation.confirmation();
 
-//                         const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                         const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                         await proposeOperation.confirmation();
 //                         const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
 //                         await lockOperation.confirmation();

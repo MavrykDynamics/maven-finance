@@ -1024,17 +1024,20 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
-//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1})).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1})).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
@@ -1075,17 +1078,20 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
-//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1})).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1})).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
@@ -1143,6 +1149,16 @@
 //                         throw `packing failed`
 //                     };
                     
+//                     const proposalData      = [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Metadata#2",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
+//                         }
+//                     ]
+                    
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
@@ -1155,7 +1171,81 @@
 //                     await updateStatusOperation.confirmation()
 
 //                     await signerFactory(alice.sk)
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#2", packedParam).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, proposalData).send()).to.be.rejected;
+    
+//                     // Final values
+//                     delegationStorage               = await delegationInstance.storage();
+//                     const satelliteRecord           = await delegationStorage.satelliteLedger.get(alice.pkh);
+
+//                     // Assertions
+//                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+//                 } catch(e){
+//                     console.log(e);
+//                 }
+//             });
+
+//             it('Suspended satellite should not be able to update payment data', async () => {
+//                 try{
+//                     // Initial Values
+//                     await signerFactory(alice.sk);
+//                     governanceStorage               = await governanceInstance.storage()
+//                     const proposalName              = "Quorum test";
+//                     const proposalDesc              = "Details about new proposal";
+//                     const proposalIpfs              = "ipfs://QM123456789";
+//                     const proposalSourceCode        = "Proposal Source Code";
+//                     const proposalId                = governanceStorage.nextProposalId.toNumber();
+//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
+//                         'updateCouncilConfig',
+//                         1234,
+//                         'configActionExpiryDays'
+//                     ).toTransferParams();
+//                     const lambdaParamsValue         = lambdaParams.parameter.value;
+//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
+//                         data: lambdaParamsValue,
+//                         type: proxyDataPackingHelperType
+//                     }).catch(e => console.error('error:', e));
+
+//                     var packedParam;
+//                     if (referenceDataPacked) {
+//                         packedParam = referenceDataPacked.packed
+//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                     } else {
+//                         throw `packing failed`
+//                     };
+
+//                     const paymentData        = [
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#1",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
+//                             }
+//                         }
+//                     ]
+                    
+//                     // Operation
+//                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                     await nextRoundOperation.confirmation();
+
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: 1});
+//                     await proposeOperation.confirmation();
+
+//                     await signerFactory(bob.sk)
+//                     const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "SUSPENDED").send()
+//                     await updateStatusOperation.confirmation()
+
+//                     await signerFactory(alice.sk)
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, null, paymentData).send()).to.be.rejected;
     
 //                     // Final values
 //                     delegationStorage               = await delegationInstance.storage();
@@ -1199,6 +1289,16 @@
 //                         throw `packing failed`
 //                     };
                     
+//                     const proposalData      = [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Metadata#2",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
+//                         }
+//                     ]
+                    
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
@@ -1211,7 +1311,7 @@
 //                     await updateStatusOperation.confirmation()
 
 //                     await signerFactory(eve.sk)
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#2", packedParam).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, proposalData).send()).to.be.rejected;
     
 //                     // Final values
 //                     delegationStorage               = await delegationInstance.storage();
@@ -1219,80 +1319,6 @@
 
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
-//                 } catch(e){
-//                     console.log(e);
-//                 }
-//             });
-//         })
-
-//         describe("%updatePaymentData", async () => {
-
-//             before("Admin restores and restores satellites so they can propose", async () => {
-//                 try{
-//                     // Initial values
-//                     await signerFactory(bob.sk)
-    
-//                     // Operation
-//                     var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "ACTIVE").send()
-//                     await updateStatusOperation.confirmation()
-//                     updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "ACTIVE").send()
-//                     await updateStatusOperation.confirmation()
-//                 } catch(e) {
-//                     console.dir(e, {depth: 5})
-//                 }
-//             })
-
-//             it('Suspended satellite should not be able to update payment data', async () => {
-//                 try{
-//                     // Initial Values
-//                     await signerFactory(alice.sk);
-//                     governanceStorage               = await governanceInstance.storage()
-//                     const proposalName              = "Quorum test";
-//                     const proposalDesc              = "Details about new proposal";
-//                     const proposalIpfs              = "ipfs://QM123456789";
-//                     const proposalSourceCode        = "Proposal Source Code";
-//                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
-                    
-//                     // Operation
-//                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                     await nextRoundOperation.confirmation();
-
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: 1});
-//                     await proposeOperation.confirmation();
-
-//                     await signerFactory(bob.sk)
-//                     const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "SUSPENDED").send()
-//                     await updateStatusOperation.confirmation()
-
-//                     await signerFactory(alice.sk)
-//                     await chai.expect(governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()).to.be.rejected;
-    
-//                     // Final values
-//                     delegationStorage               = await delegationInstance.storage();
-//                     const satelliteRecord           = await delegationStorage.satelliteLedger.get(alice.pkh);
-
-//                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
 //                     console.log(e);
 //                 }
@@ -1328,7 +1354,25 @@
 //                     } else {
 //                         throw `packing failed`
 //                     };
-                    
+
+//                     const paymentData        = [
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#1",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
+//                             }
+//                         }
+//                     ]
+
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
@@ -1341,7 +1385,7 @@
 //                     await updateStatusOperation.confirmation()
 
 //                     await signerFactory(eve.sk)
-//                     await chai.expect(governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, null, paymentData).send()).to.be.rejected;
     
 //                     // Final values
 //                     delegationStorage               = await delegationInstance.storage();
@@ -1533,18 +1577,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1599,18 +1646,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1683,18 +1733,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1760,18 +1813,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1885,18 +1941,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, proposalPaymentData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2004,18 +2063,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, proposalPaymentData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2141,18 +2203,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, proposalPaymentData).send({amount: 1});
 //                     await proposeOperation.confirmation();
 
 //                     await signerFactory(bob.sk)
@@ -2232,18 +2297,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 code: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, proposalPaymentData).send({amount: 1});
 //                     await proposeOperation.confirmation();
 
 //                     await signerFactory(bob.sk)

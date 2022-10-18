@@ -16,7 +16,7 @@ async def on_governance_update_payment_data(
     governance_address  = update_payment_data.data.target_address
     proposal_id         = int(update_payment_data.parameter.proposalId)
     storage_proposal    = update_payment_data.storage.proposalLedger[update_payment_data.parameter.proposalId]
-    payment_metadata    = storage_proposal.paymentMetadata
+    payment_metadata    = storage_proposal.paymentData
     title               = update_payment_data.parameter.title
     transaction         = update_payment_data.parameter.paymentTransaction
     receiver_address    = transaction.to_
