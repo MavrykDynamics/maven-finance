@@ -72,8 +72,7 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
   
   const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
     const { label } = o
-    const value = data.find((item) => item.time === label)?.uv || ''
-    const date = data.find((item) => item.time === label)?.pv || ''
+    const { uv: value = '', pv: date = '' } = data.find((item) => item.time === label) ?? {}
   
     return (
       <ChartTooltip>
