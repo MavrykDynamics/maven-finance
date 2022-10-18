@@ -19,6 +19,7 @@ import { MenuFooter, MenuGrid, MenuSidebarContent, MenuSidebarStyled } from './M
 // helpers, costants
 import { toggleSidebarCollapsing } from './Menu.actions'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
+import { checkIfLinkSelected } from './NavigationLink/NavigationLink.constants'
 
 type MenuViewProps = {
   accountPkh?: string
@@ -58,14 +59,11 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
     if (showSidebarOpened || sidebarOpened) {
       const selectedMainRoute = mainNavigationLinks.find(({ routePath = '', subPages = null }) => {
         if (subPages) {
-          return subPages.find(({ routeSubPath = '' }) =>
-            matchPath(pathname, { path: routeSubPath, exact: true, strict: true }),
-          )
+          return subPages.find(({ routeSubPath = '' }) => checkIfLinkSelected(pathname, routeSubPath))
         }
 
-        return matchPath(pathname, { path: routePath, exact: true, strict: true })
+        return checkIfLinkSelected(pathname, routePath)
       })
-
       setSelectedMainLink(selectedMainRoute?.id || 0)
     } else {
       setSelectedMainLink(0)
