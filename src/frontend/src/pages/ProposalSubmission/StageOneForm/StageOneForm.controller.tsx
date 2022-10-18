@@ -34,7 +34,7 @@ const DEFAULT_VALIDITY: ValidSubmitProposalForm = {
   ipfs: true,
   successMVKReward: true,
   invoiceTable: true,
-  sourceCodeLink: true,
+  sourceCodeLink: false,
 }
 
 const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
