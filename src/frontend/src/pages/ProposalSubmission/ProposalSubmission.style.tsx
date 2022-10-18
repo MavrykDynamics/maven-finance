@@ -225,9 +225,48 @@ export const FormTableGrid = styled.div`
     padding: 0;
 
     .submit-proposal-stage-3 {
-      input {
-        border: none;
-        width: 84%;
+      > div {
+        > div.success {
+          display: none;
+        }
+
+        input {
+          width: 96%;
+          margin: 0 auto;
+          border: none;
+          background-color: transparent;
+          box-shadow: unset;
+          color: ${cyanColor};
+
+          &:hover {
+            background-color: transparent;
+          }
+
+          &:focus {
+            border: none;
+            box-shadow: unset;
+          }
+
+          &.error {
+            width: 85%;
+            border: none;
+            box-shadow: unset;
+
+            &:focus {
+              box-shadow: unset;
+            }
+          }
+
+          &.success {
+            border: none;
+            box-shadow: unset;
+            color: ${cyanColor};
+
+            &:focus {
+              box-shadow: unset;
+            }
+          }
+        }
       }
     }
   }

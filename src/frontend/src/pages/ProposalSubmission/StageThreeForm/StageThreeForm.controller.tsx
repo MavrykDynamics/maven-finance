@@ -80,8 +80,6 @@ export const StageThreeForm = ({
     )
   }
 
-  console.log('validForm', validForm, proposalPayments)
-
   useEffect(() => {
     if (!isProposalRound) setValidForm([])
   }, [isProposalRound])
@@ -111,14 +109,6 @@ export const StageThreeForm = ({
   ) => {
     let { name, value } = e.target
 
-    if (name === 'token_amount') {
-      value = String(
-        Number(value) *
-          (proposalPayments[row].token_address.toLowerCase() === 'mvk'
-            ? calcWithoutPrecision(value)
-            : calcWithoutMu(value)),
-      )
-    }
     updateLocalProposalData(
       {
         proposalPayments: proposalPayments.map((item, idx) => {
