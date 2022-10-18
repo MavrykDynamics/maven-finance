@@ -18,6 +18,7 @@ import { DataFeedsChart } from '../chart/DataFeedsChart.controller'
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
+import { DataFeedsHistory, DataFeedsVolatility } from '../../Satellites/helpers/Satellites.types'
 
 import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 // styles
@@ -44,6 +45,8 @@ type FeedDetailsProps = {
   isLoading: boolean
   oracles: Array<SatelliteRecord>
   registerFeedHandler: () => void
+  dataFeedsHistory: DataFeedsHistory
+  dataFeedsVolatility: DataFeedsVolatility
 }
 
 const emptyContainer = (
@@ -53,7 +56,7 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
+const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, dataFeedsHistory, dataFeedsVolatility }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
   const oraclesForFeed = useMemo(
     () => oracles.filter(({ oracleRecords }) => oracleRecords.find(({ feedAddress }) => feed?.address === feedAddress)),
@@ -227,7 +230,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
             <h1>Answer history</h1>
           </GovRightContainerTitleArea>
 
-          <DataFeedsChart />
+          <DataFeedsChart dataFeedsHistory={dataFeedsHistory} dataFeedsVolatility={dataFeedsVolatility} />
         </div>
       </DataFeedsStyled>
 
