@@ -34,13 +34,18 @@ export const EGovHistoryCard = ({ emergencyGovernance, dropProposalHandler }: EG
   const [expanded, setExpanded] = useState(false)
   const open = () => setExpanded(!expanded)
 
-  const isActiveProposal = true //!emergencyGovernance.executed && !emergencyGovernance.dropped
+  const isActiveProposal =
+    !emergencyGovernance.executed &&
+    !emergencyGovernance.dropped &&
+    emergencyGovernance.expirationTimestamp > Date.now()
 
   const status = isActiveProposal
     ? ProposalStatus.WAITING
     : emergencyGovernance.executed
     ? ProposalStatus.EXECUTED
-    : ProposalStatus.DROPPED
+    : emergencyGovernance.dropped
+    ? ProposalStatus.DROPPED
+    : ProposalStatus.DEFEATED
 
   // TODO: clarify it with sam, cuz this data isn't right
   const votingStatistic = useMemo(
@@ -53,7 +58,11 @@ export const EGovHistoryCard = ({ emergencyGovernance, dropProposalHandler }: EG
   )
 
   return (
-    <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
+    <EGovHistoryCardStyled
+      key={String(emergencyGovernance.title + emergencyGovernance.id)}
+      onClick={open}
+      className={expanded ? 'open' : ''}
+    >
       <EGovHistoryCardTopSection className={expanded ? 'show' : 'hide'}>
         {expanded ? (
           <div className="expanded-top">
@@ -107,13 +116,15 @@ export const EGovHistoryCard = ({ emergencyGovernance, dropProposalHandler }: EG
               </div>
             </div>
             <div className="descr">{emergencyGovernance.description}</div>
-            <Button
-              icon="close-stroke"
-              className="drop"
-              text="Drop Proposal"
-              kind={ACTION_SECONDARY}
-              onClick={() => dropProposalHandler(emergencyGovernance.id)}
-            />
+            {isActiveProposal ? (
+              <Button
+                icon="close-stroke"
+                className="drop"
+                text="Drop Proposal"
+                kind={ACTION_SECONDARY}
+                onClick={() => dropProposalHandler(emergencyGovernance.id)}
+              />
+            ) : null}
           </div>
 
           <div>
