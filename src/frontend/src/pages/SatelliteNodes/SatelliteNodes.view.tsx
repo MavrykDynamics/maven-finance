@@ -43,7 +43,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [inputSearch, setInputSearch] = useState('')
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>()
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -77,7 +77,7 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
               <h4>Order by:</h4>
               <DropDown
                 clickOnDropDown={handleClickDropdown}
-                placeholder={ddItems[0]}
+                placeholder='Choose option'
                 isOpen={ddIsOpen}
                 itemSelected={chosenDdItem?.text}
                 items={ddItems}

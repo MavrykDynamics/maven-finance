@@ -52,7 +52,7 @@ export const DataFeeds = () => {
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [searchInputValue, setSearchInput] = useState('')
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>()
   const [allSatellites, setAllSatellites] = useState<FeedGQL[]>(oraclesStorage.feeds)
   const [filteredSatelliteList, setFilteredSatelliteList] = useState<FeedGQL[]>(oraclesStorage.feeds)
 
@@ -120,7 +120,7 @@ export const DataFeeds = () => {
           <h4>Category:</h4>
           <DropDown
             clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
-            placeholder={ddItems[0]}
+            placeholder='Choose category'
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
