@@ -127,22 +127,16 @@ export const EGovHistoryCardDropDown = styled.div<{
       max-width: 200px;
     }
 
-    p {
-      margin: 0;
+    .descr {
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      color: ${({ theme }) => theme.headerSkyColor};
+      display: -webkit-box;
+      overflow: hidden;
     }
-  }
-
-  ul {
-    padding-left: 0;
-  }
-
-  p,
-  li {
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 21px;
-    color: ${({ theme }) => theme.headerSkyColor};
-    list-style: none;
   }
 
   .accordion {

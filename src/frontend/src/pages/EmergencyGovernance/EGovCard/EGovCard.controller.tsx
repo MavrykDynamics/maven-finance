@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -26,8 +26,10 @@ import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 
 type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceStorage['emergencyGovernanceLedger'][0]
+
+  dropProposalHandler: (proposalId: number) => void
 }
-export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) => {
+export const EGovHistoryCard = ({ emergencyGovernance, dropProposalHandler }: EGovHistoryCardProps) => {
   const { totalStakedMvk } = useSelector((state: State) => state.doorman)
   const [expanded, setExpanded] = useState(false)
   const open = () => setExpanded(!expanded)
@@ -40,6 +42,7 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
     ? ProposalStatus.EXECUTED
     : ProposalStatus.DROPPED
 
+  // TODO: clarify it with sam, cuz this data isn't right
   const votingStatistic = useMemo(
     () => ({
       forVotesMVKTotal: emergencyGovernance.totalsMvkVotes,
@@ -55,14 +58,6 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
         {expanded ? (
           <div className="expanded-top">
             <BGPrimaryTitle>{emergencyGovernance.title}</BGPrimaryTitle>
-            <EGovHistoryArrowButton className="arrow-btn">
-              <svg>
-                <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
-              </svg>
-            </EGovHistoryArrowButton>
-            <EGovHistoryCardTitleTextGroup className={'statusFlag'}>
-              <StatusFlag status={status} text={status} />
-            </EGovHistoryCardTitleTextGroup>
           </div>
         ) : (
           <>
@@ -111,20 +106,18 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
                 })}
               </div>
             </div>
-            <div>
-              <p>{emergencyGovernance.description}</p>
-            </div>
+            <div className="descr">{emergencyGovernance.description}</div>
             <Button
               icon="close-stroke"
               className="drop"
               text="Drop Proposal"
               kind={ACTION_SECONDARY}
-              onClick={() => console.log('drop')}
+              onClick={() => dropProposalHandler(emergencyGovernance.id)}
             />
           </div>
 
           <div>
-            <VotingArea voteStatistics={votingStatistic} isVotingActive={false} quorumText="Percentage Required" />
+            <VotingArea voteStatistics={votingStatistic} isVotingActive={false} quorumText="Quorum" />
           </div>
         </div>
       </EGovHistoryCardDropDown>
