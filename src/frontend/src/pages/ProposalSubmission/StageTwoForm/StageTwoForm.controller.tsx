@@ -125,7 +125,12 @@ export const StageTwoForm = ({
 
   // submit btn is disabled if no changes in bytes or if something is changed, but it doesn't pass the validation
   const submitBytesButtonDisabled = useMemo(() => {
-    return !isBytesChanged || (isBytesChanged && !checkWhetherBytesIsValid(proposalData)) || proposalData.length === 0
+    return (
+      !isBytesChanged ||
+      (isBytesChanged && !checkWhetherBytesIsValid(proposalData)) ||
+      proposalData.length === 0 ||
+      locked
+    )
   }, [proposalData, isBytesChanged])
 
   // Drag & drop variables and event handlers
@@ -244,7 +249,7 @@ export const StageTwoForm = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOnCange(item, e.target.value, 'title')}
                   onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(item, e.target.value, 'validTitle')}
                   inputStatus={validityObject?.validTitle}
-                  disabled={existInServer}
+                  disabled={existInServer || locked}
                 />
               </div>
 
@@ -255,10 +260,12 @@ export const StageTwoForm = ({
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnCange(item, e.target.value, 'bytes')}
                 onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(item, e.target.value, 'validBytes')}
                 inputStatus={validityObject?.validBytes}
-                disabled={!isProposalPeriod}
+                disabled={!isProposalPeriod || locked}
               />
 
-              <div className={`remove-byte ${proposalData.length === 1 ? 'disabled' : ''}`}>
+              <div
+                className={`remove-byte ${proposalData.length === 1 || !isProposalPeriod || locked ? 'disabled' : ''}`}
+              >
                 <StyledTooltip placement="top" title="Delete bytes pair">
                   <button onClick={() => handleDeletePair(item.id)} className="delete-button">
                     <Icon id="delete" />
@@ -269,7 +276,7 @@ export const StageTwoForm = ({
           )
         })}
         <StyledTooltip placement="top" title="Insert new bytes pair">
-          <button disabled={!isProposalPeriod} onClick={handleCreateNewByte} className="step-plus-bytes">
+          <button disabled={!isProposalPeriod || locked} onClick={handleCreateNewByte} className="step-plus-bytes">
             +
           </button>
         </StyledTooltip>

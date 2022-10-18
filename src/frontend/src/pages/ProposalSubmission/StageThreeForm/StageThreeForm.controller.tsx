@@ -169,10 +169,11 @@ export const StageThreeForm = ({
 
   const isDisabledSubmitTableBtn = useMemo(
     () =>
-      !isProposalRound &&
-      validForm.some(
-        ({ token_amount, title, to__id }) => token_amount === 'error' || title === 'error' || to__id === 'error',
-      ),
+      (!isProposalRound &&
+        validForm.some(
+          ({ token_amount, title, to__id }) => token_amount === 'error' || title === 'error' || to__id === 'error',
+        )) ||
+      locked,
     [validForm, isProposalRound],
   )
   const disabledInputs = useMemo(() => !isProposalRound || locked, [isProposalRound, locked])
@@ -265,7 +266,11 @@ export const StageThreeForm = ({
                     </td>
                     <td key={`${i}-asset`}>
                       <div className="table-drop">
-                        <button onClick={() => handleToggleDrop(i)} className="table-drop-btn-cur">
+                        <button
+                          onClick={() => handleToggleDrop(i)}
+                          disabled={locked || !isProposalRound}
+                          className="table-drop-btn-cur"
+                        >
                           {paymentType === 'FA2' ? 'MVK' : paymentType}
                         </button>
                         {openDrop === `${i}-asset` && (
@@ -294,7 +299,11 @@ export const StageThreeForm = ({
                       {proposalPayments.length > 2 ? (
                         <div className="delete-button-wrap">
                           <StyledTooltip placement="top" title="Delete row">
-                            <button onClick={() => handleDeleteRow(i)} className="delete-button">
+                            <button
+                              onClick={() => handleDeleteRow(i)}
+                              disabled={locked || !isProposalRound}
+                              className="delete-button"
+                            >
                               <Icon id="delete" />
                             </button>
                           </StyledTooltip>
@@ -308,7 +317,7 @@ export const StageThreeForm = ({
           </div>
           {!isMaxRows ? (
             <StyledTooltip placement="top" title="Insert 1 row bottom">
-              <button className="btn-add-row" onClick={handleAddRow}>
+              <button disabled={locked || !isProposalRound} className="btn-add-row" onClick={handleAddRow}>
                 +
               </button>
             </StyledTooltip>
