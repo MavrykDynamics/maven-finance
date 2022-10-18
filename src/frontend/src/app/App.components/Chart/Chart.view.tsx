@@ -55,6 +55,18 @@ const initialChartStyle: ChartStyle = {
   paddingLeft: 22,
 }
 
+const renderTooltipContent = (o: TooltipContent, data: ChartData, tooltipValueFormatter?: (value: string | number) => string) => {
+  const { label } = o
+  const { uv: value = '', pv: date = '' } = data.find((item) => item.time === label) ?? {}
+
+  return (
+    <ChartTooltip>
+      {tooltipValueFormatter ? tooltipValueFormatter(value) : value}
+      <div>{date}</div>
+    </ChartTooltip>
+  )
+}
+
 const timeFormat = 'HH:mm'
 const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
 
@@ -70,18 +82,6 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
   const maxValueLength = String(maxValue).length
   const marginRight = maxValueLength > 5 ? maxValueLength * 4.5 : 5
   
-  const renderTooltipContent = (o: TooltipContent, data: ChartData) => {
-    const { label } = o
-    const { uv: value = '', pv: date = '' } = data.find((item) => item.time === label) ?? {}
-  
-    return (
-      <ChartTooltip>
-        {tooltipValueFormatter ? tooltipValueFormatter(value) : value}
-        <div>{date}</div>
-      </ChartTooltip>
-    )
-  }
-
   const data = list?.length
     ? list.map(({ yAxis, xAxis }) => {
         return {
@@ -135,7 +135,7 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
           tickFormatter={tickFormater}
         />
 
-        <Tooltip cursor={{ stroke: themeColors[themeSelected].cardBorderColor, strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
+        <Tooltip cursor={{ stroke: themeColors[themeSelected].cardBorderColor, strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data, tooltipValueFormatter)} />
         <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
       </AreaChart>
     </ResponsiveContainer>
