@@ -165,14 +165,14 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         id: 79754,
         subTitle: 'Mavryk Council',
         subPath: 'mavryk-council',
-        routeSubPath: '/mavryk-council',
+        routeSubPath: ['/mavryk-council', '/mavryk-council/review'],
         protectedRoute: false,
       },
       {
         id: 38374,
         subTitle: 'Break Glass Council',
         subPath: 'break-glass-council',
-        routeSubPath: '/break-glass-council',
+        routeSubPath: ['/break-glass-council', '/break-glass-council/review'],
         protectedRoute: true,
       },
       {

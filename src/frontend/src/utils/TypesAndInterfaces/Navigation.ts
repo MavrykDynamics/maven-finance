@@ -8,7 +8,7 @@ export interface SubNavigationRoute {
   id: number
   subTitle: string
   subPath: string
-  routeSubPath: string
+  routeSubPath: string | string[]
   protectedRoute: boolean
   requires?: RequiresProperties
 }
@@ -16,7 +16,7 @@ export interface MainNavigationRoute {
   title: string
   id: number
   path: string
-  routePath: string
+  routePath: string | string[]
   icon: string
   subPages?: SubNavigationRoute[]
   protectedRoute: boolean
