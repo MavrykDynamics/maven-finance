@@ -38,12 +38,14 @@ type Props = {
   accountPkh?: string
   handleTriggerEmergencyProposal: () => void
   emergencyGovernanceLedger: EmergencyGovernanceStorage['emergencyGovernanceLedger']
+  dropProposalHandler: (proposalId: number) => void
 }
 
 export const EmergencyGovernanceView = ({
   accountPkh,
   handleTriggerEmergencyProposal,
   emergencyGovernanceLedger,
+  dropProposalHandler,
 }: Props) => {
   const { historyItems, activeItems } = useMemo(
     () =>
@@ -131,7 +133,13 @@ export const EmergencyGovernanceView = ({
         <EmergencyGovernHistory>
           <h1>Emergency Governance Active Proposals</h1>
           {paginatedItemsListActive.map((emergencyGovernance) => {
-            return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
+            return (
+              <EGovHistoryCard
+                key={emergencyGovernance.id}
+                emergencyGovernance={emergencyGovernance}
+                dropProposalHandler={dropProposalHandler}
+              />
+            )
           })}
 
           <Pagination itemsCount={activeItems.length} listName={EMERGENCY_GOVERNANCE_ACTIVE_LIST_NAME} />
@@ -141,7 +149,13 @@ export const EmergencyGovernanceView = ({
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
         {paginatedItemsListHistory.map((emergencyGovernance) => {
-          return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
+          return (
+            <EGovHistoryCard
+              key={emergencyGovernance.id}
+              emergencyGovernance={emergencyGovernance}
+              dropProposalHandler={dropProposalHandler}
+            />
+          )
         })}
 
         <Pagination itemsCount={historyItems.length} listName={EMERGENCY_GOVERNANCE_HISTORY_LIST_NAME} />
