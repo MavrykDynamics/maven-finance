@@ -41,6 +41,7 @@ export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme; oracle?:
       ? css`
           margin-top: 30px;
           input {
+            // TODO: uncomment together with dropdown
             /* margin-left: 30px; */
             max-width: 375px;
           }
