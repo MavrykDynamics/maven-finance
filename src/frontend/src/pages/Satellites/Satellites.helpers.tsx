@@ -3,7 +3,7 @@ import { MichelsonMap } from '@taquito/taquito'
 import type { DelegateRecord, SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import type { MavrykUserGraphQl } from '../../utils/TypesAndInterfaces/User'
 import type { SatelliteRecordGraphQl, DelegationGraphQl } from '../../utils/TypesAndInterfaces/Delegation'
-import type { DataFeedsHistoryGraphQL } from './helpers/Satellites.types'
+import type { DataFeedsHistoryGraphQL, DataFeedsVolatility } from './helpers/Satellites.types'
 // helpers
 import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
 import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
@@ -196,6 +196,27 @@ export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
         }
       })
     : []
+}
+
+export function normalizeDataFeedsVolatility(storage: DataFeedsHistoryProps) {
+  const { aggregator_history_data = [] } = storage
+
+  let volatility: DataFeedsVolatility = [];
+
+  if (aggregator_history_data.length < 2) {
+    return volatility
+  }
+  
+  for (let i = 1; i < aggregator_history_data.length; i++) {
+    const yAxis = percentageDifference(aggregator_history_data[i].data, aggregator_history_data[i - 1].data)
+
+    volatility.push({
+      xAxis: aggregator_history_data[i].timestamp,
+      yAxis,
+    })
+  }
+
+  return volatility
 }
 
 export const percentageDifference = (a: number, b: number): number => {

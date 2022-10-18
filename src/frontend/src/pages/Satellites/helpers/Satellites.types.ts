@@ -48,3 +48,5 @@ export type SatelliteListItemProps = {
 
 export type DataFeedsHistory = ReturnType<typeof normalizeDataFeedsHistory>
 export type DataFeedsHistoryGraphQL = Omit<Aggregator_History_Data, '__typename'>
+
+export type DataFeedsVolatility = ReturnType<typeof normalizeDataFeedsHistory>

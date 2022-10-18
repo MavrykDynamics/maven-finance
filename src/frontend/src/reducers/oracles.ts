@@ -1,10 +1,11 @@
-import { InitialOracleStorageType, DataFeedsHistory } from 'pages/Satellites/helpers/Satellites.types'
+import { InitialOracleStorageType, DataFeedsHistory, DataFeedsVolatility } from 'pages/Satellites/helpers/Satellites.types'
 import { GET_ORACLES_STORAGE, GET_DATA_FEEDS_HISTORY } from 'pages/Satellites/Satellites.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface OraclesState {
   oraclesStorage: {} & InitialOracleStorageType
   dataFeedsHistory: DataFeedsHistory
+  dataFeedsVolatility: DataFeedsVolatility
 }
 
 const oraclesDefaultState: OraclesState = {
@@ -13,6 +14,7 @@ const oraclesDefaultState: OraclesState = {
     feedsFactory: [],
   },
   dataFeedsHistory: [],
+  dataFeedsVolatility: [],
 }
 
 export function oracles(state = oraclesDefaultState, action: Action) {
@@ -29,6 +31,7 @@ export function oracles(state = oraclesDefaultState, action: Action) {
       return {
         ...state,
         dataFeedsHistory: action.dataFeedsHistory,
+        dataFeedsVolatility: action.dataFeedsVolatility,
       }
     default:
       return state
