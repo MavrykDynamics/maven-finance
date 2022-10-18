@@ -7,7 +7,7 @@ import { ChartCard, ChartSlidingTabButtons } from './DoormanChart.style'
 
 // components
 import Chart from '../../../app/App.components/Chart/Chart.view'
-import { SlidingTabButtons, TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 type Props = {
   className?: string
@@ -40,9 +40,7 @@ export const DoormanChart: FC<Props> = ({ className }) => {
 
   return (
     <ChartCard className={className}>
-      <ChartSlidingTabButtons>
-        {tabsList?.length ? <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
-      </ChartSlidingTabButtons>
+        {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
       <Chart tooltipValueFormatter={tooltipValueFormatter} list={isStakingHistory ? stakeHistoryData : smvkHistoryData} />
     </ChartCard>

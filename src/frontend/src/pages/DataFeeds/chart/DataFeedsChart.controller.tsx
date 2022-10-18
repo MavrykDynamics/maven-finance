@@ -4,7 +4,7 @@ import { State } from 'reducers'
 
 // components
 import Chart from '../../../app/App.components/Chart/Chart.view'
-import { SlidingTabButtons, TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 // styles 
 import { ChartCard, ChartSlidingTabButtons } from './DataFeedsChart.style'
@@ -50,9 +50,7 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
 
  return (
   <ChartCard className={className}>
-    <ChartSlidingTabButtons>
-      {tabsList?.length ? <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
-    </ChartSlidingTabButtons>
+    {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
     <Chart
       list={isHistory ? dataFeedsHistory : dataFeedsVolatility}
