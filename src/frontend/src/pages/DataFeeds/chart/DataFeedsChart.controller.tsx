@@ -1,6 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from 'reducers'
+import React, { FC, useState } from 'react'
 
 // components
 import Chart from '../../../app/App.components/Chart/Chart.view'
@@ -9,10 +7,12 @@ import { TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTa
 // styles 
 import { ChartCard, ChartSlidingTabButtons } from './DataFeedsChart.style'
 
-// actions
-import { getDataFeedsHistory } from '../../Satellites/Satellites.actions'
+// types
+import { DataFeedsHistory, DataFeedsVolatility } from '../../Satellites/helpers/Satellites.types'
 
 type Props = {
+  dataFeedsHistory: DataFeedsHistory
+  dataFeedsVolatility: DataFeedsVolatility
   className?: string
 }
 
@@ -29,10 +29,7 @@ const tabsList: TabItem[] = [
   },
 ]
 
-export const DataFeedsChart: FC<Props> = ({ className }) => {
-  const dispatch = useDispatch()
-  const { dataFeedsHistory, dataFeedsVolatility } = useSelector((state: State) => state.oracles)
-
+export const DataFeedsChart: FC<Props> = ({ className, dataFeedsHistory, dataFeedsVolatility }) => {
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isHistory = activeTab === tabsList[0].text
 
@@ -43,10 +40,6 @@ export const DataFeedsChart: FC<Props> = ({ className }) => {
   const tickFormater = (value: string | number): string =>  {
     return isHistory ? `$${value}` : `${value}%`
   }
-  
-  useEffect(() => {
-    dispatch(getDataFeedsHistory())
-  }, [dispatch])
 
  return (
   <ChartCard className={className}>
