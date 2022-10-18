@@ -190,7 +190,6 @@ export const BreakGlassCouncil: FC = () => {
               <div className="pending-items">
                 <Carousel itemLength={breakGlassActionPendingMySignature.length} key={sliderKey}>
                   {breakGlassActionPendingMySignature.map((item) => (
-                    // @ts-ignore
                     <BreakGlassCouncilPanding
                       {...item}
                       key={item.id}
