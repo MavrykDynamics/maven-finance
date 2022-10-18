@@ -4,7 +4,7 @@ import { ValidSubmitProposalForm, SubmitProposalFormInputStatus } from 'utils/Ty
 import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 import { StageThreeValidityItem } from './ProposalSybmittion.types'
 
-export const checkWtheterBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
+export const checkWhetherBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
   return proposalData.every(({ bytes, title }) => Boolean(bytes) && Boolean(title))
 }
 
