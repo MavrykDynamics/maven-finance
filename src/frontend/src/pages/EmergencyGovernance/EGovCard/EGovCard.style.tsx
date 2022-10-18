@@ -11,6 +11,11 @@ export const EGovHistoryCardStyled = styled(CardHover)`
   padding: 0;
   cursor: pointer;
   overflow: hidden;
+
+  &.open {
+    border-color: ${cyanColor};
+    box-shadow: 0px 4px 4px ${boxShadowColor};
+  }
 `
 export const EGovHistoryCardTopSection = styled.div<{
   theme: MavrykTheme
@@ -144,9 +149,12 @@ export const EGovHistoryCardDropDown = styled.div<{
     text-align: left;
     width: 100%;
     display: grid;
-    align-items: center;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
+
+    article {
+      margin: 5px 0;
+    }
 
     aside {
       margin-top: 20px;
