@@ -705,12 +705,9 @@
 
 //             it('User should be able to switch from the voting round to the timelock round', async () => {
 //                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
-
 //                     // Operation
-//                     delegationStorage   = await delegationInstance.storage();
+//                     governanceStorage           = await governanceInstance.storage();
+//                     delegationStorage           = await delegationInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber();
 //                     const proposalName          = "New Proposal #1";
 //                     const proposalDesc          = "Details about new proposal #1";
@@ -841,7 +838,7 @@
 //                 }
 //             })
 
-//             it('Satellite should be able to call this entrypoint and create a proposal with metadata', async () => {
+//             it('Satellite should be able to call this entrypoint and create a proposal with code and payment', async () => {
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
@@ -853,9 +850,9 @@
 //                     const proposalSourceCode    = "Proposal Source Code";
 
 //                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
+//                         'updateCouncilConfig',
+//                         1234,
+//                         'configActionExpiryDays'
 //                     ).toTransferParams();
 //                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
 //                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -873,15 +870,36 @@
 //                     throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "Metadata#1",
-//                             data: packedUpdateConfigSuccessRewardParam
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]
+                    
+//                     const paymentData        = [
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
+//                             }
 //                         }
 //                     ]
 
 //                     // Operation
-//                     const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 0.1});
+//                     const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, paymentData).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
 //                     // Final values
@@ -895,12 +913,16 @@
 //                     const cycleId = governanceStorage.cycleId
 //                     const finalNextProposalId = governanceStorage.nextProposalId;
 //                     const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
-//                     const proposalMetadataStorage = await newProposal.proposalMetadata.get("0");
+//                     const proposalDataStorage = await newProposal.proposalData.get("0");
+//                     const paymentDataStorage = await newProposal.paymentData.get("0");
 //                     const cycleProposal = await governanceStorage.cycleProposals.get(nextProposalId)
                     
 //                     // Assertions
-//                     assert.notStrictEqual(proposalMetadataStorage, undefined);
-//                     assert.strictEqual(proposalMetadataStorage.data, packedUpdateConfigSuccessRewardParam);
+//                     assert.notStrictEqual(proposalDataStorage, undefined);
+//                     assert.notStrictEqual(paymentDataStorage, undefined);
+//                     assert.strictEqual(proposalDataStorage.title, "Data#1");
+//                     assert.strictEqual(proposalDataStorage.encodedCode, packedUpdateConfigSuccessRewardParam);
+//                     assert.strictEqual(paymentDataStorage.title,  "Payment#0");
 //                     assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
 //                     assert.notEqual(cycleProposal, undefined);
 //                     assert.notStrictEqual(newProposal, undefined);
@@ -999,17 +1021,17 @@
 //                 await signerFactory(eve.sk)
 //             });
 
-//             it('Satellite should be able to call this entrypoint and update a proposal and add a metadata to an existing proposal', async () => {
+//             it('Satellite should be able to add data to an existing proposal', async () => {
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
-//                     const proposalDebug              = await governanceStorage.proposalLedger.get(proposalId);
+//                     const proposalDebug         = await governanceStorage.proposalLedger.get(proposalId);
 
 //                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateCouncilConfig',
-//                     1234,
-//                     'configActionExpiryDays'
+//                         'updateCouncilConfig',
+//                         1234,
+//                         'configActionExpiryDays'
 //                     ).toTransferParams();
 //                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
 //                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -1028,22 +1050,31 @@
 //                     };
 
 //                     // Operation
-//                     const addMetadataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#2", packedUpdateConfigSuccessRewardParam).send();
-//                     await addMetadataOperation.confirmation();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
+//                     await addDataOperation.confirmation();
 
 //                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("1");
+//                     governanceStorage           = await governanceInstance.storage();
+//                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//                     const proposalDataStorage   = await proposal.proposalData.get("1");
 
 //                     // Assertions
-//                     assert.strictEqual(proposalMetadataStorage.data, packedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(proposalDataStorage.title, "Data#1")
+//                     assert.strictEqual(proposalDataStorage.encodedCode, packedUpdateConfigSuccessRewardParam)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
-//             it('Satellite should be able to call this entrypoint and update a proposal and update a metadata to an existing proposal', async () => {
+//             it('Satellite should be able to update a proposal data at a given index', async () => {
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
@@ -1069,16 +1100,391 @@
 //                     };
 
 //                     // Operation
-//                     const addMetadataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#2", packedUpdateConfigSuccessRewardParam).send();
-//                     await addMetadataOperation.confirmation();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1.1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: "",
+//                                 index: "1"
+//                             },
+//                         }
+//                     ]).send();
+//                     await addDataOperation.confirmation();
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("1");
+//                     const proposalDataStorage = await proposal.proposalData.get("1");
 
 //                     // Assertions
-//                     assert.strictEqual(proposalMetadataStorage.data, packedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(proposalDataStorage.title, "Data#1.1")
+//                     assert.strictEqual(proposalDataStorage.encodedCode, packedUpdateConfigSuccessRewardParam)
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should not be able to update data at an unexisting index', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage           = await governanceInstance.storage()
+//                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+
+//                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
+//                         'updateGovernanceConfig', 1300, 'configSuccessReward'
+//                     ).toTransferParams();
+//                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
+//                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+        
+//                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
+//                         data: configSuccessRewardParamValue,
+//                         type: callGovernanceLambdaEntrypointType
+//                     }).catch(e => console.error('error:', e));
+        
+//                     var packedUpdateConfigSuccessRewardParam;
+//                     if (updateConfigSuccessRewardPacked) {
+//                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
+//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
+//                     } else {
+//                     throw `packing failed`
+//                     };
+
+//                     // Operation
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1.2",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: "",
+//                                 index: "2"
+//                             },
+//                         }
+//                     ]).send()).to.be.rejected;
+
+//                     // Final values
+//                     governanceStorage = await governanceInstance.storage();
+//                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
+//                     const proposalDataStorage = await proposal.proposalData.get("2");
+
+//                     // Assertions
+//                     assert.strictEqual(proposalDataStorage, undefined)
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should be able to remove data from a proposal', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage           = await governanceInstance.storage()
+//                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+//                     const initProposal          = await governanceStorage.proposalLedger.get(proposalId);
+//                     const initDataStorage       = initProposal.proposalData.get("1");
+
+//                     // Operation
+//                     const removeOperation       = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             removeProposalData: "1",
+//                         }
+//                     ]).send();
+//                     await removeOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage           = await governanceInstance.storage();
+//                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//                     const proposalDataStorage   = await proposal.proposalData.get("1");
+
+//                     // Assertions
+//                     assert.notStrictEqual(initDataStorage, undefined)
+//                     assert.strictEqual(proposalDataStorage, null)
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should be able to add, update and remove multiple data from a proposal', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage           = await governanceInstance.storage()
+//                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+
+//                     // Pack first data
+//                     var configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
+//                         'updateGovernanceConfig', 1200, 'configSuccessReward'
+//                     ).toTransferParams();
+//                     var configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
+//                     var callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+        
+//                     var updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
+//                         data: configSuccessRewardParamValue,
+//                         type: callGovernanceLambdaEntrypointType
+//                     }).catch(e => console.error('error:', e));
+        
+//                     var firstPackedUpdateConfigSuccessRewardParam;
+//                     if (updateConfigSuccessRewardPacked) {
+//                         firstPackedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
+//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
+//                     } else {
+//                         throw `packing failed`
+//                     };
+
+//                     // Pack second data
+//                     configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
+//                         'updateGovernanceConfig', 1600, 'configSuccessReward'
+//                     ).toTransferParams();
+//                     configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
+//                     callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+        
+//                     updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
+//                         data: configSuccessRewardParamValue,
+//                         type: callGovernanceLambdaEntrypointType
+//                     }).catch(e => console.error('error:', e));
+        
+//                     var secondPackedUpdateConfigSuccessRewardParam;
+//                     if (updateConfigSuccessRewardPacked) {
+//                         secondPackedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
+//                         // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
+//                     } else {
+//                         throw `packing failed`
+//                     };
+
+//                     // Operation
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1.2",
+//                                 encodedCode: firstPackedUpdateConfigSuccessRewardParam,
+// 								code: "",
+//                                 index: "1"
+//                             }
+//                         },
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#2",
+//                                 encodedCode: secondPackedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             }
+//                         },
+//                         {
+//                             removeProposalData: "2"
+//                         },
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#3",
+//                                 encodedCode: firstPackedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             }
+//                         },
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#2.1",
+//                                 encodedCode: secondPackedUpdateConfigSuccessRewardParam,
+// 								code: "",
+//                                 index: "2"
+//                             }
+//                         }
+//                     ]).send();
+//                     await addDataOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage               = await governanceInstance.storage();
+//                     const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
+//                     const firstProposalDataStorage  = await proposal.proposalData.get("1");
+//                     const secondProposalDataStorage = await proposal.proposalData.get("2");
+//                     const thirdProposalDataStorage  = await proposal.proposalData.get("3");
+
+//                     // Assertions
+//                     assert.strictEqual(firstProposalDataStorage.title, "Data#1.2")
+//                     assert.strictEqual(firstProposalDataStorage.encodedCode, firstPackedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(secondProposalDataStorage.title, "Data#2.1")
+//                     assert.strictEqual(secondProposalDataStorage.encodedCode, secondPackedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(thirdProposalDataStorage.title,  "Data#3")
+//                     assert.strictEqual(thirdProposalDataStorage.encodedCode, firstPackedUpdateConfigSuccessRewardParam)
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should be able to add payment data to a proposal', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage           = await governanceInstance.storage()
+//                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+
+//                     // Transaction data
+//                     const transaction           = {
+//                         "to_"    : bob.pkh,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : mvkTokenAddress.address,
+//                                 "tokenId" : 0
+//                             }
+//                         },
+//                         "amount" : MVK(50)
+//                     }
+
+//                     // Operation
+//                     const addDataOperation      = await governanceInstance.methods.updateProposalData(proposalId, null, [
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#2",
+//                                 transaction: transaction
+//                             }
+//                         }
+//                     ]).send();
+//                     await addDataOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage               = await governanceInstance.storage();
+//                     const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
+//                     const firstProposalDataStorage  = await proposal.paymentData.get("1");
+
+
+//                     // Assertions
+//                     assert.strictEqual(firstProposalDataStorage.title, "Payment#2")
+//                     assert.notStrictEqual(firstProposalDataStorage.transaction, undefined)
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should be able to update payment data from a proposal', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage           = await governanceInstance.storage()
+//                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+
+//                     // Transaction data
+//                     const transaction           = {
+//                         "to_"    : alice.pkh,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : mvkTokenAddress.address,
+//                                 "tokenId" : 0
+//                             }
+//                         },
+//                         "amount" : MVK(50)
+//                     }
+
+//                     // Operation
+//                     const addDataOperation      = await governanceInstance.methods.updateProposalData(proposalId, null, [
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#2.1",
+//                                 transaction: transaction,
+//                                 index: "1"
+//                             }
+//                         }
+//                     ]).send();
+//                     await addDataOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage               = await governanceInstance.storage();
+//                     const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
+//                     const firstProposalDataStorage  = await proposal.paymentData.get("1");
+
+//                     // Assertions
+//                     assert.strictEqual(firstProposalDataStorage.title, "Payment#2.1")
+//                     assert.notStrictEqual(firstProposalDataStorage.transaction, undefined)
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should be able to remove payment data from a proposal', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage           = await governanceInstance.storage()
+//                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+
+//                     // Operation
+//                     const addDataOperation      = await governanceInstance.methods.updateProposalData(proposalId, null, [
+//                         {
+//                             removePaymentData: "1"
+//                         }
+//                     ]).send();
+//                     await addDataOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage               = await governanceInstance.storage();
+//                     const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
+//                     const firstProposalDataStorage  = await proposal.paymentData.get("1");
+
+//                     // Assertions
+//                     assert.strictEqual(firstProposalDataStorage, null)
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should be able to remove add, set and remove data from a proposal', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage           = await governanceInstance.storage()
+//                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+
+//                     // Transaction data
+//                     const firstTransaction      = {
+//                         "to_"    : alice.pkh,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : mvkTokenAddress.address,
+//                                 "tokenId" : 0
+//                             }
+//                         },
+//                         "amount" : MVK(50)
+//                     }
+//                     const secondTransaction     = {
+//                         "to_"    : bob.pkh,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : mvkTokenAddress.address,
+//                                 "tokenId" : 0
+//                             }
+//                         },
+//                         "amount" : MVK(50)
+//                     }
+
+//                     // Operation
+//                     const addDataOperation      = await governanceInstance.methods.updateProposalData(proposalId, null, [
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#3",
+//                                 transaction: firstTransaction,
+//                             }
+//                         },
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#3",
+//                                 transaction: firstTransaction,
+//                                 index: "1"
+//                             }
+//                         },
+//                         {
+//                             removePaymentData: "1"
+//                         },
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#2.2",
+//                                 transaction: secondTransaction,
+//                                 index: "1"
+//                             }
+//                         }
+//                     ]).send();
+//                     await addDataOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage               = await governanceInstance.storage();
+//                     const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
+//                     const firstProposalDataStorage  = await proposal.paymentData.get("1");
+//                     const secondProposalDataStorage = await proposal.paymentData.get("2");
+
+//                     // Assertions
+//                     assert.strictEqual(firstProposalDataStorage.title, "Payment#2.2")
+//                     assert.notStrictEqual(firstProposalDataStorage.transaction, undefined)
+//                     assert.strictEqual(secondProposalDataStorage.title, "Payment#3")
+//                     assert.notStrictEqual(secondProposalDataStorage.transaction, undefined)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1111,15 +1517,15 @@
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("2");
-
-//                     // Assertions
-//                     assert.strictEqual(proposalMetadataStorage, undefined)
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#4",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1151,20 +1557,21 @@
 //                     };
 
 //                     // Operation
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-
-//                     // Assertions
-//                     assert.strictEqual(proposal, undefined)
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#4",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
-//             it('Satellite should not be able to call this entrypoint if it did not created the proposal  ', async () => {
+//             it('Satellite should not be able to call this entrypoint if it did not created the proposal', async () => {
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
@@ -1191,15 +1598,15 @@
 
 //                     // Operation
 //                     await signerFactory(alice.sk);
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("2");
-
-//                     // Assertions
-//                     assert.strictEqual(proposalMetadataStorage, undefined)
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#4",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1461,7 +1868,15 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     // Operation
@@ -2080,7 +2495,15 @@
 //                     assert.strictEqual(currentCycleInfoRoundString, "voting");
 
 //                     // Operation
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected; 
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send()).to.be.rejected; 
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -2136,7 +2559,15 @@
 //                     };
 
 //                     // Operation
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected; 
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send()).to.be.rejected; 
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -2309,6 +2740,9 @@
 //                     const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
 //                     const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
 //                     const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
+                    
+//                     console.log("BALANCE:", preIncreaseSatellite)
+//                     console.log("BALANCE2:", postIncreaseSatellite)
 
 //                     // Assertions
 //                     assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
@@ -2444,7 +2878,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2584,7 +3026,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2677,7 +3127,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2785,7 +3243,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2881,7 +3347,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2968,7 +3442,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     var addDataOperation = await governanceInstance.methods.updateProposalData(firstProposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     var addDataOperation = await governanceInstance.methods.updateProposalData(firstProposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     var lockOperation = await governanceInstance.methods.lockProposal(firstProposalId).send();
@@ -3011,7 +3493,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     addDataOperation = await governanceInstance.methods.updateProposalData(secondProposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     addDataOperation = await governanceInstance.methods.updateProposalData(secondProposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     lockOperation = await governanceInstance.methods.lockProposal(secondProposalId).send();
@@ -3100,7 +3590,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3169,7 +3667,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3250,7 +3756,15 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: packedUpdateConfigSuccessRewardParam,
+// 								code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3374,7 +3888,15 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", Buffer.from("TestWithWrongData", 'ascii').toString('hex')).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Data#1",
+//                                 encodedCode: Buffer.from("TestWithWrongData", 'ascii').toString('hex'),
+//                                 code: ""
+//                             },
+//                         }
+//                     ]).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3395,10 +3917,10 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
 //                     await startNextRoundOperation.confirmation();
                     
-//                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
-//                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
+//                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
 
 //                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, false)
