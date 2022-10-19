@@ -29,7 +29,7 @@ const tabsList: TabItem[] = [
   },
 ]
 
-export const DataFeedsChart: FC<Props> = ({ className, dataFeedsHistory, dataFeedsVolatility }) => {
+export function DataFeedsChart({ className, dataFeedsHistory, dataFeedsVolatility }: Props) {
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isHistory = activeTab === tabsList[0].text
 
