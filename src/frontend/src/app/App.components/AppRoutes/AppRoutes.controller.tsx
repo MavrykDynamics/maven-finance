@@ -6,7 +6,7 @@ import Satellites from 'pages/Satellites/Satellites.controller'
 import UserDetails from 'pages/UsersOracles/details/UsersDetails.controler'
 import Users from 'pages/UsersOracles/Users.controller'
 import { useSelector } from 'react-redux'
-import { Redirect, Route, Switch } from 'react-router-dom'
+import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { State } from 'reducers'
 
 import { Admin } from '../../../pages/Admin/Admin.controller'
@@ -27,11 +27,22 @@ import { Treasury } from '../../../pages/Treasury/Treasury.controller'
 import { Vaults } from '../../../pages/Vaults/Vaults.controller'
 // pages
 import ProtectedRoute from './ProtectedRoute'
+import { useEffect } from 'react'
 
 export const AppRoutes = () => {
+  const { pathname } = useLocation()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
+
+  // Scroll to the top of the page when moving to others page
+  useEffect(() => {
+    const isActiveScroll = document.body.scrollHeight !== window.innerHeight
+
+    if (isActiveScroll) {
+      window.scrollTo(0, 0)
+    }
+  }, [pathname])
 
   return (
     <Switch>
