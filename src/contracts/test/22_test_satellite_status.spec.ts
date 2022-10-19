@@ -579,7 +579,7 @@
 
 //         })
 
-//         describe("%updateAggregatorStatus", async () => {
+//         describe("%togglePauseAggregator", async () => {
 
 //             it('Suspended satellite should not be able to update an aggregator status', async () => {
 //                 try{
@@ -590,7 +590,7 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "INACTIVE", "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "Test purpose", "pauseAll").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
@@ -608,7 +608,7 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "INACTIVE", "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "Test purpose", "pauseAll").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
@@ -631,7 +631,7 @@
 //                     const actionId                  = governanceSatelliteStorage.governanceSatelliteCounter.toNumber();
     
 //                     // Operation
-//                     const operation                 = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "INACTIVE", "Test purpose").send()
+//                     const operation                 = await governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "Test purpose", "pauseAll").send()
 //                     await operation.confirmation()
     
 //                     // Final values

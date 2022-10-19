@@ -393,15 +393,6 @@ block {
 
                 operations := aggregatorOrigination.0 # operations; 
 
-                // Register Aggregator operation to Governance Satellite Contract
-                const registerAggregatorParams : registerAggregatorActionType = aggregatorOrigination.1;
-                
-                const registerAggregatorOperation : operation = Tezos.transaction(
-                    registerAggregatorParams,
-                    0tez,
-                    getRegisterAggregatorInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
-                );
-
                 // If addToGeneralContracts boolean is True - add new Aggregator to the Governance Contract - General Contracts Map
                 if createAggregatorParams.addToGeneralContracts = True then {
                     
@@ -426,8 +417,6 @@ block {
 
                 }
                 else skip;
-
-                operations := registerAggregatorOperation # operations;
 
             }
         |   _ -> skip
