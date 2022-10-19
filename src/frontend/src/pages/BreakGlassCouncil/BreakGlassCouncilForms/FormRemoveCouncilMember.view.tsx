@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -17,7 +17,7 @@ import { getShortTzAddress } from '../../../utils/tzAdress'
 // actions
 import { removeCouncilMember } from '../BreakGlassCouncil.actions'
 
-export const FormRemoveCouncilMemberView: FC = () => {
+export function FormRemoveCouncilMemberView() {
   const dispatch = useDispatch()
   const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 

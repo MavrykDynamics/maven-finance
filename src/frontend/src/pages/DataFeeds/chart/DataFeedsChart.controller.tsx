@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { useState } from 'react'
 
 // components
 import Chart from '../../../app/App.components/Chart/Chart.view'

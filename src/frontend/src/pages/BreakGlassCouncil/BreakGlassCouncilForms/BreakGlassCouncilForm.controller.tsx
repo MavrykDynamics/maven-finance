@@ -1,5 +1,3 @@
-import React, { FC } from 'react'
-
 // components
 import { FormSetAllContractsAdminView } from './FormSetAllContractsAdmin.view'
 import { FormSetSingleContractAdminView } from './FormSetSingleContractAdmin.view'
