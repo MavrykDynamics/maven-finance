@@ -1118,7 +1118,7 @@
 
 //             // get bob satellite oracle record
 //             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord == undefined ? 0 : bobSatelliteOracleRecord.aggregatorsSubscribed.toNumber();
+//             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord == undefined ? 0 : bobSatelliteOracleRecord.size;
             
 //             const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
 //             const bobStakeAmount           = MVK(100);
@@ -1196,7 +1196,7 @@
 //             const updatedInitiatorsActions                          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 
 //             const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.aggregators.get(usdBtcAggregatorAddress);
+//             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
 
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
 //             const updatedAggregatorOracles : any                    = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
@@ -1238,8 +1238,7 @@
 //              assert.equal(actionsInitiatorCheck, false)
 
 //             // check that bob oracle aggregator record is updated
-//             assert.equal(updatedBobSatelliteOracleRecord.aggregatorsSubscribed,     numberOraclesSubscribedAtStart + 1);
-//             assert.equal(bobUsdBtcOracleAggregatorRecord.aggregatorAddress,         usdBtcAggregatorAddress);
+//             assert.notEqual(bobUsdBtcOracleAggregatorRecord, undefined);
 
 //             // check that bob is now added to aggregator oracleAddresses Set
 //             assert.equal(updatedAggregatorOracles.oraclePeerId, bob.peerId);
@@ -1273,7 +1272,7 @@
 
 //             // get bob satellite oracle record
 //             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord.aggregatorsSubscribed.toNumber();
+//             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord.size;
             
 //             const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
 //             const bobStakeAmount           = MVK(100);
@@ -1344,7 +1343,7 @@
 //             const updatedInitiatorsActions                          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 
 //             const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.aggregators.get(usdBtcAggregatorAddress);
+//             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
 
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
 //             const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
@@ -1381,7 +1380,6 @@
 //              assert.equal(actionsInitiatorCheck, false)
 
 //             // check that bob oracle aggregator record is updated
-//             assert.equal(updatedBobSatelliteOracleRecord.aggregatorsSubscribed,     numberOraclesSubscribedAtStart - 1);
 //             assert.equal(bobUsdBtcOracleAggregatorRecord,                           undefined);
 
 //             // check that bob is now removed from aggregator oracleAddresses Set
@@ -1430,7 +1428,7 @@
 
 //             // get bob satellite oracle record
 //             const bobSatelliteOracleRecord             = await governanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord == undefined ? 0 : bobSatelliteOracleRecord.aggregatorsSubscribed.toNumber();
+//             const numberOraclesSubscribedAtStart       = bobSatelliteOracleRecord == undefined ? 0 : bobSatelliteOracleRecord.size;
             
 //             const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
 //             const bobStakeAmount           = MVK(100);
@@ -1614,9 +1612,9 @@
 
 //             const updatedBobSatelliteOracleRecord      = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
 
-//             const bobUsdBtcOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.aggregators.get(usdBtcAggregatorAddress);
-//             const bobUsdXtzOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.aggregators.get(usdXtzAggregatorAddress);
-//             const bobUsdDogeOracleAggregatorRecord     = await updatedBobSatelliteOracleRecord.aggregators.get(usdDogeAggregatorAddress);
+//             const bobUsdBtcOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
+//             const bobUsdXtzOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.get(usdXtzAggregatorAddress);
+//             const bobUsdDogeOracleAggregatorRecord     = await updatedBobSatelliteOracleRecord.get(usdDogeAggregatorAddress);
 
 //             const updatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
 //             const updatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
@@ -1641,10 +1639,9 @@
 //              assert.equal(actionsInitiatorCheck, false)
 
 //             // check that bob oracle aggregator record is updated
-//             assert.equal(updatedBobSatelliteOracleRecord.aggregatorsSubscribed,     numberOraclesSubscribedAtStart + 3);
-//             assert.equal(bobUsdBtcOracleAggregatorRecord.aggregatorAddress,         usdBtcAggregatorAddress);
-//             assert.equal(bobUsdXtzOracleAggregatorRecord.aggregatorAddress,         usdXtzAggregatorAddress);
-//             assert.equal(bobUsdDogeOracleAggregatorRecord.aggregatorAddress,        usdDogeAggregatorAddress);
+//             assert.notEqual(bobUsdBtcOracleAggregatorRecord,  undefined);
+//             assert.notEqual(bobUsdXtzOracleAggregatorRecord,  undefined);
+//             assert.notEqual(bobUsdDogeOracleAggregatorRecord, undefined);
 
 //             // check that bob is now added to aggregator oracleAddresses Set
 //             assert.equal(updatedUsdBtcAggregatorOracles.oraclePeerId, bob.peerId);
@@ -1712,9 +1709,9 @@
 //             const finalUpdatedGovernanceAction              = await finalUpdatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);              
 
 //             const finalUpdatedBobSatelliteOracleRecord      = await finalUpdatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const finalBobUsdBtcOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.aggregators.get(usdBtcAggregatorAddress);
-//             const finalBobUsdXtzOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.aggregators.get(usdXtzAggregatorAddress);
-//             const finalBobUsdDogeOracleAggregatorRecord     = await finalUpdatedBobSatelliteOracleRecord.aggregators.get(usdDogeAggregatorAddress);
+//             const finalBobUsdBtcOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.get(usdBtcAggregatorAddress);
+//             const finalBobUsdXtzOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.get(usdXtzAggregatorAddress);
+//             const finalBobUsdDogeOracleAggregatorRecord     = await finalUpdatedBobSatelliteOracleRecord.get(usdDogeAggregatorAddress);
 
 //             const finalUpdatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
 //             const finalUpdatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
@@ -1732,7 +1729,6 @@
 //             assert.equal(finalUpdatedGovernanceAction.executed,                true);
 
 //             // check that bob oracle aggregator record is finalUpdated
-//             assert.equal(finalUpdatedBobSatelliteOracleRecord.aggregatorsSubscribed,    0);
 //             assert.equal(finalBobUsdBtcOracleAggregatorRecord,                          undefined);
 //             assert.equal(finalBobUsdXtzOracleAggregatorRecord,                          undefined);
 //             assert.equal(finalBobUsdDogeOracleAggregatorRecord,                         undefined);
@@ -1750,7 +1746,7 @@
 // });  // end %addOracleToAggregator, %removeOracleInAggregator, %removeAllSatelliteOracles tests
 
 
-//   describe("%updateAggregatorStatus", async () => {
+//   describe("%togglePauseAggregator", async () => {
 
 //         it('Any satellite should be able to create a governance action to update aggregator status', async () => {
 //             try{        
@@ -1760,13 +1756,13 @@
                 
 //                 // get aggregator address from pair key
 //                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
-                
-//                 const aggregatorRecord         = await governanceSatelliteStorage.aggregatorLedger.get(usdBtcAggregatorAddress);
-//                 assert.equal(aggregatorRecord.status, "ACTIVE");
 
 //                 // get aggregator contract
 //                 const aggregatorInstance       = await utils.tezos.contract.at(usdBtcAggregatorAddress);
-//                 const aggregatorStorage        = await aggregatorInstance.storage();
+//                 aggregatorStorage              = await aggregatorInstance.storage();
+//                 assert.equal(aggregatorStorage.breakGlassConfig.updateDataIsPaused, false);
+//                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused, false);
+//                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused, false);
 
 //                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
 //                 const bobStakeAmount           = MVK(100);
@@ -1776,15 +1772,15 @@
 
 //                 // governance satellite action params
 //                 const aggregatorAddress        = usdBtcAggregatorAddress;
-//                 const newStatus                = "INACTIVE"
+//                 const newStatus                = "pauseAll"
 //                 const purpose                  = "Test Update Aggregator Status";            
     
 //                 // Satellite Bob creates a governance action - suspend Alice
 //                 await signerFactory(bob.sk);
-//                 const governanceSatelliteOperation = await governanceSatelliteInstance.methods.updateAggregatorStatus(
+//                 const governanceSatelliteOperation = await governanceSatelliteInstance.methods.togglePauseAggregator(
 //                         aggregatorAddress,
-//                         newStatus,
-//                         purpose
+//                         purpose,
+//                         newStatus
 //                     ).send();
 //                 await governanceSatelliteOperation.confirmation();
     
@@ -1800,7 +1796,7 @@
     
 //                 // check details of governance satellite action
 //                 assert.equal(governanceAction.initiator,                                 bob.pkh);
-//                 assert.equal(governanceAction.governanceType,                            "UPDATE_AGGREGATOR_STATUS");
+//                 assert.equal(governanceAction.governanceType,                            "TOGGLE_PAUSE_AGGREGATOR");
 //                 assert.equal(governanceAction.status,                                    true);
 //                 assert.equal(governanceAction.executed,                                  false);
 //                 assert.equal(governanceAction.governancePurpose,                         purpose);
@@ -1839,13 +1835,12 @@
 //                 const updatedGovernanceAction                      = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
 //                 const updatedInitiatorsActions                     = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 
-//                 const updatedAggregatorRecord                      = await updatedGovernanceSatelliteStorage.aggregatorLedger.get(usdBtcAggregatorAddress);
-//                 governanceStorage                              = await governanceInstance.storage();
-//                 const currentCycle                             = governanceStorage.cycleId;
-//                 const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
-//                 const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-//                 const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-//                 const mallorySnapshot                          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
+//                 governanceStorage                                  = await governanceInstance.storage();
+//                 const currentCycle                                 = governanceStorage.cycleId;
+//                 const aliceSnapshot                                = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 const eveSnapshot                                  = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
+//                 const bobSnapshot                                  = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 const mallorySnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
                 
 //                 // check details of governance satellite action snapshot ledger
 //                 assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
@@ -1870,22 +1865,25 @@
 //                 assert.equal(updatedGovernanceAction.status,                  true);
 //                 assert.equal(updatedGovernanceAction.executed,                true);
 //                 var actionsInitiatorCheck = false
-//             for(const i in updatedInitiatorsActions){
-//                 if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
-//                     actionsInitiatorCheck   = true;
-//                  }
-//              }
-//              assert.equal(actionsInitiatorCheck, false)
+//                 for(const i in updatedInitiatorsActions){
+//                     if(updatedInitiatorsActions[i].toNumber() == actionId.toNumber()){
+//                         actionsInitiatorCheck   = true;
+//                     }
+//                 }
+//                 assert.equal(actionsInitiatorCheck, false)
 
 //                 // check that aggregator is now inactive
-//                 assert.equal(updatedAggregatorRecord.status, "INACTIVE");
+//                 aggregatorStorage              = await aggregatorInstance.storage();
+//                 assert.equal(aggregatorStorage.breakGlassConfig.updateDataIsPaused, true);
+//                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused, true);
+//                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvkIsPaused, true);
             
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             } 
 //         });
         
-//     });  // end %updateAggregatorStatus tests
+//     });  // end %togglePauseAggregator tests
 
 
 //     describe("%fixMistakenTransfer", async () => {
@@ -2275,7 +2273,7 @@
 //                 var oraclePublicKey            = trudy.pk;
 //                 var oraclePeerId               = trudy.peerId;
 //                 const aggregatorAddress        = usdBtcAggregatorAddress;
-//                 const newStatus                = "INACTIVE"
+//                 const newStatus                = "pauseAll"
 //                 const purpose                  = "Test Purpose";            
 
 //                 // init non-satellite user
@@ -2334,30 +2332,14 @@
 //                 ).send();
 //                 await chai.expect(failRemoveAllSatelliteOraclesOperation).to.be.eventually.rejected;
 
-
-//                 // fail to create governance action to set aggregator maintainer
-//                 const failSetAggregatorMaintainerOperation = governanceSatelliteInstance.methods.updateAggregatorStatus(
-//                     aggregatorAddress,
-//                     bob.pkh,
-//                     purpose
-//                 ).send();
-//                 await chai.expect(failSetAggregatorMaintainerOperation).to.be.eventually.rejected;
-
                 
 //                 // fail to create governance action to update aggregator status
-//                 const failUpdateAggregatorStatusOperation = governanceSatelliteInstance.methods.updateAggregatorStatus(
+//                 const failTogglePauseAggregatorOperation = governanceSatelliteInstance.methods.togglePauseAggregator(
 //                     aggregatorAddress,
-//                     newStatus,
-//                     purpose
+//                     purpose,
+//                     newStatus
 //                 ).send();
-//                 await chai.expect(failUpdateAggregatorStatusOperation).to.be.eventually.rejected;
-                
-
-//                 // fail to create governance action to register aggregator
-//                 const failRegisterAggregatorOperation = governanceSatelliteInstance.methods.registerAggregator(
-//                     aggregatorAddress
-//                 ).send();
-//                 await chai.expect(failRegisterAggregatorOperation).to.be.eventually.rejected;
+//                 await chai.expect(failTogglePauseAggregatorOperation).to.be.eventually.rejected;
 
 
 //                 // Satellite Bob creates a governance action to add oracle to aggregator (with a real satellite)

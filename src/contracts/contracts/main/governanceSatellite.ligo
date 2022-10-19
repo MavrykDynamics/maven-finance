@@ -62,8 +62,7 @@ type governanceSatelliteAction is
     |   RemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
         // Aggregator Governance
-    |   RegisterAggregator            of registerAggregatorActionType
-    |   UpdateAggregatorStatus        of updateAggregatorStatusActionType
+    |   TogglePauseAggregator         of togglePauseAggregatorActionType
 
         // Mistaken Transfer Governance
     |   FixMistakenTransfer           of fixMistakenTransferParamsType
@@ -461,7 +460,7 @@ block {
     operations := case s.satelliteOracleLedger[oracleAddress] of [
             Some(_record) -> block {
 
-                for aggregatorAddress -> _aggregatorRecord in map _record.aggregators {
+                for aggregatorAddress -> _startDateTime in map _record {
 
                     const updateOperation : operation = case addOracle of [
                             True    -> case oracleInformationOpt of [
@@ -626,32 +625,17 @@ block {
         |   None            -> failwith(error_ORACLE_NOT_FOUND)
     ];
 
-    // Get aggregator record and add satellite to oracles set
-    var aggregatorRecord : aggregatorRecordType := case s.aggregatorLedger[aggregatorAddress] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
-    ];
-    aggregatorRecord.oracles := Set.add(oracleAddress, aggregatorRecord.oracles);
-
     // Get or create satellite oracle record
     var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[oracleAddress] of [
             Some(_record) -> _record
-        |   None -> record [
-                aggregatorsSubscribed   = 0n;
-                aggregators             = (map[] : aggregatorsMapType);
-            ]
+        |   None -> (map[] : aggregatorsMapType)
     ];
 
     // Update satellite oracle record with new aggregator
-    satelliteOracleRecord.aggregatorsSubscribed  := satelliteOracleRecord.aggregatorsSubscribed + 1n;
-    satelliteOracleRecord.aggregators[aggregatorAddress] := record [
-        aggregatorAddress   = aggregatorAddress;
-        startDateTime       = Tezos.get_now();
-    ];
+    satelliteOracleRecord[aggregatorAddress]    := Tezos.get_now();
 
     // Update storage
-    s.satelliteOracleLedger[oracleAddress] := satelliteOracleRecord;
-    s.aggregatorLedger[aggregatorAddress]  := aggregatorRecord;
+    s.satelliteOracleLedger[oracleAddress]      := satelliteOracleRecord;
 
     // Create operation to add oracle to aggregator
     const oracleInformation : oracleInformationType     = record [
@@ -709,13 +693,9 @@ block {
             Some(_record) -> _record
         |   None          -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
     ];
-    
-    // check that number of aggregators subscribed is not zero, before subtracting
-    if satelliteOracleRecord.aggregatorsSubscribed < 1n then failwith(error_SATELLITE_AGGREGATORS_SUBSCRIBED_CALCULATION_ERROR) else skip;
-    satelliteOracleRecord.aggregatorsSubscribed  := abs(satelliteOracleRecord.aggregatorsSubscribed - 1n);
 
     // Remove aggregator from satellite oracle record
-    remove aggregatorAddress from map satelliteOracleRecord.aggregators;
+    remove aggregatorAddress from map satelliteOracleRecord;
 
     // Update storage
     s.satelliteOracleLedger[oracleAddress] := satelliteOracleRecord;
@@ -744,7 +724,7 @@ block {
     ];
 
     // Loop to remove satellite's (i.e. oracle's) address in aggregators
-    for aggregatorAddress -> _aggregatorRecord in map satelliteOracleRecord.aggregators {
+    for aggregatorAddress -> _startDateTime in map satelliteOracleRecord {
 
         const removeOracleInAggregatorOperation : operation = Tezos.transaction(
             satelliteAddress, 
@@ -754,11 +734,10 @@ block {
 
         operations := removeOracleInAggregatorOperation # operations;
 
-        remove aggregatorAddress from map satelliteOracleRecord.aggregators;
+        remove aggregatorAddress from map satelliteOracleRecord;
     };      
 
     // Update satellite oracle record and ledger
-    satelliteOracleRecord.aggregatorsSubscribed  := 0n;
     s.satelliteOracleLedger[satelliteAddress] := satelliteOracleRecord;
 
 } with(operations, s)
@@ -766,8 +745,8 @@ block {
 
 
 
-// helper function to trigger the update aggregator status action during the vote
-function triggerUpdateAggregatorStatusSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); var s : governanceSatelliteStorageType) : return is
+// helper function to trigger the pause or unpause of all aggregator entrypoint action during the vote
+function triggerTogglePauseAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); var s : governanceSatelliteStorageType) : return is
 block {
 
     // Get aggregator address from governance satellite action record address map
@@ -780,48 +759,27 @@ block {
     ];
 
     // Get aggregator new status from governance satellite action record string map
-    const aggregatorNewStatus : string = case actionRecord.dataMap["status"] of [
-            Some(_status) -> case (Bytes.unpack(_status) : option(string)) of [
+    const toggleStatus : togglePauseAggregatorVariantType = case actionRecord.dataMap["status"] of [
+            Some(_status) -> case (Bytes.unpack(_status) : option(togglePauseAggregatorVariantType)) of [
                     Some (_v)   -> _v
                 |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
             ]
         |   None          -> failwith(error_AGGREGATOR_NEW_STATUS_NOT_FOUND)
     ];
 
-    // Get aggregator record
-    var aggregatorRecord : aggregatorRecordType := case s.aggregatorLedger[aggregatorAddress] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
-    ];
-
     // Create operation to pause or unpause aggregator based on status input
-    if aggregatorNewStatus = "ACTIVE" then block {
-
-        // unpause all entrypoints in aggregator
-        const unpauseAllInAggregatorOperation : operation = Tezos.transaction(
-            unit,
-            0tez,
-            getUnpauseAllInAggregatorEntrypoint(aggregatorAddress)
-        );
-
-        operations := unpauseAllInAggregatorOperation # operations;
-
-    } else if aggregatorNewStatus = "INACTIVE" then block {
-
-        // pause all entrypoints in aggregator
-        const pauseAllInAggregatorOperation : operation = Tezos.transaction(
-            unit,
-            0tez,
-            getPauseAllInAggregatorEntrypoint(aggregatorAddress)
-        );
-
-        operations := pauseAllInAggregatorOperation # operations;
-
-    } else skip;
-
-    // Update aggregator status
-    aggregatorRecord.status               := aggregatorNewStatus;
-    s.aggregatorLedger[aggregatorAddress] := aggregatorRecord;
+    operations  := case toggleStatus of [
+            PauseAll    -> Tezos.transaction(
+                unit,
+                0tez,
+                getPauseAllInAggregatorEntrypoint(aggregatorAddress)
+            ) # operations
+        |   UnpauseAll  -> Tezos.transaction(
+                unit,
+                0tez,
+                getUnpauseAllInAggregatorEntrypoint(aggregatorAddress)
+            ) # operations
+    ];
 
 } with (operations, s)
 
@@ -896,10 +854,10 @@ block {
     } else skip;
 
     // Governance: Update Aggregator Status
-    if actionRecord.governanceType = "UPDATE_AGGREGATOR_STATUS" then block {
-        const updateAggregatorStatusActionTrigger : return                              = triggerUpdateAggregatorStatusSatelliteAction(actionRecord, operations, s);
-        s           := updateAggregatorStatusActionTrigger.1;
-        operations  := updateAggregatorStatusActionTrigger.0;
+    if actionRecord.governanceType = "TOGGLE_PAUSE_AGGREGATOR" then block {
+        const togglePauseAggregatorActionTrigger : return                               = triggerTogglePauseAggregatorSatelliteAction(actionRecord, operations, s);
+        s           := togglePauseAggregatorActionTrigger.1;
+        operations  := togglePauseAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Mistaken Transfer Fix
@@ -1015,12 +973,6 @@ block {
 (* View: get a satellite oracle record *)
 [@view] function getSatelliteOracleRecordOpt(const satelliteAddress : address; var s : governanceSatelliteStorageType) : option(satelliteOracleRecordType) is
     Big_map.find_opt(satelliteAddress, s.satelliteOracleLedger)
-
-
-
-(* View: get an aggregator record *)
-[@view] function getAggregatorRecordOpt(const aggregatorAddress : address; var s : governanceSatelliteStorageType) : option(aggregatorRecordType) is
-    Big_map.find_opt(aggregatorAddress, s.aggregatorLedger)
 
 
 
@@ -1342,36 +1294,17 @@ block {
 
 
 
-(*  registerAggregator entrypoint  *)
-function registerAggregator(const registerAggregatorParams : registerAggregatorActionType; var s : governanceSatelliteStorageType) : return is 
+(*  togglePauseAggregator entrypoint  *)
+function togglePauseAggregator(const togglePauseAggregatorParams : togglePauseAggregatorActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterAggregator"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseAggregator"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRegisterAggregator(registerAggregatorParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
-
-} with response
-
-
-
-(*  updateAggregatorStatus entrypoint  *)
-function updateAggregatorStatus(const updateAggregatorStatusParams : updateAggregatorStatusActionType; var s : governanceSatelliteStorageType) : return is 
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorStatus"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateAggregatorStatus(updateAggregatorStatusParams);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaTogglePauseAggregator(togglePauseAggregatorParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -1519,8 +1452,7 @@ block{
         |   RemoveOracleInAggregator(parameters)      -> removeOracleInAggregator(parameters, s)
 
             // Aggregator Governance
-        |   RegisterAggregator(parameters)            -> registerAggregator(parameters, s)
-        |   UpdateAggregatorStatus(parameters)        -> updateAggregatorStatus(parameters, s)
+        |   TogglePauseAggregator(parameters)         -> togglePauseAggregator(parameters, s)
 
             // Mistaken Transfer Governance
         |   FixMistakenTransfer(parameters)           -> fixMistakenTransfer(parameters, s)

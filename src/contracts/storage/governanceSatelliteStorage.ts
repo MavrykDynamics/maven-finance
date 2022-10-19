@@ -46,7 +46,6 @@ export const governanceSatelliteStorage: governanceSatelliteStorageType = {
     actionsInitiators                   : MichelsonMap.fromLiteral({}),
     
     satelliteOracleLedger               : MichelsonMap.fromLiteral({}),
-    aggregatorLedger                    : MichelsonMap.fromLiteral({}),
     
     lambdaLedger                        : MichelsonMap.fromLiteral({})
 
