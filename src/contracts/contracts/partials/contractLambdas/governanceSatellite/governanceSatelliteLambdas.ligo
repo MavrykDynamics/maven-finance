@@ -504,22 +504,11 @@ block {
     if Tezos.get_sender() = s.admin or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_ALLOWED);
     
     case governanceSatelliteLambdaAction of [
-        |   LambdaRegisterAggregator(registerAggregatorParams) -> {
-                
-                // init params
-                const aggregatorAddress    : address          = registerAggregatorParams.aggregatorAddress;
-                const aggregatorPair       : string * string  = registerAggregatorParams.aggregatorPair;
+        |   LambdaRegisterAggregator(aggregatorAddress) -> {
 
-                // Check if Aggregator record already exists in storage ledger
-                case s.aggregatorLedger[aggregatorAddress] of [
-                        Some(_v) -> failwith(error_AGGREGATOR_CONTRACT_EXISTS)
-                    |   None     -> skip
-                ];
-
-                // Create new Aggregator record
+                // Prepare new Aggregator record
                 const emptyOracleSet : set(address) = set[];
                 const aggregatorRecord : aggregatorRecordType = record [
-                    aggregatorPair    = aggregatorPair;
                     status            = "ACTIVE";
                     createdTimestamp  = Tezos.get_now();
                     oracles           = emptyOracleSet;

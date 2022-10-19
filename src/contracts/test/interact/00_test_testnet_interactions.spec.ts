@@ -2179,8 +2179,6 @@ describe("Testnet interactions helper", async () => {
                 });
 
                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
-                    'USD',
-                    'BTC',
     
                     'USDBTC',
                     true,
@@ -2208,11 +2206,8 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
-                createdAggregatorAddress    = await aggregatorFactoryStorage.trackedAggregators.get({
-                  0: 'USD',
-                  1: 'BTC',
-                }) as string;
-                const operation             = await aggregatorFactoryInstance.methods.untrackAggregator('USD', 'BTC').send()
+                createdAggregatorAddress    = await aggregatorFactoryStorage.trackedAggregators[0]
+                const operation             = await aggregatorFactoryInstance.methods.untrackAggregator(createdAggregatorAddress).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2222,7 +2217,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin tracks an aggregator', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'BTC', createdAggregatorAddress).send()
+                const operation = await aggregatorFactoryInstance.methods.trackAggregator(createdAggregatorAddress).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2407,7 +2402,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin withdraws rewards xtz', async () => {
             try{
                 // Operation
-                var operation   = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'MVK', aggregatorAddress.address).send()
+                var operation   = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorAddress.address).send()
                 await operation.confirmation()
                 var operation = await aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send();
                 await operation.confirmation();
@@ -3148,7 +3143,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin registers an aggregator', async () => {
             try{
                 // Operation
-                const operation              = await governanceSatelliteInstance.methods.registerAggregator("MVK", "USDM", aggregatorAddress.address).send();
+                const operation              = await governanceSatelliteInstance.methods.registerAggregator(aggregatorAddress.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

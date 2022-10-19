@@ -116,7 +116,7 @@ block{
         if Tezos.get_sender() = Tezos.get_self_address() then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
     }
-} with unit
+} with Unit
 
 
 
@@ -461,7 +461,7 @@ block {
     operations := case s.satelliteOracleLedger[oracleAddress] of [
             Some(_record) -> block {
 
-                for aggregatorAddress -> _aggregatorRecord in map _record.aggregatorPairs {
+                for aggregatorAddress -> _aggregatorRecord in map _record.aggregators {
 
                     const updateOperation : operation = case addOracle of [
                             True    -> case oracleInformationOpt of [
@@ -637,15 +637,14 @@ block {
     var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[oracleAddress] of [
             Some(_record) -> _record
         |   None -> record [
-                aggregatorsSubscribed = 0n;
-                aggregatorPairs       = (map[] : aggregatorPairsMapType);
+                aggregatorsSubscribed   = 0n;
+                aggregators             = (map[] : aggregatorsMapType);
             ]
     ];
 
     // Update satellite oracle record with new aggregator
     satelliteOracleRecord.aggregatorsSubscribed  := satelliteOracleRecord.aggregatorsSubscribed + 1n;
-    satelliteOracleRecord.aggregatorPairs[aggregatorAddress] := record [
-        aggregatorPair      = aggregatorRecord.aggregatorPair;
+    satelliteOracleRecord.aggregators[aggregatorAddress] := record [
         aggregatorAddress   = aggregatorAddress;
         startDateTime       = Tezos.get_now();
     ];
@@ -716,7 +715,7 @@ block {
     satelliteOracleRecord.aggregatorsSubscribed  := abs(satelliteOracleRecord.aggregatorsSubscribed - 1n);
 
     // Remove aggregator from satellite oracle record
-    remove aggregatorAddress from map satelliteOracleRecord.aggregatorPairs;
+    remove aggregatorAddress from map satelliteOracleRecord.aggregators;
 
     // Update storage
     s.satelliteOracleLedger[oracleAddress] := satelliteOracleRecord;
@@ -745,7 +744,7 @@ block {
     ];
 
     // Loop to remove satellite's (i.e. oracle's) address in aggregators
-    for aggregatorAddress -> _aggregatorRecord in map satelliteOracleRecord.aggregatorPairs {
+    for aggregatorAddress -> _aggregatorRecord in map satelliteOracleRecord.aggregators {
 
         const removeOracleInAggregatorOperation : operation = Tezos.transaction(
             satelliteAddress, 
@@ -755,7 +754,7 @@ block {
 
         operations := removeOracleInAggregatorOperation # operations;
 
-        remove aggregatorAddress from map satelliteOracleRecord.aggregatorPairs;
+        remove aggregatorAddress from map satelliteOracleRecord.aggregators;
     };      
 
     // Update satellite oracle record and ledger
