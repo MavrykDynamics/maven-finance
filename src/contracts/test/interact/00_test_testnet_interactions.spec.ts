@@ -3140,22 +3140,12 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin registers an aggregator', async () => {
-            try{
-                // Operation
-                const operation              = await governanceSatelliteInstance.methods.registerAggregator(aggregatorAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin updates an aggregator status', async () => {
             try{
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "For tests purposes", "unpauseAll").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3251,7 +3241,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "For tests purposes", "unpauseAll").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.dropAction(actionId).send();

@@ -229,16 +229,6 @@ function getDistributeRewardInDelegationEntrypoint(const contractAddress : addre
         ];
 
 
-// helper function to get registerAggregator entrypoint in governanceSatellite contract
-function getRegisterAggregatorInGovernanceSatelliteEntrypoint(const contractAddress : address) : contract(registerAggregatorActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%registerAggregator",
-        contractAddress) : option(contract(registerAggregatorActionType))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_REGISTER_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(registerAggregatorActionType))
-        ];  
-
-
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
