@@ -201,8 +201,8 @@ type executeActionParamsType is
     |   UnstakeMvkTreasury                 of unstakeTreasuryType
 
     |   CreateAggregator                   of createAggregatorParamsType
-    |   TrackAggregator                    of trackAggregatorParamsType
-    |   UntrackAggregator                  of untrackAggregatorParamsType
+    |   TrackAggregator                    of (address)
+    |   UntrackAggregator                  of (address)
 
     |   UpdateMvkInflationRate             of (nat)
     |   TriggerMvkInflation                of (unit)

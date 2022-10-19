@@ -45,7 +45,7 @@ export const aggregatorFactoryStorage : aggregatorFactoryStorageType = {
 
     breakGlassConfig        : breakGlassConfig,
         
-    trackedAggregators      : MichelsonMap.fromLiteral({}),
+    trackedAggregators      : [],
     
     lambdaLedger            : MichelsonMap.fromLiteral({}),
     aggregatorLambdaLedger  : MichelsonMap.fromLiteral({}),

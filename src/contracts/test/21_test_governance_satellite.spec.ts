@@ -217,12 +217,9 @@
 //             const createAggregatorsBatch = await utils.tezos.wallet
 //             .batch()
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USD',
-//                 'BTC',
-
 //                 'USDBTC',
 //                 true,
-                
+
 //                 oracleMap,
 
 //                 new BigNumber(8),             // decimals
@@ -237,9 +234,6 @@
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USD',
-//                 'XTZ',
-
 //                 'USDXTZ',
 //                 true,
 
@@ -257,9 +251,6 @@
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USD',
-//                 'DOGE',
-
 //                 'USDDOGE',
 //                 true,
 
@@ -1115,13 +1106,7 @@
 //             aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
 
 //             // get aggregator address from pair key
-//             const pairOne = "USD";
-//             const pairTwo = "BTC";
-//             const usdBtcKey = {
-//               0 : pairOne,
-//               1 : pairTwo
-//             }
-//             const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdBtcKey);
+//             const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
             
 //             // get aggregator contract
 //             const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
@@ -1211,7 +1196,7 @@
 //             const updatedInitiatorsActions                          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 
 //             const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdBtcAggregatorAddress);
+//             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.aggregators.get(usdBtcAggregatorAddress);
 
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
 //             const updatedAggregatorOracles : any                    = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
@@ -1254,8 +1239,6 @@
 
 //             // check that bob oracle aggregator record is updated
 //             assert.equal(updatedBobSatelliteOracleRecord.aggregatorsSubscribed,     numberOraclesSubscribedAtStart + 1);
-//             assert.equal(bobUsdBtcOracleAggregatorRecord.aggregatorPair[0],         pairOne);
-//             assert.equal(bobUsdBtcOracleAggregatorRecord.aggregatorPair[1],         pairTwo);
 //             assert.equal(bobUsdBtcOracleAggregatorRecord.aggregatorAddress,         usdBtcAggregatorAddress);
 
 //             // check that bob is now added to aggregator oracleAddresses Set
@@ -1277,13 +1260,7 @@
 //             aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();
 
 //             // get aggregator address from pair key
-//             const pairOne = "USD";
-//             const pairTwo = "BTC";
-//             const usdBtcKey = {
-//                 0 : pairOne,
-//                 1 : pairTwo
-//             }
-//             const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdBtcKey);
+//             const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
 
 //             // get aggregator contract
 //             const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
@@ -1350,32 +1327,32 @@
 
 //             // 3 satellites vote yay to suspend alice satellite, alice's satellite votes nay
 //             await signerFactory(bob.sk);
-//             const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+//             const bobVotesForGovernanceActionOperation              = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
 //             await bobVotesForGovernanceActionOperation.confirmation();
 
 //             await signerFactory(eve.sk);
-//             const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+//             const eveVotesForGovernanceActionOperation              = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
 //             await eveVotesForGovernanceActionOperation.confirmation();
 
 //             await signerFactory(mallory.sk);
-//             const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+//             const malloryVotesForGovernanceActionOperation          = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
 //             await malloryVotesForGovernanceActionOperation.confirmation();
 
 //             // get updated storage
-//             const updatedGovernanceSatelliteStorage     = await governanceSatelliteInstance.storage();        
-//             const updatedGovernanceAction               = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-//             const updatedInitiatorsActions                         = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
+//             const updatedGovernanceSatelliteStorage                 = await governanceSatelliteInstance.storage();        
+//             const updatedGovernanceAction                           = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+//             const updatedInitiatorsActions                          = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 
-//             const updatedBobSatelliteOracleRecord       = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const bobUsdBtcOracleAggregatorRecord       = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdBtcAggregatorAddress);
+//             const updatedBobSatelliteOracleRecord                   = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
+//             const bobUsdBtcOracleAggregatorRecord                   = await updatedBobSatelliteOracleRecord.aggregators.get(usdBtcAggregatorAddress);
 
-//             const updatedAggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
-//             const updatedAggregatorOracles                         = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
-//             governanceStorage                              = await governanceInstance.storage();
-//             const currentCycle                             = governanceStorage.cycleId;
-//             const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
-//             const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
-//             const mallorySnapshot                          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
+//             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
+//             const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             governanceStorage                                       = await governanceInstance.storage();
+//             const currentCycle                                      = governanceStorage.cycleId;
+//             const eveSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
+//             const bobSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//             const mallorySnapshot                                   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
             
 //             // check details of governance satellite action snapshot ledger
 //             assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
@@ -1425,31 +1402,13 @@
 //             // Test flow: add three aggregators to bob's satellite, then initiate governance action to remove all satellite oracles 
 
 //             // get aggregator address from pair key
-//             const firstAggregatorPairOne = "USD";
-//             const firstAggregatorPairTwo = "BTC";
-//             const usdBtcKey = {
-//                 0 : firstAggregatorPairOne,
-//                 1 : firstAggregatorPairTwo
-//             }
-//             const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdBtcKey);
+//             const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
 
 //             // get aggregator address from pair key
-//             const secondAggregatorPairOne = "USD";
-//             const secondAggregatorPairTwo = "XTZ";
-//             const usdXtzKey = {
-//                 0 : secondAggregatorPairOne,
-//                 1 : secondAggregatorPairTwo
-//             }
-//             const usdXtzAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdXtzKey);
+//             const usdXtzAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[1];
 
 //             // get aggregator address from pair key
-//             const thirdAggregatorPairOne = "USD";
-//             const thirdAggregatorPairTwo = "DOGE";
-//             const usdDogeKey = {
-//                 0 : thirdAggregatorPairOne,
-//                 1 : thirdAggregatorPairTwo
-//             }
-//             const usdDogeAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdDogeKey);
+//             const usdDogeAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[2];
             
 //             // get aggregator contracts
 //             const usdBtcAggregatorInstance       = await utils.tezos.contract.at(usdBtcAggregatorAddress);
@@ -1655,9 +1614,9 @@
 
 //             const updatedBobSatelliteOracleRecord      = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
 
-//             const bobUsdBtcOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdBtcAggregatorAddress);
-//             const bobUsdXtzOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdXtzAggregatorAddress);
-//             const bobUsdDogeOracleAggregatorRecord     = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdDogeAggregatorAddress);
+//             const bobUsdBtcOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.aggregators.get(usdBtcAggregatorAddress);
+//             const bobUsdXtzOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.aggregators.get(usdXtzAggregatorAddress);
+//             const bobUsdDogeOracleAggregatorRecord     = await updatedBobSatelliteOracleRecord.aggregators.get(usdDogeAggregatorAddress);
 
 //             const updatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
 //             const updatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
@@ -1753,9 +1712,9 @@
 //             const finalUpdatedGovernanceAction              = await finalUpdatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);              
 
 //             const finalUpdatedBobSatelliteOracleRecord      = await finalUpdatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
-//             const finalBobUsdBtcOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.aggregatorPairs.get(usdBtcAggregatorAddress);
-//             const finalBobUsdXtzOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.aggregatorPairs.get(usdXtzAggregatorAddress);
-//             const finalBobUsdDogeOracleAggregatorRecord     = await finalUpdatedBobSatelliteOracleRecord.aggregatorPairs.get(usdDogeAggregatorAddress);
+//             const finalBobUsdBtcOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.aggregators.get(usdBtcAggregatorAddress);
+//             const finalBobUsdXtzOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.aggregators.get(usdXtzAggregatorAddress);
+//             const finalBobUsdDogeOracleAggregatorRecord     = await finalUpdatedBobSatelliteOracleRecord.aggregators.get(usdDogeAggregatorAddress);
 
 //             const finalUpdatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
 //             const finalUpdatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
@@ -1800,13 +1759,7 @@
 //                 governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
                 
 //                 // get aggregator address from pair key
-//                 const pairOne = "USD";
-//                 const pairTwo = "BTC";
-//                 const usdBtcKey = {
-//                     0 : pairOne,
-//                     1 : pairTwo
-//                 }
-//                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdBtcKey);
+//                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
                 
 //                 const aggregatorRecord         = await governanceSatelliteStorage.aggregatorLedger.get(usdBtcAggregatorAddress);
 //                 assert.equal(aggregatorRecord.status, "ACTIVE");
@@ -2314,13 +2267,7 @@
 //                 governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
                 
 //                 // get aggregator address from pair key
-//                 const pairOne = "USD";
-//                 const pairTwo = "BTC";
-//                 const usdBtcKey = {
-//                     0 : pairOne,
-//                     1 : pairTwo
-//                 }
-//                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdBtcKey);
+//                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
                 
 //                 // dummy governance satellite action params
 //                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
@@ -2408,8 +2355,6 @@
 
 //                 // fail to create governance action to register aggregator
 //                 const failRegisterAggregatorOperation = governanceSatelliteInstance.methods.registerAggregator(
-//                     "BTC",
-//                     "USD",
 //                     aggregatorAddress
 //                 ).send();
 //                 await chai.expect(failRegisterAggregatorOperation).to.be.eventually.rejected;

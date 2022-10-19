@@ -189,7 +189,7 @@ block {
                 if s.breakGlassConfig.distributeRewardXtzIsPaused then skip
                 else s.breakGlassConfig.distributeRewardXtzIsPaused := True;
 
-                for _key -> aggregatorAddress in map s.trackedAggregators
+                for aggregatorAddress in set s.trackedAggregators
                 block {
                     case (Tezos.get_entrypoint_opt("%pauseAll", aggregatorAddress) : option(contract(unit))) of [
                             Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
@@ -232,7 +232,7 @@ block {
                 if s.breakGlassConfig.distributeRewardXtzIsPaused then s.breakGlassConfig.distributeRewardXtzIsPaused := False
                 else skip;
 
-                for _key -> aggregatorAddress in map s.trackedAggregators
+                for aggregatorAddress in set s.trackedAggregators
                 block {
                     case (Tezos.get_entrypoint_opt("%unpauseAll", aggregatorAddress) : option(contract(unit))) of [
                             Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
@@ -327,7 +327,6 @@ block {
                 const oracleRewardXtz        : oracleRewardXtzType        = map[];
                 const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
 
-
                 // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
                 const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
@@ -350,11 +349,11 @@ block {
                 // Prepare Aggregator Metadata
                 const aggregatorMetadata: metadataType = Big_map.literal (list [
                     ("", ("74657a6f732d73746f726167653a64617461" : bytes));
-                    ("data", createAggregatorParams.2.metadata);
+                    ("data", createAggregatorParams.metadata);
                 ]); 
 
                 // Validate name input does not exceed max length
-                const aggregatorName : string = createAggregatorParams.2.name;
+                const aggregatorName : string = createAggregatorParams.name;
                 if String.length(aggregatorName) > s.config.aggregatorNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Declare new Aggregator Storage 
@@ -363,7 +362,7 @@ block {
                     admin                     = s.admin;                                      // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
                     metadata                  = aggregatorMetadata;
                     name                      = aggregatorName;
-                    config                    = createAggregatorParams.2.aggregatorConfig;
+                    config                    = createAggregatorParams.aggregatorConfig;
                     breakGlassConfig          = aggregatorBreakGlassConfig;
 
                     mvkTokenAddress           = s.mvkTokenAddress;
@@ -372,7 +371,7 @@ block {
                     whitelistContracts        = aggregatorWhitelistContracts;      
                     generalContracts          = aggregatorGeneralContracts;
 
-                    oracleAddresses           = createAggregatorParams.2.oracleAddresses;
+                    oracleAddresses           = createAggregatorParams.oracleAddresses;
                     
                     lastCompletedData        = lastCompletedData;
                                         
@@ -390,15 +389,12 @@ block {
                 );
                 
                 // Add new Aggregator to Tracked Aggregators map on Aggregator Factory
-                s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators);
+                s.trackedAggregators := Set.add(aggregatorOrigination.1, s.trackedAggregators);
 
                 operations := aggregatorOrigination.0 # operations; 
 
                 // Register Aggregator operation to Governance Satellite Contract
-                const registerAggregatorParams : registerAggregatorActionType = record [
-                    aggregatorPair      = (createAggregatorParams.0, createAggregatorParams.1);
-                    aggregatorAddress   = aggregatorOrigination.1
-                ];
+                const registerAggregatorParams : registerAggregatorActionType = aggregatorOrigination.1;
                 
                 const registerAggregatorOperation : operation = Tezos.transaction(
                     registerAggregatorParams,
@@ -407,7 +403,7 @@ block {
                 );
 
                 // If addToGeneralContracts boolean is True - add new Aggregator to the Governance Contract - General Contracts Map
-                if createAggregatorParams.2.addToGeneralContracts = True then {
+                if createAggregatorParams.addToGeneralContracts = True then {
                     
                     const updateGeneralMapRecord : updateGeneralContractsType = record [
                         generalContractName    = aggregatorName;
@@ -449,8 +445,8 @@ block{
     // 1. Standard checks
     //      -   Check that %trackAggregator entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is admin
-    // 2. Check if Aggregator Pair exists (e.g. BTC/USD) 
-    //      -   Add Aggregator Contract to Tracked Aggregators Map if Aggregator Pair does not exist
+    // 2. Check if Aggregator Name exists (e.g. BTC/USD) 
+    //      -   Add Aggregator Contract to Tracked Aggregators Map if Aggregator Name does not exist
 
     // Check that %trackAggregator entrypoint is not paused (e.g. glass broken)
     checkTrackAggregatorIsNotPaused(s);
@@ -463,9 +459,9 @@ block{
     case aggregatorFactoryLambdaAction of [
         |   LambdaTrackAggregator(trackAggregatorParams) -> {
                 
-                s.trackedAggregators := case Map.mem((trackAggregatorParams.pairFirst, trackAggregatorParams.pairSecond), s.trackedAggregators) of [
+                s.trackedAggregators := case Set.mem(trackAggregatorParams, s.trackedAggregators) of [
                         True  -> failwith(error_AGGREGATOR_ALREADY_TRACKED)
-                    |   False -> Map.add((trackAggregatorParams.pairFirst, trackAggregatorParams.pairSecond), trackAggregatorParams.aggregatorAddress, s.trackedAggregators)
+                    |   False -> Set.add(trackAggregatorParams, s.trackedAggregators)
                 ];
 
             }
@@ -497,7 +493,10 @@ block{
     case aggregatorFactoryLambdaAction of [
         |   LambdaUntrackAggregator(untrackAggregatorParams) -> {
 
-                s.trackedAggregators := Map.update((untrackAggregatorParams.pairFirst, untrackAggregatorParams.pairSecond), (None : option(address)), s.trackedAggregators);
+                s.trackedAggregators := case Set.mem(untrackAggregatorParams, s.trackedAggregators) of [
+                        True  -> Set.remove(untrackAggregatorParams, s.trackedAggregators)
+                    |   False -> (failwith(error_AGGREGATOR_NOT_TRACKED) : set(address))
+                ];
 
             }
         |   _ -> skip

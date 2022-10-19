@@ -47,21 +47,19 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
 type governanceSatelliteActionLedgerType is big_map (actionIdType, governanceSatelliteActionRecordType);
 
 
-type oracleAggregatorPairRecordType is [@layout:comb] record [
-    aggregatorPair     : (string * string);   // e.g. BTC-USD
+type oracleAggregatorRecordType is [@layout:comb] record [
     aggregatorAddress  : address; 
     startDateTime      : timestamp;   
 ]
-type aggregatorPairsMapType is map(address, oracleAggregatorPairRecordType)
+type aggregatorsMapType is map(address, oracleAggregatorRecordType)
 type satelliteOracleRecordType is [@layout:comb] record [
     aggregatorsSubscribed  : nat;                       // total number of aggregators that satellite is providing data for
-    aggregatorPairs        : aggregatorPairsMapType;    // map of aggregators that satellite oracle is providing service for
+    aggregators            : aggregatorsMapType;        // map of aggregators that satellite oracle is providing service for
 ]
 type satelliteOracleLedgerType is big_map(address, satelliteOracleRecordType)
 
 
 type aggregatorRecordType is [@layout:comb] record [
-    aggregatorPair     : (string * string);   // e.g. BTC , USD
     status             : string;              // ACTIVE / INACTIVE
     createdTimestamp   : timestamp; 
     oracles            : set(address);
@@ -135,10 +133,7 @@ type voteForActionType is [@layout:comb] record [
     vote                        : voteType;
 ]
 
-type registerAggregatorActionType is [@layout:comb] record [
-    aggregatorPair              : string * string;        // e.g. BTC-USD  
-    aggregatorAddress           : address; 
-]
+type registerAggregatorActionType is address;
 
 type updateAggregatorStatusActionType is [@layout:comb] record [
     aggregatorAddress           : address;      
