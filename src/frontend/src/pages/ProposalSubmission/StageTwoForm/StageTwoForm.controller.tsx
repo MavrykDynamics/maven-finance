@@ -275,7 +275,7 @@ export const StageTwoForm = ({
             </article>
           )
         })}
-        <StyledTooltip placement="top" title="Insert new bytes pair">
+        <StyledTooltip placement="top" title="Add bytes pair">
           <button disabled={!isProposalPeriod || locked} onClick={handleCreateNewByte} className="step-plus-bytes">
             +
           </button>
