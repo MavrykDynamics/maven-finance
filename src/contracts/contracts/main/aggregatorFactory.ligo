@@ -22,6 +22,9 @@
 // Delegation Types
 #include "../partials/contractTypes/delegationTypes.ligo"
 
+// Governance Satellite Types
+#include "../partials/contractTypes/governanceSatelliteTypes.ligo"
+
 // Aggregator Types
 #include "../partials/contractTypes/aggregatorTypes.ligo"
 
@@ -58,8 +61,8 @@ type aggregatorFactoryAction is
 
         // Aggregator Factory Entrypoints
     |   CreateAggregator                of createAggregatorParamsType
-    |   TrackAggregator                 of trackAggregatorParamsType
-    |   UntrackAggregator               of untrackAggregatorParamsType
+    |   TrackAggregator                 of (address)
+    |   UntrackAggregator               of (address)
 
         // Aggregator Entrypoints
     |   DistributeRewardXtz             of distributeRewardXtzType
@@ -115,15 +118,7 @@ block{
 
 // Check that Sender is a tracked Aggregator address
 function checkInTrackedAggregators(const aggregatorAddress : address; const s : aggregatorFactoryStorageType) : bool is 
-block {
-
-    var inTrackedAggregatorsMap : bool := False;
-    for _key -> value in map s.trackedAggregators block {
-        if aggregatorAddress = value then inTrackedAggregatorsMap := True
-        else skip;
-    }
-    
-} with inTrackedAggregatorsMap
+    Set.mem(aggregatorAddress, s.trackedAggregators);
 
 
 
@@ -313,18 +308,8 @@ block {
 
 
 (* View: get tracked aggregators *)
-[@view] function getTrackedAggregators(const _ : unit; var s : aggregatorFactoryStorageType) : trackedAggregatorsType is
+[@view] function getTrackedAggregators(const _ : unit; var s : aggregatorFactoryStorageType) : set(address) is
     s.trackedAggregators
-
-
-
-(* View: get aggregator *)
-[@view] function getAggregator (const pair : string * string ; const s : aggregatorFactoryStorageType) : address is block {
-    const aggregatorAddress : address = case s.trackedAggregators[pair] of [
-            Some(_address) -> _address
-        |   None -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
-    ];
-} with (aggregatorAddress)
 
 
 
@@ -601,7 +586,7 @@ block {
 
 
 (*  trackAggregator entrypoint  *)
-function trackAggregator(const trackAggregatorParams: trackAggregatorParamsType; var s: aggregatorFactoryStorageType) : return is
+function trackAggregator(const trackAggregatorParams: address; var s: aggregatorFactoryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTrackAggregator"] of [
@@ -620,7 +605,7 @@ block {
 
 
 (*  untrackAggregator entrypoint  *)
-function untrackAggregator(const untrackAggregatorParams: untrackAggregatorParamsType; var s: aggregatorFactoryStorageType) : return is
+function untrackAggregator(const untrackAggregatorParams: address; var s: aggregatorFactoryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackAggregator"] of [

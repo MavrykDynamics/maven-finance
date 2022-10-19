@@ -31,6 +31,9 @@
 // Governance Types
 #include "../partials/contractTypes/governanceTypes.ligo"
 
+// Governance Satellite Types
+#include "../partials/contractTypes/governanceSatelliteTypes.ligo"
+
 // Aggregator Types
 #include "../partials/contractTypes/aggregatorTypes.ligo"
 
@@ -61,7 +64,7 @@ type aggregatorAction is
     |   TogglePauseEntrypoint                of aggregatorTogglePauseEntrypointType
 
         // Oracle Entrypoints
-    |   UpdateData                   of updateDataType
+    |   UpdateData                           of updateDataType
     
         // Reward Entrypoints
     |   WithdrawRewardXtz                    of withdrawRewardXtzType

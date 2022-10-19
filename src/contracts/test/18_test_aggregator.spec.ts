@@ -150,8 +150,6 @@
 
 //         // Setup second aggregator
 //         const createAggregatorOperation = await aggregatorFactoryInstance.methods.createAggregator(
-//             'USD',
-//             'DOGE',
 
 //             'USDDOGE',
 //             true,
@@ -174,9 +172,7 @@
 //         await createAggregatorOperation.confirmation();
 
 //         // Track original aggregator
-//         const trackAggregatorOperation = await aggregatorFactoryInstance.methods.trackAggregator(
-//             "USD", "test", aggregatorInstance.address
-//         ).send();
+//         const trackAggregatorOperation = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorInstance.address).send();
 //         await trackAggregatorOperation.confirmation();
 
 //         console.log('-- -- -- -- -- Aggregator Tests -- -- -- --')
