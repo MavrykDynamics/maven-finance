@@ -25,8 +25,7 @@ export const DropDownView = ({ placeholder, isOpen, onClick, clickItem, itemSele
   // move the scroll to fix it
   useEffect(() => {
     if (isOpen) {
-      const verticalPosition = 'center'
-      scrollToBottomOfElement(ref.current, verticalPosition)
+      scrollToBottomOfElement(ref.current)
     }
   }, [isOpen])
   return (
