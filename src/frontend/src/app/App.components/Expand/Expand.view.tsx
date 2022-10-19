@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 // view
 import Icon from '../Icon/Icon.view'
 
 // style
 import { ExpandStyled, ExpandArticleStyled } from './Expand.style'
+
+// helpers
+import { scrollToBottomOfElement } from '../../../utils/scrollToBottomOfElement'
 
 type Props = {
   children: React.ReactNode
@@ -29,10 +32,19 @@ export default function Expand({
 }: Props) {
   const [expanded, setExpanded] = useState<boolean>(false)
   const handleToggleExpand = () => setExpanded(!expanded)
+  const ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setExpanded(isExpandedByDefault)
   }, [isExpandedByDefault])
+
+  // if the children are not fully visible in the window,
+  // move the scroll to fix it
+  useEffect(() => {
+    if (expanded) {
+      scrollToBottomOfElement(ref.current)
+    }
+  }, [expanded])
 
   return (
     <ExpandStyled className={className}>
@@ -51,7 +63,7 @@ export default function Expand({
         </div>
         {sufix}
       </header>
-      <ExpandArticleStyled show={expanded}>{children}</ExpandArticleStyled>
+      <ExpandArticleStyled ref={ref} show={expanded}>{children}</ExpandArticleStyled>
     </ExpandStyled>
   )
 }
