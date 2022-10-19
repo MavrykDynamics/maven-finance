@@ -26,7 +26,7 @@ const tabsList: TabItem[] = [
   },
 ]
 
-export const DoormanChart: FC<Props> = ({ className }) => {
+export function DoormanChart({ className }: Props) {
   const { stakeHistoryData, smvkHistoryData } = useSelector((state: State) => state.doorman)
 
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
