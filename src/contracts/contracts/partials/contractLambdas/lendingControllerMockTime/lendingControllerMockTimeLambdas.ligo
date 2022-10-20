@@ -327,9 +327,21 @@ block {
 function lambdaSetLoanToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
+    // Steps Overview: 
+    // 1. Access Checks 
+    //      -   Check that %setLoanToken entrypoint is not paused (e.g. glass broken)
+    //      -   Check that sender is admin (Governance Proxy)
+    //      -   Check that no tez is sent
+    // 2a. If variant is CreateLoanToken
+    //      -   Check if loan token already exists
+    //      -   Update loan token ledger with new loan token record
+    // 2b. If variant is UpdateLoanToken
+    //      -   Get loan token record if exists
+    //      -   Update and save loan token record with new parameters
+
     checkNoAmount(Unit);                // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);            // check that sender is admin or the Governance Contract address
-    checkSetLoanTokenIsNotPaused(s);    // check that %setLoanToken entrypoint is not paused (e.g. if glass broken)
+    checkSenderIsAdmin(s);              // Check that sender is admin
+    checkSetLoanTokenIsNotPaused(s);    // Check that %setLoanToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaSetLoanToken(setLoanTokenParams) -> {
@@ -380,8 +392,21 @@ block {
 function lambdaSetCollateralToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s);                    // check that sender is admin 
-    checkSetCollateralTokenIsNotPaused(s);    // check that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
+    // Steps Overview: 
+    // 1. Access Checks 
+    //      -   Check that %setCollateralToken entrypoint is not paused (e.g. glass broken)
+    //      -   Check that sender is admin (Governance Proxy)
+    //      -   Check that no tez is sent
+    // 2a. If variant is CreateCollateralToken
+    //      -   Check if collateral token already exists
+    //      -   Update collateral token ledger with new collateral token record
+    // 2b. If variant is UpdateCollateralToken
+    //      -   Get collateral token record if exists
+    //      -   Update and save collateral token record with new parameters
+
+    checkNoAmount(Unit);                      // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s);                    // Check that sender is admin 
+    checkSetCollateralTokenIsNotPaused(s);    // Check that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
         |   LambdaSetCollateralToken(setCollateralTokenParams) -> {
@@ -424,6 +449,13 @@ block {
 (* registerVaultCreation lambda *)
 function lambdaRegisterVaultCreation(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
+
+    // Steps Overview: 
+    // 1. Check that %registerVaultCreation entrypoint is not paused (e.g. glass broken)
+    // 2. Check that sender is from the vault factory contract
+    // 3. Get loan token record and update loan token state to get the latest stats - utilisation rate, interest rate, compounded interest, and borrow index
+    // 4. Create and save vault record with vault handle as key
+    // 5. Add new vault to owner's vault set
     
     var operations : list(operation) := nil;
     checkRegisterVaultCreationIsNotPaused(s);    // check that %registerVaultCreation entrypoint is not paused (e.g. if glass broken)
@@ -503,6 +535,16 @@ block {
 (* addLiquidity lambda *)
 function lambdaAddLiquidity(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
+
+    // Steps Overview: 
+    // 1. Check that %addLiquidity entrypoint is not paused (e.g. glass broken)
+    // 2. Process add liquidity operation
+    //      -   Get loan token record
+    //      -   Send tokens to token pool / lending controller (i.e. self address)
+    //      -   Mint LP tokens and send to user (at a 1-to-1 ratio)
+    //      -   Update loan token state with new totals to get the latest stats - utilisation rate, interest rate, compounded interest, and borrow index
+    // 3. Get or create user's current token pool deposit balance 
+    // 4. Update user rewards (based on user's current token pool deposit balance, and not the updated balance)
 
     // init operations
     var operations : list(operation) := nil;
@@ -1104,10 +1146,6 @@ block {
                 
                 // calculate vault collateral value rebased (1e32 or 10^32)
                 const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
-
-                s.tempMap["vaultMaxLiquidationAmount"]      := vaultMaxLiquidationAmount;
-                s.tempMap["totalLiquidationAmount"]         := totalLiquidationAmount;
-                s.tempMap["vaultCollateralValueRebased"]    := vaultCollateralValueRebased;
                 
                 // loop tokens in vault collateral balance ledger to be liquidated
                 for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
@@ -1210,23 +1248,6 @@ block {
                         // Calculate new collateral balance
                         if treasuryTokenQuantityTotal > newTokenCollateralBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
                         newTokenCollateralBalance := abs(newTokenCollateralBalance - treasuryTokenQuantityTotal);
-
-                        if tokenName = "mvk" then {
-                            
-                            s.tempMap[tokenName] := newTokenCollateralBalance;
-                            s.tempMap["tokenBalance"] := tokenBalance;
-                            s.tempMap["rebaseDecimals"]     := rebaseDecimals;
-                            s.tempMap["tokenValueRaw"]      := tokenValueRaw;
-                            s.tempMap["tokenValueRebased"]  := tokenValueRebased;
-                            s.tempMap["tokenProportion"]    := tokenProportion;
-
-                            s.tempMap["liquidatorTokenProportionalValue"]    := liquidatorTokenProportionalValue;
-                            s.tempMap["liquidatorTokenQuantityTotal"]    := liquidatorTokenQuantityTotal;
-
-                            s.tempMap["treasuryTokenProportionalValue"]    := treasuryTokenProportionalValue;
-                            s.tempMap["treasuryTokenQuantityTotal"]    := treasuryTokenQuantityTotal;
-
-                        } else skip;
 
                         // ------------------------------------------------------------------
                         // Process liquidation transfer of collateral token
@@ -1989,26 +2010,38 @@ block {
                     
                     // final repayment amount covers interest and principal
 
-                    // calculate remainder amount
+                    // calculate remainder amount - i.e. how much principal should be reduced by after all interest has been covered
                     const principalReductionAmount : nat = abs(finalRepaymentAmount - newLoanInterestTotal);
 
                     // set total interest paid and reset loan interest to zero
                     totalInterestPaid := newLoanInterestTotal;
                     newLoanInterestTotal := 0n;
 
-                    // Calculate final loan principal and refund if exists
+                    // Calculate refund total if exists - i.e. difference between initial loan principal and principal reduction amount
                     if principalReductionAmount > initialLoanPrincipalTotal then refundTotal := abs(principalReductionAmount - initialLoanPrincipalTotal) else skip;
-                    newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
 
+                    s.tempMap["principalReductionAmount"] := principalReductionAmount;
+                    s.tempMap["refundTotal"] := refundTotal;
+                    
                     // if refund exists, reduce final repay amount by refund amount
                     if refundTotal > 0n then {
+                        
+                        // refund total > 0 - i.e. principalReductionAmount > initialLoanPrincipalTotal, and entire loan principal has been repaid
+
                         // note: refundTotal will always be smaller than finalRepaymentAmount 
                         //  - since refundTotal = finalRepaymentAmount - newLoanInterestTotal - initialLoanPrincipalTotal
-                        finalRepaymentAmount := abs(finalRepaymentAmount - refundTotal);
-                        totalPrincipalRepaid := finalRepaymentAmount;
+
+                        finalRepaymentAmount   := abs(finalRepaymentAmount - refundTotal);
+                        totalPrincipalRepaid   := initialLoanPrincipalTotal;
+                        newLoanPrincipalTotal  := 0n;
+
                     } else {
+
+                        // refund total = 0 - i.e. initialLoanPrincipalTotal >= principalReductionAmount, and there is still loan principal remaining
+
                         // set total principal repaid amount
-                        totalPrincipalRepaid := principalReductionAmount;
+                        totalPrincipalRepaid   := principalReductionAmount;
+                        newLoanPrincipalTotal  := abs(initialLoanPrincipalTotal - principalReductionAmount);
                     }
 
                 } else {
@@ -2023,6 +2056,8 @@ block {
                     newLoanInterestTotal := abs(newLoanInterestTotal - finalRepaymentAmount);
 
                 };
+
+                s.tempMap["finalRepaymentAmount"] := finalRepaymentAmount;    
 
                 // calculate final loan outstanding total
                 if finalRepaymentAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;

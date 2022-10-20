@@ -326,8 +326,21 @@ block {
 function lambdaSetLoanToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
+    // Steps Overview: 
+    // 1. Access Checks 
+    //      -   Check that %setLoanToken entrypoint is not paused (e.g. glass broken)
+    //      -   Check that sender is admin (Governance Proxy)
+    //      -   Check that no tez is sent
+    // 2a. If variant is CreateLoanToken
+    //      -   Check if loan token already exists
+    //      -   Update loan token ledger with new loan token record
+    // 2b. If variant is UpdateLoanToken
+    //      -   Get loan token record if exists
+    //      -   Update and save loan token record with new parameters
+
+
     checkNoAmount(Unit);                // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);            // Check that sender is admin or the Governance Contract address
+    checkSenderIsAdmin(s);              // Check that sender is admin
     checkSetLoanTokenIsNotPaused(s);    // Check that %setLoanToken entrypoint is not paused (e.g. if glass broken)
 
     case lendingControllerLambdaAction of [
@@ -379,6 +392,19 @@ block {
 function lambdaSetCollateralToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
 
+    // Steps Overview: 
+    // 1. Access Checks 
+    //      -   Check that %setCollateralToken entrypoint is not paused (e.g. glass broken)
+    //      -   Check that sender is admin (Governance Proxy)
+    //      -   Check that no tez is sent
+    // 2a. If variant is CreateCollateralToken
+    //      -   Check if collateral token already exists
+    //      -   Update collateral token ledger with new collateral token record
+    // 2b. If variant is UpdateCollateralToken
+    //      -   Get collateral token record if exists
+    //      -   Update and save collateral token record with new parameters
+
+    checkNoAmount(Unit);                      // entrypoint should not receive any tez amount  
     checkSenderIsAdmin(s);                    // Check that sender is admin 
     checkSetCollateralTokenIsNotPaused(s);    // Check that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
 
@@ -423,6 +449,13 @@ block {
 (* registerVaultCreation lambda *)
 function lambdaRegisterVaultCreation(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
+
+    // Steps Overview: 
+    // 1. Check that %registerVaultCreation entrypoint is not paused (e.g. glass broken)
+    // 2. Check that sender is from the vault factory contract
+    // 3. Get loan token record and update loan token state to get the latest stats - utilisation rate, interest rate, compounded interest, and borrow index
+    // 4. Create and save vault record with vault handle as key
+    // 5. Add new vault to owner's vault set
     
     var operations : list(operation) := nil;
     checkRegisterVaultCreationIsNotPaused(s);    // Check that %registerVaultCreation entrypoint is not paused (e.g. if glass broken)
@@ -501,6 +534,16 @@ block {
 function lambdaAddLiquidity(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
 
+    // Steps Overview: 
+    // 1. Check that %addLiquidity entrypoint is not paused (e.g. glass broken)
+    // 2. Process add liquidity operation
+    //      -   Get loan token record
+    //      -   Send tokens to token pool / lending controller (i.e. self address)
+    //      -   Mint LP tokens and send to user (at a 1-to-1 ratio)
+    //      -   Update loan token state with new totals to get the latest stats - utilisation rate, interest rate, compounded interest, and borrow index
+    // 3. Get or create user's current token pool deposit balance 
+    // 4. Update user rewards (based on user's current token pool deposit balance, and not the updated balance)
+    
     // init operations
     var operations : list(operation) := nil;
     checkAddLiquidityIsNotPaused(s);    // Check that %addLiquidity entrypoint is not paused (e.g. if glass broken)
@@ -578,6 +621,17 @@ block {
 (* removeLiquidity lambda *)
 function lambdaRemoveLiquidity(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
+
+    // Steps Overview: 
+    // 1. Check that %removeLiquidity entrypoint is not paused (e.g. glass broken)
+    // 2. Check that no tez is sent
+    // 2. Process remove liquidity operation
+    //      -   Get loan token record
+    //      -   Send tokens from token pool / lending controller (i.e. self address) to user
+    //      -   Burn LP tokens from user (at a 1-to-1 ratio)
+    //      -   Update loan token state with new totals to get the latest stats - utilisation rate, interest rate, compounded interest, and borrow index
+    // 3. Get or create user's current token pool deposit balance 
+    // 4. Update user rewards (based on user's current token pool deposit balance, and not the updated balance)
     
     checkNoAmount(Unit);                   // entrypoint should not receive any tez amount  
     checkRemoveLiquidityIsNotPaused(s);    // Check that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
@@ -1929,19 +1983,28 @@ block {
                     totalInterestPaid := newLoanInterestTotal;
                     newLoanInterestTotal := 0n;
 
-                    // Calculate final loan principal and refund if exists
+                    // Calculate final loan principal and refund if exists - i.e. difference between initial loan principal and principal reduction amount
                     if principalReductionAmount > initialLoanPrincipalTotal then refundTotal := abs(principalReductionAmount - initialLoanPrincipalTotal) else skip;
-                    newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
 
                     // if refund exists, reduce final repay amount by refund amount
                     if refundTotal > 0n then {
+                        
+                        // refund total > 0 - i.e. principalReductionAmount > initialLoanPrincipalTotal, and entire loan principal has been repaid
+
                         // note: refundTotal will always be smaller than finalRepaymentAmount 
                         //  - since refundTotal = finalRepaymentAmount - newLoanInterestTotal - initialLoanPrincipalTotal
-                        finalRepaymentAmount := abs(finalRepaymentAmount - refundTotal);
-                        totalPrincipalRepaid := finalRepaymentAmount;
+
+                        finalRepaymentAmount   := abs(finalRepaymentAmount - refundTotal);
+                        totalPrincipalRepaid   := initialLoanPrincipalTotal;
+                        newLoanPrincipalTotal  := 0n;
+
                     } else {
+                        
+                        // refund total = 0 - i.e. initialLoanPrincipalTotal >= principalReductionAmount, and there is still loan principal remaining
+
                         // set total principal repaid amount
-                        totalPrincipalRepaid := principalReductionAmount;
+                        totalPrincipalRepaid   := principalReductionAmount;
+                        newLoanPrincipalTotal  := abs(initialLoanPrincipalTotal - principalReductionAmount);
                     }
 
                 } else {
