@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.council.storage import CouncilStorage
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
@@ -22,7 +23,14 @@ async def on_council_origination(
     request_token_name_max_length       = int(council_origination.storage.config.requestTokenNameMaxLength)
     action_counter                      = int(council_origination.storage.actionCounter)
     council_members                     = council_origination.storage.councilMembers
+    timestamp                           = council_origination.data.timestamp
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=address
+    )
+    
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
     await governance.save();
@@ -31,6 +39,7 @@ async def on_council_origination(
     council = models.Council(
         address                             = address,
         admin                               = admin,
+        last_updated_at                     = timestamp,
         governance                          = governance,
         threshold                           = threshold,
         action_expiry_days                  = action_expiry_days,

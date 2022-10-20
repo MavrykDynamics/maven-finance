@@ -56,8 +56,26 @@ block {
     
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
+    var operations : list(operation) := nil;
+
     case aggregatorLambdaAction of [
         |   LambdaSetName(updatedName) -> {
+
+                // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
+                const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+
+                // Update the reference in the governanceSatellite contract
+                const setAggregatorReferenceParams : setAggregatorReferenceType = record [
+                    aggregatorAddress   = Tezos.get_self_address();
+                    oldName             = s.name;
+                    newName             = updatedName;
+                ];
+
+                operations  :=  Tezos.transaction(
+                    setAggregatorReferenceParams,
+                    0tez,
+                    getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
+                ) # operations;
 
                 // Get aggregator factory address
                 const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
@@ -80,7 +98,7 @@ block {
         |   _ -> skip
     ];
 
-} with (noOperations, s)
+} with (operations, s)
 
 
 

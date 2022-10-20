@@ -37,15 +37,6 @@ async def on_doorman_farm_claim(
     stake_account.smvk_balance                  = smvk_balance
     await stake_account.save()
 
-    # Calculate the MLI
-    # TODO: IS IT OK?
-    # mvkToken                    = await models.MVKToken.get(address=farm_claim.storage.mvkTokenAddress)
-    # previous_mvk_total_supply   = float(mvkToken.total_supply)
-    # previous_smvk_total_supply  = smvk_total_supply - amount
-    # mli = 0.0
-    # if previous_mvk_total_supply > 0.0:
-    #     mli = previous_smvk_total_supply / previous_mvk_total_supply
-
     # Create a stake record
     stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
@@ -54,7 +45,6 @@ async def on_doorman_farm_claim(
         final_amount        = amount,
         doorman             = doorman,
         from_               = user
-        # mvk_loyalty_index   = mli
     )
     await stake_record.save()
 

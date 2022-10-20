@@ -30,24 +30,24 @@ class VestingWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'vesting_whitelist_contract'
 
-class VestingVesteeRecord(Model):
+class VestingVestee(Model):
     id                                      = fields.BigIntField(pk=True)
-    vesting                                 = fields.ForeignKeyField('models.Vesting', related_name='vestee_records')
-    vestee                                  = fields.ForeignKeyField('models.MavrykUser', related_name='vesting_vestee_records')
+    vesting                                 = fields.ForeignKeyField('models.Vesting', related_name='vestees')
+    vestee                                  = fields.ForeignKeyField('models.MavrykUser', related_name='vesting_vestees', index=True)
     total_allocated_amount                  = fields.FloatField(default=0)
     claim_amount_per_month                  = fields.FloatField(default=0)
-    start_timestamp                         = fields.DatetimeField(null=True)
-    vesting_months                          = fields.SmallIntField(default=0)
-    cliff_months                            = fields.SmallIntField(default=0)
-    end_cliff_timestamp                     = fields.DatetimeField(null=True)
-    end_vesting_timestamp                   = fields.DatetimeField(null=True)
-    locked                                  = fields.BooleanField(default=False)
+    start_timestamp                         = fields.DatetimeField(null=True, index=True)
+    vesting_months                          = fields.SmallIntField(default=0, index=True)
+    cliff_months                            = fields.SmallIntField(default=0, index=True)
+    end_cliff_timestamp                     = fields.DatetimeField(null=True, index=True)
+    end_vesting_timestamp                   = fields.DatetimeField(null=True, index=True)
+    locked                                  = fields.BooleanField(default=False, index=True)
     total_remainder                         = fields.FloatField(default=0)
     total_claimed                           = fields.FloatField(default=0)
     months_claimed                          = fields.SmallIntField(default=0)
     months_remaining                        = fields.SmallIntField(default=0)
-    next_redemption_timestamp               = fields.DatetimeField(null=True)
-    last_claimed_timestamp                  = fields.DatetimeField(null=True)
+    next_redemption_timestamp               = fields.DatetimeField(null=True, index=True)
+    last_claimed_timestamp                  = fields.DatetimeField(null=True, index=True)
 
     class Meta:
-        table = 'vesting_vestee_record'
+        table = 'vesting_vestee'

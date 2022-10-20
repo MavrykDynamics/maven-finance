@@ -22,7 +22,7 @@ async def on_delegation_undelegate_from_satellite(
     delegation = await models.Delegation.get(
         address = delegation_address
     )
-    satelliteRewardRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
+    satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
         user        = user,
         delegation  = delegation
     )
@@ -34,9 +34,6 @@ async def on_delegation_undelegate_from_satellite(
         user        = user,
         delegation  = delegation
     )
-    satellite_record    = await delegationRecord.satellite_record
-    satellite_user      = await satellite_record.user
-    satellite_address   = satellite_user.address
     await user.save()
     await delegationRecord.delete()
     await satelliteRewardRecord.save()

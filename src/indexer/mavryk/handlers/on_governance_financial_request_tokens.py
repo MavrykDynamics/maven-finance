@@ -12,4 +12,4 @@ async def on_governance_financial_request_tokens(
 ) -> None:
     
     # Persist request
-    await persist_financial_request(request_tokens)
+    await persist_financial_request(ctx, request_tokens)

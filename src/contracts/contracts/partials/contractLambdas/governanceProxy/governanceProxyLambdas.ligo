@@ -1386,9 +1386,9 @@ block {
                 // Find and get trackAggregator entrypoint of aggregatorFactory contract
                 const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%trackAggregator",
-                    aggregatorFactoryAddress) : option(contract(trackAggregatorParamsType))) of [
+                    aggregatorFactoryAddress) : option(contract(address))) of [
                             Some(contr) -> contr
-                        |   None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(trackAggregatorParamsType))
+                        |   None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
                     ];
 
                 // Create operation to track aggregator
@@ -1425,9 +1425,9 @@ block {
                 // Find and get trackAggregator entrypoint of aggregatorFactory contract
                 const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%untrackAggregator",
-                    aggregatorFactoryAddress) : option(contract(untrackAggregatorParamsType))) of [
+                    aggregatorFactoryAddress) : option(contract(address))) of [
                             Some(contr) -> contr
-                        |   None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(untrackAggregatorParamsType))
+                        |   None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
                     ];
 
                 // Create operation to untrack aggregator

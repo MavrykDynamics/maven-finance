@@ -26,10 +26,31 @@ class TargetEntrypointItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    stake: bool
+    onVaultDepositStakedMvk: bool
 
 
 class TargetEntrypointItem3(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    onVaultLiquidateStakedMvk: bool
+
+
+class TargetEntrypointItem4(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    onVaultWithdrawStakedMvk: bool
+
+
+class TargetEntrypointItem5(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    stake: bool
+
+
+class TargetEntrypointItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -45,5 +66,8 @@ class TogglePauseEntrypointParameter(BaseModel):
         TargetEntrypointItem1,
         TargetEntrypointItem2,
         TargetEntrypointItem3,
+        TargetEntrypointItem4,
+        TargetEntrypointItem5,
+        TargetEntrypointItem6,
     ]
     empty: Dict[str, Any]

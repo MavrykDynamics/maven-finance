@@ -11,4 +11,4 @@ async def on_governance_satellite_remove_all_satellite_oracles(
 ) -> None:
 
     # Get operation info
-    await persist_governance_satellite_action(remove_all_satellite_oracles)
+    await persist_governance_satellite_action(ctx, remove_all_satellite_oracles)

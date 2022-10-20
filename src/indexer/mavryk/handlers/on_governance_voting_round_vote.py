@@ -43,14 +43,14 @@ async def on_governance_voting_round_vote(
     await voter.save()
 
     # Update or a satellite snapshot record
-    governance_snapshot = await models.GovernanceSatelliteSnapshotRecord.get_or_none(
+    governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(
         governance  = governance,
         user        = voter,
         cycle       = governance.cycle_id
     )
     if voter_address in satellite_snapshots:
         satellite_snapshot      = satellite_snapshots[voter_address]
-        governance_snapshot, _  = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
+        governance_snapshot, _  = await models.GovernanceSatelliteSnapshot.get_or_create(
             governance              = governance,
             user                    = voter
         )
@@ -62,7 +62,7 @@ async def on_governance_voting_round_vote(
         await governance_snapshot.save()
 
     # Update proposal with vote
-    proposal    = await models.GovernanceProposalRecord.get(
+    proposal    = await models.GovernanceProposal.get(
         id          = proposal_id,
         governance  = governance
     )
@@ -79,8 +79,8 @@ async def on_governance_voting_round_vote(
     await proposal.save()
     
     # Create a new vote
-    proposal_vote, _    = await models.GovernanceProposalRecordVote.get_or_create(
-        governance_proposal_record  = proposal,
+    proposal_vote, _    = await models.GovernanceProposalVote.get_or_create(
+        governance_proposal         = proposal,
         voter                       = voter,
         round                       = current_round
     )

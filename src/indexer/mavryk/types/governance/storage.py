@@ -23,7 +23,7 @@ class Config(BaseModel):
     blocksPerProposalRound: str
     blocksPerVotingRound: str
     blocksPerTimelockRound: str
-    proposalMetadataTitleMaxLength: str
+    proposalDataTitleMaxLength: str
     proposalTitleMaxLength: str
     proposalDescriptionMaxLength: str
     proposalInvoiceMaxLength: str
@@ -89,9 +89,9 @@ class ProposalLedger(BaseModel):
         extra = Extra.forbid
 
     proposerAddress: str
-    proposalMetadata: Dict[str, Optional[ProposalMetadatum]]
-    proposalMetadataExecutionCounter: str
-    paymentMetadata: Dict[str, Optional[PaymentMetadatum]]
+    proposalData: Dict[str, Optional[ProposalMetadatum]]
+    proposalDataExecutionCounter: str
+    paymentData: Dict[str, Optional[PaymentMetadatum]]
     status: str
     title: str
     description: str

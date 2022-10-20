@@ -50,7 +50,7 @@ spec:
                 secretKeyRef:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
-          image: hasura/graphql-engine:v2.10.0
+          image: '{{ .Values.hasura.image.registry }}/{{ .Values.hasura.image.repository }}:{{ .Values.hasura.image.tag }}'
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

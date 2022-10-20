@@ -26,7 +26,7 @@ async def on_delegation_update_satellite_status(
         address = satellite_address
     )
     await user.save()
-    satellite           = await models.SatelliteRecord.get(
+    satellite           = await models.Satellite.get(
         delegation  = delegation,
         user        = user
     )
