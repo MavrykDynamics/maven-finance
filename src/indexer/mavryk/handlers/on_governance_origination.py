@@ -25,7 +25,7 @@ async def on_governance_origination(
     blocks_per_Proposal_round               = int(governance_origination.storage.config.blocksPerProposalRound)
     blocks_per_voting_round                 = int(governance_origination.storage.config.blocksPerVotingRound)
     blocks_per_timelock_round               = int(governance_origination.storage.config.blocksPerTimelockRound)
-    proposal_metadata_title_max_length      = int(governance_origination.storage.config.proposalMetadataTitleMaxLength)
+    proposal_metadata_title_max_length      = int(governance_origination.storage.config.proposalDataTitleMaxLength)
     proposal_title_max_length               = int(governance_origination.storage.config.proposalTitleMaxLength)
     proposal_description_max_length         = int(governance_origination.storage.config.proposalDescriptionMaxLength)
     proposal_invoice_max_length             = int(governance_origination.storage.config.proposalInvoiceMaxLength)

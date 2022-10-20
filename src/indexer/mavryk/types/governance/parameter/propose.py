@@ -70,5 +70,5 @@ class ProposeParameter(BaseModel):
     description: str
     invoice: str
     sourceCode: str
-    proposalMetadata: Optional[List[ProposalMetadatum]]
-    paymentMetadata: Optional[List[PaymentMetadatum]]
+    proposalData: Optional[List[ProposalMetadatum]]
+    paymentData: Optional[List[PaymentMetadatum]]
