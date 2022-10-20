@@ -17,7 +17,7 @@ import {
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import Icon from '../../app/App.components/Icon/Icon.view'
-import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 import { FixMistakenTransferForm } from './FixMistakenTransfer.form'
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
@@ -85,7 +85,7 @@ export const SatelliteGovernance = () => {
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>()
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const [activeTab, setActiveTab] = useState('ongoing')
   const governanceSatelliteActionRecord = governanceSatelliteStorage?.governance_satellite_action
 

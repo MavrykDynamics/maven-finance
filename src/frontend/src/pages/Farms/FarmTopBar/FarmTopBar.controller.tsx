@@ -8,7 +8,7 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 import Toggle from '../../../app/App.components/Toggle/Toggle.view'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { Input } from '../../../app/App.components/Input/Input.controller'
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // style
 import { DropdownContainer } from '../../../app/App.components/DropDown/DropDown.style'
@@ -53,7 +53,7 @@ export const FarmTopBar = ({
   ]
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(undefined)
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(undefined)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
