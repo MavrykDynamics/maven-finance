@@ -397,6 +397,8 @@ block{
                 // get median
                 const median: nat = getMedianFromMap(pivotObservationMap(params.oracleObservations), Map.size (params.oracleObservations));
 
+                // implement weight data over x entries
+
                 var newlastCompletedData := record [
                     round                   = epochAndRound.1;
                     epoch                   = epochAndRound.0;

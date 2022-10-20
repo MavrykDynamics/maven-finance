@@ -412,8 +412,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 });
             }
         };
-        console.log('oracle observations');
-        console.log(oracleObservations);
         
         const signatures = new MichelsonMap<string, string>();
         
@@ -428,38 +426,21 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         signatures.set(oscar.pkh, await utils.signOracleDataResponses(oracleObservations));
 
         // Operations
-        console.log('- set price operation for: ' + tokenName);
         if(tokenName == "mockFa12"){
 
             setPriceOperation = await mockUsdMockFa12TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
-
-            const setPriceOpParam     = await mockUsdMockFa12TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).toTransferParams();
-            const setPriceOpEstimate  = await utils.tezos.estimate.transfer(setPriceOpParam);
-            console.log("setPriceOp mockFa12 ESTIMATION: ", setPriceOpEstimate)
 
         } else if(tokenName == "mockFa2"){
 
             setPriceOperation = await mockUsdMockFa2TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
 
-            const setPriceOpParam     = await mockUsdMockFa2TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).toTransferParams();
-            const setPriceOpEstimate  = await utils.tezos.estimate.transfer(setPriceOpParam);
-            console.log("setPriceOp mockFa12 ESTIMATION: ", setPriceOpEstimate)
-
         } else if(tokenName == "tez"){
 
             setPriceOperation = await mockUsdXtzAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
             
-            const setPriceOpParam     = await mockUsdXtzAggregatorInstance.methods.updateData(oracleObservations, signatures).toTransferParams();
-            const setPriceOpEstimate  = await utils.tezos.estimate.transfer(setPriceOpParam);
-            console.log("setPriceOp mockFa12 ESTIMATION: ", setPriceOpEstimate)
-
         } else if(tokenName == "mvk"){
 
             setPriceOperation = await mockUsdMvkAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
-
-            const setPriceOpParam     = await mockUsdMvkAggregatorInstance.methods.updateData(oracleObservations, signatures).toTransferParams();
-            const setPriceOpEstimate  = await utils.tezos.estimate.transfer(setPriceOpParam);
-            console.log("setPriceOp mockFa12 ESTIMATION: ", setPriceOpEstimate)
             
         }
 
@@ -2611,7 +2592,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             // vault calculations
             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-            totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+            totalInterest                           = parseInt(initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
 
 
             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
@@ -2656,9 +2637,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // ----------------------------------------------------------------------------------------------
             // Liquidate Vault Operation
             // ----------------------------------------------------------------------------------------------
-            
-            console.log(" - ")
-            console.log('start vault liquidation');
 
             await signerFactory(mallory.sk); 
             // mallory sets operator for lending controller
@@ -2675,9 +2653,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             liquidateVaultOperation = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).send();
             await liquidateVaultOperation.confirmation();
-
-            console.log(" - ")
-            console.log('vault liquidated');
 
             // ----------------------------------------------------------------------------------------------
             // Updated vault calculations after liquidation
@@ -2990,6 +2965,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Deposit Staked MVK
             // ---------------------------------
 
+            console.log('start deposit staked mvk');
+
             // eve set doorman as operator for vault
             updateOperatorsOperation = await vaultInstance.methods.updateMvkOperators([
             {
@@ -3198,8 +3175,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault Marked for liquidation
             // ----------------------------------------------------------------------------------------------
 
+            console.log('mark for liquidation');
+
             await signerFactory(mallory.sk); // mallory as liquidator
 
+            // note: requires mock level to not be 0
             const markVaultForLiquidationOperation = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner).send();
             await markVaultForLiquidationOperation.confirmation();
     
@@ -3220,6 +3200,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     
             assert.equal(vaultMarkedForLiquidationLevel, expectedMarkedForLiquidationLevel);
             assert.equal(vaultLiquidationEndLevel, expectedLiquidationEndLevel);
+
+            console.log('fail test: mark for liquidation again');
     
             // test vault cannot be marked for liquidation if it has already been marked
             const failMarkVaultForLiquidation = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
@@ -3248,6 +3230,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.equal(currentMockLevel, newMockLevel);
     
             console.log('   - time set to middle of vault liquidation delay: ' + markedForLiquidationLevel + ' to ' + newMockLevel + ' | Changed by: ' + mockLevelChange);
+            console.log('fail test: mark for liquidation again');
     
             // test vault cannot be marked for liquidation if it has already been marked
             const failMarkVaultForLiquidationAgain = await lendingControllerInstance.methods.markForLiquidation(vaultId, vaultOwner);
@@ -3299,6 +3282,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultLoanPrincipalTotal     = vaultRecord.loanPrincipalTotal;
             vaultLoanInterestTotal      = vaultRecord.loanInterestTotal;
             vaultBorrowIndex            = vaultRecord.borrowIndex;
+
+            console.log('before liquidation');
+            console.log(vaultRecord);
     
             // loan token record
             loanTokenRecord             = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
@@ -3306,25 +3292,19 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     
             // vault calculations
             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-            totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+            totalInterest                           = parseInt(initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+
+            console.log("loanOutstandingWithAccruedInterest: " + loanOutstandingWithAccruedInterest);
+            console.log("totalInterest: " + totalInterest);
     
     
             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
             assert.equal(almostEqual(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest, 0.0001), true);
             assert.equal(almostEqual(vaultLoanInterestTotal, totalInterest, 0.0001), true);
     
-            // calculate rebase decimals for collateral tokens
-            const mockFa12TokenRebaseDecimals   = lendingHelper.calculateTokenRebaseDecimals(maxDecimals, tokenOracles[mockFa12TokenIndex].tokenDecimals, tokenOracles[mockFa12TokenIndex].priceDecimals);
-            const mockFa2TokenRebaseDecimals    = lendingHelper.calculateTokenRebaseDecimals(maxDecimals, tokenOracles[mockFa2TokenIndex].tokenDecimals, tokenOracles[mockFa2TokenIndex].priceDecimals);
-            const tezRebaseDecimals             = lendingHelper.calculateTokenRebaseDecimals(maxDecimals, tokenOracles[tezIndex].tokenDecimals, tokenOracles[tezIndex].priceDecimals);
-            const mvkRebaseDecimals             = lendingHelper.calculateTokenRebaseDecimals(maxDecimals, tokenOracles[mvkIndex].tokenDecimals, tokenOracles[mvkIndex].priceDecimals);
 
             // calculate value of collateral 
             const vaultCollateralValue          = lendingHelper.calculateVaultCollateralValue(tokenOracles, vaultRecord.collateralBalanceLedger);
-            // const mockFa12CollateralTokenValue  = lendingHelper.calculateTokenValueRebased(mockFa12DepositAmount, tokenOracles[mockFa12TokenIndex].price, mockFa12TokenRebaseDecimals);
-            // const mockFa2CollateralTokenValue   = lendingHelper.calculateTokenValueRebased(mockFa2DepositAmount, tokenOracles[mockFa2TokenIndex].price, mockFa2TokenRebaseDecimals);
-            // const tezCollateralTokenValue       = lendingHelper.calculateTokenValueRebased(tezDepositAmount, tokenOracles[tezIndex].price, tezRebaseDecimals);
-            // const mvkCollateralTokenValue       = lendingHelper.calculateTokenValueRebased(mvkDepositAmount, tokenOracles[mvkIndex].price, mvkRebaseDecimals);
             const mockFa12CollateralTokenValue  = lendingHelper.calculateTokenValue(mockFa12DepositAmount   , "mockFa12"    , tokenOracles);
             const mockFa2CollateralTokenValue   = lendingHelper.calculateTokenValue(mockFa2DepositAmount    , "mockFa2"     , tokenOracles);
             const tezCollateralTokenValue       = lendingHelper.calculateTokenValue(tezDepositAmount        , "tez"         , tokenOracles);
@@ -3346,7 +3326,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // max liquidation amount, final (total) liquidation amount, and total interest paid
             vaultMaxLiquidationAmount              = lendingHelper.calculateVaultMaxLiquidationAmount(vaultLoanOutstandingTotal, maxVaultLiquidationPercent);
             totalLiquidationAmount                 = lendingHelper.calculateTotalLiquidationAmount(liquidationAmount, vaultMaxLiquidationAmount);
-            totalInterestPaid                      = lendingHelper.calculateTotalInterestPaid(totalLiquidationAmount, vaultLoanInterestTotal);
+            totalInterestPaid                      = lendingHelper.calculateTotalInterestPaid(totalLiquidationAmount, totalInterest);
 
 
             // -----------------
@@ -3449,10 +3429,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             console.log(" - ")
             console.log('start vault liquidation');
 
-            // const liqudiateVaultParam     = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).toTransferParams();
-            // const liquidateVaultEstimate  = await utils.tezos.estimate.transfer(liqudiateVaultParam);
-            // console.log("ESTIMATION: ", liquidateVaultEstimate)
-
             // mallory sets operator for lending controller
             updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
                 {
@@ -3480,12 +3456,20 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             liquidateVaultOperation = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, liquidationAmount).send();
             await liquidateVaultOperation.confirmation();
 
+
+            // ---------------------------------------
+            // after liquidation - get updated storage
+            // ---------------------------------------
+
     
             // Update storage
             lendingControllerStorage    = await lendingControllerInstance.storage();
             mockFa12TokenStorage        = await mockFa12TokenInstance.storage();
             doormanStorage              = await doormanInstance.storage();
-    
+
+            // loan token record
+            loanTokenRecord             = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            updatedLoanTokenBorrowIndex = loanTokenRecord.borrowIndex;
     
             // vault record
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
@@ -3494,7 +3478,36 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultLoanInterestTotal      = vaultRecord.loanInterestTotal;
             vaultBorrowIndex            = vaultRecord.borrowIndex;
     
-            // console.log(vaultRecord);
+            console.log('after liquidation');
+            console.log(vaultRecord);
+
+            // vault calculations
+            totalLiquidationAmount                  = lendingHelper.calculateTotalLiquidationAmount(liquidationAmount, vaultMaxLiquidationAmount);
+            totalInterestPaid                       = lendingHelper.calculateTotalInterestPaid(totalLiquidationAmount, vaultLoanInterestTotal);
+
+            loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
+            totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+            remainingInterest                       = lendingHelper.calculateRemainingInterest(totalLiquidationAmount, totalInterest)
+
+            finalLoanOutstandingTotal               = lendingHelper.calculateFinalLoanOutstandingTotal(totalLiquidationAmount, loanOutstandingWithAccruedInterest);
+            finalLoanPrincipalTotal                 = lendingHelper.calculateFinalLoanPrincipalTotal(totalLiquidationAmount, loanOutstandingWithAccruedInterest, remainingInterest, initialVaultLoanPrincipalTotal);
+            finalLoanInterestTotal                  = lendingHelper.calculateFinalLoanInterestTotal(remainingInterest);
+
+            console.log('----')
+            console.log("loanOutstandingWithAccruedInterest: " + loanOutstandingWithAccruedInterest);
+            console.log('-')
+            console.log("totalInterest: " + totalInterest);
+            console.log("remainingInterest: " + remainingInterest);
+            console.log("totalInterestPaid: " + totalInterestPaid);
+            console.log("interestSentToTreasury: " + interestSentToTreasury);
+            console.log("interestSentToRewardPool: " + interestSentToRewardPool);
+            console.log('-')
+            console.log("finalLoanOutstandingTotal: " + finalLoanOutstandingTotal);
+            console.log("finalLoanPrincipalTotal: " + finalLoanPrincipalTotal);
+            console.log("finalLoanInterestTotal: " + finalLoanInterestTotal);
+            console.log('----')
+
+
     
             // ---------------------------------------
             // get updated accounts and balances
@@ -3851,7 +3864,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // treasury should receive both admin fee and share from interest repaid (if there is interest)
             // - no interest paid
             assert.equal(updatedTreasuryMockFa12TokenBalance, initialTreasuryMockFa12TokenBalance + adminLiquidationFeeMockFa12);
-            assert.equal(updatedTreasuryMockFa2TokenBalance, initialTreasuryMockFa2TokenBalance + adminLiquidationFeeMockFa2);
+            assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, initialTreasuryMockFa2TokenBalance + adminLiquidationFeeMockFa2, 0.0001), true);
             assert.equal(updatedTreasuryTezBalance, initialTreasuryTezBalance + adminLiquidationFeeTez);
             assert.equal(updatedTreasuryStakedMvkBalance, initialTreasuryStakedMvkBalance + adminLiquidationFeeMvk);
     
@@ -3859,10 +3872,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // - no interest paid
             assert.equal(updatedRewardPoolMockFa12TokenBalance, initialRewardPoolMockFa12TokenBalance);
     
+            console.log("vaultLoanOutstandingTotal: " + vaultLoanOutstandingTotal);
+            console.log("initialVaultLoanOutstandingTotal: " + initialVaultLoanOutstandingTotal);
+            console.log("initialVaultLoanOutstandingTotal - (liquidationAmount - interestSentToRewardPool): " + (initialVaultLoanOutstandingTotal - (liquidationAmount - interestSentToRewardPool)));
+            console.log("initialVaultLoanOutstandingTotal - liquidationAmount: " + (initialVaultLoanOutstandingTotal - liquidationAmount));
+            
             // check vault records 
             // - since not a lot of time has passed for interest to accrue, the liquidation amount has covered the total loan interest accrued
-            assert.equal(vaultLoanOutstandingTotal, initialVaultLoanOutstandingTotal - (liquidationAmount - interestSentToRewardPool));
-            assert.equal(vaultLoanPrincipalTotal, initialVaultLoanPrincipalTotal - (liquidationAmount - interestSentToRewardPool));
+            assert.equal(vaultLoanOutstandingTotal, finalLoanOutstandingTotal);
+            assert.equal(parseInt(vaultLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
             assert.equal(vaultLoanInterestTotal, 0);
     
         })    
@@ -4104,7 +4122,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             // vault calculations
             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-            totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+            totalInterest                           = parseInt(initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
 
             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
             assert.equal(almostEqual(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest, 0.0001), true);

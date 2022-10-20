@@ -74,6 +74,11 @@
 //     let mockUsdXtzAggregatorInstance
 //     let mockUsdMvkAggregatorInstance
 
+//     let mockUsdMockFa12TokenAggregatorStorage
+//     let mockUsdMockFa2TokenAggregatorStorage
+//     let mockUsdXtzAggregatorStorage
+//     let mockUsdMvkAggregatorStorage
+
 //     let lpTokenPoolMockFa12TokenInstance
 //     let lpTokenPoolMockFa2TokenInstance
 //     let lpTokenPoolXtzInstance
@@ -94,10 +99,8 @@
 //     let mockFa2TokenStorage
 //     let governanceStorage
 //     let governanceProxyStorage
-//     let mockUsdMockFa12TokenAggregatorStorage
-//     let mockUsdMockFa2TokenAggregatorStorage
-//     let mockUsdXtzAggregatorStorage
 
+    
 //     let lendingControllerStorage
 //     let vaultFactoryStorage
 
@@ -145,6 +148,7 @@
 //         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
 //         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
 //         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(mockUsdXtzAggregatorAddress.address);
+//         mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(mockUsdMvkAggregatorAddress.address);
 
 //         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
 //         vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
@@ -166,6 +170,7 @@
 //         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
 //         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
 //         mockUsdXtzAggregatorStorage             = await mockUsdXtzAggregatorInstance.storage();
+//         mockUsdMvkAggregatorStorage             = await mockUsdMvkAggregatorInstance.storage();
 
 //         tokenOracles.push({
 //             'name': 'mockFa12', 
@@ -187,6 +192,14 @@
 //             'priceDecimals': parseInt(mockUsdXtzAggregatorStorage.config.decimals),
 //             'tokenDecimals': 0
 //         })
+
+//         tokenOracles.push({
+//             'name': 'mvk', 
+//             'price': parseInt(mockUsdMvkAggregatorStorage.lastCompletedData.data),
+//             'priceDecimals': parseInt(mockUsdMvkAggregatorStorage.config.decimals),
+//             'tokenDecimals': 9
+//         })
+
 
 //         console.log('-- -- -- -- -- Lending Controller (Mock Time) Tests -- -- -- --')
 //         console.log('Doorman Contract deployed at:'             , doormanInstance.address);
