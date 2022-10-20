@@ -3,9 +3,10 @@ import { MichelsonMap } from '@taquito/taquito'
 import type { DelegateRecord, SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import type { MavrykUserGraphQl } from '../../utils/TypesAndInterfaces/User'
 import type { SatelliteRecordGraphQl, DelegationGraphQl } from '../../utils/TypesAndInterfaces/Delegation'
-
+import type { DataFeedsHistoryGraphQL, DataFeedsVolatility } from './helpers/Satellites.types'
 // helpers
 import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
+import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
 
 export function normalizeSatelliteRecord(
   satelliteRecord: SatelliteRecordGraphQl,
@@ -176,4 +177,50 @@ export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl)
     numberActiveSatellites: delegationStorage?.max_satellites,
     totalDelegatedMVK: delegationStorage?.max_satellites,
   }
+}
+
+// Data Feeds History Normalizer
+type DataFeedsHistoryProps = {
+  aggregator_history_data: DataFeedsHistoryGraphQL[]
+}
+
+export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
+  const { aggregator_history_data = [] } = storage
+  
+  return aggregator_history_data?.length
+    ? aggregator_history_data.map((item) => {
+        return {
+          xAxis: item.timestamp,
+          // TODO: ask Sam if the decimal is right we use?
+          yAxis: symbolsAfterDecimalPoint(item.data / 10**item.aggregator.decimals),
+        }
+      })
+    : []
+}
+
+export function normalizeDataFeedsVolatility(storage: DataFeedsHistoryProps) {
+  const { aggregator_history_data = [] } = storage
+
+  let volatility: DataFeedsVolatility = [];
+
+  if (aggregator_history_data.length < 2) {
+    return volatility
+  }
+  
+  for (let i = 1; i < aggregator_history_data.length; i++) {
+    const yAxis = percentageDifference(aggregator_history_data[i].data, aggregator_history_data[i - 1].data)
+
+    volatility.push({
+      xAxis: aggregator_history_data[i].timestamp,
+      yAxis,
+    })
+  }
+
+  return volatility
+}
+
+export const percentageDifference = (a: number, b: number): number => {
+  const twoNumberDifference = ((a / b) - 1) * 100
+
+  return Number(twoNumberDifference.toFixed(2))
 }

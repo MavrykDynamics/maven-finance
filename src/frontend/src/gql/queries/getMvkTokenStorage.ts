@@ -1,6 +1,7 @@
 export const MVK_TOKEN_STORAGE_QUERY = `
   query MvkTokenStorageQuery {
     mvk_token {
+      address
       total_supply
       maximum_supply
     }

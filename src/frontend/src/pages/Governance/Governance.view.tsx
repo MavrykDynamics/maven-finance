@@ -44,8 +44,8 @@ import {
   GovRightContainerTitleArea,
   RightSideSubContent,
   RightSideSubHeader,
+  EmptyContainer,
 } from './Governance.style'
-import { EmptyContainer } from '../../app/App.style'
 import { InfoBlock } from '../../app/App.components/Info/info.style'
 import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
 
@@ -63,7 +63,7 @@ type GovernanceViewProps = {
 }
 
 const emptyContainer = (
-  <EmptyContainer>
+  <EmptyContainer className="empty">
     <img src="/images/not-found.svg" alt=" No proposals to show" />
     <figcaption> No proposals to show</figcaption>
   </EmptyContainer>

@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -27,7 +27,7 @@ const INIT_FORM = {
   newMemberImage: '',
 }
 
-export const FormUpdateCouncilMemberView: FC = () => {
+export function FormUpdateCouncilMemberView() {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)

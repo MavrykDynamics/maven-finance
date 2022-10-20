@@ -43,6 +43,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   }
 
   &.error {
+    border: 1px solid ${({ theme }) => theme.downColor};
     color: ${({ theme }) => theme.downColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.downColor}7F;
@@ -50,6 +51,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   }
 
   &.success {
+    border: 1px solid ${({ theme }) => theme.upColor};
     color: ${({ theme }) => theme.upColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.upColor}7F;

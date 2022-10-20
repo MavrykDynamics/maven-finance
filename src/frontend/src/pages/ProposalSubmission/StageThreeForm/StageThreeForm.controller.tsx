@@ -1,32 +1,27 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { ProposalPaymentType } from '../../../utils/TypesAndInterfaces/Governance'
-import { calcWithoutPrecision, calcWithoutMu } from '../../../utils/calcFunctions'
+import { StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmittion.types'
+import { SubmitProposalStageThreeValidation } from '../../../utils/TypesAndInterfaces/Forms'
+import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 
 // helpers
-import {
-  ProposalFinancialRequestForm,
-  ProposalFinancialRequestInputStatus,
-  ValidFinancialRequestForm,
-} from '../../../utils/TypesAndInterfaces/Forms'
-import { isJsonString } from '../../../utils/validatorFunctions'
-import { submitFinancialRequestData } from '../ProposalSubmission.actions'
+import { deletePaymentData, submitFinancialRequestData } from '../ProposalSubmission.actions'
+import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 
 // components
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
-import { lockProposal, deletePaymentData } from '../ProposalSubmission.actions'
+import { Input } from 'app/App.components/Input/Input.controller'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-
-// hooks
-import useGovernence from '../../Governance/UseGovernance'
+import { getValidityStageThreeTable, MAX_ROWS, PAYMENTS_TYPES } from '../ProposalSubmition.helpers'
+import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 // styles
 import {
@@ -45,175 +40,143 @@ import {
   DropDownListItem,
 } from '../../../app/App.components/DropDown/DropDown.style'
 
-type StageThreeFormProps = {
-  locked: boolean
-  proposalId: number | undefined
-  proposalTitle: string
-  proposalPayments: ProposalPaymentType[] | undefined
-}
-
-export const PAYMENTS_TYPES = ['XTZ', 'MVK']
-const INIT_TABLE_HEADERS = ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)', '-', '-']
-const INIT_TABLE_DATA = [INIT_TABLE_HEADERS, ['', '', '', PAYMENTS_TYPES[0], '-', '-']]
-const MAX_ROWS = 10
-
-export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPayments }: StageThreeFormProps) => {
+export const StageThreeForm = ({
+  proposalId,
+  currentProposal,
+  updateLocalProposalData,
+  handleDropProposal,
+  handleLockProposal,
+}: StageThreeFormProps) => {
+  const { proposalPayments, locked, title } = currentProposal
   const dispatch = useDispatch()
-  const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
+  const {
+    governanceStorage: {
+      fee,
+      config: { successReward },
+    },
+    governancePhase,
+  } = useSelector((state: State) => state.governance)
   const { dipDupTokens } = useSelector((state: State) => state.tokens)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { fee } = governanceStorage
-  const successReward = governanceStorage.config.successReward
-  const [tableData, setTableData] = useState(INIT_TABLE_DATA)
-  const [tableJson, setTableJson] = useState('')
 
-  const [form, setForm] = useState<ProposalFinancialRequestForm>({
-    title: proposalTitle,
-    financialData: { jsonString: tableJson },
-  })
-  const [validForm, setValidForm] = useState<ValidFinancialRequestForm>({
-    financialData: false,
-  })
-  const [formInputStatus, setFormInputStatus] = useState<ProposalFinancialRequestInputStatus>({
-    financialData: '',
-  })
+  // we can modify only when current period is 'proposal'
+  const isProposalRound = governancePhase === 'PROPOSAL'
+  const isMaxRows = MAX_ROWS <= proposalPayments.length
 
-  const { watingProposals } = useGovernence()
-
-  const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
-  const disabled = !isProposalRound || !form.title
-
-  const handleLockProposal = () => {
-    if (proposalId) dispatch(lockProposal(proposalId, accountPkh as string))
-  }
-
-  const enebleSubmit = tableData.flat().every((item) => Boolean(item))
-  const valueRows = tableData.filter((_, i) => i > 0)
-
-  console.log('%c ||||| valueRows', 'color:yellowgreen', valueRows)
-
-  const isAllRowsNotUpdate = valueRows.every((item) => item.includes('notUpdate'))
-
-  console.log('%c ||||| enebleSubmit', 'color:pink', enebleSubmit)
-  console.log('%c ||||| disabled', 'color:pink', disabled)
-  console.log('%c ||||| isAllRowsNotUpdate', 'color:pink', isAllRowsNotUpdate)
-
-  const disabledSubmitTable = !enebleSubmit || disabled || isAllRowsNotUpdate
-
-  console.log('%c ||||| disabledSubmitTable', 'color:yellowgreen', disabledSubmitTable)
-
-  const handleOnBlur = () => {
-    const validityCheckResult = isJsonString(form.financialData?.jsonString ?? '')
-    setValidForm({ ...validForm, financialData: validityCheckResult })
-    const updatedState = { ...validForm, financialData: validityCheckResult }
-    setFormInputStatus({ ...formInputStatus, financialData: updatedState.financialData ? 'success' : 'error' })
-  }
-
-  const clearState = (): void => {
-    setForm({
-      title: proposalTitle,
-      financialData: { jsonString: tableJson },
-    })
-    setValidForm({
-      financialData: false,
-    })
-    setFormInputStatus({
-      financialData: '',
-    })
-  }
-
-  useEffect(() => {
-    if (!isProposalRound) clearState()
-  }, [isProposalRound])
-
-  useEffect(() => {
-    if (proposalPayments?.length) {
-      console.log('%c ||||| proposalPayments', 'color:yellowgreen', proposalPayments)
-      const prepareTablePayments = proposalPayments.map((item) => {
-        console.log('%c ||||| item', 'color:red', item)
-        const paymentType = dipDupTokens.find(({ contract }) => (contract = item.token_address))?.metadata.symbol
-        const amount =
-          paymentType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
-        return [item.to__id, item.title, `${amount}`, paymentType, item.id, 'notUpdate']
-      }) as string[][]
-      setTableData([INIT_TABLE_HEADERS, ...prepareTablePayments])
-    }
-  }, [proposalPayments])
-
-  const handleSubmitFinancialRequestData = () => {
-    const submitData = tableData.filter((row, i) => i !== 0 && !row.includes('notUpdate'))
-
-    console.log('%c ||||| submitData', 'color:yellowgreen', submitData)
-    if (proposalId) {
-      dispatch(submitFinancialRequestData(proposalId, submitData, accountPkh as string))
-    }
-  }
-
-  console.log('%c ||||| proposalPayments', 'color:yellowgreen', proposalPayments)
+  const [validForm, setValidForm] = useState<SubmitProposalStageThreeValidation>([])
   const [openDrop, setOpenDrop] = useState('')
 
-  const isMaxRows = MAX_ROWS <= tableData.length
-
-  const handleChangeData = (value: string, i: number, j: number, id: number) => {
-    const cloneTable = [...tableData]
-    cloneTable[i][j] = value
-
-    proposalPayments?.forEach((item) => {
-      if (item.id === id) {
-        const currentRow = cloneTable[i]
-        const itemType = dipDupTokens.find(({ contract }) => (contract = item.token_address))?.metadata.symbol
-        const amount = itemType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
-
-        const isSame =
-          currentRow[0] === item.to__id &&
-          currentRow[1] === item.title &&
-          itemType === currentRow[3] &&
-          amount === +currentRow[2]
-        cloneTable[i][5] = isSame ? 'notUpdate' : '-'
-      }
-    })
-
-    setTableData(cloneTable)
-    setOpenDrop('')
+  const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>, row: number) => {
+    const { name, value } = e.target
+    const isValidValue = getValidityStageThreeTable(name as StageThreeValidityItem, value)
+    setValidForm(
+      validForm.map((obj, idx) => {
+        return idx === row
+          ? {
+              ...obj,
+              [name]: isValidValue ? 'success' : 'error',
+            }
+          : obj
+      }),
+    )
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, i: number, j: number, id: number) => {
-    const value = e.target.value
-    handleChangeData(value, i, j, id)
+  useEffect(() => {
+    if (!isProposalRound) setValidForm([])
+  }, [isProposalRound])
+
+  // set up validity state for new proposal, on proposal change and add new row for proposal, if there are no rows in proposal
+  useEffect(() => {
+    if (proposalPayments.length === 0) {
+      handleAddRow()
+    }
+
+    setValidForm(
+      proposalPayments.map(({ token_amount, title, to__id }) => ({
+        token_amount: getValidityStageThreeTable('token_amount', token_amount) ? 'success' : 'error',
+        to__id: getValidityStageThreeTable('to__id', to__id ?? '') ? 'success' : 'error',
+        title: getValidityStageThreeTable('title', title) ? 'success' : 'error',
+      })),
+    )
+  }, [proposalId, proposalPayments])
+
+  const handleSubmitFinancialRequestData = () => {
+    dispatch(submitFinancialRequestData(proposalId, proposalPayments))
+  }
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string | number } },
+    row: number,
+  ) => {
+    let { name, value } = e.target
+
+    updateLocalProposalData(
+      {
+        proposalPayments: proposalPayments.map((item, idx) => {
+          return idx === row
+            ? {
+                ...item,
+                [name]: value,
+              }
+            : item
+        }),
+      },
+      proposalId,
+    )
+
+    setOpenDrop('')
   }
 
   const handleAddRow = () => {
+    updateLocalProposalData(
+      {
+        proposalPayments: proposalPayments.concat({
+          // TODO: check how to remove it
+          governance_proposal: currentProposal as unknown as Governance_Proposal,
+          governance_proposal_id: 0,
+          id: -proposalPayments.length,
+          record_internal_id: 0,
+          title: '',
+          to__id: '',
+          token_amount: 0,
+          token_address: 'mvk',
+        }),
+      },
+      proposalId,
+    )
     setOpenDrop('')
-    const newFillRow = ['', '', '', PAYMENTS_TYPES[0], '-', '-']
-    setTableData([...tableData, newFillRow])
   }
 
-  console.log('%c ||||| tableData', 'color:blue', tableData)
-
-  const handleDeleteRow = (id: number, existInServer: boolean, row: string[]) => {
-    // console.log('%c ||||| propose', 'color:yellowgreen', propose)
-    console.log('%c ||||| id', 'color:yellowgreen', id)
-    console.log('%c ||||| existInServer', 'color:yellowgreen', existInServer)
-    // const findOriginRow = proposalPayments?.find((item) => item.title === propose)
-
-    // console.log('%c ||||| findOriginRow', 'color:yellowgreen', findOriginRow)
-
+  const handleDeleteRow = (rowNumber: number) => {
+    const row = proposalPayments[rowNumber]
+    const existInServer = row.id >= 0
     if (existInServer) {
-      if (proposalId) dispatch(deletePaymentData(proposalId, row, accountPkh as string))
+      // TODO: implement this after Tristan updates
+      // dispatch(deletePaymentData(proposalId, row.id))
     } else {
-      setOpenDrop('')
-      const newTable = tableData.filter((_, index) => index !== id)
-      setTableData(newTable)
+      updateLocalProposalData(
+        {
+          proposalPayments: proposalPayments.filter((_, idx) => idx !== rowNumber),
+        },
+        proposalId,
+      )
     }
+    setOpenDrop('')
   }
 
-  const handleToggleDrop = (i: number, j: number) => {
-    if (openDrop) {
-      setOpenDrop('')
-    } else {
-      setOpenDrop(`${i}-${j}`)
-    }
+  const handleToggleDrop = (i: number) => {
+    setOpenDrop(openDrop ? '' : `${i}-asset`)
   }
+
+  const isDisabledSubmitTableBtn = useMemo(
+    () =>
+      (!isProposalRound &&
+        validForm.some(
+          ({ token_amount, title, to__id }) => token_amount === 'error' || title === 'error' || to__id === 'error',
+        )) ||
+      locked,
+    [validForm, isProposalRound],
+  )
+  const disabledInputs = useMemo(() => !isProposalRound || locked, [isProposalRound, locked])
 
   return (
     <SubmissionStyled>
@@ -230,7 +193,7 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
           <label>1 - Enter Proposal Title</label>
-          <FormTitleEntry>{form.title}</FormTitleEntry>
+          <FormTitleEntry>{title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
           <label>2 - Proposal Success Reward</label>
@@ -242,76 +205,111 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
         </div>
       </FormTitleAndFeeContainer>
       <label>4 - Enter Proposal Data</label>
-      <FormTableGrid className={disabled ? 'disabled' : ''}>
+      <FormTableGrid className={!isProposalRound ? 'disabled' : ''}>
         <TableGridWrap>
           <div className="table-wrap">
             <table>
-              {tableData.map((row, i) => {
-                const existInServer = proposalPayments?.find((item) => item.title === row[1])
+              <tr key="row-names">
+                <td key="row-names-address">Address</td>
+                <td key="row-names-purpose">Purpose</td>
+                <td key="row-names-amount">Amount</td>
+                <td key="row-names-asset">Payment Type (XTZ/MVK)</td>
+              </tr>
+              {proposalPayments.map((rowItems, i) => {
+                const isLocal = rowItems.id < 0,
+                  validationObj = validForm[i],
+                  paymentTypeSymbol =
+                    // TODO: temp slution cuz of saved wrong elements on back, also ask sam, cuz i can't find here xtz address
+                    dipDupTokens.find(({ contract }) => contract === rowItems.token_address)?.metadata.symbol ?? 'MVK',
+                  paymentType = paymentTypeSymbol === 'FA2' ? 'MVK' : paymentTypeSymbol
+
                 return (
                   <tr key={i}>
-                    {row.map((colValue, j) => {
-                      const isFirstRow = i === 0
-                      const isLastColumn = !isFirstRow && j === 3
-                      const isOpen = openDrop === `${i}-${j}`
+                    <td key={`${i}-address`} className="input-cell">
+                      <Input
+                        onFocus={() => setOpenDrop('')}
+                        value={rowItems.to__id ?? ''}
+                        type={'text'}
+                        name="to__id"
+                        disabled={disabledInputs}
+                        inputStatus={validationObj?.to__id}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        className="submit-proposal-stage-3"
+                      />
+                    </td>
+                    <td key={`${i}-purpose`} className="input-cell">
+                      <Input
+                        onFocus={() => setOpenDrop('')}
+                        value={rowItems.title}
+                        type={'text'}
+                        name="title"
+                        disabled={!isLocal || disabledInputs}
+                        inputStatus={validationObj?.title}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        className="submit-proposal-stage-3"
+                      />
+                    </td>
+                    <td key={`${i}-amount`} className="input-cell">
+                      <Input
+                        onFocus={() => setOpenDrop('')}
+                        value={rowItems.token_amount}
+                        type={'number'}
+                        name="token_amount"
+                        disabled={disabledInputs}
+                        inputStatus={validationObj?.token_amount}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        className="submit-proposal-stage-3"
+                      />
+                    </td>
+                    <td key={`${i}-asset`}>
+                      <div className="table-drop">
+                        <button
+                          onClick={() => handleToggleDrop(i)}
+                          disabled={locked || !isProposalRound}
+                          className="table-drop-btn-cur"
+                        >
+                          {paymentType === 'FA2' ? 'MVK' : paymentType}
+                        </button>
+                        {openDrop === `${i}-asset` && (
+                          <DropDownListContainer>
+                            <DropDownList>
+                              {PAYMENTS_TYPES.map((symbol) => (
+                                <DropDownListItem
+                                  onClick={() =>
+                                    handleChange(
+                                      {
+                                        target: { name: 'token_address', value: symbol },
+                                      },
+                                      i,
+                                    )
+                                  }
+                                  key={symbol}
+                                >
+                                  {symbol} {paymentType === symbol ? <Icon id="check-stroke" /> : null}
+                                </DropDownListItem>
+                              ))}
+                            </DropDownList>
+                          </DropDownListContainer>
+                        )}
+                      </div>
 
-                      const disabledInput = j === 1 && !!existInServer
-                      if (j < 4) {
-                        return (
-                          <td key={`${i}+${j}`}>
-                            {isFirstRow ? (
-                              colValue
-                            ) : !isLastColumn ? (
-                              <input
-                                onFocus={() => setOpenDrop('')}
-                                value={colValue}
-                                type={j === 2 ? 'number' : 'text'}
-                                disabled={disabledInput}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i, j, +row[4])}
-                              />
-                            ) : (
-                              <div className="table-drop">
-                                <button onClick={() => handleToggleDrop(i, j)} className="table-drop-btn-cur">
-                                  {colValue}
-                                </button>
-                                {isOpen && (
-                                  <DropDownListContainer>
-                                    <DropDownList>
-                                      {PAYMENTS_TYPES.map((value, index) => {
-                                        const isActive = colValue === value
-                                        return (
-                                          <DropDownListItem
-                                            onClick={() => handleChangeData(value, i, j, +row[4])}
-                                            key={Math.random()}
-                                          >
-                                            {value} {isActive ? <Icon id="check-stroke" /> : null}
-                                          </DropDownListItem>
-                                        )
-                                      })}
-                                    </DropDownList>
-                                  </DropDownListContainer>
-                                )}
-                              </div>
-                            )}
-
-                            {isLastColumn && tableData.length > 2 ? (
-                              <div className="delete-button-wrap">
-                                <StyledTooltip placement="top" title="Delete row">
-                                  <button
-                                    onClick={() => handleDeleteRow(i, !!existInServer, row)}
-                                    className="delete-button"
-                                  >
-                                    <Icon id="delete" />
-                                  </button>
-                                </StyledTooltip>
-                              </div>
-                            ) : null}
-                          </td>
-                        )
-                      }
-
-                      return null
-                    })}
+                      {proposalPayments.length > 2 ? (
+                        <div className="delete-button-wrap">
+                          <StyledTooltip placement="top" title="Delete row">
+                            <button
+                              onClick={() => handleDeleteRow(i)}
+                              disabled={locked || !isProposalRound}
+                              className="delete-button"
+                            >
+                              <Icon id="delete" />
+                            </button>
+                          </StyledTooltip>
+                        </div>
+                      ) : null}
+                    </td>
                   </tr>
                 )
               })}
@@ -319,7 +317,7 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
           </div>
           {!isMaxRows ? (
             <StyledTooltip placement="top" title="Insert 1 row bottom">
-              <button className="btn-add-row" onClick={handleAddRow}>
+              <button disabled={locked || !isProposalRound} className="btn-add-row" onClick={handleAddRow}>
                 +
               </button>
             </StyledTooltip>
@@ -327,20 +325,28 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPaym
         </TableGridWrap>
       </FormTableGrid>
       <FormButtonContainer>
+        <Button
+          icon="close-stroke"
+          className="close delete-pair"
+          text="Drop Proposal"
+          kind={ACTION_SECONDARY}
+          onClick={() => handleDropProposal(proposalId)}
+        />
+
         {!locked ? (
           <Button
             icon="lock"
             className="lock"
             text={'Lock Proposal'}
-            disabled={!proposalId || disabled}
-            onClick={handleLockProposal}
+            disabled={!isProposalRound}
+            onClick={() => handleLockProposal(proposalId)}
             kind="actionSecondary"
           />
         ) : null}
 
         <Button
           icon="financial"
-          disabled={disabledSubmitTable}
+          disabled={isDisabledSubmitTableBtn}
           className="financial"
           kind="actionPrimary"
           text={'Submit Financial Request'}

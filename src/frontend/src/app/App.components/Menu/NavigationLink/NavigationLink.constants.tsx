@@ -1,3 +1,4 @@
+import { matchPath } from 'react-router-dom'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { SubNavigationRoute } from 'utils/TypesAndInterfaces/Navigation'
 
@@ -24,3 +25,10 @@ export const isSubLinkShown = (
 
   return true
 }
+
+export const checkIfLinkSelected = (pathname: string, routePaths: string | string[]) =>
+  Boolean(
+    Array.isArray(routePaths)
+      ? routePaths.find((routePath) => matchPath(pathname, { path: routePath, exact: true, strict: true }))
+      : matchPath(pathname, { path: routePaths, exact: true, strict: true }),
+  )

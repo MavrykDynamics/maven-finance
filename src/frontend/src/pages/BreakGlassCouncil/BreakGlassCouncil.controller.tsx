@@ -1,4 +1,4 @@
-import React, { FC, useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -54,7 +54,7 @@ const queryParameters = {
   review: '/review',
 }
 
-export const BreakGlassCouncil: FC = () => {
+export function BreakGlassCouncil() {
   const dispatch = useDispatch()
   const history = useHistory()
   const { search, pathname } = useLocation()

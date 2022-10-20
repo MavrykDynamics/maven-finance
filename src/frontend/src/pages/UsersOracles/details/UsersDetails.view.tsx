@@ -54,7 +54,7 @@ const UserDetailsView = ({
 }) => {
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -124,7 +124,7 @@ const UserDetailsView = ({
           <h4>Category:</h4>
           <DropDown
             clickOnDropDown={handleClickDropdown}
-            placeholder={ddItems[0]}
+            placeholder='Choose category'
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}

@@ -31,7 +31,6 @@ export const getWertOptions = (
     error: () => {
       hideLoader()
       showErrorToast()
-      setPopupActive(false)
     },
     close: () => setPopupActive(false),
   },

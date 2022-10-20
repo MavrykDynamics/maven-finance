@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -17,23 +17,20 @@ import { getShortTzAddress } from '../../../utils/tzAdress'
 // actions
 import { removeCouncilMember } from '../BreakGlassCouncil.actions'
 
-export const FormRemoveCouncilMemberView: FC = () => {
+export function FormRemoveCouncilMemberView() {
   const dispatch = useDispatch()
   const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 
-  const itemsForDropDown = [
-    { text: 'Choose', value: '' },
-    ...breakGlassCouncilMember.map((item) => {
-      return {
-        text: `${item.name} - ${getShortTzAddress(item.userId)}`,
-        value: item.userId,
-      }
-    }),
-  ]
+  const itemsForDropDown = breakGlassCouncilMember.map((item) => {
+    return {
+      text: `${item.name} - ${getShortTzAddress(item.userId)}`,
+      value: item.userId,
+    }
+  })
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -72,7 +69,7 @@ export const FormRemoveCouncilMemberView: FC = () => {
 
           <DropDown
             clickOnDropDown={handleClickDropdown}
-            placeholder={ddItems[0]}
+            placeholder='Choose member'
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}

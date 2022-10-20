@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 
@@ -10,36 +10,38 @@ import { getBreakGlassStorage } from '../BreakGlass/BreakGlass.actions'
 import { EmergencyGovProposalModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.controller'
 import { showExitFeeModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.actions'
 import { proposalRoundVote, votingRoundVote } from '../Governance/Governance.actions'
+import { dropProposal } from 'pages/ProposalSubmission/ProposalSubmission.actions'
 
+// TODO: add voting when I will be able to create proposals here, and get sam clarification for it
 export const EmergencyGovernance = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => Boolean(state.loading))
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
-  const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
-  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-
-  const emergencyGovernanceLedger = emergencyGovernanceStorage?.emergencyGovernanceLedger
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { emergencyGovernanceLedger } = useSelector(
+    (state: State) => state.emergencyGovernance.emergencyGovernanceStorage,
+  )
 
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getBreakGlassStorage())
   }, [dispatch])
 
-  const handleTriggerEmergencyProposal = () => {
+  const handleTriggerEmergencyProposal = useCallback(() => {
     dispatch(showExitFeeModal())
-  }
+  }, [])
+
+  const dropProposalHandler = useCallback((proposalId: number) => {
+    dispatch(dropProposal(proposalId))
+  }, [])
 
   return (
     <Page>
       <EmergencyGovProposalModal />
       <PageHeader page={'emergency governance'} />
       <EmergencyGovernanceView
-        ready={ready}
         handleTriggerEmergencyProposal={handleTriggerEmergencyProposal}
-        loading={loading}
         accountPkh={accountPkh}
         emergencyGovernanceLedger={emergencyGovernanceLedger}
+        dropProposalHandler={dropProposalHandler}
       />
     </Page>
   )

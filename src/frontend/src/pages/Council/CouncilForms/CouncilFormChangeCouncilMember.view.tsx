@@ -34,22 +34,19 @@ export const CouncilFormChangeCouncilMember = () => {
   const itemsForDropDown = useMemo(
     () =>
       councilMembers?.length
-        ? [
-            { text: 'Chose Member Address', value: '' },
-            ...councilMembers.map((item: CouncilMember) => {
+        ? councilMembers.map((item: CouncilMember) => {
               return {
                 text: getShortTzAddress(item.userId),
                 value: item.userId,
               }
-            }),
-          ]
-        : [{ text: 'Chose Member Address', value: '' }],
+            })
+        : [],
     [councilMembers],
   )
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState({
     oldCouncilMemberAddress: '',
@@ -149,7 +146,7 @@ export const CouncilFormChangeCouncilMember = () => {
           <label>Choose Council Member to change</label>
           <DropDown
             clickOnDropDown={handleClickDropdown}
-            placeholder={ddItems[0]}
+            placeholder='Chose Member Address'
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
