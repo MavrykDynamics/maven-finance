@@ -32,20 +32,18 @@ class ActionsLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    initiator: str
     actionType: str
-    addressMap: Dict[str, str]
+    signers: List[str]
     executed: bool
+    status: str
+    signersCount: str
+    dataMap: Dict[str, str]
+    startDateTime: str
+    startLevel: str
     executedDateTime: str
     executedLevel: str
     expirationDateTime: str
-    initiator: str
-    natMap: Dict[str, str]
-    signers: List[str]
-    signersCount: str
-    startDateTime: str
-    startLevel: str
-    status: str
-    stringMap: Dict[str, str]
 
 
 class BreakGlassStorage(BaseModel):

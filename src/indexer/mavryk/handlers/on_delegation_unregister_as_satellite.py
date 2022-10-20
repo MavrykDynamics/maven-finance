@@ -22,7 +22,7 @@ async def on_delegation_unregister_as_satellite(
     delegation = await models.Delegation.get(
         address = delegation_address
     )
-    satelliteRewardRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
+    satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
         user        = user,
         delegation  = delegation
     )
@@ -31,7 +31,7 @@ async def on_delegation_unregister_as_satellite(
     satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
     satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
 
-    satelliteRecord = await models.SatelliteRecord.get(
+    satelliteRecord = await models.Satellite.get(
         user = user
     )
     await user.save()

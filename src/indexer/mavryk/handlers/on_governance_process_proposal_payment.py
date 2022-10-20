@@ -18,7 +18,7 @@ async def on_governance_process_proposal_payment(
 
     # Create or update record
     governance          = await models.Governance.get(address   = governance_address)
-    proposal            = await models.GovernanceProposalRecord.get(
+    proposal            = await models.GovernanceProposal.get(
         governance  = governance,
         id          = proposal_id
     )

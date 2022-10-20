@@ -529,13 +529,16 @@ block {
     ]);
 
     // get the user buy record
-    var userBuyOptions      := case s.tokenSaleLedger[user] of [
+    var userBuyOptions : tokenSaleRecordType    := case s.tokenSaleLedger[user] of [
             Some (_userRecord)  ->_userRecord
         |   None                -> failwith(error_USER_TOKEN_SALE_RECORD_NOT_FOUND)
     ];
 
     // register claim
     for buyOptionIndex -> userBuyOption in map userBuyOptions {
+
+        // init params
+        var tokenSaleUserOption : tokenSaleUserOptionType   := userBuyOption;
 
         // get buy option config
         const _buyOptionConfig : tokenSaleOptionType        = case Map.find_opt(buyOptionIndex, s.config.buyOptions) of [
@@ -544,34 +547,34 @@ block {
         ];
 
         // process claim - skip if fully claimed (periods claimed = vesting periods)  
-        if userBuyOption.claimCounter = _buyOptionConfig.vestingPeriods then skip else block {
+        if tokenSaleUserOption.claimCounter = _buyOptionConfig.vestingPeriods then skip else block {
 
             // if first claim, match the lastClaimTimestamp to the token sale end
-            if userBuyOption.lastClaimTimestamp =/= tokenSaleEndTimestamp then userBuyOption.lastClaimTimestamp := tokenSaleEndTimestamp else skip;
+            if tokenSaleUserOption.lastClaimTimestamp =/= tokenSaleEndTimestamp then tokenSaleUserOption.lastClaimTimestamp := tokenSaleEndTimestamp else skip;
 
             // calculate periods passed since last claimed
-            var periodsToClaim : nat    := if userBuyOption.lastClaimLevel = 0n then 1n else 0n;
-            periodsToClaim              := periodsToClaim + (abs(today - userBuyOption.lastClaimTimestamp) / s.config.vestingPeriodDurationSec);
-            periodsToClaim              := if periodsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingPeriods then abs(_buyOptionConfig.vestingPeriods - userBuyOption.claimCounter) else periodsToClaim;
+            var periodsToClaim : nat    := if tokenSaleUserOption.lastClaimLevel = 0n then 1n else 0n;
+            periodsToClaim              := periodsToClaim + (abs(today - tokenSaleUserOption.lastClaimTimestamp) / s.config.vestingPeriodDurationSec);
+            periodsToClaim              := if periodsToClaim + tokenSaleUserOption.claimCounter > _buyOptionConfig.vestingPeriods then abs(_buyOptionConfig.vestingPeriods - tokenSaleUserOption.claimCounter) else periodsToClaim;
 
             // account for case where there is no vesting periods for option one (least restrictive option)
             var tokenAmountSinglePeriod : nat    := if _buyOptionConfig.vestingPeriods = 0n then 
-                userBuyOption.tokenBought
+                tokenSaleUserOption.tokenBought
             else 
-                userBuyOption.tokenBought / _buyOptionConfig.vestingPeriods;
+                tokenSaleUserOption.tokenBought / _buyOptionConfig.vestingPeriods;
 
             // check that user's max tokens claimable is not exceeded
-            const maxTokenAmount : nat  = userBuyOption.tokenBought;
-            if userBuyOption.tokenClaimed + tokenAmountSinglePeriod > maxTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED) else skip;
+            const maxTokenAmount : nat  = tokenSaleUserOption.tokenBought;
+            if tokenSaleUserOption.tokenClaimed + tokenAmountSinglePeriod > maxTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED) else skip;
 
             // calculate final value token amount to be claimed
             var tokenAmount : nat       := tokenAmountSinglePeriod * periodsToClaim;
 
             // claim the dust if it is the last period
-            const finalClaimCounter : nat       = userBuyOption.claimCounter + periodsToClaim;
-            const estimatedTokenClaimed : nat   = userBuyOption.tokenClaimed + tokenAmount;
-            if finalClaimCounter = _buyOptionConfig.vestingPeriods and estimatedTokenClaimed < userBuyOption.tokenBought 
-            then tokenAmount    := tokenAmount + abs(userBuyOption.tokenBought - estimatedTokenClaimed)
+            const finalClaimCounter : nat       = tokenSaleUserOption.claimCounter + periodsToClaim;
+            const estimatedTokenClaimed : nat   = tokenSaleUserOption.tokenClaimed + tokenAmount;
+            if finalClaimCounter = _buyOptionConfig.vestingPeriods and estimatedTokenClaimed < tokenSaleUserOption.tokenBought 
+            then tokenAmount    := tokenAmount + abs(tokenSaleUserOption.tokenBought - estimatedTokenClaimed)
             else skip;
 
             // create transfer params and transfer operation
@@ -592,11 +595,11 @@ block {
             operations := sendMvkTokensToBuyerOperation # operations;
 
             // update user token sale record
-            userBuyOption.claimCounter              := finalClaimCounter;
-            userBuyOption.tokenClaimed              := userBuyOption.tokenClaimed + tokenAmount;
-            userBuyOption.lastClaimTimestamp        := Tezos.get_now();
-            userBuyOption.lastClaimLevel            := Tezos.get_level();
-            userBuyOptions[buyOptionIndex]          := userBuyOption;
+            tokenSaleUserOption.claimCounter            := finalClaimCounter;
+            tokenSaleUserOption.tokenClaimed            := tokenSaleUserOption.tokenClaimed + tokenAmount;
+            tokenSaleUserOption.lastClaimTimestamp      := Tezos.get_now();
+            tokenSaleUserOption.lastClaimLevel          := Tezos.get_level();
+            userBuyOptions[buyOptionIndex]              := tokenSaleUserOption;
         }
     };
 

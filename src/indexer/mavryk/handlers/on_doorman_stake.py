@@ -42,13 +42,6 @@ async def on_doorman_stake(
     stake_account.smvk_balance                  = smvk_balance
     await stake_account.save()
 
-    # Calculate the MLI
-    # previous_mvk_total_supply   = float(transfer.storage.totalSupply) + amount
-    # previous_smvk_total_supply  = smvk_total_supply - amount
-    # mli = 0.0
-    # if previous_mvk_total_supply > 0.0:
-    #     mli = previous_smvk_total_supply / previous_mvk_total_supply
-
     # Create a stake record
     stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
@@ -57,7 +50,6 @@ async def on_doorman_stake(
         final_amount        = amount,
         doorman             = doorman,
         from_               = user
-        # mvk_loyalty_index   = mli
     )
     await stake_record.save()
 

@@ -12,6 +12,7 @@ class AggregatorFactory(MavrykContract, Model):
     untrack_aggregator_paused               = fields.BooleanField(default=False)
     distribute_reward_xtz_paused            = fields.BooleanField(default=False)
     distribute_reward_smvk_paused           = fields.BooleanField(default=False)
+    aggregator_name_max_length              = fields.SmallIntField(default=0)
 
     class Meta:
         table = 'aggregator_factory'

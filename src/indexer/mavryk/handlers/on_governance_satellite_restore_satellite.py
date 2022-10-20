@@ -11,4 +11,4 @@ async def on_governance_satellite_restore_satellite(
 ) -> None:
 
     # Get operation info
-    await persist_governance_satellite_action(restore_satellite)
+    await persist_governance_satellite_action(ctx, restore_satellite)

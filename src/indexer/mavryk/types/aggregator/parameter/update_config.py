@@ -12,66 +12,38 @@ class UpdateConfigActionItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configDecimals: Dict[str, Any]
+    configAlphaPercentPerThousand: Dict[str, Any]
 
 
 class UpdateConfigActionItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configDevTriggerBanDuration: Dict[str, Any]
+    configDecimals: Dict[str, Any]
 
 
 class UpdateConfigActionItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configDeviationRewardAmountXtz: Dict[str, Any]
+    configHeartBeatSeconds: Dict[str, Any]
 
 
 class UpdateConfigActionItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configDeviationRewardStakedMvk: Dict[str, Any]
+    configPercentOracleThreshold: Dict[str, Any]
 
 
 class UpdateConfigActionItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configNumberBlocksDelay: Dict[str, Any]
-
-
-class UpdateConfigActionItem5(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    configPerThousandDevTrigger: Dict[str, Any]
-
-
-class UpdateConfigActionItem6(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    configPercentOracleThreshold: Dict[str, Any]
-
-
-class UpdateConfigActionItem7(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    configRequestRateDevDepositFee: Dict[str, Any]
-
-
-class UpdateConfigActionItem8(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     configRewardAmountStakedMvk: Dict[str, Any]
 
 
-class UpdateConfigActionItem9(BaseModel):
+class UpdateConfigActionItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -90,8 +62,4 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem3,
         UpdateConfigActionItem4,
         UpdateConfigActionItem5,
-        UpdateConfigActionItem6,
-        UpdateConfigActionItem7,
-        UpdateConfigActionItem8,
-        UpdateConfigActionItem9,
     ]

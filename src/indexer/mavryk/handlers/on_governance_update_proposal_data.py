@@ -14,18 +14,18 @@ async def on_governance_update_proposal_data(
     governance_address  = update_proposal_data.data.target_address
     proposal_id         = int(update_proposal_data.parameter.proposalId)
     storage_proposal    = update_proposal_data.storage.proposalLedger[update_proposal_data.parameter.proposalId]
-    proposal_metadata   = storage_proposal.proposalMetadata
+    proposal_metadata   = storage_proposal.proposalData
     title               = update_proposal_data.parameter.title
     bytes               = update_proposal_data.parameter.proposalBytes
 
     # Update or create record
     governance      = await models.Governance.get(address   = governance_address)
-    proposal        = await models.GovernanceProposalRecord.get(
+    proposal        = await models.GovernanceProposal.get(
         id                  = proposal_id,
         governance          = governance
     )
-    bytes_record     = await models.GovernanceProposalRecordData.get_or_none(
-        governance_proposal_record  = proposal,
+    bytes_record     = await models.GovernanceProposalData.get_or_none(
+        governance_proposal         = proposal,
         title                       = title,
         bytes                       = bytes
     )
@@ -38,8 +38,8 @@ async def on_governance_update_proposal_data(
         for key in proposal_metadata:
             if proposal_metadata[key] and proposal_metadata[key].title == title:
                 int(key)
-        bytes_record, _     = await models.GovernanceProposalRecordData.get_or_create(
-            governance_proposal_record  = proposal,
+        bytes_record, _     = await models.GovernanceProposalData.get_or_create(
+            governance_proposal         = proposal,
             record_internal_id          = internal_id,
             title                       = title,
         )
