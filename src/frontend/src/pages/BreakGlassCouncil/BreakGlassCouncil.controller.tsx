@@ -80,7 +80,7 @@ export const BreakGlassCouncil: FC = () => {
 
   const ddItems = useMemo(() => itemsForDropDown.map(({ text }) => text), [itemsForDropDown])
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
 
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
@@ -190,7 +190,6 @@ export const BreakGlassCouncil: FC = () => {
               <div className="pending-items">
                 <Carousel itemLength={breakGlassActionPendingMySignature.length} key={sliderKey}>
                   {breakGlassActionPendingMySignature.map((item) => (
-                    // @ts-ignore
                     <BreakGlassCouncilPanding
                       {...item}
                       key={item.id}
@@ -235,7 +234,7 @@ export const BreakGlassCouncil: FC = () => {
                   <div className="dropdown-size">
                     <DropDown
                       clickOnDropDown={handleClickDropdown}
-                      placeholder={ddItems[0]}
+                      placeholder='Choose action'
                       isOpen={ddIsOpen}
                       itemSelected={chosenDdItem?.text}
                       items={ddItems}
