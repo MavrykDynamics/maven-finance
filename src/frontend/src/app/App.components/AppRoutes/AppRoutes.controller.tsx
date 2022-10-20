@@ -1,3 +1,8 @@
+import { useEffect } from 'react'
+import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
 import DataFeedDetails from 'pages/DataFeeds/details/DataFeedsDetails.controler'
 import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
@@ -5,9 +10,6 @@ import SatelliteNodes from 'pages/SatelliteNodes/SatelliteNodes.controller'
 import Satellites from 'pages/Satellites/Satellites.controller'
 import UserDetails from 'pages/UsersOracles/details/UsersDetails.controler'
 import Users from 'pages/UsersOracles/Users.controller'
-import { useSelector } from 'react-redux'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
-import { State } from 'reducers'
 
 import { Admin } from '../../../pages/Admin/Admin.controller'
 import { BecomeSatellite } from '../../../pages/BecomeSatellite/BecomeSatellite.controller'
@@ -27,7 +29,6 @@ import { Treasury } from '../../../pages/Treasury/Treasury.controller'
 import { Vaults } from '../../../pages/Vaults/Vaults.controller'
 // pages
 import ProtectedRoute from './ProtectedRoute'
-import { useEffect } from 'react'
 
 export const AppRoutes = () => {
   const { pathname } = useLocation()

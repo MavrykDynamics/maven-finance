@@ -7,7 +7,7 @@ import { DropDownStyled, DropDownMenu, DropDownListContainer, DropDownList, Drop
 import Icon from '../Icon/Icon.view'
 
 // helpers
-import { scrollToBottomOfElement } from 'utils/scrollToBottomOfElement'
+import { scrollToFullView } from 'utils/scrollToFullView'
 
 type DropDownViewProps = {
   placeholder: string
@@ -25,7 +25,7 @@ export const DropDownView = ({ placeholder, isOpen, onClick, clickItem, itemSele
   // move the scroll to fix it
   useEffect(() => {
     if (isOpen) {
-      scrollToBottomOfElement(ref.current)
+      scrollToFullView(ref.current)
     }
   }, [isOpen])
   return (
