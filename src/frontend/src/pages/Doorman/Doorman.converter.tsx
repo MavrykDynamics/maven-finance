@@ -24,6 +24,7 @@ export function normalizeDoormanStorage(storage: DoormanGraphQl) {
 
 export function normalizeMvkToken(storage: MvkTokenGraphQL | null) {
   return {
+    address: storage?.address,
     totalSupply: storage?.total_supply ? calcWithoutPrecision(storage?.total_supply) : 0,
     maximumTotalSupply: storage?.maximum_supply ? calcWithoutPrecision(storage?.maximum_supply) : 0,
   }

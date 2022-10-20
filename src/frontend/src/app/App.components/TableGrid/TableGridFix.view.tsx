@@ -5,7 +5,7 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
 
 // const
-import { PAYMENTS_TYPES } from '../../../pages/ProposalSubmission/StageThreeForm/StageThreeForm.controller'
+import { PAYMENTS_TYPES } from 'pages/ProposalSubmission/ProposalSubmition.helpers'
 
 // types
 import type { TableListType } from './TableGrid.types'

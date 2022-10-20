@@ -50,7 +50,7 @@ export const InputComponentContainer = styled.div<{ theme: MavrykTheme }>`
     }
 
     &.error {
-      border-color: ${({ theme }) => theme.downColor};
+      border: 1px solid ${({ theme }) => theme.downColor};
       color: ${({ theme }) => theme.downColor};
       &:focus {
         box-shadow: 0 0 0 2px ${({ theme }) => theme.downColor}7F;
