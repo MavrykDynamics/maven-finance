@@ -13,8 +13,8 @@ async def on_governance_drop_proposal(
     proposal_id = int(drop_proposal.parameter.__root__)
 
     # Update record
-    proposal    = await models.GovernanceProposalRecord.get(
+    proposal    = await models.GovernanceProposal.get(
         id      = proposal_id
     )
-    proposal.status = models.GovernanceRecordStatus.DROPPED
+    proposal.status = models.GovernanceActionStatus.DROPPED
     await proposal.save()

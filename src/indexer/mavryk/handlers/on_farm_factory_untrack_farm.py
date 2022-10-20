@@ -18,5 +18,5 @@ async def on_farm_factory_untrack_farm(
         address = farm_address
     )
     if farm:    
-        farm.farm_factory   = None
+        farm.factory    = None
         await farm.save()

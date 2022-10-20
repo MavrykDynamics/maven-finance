@@ -53,11 +53,11 @@
     },
     {
         "index": 13,
-        "name": "lambdaRegisterAggregator"
+        "name": "lambdaSetAggregatorReference"
     },
     {
         "index": 14,
-        "name": "lambdaUpdateAggregatorStatus"
+        "name": "lambdaTogglePauseAggregator"
     },
     {
         "index": 15,

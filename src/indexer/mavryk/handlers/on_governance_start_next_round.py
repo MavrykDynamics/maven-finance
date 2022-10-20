@@ -53,7 +53,7 @@ async def on_governance_start_next_round(
     # Update highest voted proposal
     if start_next_round.storage.cycleHighestVotedProposalId in start_next_round.storage.proposalLedger:
         highest_voted_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.cycleHighestVotedProposalId]
-        highest_voted_proposal_record   = await models.GovernanceProposalRecord.get(
+        highest_voted_proposal_record   = await models.GovernanceProposal.get(
             id  = highest_voted_proposal
         )
         highest_voted_proposal_record.reward_claim_ready    = highest_voted_proposal_storage.rewardClaimReady
@@ -62,21 +62,21 @@ async def on_governance_start_next_round(
     # Update timelock proposal
     if start_next_round.storage.timelockProposalId in start_next_round.storage.proposalLedger:
         timelock_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.timelockProposalId]
-        timelock_proposal_record   = await models.GovernanceProposalRecord.get(
+        timelock_proposal_record   = await models.GovernanceProposal.get(
             id  = timelock_proposal
         )
         timelock_proposal_record.execution_ready            = timelock_proposal_storage.executionReady
         await timelock_proposal_record.save()
 
     # Update round proposals
-    round_proposals = await models.GovernanceProposalRecord.filter(current_round_proposal=True).all()
+    round_proposals = await models.GovernanceProposal.filter(current_round_proposal=True).all()
     for proposal_record in round_proposals:
         if not str(proposal_record.id) in current_cycle_proposals:
             proposal_record.current_round_proposal  = False
             await proposal_record.save()
 
     # Update round votes
-    round_votes = await models.GovernanceProposalRecordVote.filter(current_round_vote=True).all()
+    round_votes = await models.GovernanceProposalVote.filter(current_round_vote=True).all()
     for vote_record in round_votes:
         voter   = await vote_record.voter.first()
         if not voter in current_round_votes:

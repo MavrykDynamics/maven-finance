@@ -1,0 +1,14 @@
+from mavryk.utils.persisters import persist_linked_contract
+from mavryk.types.vault_factory.storage import VaultFactoryStorage
+from dipdup.context import HandlerContext
+from dipdup.models import Transaction
+from mavryk.types.vault_factory.parameter.update_general_contracts import UpdateGeneralContractsParameter
+import mavryk.models as models
+
+async def on_vault_factory_update_general_contracts(
+    ctx: HandlerContext,
+    update_general_contracts: Transaction[UpdateGeneralContractsParameter, VaultFactoryStorage],
+) -> None:
+
+    # Perists general contract
+    await persist_linked_contract(models.VaultFactory, models.VaultFactoryGeneralContract, update_general_contracts)

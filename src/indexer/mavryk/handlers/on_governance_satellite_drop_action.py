@@ -15,13 +15,13 @@ async def on_governance_satellite_drop_action(
     action_storage                  = drop_action.storage.governanceSatelliteActionLedger[drop_action.parameter.__root__]
     action_id                       = int(drop_action.parameter.__root__)
     status                          = action_storage.status
-    status_type                     = models.GovernanceRecordStatus.ACTIVE
+    status_type                     = models.GovernanceActionStatus.ACTIVE
     if not status:
-        status_type = models.GovernanceRecordStatus.DROPPED
+        status_type = models.GovernanceActionStatus.DROPPED
 
     # Create or update record
     governance_satellite            = await models.GovernanceSatellite.get(address  = governance_satellite_address)
-    action_record                   = await models.GovernanceSatelliteActionRecord.get(
+    action_record                   = await models.GovernanceSatelliteAction.get(
         id                      = action_id,
         governance_satellite    = governance_satellite
     )

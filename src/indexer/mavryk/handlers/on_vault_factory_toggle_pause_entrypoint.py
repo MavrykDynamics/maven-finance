@@ -1,0 +1,22 @@
+
+from mavryk.types.vault_factory.parameter.toggle_pause_entrypoint import TogglePauseEntrypointParameter
+from mavryk.types.vault_factory.storage import VaultFactoryStorage
+from dipdup.context import HandlerContext
+from dipdup.models import Transaction
+import mavryk.models as models
+
+async def on_vault_factory_toggle_pause_entrypoint(
+    ctx: HandlerContext,
+    toggle_pause_entrypoint: Transaction[TogglePauseEntrypointParameter, VaultFactoryStorage],
+) -> None:
+
+    # Get operation info
+    vault_factory_address   = toggle_pause_entrypoint.data.target_address
+    create_vault_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.createVaultIsPaused
+
+    # Update record
+    vault_factory           = await models.VaultFactory.get(
+        address = vault_factory_address
+    )
+    vault_factory.create_vault_paused   = create_vault_paused
+    await vault_factory.save()

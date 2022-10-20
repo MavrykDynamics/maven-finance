@@ -12,13 +12,3 @@ class MavrykUser(Model):
 
     class Meta:
         table = 'mavryk_user'
-
-class Token(Model):
-    address                                 = fields.CharField(pk=True, max_length=36)
-    name                                    = fields.CharField(max_length=36, default="")
-    token_id                                = fields.SmallIntField(default=0)
-    type                                    = fields.IntEnumField(enum_type=TokenType, default=TokenType.OTHER)
-    decimals                                = fields.SmallIntField(default=0)
-
-    class Meta:
-        table = 'token'

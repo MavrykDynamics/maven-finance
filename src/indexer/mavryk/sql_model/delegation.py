@@ -43,39 +43,39 @@ class DelegationWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'delegation_whitelist_contract'
 
-class SatelliteRewardsRecord(Model):
+class SatelliteRewards(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_rewards_records')
-    reference                               = fields.ForeignKeyField('models.SatelliteRewardsRecord', related_name='satellite_references', null=True)
-    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellite_rewards_records')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_rewardss', index=True)
+    reference                               = fields.ForeignKeyField('models.SatelliteRewards', related_name='satellite_references', null=True, index=True)
+    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellite_rewardss')
     unpaid                                  = fields.FloatField(default=0)
     paid                                    = fields.FloatField(default=0)
     participation_rewards_per_share         = fields.FloatField(default=0)
     satellite_accumulated_reward_per_share  = fields.FloatField(default=0)
 
     class Meta:
-        table = 'satellite_rewards_record'
+        table = 'satellite_rewards'
 
-class SatelliteRecord(Model):
+class Satellite(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_records')
-    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellite_records')
-    status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellites', index=True)
+    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellites')
+    status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE, index=True)
     fee                                     = fields.SmallIntField(default=0)
     name                                    = fields.TextField(default="")
     description                             = fields.TextField(default="")
     image                                   = fields.TextField(default="")
     website                                 = fields.TextField(default="")
-    currently_registered                    = fields.BooleanField(default=True)
+    currently_registered                    = fields.BooleanField(default=True, index=True)
 
     class Meta:
-        table = 'satellite_record'
+        table = 'satellite'
 
 class DelegationRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    satellite_record                        = fields.ForeignKeyField('models.SatelliteRecord', related_name='delegation_records', null=True)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='delegation_records')
-    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='delegation_records')
+    satellite                               = fields.ForeignKeyField('models.Satellite', related_name='delegations', null=True, index=True)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='delegations', index=True)
+    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='delegations')
 
     class Meta:
         table = 'delegation_record'
