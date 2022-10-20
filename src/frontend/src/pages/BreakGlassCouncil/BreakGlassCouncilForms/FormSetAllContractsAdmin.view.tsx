@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // components
@@ -19,7 +19,7 @@ const INIT_FORM = {
   newAdminAddress: '',
 }
 
-export const FormSetAllContractsAdminView: FC = () => {
+export function FormSetAllContractsAdminView() {
   const dispatch = useDispatch()
 
   const [form, setForm] = useState(INIT_FORM)

@@ -68,6 +68,8 @@ export const dark = {
   textColorHovered: cyanColor,
   chartLinerGradientPrimary: 'rgba(174, 237, 225, 1)',
   chartLinerGradientSecondary: 'rgba(22, 14, 63, 1)',
+  topBarLinkColor: cyanColor,
+  topBarLinkColorActive: '#8D86EB',
 }
 
 export const light = {
@@ -108,47 +110,11 @@ export const light = {
   textColorHovered: cyanColor,
   chartLinerGradientPrimary: 'rgba(174, 237, 225, 1)',
   chartLinerGradientSecondary: 'rgba(22, 14, 63, 1)',
+  topBarLinkColor: '#27007A',
+  topBarLinkColorActive: '#77A4F2',
 }
 
-export const space = {
-  backgroundColor: lightColor,
-  containerColor: whiteColor,
-  navTitleColor: cyanColor,
-  navIconColor: cyanColor,
-  footerColor: textsColor,
-  navLinkTextActive: textsColor,
-  navLinkSubTitleActive: headerColor,
-  headerColor: darkColor,
-  headerSkyColor: darkColor,
-  cardBorderColor: whiteColor,
-  valueColor: royalPurpleColor,
-  connectInfoColor: whiteColor,
-  actionPrimaryBtnColor: royalPurpleColor,
-  stakedColor: darkColor,
-
-  borderColor: '#4F457C',
-  textColor: '#29264C',
-  blockNameTitleColor: silverColor,
-  subTextColor: '#7E8794',
-  dataColor: '#77a4f2',
-  backgroundTextColor: '#F7F9FD',
-  placeholderColor: '#F7F9FD',
-  primaryColor: '#7068AA',
-  secondaryColor: '#73d7c3',
-  upColor: '#27AE60',
-  downColor: '#FF4343',
-  warningColor: '#FF7A00',
-  infoColor,
-  selectedColor: '#aea3ff3d',
-  connectWalletBackgroundColor: '#EEEAF4',
-  shineAnimationGradient: `linear-gradient(to right, ${headerColor} 0, ${cyanColor} 10%, ${headerColor} 20%)`,
-  navLinkBackgroundActive: 'linear-gradient(90deg, rgba(134, 212, 201, 0.5) 0%, rgba(134, 212, 201, 0) 100%);',
-  dashboardTvlGradient: 'linear-gradient(180deg, #160e3f 3.55%, #26185c 83.47%, #321f71 103.84%)',
-  boxShadowColor: 'rgba(112, 104, 170, 0.3)',
-  textColorHovered: cyanColor,
-  chartLinerGradientPrimary: 'rgba(174, 237, 225, 1)',
-  chartLinerGradientSecondary: 'rgba(22, 14, 63, 1)',
-}
+export const space = dark
 
 export default {
   space,

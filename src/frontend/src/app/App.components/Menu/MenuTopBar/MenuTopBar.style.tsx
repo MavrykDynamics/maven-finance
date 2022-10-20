@@ -12,7 +12,7 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   max-width: 100vw;
   height: 80px;
   z-index: 11;
-  background: #160e3f;
+  background: ${({ theme }) => theme.containerColor};
   display: flex;
   align-items: center;
   padding: 0 22px 0 34px;
@@ -145,7 +145,7 @@ export const MobileTopBarStyled = styled.div<{ show: boolean }>`
   max-height: 0;
   left: 0;
   top: 80px;
-  background: #160e3f;
+  background: ${({ theme }) => theme.containerColor};
   z-index: ${MENU_Z_INDEX};
   transition: 0.5s all;
   overflow: hidden;
