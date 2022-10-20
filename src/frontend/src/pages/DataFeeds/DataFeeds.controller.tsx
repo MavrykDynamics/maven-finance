@@ -116,7 +116,7 @@ export const DataFeeds = () => {
     <Page>
       <PageHeader page={'data-feeds'} />
       <SatelliteSearchFilter dataFeeds>
-        {//TODO: to fix it later
+        {//TODO: to fix it later [MAV-390]
         /* <DropdownContainer className="dropDown">
           <h4>Category:</h4>
           <DropDown
