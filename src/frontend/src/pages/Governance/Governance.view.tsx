@@ -44,8 +44,8 @@ import {
   GovRightContainerTitleArea,
   RightSideSubContent,
   RightSideSubHeader,
+  EmptyContainer,
 } from './Governance.style'
-import { EmptyContainer } from '../../app/App.style'
 import { InfoBlock } from '../../app/App.components/Info/info.style'
 import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
 

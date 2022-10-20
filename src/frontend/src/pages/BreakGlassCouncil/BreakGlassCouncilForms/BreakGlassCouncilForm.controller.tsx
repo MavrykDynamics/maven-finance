@@ -1,5 +1,3 @@
-import React, { FC } from 'react'
-
 // components
 import { FormSetAllContractsAdminView } from './FormSetAllContractsAdmin.view'
 import { FormSetSingleContractAdminView } from './FormSetSingleContractAdmin.view'
@@ -23,7 +21,7 @@ export const actions = {
   REMOVE_COUNCIL_MEMBER: 'REMOVE_COUNCIL_MEMBER',
 }
 
-export const BreakGlassCouncilForm: FC<Props> = ({ action }) => {
+export function BreakGlassCouncilForm ({ action }: Props) {
   return (
     <>
       {actions.SET_ALL_CONTRACTS_ADMIN === action ? <FormSetAllContractsAdminView /> : null}

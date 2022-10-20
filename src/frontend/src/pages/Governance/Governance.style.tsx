@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { Card, cyanColor, skyColor, royalPurpleColor, headerColor } from 'styles'
-
 import { MavrykTheme } from '../../styles/interfaces'
+import { EmptyContainer as EmptyContainerBase } from 'app/App.style'
 
 export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -270,4 +270,11 @@ export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
       color: ${cyanColor};
     }
   }
+`
+
+export const EmptyContainer = styled(EmptyContainerBase)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `

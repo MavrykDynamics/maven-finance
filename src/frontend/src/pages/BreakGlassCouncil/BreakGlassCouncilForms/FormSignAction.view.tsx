@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // components
@@ -19,7 +19,7 @@ const INIT_FORM = {
   breakGlassActionID: '',
 }
 
-export const FormSignActionView: FC = () => {
+export function FormSignActionView() {
   const dispatch = useDispatch()
 
   const [form, setForm] = useState(INIT_FORM)
