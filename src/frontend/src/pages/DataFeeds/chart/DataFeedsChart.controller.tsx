@@ -4,11 +4,12 @@ import React, { useState } from 'react'
 import Chart from '../../../app/App.components/Chart/Chart.view'
 import { TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
-// styles 
+// styles
 import { ChartCard, ChartSlidingTabButtons } from './DataFeedsChart.style'
 
 // types
 import { DataFeedsHistory, DataFeedsVolatility } from '../../Satellites/helpers/Satellites.types'
+import { formatNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 type Props = {
   dataFeedsHistory: DataFeedsHistory
@@ -37,23 +38,28 @@ export function DataFeedsChart({ className, dataFeedsHistory, dataFeedsVolatilit
     setActiveTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
   }
 
-  const tickFormater = (value: string | number): string =>  {
-    return isHistory ? `$${value}` : `${value}%`
+  const tickFormater = (value: number): string => {
+    return isHistory ? `$${formatNumber(true, value)}` : `${formatNumber(true, value)}%`
   }
 
- return (
-  <ChartCard className={className}>
-    {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
+  const shownData = isHistory ? dataFeedsHistory : dataFeedsVolatility
 
-    <Chart
-      list={isHistory ? dataFeedsHistory : dataFeedsVolatility}
-      style={{
-        width: '100%',
-        height: 300,
-      }}
-      tickFormater={tickFormater}
-      tooltipValueFormatter={tickFormater}
-    />
-  </ChartCard>
- )
+  // TODO: decide what to show it no enought data
+  // if (!shownData.length) return null
+
+  return (
+    <ChartCard className={className}>
+      {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
+
+      <Chart
+        list={shownData}
+        style={{
+          width: '100%',
+          height: 300,
+        }}
+        tickFormater={tickFormater}
+        tooltipValueFormatter={tickFormater}
+      />
+    </ChartCard>
+  )
 }
