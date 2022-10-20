@@ -8,16 +8,17 @@ import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Paginatio
 // view
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { Button } from 'app/App.components/Button/Button.controller'
-import Chart from 'app/App.components/Chart/Chart.view'
 import Icon from 'app/App.components/Icon/Icon.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Timer } from 'app/App.components/Timer/Timer.controller'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { DataFeedsChart } from '../chart/DataFeedsChart.controller'
 
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
+import { DataFeedsHistory, DataFeedsVolatility } from '../../Satellites/helpers/Satellites.types'
 
 import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 // styles
@@ -30,7 +31,6 @@ import {
   UsersListCardsWrapper,
   UsersListWrapper,
   UserSmallCard,
-  ChartCard,
 } from './DataFeedsDetails.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
@@ -45,6 +45,8 @@ type FeedDetailsProps = {
   isLoading: boolean
   oracles: Array<SatelliteRecord>
   registerFeedHandler: () => void
+  dataFeedsHistory: DataFeedsHistory
+  dataFeedsVolatility: DataFeedsVolatility
 }
 
 const emptyContainer = (
@@ -54,7 +56,7 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
+const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, dataFeedsHistory, dataFeedsVolatility }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
   const oraclesForFeed = useMemo(
     () => oracles.filter(({ oracleRecords }) => oracleRecords.find(({ feedAddress }) => feed?.address === feedAddress)),
@@ -228,9 +230,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
             <h1>Answer history</h1>
           </GovRightContainerTitleArea>
 
-          <ChartCard>
-            <Chart list={[]} />
-          </ChartCard>
+          <DataFeedsChart dataFeedsHistory={dataFeedsHistory} dataFeedsVolatility={dataFeedsVolatility} />
         </div>
       </DataFeedsStyled>
 

@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -7,7 +7,11 @@ import { ChartCard, ChartSlidingTabButtons } from './DoormanChart.style'
 
 // components
 import Chart from '../../../app/App.components/Chart/Chart.view'
-import { SlidingTabButtons, TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { TabItem } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+
+type Props = {
+  className?: string
+}
 
 const tabsList: TabItem[] = [
   {
@@ -22,23 +26,23 @@ const tabsList: TabItem[] = [
   },
 ]
 
-export const DoormanChart: FC = () => {
+export function DoormanChart({ className }: Props) {
   const { stakeHistoryData, smvkHistoryData } = useSelector((state: State) => state.doorman)
 
-  const [activeTab, setActiveTab] = useState('')
+  const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isStakingHistory = activeTab === tabsList[1].text
 
   const handleChangeTabs = (tabId?: number) => {
-    setActiveTab(tabId === 1 ? 'MVK Total Supply' : 'Staking History')
+    setActiveTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
   }
 
-  return (
-    <ChartCard>
-      <ChartSlidingTabButtons>
-        {tabsList?.length ? <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
-      </ChartSlidingTabButtons>
+  const tooltipValueFormatter = (value: string | number):string => `${value} MVK`
 
-      <Chart list={isStakingHistory ? stakeHistoryData : smvkHistoryData} />
+  return (
+    <ChartCard className={className}>
+        {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
+
+      <Chart tooltipValueFormatter={tooltipValueFormatter} list={isStakingHistory ? stakeHistoryData : smvkHistoryData} />
     </ChartCard>
   )
 }
