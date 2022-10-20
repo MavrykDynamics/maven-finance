@@ -53,18 +53,22 @@
     },
     {
         "index": 13,
-        "name": "lambdaTogglePauseAggregator"
+        "name": "lambdaSetAggregatorReference"
     },
     {
         "index": 14,
-        "name": "lambdaFixMistakenTransfer"
+        "name": "lambdaTogglePauseAggregator"
     },
     {
         "index": 15,
-        "name": "lambdaDropAction"
+        "name": "lambdaFixMistakenTransfer"
     },
     {
         "index": 16,
+        "name": "lambdaDropAction"
+    },
+    {
+        "index": 17,
         "name": "lambdaVoteForAction"
   }
 ]

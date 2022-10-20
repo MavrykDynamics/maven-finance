@@ -10,13 +10,14 @@
 // import BigNumber from 'bignumber.js';
 // import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
 // import { bob, alice, eve, mallory, david, trudy, susie, oracleMaintainer} from "../scripts/sandbox/accounts";
-// import doormanAddress            from '../deployments/doormanAddress.json';
-// import aggregatorAddress         from '../deployments/aggregatorAddress.json';
-// import delegationAddress         from '../deployments/delegationAddress.json';
-// import mvkTokenAddress           from '../deployments/mvkTokenAddress.json';
-// import governanceAddress         from '../deployments/governanceAddress.json';
-// import aggregatorFactoryAddress  from '../deployments/aggregatorFactoryAddress.json';
-// import { aggregatorStorageType } from './types/aggregatorStorageType';
+// import doormanAddress               from '../deployments/doormanAddress.json';
+// import aggregatorAddress            from '../deployments/aggregatorAddress.json';
+// import delegationAddress            from '../deployments/delegationAddress.json';
+// import mvkTokenAddress              from '../deployments/mvkTokenAddress.json';
+// import governanceAddress            from '../deployments/governanceAddress.json';
+// import aggregatorFactoryAddress     from '../deployments/aggregatorFactoryAddress.json';
+// import governanceSatelliteAddress   from '../deployments/governanceSatelliteAddress.json';
+// import { aggregatorStorageType }    from './types/aggregatorStorageType';
 // import treasuryAddress   from '../deployments/treasuryAddress.json';
 
 // interface IOracleObservationType {
@@ -42,13 +43,15 @@
 //     let delegationInstance;
 //     let aggregatorFactoryInstance;
 //     let treasuryInstance;
+//     let governanceSatelliteInstance;
 
 //     let aggregatorStorage;
 //     let doormanStorage;
 //     let mvkTokenStorage;
 //     let delegationStorage;
 //     let aggregatorFactoryStorage;
-//     let treasuryStorage;;
+//     let treasuryStorage;
+//     let governanceSatelliteStorage;
 
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -74,6 +77,9 @@
 
 //         treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
 //         treasuryStorage                 = await treasuryInstance.storage();
+
+//         governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress.address);
+//         governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
 
 //         // setup oracles for test
 //         if(aggregatorStorage.oracleAddresses.get(bob.pkh) === undefined){
@@ -111,6 +117,7 @@
 //                 ).send();
 //             await addMaintainerOracle.confirmation();
 //         }
+
 
 
 //         // -----------------------------------------------
@@ -198,7 +205,7 @@
 //         const mallorySatellite  = await delegationStorage.satelliteLedger.get(mallory.pkh);
 //         const eveSatellite      = await delegationStorage.satelliteLedger.get(eve.pkh);
 //         const oracleSatellite   = await delegationStorage.satelliteLedger.get(oracleMaintainer.pkh);
-        
+
 //         if(bobSatellite === undefined){
 
 //             await signerFactory(bob.sk);
@@ -237,7 +244,6 @@
 
 //         }
 
-
 //         if(aliceSatellite === undefined){
 
 //             // Alice stakes 100 MVK tokens and registers as a satellite 
@@ -260,7 +266,6 @@
 //             const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "1000").send();
 //             await aliceRegisterAsSatelliteOperation.confirmation();
 //         }
-
 
 //         if(eveSatellite === undefined){
 
@@ -285,7 +290,6 @@
 //             await eveRegisterAsSatelliteOperation.confirmation();
 //         }
 
-
 //         if(mallorySatellite === undefined){
 
 //             // Mallory stakes 100 MVK tokens and registers as a satellite 
@@ -308,7 +312,6 @@
 //             const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Mallory", "New Satellite Description - Mallory", "https://image.url", "https://image.url", "1000").send();
 //             await malloryRegisterAsSatelliteOperation.confirmation();
 //         }
-
 
 //         if(oracleSatellite === undefined){
 
@@ -1366,21 +1369,34 @@
 //             }
 //         });
 
-//         it('Admin should be able to update the aggregator contract name', async () => {
+//         it('Admin should be able to update the aggregator contract name and update its reference on the governanceSatellite contract', async () => {
 //             try {
 //                 // Initial values
 //                 await signerFactory(bob.sk);
-//                 const newName       = "testName";
+//                 const newName                   = "newName";
+//                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+//                 aggregatorStorage               = await aggregatorInstance.storage();
+
+//                 const oldName                   = aggregatorStorage.name;
+//                 const startOldReference         = await governanceSatelliteStorage.aggregatorLedger.get(oldName);
+//                 const startNewReference         = await governanceSatelliteStorage.aggregatorLedger.get(newName);
 
 //                 // Operation
 //                 const operation     = await aggregatorInstance.methods.setName(newName).send();
 //                 await operation.confirmation();
     
 //                 // Final values
-//                 aggregatorStorage   = await aggregatorInstance.storage();
+//                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+//                 aggregatorStorage               = await aggregatorInstance.storage();
+//                 const endOldReference           = await governanceSatelliteStorage.aggregatorLedger.get(oldName);
+//                 const endNewReference           = await governanceSatelliteStorage.aggregatorLedger.get(newName);
 
 //                 // Assertion
-//                 assert.deepEqual(aggregatorStorage.name, newName);
+//                 assert.strictEqual(aggregatorStorage.name, newName);
+//                 assert.strictEqual(startOldReference, aggregatorAddress.address);
+//                 assert.strictEqual(startNewReference, undefined);
+//                 assert.strictEqual(endOldReference, undefined);
+//                 assert.strictEqual(endNewReference, aggregatorAddress.address);
 //             } catch (e) {
 //                 console.dir(e, {depth: 5})
 //             }

@@ -62,6 +62,7 @@ type governanceSatelliteAction is
     |   RemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
         // Aggregator Governance
+    |   SetAggregatorReference        of setAggregatorReferenceType
     |   TogglePauseAggregator         of togglePauseAggregatorActionType
 
         // Mistaken Transfer Governance
@@ -626,7 +627,7 @@ block {
     ];
 
     // Get or create satellite oracle record
-    var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[oracleAddress] of [
+    var satelliteOracleRecord : aggregatorsMapType := case s.satelliteOracleLedger[oracleAddress] of [
             Some(_record) -> _record
         |   None -> (map[] : aggregatorsMapType)
     ];
@@ -689,7 +690,7 @@ block {
     operations := removeOracleInAggregatorOperation # operations;
 
     // Get satellite oracle record
-    var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[oracleAddress] of [
+    var satelliteOracleRecord : aggregatorsMapType := case s.satelliteOracleLedger[oracleAddress] of [
             Some(_record) -> _record
         |   None          -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
     ];
@@ -718,7 +719,7 @@ block {
     ];
 
     // Get satellite oracle record
-    var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[satelliteAddress] of [
+    var satelliteOracleRecord : aggregatorsMapType := case s.satelliteOracleLedger[satelliteAddress] of [
             Some(_record) -> _record
         |   None          -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
     ];
@@ -970,8 +971,14 @@ block {
 
 
 
+(* View: get an aggregator address *)
+[@view] function getAggregatorOpt(const aggregatorName : string; var s : governanceSatelliteStorageType) : option(address) is
+    Big_map.find_opt(aggregatorName, s.aggregatorLedger)
+
+
+
 (* View: get a satellite oracle record *)
-[@view] function getSatelliteOracleRecordOpt(const satelliteAddress : address; var s : governanceSatelliteStorageType) : option(satelliteOracleRecordType) is
+[@view] function getSatelliteOracleRecordOpt(const satelliteAddress : address; var s : governanceSatelliteStorageType) : option(aggregatorsMapType) is
     Big_map.find_opt(satelliteAddress, s.satelliteOracleLedger)
 
 
@@ -1292,6 +1299,23 @@ block {
 // Aggregator Governance Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(*  setAggregatorReference entrypoint  *)
+function setAggregatorReference(const setAggregatorReferenceParams : setAggregatorReferenceType; var s : governanceSatelliteStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAggregatorReference"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance satellite lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetAggregatorReference(setAggregatorReferenceParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
 
 
 (*  togglePauseAggregator entrypoint  *)
@@ -1452,6 +1476,7 @@ block{
         |   RemoveOracleInAggregator(parameters)      -> removeOracleInAggregator(parameters, s)
 
             // Aggregator Governance
+        |   SetAggregatorReference(parameters)        -> setAggregatorReference(parameters, s)
         |   TogglePauseAggregator(parameters)         -> togglePauseAggregator(parameters, s)
 
             // Mistaken Transfer Governance

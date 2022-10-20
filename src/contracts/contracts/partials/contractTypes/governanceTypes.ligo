@@ -51,7 +51,7 @@ type votingRoundVoteType is [@layout:comb] record [
 type proposalDataType is [@layout:comb] record [
     title                   : string;
     encodedCode             : bytes;
-    code                    : string;
+    codeDescription         : string;
 ]
 
 type paymentDataType is [@layout:comb] record[
@@ -185,7 +185,7 @@ type governanceUpdateConfigParamsType is [@layout:comb] record [
 type updateProposalDataSetType is [@layout:comb] record [
     title                   : string;
     encodedCode             : bytes;
-    code                    : option(string);
+    codeDescription         : option(string);
     index                   : option(nat);
 ]
 

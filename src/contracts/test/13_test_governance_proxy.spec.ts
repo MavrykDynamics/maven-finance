@@ -497,70 +497,70 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#2",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#3",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#4",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#5",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#6",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#7",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#8",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#9",
 //                             encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#10",
 //                             encodedCode: secondPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -576,7 +576,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#11",
 //                             encodedCode: secondPackedParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         },
 //                     },
 //                     {
@@ -704,70 +704,70 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#2",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#3",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#4",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#5",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#6",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#7",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#8",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#9",
 //                         encodedCode: firstPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#10",
 //                         encodedCode: secondPackedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -865,7 +865,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -972,7 +972,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -1049,7 +1049,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -1168,7 +1168,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -1286,7 +1286,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -1412,7 +1412,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -1633,7 +1633,7 @@
 //                         addOrSetProposalData: {
 //                             title: "FirstFarm#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -1754,7 +1754,7 @@
 //                         addOrSetProposalData: {
 //                             title: "FirstFarm#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -1858,7 +1858,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Untrack#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -1955,7 +1955,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Track#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -2075,7 +2075,7 @@
 //                         addOrSetProposalData: {
 //                             title: "FirstTreasury#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -2189,14 +2189,14 @@
 //                         addOrSetProposalData: {
 //                             title: "FirstTreasury#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     },
 //                     {
 //                         addOrSetProposalData: {
 //                             title: "FirstTreasury#2",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -2299,7 +2299,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Untrack#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -2396,7 +2396,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Track#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -2524,7 +2524,7 @@
 //                         addOrSetProposalData: {
 //                             title: "FirstAggregator#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -2621,7 +2621,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Untrack#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -2719,7 +2719,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Track#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -2814,7 +2814,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Track#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -2910,7 +2910,7 @@
 //                         addOrSetProposalData: {
 //                             title: "SetAdmin#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3025,7 +3025,7 @@
 //                         proposalData[generalCounter] = {
 //                             title: entryName, 
 //                             data: packedParam,
-// 						code: ""
+// 						codeDescription: ""
 //                         }
 //                         generalCounter++;
 //                     }
@@ -3142,7 +3142,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Metadata#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3237,7 +3237,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Whitelist#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3334,7 +3334,7 @@
 //                         addOrSetProposalData: {
 //                             title: "General#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3431,7 +3431,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Whitelist#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3528,7 +3528,7 @@
 //                         addOrSetProposalData: {
 //                             title: "SetName#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3622,7 +3622,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Whitelist#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3718,7 +3718,7 @@
 //                         addOrSetProposalData: {
 //                             title: "SuccessReward#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3813,7 +3813,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Days#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -3909,7 +3909,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Days#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4005,7 +4005,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxSatellites#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4101,7 +4101,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ActionExpiryDays#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4197,7 +4197,7 @@
 //                         addOrSetProposalData: {
 //                             title: "VoteExpiryDays#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4293,7 +4293,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ActionExpiryDays#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4389,7 +4389,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxLength#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4486,7 +4486,7 @@
 //                         addOrSetProposalData: {
 //                             title: "NumberBlocksDelay#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4582,7 +4582,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxLength#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4678,7 +4678,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MaxLength#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4774,7 +4774,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MinMvkAmount#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4872,7 +4872,7 @@
 //                         addOrSetProposalData: {
 //                             title: "RewardPerBlock#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -4971,7 +4971,7 @@
 //                         addOrSetProposalData: {
 //                             title: "InitFarm#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5071,7 +5071,7 @@
 //                         addOrSetProposalData: {
 //                             title: "CloseFarm#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5180,7 +5180,7 @@
 //                         addOrSetProposalData: {
 //                             title: "TransferTreasury#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5281,7 +5281,7 @@
 //                         addOrSetProposalData: {
 //                             title: "MintMvkAndTransferTreasury#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5386,7 +5386,7 @@
 //                         addOrSetProposalData: {
 //                             title: "UpdateMvkOperatorsTreasury#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5482,7 +5482,7 @@
 //                         addOrSetProposalData: {
 //                             title: "StakeMvkTreasury#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5585,7 +5585,7 @@
 //                         addOrSetProposalData: {
 //                             title: "UnstakeMvkTreasury#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5727,7 +5727,7 @@
 //                         addOrSetProposalData: {
 //                             title: "SetContractLambda#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5840,7 +5840,7 @@
 //                         addOrSetProposalData: {
 //                             title: "SetFactoryProductLambda#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -5939,7 +5939,7 @@
 //                         addOrSetProposalData: {
 //                             title: "AddVestee#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6041,7 +6041,7 @@
 //                         addOrSetProposalData: {
 //                             title: "UpdateVestee#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6137,7 +6137,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ToggleVesteeLock#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6231,7 +6231,7 @@
 //                         addOrSetProposalData: {
 //                             title: "RemoveVestee#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6327,7 +6327,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6423,7 +6423,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6520,7 +6520,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6616,7 +6616,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6713,7 +6713,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6809,7 +6809,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -6905,7 +6905,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -7001,7 +7001,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -7098,7 +7098,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];
@@ -7195,7 +7195,7 @@
 //                         addOrSetProposalData: {
 //                             title: "PauseEntrypoint#1",
 //                             encodedCode: packedParam,
-// 						    code: ""
+// 						    codeDescription: ""
 //                         }
 //                     }
 //                 ];

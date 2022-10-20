@@ -875,7 +875,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]
@@ -1055,7 +1055,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -1105,7 +1105,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1.1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: "",
+// 								codeDescription: "",
 //                                 index: "1"
 //                             },
 //                         }
@@ -1156,7 +1156,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1.2",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: "",
+// 								codeDescription: "",
 //                                 index: "2"
 //                             },
 //                         }
@@ -1255,7 +1255,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1.2",
 //                                 encodedCode: firstPackedUpdateConfigSuccessRewardParam,
-// 								code: "",
+// 								codeDescription: "",
 //                                 index: "1"
 //                             }
 //                         },
@@ -1263,7 +1263,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#2",
 //                                 encodedCode: secondPackedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             }
 //                         },
 //                         {
@@ -1273,14 +1273,14 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#3",
 //                                 encodedCode: firstPackedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             }
 //                         },
 //                         {
 //                             addOrSetProposalData: {
 //                                 title: "Data#2.1",
 //                                 encodedCode: secondPackedUpdateConfigSuccessRewardParam,
-// 								code: "",
+// 								codeDescription: "",
 //                                 index: "2"
 //                             }
 //                         }
@@ -1522,7 +1522,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#4",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send()).to.be.rejected;
@@ -1562,7 +1562,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#4",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send()).to.be.rejected;
@@ -1603,7 +1603,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#4",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send()).to.be.rejected;
@@ -1873,7 +1873,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -2500,7 +2500,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send()).to.be.rejected; 
@@ -2564,7 +2564,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send()).to.be.rejected; 
@@ -2883,7 +2883,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3031,7 +3031,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3132,7 +3132,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3248,7 +3248,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3352,7 +3352,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3447,7 +3447,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3498,7 +3498,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3595,7 +3595,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3672,7 +3672,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3761,7 +3761,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: packedUpdateConfigSuccessRewardParam,
-// 								code: ""
+// 								codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();
@@ -3893,7 +3893,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Data#1",
 //                                 encodedCode: Buffer.from("TestWithWrongData", 'ascii').toString('hex'),
-//                                 code: ""
+//                                 codeDescription: ""
 //                             },
 //                         }
 //                     ]).send();

@@ -48,8 +48,7 @@ type governanceSatelliteActionLedgerType is big_map (actionIdType, governanceSat
 
 
 type aggregatorsMapType is map(address, timestamp)
-type satelliteOracleRecordType is aggregatorsMapType // map of aggregators that satellite oracle is providing service for
-type satelliteOracleLedgerType is big_map(address, satelliteOracleRecordType)
+type satelliteOracleLedgerType is big_map(address, aggregatorsMapType) // map of aggregators that satellite oracle is providing service for
 
 
 type actionsInitiatorsType is big_map(address, set(actionIdType));
@@ -118,9 +117,15 @@ type voteForActionType is [@layout:comb] record [
     vote                        : voteType;
 ]
 
+type setAggregatorReferenceType is [@layout:comb] record [
+    aggregatorAddress       : address;
+    oldName                 : string;
+    newName                 : string;
+]
+
 type togglePauseAggregatorVariantType is
-        PauseAll
-    |   UnpauseAll
+        PauseAll        of unit
+    |   UnpauseAll      of unit
 
 type togglePauseAggregatorActionType is [@layout:comb] record [
     aggregatorAddress           : address;
@@ -167,6 +172,7 @@ type governanceSatelliteLambdaActionType is
     |   LambdaRemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
         // Aggregator Governance
+    |   LambdaSetAggregatorReference        of setAggregatorReferenceType
     |   LambdaTogglePauseAggregator         of togglePauseAggregatorActionType
 
         // Mistaken Transfer Governance
@@ -204,6 +210,7 @@ type governanceSatelliteStorageType is record [
 
     // satellite oracles and aggregators
     satelliteOracleLedger                   : satelliteOracleLedgerType;
+    aggregatorLedger                        : big_map(string, address);
 
     // lambda storage
     lambdaLedger                            : lambdaLedgerType; 
