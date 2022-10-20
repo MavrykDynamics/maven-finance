@@ -37,7 +37,7 @@ async def on_governance_snapshot_ledger_update(
         )
         await user.save()
 
-        snapshot_record, _      = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
+        snapshot_record, _      = await models.GovernanceSatelliteSnapshot.get_or_create(
             governance              = governance,
             user                    = user,
             cycle                   = governance_cycle

@@ -65,38 +65,34 @@
     },
     {
         "index": 16,
-        "name": "lambdaUpdatePaymentData"
-    },
-    {
-        "index": 17,
         "name": "lambdaLockProposal"
     },
     {
-        "index": 18,
+        "index": 17,
         "name": "lambdaProposalRoundVote"
     },
     {
-        "index": 19,
+        "index": 18,
         "name": "lambdaVotingRoundVote"
     },
     {
-        "index": 20,
+        "index": 19,
         "name": "lambdaExecuteProposal"
     },
     {
-        "index": 21,
+        "index": 20,
         "name": "lambdaProcessProposalPayment"
     },
     {
-        "index": 22,
+        "index": 21,
         "name": "lambdaProcessProposalSingleData"
     },
     {
-        "index": 23,
+        "index": 22,
         "name": "lambdaDistributeProposalRewards"
     },
     {
-        "index": 24,
+        "index": 23,
         "name": "lambdaDropProposal"
     }
 ]

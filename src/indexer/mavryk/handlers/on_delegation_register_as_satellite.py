@@ -27,7 +27,7 @@ async def on_delegation_register_as_satellite(
     delegation = await models.Delegation.get(
         address = delegation_address
     )
-    satelliteRecord, _ = await models.SatelliteRecord.get_or_create(
+    satelliteRecord, _ = await models.Satellite.get_or_create(
         user        = user,
         delegation  = delegation
     )
@@ -38,7 +38,7 @@ async def on_delegation_register_as_satellite(
     satelliteRecord.website                         = website
     satelliteRecord.currently_registered            = True
 
-    satelliteRewardRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
+    satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
         user        = user,
         delegation  = delegation
     )

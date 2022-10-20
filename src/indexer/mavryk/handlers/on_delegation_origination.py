@@ -1,6 +1,7 @@
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.delegation.storage import DelegationStorage
 import mavryk.models as models
 
@@ -26,7 +27,14 @@ async def on_delegation_origination(
     unregister_as_satellite_paused      = delegation_origination.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
     update_satellite_record_paused      = delegation_origination.storage.breakGlassConfig.updateSatelliteRecordIsPaused
     distribute_reward_paused            = delegation_origination.storage.breakGlassConfig.distributeRewardIsPaused
+    timestamp                           = delegation_origination.data.timestamp
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=address
+    )
+    
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
     await governance.save();
@@ -35,6 +43,7 @@ async def on_delegation_origination(
     delegation = models.Delegation(
         address                             = address,
         admin                               = admin,
+        last_updated_at                     = timestamp,
         governance                          = governance,
         minimum_smvk_balance                = minimum_smvk_balance,
         delegation_ratio                    = delegation_ratio,

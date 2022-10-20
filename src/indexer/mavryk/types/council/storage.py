@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -40,10 +40,7 @@ class CouncilActionsLedger(BaseModel):
     executed: bool
     status: str
     signersCount: str
-    addressMap: Dict[str, str]
-    stringMap: Dict[str, str]
-    natMap: Dict[str, str]
-    keyHash: Optional[str]
+    dataMap: Dict[str, str]
     startDateTime: str
     startLevel: str
     executedDateTime: str

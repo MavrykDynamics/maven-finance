@@ -1,6 +1,7 @@
 
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.farm_factory.storage import FarmFactoryStorage
 import mavryk.models as models
 
@@ -16,6 +17,13 @@ async def on_farm_factory_origination(
     create_farm_paused          = farm_factory_origination.storage.breakGlassConfig.createFarmIsPaused
     track_farm_paused           = farm_factory_origination.storage.breakGlassConfig.trackFarmIsPaused
     untrack_farm_paused         = farm_factory_origination.storage.breakGlassConfig.untrackFarmIsPaused
+    timestamp                   = farm_factory_origination.data.timestamp
+
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=address
+    )
     
     # Get or create governance record
     governance, _ = await models.Governance.get_or_create(address=governance_address)
@@ -25,6 +33,7 @@ async def on_farm_factory_origination(
     farm_factory = models.FarmFactory(
         address                     = address,
         admin                       = admin,
+        last_updated_at             = timestamp,
         governance                  = governance,
         track_farm_paused           = track_farm_paused,
         create_farm_paused          = create_farm_paused,

@@ -484,49 +484,42 @@ block {
 // Aggregator Governance Lambdas Begin
 // ------------------------------------------------------------------------------
 
-
-
-(*  registerAggregator lambda *)
-function lambdaRegisterAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
+(*  setAggregatorReference lambda *)
+function lambdaSetAggregatorReference(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
 
     // Steps Overview:    
     // 1. Standard Checks
     //      -   Check that no tez is sent to the entrypoint
-    //      -   Check that sender is admin or is whitelisted
-    // 2. Check if Aggregator record already exists in storage ledger
-    // 3. Create new Aggregator Record
-    // 4. Update Aggregator ledger storage
-    
+    //      -   Check that sender is admin, is whitelisted or is an aggregator
+    // 2. Delete the entry associated with old name in the aggregatorLedger
+    // 3. Create the entry associated with new name in the aggregatorLedger
+
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
 
-    // Check sender is admin or is whitelisted
-    if Tezos.get_sender() = s.admin or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_ALLOWED);
-    
     case governanceSatelliteLambdaAction of [
-        |   LambdaRegisterAggregator(registerAggregatorParams) -> {
-                
+        |   LambdaSetAggregatorReference(setAggregatorReferenceParams) -> {
+
                 // init params
-                const aggregatorAddress    : address          = registerAggregatorParams.aggregatorAddress;
-                const aggregatorPair       : string * string  = registerAggregatorParams.aggregatorPair;
+                const aggregatorAddress : address   = setAggregatorReferenceParams.aggregatorAddress;
+                const oldName           : string    = setAggregatorReferenceParams.oldName;
+                const newName           : string    = setAggregatorReferenceParams.newName;
 
-                // Check if Aggregator record already exists in storage ledger
-                case s.aggregatorLedger[aggregatorAddress] of [
-                        Some(_v) -> failwith(error_AGGREGATOR_CONTRACT_EXISTS)
-                    |   None     -> skip
+                // Check sender is admin, is whitelisted or is an aggregator
+                if Tezos.get_sender() = s.admin or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip 
+                else case Big_map.find_opt(oldName, s.aggregatorLedger) of [
+                        Some (_a)   -> if Tezos.get_sender() = _a and Tezos.get_sender() = aggregatorAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_OR_AGGREGATOR_ALLOWED)
+                    |   None        -> failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
                 ];
 
-                // Create new Aggregator record
-                const emptyOracleSet : set(address) = set[];
-                const aggregatorRecord : aggregatorRecordType = record [
-                    aggregatorPair    = aggregatorPair;
-                    status            = "ACTIVE";
-                    createdTimestamp  = Tezos.get_now();
-                    oracles           = emptyOracleSet;
+                // Update storage
+                s.aggregatorLedger[newName]         := case s.aggregatorLedger[oldName] of [
+                        Some(_a) -> if _a = aggregatorAddress then aggregatorAddress else failwith(error_WRONG_AGGREGATOR_ADDRESS_PROVIDED)
+                    |   None     -> if oldName = newName then aggregatorAddress else failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
                 ];
 
-                // Update Aggregator ledger storage
-                s.aggregatorLedger[aggregatorAddress] := aggregatorRecord;
+                // Remove old entry from the ledger
+                if oldName =/= newName then s.aggregatorLedger  := Big_map.remove(oldName, s.aggregatorLedger) else skip;
 
             }
         |   _ -> skip
@@ -536,8 +529,8 @@ block {
 
 
 
-(*  updateAggregatorStatus lambda *)
-function lambdaUpdateAggregatorStatus(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
+(*  togglePauseAggregator lambda *)
+function lambdaTogglePauseAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -557,12 +550,12 @@ block {
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
-        |   LambdaUpdateAggregatorStatus(updateAggregatorStatusParams) -> {
+        |   LambdaTogglePauseAggregator(togglePauseAggregatorParams) -> {
                 
                 // init params
-                const aggregatorAddress    : address = updateAggregatorStatusParams.aggregatorAddress;
-                const status               : string  = updateAggregatorStatusParams.status;
-                const purpose              : string  = updateAggregatorStatusParams.purpose;
+                const aggregatorAddress    : address                            = togglePauseAggregatorParams.aggregatorAddress;
+                const status               : togglePauseAggregatorVariantType   = togglePauseAggregatorParams.status;
+                const purpose              : string                             = togglePauseAggregatorParams.purpose;
 
                 // init maps
                 const dataMap        : dataMapType   = map [
@@ -572,7 +565,7 @@ block {
 
                 // create action
                 s   := createGovernanceSatelliteAction(
-                    "UPDATE_AGGREGATOR_STATUS",
+                    "TOGGLE_PAUSE_AGGREGATOR",
                     dataMap,
                     purpose,
                     s

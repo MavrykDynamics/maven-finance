@@ -3,7 +3,6 @@
 // ------------------------------------------------------------------------------
 
 
-type trackedAggregatorsType is map (string * string, address)
 
 type aggregatorFactoryConfigType is [@layout:comb] record [
     aggregatorNameMaxLength   : nat;
@@ -24,7 +23,7 @@ type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 
-type createAggregatorParamsType is string * string * [@layout:comb] record[
+type createAggregatorParamsType is [@layout:comb] record[
     name                    : string;
     addToGeneralContracts   : bool;
 
@@ -34,24 +33,6 @@ type createAggregatorParamsType is string * string * [@layout:comb] record[
     metadata                : bytes;
 ];
 
-
-type registerAggregatorActionType is [@layout:comb] record [
-    aggregatorPair          : string * string;        // e.g. BTC * USD  
-    aggregatorAddress       : address; 
-]
-
-
-type trackAggregatorParamsType is [@layout:comb] record [
-    pairFirst             : string;
-    pairSecond            : string;
-    aggregatorAddress     : address;
-]
-
-
-type untrackAggregatorParamsType is [@layout:comb] record [
-    pairFirst             : string;
-    pairSecond            : string;
-]
 
 
 type aggregatorFactoryUpdateConfigNewValueType is nat
@@ -107,8 +88,8 @@ type aggregatorFactoryLambdaActionType is
 
         // Aggregator Factory Lambdas
     |   LambdaCreateAggregator              of createAggregatorParamsType
-    |   LambdaTrackAggregator               of trackAggregatorParamsType
-    |   LambdaUntrackAggregator             of untrackAggregatorParamsType
+    |   LambdaTrackAggregator               of (address)
+    |   LambdaUntrackAggregator             of (address)
 
         // Aggregator Lambdas
     |   LambdaDistributeRewardXtz           of distributeRewardXtzType
@@ -128,12 +109,11 @@ type aggregatorFactoryStorageType is [@layout:comb] record [
     mvkTokenAddress         : address;
     governanceAddress       : address;
 
+    trackedAggregators      : set(address);
+    breakGlassConfig        : aggregatorFactoryBreakGlassConfigType;
+
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;
-
-    breakGlassConfig        : aggregatorFactoryBreakGlassConfigType;
-    
-    trackedAggregators      : trackedAggregatorsType;
 
     lambdaLedger            : lambdaLedgerType;
     aggregatorLambdaLedger  : lambdaLedgerType;

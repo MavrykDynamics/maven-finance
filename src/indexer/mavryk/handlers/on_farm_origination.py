@@ -1,7 +1,10 @@
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
+from ..utils.persisters import persist_token_metadata
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.farm.storage import FarmStorage, TokenStandardItem as fa12, TokenStandardItem1 as fa2
 import mavryk.models as models
+import json
 
 async def on_farm_origination(
     ctx: HandlerContext,
@@ -17,7 +20,6 @@ async def on_farm_origination(
     lp_token_address                = farm_origination.storage.config.lpToken.tokenAddress
     lp_token_balance                = int(farm_origination.storage.config.lpToken.tokenBalance)
     lp_token_id                     = int(farm_origination.storage.config.lpToken.tokenId)
-    lp_token_standard               = farm_origination.storage.config.lpToken.tokenStandard
     open                            = farm_origination.storage.open
     init                            = farm_origination.storage.init
     init_block                      = int(farm_origination.storage.initBlock)
@@ -33,35 +35,61 @@ async def on_farm_origination(
     withdraw_paused                 = farm_origination.storage.breakGlassConfig.withdrawIsPaused
     claim_paused                    = farm_origination.storage.breakGlassConfig.claimIsPaused
     force_rewards_from_transfer     = farm_origination.storage.config.forceRewardFromTransfer
+    contract_metadata               = ""
+    if 'data' in farm_origination.storage.metadata:
+        contract_metadata   = json.loads(bytes.fromhex(farm_origination.storage.metadata['data']).decode('utf-8'))
 
-    # Token standard
-    lp_token_standard_type  = models.TokenType.OTHER
-    if type(lp_token_standard) == fa2:
-        lp_token_standard_type  = models.TokenType.FA2
-    elif type(lp_token_standard) == fa12:
-        lp_token_standard_type  = models.TokenType.FA12
-    
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=farm_address
+    )
+
+    # Persist LP Token Metadata
+    await persist_token_metadata(
+        ctx=ctx,
+        token_address=lp_token_address,
+        token_id=str(lp_token_id)
+    )
+
+    # Get Farm Contract Metadata and save the two Tokens involved in the LP Token
+    token0_address              = ""
+    token1_address              = ""
+
+    if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token0' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token0'] and len(contract_metadata['liquidityPairToken']['token0']['tokenAddress']) > 0:
+        token0_address  = contract_metadata['liquidityPairToken']['token0']['tokenAddress'][0]
+    if type(contract_metadata) is dict and contract_metadata and 'liquidityPairToken' in contract_metadata and 'token1' in contract_metadata['liquidityPairToken'] and 'tokenAddress' in contract_metadata['liquidityPairToken']['token1'] and len(contract_metadata['liquidityPairToken']['token1']['tokenAddress']) > 0:
+        token1_address  = contract_metadata['liquidityPairToken']['token1']['tokenAddress'][0]
+
+    await persist_token_metadata(
+        ctx=ctx,
+        token_address=token0_address
+    )
+
+    await persist_token_metadata(
+        ctx=ctx,
+        token_address=token1_address
+    )
+
+    # Save farm
     governance, _      = await models.Governance.get_or_create(
         address = governance_address
     )
     await governance.save()
-    lp_token, _        = await models.Token.get_or_create(
-        address     = lp_token_address,
-        token_id    = lp_token_id,
-        type        = lp_token_standard_type
-    )
-    await lp_token.save()
     farm, _         = await models.Farm.get_or_create(
         address     = farm_address,
         admin       = admin,
         governance  = governance
     )
     farm.creation_timestamp              = creation_timestamp
+    farm.last_updated_at                 = creation_timestamp
     farm.name                            = name 
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite
-    farm.lp_token                        = lp_token
+    farm.lp_token_address                = lp_token_address
     farm.lp_token_balance                = lp_token_balance
+    farm.token0_address                  = token0_address
+    farm.token1_address                  = token1_address
     farm.total_blocks                    = total_blocks
     farm.current_reward_per_block        = current_reward_per_block
     farm.total_rewards                   = total_rewards

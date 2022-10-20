@@ -24,7 +24,7 @@ async def on_aggregator_factory_track_aggregator(
         address = aggregator_address
     )
     if aggregator:
-        aggregator.aggregator_factory   = aggregator_factory
+        aggregator.factory              = aggregator_factory
         aggregator.token_0_symbol       = token_0_symbol
         aggregator.token_1_symbol       = token_1_symbol
         await aggregator.save()

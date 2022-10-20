@@ -1,3 +1,4 @@
+from pickle import TRUE
 from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
 
@@ -7,8 +8,8 @@ from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContr
 
 class Treasury(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasuries', null=True)
-    treasury_factory                        = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
-    creation_timestamp                      = fields.DatetimeField(null=True)
+    factory                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
+    creation_timestamp                      = fields.DatetimeField(null=True, index=True)
     name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
     mint_mvk_and_transfer_paused            = fields.BooleanField(default=False)
@@ -44,10 +45,10 @@ class TreasuryWhitelistTokenContract(LinkedContract, Model):
 
 class TreasuryTransferHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    timestamp                               = fields.DatetimeField()
-    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='transfer_history_data')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_transfer_token')
-    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='treasury_transfer_receiver', null=True)
+    timestamp                               = fields.DatetimeField(index=True)
+    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='transfer_history_data', index=True)
+    token_address                           = fields.CharField(max_length=36, default="", index=True)
+    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='treasury_transfer_receiver', null=True, index=True)
     amount                                  = fields.BigIntField(default=0)
 
     class Meta:

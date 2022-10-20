@@ -13,13 +13,9 @@ class Config(BaseModel):
         extra = Extra.forbid
 
     decimals: str
-    numberBlocksDelay: str
-    deviationTriggerBanDuration: str
-    perThousandDeviationTrigger: str
+    alphaPercentPerThousand: str
     percentOracleThreshold: str
-    requestRateDeviationDepositFee: str
-    deviationRewardStakedMvk: str
-    deviationRewardAmountXtz: str
+    heartBeatSeconds: str
     rewardAmountStakedMvk: str
     rewardAmountXtz: str
 
@@ -28,30 +24,28 @@ class BreakGlassConfig(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    requestRateUpdateIsPaused: bool
-    requestRateUpdateDeviationIsPaused: bool
-    setObservationCommitIsPaused: bool
-    setObservationRevealIsPaused: bool
+    updateDataIsPaused: bool
     withdrawRewardXtzIsPaused: bool
     withdrawRewardStakedMvkIsPaused: bool
 
 
-class DeviationTriggerInfos(BaseModel):
+class OracleAddresses(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    oracleAddress: str
-    roundPrice: str
+    oraclePublicKey: str
+    oraclePeerId: str
 
 
-class LastCompletedRoundPrice(BaseModel):
+class LastCompletedData(BaseModel):
     class Config:
         extra = Extra.forbid
 
     round: str
-    price: str
+    epoch: str
+    data: str
     percentOracleResponse: str
-    priceDateTime: str
+    lastUpdatedAt: str
 
 
 class AggregatorStorage(BaseModel):
@@ -63,20 +57,12 @@ class AggregatorStorage(BaseModel):
     name: str
     config: Config
     breakGlassConfig: BreakGlassConfig
-    maintainer: str
     mvkTokenAddress: str
     governanceAddress: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
-    round: str
-    roundStart: str
-    switchBlock: str
-    oracleAddresses: Dict[str, bool]
-    deviationTriggerInfos: DeviationTriggerInfos
-    lastCompletedRoundPrice: LastCompletedRoundPrice
-    observationCommits: Dict[str, str]
-    observationReveals: Dict[str, str]
-    deviationTriggerBan: Dict[str, str]
+    oracleAddresses: Dict[str, OracleAddresses]
+    lastCompletedData: LastCompletedData
     oracleRewardStakedMvk: Dict[str, str]
     oracleRewardXtz: Dict[str, str]
     lambdaLedger: Dict[str, str]

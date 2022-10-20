@@ -41,7 +41,7 @@ async def on_vesting_add_vestee(
     vesting = await models.Vesting.get(
         address = vesting_address
     )
-    vestee_record   = models.VestingVesteeRecord(
+    vestee_record   = models.VestingVestee(
         vesting                         = vesting,
         vestee                          = user,
         total_allocated_amount          = total_allocated_amount,

@@ -78,9 +78,7 @@ describe('Aggregator Factory', async () => {
           const createAggregatorsBatch = await utils.tezos.wallet
               .batch()
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                  'USD',
-                  'BTC',
-  
+
                   'USDBTC',
                   true,
                   
@@ -99,8 +97,6 @@ describe('Aggregator Factory', async () => {
 
               ))
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                  'USD',
-                  'XTZ',
   
                   'USDXTZ',
                   true,
@@ -120,8 +116,6 @@ describe('Aggregator Factory', async () => {
 
               ))
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-                  'USD',
-                  'DOGE',
   
                   'USDDOGE',
                   true,
