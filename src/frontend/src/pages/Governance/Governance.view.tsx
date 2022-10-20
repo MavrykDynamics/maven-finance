@@ -63,7 +63,7 @@ type GovernanceViewProps = {
 }
 
 const emptyContainer = (
-  <EmptyContainer>
+  <EmptyContainer className="empty">
     <img src="/images/not-found.svg" alt=" No proposals to show" />
     <figcaption> No proposals to show</figcaption>
   </EmptyContainer>
