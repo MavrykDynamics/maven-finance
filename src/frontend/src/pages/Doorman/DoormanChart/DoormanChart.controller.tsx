@@ -48,10 +48,7 @@ export function DoormanChart({ className }: Props) {
     <ChartCard className={className}>
       {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
-      <Chart
-        tooltipValueFormatter={tooltipValueFormatter}
-        list={isStakingHistory ? stakeHistoryData : smvkHistoryData}
-      />
+      <Chart tooltipValueFormatter={tooltipValueFormatter} list={shownData} />
     </ChartCard>
   )
 }
