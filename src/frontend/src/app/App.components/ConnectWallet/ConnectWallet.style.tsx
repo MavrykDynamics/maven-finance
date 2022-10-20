@@ -16,7 +16,6 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     font-weight: 400;
     font-size: 14px;
     color: ${theme.headerSkyColor};
-    transition: 0.6s all;
   }
 
   .end-icon {
@@ -24,8 +23,7 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     width: 10px;
     transform: rotate(-90deg);
     margin-left: 3px;
-    transition: 0.6s all;
-    stroke: ${theme.headerSkyColor};
+    stroke: ${theme.textColor};
   }
 
   .openLink {
@@ -38,7 +36,6 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     height: 20px;
     stroke: none;
     fill: ${theme.headerSkyColor};
-    transition: 0.6s all;
   }
 
   .icon-copy {
@@ -46,6 +43,9 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     width: 15px;
     height: 15px;
     stroke: transparent;
+  }
+
+  .hover {
     transition: 0.6s all;
   }
 
@@ -53,7 +53,7 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     isMobileDetails
       ? ''
       : ` &:hover {
-      var, .wallet, .end-icon, .icon-copy {
+      .hover {
         color: ${cyanColor};
         fill: ${cyanColor};
 
