@@ -230,7 +230,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -248,7 +248,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -283,7 +283,7 @@
 //                     assert.strictEqual(satelliteRecord.name, "Updated Satellite by Alice");
 //                     assert.strictEqual(satelliteRecord.description, "Updated Satellite Description - Alice");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -307,7 +307,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -333,7 +333,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -351,7 +351,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -368,12 +368,17 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.restoreSatellite(
+//                         alice.pkh,
+//                         alice.pk,
+//                         alice.peerId,
+//                         "Test purpose"
+//                     ).send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -386,12 +391,17 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.restoreSatellite(
+//                         alice.pkh,
+//                         alice.pk,
+//                         alice.peerId,
+//                         "Test purpose"
+//                     ).send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -413,7 +423,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -431,7 +441,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -453,7 +463,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -471,7 +481,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -488,12 +498,18 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.addOracleToAggregator(eve.pkh, aggregatorAddress.address, "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.addOracleToAggregator(
+//                         eve.pkh,
+//                         eve.pk,
+//                         eve.peerId,
+//                         aggregatorAddress.address,
+//                         "Test purpose"
+//                     ).send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -506,12 +522,18 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.addOracleToAggregator(eve.pkh, aggregatorAddress.address, "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.addOracleToAggregator(
+//                         eve.pkh,
+//                         eve.pk,
+//                         eve.peerId,
+//                         aggregatorAddress.address,
+//                         "Test purpose"
+//                     ).send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -533,7 +555,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -551,53 +573,13 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
 //         })
 
-//         describe("%setAggregatorMaintainer", async () => {
-
-//             it('Suspended satellite should not be able to set an aggregator maintainer', async () => {
-//                 try{
-    
-//                     // Initial Values
-//                     await signerFactory(alice.sk);
-//                     delegationStorage       = await delegationInstance.storage()
-//                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
-    
-//                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.setAggregatorMaintainer(aggregatorAddress.address, alice.pkh, "Test purpose").send()).to.be.rejected;
-    
-//                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
-//                 } catch(e){
-//                     console.log(e);
-//                 }
-//             });
-    
-//             it('Banned satellite should not be able to set an aggregator maintainer', async () => {
-//                 try{
-    
-//                     // Initial Values
-//                     await signerFactory(eve.sk);
-//                     delegationStorage       = await delegationInstance.storage()
-//                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
-    
-//                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.setAggregatorMaintainer(aggregatorAddress.address, alice.pkh, "Test purpose").send()).to.be.rejected;
-    
-//                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "BANNED");
-//                 } catch(e){
-//                     console.log(e);
-//                 }
-//             });
-
-//         })
-
-//         describe("%updateAggregatorStatus", async () => {
+//         describe("%togglePauseAggregator", async () => {
 
 //             it('Suspended satellite should not be able to update an aggregator status', async () => {
 //                 try{
@@ -608,12 +590,12 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "INACTIVE", "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "Test purpose", "pauseAll").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -626,12 +608,12 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "INACTIVE", "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "Test purpose", "pauseAll").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -645,11 +627,11 @@
 
 //                     // Initial values
 //                     await signerFactory(bob.sk);
-//                     governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
-//                     const actionId              = governanceSatelliteStorage.governanceSatelliteCounter.toNumber();
+//                     governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+//                     const actionId                  = governanceSatelliteStorage.governanceSatelliteCounter.toNumber();
     
 //                     // Operation
-//                     const operation             = await governanceSatelliteInstance.methods.setAggregatorMaintainer(aggregatorAddress.address, eve.pkh, "Test purpose").send()
+//                     const operation                 = await governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "Test purpose", "pauseAll").send()
 //                     await operation.confirmation()
     
 //                     // Final values
@@ -696,7 +678,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -716,7 +698,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -740,7 +722,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -760,7 +742,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -823,7 +805,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -843,7 +825,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -858,14 +840,10 @@
 //                 aggregatorStorage   = await aggregatorInstance.storage()
 
 //                 // Operation
-//                 const setMaintainerOperation    = await aggregatorInstance.methods.setMaintainer(bob.pkh).send();
-//                 await setMaintainerOperation.confirmation();
-//                 var addOracleOperation          = await aggregatorInstance.methods.addOracle(alice.pkh).send();
+//                 var addOracleOperation          = await aggregatorInstance.methods.addOracle(alice.pkh, alice.pk, alice.peerId).send();
 //                 await addOracleOperation.confirmation();
-//                 addOracleOperation              = await aggregatorInstance.methods.addOracle(eve.pkh).send();
+//                 addOracleOperation              = await aggregatorInstance.methods.addOracle(eve.pkh, eve.pk, eve.peerId).send();
 //                 await addOracleOperation.confirmation();
-//                 const requestOperation          = await aggregatorInstance.methods.requestRateUpdate().send();
-//                 await requestOperation.confirmation();
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }
@@ -879,7 +857,7 @@
 //                     await signerFactory(bob.sk)
 
 //                     // Operation
-//                     const trackOperation   = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'MVK', aggregatorAddress.address).send()
+//                     const trackOperation   = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorAddress.address).send()
 //                     await trackOperation.confirmation()
 //                 } catch(e) {
 //                     console.dir(e, {depth: 5})
@@ -900,7 +878,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -918,7 +896,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -939,7 +917,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -957,7 +935,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -1024,22 +1002,25 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
-//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1})).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1})).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1075,29 +1056,32 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
-//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1})).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1})).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
 
 //         describe("%updateProposalData", async () => {
 
-//             before("Admin restores and restores satellites so they can propose", async () => {
+//             beforeEach("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1143,6 +1127,16 @@
 //                         throw `packing failed`
 //                     };
                     
+//                     const proposalData      = [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Metadata#2",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
+//                         }
+//                     ]
+                    
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
@@ -1151,11 +1145,11 @@
 //                     await proposeOperation.confirmation();
 
 //                     await signerFactory(bob.sk)
-//                     const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "SUSPENDED").send()
+//                     var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "SUSPENDED").send()
 //                     await updateStatusOperation.confirmation()
 
 //                     await signerFactory(alice.sk)
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#2", packedParam).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, proposalData).send()).to.be.rejected;
     
 //                     // Final values
 //                     delegationStorage               = await delegationInstance.storage();
@@ -1164,7 +1158,81 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
+//                 }
+//             });
+
+//             it('Suspended satellite should not be able to update payment data', async () => {
+//                 try{
+//                     // Initial Values
+//                     await signerFactory(alice.sk);
+//                     governanceStorage               = await governanceInstance.storage()
+//                     const proposalName              = "Quorum test";
+//                     const proposalDesc              = "Details about new proposal";
+//                     const proposalIpfs              = "ipfs://QM123456789";
+//                     const proposalSourceCode        = "Proposal Source Code";
+//                     const proposalId                = governanceStorage.nextProposalId.toNumber();
+//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
+//                         'updateCouncilConfig',
+//                         1234,
+//                         'configActionExpiryDays'
+//                     ).toTransferParams();
+//                     const lambdaParamsValue         = lambdaParams.parameter.value;
+//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
+//                         data: lambdaParamsValue,
+//                         type: proxyDataPackingHelperType
+//                     }).catch(e => console.error('error:', e));
+
+//                     var packedParam;
+//                     if (referenceDataPacked) {
+//                         packedParam = referenceDataPacked.packed
+//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
+//                     } else {
+//                         throw `packing failed`
+//                     };
+
+//                     const paymentData        = [
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#1",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
+//                             }
+//                         }
+//                     ]
+                    
+//                     // Operation
+//                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                     await nextRoundOperation.confirmation();
+
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: 1});
+//                     await proposeOperation.confirmation();
+
+//                     await signerFactory(bob.sk)
+//                     var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "SUSPENDED").send()
+//                     await updateStatusOperation.confirmation()
+
+//                     await signerFactory(alice.sk)
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, null, paymentData).send()).to.be.rejected;
+    
+//                     // Final values
+//                     delegationStorage               = await delegationInstance.storage();
+//                     const satelliteRecord           = await delegationStorage.satelliteLedger.get(alice.pkh);
+
+//                     // Assertions
+//                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1199,79 +1267,15 @@
 //                         throw `packing failed`
 //                     };
                     
-//                     // Operation
-//                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                     await nextRoundOperation.confirmation();
-
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: 1});
-//                     await proposeOperation.confirmation();
-
-//                     await signerFactory(bob.sk)
-//                     const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "BANNED").send()
-//                     await updateStatusOperation.confirmation()
-
-//                     await signerFactory(eve.sk)
-//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#2", packedParam).send()).to.be.rejected;
-    
-//                     // Final values
-//                     delegationStorage               = await delegationInstance.storage();
-//                     const satelliteRecord           = await delegationStorage.satelliteLedger.get(eve.pkh);
-
-//                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "BANNED");
-//                 } catch(e){
-//                     console.log(e);
-//                 }
-//             });
-//         })
-
-//         describe("%updatePaymentData", async () => {
-
-//             before("Admin restores and restores satellites so they can propose", async () => {
-//                 try{
-//                     // Initial values
-//                     await signerFactory(bob.sk)
-    
-//                     // Operation
-//                     var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "ACTIVE").send()
-//                     await updateStatusOperation.confirmation()
-//                     updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "ACTIVE").send()
-//                     await updateStatusOperation.confirmation()
-//                 } catch(e) {
-//                     console.dir(e, {depth: 5})
-//                 }
-//             })
-
-//             it('Suspended satellite should not be able to update payment data', async () => {
-//                 try{
-//                     // Initial Values
-//                     await signerFactory(alice.sk);
-//                     governanceStorage               = await governanceInstance.storage()
-//                     const proposalName              = "Quorum test";
-//                     const proposalDesc              = "Details about new proposal";
-//                     const proposalIpfs              = "ipfs://QM123456789";
-//                     const proposalSourceCode        = "Proposal Source Code";
-//                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
-//                         'updateCouncilConfig',
-//                         1234,
-//                         'configActionExpiryDays'
-//                     ).toTransferParams();
-//                     const lambdaParamsValue         = lambdaParams.parameter.value;
-//                     const proxyDataPackingHelperType= await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                     const referenceDataPacked       = await utils.tezos.rpc.packData({
-//                         data: lambdaParamsValue,
-//                         type: proxyDataPackingHelperType
-//                     }).catch(e => console.error('error:', e));
-
-//                     var packedParam;
-//                     if (referenceDataPacked) {
-//                         packedParam = referenceDataPacked.packed
-//                         console.log('packed %updateCouncilConfig param: ' + packedParam);
-//                     } else {
-//                         throw `packing failed`
-//                     };
+//                     const proposalData      = [
+//                         {
+//                             addOrSetProposalData: {
+//                                 title: "Metadata#2",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
+//                         }
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1281,20 +1285,20 @@
 //                     await proposeOperation.confirmation();
 
 //                     await signerFactory(bob.sk)
-//                     const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(alice.pkh, "SUSPENDED").send()
+//                     var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "BANNED").send()
 //                     await updateStatusOperation.confirmation()
 
-//                     await signerFactory(alice.sk)
-//                     await chai.expect(governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()).to.be.rejected;
+//                     await signerFactory(eve.sk)
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, proposalData).send()).to.be.rejected;
     
 //                     // Final values
 //                     delegationStorage               = await delegationInstance.storage();
-//                     const satelliteRecord           = await delegationStorage.satelliteLedger.get(alice.pkh);
+//                     const satelliteRecord           = await delegationStorage.satelliteLedger.get(eve.pkh);
 
 //                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
+//                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1328,7 +1332,25 @@
 //                     } else {
 //                         throw `packing failed`
 //                     };
-                    
+
+//                     const paymentData        = [
+//                         {
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#1",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
+//                             }
+//                         }
+//                     ]
+
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
@@ -1337,11 +1359,11 @@
 //                     await proposeOperation.confirmation();
 
 //                     await signerFactory(bob.sk)
-//                     const updateStatusOperation = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "BANNED").send()
+//                     var updateStatusOperation   = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "BANNED").send()
 //                     await updateStatusOperation.confirmation()
 
 //                     await signerFactory(eve.sk)
-//                     await chai.expect(governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, null, paymentData).send()).to.be.rejected;
     
 //                     // Final values
 //                     delegationStorage               = await delegationInstance.storage();
@@ -1350,14 +1372,14 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
 
 //         describe("%lockProposal", async () => {
 
-//             before("Admin restores and restores satellites so they can propose", async () => {
+//             beforeEach("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1424,7 +1446,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1480,14 +1502,14 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
 
 //         describe("%proposalRoundVote", async () => {
 
-//             before("Admin restores and restores satellites so they can propose", async () => {
+//             beforeEach("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1533,18 +1555,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1564,7 +1589,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1599,18 +1624,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1630,14 +1658,14 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
 
 //         describe("%votingRoundVote", async () => {
 
-//             before("Admin restores and restores satellites so they can propose", async () => {
+//             beforeEach("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1683,18 +1711,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1725,7 +1756,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1760,18 +1791,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -1802,14 +1836,14 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
 
 //         describe("%processProposalPayment", async () => {
 
-//             before("Admin restores and restores satellites so they can propose and set council admin to governance proxy", async () => {
+//             beforeEach("Admin restores and restores satellites so they can propose and set council admin to governance proxy", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1819,6 +1853,17 @@
 //                     await updateStatusOperation.confirmation()
 //                     updateStatusOperation       = await delegationInstance.methods.updateSatelliteStatus(eve.pkh, "ACTIVE").send()
 //                     await updateStatusOperation.confirmation()
+//                 } catch(e) {
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             before("Admin set council admin to governance proxy", async () => {
+//                 try{
+//                     // Initial values
+//                     await signerFactory(bob.sk)
+    
+//                     // Operation
 //                     const setAdminOperation     = await councilInstance.methods.setAdmin(governanceProxyAddress.address).send()
 //                     await setAdminOperation.confirmation()
 //                 } catch(e) {
@@ -1836,34 +1881,39 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const proposalPaymentData   = [
+//                     const proposalPaymentData       = [
 //                         {
-//                             title: "Payment#1",
-//                             transaction: {
-//                                 "to_"    : bob.pkh,
-//                                 "token"  : {
-//                                     "fa2" : {
-//                                         "tokenContractAddress" : mvkTokenAddress.address,
-//                                         "tokenId" : 0
-//                                     }
-//                                 },
-//                                 "amount" : MVK(50)
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
 //                             }
 //                         },
 //                         {
-//                             title: "Payment#2",
-//                             transaction: {
-//                                 "to_"    : eve.pkh,
-//                                 "token"  : {
-//                                     "fa2" : {
-//                                         "tokenContractAddress" : mvkTokenAddress.address,
-//                                         "tokenId" : 0
-//                                     }
-//                                 },
-//                                 "amount" : MVK(20)
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : eve.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
 //                             }
 //                         }
-//                     ];
+//                     ]
+                    
 //                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
 //                         'updateCouncilConfig',
 //                         1234,
@@ -1885,27 +1935,31 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
-                    
+//                     ]
+
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, proposalPaymentData).send({amount: 1});
 //                     await proposeOperation.confirmation();
-                
+
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
 //                     await lockOperation.confirmation();
 
 //                     var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
 //                     await voteOperation.confirmation();
 //                     await signerFactory(bob.sk);
-    
+
 //                     voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
 //                     await voteOperation.confirmation();
 //                     await signerFactory(alice.sk);
@@ -1916,14 +1970,14 @@
 //                     var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
 //                     await votingRoundVoteOperation.confirmation();
 //                     await signerFactory(bob.sk);
-    
+
 //                     votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
 //                     await votingRoundVoteOperation.confirmation();
 //                     await signerFactory(alice.sk);
 
 //                     nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                     await nextRoundOperation.confirmation();
-    
+
 //                     nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                     await nextRoundOperation.confirmation();
 
@@ -1933,7 +1987,7 @@
 
 //                     await signerFactory(alice.sk)
 //                     await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;
-    
+
 //                     // Final values
 //                     delegationStorage               = await delegationInstance.storage();
 //                     const satelliteRecord           = await delegationStorage.satelliteLedger.get(alice.pkh);
@@ -1941,7 +1995,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1955,34 +2009,39 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const proposalPaymentData   = [
+//                     const proposalPaymentData       = [
 //                         {
-//                             title: "Payment#1",
-//                             transaction: {
-//                                 "to_"    : bob.pkh,
-//                                 "token"  : {
-//                                     "fa2" : {
-//                                         "tokenContractAddress" : mvkTokenAddress.address,
-//                                         "tokenId" : 0
-//                                     }
-//                                 },
-//                                 "amount" : MVK(50)
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
 //                             }
 //                         },
 //                         {
-//                             title: "Payment#2",
-//                             transaction: {
-//                                 "to_"    : eve.pkh,
-//                                 "token"  : {
-//                                     "fa2" : {
-//                                         "tokenContractAddress" : mvkTokenAddress.address,
-//                                         "tokenId" : 0
-//                                     }
-//                                 },
-//                                 "amount" : MVK(20)
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : eve.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
 //                             }
 //                         }
-//                     ];
+//                     ]
+                    
 //                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
 //                         'updateCouncilConfig',
 //                         1234,
@@ -2004,18 +2063,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, proposalPaymentData).send({amount: 1});
 //                     await proposeOperation.confirmation();
                 
 //                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2060,14 +2122,14 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
 
 //         describe("%dropProposal", async () => {
 
-//             before("Admin restores and restores satellites so they can propose", async () => {
+//             beforeEach("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -2092,34 +2154,39 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const proposalPaymentData   = [
+//                     const proposalPaymentData       = [
 //                         {
-//                             title: "Payment#1",
-//                             transaction: {
-//                                 "to_"    : bob.pkh,
-//                                 "token"  : {
-//                                     "fa2" : {
-//                                         "tokenContractAddress" : mvkTokenAddress.address,
-//                                         "tokenId" : 0
-//                                     }
-//                                 },
-//                                 "amount" : MVK(50)
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
 //                             }
 //                         },
 //                         {
-//                             title: "Payment#2",
-//                             transaction: {
-//                                 "to_"    : eve.pkh,
-//                                 "token"  : {
-//                                     "fa2" : {
-//                                         "tokenContractAddress" : mvkTokenAddress.address,
-//                                         "tokenId" : 0
-//                                     }
-//                                 },
-//                                 "amount" : MVK(20)
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : eve.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
 //                             }
 //                         }
-//                     ];
+//                     ]
+                    
 //                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
 //                         'updateCouncilConfig',
 //                         1234,
@@ -2141,18 +2208,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, proposalPaymentData).send({amount: 1});
 //                     await proposeOperation.confirmation();
 
 //                     await signerFactory(bob.sk)
@@ -2169,7 +2239,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2183,34 +2253,39 @@
 //                     const proposalIpfs              = "ipfs://QM123456789";
 //                     const proposalSourceCode        = "Proposal Source Code";
 //                     const proposalId                = governanceStorage.nextProposalId.toNumber();
-//                     const proposalPaymentData   = [
+//                     const proposalPaymentData       = [
 //                         {
-//                             title: "Payment#1",
-//                             transaction: {
-//                                 "to_"    : bob.pkh,
-//                                 "token"  : {
-//                                     "fa2" : {
-//                                         "tokenContractAddress" : mvkTokenAddress.address,
-//                                         "tokenId" : 0
-//                                     }
-//                                 },
-//                                 "amount" : MVK(50)
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : bob.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
 //                             }
 //                         },
 //                         {
-//                             title: "Payment#2",
-//                             transaction: {
-//                                 "to_"    : eve.pkh,
-//                                 "token"  : {
-//                                     "fa2" : {
-//                                         "tokenContractAddress" : mvkTokenAddress.address,
-//                                         "tokenId" : 0
-//                                     }
-//                                 },
-//                                 "amount" : MVK(20)
+//                             addOrSetPaymentData: {
+//                                 title: "Payment#0",
+//                                 transaction: {
+//                                     "to_"    : eve.pkh,
+//                                     "token"  : {
+//                                         "fa2" : {
+//                                             "tokenContractAddress" : mvkTokenAddress.address,
+//                                             "tokenId" : 0
+//                                         }
+//                                     },
+//                                     "amount" : MVK(50)
+//                                 }
 //                             }
 //                         }
-//                     ];
+//                     ]
+                    
 //                     const lambdaParams              = governanceProxyInstance.methods.dataPackingHelper(
 //                         'updateCouncilConfig',
 //                         1234,
@@ -2232,18 +2307,21 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = [
+//                     const proposalData      = [
 //                         {
-//                             title: "ActionExpiryDays#1",
-//                             data: packedParam
+//                             addOrSetProposalData: {
+//                                 title: "ActionExpiryDays#1",
+//                                 encodedCode: packedParam,
+//                                 codeDescription: ""
+//                             }
 //                         }
-//                     ];
+//                     ]
                     
 //                     // Operation
 //                     var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                     await nextRoundOperation.confirmation();
 
-//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//                     const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, proposalPaymentData).send({amount: 1});
 //                     await proposeOperation.confirmation();
 
 //                     await signerFactory(bob.sk)
@@ -2260,7 +2338,7 @@
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })

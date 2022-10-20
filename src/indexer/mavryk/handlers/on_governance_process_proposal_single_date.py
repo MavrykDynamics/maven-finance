@@ -14,13 +14,13 @@ async def on_governance_process_proposal_single_date(
     governance_address  = process_proposal_single_data.data.target_address
     proposal_id         = int(process_proposal_single_data.storage.timelockProposalId)
     storage_proposal    = process_proposal_single_data.storage.proposalLedger[process_proposal_single_data.storage.timelockProposalId]
-    execution_counter   = int(storage_proposal.proposalMetadataExecutionCounter)
+    execution_counter   = int(storage_proposal.proposalDataExecutionCounter)
     executed            = storage_proposal.executed
     timestamp           = process_proposal_single_data.data.timestamp
 
     # Update record
     governance          = await models.Governance.get(address   = governance_address)
-    proposal            = await models.GovernanceProposalRecord.get(
+    proposal            = await models.GovernanceProposal.get(
         governance  = governance,
         id          = proposal_id
     )

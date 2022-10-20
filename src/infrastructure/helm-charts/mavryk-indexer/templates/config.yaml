@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 'dipdup-{{ .Release.Name }}-config'
+data:
+  dipdup.yml: |
+    spec_version: 1.2
+    package: mavryk
+    
+    database:
+      kind: postgres
+      host: ${POSTGRES_HOST:-changeme}
+      port: ${POSTGRES_PORT:-changeme}
+      user: ${POSTGRES_USERNAME:-changeme}
+      password: ${POSTGRES_PASSWORD:-changeme}
+      database: {{ .Values.dipdup.database.name }}
+      schema_name: public
+    
+    hasura:
+      url: http://hasura-{{ .Release.Name }}.mavryk-indexer.svc.cluster.local:8080
+      admin_secret: ${ADMIN_SECRET:-changeme}
+      select_limit: 1000
+    
+    prometheus:
+      host: 0.0.0.0
+      port: 9090
+      update_interval: 5
+      
+    advanced:
+      metadata_interface: True
+      reindex:
+        manual: wipe
+        migration: exception
+        rollback: ignore
+        config_modified: wipe
+        schema_modified: wipe
+
+    datasources:
+      metadata_mainnet:
+        kind: metadata
+        url: https://metadata.dipdup.net
+        network: mainnet
+      metadata_ghostnet:
+        kind: metadata
+        url: https://metadata.dipdup.net
+        network: ghostnet
+      tzkt_ghostnet:
+        kind: tzkt
+        url: ${TZKT_GHOSTNET_URL:-changeme}
+      tzkt_mainnet:
+        kind: tzkt
+        url: ${TZKT_MAINNET_URL:-changeme}
+  {{- with .Values.dipdup.extraConfig }}
+    {{ tpl . $ | nindent 4 }}
+  {{- end }}

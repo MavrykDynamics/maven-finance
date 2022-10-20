@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_contract_metadata
 from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
@@ -24,7 +25,7 @@ async def on_governance_origination(
     blocks_per_Proposal_round               = int(governance_origination.storage.config.blocksPerProposalRound)
     blocks_per_voting_round                 = int(governance_origination.storage.config.blocksPerVotingRound)
     blocks_per_timelock_round               = int(governance_origination.storage.config.blocksPerTimelockRound)
-    proposal_metadata_title_max_length      = int(governance_origination.storage.config.proposalMetadataTitleMaxLength)
+    proposal_metadata_title_max_length      = int(governance_origination.storage.config.proposalDataTitleMaxLength)
     proposal_title_max_length               = int(governance_origination.storage.config.proposalTitleMaxLength)
     proposal_description_max_length         = int(governance_origination.storage.config.proposalDescriptionMaxLength)
     proposal_invoice_max_length             = int(governance_origination.storage.config.proposalInvoiceMaxLength)
@@ -41,7 +42,14 @@ async def on_governance_origination(
     cycle_id                                = int(governance_origination.storage.cycleId)
     cycle_highest_voted_proposal_id         = int(governance_origination.storage.cycleHighestVotedProposalId )
     timelock_proposal_id                    = int(governance_origination.storage.timelockProposalId)
+    timestamp                               = governance_origination.data.timestamp
 
+    # Persist contract metadata
+    await persist_contract_metadata(
+        ctx=ctx,
+        contract_address=address
+    )
+    
     # Current round
     governance_round_type = models.GovernanceRoundType.PROPOSAL
     if type(current_round) == proposal:
@@ -55,6 +63,7 @@ async def on_governance_origination(
     governance, _  = await models.Governance.get_or_create(address = address)
     governance.active                                  = True
     governance.admin                                   = admin
+    governance.last_updated_at                         = timestamp
     governance.address                                 = address
     governance.governance_proxy_address                = governance_proxy_address
     governance.success_reward                          = success_reward

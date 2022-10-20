@@ -15,6 +15,9 @@ class Doorman(MavrykContract, Model):
     unstake_paused                          = fields.BooleanField(default=False)
     compound_paused                         = fields.BooleanField(default=False)
     farm_claimed_paused                     = fields.BooleanField(default=False)
+    on_vault_deposit_smvk_paused            = fields.BooleanField(default=False)
+    on_vault_withdraw_smvk_paused           = fields.BooleanField(default=False)
+    on_vault_liquidate_smvk_paused          = fields.BooleanField(default=False)
 
     class Meta:
         table = 'doorman'
@@ -49,11 +52,10 @@ class DoormanStakeAccount(Model):
 
 class StakeHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_records')
-    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='stake_records')
-    timestamp                               = fields.DatetimeField()
-    type                                    = fields.IntEnumField(enum_type=StakeType)
-    mvk_loyalty_index                       = fields.BigIntField(default=0.0)
+    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_history_data')
+    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='stakes_history_data', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
+    type                                    = fields.IntEnumField(enum_type=StakeType, index=True)
     desired_amount                          = fields.FloatField(default=0.0)
     final_amount                            = fields.FloatField(default=0.0)
 
@@ -62,8 +64,8 @@ class StakeHistoryData(Model):
 
 class SMVKHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_mvk_history_data')
-    timestamp                               = fields.DatetimeField()
+    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_mvk_history_data')
+    timestamp                               = fields.DatetimeField(index=True)
     smvk_total_supply                       = fields.FloatField(default=0.0)
     avg_smvk_by_user                        = fields.FloatField(default=0.0)
 

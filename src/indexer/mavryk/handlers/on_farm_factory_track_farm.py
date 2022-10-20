@@ -22,5 +22,5 @@ async def on_farm_factory_track_farm(
         address = farm_address
     )
     if farm:
-        farm.farm_factory   = farm_factory
+        farm.factory    = farm_factory
         await farm.save()

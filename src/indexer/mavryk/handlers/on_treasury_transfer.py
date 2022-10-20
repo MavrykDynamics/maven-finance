@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_token_metadata
 from mavryk.types.treasury.parameter.transfer import TransferParameter, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
@@ -22,26 +23,23 @@ async def on_treasury_transfer(
         receiver_address        = tx.to_
         token                   = tx.token
         amount                  = float(tx.amount)
-        token_type              = models.TokenType.OTHER
         token_contract_address  = ""
         token_id                = 0
 
         if type(token) == fa12:
-            token_type              = models.TokenType.FA12
             token_contract_address  = token.fa12
         elif type(token) == fa2:
-            token_type              = models.TokenType.FA2
             token_contract_address  = token.fa2.tokenContractAddress
             token_id                = int(token.fa2.tokenId)
         elif type(token) == tez:
-            token_type              = models.TokenType.XTZ
+            token_contract_address  = "XTZ"
 
-        token, _        = await models.Token.get_or_create(
-            address     = token_contract_address,
-            token_id    = token_id,
-            type        = token_type
+        # Persist Token Metadata
+        await persist_token_metadata(
+            ctx=ctx,
+            token_address=token_contract_address,
+            token_id=str(token_id)
         )
-        await token.save()
 
         receiver, _             = await models.MavrykUser.get_or_create(address = receiver_address)
         await receiver.save()
@@ -50,7 +48,7 @@ async def on_treasury_transfer(
             timestamp                       = timestamp,
             treasury                        = treasury,
             to_                             = receiver,
-            token                           = token,
+            token_address                   = token_contract_address,
             amount                          = amount
         )
         await treasury_transfer_data.save()

@@ -32,7 +32,7 @@ async def on_council_sign_action(
 
     # Update record
     council = await models.Council.get(address  = council_address)
-    action_record   = await models.CouncilActionRecord.get(
+    action_record   = await models.CouncilAction.get(
         council = council,
         id      = action_id
     )
@@ -47,7 +47,7 @@ async def on_council_sign_action(
     if len(sign_action.storage.councilActionsLedger) > 1:
         for single_action_id in sign_action.storage.councilActionsLedger:
             action_status           = sign_action.storage.councilActionsLedger[single_action_id].status
-            single_action_record    = await models.CouncilActionRecord.get(
+            single_action_record    = await models.CouncilAction.get(
                 council     = council,
                 id          = single_action_id
             )
@@ -85,7 +85,7 @@ async def on_council_sign_action(
     # Create signature record
     user, _                 = await models.MavrykUser.get_or_create(address = signer_address)
     await user.save()
-    signer_record           = await models.CouncilActionRecordSigner(
+    signer_record           = await models.CouncilActionSigner(
         council_action              = action_record,
         signer                      = user
     )
