@@ -25,22 +25,19 @@ export const CouncilFormDropFinancialRequest = () => {
   const itemsForDropDown = useMemo(
     () =>
       financialRequestLedger?.length
-        ? [
-            { text: 'Choose Financial Request', value: '' },
-            ...financialRequestLedger.map((item, i: number) => {
+        ? financialRequestLedger.map((item, i: number) => {
               return {
                 text: `${i + 1}-${item.request_purpose}`,
-                value: item.id,
+                value: String(item.id),
               }
-            }),
-          ]
-        : [{ text: 'Choose Financial Request', value: '' }],
+            })
+        : [],
     [financialRequestLedger],
-  ) as DropdownItemType[]
+  )
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
 
   const [form, setForm] = useState({
     financialReqID: '',
@@ -96,7 +93,7 @@ export const CouncilFormDropFinancialRequest = () => {
           <label>Choose Financial Request to drop</label>
           <DropDown
             clickOnDropDown={handleClickDropdown}
-            placeholder={ddItems[0]}
+            placeholder='Choose Financial Request'
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}

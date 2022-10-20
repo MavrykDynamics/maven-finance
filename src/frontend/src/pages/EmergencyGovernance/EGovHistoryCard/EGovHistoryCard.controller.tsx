@@ -20,6 +20,7 @@ import {
   EGovHistoryCardTopSection,
 } from './EGovHistoryCard.style'
 import { parseDate } from 'utils/time'
+import { scrollToFullView } from '../../../utils/scrollToFullView'
 
 type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceStorage['emergencyGovernanceLedger'][0]
@@ -28,14 +29,22 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
   const { totalStakedMvk } = useSelector((state: State) => state.doorman)
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
-  const ref = useRef(null)
+  const ref = useRef<HTMLDivElement | null>(null)
 
   const open = () => setExpanded(!expanded)
 
   useEffect(() => {
-    // @ts-ignore
-    const getHeight = ref.current.scrollHeight
-    setAccordionHeight(getHeight)
+    if (ref.current) {
+      const getHeight = ref.current.scrollHeight
+      setAccordionHeight(getHeight)
+    }
+
+    if (expanded) {
+      // The function is called after 300ms because you first need to
+      // animate the opening of the card. Because the scroll is deducted
+      // based on the height of the element.
+      setTimeout(() => scrollToFullView(ref.current), 300)
+    }
   }, [expanded])
 
   const status = emergencyGovernance.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
