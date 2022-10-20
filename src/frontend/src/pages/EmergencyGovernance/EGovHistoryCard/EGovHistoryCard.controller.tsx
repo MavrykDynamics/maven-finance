@@ -34,9 +34,10 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
   const open = () => setExpanded(!expanded)
 
   useEffect(() => {
-    // @ts-ignore
-    const getHeight = ref.current.scrollHeight
-    setAccordionHeight(getHeight)
+    if (ref.current) {
+      const getHeight = ref.current.scrollHeight
+      setAccordionHeight(getHeight)
+    }
 
     if (expanded) {
       // The function is called after 300ms because you first need to
