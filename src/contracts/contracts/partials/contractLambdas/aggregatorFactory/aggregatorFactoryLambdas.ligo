@@ -391,7 +391,20 @@ block {
                 // Add new Aggregator to Tracked Aggregators map on Aggregator Factory
                 s.trackedAggregators := Set.add(aggregatorOrigination.1, s.trackedAggregators);
 
-                operations := aggregatorOrigination.0 # operations; 
+                operations := aggregatorOrigination.0 # operations;
+                
+                // Set Aggregator Reference operation to Governance Satellite Contract
+                const setAggregatorReferenceParams : setAggregatorReferenceType = record [
+                    aggregatorAddress   = aggregatorOrigination.1;
+                    oldName             = aggregatorName;
+                    newName             = aggregatorName;
+                ];
+
+                const setAggregatorReferenceOperation : operation = Tezos.transaction(
+                    setAggregatorReferenceParams,
+                    0tez,
+                    getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
+                );
 
                 // If addToGeneralContracts boolean is True - add new Aggregator to the Governance Contract - General Contracts Map
                 if createAggregatorParams.addToGeneralContracts = True then {
@@ -417,6 +430,8 @@ block {
 
                 }
                 else skip;
+
+                operations := setAggregatorReferenceOperation # operations;
 
             }
         |   _ -> skip
@@ -452,6 +467,29 @@ block{
                         True  -> failwith(error_AGGREGATOR_ALREADY_TRACKED)
                     |   False -> Set.add(trackAggregatorParams, s.trackedAggregators)
                 ];
+
+                // Get the aggregator's name
+                const nameView : option(string) = Tezos.call_view ("getName", unit, trackAggregatorParams);
+                const name : string             = case nameView of [
+                            Some (_name)    -> _name
+                        |   None            -> failwith (error_GET_NAME_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
+                const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+                
+                // Set Aggregator Reference operation to Governance Satellite Contract
+                const setAggregatorReferenceParams : setAggregatorReferenceType = record [
+                    aggregatorAddress   = trackAggregatorParams;
+                    oldName             = name;
+                    newName             = name;
+                ];
+
+                operations  := Tezos.transaction(
+                    setAggregatorReferenceParams,
+                    0tez,
+                    getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
+                ) # operations;
 
             }
         |   _ -> skip

@@ -258,6 +258,18 @@ function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress :
             |   None -> (failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
         ];
 
+
+
+// helper function to get setAggregatorReference entrypoint in governanceSatellite contract
+function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contractAddress : address) : contract(setAggregatorReferenceType) is
+    case (Tezos.get_entrypoint_opt(
+        "%setAggregatorReference",
+        contractAddress) : option(contract(setAggregatorReferenceType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_SET_AGGREGATOR_REFERENCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(setAggregatorReferenceType))
+        ];  
+
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -612,6 +624,12 @@ block {
 (* View: get config *)
 [@view] function getConfig(const _ : unit; var s : aggregatorStorageType) : aggregatorConfigType is
     s.config
+
+
+
+(*  View: get break glass config *)
+[@view] function getBreakGlassConfig(const _ : unit; const s: aggregatorStorageType) : aggregatorBreakGlassConfigType is
+    s.breakGlassConfig
 
 
 

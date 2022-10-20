@@ -354,7 +354,7 @@
 //                                 addOrSetProposalData: {
 //                                     title: "Metadata#1",
 //                                     encodedCode: packedUpdateUpdateWhitelistDevelopersParam,
-//                                     code: ""
+//                                     codeDescription: ""
 //                                 }
 //                             }
 //                         ]

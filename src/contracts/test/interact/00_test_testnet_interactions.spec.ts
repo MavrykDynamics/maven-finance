@@ -2761,7 +2761,7 @@ describe("Testnet interactions helper", async () => {
                         addOrSetProposalData: {
                             title: "FirstFarm#1",
                             encodedCode: packedParam,
-                            code: ""
+                            codeDescription: ""
                         }
                     }
                 ]
@@ -2872,35 +2872,35 @@ describe("Testnet interactions helper", async () => {
                         addOrSetProposalData: {
                             title: "FirstFarm#1",
                             encodedCode: packedParam,
-                            code: ""
+                            codeDescription: ""
                         }
                     },
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#2",
                             encodedCode: packedParam,
-                            code: ""
+                            codeDescription: ""
                         }
                     },
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#3",
                             encodedCode: packedParam,
-                            code: ""
+                            codeDescription: ""
                         }
                     },
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#4",
                             encodedCode: packedParam,
-                            code: ""
+                            codeDescription: ""
                         }
                     },
                     {
                         addOrSetProposalData: {
                             title: "FirstFarm#5",
                             encodedCode: packedParam,
-                            code: ""
+                            codeDescription: ""
                         }
                     }
                 ]
@@ -2986,7 +2986,7 @@ describe("Testnet interactions helper", async () => {
                         addOrSetProposalData: {
                             title: "FirstFarm#1",
                             encodedCode: packedParam,
-                            code: ""
+                            codeDescription: ""
                         }
                     }
                 ]
@@ -3400,19 +3400,19 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin votes for emergency governance', async () => {
-            try{
-                // Operation
-                var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
-                await operation.confirmation();
+        // it('Admin votes for emergency governance', async () => {
+        //     try{
+        //         // Operation
+        //         var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
+        //         await operation.confirmation();
 
-                // Operation
-                operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+        //         // Operation
+        //         operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+        //         await operation.confirmation();
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     }
+        // });
     })
 
     describe("BREAK GLASS", async () => {

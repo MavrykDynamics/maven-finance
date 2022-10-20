@@ -1007,7 +1007,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -1061,7 +1061,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -1132,7 +1132,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Metadata#2",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -1272,7 +1272,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "Metadata#2",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -1560,7 +1560,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -1629,7 +1629,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -1716,7 +1716,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -1796,7 +1796,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -1940,7 +1940,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -2068,7 +2068,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -2213,7 +2213,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]
@@ -2312,7 +2312,7 @@
 //                             addOrSetProposalData: {
 //                                 title: "ActionExpiryDays#1",
 //                                 encodedCode: packedParam,
-//                                 code: ""
+//                                 codeDescription: ""
 //                             }
 //                         }
 //                     ]

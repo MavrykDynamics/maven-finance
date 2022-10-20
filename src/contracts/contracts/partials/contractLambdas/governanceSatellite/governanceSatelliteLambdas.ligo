@@ -484,6 +484,49 @@ block {
 // Aggregator Governance Lambdas Begin
 // ------------------------------------------------------------------------------
 
+(*  setAggregatorReference lambda *)
+function lambdaSetAggregatorReference(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
+block {
+
+    // Steps Overview:    
+    // 1. Standard Checks
+    //      -   Check that no tez is sent to the entrypoint
+    //      -   Check that sender is admin, is whitelisted or is an aggregator
+    // 2. Delete the entry associated with old name in the aggregatorLedger
+    // 3. Create the entry associated with new name in the aggregatorLedger
+
+    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+
+    case governanceSatelliteLambdaAction of [
+        |   LambdaSetAggregatorReference(setAggregatorReferenceParams) -> {
+
+                // init params
+                const aggregatorAddress : address   = setAggregatorReferenceParams.aggregatorAddress;
+                const oldName           : string    = setAggregatorReferenceParams.oldName;
+                const newName           : string    = setAggregatorReferenceParams.newName;
+
+                // Check sender is admin, is whitelisted or is an aggregator
+                if Tezos.get_sender() = s.admin or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip 
+                else case Big_map.find_opt(oldName, s.aggregatorLedger) of [
+                        Some (_a)   -> if Tezos.get_sender() = _a and Tezos.get_sender() = aggregatorAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_OR_AGGREGATOR_ALLOWED)
+                    |   None        -> failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
+                ];
+
+                // Update storage
+                s.aggregatorLedger[newName]         := case s.aggregatorLedger[oldName] of [
+                        Some(_a) -> if _a = aggregatorAddress then aggregatorAddress else failwith(error_WRONG_AGGREGATOR_ADDRESS_PROVIDED)
+                    |   None     -> if oldName = newName then aggregatorAddress else failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
+                ];
+
+                // Remove old entry from the ledger
+                if oldName =/= newName then s.aggregatorLedger  := Big_map.remove(oldName, s.aggregatorLedger) else skip;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
 
 
 (*  togglePauseAggregator lambda *)
