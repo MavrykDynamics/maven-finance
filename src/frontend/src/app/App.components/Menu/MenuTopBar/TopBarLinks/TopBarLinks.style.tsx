@@ -62,6 +62,8 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
     transition: 0.6s all;
     flex-direction: column;
     row-gap: 15px;
+    max-width: 285px;
+    width: 100%;
 
     a {
       text-transform: capitalize;
@@ -173,7 +175,7 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
             top: 85px;
             opacity: 0;
             visibility: hidden;
-            width: fit-content;
+            width: 215px;
             border-radius: 10px;
             border: 1px solid ${({ theme }) => theme.topBarLinkColor};
           }
