@@ -9,10 +9,13 @@ import {
   ORACLE_STORAGE_QUERY,
   ORACLE_STORAGE_QUERY_NAME,
   ORACLE_STORAGE_QUERY_VARIABLE,
+  DATA_FEEDS_HISTORY_QUERY,
+  DATA_FEEDS_HISTORY_QUERY_NAME,
+  DATA_FEEDS_HISTORY_QUERY_VARIABLE,
 } from 'gql/queries'
 import { fetchFromIndexer, fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import type { AppDispatch, GetState } from '../../app/App.controller'
-import { normalizeDelegationStorage } from './Satellites.helpers'
+import { normalizeDelegationStorage, normalizeDataFeedsHistory, normalizeDataFeedsVolatility } from './Satellites.helpers'
 import { normalizeOracle } from 'app/App.helpers'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
@@ -196,6 +199,36 @@ export const registerFeedAction = () => async (dispatch: AppDispatch, getState: 
       dispatch(showToaster(ERROR, 'Error', error.message))
       dispatch({
         type: REGISTER_FEED_ERROR,
+        error,
+      })
+    }
+  }
+}
+
+// get Data Feeds History and Volatility
+export const GET_DATA_FEEDS_HISTORY = 'GET_DATA_FEEDS_HISTORY'
+export const getDataFeedsHistory = () => async (dispatch: AppDispatch, getState: GetState) => {
+  try {
+    const storage = await fetchFromIndexerWithPromise(
+      DATA_FEEDS_HISTORY_QUERY,
+      DATA_FEEDS_HISTORY_QUERY_NAME,
+      DATA_FEEDS_HISTORY_QUERY_VARIABLE,
+    )
+
+    const dataFeedsHistory = normalizeDataFeedsHistory(storage)
+    const dataFeedsVolatility = normalizeDataFeedsVolatility(storage)
+
+    dispatch({
+      type: GET_DATA_FEEDS_HISTORY,
+      dataFeedsHistory,
+      dataFeedsVolatility,
+    })
+  } catch (error) {
+    console.error('getDataFeedsHistory error: ', error)
+    if (error instanceof Error) {
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: GET_DATA_FEEDS_HISTORY,
         error,
       })
     }

@@ -228,7 +228,12 @@ export const normalizeProposal = (item: GovernanceProposalGraphQL) => {
     currentCycleStartLevel: item.current_cycle_start_level,
     currentCycleEndLevel: item.current_cycle_end_level,
     cycle: item.cycle,
-    proposalData: item.data,
+    proposalData: item.data.map((byte, idx) => ({
+      ...byte,
+      order: idx,
+      isUnderTheDrop: false,
+      isLocalBytes: false,
+    })),
     proposalPayments: item.payments,
     governanceId: item.governance_id,
     paymentProcessed: item.payment_processed,

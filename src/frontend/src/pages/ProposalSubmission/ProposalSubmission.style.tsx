@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 
-import { Card, headerColor, downColor } from '../../styles'
+import { Card, headerColor, downColor, cyanColor, boxShadowColor } from '../../styles'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const ProposalSubmissionStyled = styled.div<{ theme: MavrykTheme }>`
@@ -65,15 +65,67 @@ export const ProposalSubmissionForm = styled(Card)`
 
   .step-bytes {
     position: relative;
-    padding-bottom: 16px;
+    padding-bottom: 15px;
 
     article {
       margin-top: 27px;
       display: flex;
       flex-direction: column;
+      background: ${({ theme }) => theme.backgroundColor};
+      border-radius: 10px;
+      padding: 22px 50px 20px 40px;
+      position: relative;
+      border: 1px solid transparent;
+
+      .idx {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 14px;
+        color: ${({ theme }) => theme.headerColor};
+      }
+
+      &:hover {
+        border-color: ${cyanColor};
+        box-shadow: 0px 4px 4px ${boxShadowColor};
+      }
+
+      .remove-byte {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        svg {
+          margin-top: 6px;
+          width: 20px;
+          height: 20px;
+          fill: ${({ theme }) => theme.headerColor};
+          transition: 0.3s all;
+        }
+        &:hover {
+          svg {
+            fill: ${cyanColor};
+          }
+        }
+
+        &.disabled {
+          pointer-events: none;
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+      }
 
       &.draggabe {
         cursor: grab;
+      }
+
+      &.underDrop {
+        border-color: ${cyanColor};
+        box-shadow: 0px 4px 4px ${boxShadowColor};
       }
     }
 
@@ -214,6 +266,56 @@ export const FormTableGrid = styled.div`
 
   &.disabled {
     pointer-events: none;
+  }
+
+  .input-cell {
+    padding: 0;
+
+    .submit-proposal-stage-3 {
+      > div {
+        > div.success {
+          display: none;
+        }
+
+        input {
+          width: 96%;
+          margin: 0 auto;
+          border: none;
+          background-color: transparent;
+          box-shadow: unset;
+          color: ${cyanColor};
+
+          &:hover {
+            background-color: transparent;
+          }
+
+          &:focus {
+            border: none;
+            box-shadow: unset;
+          }
+
+          &.error {
+            width: 85%;
+            border: none;
+            box-shadow: unset;
+
+            &:focus {
+              box-shadow: unset;
+            }
+          }
+
+          &.success {
+            border: none;
+            box-shadow: unset;
+            color: ${cyanColor};
+
+            &:focus {
+              box-shadow: unset;
+            }
+          }
+        }
+      }
+    }
   }
 `
 

@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 // components
@@ -24,7 +24,7 @@ const INIT_FORM = {
   newMemberImage: '',
 }
 
-export const FormAddCouncilMemberView: FC = () => {
+export function FormAddCouncilMemberView() {
   const dispatch = useDispatch()
 
   const [uploadKey, setUploadKey] = useState(1)

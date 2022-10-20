@@ -4,7 +4,7 @@ import { Card } from 'styles'
 import { SlidingTabButtons } from 'app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 export const ChartCard = styled(Card)<{ theme: MavrykTheme }>`
-  padding: 30px 20px 15px 20px;
+  padding: 30px 12px 14px 40px;
 `
 
 export const ChartSlidingTabButtons = styled(SlidingTabButtons)`

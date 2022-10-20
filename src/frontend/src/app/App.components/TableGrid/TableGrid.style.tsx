@@ -76,6 +76,11 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     &:hover {
       color: ${cyanColor};
     }
+
+    &:disabled {
+      cursor: not-allowed;
+      color: ${headerColor};
+    }
   }
 
   tr {
@@ -152,6 +157,14 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
       fill: ${cyanColor};
       margin-bottom: 4px;
       display: inline-block;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+
+      svg {
+        color: ${headerColor};
+      }
     }
   }
 

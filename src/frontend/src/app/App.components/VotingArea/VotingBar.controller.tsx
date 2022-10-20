@@ -23,10 +23,17 @@ export const VotingBar = ({
   let unusedVotesWidth = (unusedVotesMVKTotal / totalVotes) * 100
 
   if (totalVotes === 0) {
-    forVotesWidth = 25
-    againstVotesWidth = 25
-    abstainingVotesWidth = 25
-    unusedVotesWidth = 25
+    const averagePersent =
+      100 /
+      ((forVotesMVKTotal === undefined ? 0 : 1) +
+        (againstVotesMVKTotal === undefined ? 0 : 1) +
+        (abstainVotesMVKTotal === undefined ? 0 : 1) +
+        (unusedVotesMVKTotal === undefined ? 0 : 1))
+
+    forVotesWidth = averagePersent
+    againstVotesWidth = averagePersent
+    abstainingVotesWidth = averagePersent
+    unusedVotesWidth = averagePersent
   }
 
   return (

@@ -129,7 +129,7 @@ export const SatelliteGovernanceCard = ({
           <h3>Purpose</h3>
           <p className="purpose">{purpose}</p>
           {linkAddress ? (
-            <Link className={'view-satellite'} to={`/satellite-details/${linkAddress}`}>
+            <Link className={'view-satellite'} to={`/satellites/satellite-details/${linkAddress}`}>
               View Satellite
             </Link>
           ) : null}
