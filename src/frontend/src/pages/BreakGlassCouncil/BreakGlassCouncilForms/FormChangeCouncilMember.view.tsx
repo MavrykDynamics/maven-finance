@@ -33,19 +33,16 @@ export function FormChangeCouncilMemberView() {
   const dispatch = useDispatch()
   const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 
-  const itemsForDropDown = [
-    { text: 'Choose', value: '' },
-    ...breakGlassCouncilMember.map((item) => {
-      return {
-        text: `${item.name} - ${getShortTzAddress(item.userId)}`,
-        value: item.userId,
-      }
-    }),
-  ]
+  const itemsForDropDown = breakGlassCouncilMember.map((item) => {
+    return {
+      text: `${item.name} - ${getShortTzAddress(item.userId)}`,
+      value: item.userId,
+    }
+  })
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
 
   const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState(INIT_FORM)
@@ -126,7 +123,7 @@ export function FormChangeCouncilMemberView() {
           <label>Choose Council Member to change</label>
           <DropDown
             clickOnDropDown={handleClickDropdown}
-            placeholder={ddItems[0]}
+            placeholder='Choose member'
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}

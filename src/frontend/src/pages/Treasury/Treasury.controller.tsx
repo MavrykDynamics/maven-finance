@@ -36,7 +36,7 @@ export const Treasury = () => {
 
   const ddItems = useMemo(() => itemsForDropDown.map((item) => item.text), [itemsForDropDown])
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>()
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const [selectedTreasury, setSelectedTreasury] = useState<null | TreasuryType>(null)
 
   useEffect(() => {
