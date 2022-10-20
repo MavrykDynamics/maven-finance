@@ -42,7 +42,7 @@ export default function Expand({
   // move the scroll to fix it
   useEffect(() => {
     if (expanded) {
-      scrollToFullView(ref.current)
+       scrollToFullView(ref.current)
     }
   }, [expanded])
 
