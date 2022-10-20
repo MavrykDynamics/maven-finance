@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -23,6 +23,7 @@ import { parseDate } from 'utils/time'
 import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { scrollToFullView } from 'utils/scrollToFullView'
 
 type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceStorage['emergencyGovernanceLedger'][0]
@@ -47,6 +48,17 @@ export const EGovHistoryCard = ({ emergencyGovernance, dropProposalHandler }: EG
     ? ProposalStatus.DROPPED
     : ProposalStatus.DEFEATED
 
+  const ref = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (expanded) {
+      // The function is called after 300ms because you first need to
+      // animate the opening of the card. Because the scroll is deducted
+      // based on the height of the element.
+      setTimeout(() => scrollToFullView(ref.current), 300)
+    }
+  }, [expanded])
+
   // TODO: clarify it with sam, cuz this data isn't right
   const votingStatistic = useMemo(
     () => ({
@@ -63,7 +75,7 @@ export const EGovHistoryCard = ({ emergencyGovernance, dropProposalHandler }: EG
       onClick={open}
       className={expanded ? 'open' : ''}
     >
-      <EGovHistoryCardTopSection className={expanded ? 'show' : 'hide'}>
+      <EGovHistoryCardTopSection className={expanded ? 'show' : 'hide'} ref={ref}>
         {expanded ? (
           <div className="expanded-top">
             <BGPrimaryTitle>{emergencyGovernance.title}</BGPrimaryTitle>
@@ -101,8 +113,8 @@ export const EGovHistoryCard = ({ emergencyGovernance, dropProposalHandler }: EG
         )}
       </EGovHistoryCardTopSection>
 
-      <EGovHistoryCardDropDown onClick={open} className={expanded ? 'show' : 'hide'}>
-        <div className={`accordion ${expanded}`}>
+      <EGovHistoryCardDropDown onClick={open} className={expanded ? 'show' : 'hide'} ref={ref}>
+        <div className={`accordion ${expanded}`} ref={ref}>
           <div className="left">
             <div>
               <div className="voting-end">
