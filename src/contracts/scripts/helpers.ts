@@ -89,10 +89,10 @@ export const compile = async (
     const michelson: string = execSync(
         `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo ${
             format === 'json' ? '--michelson-format json' : ''
-        } --protocol jakarta`,
+        } --protocol kathmandu`,
         { 
-            maxBuffer: 1024 * 1024,
-            timeout: 1024 * 1024
+            maxBuffer: 1024 * 1024 * 1024 * 1024,
+            timeout: 1024 * 1024 * 1024 * 1024
          },
     ).toString()
 
@@ -157,7 +157,7 @@ export const compileContract = async (
         let res: any[] = []
 
         const michelsonFormat: string = execSync(
-            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol jakarta`,
+            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol kathmandu`,
             { 
                 maxBuffer: 1024 * 1024 * 1024 * 1024,
                 timeout: 1024 * 1024 * 1024 * 1024
@@ -165,10 +165,10 @@ export const compileContract = async (
         ).toString()
 
         const jsonFormat: string = execSync(
-            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol jakarta`,
+            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol kathmandu`,
             { 
-                maxBuffer: 1024 * 1024,
-                timeout: 1024 * 1024
+                maxBuffer: 1024 * 1024 * 1024 * 1024,
+                timeout: 1024 * 1024 * 1024 * 1024
             },
         ).toString()
         
@@ -213,10 +213,10 @@ export const compileContract = async (
             for (const lambda of lambdas) {
                 
                 const michelson = execSync(
-                    `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol jakarta`,
+                    `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol kathmandu`,
                     { 
-                        maxBuffer: 1024 * 1024,
-                        timeout: 1024 * 1024
+                        maxBuffer: 1024 * 1024 * 1024 * 1024,
+                        timeout: 1024 * 1024 * 1024 * 1024
                     },
                 ).toString()
         
@@ -259,13 +259,19 @@ export const compileContractNoLambdas = async (
     contracts.forEach((contract) => {
 
         const michelsonFormat: string = execSync(
-            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol jakarta`,
-            { maxBuffer: 1024 * 1024 },
+            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol kathmandu`,
+            { 
+                maxBuffer: 1024 * 1024 * 1024 * 1024,
+                timeout: 1024 * 1024 * 1024 * 1024
+            },
         ).toString()
 
         const jsonFormat: string = execSync(
-            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol jakarta`,
-            { maxBuffer: 1024 * 1024 },
+            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol kathmandu`,
+            {
+                maxBuffer: 1024 * 1024 * 1024 * 1024,
+                timeout: 1024 * 1024 * 1024 * 1024
+            },
         ).toString()
         
         try {
@@ -334,8 +340,11 @@ export const compileLambdas = async (
         for (const lambda of lambdas) {
 
             const michelson = execSync(
-                `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/${contract} --protocol jakarta`,
-                { maxBuffer: 1024 * 1024 },
+                `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/${contract} --protocol kathmandu`,
+                {
+                    maxBuffer: 1024 * 1024 * 1024 * 1024,
+                    timeout: 1024 * 1024 * 1024 * 1024
+                },
             ).toString()
 
             res.push(JSON.parse(michelson).bytes)
@@ -380,8 +389,11 @@ export const compileContractLambdas = async (
             for (const lambda of lambdas) {
 
                 const michelson = execSync(
-                    `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol jakarta`,
-                    { maxBuffer: 1024 * 1024 },
+                    `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol kathmandu`,
+                    {
+                        maxBuffer: 1024 * 1024 * 1024 * 1024,
+                        timeout: 1024 * 1024 * 1024 * 1024
+                    },
                 ).toString()
 
                 res.push(JSON.parse(michelson).bytes)

@@ -54,8 +54,7 @@ type governanceAction is
     |   StartNextRound                  of bool
     |   Propose                         of newProposalType
     |   ProposalRoundVote               of actionIdType
-    |   UpdateProposalData              of updateProposalDataType
-    |   UpdatePaymentData               of updatePaymentDataType
+    |   UpdateProposalData              of updateProposalType
     |   LockProposal                    of actionIdType
     |   VotingRoundVote                 of (votingRoundVoteType)
     |   ExecuteProposal                 of actionIdType
@@ -289,23 +288,12 @@ function getExecuteProposalEntrypoint(const contractAddress : address) : contrac
 
 
 // helper function to %updateProposalData entrypoint on the Governance Contract
-function getUpdateProposalDataEntrypoint(const contractAddress : address) : contract(updateProposalDataType) is
+function getUpdateProposalDataEntrypoint(const contractAddress : address) : contract(updateProposalType) is
     case (Tezos.get_entrypoint_opt(
         "%updateProposalData",
-        contractAddress) : option(contract(updateProposalDataType))) of [
+        contractAddress) : option(contract(updateProposalType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateProposalDataType))
-        ];
-
-
-
-// helper function to %updatePaymentData entrypoint on the Governance Contract
-function getUpdatePaymentDataEntrypoint(const contractAddress : address) : contract(updatePaymentDataType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updatePaymentData",
-        contractAddress) : option(contract(updatePaymentDataType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updatePaymentDataType))
+            |   None -> (failwith(error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateProposalType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -625,6 +613,99 @@ block {
     s.timelockProposalId         := s.cycleHighestVotedProposalId;
     
 } with (s)
+
+
+
+// helper function to add payment data to a proposal
+function addOrSetPaymentData(const paymentData : updatePaymentDataSetType ; var paymentDataMap : proposalPaymentDataMapType) : proposalPaymentDataMapType is
+block {
+
+    // init params
+    const title                 : string                    = paymentData.title;
+    const paymentTransaction    : transferDestinationType   = paymentData.transaction;
+    const index                 : nat                       = case paymentData.index of [
+            Some (_index)   -> if _index < Map.size(paymentDataMap) then _index else failwith(error_INDEX_OUT_OF_BOUNDS)
+        |   None            -> Map.size(paymentDataMap)
+    ];
+    
+    // ------------------------------------------------------------------
+    // Create new payment data
+    // ------------------------------------------------------------------
+
+    // Create the new paymentData
+    const newPaymentData : paymentDataType = record[
+        title           = title;
+        transaction     = paymentTransaction;
+    ];
+
+    // Add data to the proposal
+    paymentDataMap[index]                := Some(newPaymentData);
+
+} with (paymentDataMap)
+
+
+
+// helper function to add payment data to a proposal
+function removePaymentData(const removeAtIndex : nat ; var paymentDataMap : proposalPaymentDataMapType) : proposalPaymentDataMapType is
+block {
+
+    // ------------------------------------------------------------------
+    // Remove payment data
+    // ------------------------------------------------------------------
+
+    // Remove data from the proposal
+    paymentDataMap[removeAtIndex]   := (None : option(paymentDataType));
+
+} with (paymentDataMap)
+
+
+
+// helper function to add data to a proposal
+function addOrSetProposalData(const proposalData : updateProposalDataSetType; var proposalDataMap : proposalDataMapType) : proposalDataMapType is
+block {
+
+    // init params
+    const title             : string   = proposalData.title;
+    const proposalBytes     : bytes    = proposalData.encodedCode;
+    const codeDescription   : string   = case proposalData.codeDescription of [
+            Some (_c)   -> _c
+        |   None        -> ""
+    ];
+    const index          : nat      = case proposalData.index of [
+            Some (_index)   -> if _index < Map.size(proposalDataMap) then _index else failwith(error_INDEX_OUT_OF_BOUNDS)
+        |   None            -> Map.size(proposalDataMap)
+    ];
+    
+    // ------------------------------------------------------------------
+    // Create new proposal data
+    // ------------------------------------------------------------------
+
+    // Create the new proposalData
+    const newProposalData : proposalDataType    = record[
+        title           = title;
+        encodedCode     = proposalBytes;
+        codeDescription = codeDescription;
+    ];
+
+    // Add data to the proposal
+    proposalDataMap[index]                      := Some(newProposalData);
+
+} with (proposalDataMap)
+
+
+
+// helper function to remove data from a proposal
+function removeProposalData(const removeAtIndex : nat; var proposalDataMap : proposalDataMapType) : proposalDataMapType is
+block {
+    
+    // ------------------------------------------------------------------
+    // Remove proposal data
+    // ------------------------------------------------------------------
+    
+    // Remove the proposal data
+    proposalDataMap[removeAtIndex]   := (None : option(proposalDataType));
+
+} with (proposalDataMap)
 
 // ------------------------------------------------------------------------------
 // Governance Helper Functions End
@@ -1121,7 +1202,7 @@ block {
 
 
 // (* updateProposalData entrypoint *)
-function updateProposalData(const proposalData : updateProposalDataType; var s : governanceStorageType) : return is 
+function updateProposalData(const proposalData : updateProposalType; var s : governanceStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateProposalData"] of [
@@ -1131,24 +1212,6 @@ block {
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateProposalData(proposalData);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-// (* updatePaymentData entrypoint *)
-function updatePaymentData(const paymentData : updatePaymentDataType; var s : governanceStorageType) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdatePaymentData"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdatePaymentData(paymentData);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1370,7 +1433,6 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   Propose(parameters)                         -> propose(parameters, s)
         |   ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
         |   UpdateProposalData(parameters)              -> updateProposalData(parameters, s)
-        |   UpdatePaymentData(parameters)               -> updatePaymentData(parameters, s)
         |   LockProposal(parameters)                    -> lockProposal(parameters, s)
         |   VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
         |   ExecuteProposal(parameters)                 -> executeProposal(parameters, s)

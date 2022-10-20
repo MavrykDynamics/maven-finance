@@ -28,14 +28,14 @@ async def on_governance_proposal_round_vote(
     await voter.save()
 
     # Update or a satellite snapshot record
-    governance_snapshot = await models.GovernanceSatelliteSnapshotRecord.get_or_none(
+    governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(
         governance  = governance,
         user        = voter,
         cycle       = governance.cycle_id
     )
     if voter_address in satellite_snapshots:
         satellite_snapshot      = satellite_snapshots[voter_address]
-        governance_snapshot, _  = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
+        governance_snapshot, _  = await models.GovernanceSatelliteSnapshot.get_or_create(
             governance              = governance,
             user                    = voter
         )
@@ -47,7 +47,7 @@ async def on_governance_proposal_round_vote(
         await governance_snapshot.save()
 
     # Update proposal with vote
-    proposal    = await models.GovernanceProposalRecord.get(
+    proposal    = await models.GovernanceProposal.get(
         id          = proposal_id,
         governance  = governance
     )
@@ -56,7 +56,7 @@ async def on_governance_proposal_round_vote(
     await proposal.save()
 
     # Check if user already voted and delete the vote
-    proposal_vote = await models.GovernanceProposalRecordVote.get_or_none(
+    proposal_vote = await models.GovernanceProposalVote.get_or_none(
         round                       = current_round,
         voter                       = voter,
         current_round_vote          = True
@@ -67,7 +67,7 @@ async def on_governance_proposal_round_vote(
         storage_past_proposal   = proposal_round_vote.storage.proposalLedger[str(past_proposal_record.id)]
         past_vote_count         = int(storage_past_proposal.proposalVoteCount)
         past_vote_smvk_total    = float(storage_past_proposal.proposalVoteStakedMvkTotal)
-        past_proposal           = await models.GovernanceProposalRecord.get(
+        past_proposal           = await models.GovernanceProposal.get(
             id  = past_proposal_record.id
         )
         past_proposal.pass_vote_count           = past_vote_count
@@ -76,8 +76,8 @@ async def on_governance_proposal_round_vote(
         await proposal_vote.delete()
     
     # Create a new vote
-    proposal_vote, _    = await models.GovernanceProposalRecordVote.get_or_create(
-        governance_proposal_record  = proposal,
+    proposal_vote, _    = await models.GovernanceProposalVote.get_or_create(
+        governance_proposal         = proposal,
         voter                       = voter,
         round                       = current_round
     )

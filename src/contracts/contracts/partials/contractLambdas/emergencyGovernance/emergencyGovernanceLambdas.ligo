@@ -391,6 +391,8 @@ block {
 
                     operations := list[triggerGovernanceBreakGlassOperation;triggerBreakGlassOperation];
 
+                    // Reset currentEmergencyGovernanceId to 0
+                    s.currentEmergencyGovernanceId           := 0n;
                 } else skip;
 
             }

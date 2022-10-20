@@ -22,5 +22,5 @@ async def on_treasury_factory_track_treasury(
         address = treasury_address
     )
     if treasury:
-        treasury.treasury_factory   = treasury_factory
+        treasury.factory        = treasury_factory
         await treasury.save()

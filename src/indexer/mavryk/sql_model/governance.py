@@ -1,13 +1,13 @@
 from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
-from mavryk.sql_model.enums import GovernanceRoundType, GovernanceRecordStatus, GovernanceVoteType
+from mavryk.sql_model.enums import GovernanceRoundType, GovernanceActionStatus, GovernanceVoteType
 
 ###
 # Governance Tables
 ###
 
 class Governance(MavrykContract, Model):
-    active                                  = fields.BooleanField(default=False)
+    active                                  = fields.BooleanField(default=False, index=True)
     governance_proxy_address                = fields.CharField(max_length=36, default="")
     success_reward                          = fields.FloatField(default=0)
     cycle_voters_reward                     = fields.FloatField(default=0)
@@ -62,26 +62,26 @@ class GovernanceWhitelistContract(LinkedContract, Model):
 class WhitelistDeveloper(Model):
     id                                      = fields.BigIntField(pk=True)
     governance                              = fields.ForeignKeyField('models.Governance', related_name='whitelist_developers')
-    developer                               = fields.ForeignKeyField('models.MavrykUser', related_name='whitelist_developers')
+    developer                               = fields.ForeignKeyField('models.MavrykUser', related_name='whitelist_developers', index=True)
 
     class Meta:
         table = 'whitelist_developer'
 
-class GovernanceProposalRecord(Model):
+class GovernanceProposal(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_proposal_records')
-    proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_proposer')
-    status                                  = fields.IntEnumField(enum_type=GovernanceRecordStatus)
-    execution_counter                       = fields.SmallIntField(default=0)
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='proposals')
+    proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_proposer', index=True)
+    status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, index=True)
+    execution_counter                       = fields.SmallIntField(default=0, index=True)
     title                                   = fields.TextField(default="")
     description                             = fields.TextField(default="")
     invoice                                 = fields.TextField(default="")
     source_code                             = fields.TextField(default="")
-    executed                                = fields.BooleanField(default=False)
-    locked                                  = fields.BooleanField(default=False)
-    payment_processed                       = fields.BooleanField(default=False)
-    reward_claim_ready                      = fields.BooleanField(default=False)
-    execution_ready                         = fields.BooleanField(default=False)
+    executed                                = fields.BooleanField(default=False, index=True)
+    locked                                  = fields.BooleanField(default=False, index=True)
+    payment_processed                       = fields.BooleanField(default=False, index=True)
+    reward_claim_ready                      = fields.BooleanField(default=False, index=True)
+    execution_ready                         = fields.BooleanField(default=False, index=True)
     success_reward                          = fields.FloatField(default=0)
     total_voters_reward                     = fields.FloatField(default=0)
     proposal_vote_count                     = fields.BigIntField(default=0)
@@ -98,60 +98,60 @@ class GovernanceProposalRecord(Model):
     min_yay_vote_percentage                 = fields.FloatField(default=0)
     quorum_count                            = fields.BigIntField(default=0)
     quorum_smvk_total                       = fields.FloatField(default=0)
-    start_datetime                          = fields.DatetimeField(null=True)
-    execution_datetime                      = fields.DatetimeField(null=True)
-    cycle                                   = fields.BigIntField(default=0)
-    current_cycle_start_level               = fields.BigIntField(default=0)
-    current_cycle_end_level                 = fields.BigIntField(default=0)
-    current_round_proposal                  = fields.BooleanField(default=True)
+    start_datetime                          = fields.DatetimeField(null=True, index=True)
+    execution_datetime                      = fields.DatetimeField(null=True, index=True)
+    cycle                                   = fields.BigIntField(default=0, index=True)
+    current_cycle_start_level               = fields.BigIntField(default=0, index=True)
+    current_cycle_end_level                 = fields.BigIntField(default=0, index=True)
+    current_round_proposal                  = fields.BooleanField(default=True, index=True)
 
     class Meta:
-        table = 'governance_proposal_record'
+        table = 'governance_proposal'
 
-class GovernanceProposalRecordData(Model):
+class GovernanceProposalData(Model):
     id                                      = fields.BigIntField(pk=True)
-    record_internal_id                      = fields.SmallIntField(default=0)
-    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='proposal_data')
+    record_internal_id                      = fields.SmallIntField(default=0, index=True)
+    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='data', index=True)
     title                                   = fields.TextField(default="")
     bytes                                   = fields.TextField(default="")
 
     class Meta:
-        table = 'governance_proposal_record_data'
+        table = 'governance_proposal_data'
 
-class GovernanceProposalRecordPayment(Model):
+class GovernanceProposalPayment(Model):
     id                                      = fields.BigIntField(pk=True)
-    record_internal_id                      = fields.SmallIntField(default=0)
-    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='proposal_payments')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposal_records_payments_token', null=True)
+    record_internal_id                      = fields.SmallIntField(default=0, index=True)
+    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='payments', index=True)
+    token_address                           = fields.CharField(max_length=36, default="", index=True)
     title                                   = fields.TextField(default="")
-    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_payments', null=True)
+    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_payments', null=True)
     token_amount                            = fields.FloatField(default=0.0)
 
     class Meta:
-        table = 'governance_proposal_record_payment'
+        table = 'governance_proposal_payment'
 
-class GovernanceProposalRecordVote(Model):
+class GovernanceProposalVote(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='votes', null=True)
-    voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_votes')
-    timestamp                               = fields.DatetimeField(null=True)
+    governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='votes', null=True, index=True)
+    voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposals_votes', index=True)
+    timestamp                               = fields.DatetimeField(null=True, index=True)
     round                                   = fields.IntEnumField(enum_type=GovernanceRoundType)
-    vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
+    vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY, index=True)
     voting_power                            = fields.FloatField(default=0.0)
-    current_round_vote                      = fields.BooleanField(default=True)
+    current_round_vote                      = fields.BooleanField(default=True, index=True)
 
     class Meta:
-        table = 'governance_proposal_record_vote'
+        table = 'governance_proposal_vote'
 
-class GovernanceSatelliteSnapshotRecord(Model):
+class GovernanceSatelliteSnapshot(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshot_records')
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshot_records_votes')
-    ready                                   = fields.BooleanField(default=True)
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='satellite_snapshots')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshots', index=True)
+    ready                                   = fields.BooleanField(default=True, index=True)
     total_smvk_balance                      = fields.FloatField(default=0.0)
     total_delegated_amount                  = fields.FloatField(default=0.0)
     total_voting_power                      = fields.FloatField(default=0.0)
-    cycle                                   = fields.BigIntField(default=0)
+    cycle                                   = fields.BigIntField(default=0, index=True)
 
     class Meta:
-        table = 'governance_satellite_snapshot_record'
+        table = 'governance_satellite_snapshot'

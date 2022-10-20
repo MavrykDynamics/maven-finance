@@ -9,7 +9,7 @@
 **/yarn-error.log
 **/error.log
 **/compiled/*.tz
-
+.ligoproject
 
 # Python
 __pycache__/

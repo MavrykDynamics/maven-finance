@@ -12,4 +12,4 @@ async def on_treasury_factory_update_whitelist_token_contracts(
 ) -> None:
     
     # Persist whitelist token contract
-    await persist_linked_contract(models.TreasuryFactory, models.TreasuryFactoryWhitelistTokenContract, update_whitelist_token_contracts)
+    await persist_linked_contract(models.TreasuryFactory, models.TreasuryFactoryWhitelistTokenContract, update_whitelist_token_contracts, ctx)

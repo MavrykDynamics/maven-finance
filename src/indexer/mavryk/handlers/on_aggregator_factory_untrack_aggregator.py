@@ -20,10 +20,10 @@ async def on_aggregator_factory_untrack_aggregator(
         address = aggregator_factory_address
     )
     aggregator                  = await models.Aggregator.get_or_none(
-        aggregator_factory  = aggregator_factory,
+        factory             = aggregator_factory,
         token_0_symbol      = aggregator_pair_first,
         token_1_symbol      = aggregator_pair_second
     )
     if aggregator:    
-        aggregator.aggregator_factory   = None
+        aggregator.factory          = None
         await aggregator.save()

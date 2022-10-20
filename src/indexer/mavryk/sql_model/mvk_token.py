@@ -10,7 +10,7 @@ class MVKToken(MavrykContract, Model):
     maximum_supply                          = fields.FloatField(default=0)
     total_supply                            = fields.FloatField(default=0)
     inflation_rate                          = fields.SmallIntField(default=0)
-    next_inflation_timestamp                = fields.DatetimeField(null=True)
+    next_inflation_timestamp                = fields.DatetimeField(null=True, index=True)
 
     class Meta:
         table = 'mvk_token'
@@ -29,18 +29,18 @@ class MVKTokenWhitelistContract(LinkedContract, Model):
 
 class MavrykUserOperator(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    owner                                   = fields.ForeignKeyField('models.MavrykUser', related_name='users_owner')
-    operator                                = fields.ForeignKeyField('models.MavrykUser', related_name='user_operators')
+    owner                                   = fields.ForeignKeyField('models.MavrykUser', related_name='users_owner', index=True)
+    operator                                = fields.ForeignKeyField('models.MavrykUser', related_name='user_operators', index=True)
 
     class Meta:
         table = 'mavryk_user_operator'
 
 class MVKTransferHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    timestamp                               = fields.DatetimeField()
+    timestamp                               = fields.DatetimeField(index=True)
     mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='transfer_history_data')
-    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_transfer_sender')
-    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_transfer_receiver')
+    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_transfer_sender', index=True)
+    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_transfer_receiver', index=True)
     amount                                  = fields.BigIntField(default=0)
 
     class Meta:
@@ -49,8 +49,8 @@ class MVKTransferHistoryData(Model):
 class MVKMintHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='mint_history_data')
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='mint_history_data')
-    timestamp                               = fields.DatetimeField()
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='mint_history_data', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
     minted_amount                           = fields.FloatField(default=0.0)
     mvk_total_supply                        = fields.FloatField(default=0.0)
 
