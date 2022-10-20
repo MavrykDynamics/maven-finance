@@ -145,13 +145,11 @@ describe('AggregatorFactory', () => {
                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
                 const aggregatorRecord          = await governanceSatelliteStorage.aggregatorLedger.get("USDBTC");
                 const endTrackedAggregators     = aggregatorFactoryStorage.trackedAggregators.length;
-                
-                    console.log("endTrackedAggregators", endTrackedAggregators)
 
                 // Assertion
                 assert.notEqual(endTrackedAggregators, startTrackedAggregators);
                 assert.notStrictEqual(aggregatorRecord, undefined);
-                assert.equal(aggregatorRecord in endTrackedAggregators, true);
+                assert.equal(aggregatorFactoryStorage.trackedAggregators.includes(aggregatorRecord), true);
             } catch(e) {
                 console.dir(e, {depth: 5})
             }
