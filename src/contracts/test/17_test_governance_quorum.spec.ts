@@ -292,18 +292,21 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = [
+//                 const proposalData      = [
 //                     {
-//                         title: "ActionExpiryDays#1",
-//                         data: packedParam
+//                         addOrSetProposalData: {
+//                             title: "ActionExpiryDays#1",
+//                             encodedCode: packedParam,
+//                             code: ""
+//                         }
 //                     }
-//                 ];
+//                 ]
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                 await proposeOperation.confirmation();
                 
 //                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -403,12 +406,15 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = [
+//                 const proposalData      = [
 //                     {
-//                         title: "ActionExpiryDays#1",
-//                         data: packedParam
+//                         addOrSetProposalData: {
+//                             title: "ActionExpiryDays#1",
+//                             encodedCode: packedParam,
+//                             code: ""
+//                         }
 //                     }
-//                 ];
+//                 ]
 
 //                 // Update min quorum
 //                 var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
@@ -422,7 +428,7 @@
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                 await proposeOperation.confirmation();
                 
 //                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -518,12 +524,15 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = [
+//                 const proposalData      = [
 //                     {
-//                         title: "ActionExpiryDays#1",
-//                         data: packedParam
+//                         addOrSetProposalData: {
+//                             title: "ActionExpiryDays#1",
+//                             encodedCode: packedParam,
+//                             code: ""
+//                         }
 //                     }
-//                 ];
+//                 ]
 
 //                 // Update min quorum
 //                 var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
@@ -537,7 +546,7 @@
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                 await proposeOperation.confirmation();
                 
 //                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -639,12 +648,15 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = [
+//                 const proposalData      = [
 //                     {
-//                         title: "ActionExpiryDays#1",
-//                         data: packedParam
+//                         addOrSetProposalData: {
+//                             title: "ActionExpiryDays#1",
+//                             encodedCode: packedParam,
+//                             code: ""
+//                         }
 //                     }
-//                 ];
+//                 ]
 
 //                 // Update min quorum
 //                 const updateGovernanceConfig= await governanceInstance.methods.updateConfig(10000, "configMinQuorumPercentage").send();
@@ -654,7 +666,7 @@
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                 await proposeOperation.confirmation();
                 
 //                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -754,12 +766,15 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = [
+//                 const proposalData      = [
 //                     {
-//                         title: "ActionExpiryDays#1",
-//                         data: packedParam
+//                         addOrSetProposalData: {
+//                             title: "ActionExpiryDays#1",
+//                             encodedCode: packedParam,
+//                             code: ""
+//                         }
 //                     }
-//                 ];
+//                 ]
 
 //                 // Update min quorum
 //                 var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
@@ -773,7 +788,7 @@
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                 await proposeOperation.confirmation();
                 
 //                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -873,12 +888,15 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = [
+//                 const proposalData      = [
 //                     {
-//                         title: "ActionExpiryDays#1",
-//                         data: packedParam
+//                         addOrSetProposalData: {
+//                             title: "ActionExpiryDays#1",
+//                             encodedCode: packedParam,
+//                             code: ""
+//                         }
 //                     }
-//                 ];
+//                 ]
 
 //                 // Update min quorum
 //                 var updateConfigOperation   = await governanceInstance.methods.updateConfig(1, "configMinQuorumPercentage").send();
@@ -892,7 +910,7 @@
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
 //                 await proposeOperation.confirmation();
                 
 //                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
