@@ -677,7 +677,7 @@
 //                         addOrSetProposalData: {
 //                             title: "FirstFarm#1",
 //                             encodedCode: packedParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         }
 //                     }
 //                 ]

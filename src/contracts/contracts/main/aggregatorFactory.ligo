@@ -229,6 +229,16 @@ function getDistributeRewardInDelegationEntrypoint(const contractAddress : addre
         ];
 
 
+
+// helper function to get setAggregatorReference entrypoint in governanceSatellite contract
+function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contractAddress : address) : contract(setAggregatorReferenceType) is
+    case (Tezos.get_entrypoint_opt(
+        "%setAggregatorReference",
+        contractAddress) : option(contract(setAggregatorReferenceType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_SET_AGGREGATOR_REFERENCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(setAggregatorReferenceType))
+        ];  
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------

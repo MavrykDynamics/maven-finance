@@ -297,7 +297,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ActionExpiryDays#1",
 //                             encodedCode: packedParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -411,7 +411,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ActionExpiryDays#1",
 //                             encodedCode: packedParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -529,7 +529,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ActionExpiryDays#1",
 //                             encodedCode: packedParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -653,7 +653,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ActionExpiryDays#1",
 //                             encodedCode: packedParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -771,7 +771,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ActionExpiryDays#1",
 //                             encodedCode: packedParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         }
 //                     }
 //                 ]
@@ -893,7 +893,7 @@
 //                         addOrSetProposalData: {
 //                             title: "ActionExpiryDays#1",
 //                             encodedCode: packedParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         }
 //                     }
 //                 ]

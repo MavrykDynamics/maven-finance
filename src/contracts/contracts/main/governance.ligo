@@ -667,9 +667,9 @@ function addOrSetProposalData(const proposalData : updateProposalDataSetType; va
 block {
 
     // init params
-    const title          : string   = proposalData.title;
-    const proposalBytes  : bytes    = proposalData.encodedCode;
-    const code           : string   = case proposalData.code of [
+    const title             : string   = proposalData.title;
+    const proposalBytes     : bytes    = proposalData.encodedCode;
+    const codeDescription   : string   = case proposalData.codeDescription of [
             Some (_c)   -> _c
         |   None        -> ""
     ];
@@ -684,9 +684,9 @@ block {
 
     // Create the new proposalData
     const newProposalData : proposalDataType    = record[
-        title       = title;
-        encodedCode = proposalBytes;
-        code        = code;
+        title           = title;
+        encodedCode     = proposalBytes;
+        codeDescription = codeDescription;
     ];
 
     // Add data to the proposal

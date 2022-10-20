@@ -526,7 +526,7 @@
 //                         addOrSetProposalData: {
 //                             title: "Metadata#1",
 //                             encodedCode: packedUpdateConfigSuccessRewardParam,
-//                             code: ""
+//                             codeDescription: ""
 //                         }
 //                     }
 //                 ]
