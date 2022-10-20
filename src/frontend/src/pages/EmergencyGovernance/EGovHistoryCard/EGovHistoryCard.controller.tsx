@@ -20,7 +20,7 @@ import {
   EGovHistoryCardTopSection,
 } from './EGovHistoryCard.style'
 import { parseDate } from 'utils/time'
-import { scrollToBottomOfElement } from '../../../utils/scrollToBottomOfElement'
+import { scrollToFullView } from '../../../utils/scrollToFullView'
 
 type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceStorage['emergencyGovernanceLedger'][0]
@@ -42,7 +42,7 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
       // The function is called after 300ms because you first need to
       // animate the opening of the card. Because the scroll is deducted
       // based on the height of the element.
-      setTimeout(() => scrollToBottomOfElement(ref.current), 300)
+      setTimeout(() => scrollToFullView(ref.current), 300)
     }
   }, [expanded])
 

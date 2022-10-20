@@ -7,7 +7,7 @@ import Icon from '../Icon/Icon.view'
 import { ExpandStyled, ExpandArticleStyled } from './Expand.style'
 
 // helpers
-import { scrollToBottomOfElement } from '../../../utils/scrollToBottomOfElement'
+import { scrollToFullView } from '../../../utils/scrollToFullView'
 
 type Props = {
   children: React.ReactNode
@@ -42,7 +42,7 @@ export default function Expand({
   // move the scroll to fix it
   useEffect(() => {
     if (expanded) {
-      scrollToBottomOfElement(ref.current)
+      scrollToFullView(ref.current)
     }
   }, [expanded])
 
