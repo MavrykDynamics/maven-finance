@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
-import { cyanColor, darkPurpleColor, silverColor } from 'styles'
+import { MavrykTheme } from 'styles/interfaces'
 
-export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selected?: boolean }>`
+export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selected?: boolean; theme: MavrykTheme }>`
   margin: 0 25px;
   height: 100%;
   position: relative;
@@ -17,7 +17,8 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
     line-height: 0;
     transition: 0.35s all;
     cursor: pointer;
-    color: ${silverColor};
+    color: ${({ theme }) => theme.topBarLinkColor};
+    font-weight: 600;
     display: flex;
     align-items: center;
 
@@ -28,24 +29,24 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
       transform: rotate(-90deg);
       transition: 0.6s all;
       display: block;
-      stroke: ${silverColor};
+      stroke: ${({ theme }) => theme.topBarLinkColor};
     }
 
     a {
-      color: ${silverColor};
+      color: ${({ theme }) => theme.topBarLinkColor};
       transition: 0.35s all;
     }
 
     &:hover {
-      color: ${cyanColor};
+      color: ${({ theme }) => theme.topBarLinkColorActive};
 
       svg {
-        stroke: ${cyanColor};
+        stroke: ${({ theme }) => theme.topBarLinkColorActive};
         transform: rotate(90deg);
       }
 
       a {
-        color: ${cyanColor};
+        color: ${({ theme }) => theme.topBarLinkColorActive};
       }
     }
 
@@ -57,24 +58,34 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
   .group-links {
     display: flex;
     padding: 20px 45px 20px 15px;
-    background-color: #160e3f;
+    background: ${({ theme }) => theme.containerColor};
     transition: 0.6s all;
     flex-direction: column;
     row-gap: 15px;
 
     a {
       text-transform: capitalize;
+      position: relative;
       white-space: nowrap;
       font-size: 18px;
       transition: 0.35s all;
       width: 120%;
       padding: 6px 0;
+      font-weight: 600;
       padding-left: 10px;
       border-radius: 5px;
-      color: ${silverColor};
+      color: ${({ theme }) => theme.topBarLinkColor};
       &:hover {
-        color: ${cyanColor};
-        background: ${darkPurpleColor};
+        color: ${({ theme }) => theme.topBarLinkColorActive};
+
+        &::before {
+          content: '✓';
+          position: absolute;
+          right: 0px;
+          font-size: 18px;
+          top: 50%;
+          transform: translateY(-50%);
+        }
       }
     }
   }
@@ -111,15 +122,15 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
                   left: 0;
                   bottom: -10px;
                   content: '';
-                  background: #38237c;
+                  background: ${({ theme }) => theme.btnNewsColor};
                 }
               `}
 
             &.selected {
-              color: ${cyanColor};
+              color: ${({ theme }) => theme.topBarLinkColorActive};
 
               svg {
-                stroke: ${cyanColor};
+                color: ${({ theme }) => theme.topBarLinkColorActive};
                 transform: rotate(90deg);
               }
             }
@@ -140,7 +151,7 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
             max-height: 0;
             display: none;
             overflow: hidden;
-            background: #080628;
+            background: ${({ theme }) => theme.containerColor};
             margin-top: 10px;
 
             a {
@@ -164,7 +175,7 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
             visibility: hidden;
             width: fit-content;
             border-radius: 10px;
-            border: 1px solid #86d4c9;
+            border: 1px solid ${({ theme }) => theme.topBarLinkColor};
           }
 
           &:hover {
@@ -174,10 +185,10 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
             }
 
             .group-name {
-              color: ${cyanColor};
+              color: ${({ theme }) => theme.topBarLinkColorActive};
 
               svg {
-                stroke: ${cyanColor};
+                color: ${({ theme }) => theme.topBarLinkColorActive};
               }
             }
           }
