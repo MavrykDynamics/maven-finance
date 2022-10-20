@@ -84,8 +84,6 @@
 
 //                 // Operation
 //                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
-//                     'USD',
-//                     'TEST',
         
 //                     'USDBTC',
 //                     true,
@@ -112,11 +110,11 @@
 //             try {
 //                 // Initial values
 //                 await signerFactory(bob.sk);
+//                 aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+//                 const startTrackedAggregators   = aggregatorFactoryStorage.trackedAggregators.length;
 
 //                 // Operation
 //                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
-//                     'USD',
-//                     'TEST',
         
 //                     'USDBTC',
 //                     true,
@@ -135,16 +133,13 @@
 //                     aggregatorMetadataBase        // metadata
 //                 ).send();
 //                 await operation.confirmation();
-        
+
 //                 // Final values
-//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
-//                 const newAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get({
-//                     0: 'USD',
-//                     1: 'TEST',
-//                 }) as string;
+//                 aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+//                 const endTrackedAggregators     = aggregatorFactoryStorage.trackedAggregators.length;
                 
 //                 // Assertion
-//                 assert.notDeepEqual(newAggregatorAddress,null);
+//                 assert.notEqual(endTrackedAggregators, startTrackedAggregators);
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }
@@ -160,7 +155,7 @@
 //                 await signerFactory(david.sk);
 
 //                 // Operation
-//                 await chai.expect(aggregatorFactoryInstance.methods.trackAggregator("USD", "test", aggregatorInstance.address).send()).to.be.rejected;
+//                 await chai.expect(aggregatorFactoryInstance.methods.trackAggregator(aggregatorInstance.address).send()).to.be.rejected;
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }     
@@ -172,18 +167,14 @@
 //                 await signerFactory(bob.sk);
 
 //                 // Operation
-//                 const operation             = await aggregatorFactoryInstance.methods.trackAggregator("USD", "test", aggregatorInstance.address).send();
+//                 const operation             = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorInstance.address).send();
 //                 await operation.confirmation();
-    
+
 //                 // Final values
-//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
-//                 const trackedAggregator     = await aggregatorFactoryStorage.trackedAggregators.get({
-//                     0: 'USD',
-//                     1: 'test',
-//                 }) as string
+//                 aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
 
 //                 // Assertion
-//                 assert.deepEqual(trackedAggregator, aggregatorInstance.address);
+//                 assert.equal(aggregatorFactoryStorage.trackedAggregators.includes(aggregatorInstance.address), true);
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }
@@ -198,7 +189,7 @@
 //                 await signerFactory(david.sk);
 
 //                 // Operation
-//                 await chai.expect(aggregatorFactoryInstance.methods.untrackAggregator("USD", "test", aggregatorInstance.address).send()).to.be.rejected;
+//                 await chai.expect(aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send()).to.be.rejected;
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }
@@ -210,21 +201,17 @@
 //                 await signerFactory(bob.sk);
                 
 //                 // Operation
-//                 const operation             = await aggregatorFactoryInstance.methods.untrackAggregator("USD", "test", aggregatorInstance.address).send();
+//                 const operation             = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send();
 //                 await operation.confirmation();
     
 //                 // Final values
 //                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
-//                 const untrackedAggregator   = await aggregatorFactoryStorage.trackedAggregators.get({
-//                     0: 'USD',
-//                     1: 'test',
-//                 }) as string
     
 //                 // Assertion
-//                 assert.deepEqual(untrackedAggregator, null);
+//                 assert.equal(aggregatorFactoryStorage.trackedAggregators.includes(aggregatorFactoryInstance.address), false);
     
 //                 // Reset
-//                 const resetOperation        = await aggregatorFactoryInstance.methods.trackAggregator("USD", "test", aggregatorInstance.address).send();
+//                 const resetOperation        = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorInstance.address).send();
 //                 await resetOperation.confirmation();
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
@@ -330,8 +317,6 @@
 
 //                 // Test operations
 //                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
-//                     'USD',
-//                     'TEST',
             
 //                     'USDBTC',
 //                     true,
@@ -350,8 +335,8 @@
                     
 //                     aggregatorMetadataBase        // metadata
 //                 ).send()).to.be.rejected;
-//                 await chai.expect(aggregatorFactoryInstance.methods.untrackAggregator("USD", "test").send()).to.be.rejected;
-//                 await chai.expect(aggregatorFactoryInstance.methods.trackAggregator("USD", "test", aggregatorInstance.address).send()).to.be.rejected;
+//                 await chai.expect(aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send()).to.be.rejected;
+//                 await chai.expect(aggregatorFactoryInstance.methods.trackAggregator(aggregatorInstance.address).send()).to.be.rejected;
 
 //                 // init params for aggregator test entrypoints
 //                 const observations = [
@@ -502,8 +487,6 @@
 
 //                 // Test operations
 //                 const testCreateAggregatorOp    = await aggregatorFactoryInstance.methods.createAggregator(
-//                     'USD',
-//                     'TESTv2',
             
 //                     'USDTestv2',
 //                     true,
@@ -524,10 +507,10 @@
                 
 //                 await testCreateAggregatorOp.confirmation();
 
-//                 const testUntrackAggregatorOp   = await aggregatorFactoryInstance.methods.untrackAggregator('USD', 'test').send();
+//                 const testUntrackAggregatorOp   = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send();
 //                 await testUntrackAggregatorOp.confirmation();
 
-//                 const testTrackAggregatorOp     = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'test', aggregatorInstance.address).send();
+//                 const testTrackAggregatorOp     = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorInstance.address).send();
 //                 await testTrackAggregatorOp.confirmation();
 
 //             }catch(e){

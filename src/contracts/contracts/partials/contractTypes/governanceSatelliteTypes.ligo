@@ -27,7 +27,7 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     status                             : bool;     // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     executed                           : bool;     // false on creation; set to true when financial request is executed successfully
     
-    governanceType                     : string;   // "SUSPEND", "BAN", "RESTORE", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
+    governanceType                     : string;   // "SUSPEND", "BAN", "RESTORE", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "TOGGLE_PAUSE_AGGREGATOR"
     governancePurpose                  : string;
     voters                             : set(address);
 
@@ -47,26 +47,9 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
 type governanceSatelliteActionLedgerType is big_map (actionIdType, governanceSatelliteActionRecordType);
 
 
-type oracleAggregatorPairRecordType is [@layout:comb] record [
-    aggregatorPair     : (string * string);   // e.g. BTC-USD
-    aggregatorAddress  : address; 
-    startDateTime      : timestamp;   
-]
-type aggregatorPairsMapType is map(address, oracleAggregatorPairRecordType)
-type satelliteOracleRecordType is [@layout:comb] record [
-    aggregatorsSubscribed  : nat;                       // total number of aggregators that satellite is providing data for
-    aggregatorPairs        : aggregatorPairsMapType;    // map of aggregators that satellite oracle is providing service for
-]
+type aggregatorsMapType is map(address, timestamp)
+type satelliteOracleRecordType is aggregatorsMapType // map of aggregators that satellite oracle is providing service for
 type satelliteOracleLedgerType is big_map(address, satelliteOracleRecordType)
-
-
-type aggregatorRecordType is [@layout:comb] record [
-    aggregatorPair     : (string * string);   // e.g. BTC , USD
-    status             : string;              // ACTIVE / INACTIVE
-    createdTimestamp   : timestamp; 
-    oracles            : set(address);
-]
-type aggregatorLedgerType is big_map(address, aggregatorRecordType)
 
 
 type actionsInitiatorsType is big_map(address, set(actionIdType));
@@ -135,15 +118,14 @@ type voteForActionType is [@layout:comb] record [
     vote                        : voteType;
 ]
 
-type registerAggregatorActionType is [@layout:comb] record [
-    aggregatorPair              : string * string;        // e.g. BTC-USD  
-    aggregatorAddress           : address; 
-]
+type togglePauseAggregatorVariantType is
+        PauseAll
+    |   UnpauseAll
 
-type updateAggregatorStatusActionType is [@layout:comb] record [
-    aggregatorAddress           : address;      
-    status                      : string;
+type togglePauseAggregatorActionType is [@layout:comb] record [
+    aggregatorAddress           : address;
     purpose                     : string;
+    status                      : togglePauseAggregatorVariantType;
 ]
 
 type updateSatelliteStatusParamsType is [@layout:comb] record [
@@ -185,8 +167,7 @@ type governanceSatelliteLambdaActionType is
     |   LambdaRemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
         // Aggregator Governance
-    |   LambdaRegisterAggregator            of registerAggregatorActionType     // callback from aggregator factory in creating aggregator contract
-    |   LambdaUpdateAggregatorStatus        of updateAggregatorStatusActionType
+    |   LambdaTogglePauseAggregator         of togglePauseAggregatorActionType
 
         // Mistaken Transfer Governance
     |   LambdaFixMistakenTransfer           of fixMistakenTransferParamsType
@@ -223,7 +204,6 @@ type governanceSatelliteStorageType is record [
 
     // satellite oracles and aggregators
     satelliteOracleLedger                   : satelliteOracleLedgerType;
-    aggregatorLedger                        : aggregatorLedgerType;
 
     // lambda storage
     lambdaLedger                            : lambdaLedgerType; 

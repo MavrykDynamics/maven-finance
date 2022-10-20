@@ -14,7 +14,7 @@ async def on_governance_update_proposal_data(
     governance_address  = update_proposal_data.data.target_address
     proposal_id         = int(update_proposal_data.parameter.proposalId)
     storage_proposal    = update_proposal_data.storage.proposalLedger[update_proposal_data.parameter.proposalId]
-    proposal_metadata   = storage_proposal.proposalMetadata
+    proposal_metadata   = storage_proposal.proposalData
     title               = update_proposal_data.parameter.title
     bytes               = update_proposal_data.parameter.proposalBytes
 

@@ -2179,8 +2179,6 @@ describe("Testnet interactions helper", async () => {
                 });
 
                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
-                    'USD',
-                    'BTC',
     
                     'USDBTC',
                     true,
@@ -2208,11 +2206,8 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
-                createdAggregatorAddress    = await aggregatorFactoryStorage.trackedAggregators.get({
-                  0: 'USD',
-                  1: 'BTC',
-                }) as string;
-                const operation             = await aggregatorFactoryInstance.methods.untrackAggregator('USD', 'BTC').send()
+                createdAggregatorAddress    = await aggregatorFactoryStorage.trackedAggregators[0]
+                const operation             = await aggregatorFactoryInstance.methods.untrackAggregator(createdAggregatorAddress).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2222,7 +2217,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin tracks an aggregator', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'BTC', createdAggregatorAddress).send()
+                const operation = await aggregatorFactoryInstance.methods.trackAggregator(createdAggregatorAddress).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2407,7 +2402,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin withdraws rewards xtz', async () => {
             try{
                 // Operation
-                var operation   = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'MVK', aggregatorAddress.address).send()
+                var operation   = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorAddress.address).send()
                 await operation.confirmation()
                 var operation = await aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send();
                 await operation.confirmation();
@@ -2761,27 +2756,61 @@ describe("Testnet interactions helper", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = [
+                const proposalData      = [
                     {
-                        title: "FirstFarm#1",
-                        data: packedParam
+                        addOrSetProposalData: {
+                            title: "FirstFarm#1",
+                            encodedCode: packedParam,
+                            code: ""
+                        }
+                    }
+                ]
+
+                const paymentData        = [
+                    {
+                        addOrSetPaymentData: {
+                            title: "Payment#1",
+                            transaction: {
+                                "to_"    : bob.pkh,
+                                "token"  : {
+                                    "fa2" : {
+                                        "tokenContractAddress" : mvkTokenAddress.address,
+                                        "tokenId" : 0
+                                    }
+                                },
+                                "amount" : MVK(50)
+                            }
+                        }
+                    },
+                    {
+                        addOrSetPaymentData: {
+                            title: "Payment#2",
+                            transaction: {
+                                "to_"    : bob.pkh,
+                                "token"  : {
+                                    "fa2" : {
+                                        "tokenContractAddress" : mvkTokenAddress.address,
+                                        "tokenId" : 0
+                                    }
+                                },
+                                "amount" : MVK(50)
+                            }
+                        }
                     }
                 ]
 
                 // Start governance rounds
-                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+                var nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+                const proposeOperation          = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
                 await proposeOperation.confirmation();
-                var addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()
+                const addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, null, paymentData).send()
                 await addPaymentDataOperation.confirmation();
-                addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#2", eve.pkh, MVK(20), "fa2", mvkTokenAddress.address, 0).send()
-                await addPaymentDataOperation.confirmation();
-                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                const lockOperation             = await governanceInstance.methods.lockProposal(proposalId).send();
                 await lockOperation.confirmation();
-                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                var voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                 await voteOperation.confirmation();
-                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+                nextRoundOperation              = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
 
                 // Votes operation -> both satellites vote
@@ -2838,33 +2867,48 @@ describe("Testnet interactions helper", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = [
+                const proposalData      = [
                     {
-                        title: "FirstFarm#1",
-                        data: packedParam
+                        addOrSetProposalData: {
+                            title: "FirstFarm#1",
+                            encodedCode: packedParam,
+                            code: ""
+                        }
                     },
                     {
-                        title: "FirstFarm#2",
-                        data: packedParam
+                        addOrSetProposalData: {
+                            title: "FirstFarm#2",
+                            encodedCode: packedParam,
+                            code: ""
+                        }
                     },
                     {
-                        title: "FirstFarm#3",
-                        data: packedParam
+                        addOrSetProposalData: {
+                            title: "FirstFarm#3",
+                            encodedCode: packedParam,
+                            code: ""
+                        }
                     },
                     {
-                        title: "FirstFarm#4",
-                        data: packedParam
+                        addOrSetProposalData: {
+                            title: "FirstFarm#4",
+                            encodedCode: packedParam,
+                            code: ""
+                        }
                     },
                     {
-                        title: "FirstFarm#5",
-                        data: packedParam
+                        addOrSetProposalData: {
+                            title: "FirstFarm#5",
+                            encodedCode: packedParam,
+                            code: ""
+                        }
                     }
                 ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
                 await proposeOperation.confirmation();
                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
                 await lockOperation.confirmation();
@@ -2937,17 +2981,20 @@ describe("Testnet interactions helper", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = [
+                const proposalData      = [
                     {
-                        title: "FirstFarm#1",
-                        data: packedParam
+                        addOrSetProposalData: {
+                            title: "FirstFarm#1",
+                            encodedCode: packedParam,
+                            code: ""
+                        }
                     }
                 ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
                 await proposeOperation.confirmation();
                 const dropOperation         = await governanceInstance.methods.dropProposal(proposalId).send();
                 await dropOperation.confirmation();
@@ -3093,22 +3140,12 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin registers an aggregator', async () => {
-            try{
-                // Operation
-                const operation              = await governanceSatelliteInstance.methods.registerAggregator("MVK", "USDM", aggregatorAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin updates an aggregator status', async () => {
             try{
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "For tests purposes", "unpauseAll").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3204,7 +3241,7 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.togglePauseAggregator(aggregatorAddress.address, "For tests purposes", "unpauseAll").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.dropAction(actionId).send();

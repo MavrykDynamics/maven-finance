@@ -18,8 +18,8 @@ async def on_governance_propose(
     current_id              = str(int(governance.next_proposal_id))
     storage_record          = propose.storage.proposalLedger[current_id]
     proposer_address        = storage_record.proposerAddress
-    execution_counter       = int(storage_record.proposalMetadataExecutionCounter)
-    status                  = models.GovernanceActionStatus.ACTIVE
+    execution_counter       = int(storage_record.proposalDataExecutionCounter)
+    status                  = models.GovernanceRecordStatus.ACTIVE
     if storage_record.status == 'DROPPED':
         status  = models.GovernanceActionStatus.DROPPED
     title                   = storage_record.title

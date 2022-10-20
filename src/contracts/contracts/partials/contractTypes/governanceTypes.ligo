@@ -37,25 +37,6 @@ type currentCycleInfoType is [@layout:comb] record[
 // Governance Cycle Round Types
 // --------------------------------------------------
 
-type proposalMetadataType is [@layout:comb] record[
-    title               : string;
-    data                : bytes;
-]
-
-type paymentMetadataType is [@layout:comb] record[
-    title               : string;
-    transaction         : transferDestinationType;
-]
-
-type newProposalType is [@layout:comb] record [
-    title               : string;
-    description         : string;
-    invoice             : string; 
-    sourceCode          : string;
-    proposalMetadata    : option(list(proposalMetadataType));
-    paymentMetadata     : option(list(paymentMetadataType));
-]
-
 // Stores all voter data during proposal and voting rounds
 type roundVoteType is 
     Proposal    of actionIdType
@@ -67,12 +48,26 @@ type votingRoundVoteType is [@layout:comb] record [
     empty : unit;   // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
 ]
 
+type proposalDataType is [@layout:comb] record [
+    title                   : string;
+    encodedCode             : bytes;
+    code                    : string;
+]
+
+type paymentDataType is [@layout:comb] record[
+    title               : string;
+    transaction         : transferDestinationType;
+]
+
+type proposalDataMapType is map(nat,option(proposalDataType))
+type proposalPaymentDataMapType is map(nat,option(paymentDataType))
+
 type proposalRecordType is [@layout:comb] record [
     
     proposerAddress                   : address;
-    proposalMetadata                  : map(nat,option(proposalMetadataType));
-    proposalMetadataExecutionCounter  : nat;
-    paymentMetadata                   : map(nat,option(paymentMetadataType));
+    proposalData                      : proposalDataMapType;
+    proposalDataExecutionCounter      : nat;
+    paymentData                       : proposalPaymentDataMapType;
   
     status                            : string;                  // status - "ACTIVE", "DROPPED"
     title                             : string;                  // title
@@ -148,7 +143,7 @@ type governanceConfigType is [@layout:comb] record [
     blocksPerVotingRound                : nat;  // to determine duration of voting round
     blocksPerTimelockRound              : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
 
-    proposalMetadataTitleMaxLength      : nat;
+    proposalDataTitleMaxLength          : nat;
     proposalTitleMaxLength              : nat;
     proposalDescriptionMaxLength        : nat;
     proposalInvoiceMaxLength            : nat;
@@ -187,16 +182,44 @@ type governanceUpdateConfigParamsType is [@layout:comb] record [
     updateConfigAction      : governanceUpdateConfigActionType;
 ]
 
-type updateProposalDataType is [@layout:comb] record [
-    proposalId              : actionIdType;
+type updateProposalDataSetType is [@layout:comb] record [
     title                   : string;
-    proposalBytes           : bytes;
+    encodedCode             : bytes;
+    code                    : option(string);
+    index                   : option(nat);
 ]
 
-type updatePaymentDataType is [@layout:comb] record [
-    proposalId              : actionIdType;
+type updateProposalDataVariantType is 
+        AddOrSetProposalData    of updateProposalDataSetType
+    |   RemoveProposalData      of nat
+
+type updateProposalDataType is list(updateProposalDataVariantType);
+
+type updatePaymentDataSetType is [@layout:comb] record [
     title                   : string;
-    paymentTransaction      : transferDestinationType;
+    transaction             : transferDestinationType;
+    index                   : option(nat);
+]
+
+type updatePaymentDataVariantType is 
+        AddOrSetPaymentData     of updatePaymentDataSetType
+    |   RemovePaymentData       of nat
+
+type updatePaymentDataType is list(updatePaymentDataVariantType);
+
+type updateProposalType is [@layout:comb] record [
+    proposalId              : actionIdType;
+    proposalData            : option(updateProposalDataType);
+    paymentData             : option(updatePaymentDataType);
+]
+
+type newProposalType is [@layout:comb] record [
+    title               : string;
+    description         : string;
+    invoice             : string; 
+    sourceCode          : string;
+    proposalData        : option(updateProposalDataType);
+    paymentData         : option(updatePaymentDataType);
 ]
 
 type setContractAdminType is [@layout:comb] record [
@@ -251,8 +274,7 @@ type governanceLambdaActionType is
     |   LambdaStartNextRound                        of (bool)
     |   LambdaPropose                               of newProposalType
     |   LambdaProposalRoundVote                     of actionIdType
-    |   LambdaUpdateProposalData                    of updateProposalDataType
-    |   LambdaUpdatePaymentData                     of updatePaymentDataType
+    |   LambdaUpdateProposalData                    of updateProposalType
     |   LambdaLockProposal                          of actionIdType
     |   LambdaVotingRoundVote                       of votingRoundVoteType
     |   LambdaExecuteProposal                       of actionIdType
