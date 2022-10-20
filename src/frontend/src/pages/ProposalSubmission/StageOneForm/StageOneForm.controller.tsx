@@ -46,7 +46,7 @@ export const StageOneForm = ({
   const [formInputStatus, setFormInputStatus] = useState<SubmitProposalFormInputStatus>(DEFAULT_INPUT_STATUSES)
 
   const isProposalRound = currentRound === 'PROPOSAL'
-  const isProposalSubmitted = proposalId !== -1
+  const isProposalSubmitted = proposalId >= 0
   const disabled = !isProposalRound || isProposalSubmitted
 
   const handleOnBlur = (

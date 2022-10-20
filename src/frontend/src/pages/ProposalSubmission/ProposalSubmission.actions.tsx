@@ -37,16 +37,8 @@ export const submitProposal =
         form: form,
       })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-
-      const proposalName = form.title
-      const proposalDesc = form.description
-      const proposalIpfs = form.ipfs
-      const proposalSourceCode = form.sourceCode
-
-      const transaction = await contract?.methods
-        .propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode)
-        .send({ amount })
-      console.log('transaction', transaction)
+      const { title, description, ipfs, sourceCode } = form
+      const transaction = await contract?.methods.propose(title, description, ipfs, sourceCode).send({ amount })
 
       await dispatch(showToaster(INFO, 'Submitting proposal...', 'Please wait 30s'))
 
@@ -73,6 +65,7 @@ export const submitProposal =
     }
   }
 
+//TODO: this action will be rebuild after Tristan chnages
 export const PROPOSAL_UPDATE_REQUEST = 'PROPOSAL_UPDATE_REQUEST'
 export const PROPOSAL_UPDATE_RESULT = 'PROPOSAL_UPDATE_RESULT'
 export const PROPOSAL_UPDATE_ERROR = 'PROPOSAL_UPDATE_ERROR'
@@ -136,6 +129,7 @@ export const updateProposal =
     }
   }
 
+//TODO: this action will be rebuild after Tristan chnages
 export const PROPOSAL_DELETE_REQUEST = 'PROPOSAL_DELETE_REQUEST'
 export const PROPOSAL_DELETE_RESULT = 'PROPOSAL_DELETE_RESULT'
 export const PROPOSAL_DELETE_ERROR = 'PROPOSAL_DELETE_ERROR'
@@ -169,9 +163,7 @@ export const deleteProposalDataPair =
       console.log('done', done)
       await dispatch(showToaster(SUCCESS, 'Delete proposal Bype Pair updated.', 'All good :)'))
 
-      await dispatch({
-        type: PROPOSAL_DELETE_RESULT,
-      })
+      await dispatch({ type: PROPOSAL_DELETE_RESULT })
 
       await dispatch(getGovernanceStorage())
       await dispatch(getDelegationStorage())
@@ -210,19 +202,12 @@ export const lockProposal = (proposalId: number) => async (dispatch: AppDispatch
       proposalId: proposalId,
     })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-    console.log('contract', contract)
-
     const transaction = await contract?.methods.lockProposal(proposalId).send()
-    console.log('transaction', transaction)
     await dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
+    await transaction?.confirmation()
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
-
-    await dispatch({
-      type: LOCK_PROPOSAL_RESULT,
-    })
+    dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
+    dispatch({ type: LOCK_PROPOSAL_RESULT })
     await dispatch(getGovernanceStorage())
     await dispatch(getDelegationStorage())
     await dispatch(getCurrentRoundProposals())
@@ -238,6 +223,7 @@ export const lockProposal = (proposalId: number) => async (dispatch: AppDispatch
   }
 }
 
+//TODO: this action will be rebuild after Tristan chnages
 export const SUBMIT_FINANCIAL_DATA_REQUEST = 'SUBMIT_FINANCIAL_DATA_REQUEST'
 export const SUBMIT_FINANCIAL_DATA_RESULT = 'SUBMIT_FINANCIAL_DATA_RESULT'
 export const SUBMIT_FINANCIAL_DATA_ERROR = 'SUBMIT_FINANCIAL_DATA_ERROR'
@@ -350,17 +336,11 @@ export const dropProposal = (proposalId: number) => async (dispatch: AppDispatch
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-
     const transaction = await contract?.methods.dropProposal(proposalId).send()
-    console.log('transaction', transaction)
-
     await dispatch(showToaster(INFO, 'Drop proposal...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Proposal Droped.', 'All good :)'))
-
-    await dispatch({
+    await transaction?.confirmation()
+    dispatch(showToaster(SUCCESS, 'Proposal Droped.', 'All good :)'))
+    dispatch({
       type: DROP_PROPOSAL_RESULT,
     })
     await dispatch(getGovernanceStorage())
@@ -378,7 +358,7 @@ export const dropProposal = (proposalId: number) => async (dispatch: AppDispatch
   }
 }
 
-// Delete Payment Data
+// Delete Payment Data TODO: this action will be rebuild after Tristan chnages
 export const DELETE_PAYMENT_DATA_REQUEST = 'DELETE_PAYMENT_DATA_REQUEST'
 export const DELETE_PAYMENT_DATA_RESULT = 'DELETE_PAYMENT_DATA_RESULT'
 export const DELETE_PAYMENT_DATA_ERROR = 'DELETE_PAYMENT_DATA_ERROR'
