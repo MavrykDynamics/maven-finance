@@ -75,7 +75,9 @@ export const ProposalSubmission = () => {
       if (proposalId === -1 && !proposalState[-1]) {
         setProposalsState({
           ...proposalState,
-          [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL,
+          ...(proposalState[DEFAULT_PROPOSAL.id]
+            ? { [DEFAULT_PROPOSAL.id - 1]: DEFAULT_PROPOSAL }
+            : { [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL }),
         })
       }
     },
@@ -99,11 +101,11 @@ export const ProposalSubmission = () => {
     dispatch(lockProposal(proposalId))
   }
 
-  // Drop proposal on stage 2 handler
   const handleDropProposal = async (proposalId: number) => {
     if (proposalId && proposalId !== -1) await dispatch(dropProposal(proposalId))
   }
 
+  // if user removed all his submitted proposals, show him create proposal tab with empty proposal form to fill up
   useEffect(() => {
     setProposalsState(
       proposalKeys.length
@@ -112,7 +114,8 @@ export const ProposalSubmission = () => {
             [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL,
           },
     )
-  }, [mappedProposals])
+    setSeletedUserProposalId(DEFAULT_PROPOSAL.id)
+  }, [mappedProposals, proposalKeys])
 
   // TODO: remove log, need it while Tristan won't update backEnd side of saving proposals
   console.log('proposalState parent el:', proposalState, selectedUserProposalId)

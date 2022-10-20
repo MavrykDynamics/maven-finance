@@ -52,8 +52,8 @@ export const StageTwoForm = ({
     }
     setBytesValidation(
       proposalData.map(({ id, title, bytes }) => ({
-        validTitle: proposalId !== -1 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
-        validBytes: getBytesPairValidationStatus(bytes, 'validBytes', id, proposalData),
+        validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
+        validBytes: proposalId >= 0 ? getBytesPairValidationStatus(bytes, 'validBytes', id, proposalData) : '',
         proposalId: id,
       })),
     )
