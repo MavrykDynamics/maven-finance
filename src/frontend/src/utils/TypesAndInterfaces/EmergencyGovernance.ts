@@ -50,3 +50,4 @@ export interface EmergencyGovernanceProposalRecord {
 export type EmergencyGovernanceGraphQl = Omit<Emergency_Governance, '__typename'>
 
 export type EmergencyGovernanceStorage = ReturnType<typeof normalizeEmergencyGovernance>
+export type EmergergencyGovernanceItem = EmergencyGovernanceStorage['emergencyGovernanceLedger'][number]

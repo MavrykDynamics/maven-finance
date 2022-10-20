@@ -8,6 +8,7 @@ export const SECONDARY = 'secondary'
 export const TRANSPARENT = 'transparent'
 export const ACTION_PRIMARY = 'actionPrimary'
 export const ACTION_SECONDARY = 'actionSecondary'
+export const ACTION_SIMPLE = 'actionSimple'
 export type ButtonStyle =
   | typeof PRIMARY
   | typeof SECONDARY
@@ -17,4 +18,5 @@ export type ButtonStyle =
   | 'votingAbstain'
   | typeof ACTION_PRIMARY
   | typeof ACTION_SECONDARY
+  | typeof ACTION_SIMPLE
   | undefined

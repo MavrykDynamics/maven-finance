@@ -1,5 +1,4 @@
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
-import type { ProposalDataType } from '../../utils/TypesAndInterfaces/Governance'
 
 /**
  * Types for forms
@@ -10,7 +9,6 @@ import type { ProposalDataType } from '../../utils/TypesAndInterfaces/Governance
 export type AllValidFormTypes =
   | ValidSubmitProposalForm
   | ValidProposalUpdateForm
-  | ValidFinancialRequestForm
   | ValidRegisterAsSatelliteForm
   | ValidEmergencyGovernanceProposalForm
   | ValidStakeUnstakeForm
@@ -19,9 +17,7 @@ export type SubmitProposalForm = {
   title: string
   description: string
   ipfs: string
-  successMVKReward: number
-  invoiceTable: string
-  sourceCodeLink: string
+  sourceCode: string
 }
 
 export type ValidSubmitProposalForm = {
@@ -30,7 +26,7 @@ export type ValidSubmitProposalForm = {
   ipfs: boolean | undefined
   successMVKReward: boolean | undefined
   invoiceTable: boolean | undefined
-  sourceCodeLink: boolean | undefined
+  sourceCode: boolean | undefined
 }
 
 export type SubmitProposalFormInputStatus = {
@@ -39,7 +35,7 @@ export type SubmitProposalFormInputStatus = {
   ipfs: InputStatusType
   successMVKReward: InputStatusType
   invoiceTable: InputStatusType
-  sourceCodeLink: InputStatusType
+  sourceCode: InputStatusType
 }
 
 export type ProposalBytesType = {
@@ -48,21 +44,6 @@ export type ProposalBytesType = {
   data: string
 }
 
-export type ProposalUpdateFormProposalBytes = {
-  validTitle: InputStatusType
-  validBytes: InputStatusType
-  bytes: string
-  governance_proposal_record_id: number
-  id: number
-  record_internal_id: number
-  title: string
-  order: number
-}
-
-export type ProposalUpdateForm = {
-  title: string
-  proposalBytes: ProposalUpdateFormProposalBytes[]
-}
 export type ValidProposalUpdateForm = {
   title: boolean | undefined
   proposalBytes: boolean | undefined
@@ -74,18 +55,16 @@ export type ProposalUpdateFormInputStatus = {
 }
 
 export type ProposalFinancialRequestForm = {
-  title: string
   financialData: {
     jsonString: string
   }
 }
-export type ValidFinancialRequestForm = {
-  financialData: boolean | undefined
-}
 
-export type ProposalFinancialRequestInputStatus = {
-  financialData: InputStatusType
-}
+export type SubmitProposalStageThreeValidation = Array<{
+  token_amount: InputStatusType
+  to__id: InputStatusType
+  title: InputStatusType
+}>
 
 export type RegisterAsSatelliteForm = {
   name: string
