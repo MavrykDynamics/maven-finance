@@ -18,8 +18,6 @@ async def on_aggregator_factory_create_aggregator(
     # Get operation info
     aggregator_address                          = aggregator_origination.data.originated_contract_address
     aggregator_factory_address                  = create_aggregator.data.target_address
-    token_0_symbol                              = create_aggregator.parameter.string_0
-    token_1_symbol                              = create_aggregator.parameter.string_1
     admin                                       = aggregator_origination.storage.admin
     governance_address                          = aggregator_origination.storage.governanceAddress
     creation_timestamp                          = aggregator_origination.data.timestamp
@@ -74,8 +72,6 @@ async def on_aggregator_factory_create_aggregator(
             address     = governance_address
         )
         existing_aggregator         = await models.Aggregator.get_or_none(
-            token_0_symbol      = token_0_symbol,
-            token_1_symbol      = token_1_symbol,
             factory             = aggregator_factory
         )
         if existing_aggregator:
@@ -86,8 +82,6 @@ async def on_aggregator_factory_create_aggregator(
         )
         aggregator.governance                                   = governance
         aggregator.admin                                        = admin
-        aggregator.token_0_symbol                               = token_0_symbol
-        aggregator.token_1_symbol                               = token_1_symbol
         aggregator.factory                                      = aggregator_factory
         aggregator.creation_timestamp                           = creation_timestamp
         aggregator.name                                         = name

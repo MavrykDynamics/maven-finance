@@ -10,6 +10,7 @@ async def on_lending_controller_repay(
     ctx: HandlerContext,
     repay: Transaction[RepayParameter, LendingControllerStorage],
 ) -> None:
+
     # Get operation info
     lending_controller_address              = repay.data.target_address
     vault_internal_id                       = int(repay.parameter.vaultId)
@@ -56,10 +57,6 @@ async def on_lending_controller_repay(
             vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
 
             # Save updated vault
-            lending_controller_vault                = await models.LendingControllerVault.get(
-                lending_controller  = lending_controller,
-                internal_id         = vault_internal_id
-            )
             lending_controller_vault.internal_id                        = vault_internal_id
             lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
             lending_controller_vault.loan_principal_total               = vault_loan_principal_total

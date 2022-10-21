@@ -10,8 +10,6 @@ class Aggregator(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregators', null=True)
     factory                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True, index=True)
-    token_0_symbol                          = fields.CharField(default='', max_length=36, index=True)
-    token_1_symbol                          = fields.CharField(default='', max_length=36, index=True)
     name                                    = fields.TextField(default='')
     decimals                                = fields.SmallIntField(default=0)
     alpha_pct_per_thousand                  = fields.SmallIntField(default=0)

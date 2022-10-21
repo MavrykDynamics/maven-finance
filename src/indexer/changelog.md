@@ -4,14 +4,47 @@
 
 ### Deployment
 
-- DEV: 0.17
-- PROD: 0.17
+- DEV: 0.19
+- PROD: 0.18
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
-## Version 0.17
+## Version 0.19
+
+### What's new
+
+- GovernanceProposalData
+  - Column CodeDescription added
+- GovernancePaymentData
+  - Column TokenId added
+- GovernanceSatelliteOracleAggregator
+  - Table added
+
+### Breaking changes
+
+- Aggregator
+  - Token0Symbol and Token1Symbol columns removed
+- GovernanceProposalData
+  - RecordInternalId column renamed to InternalId
+  - Bytes column renamed to EncodedCode
+- GovernancePaymentData
+  - RecordInternalId column renamed to InternalId
+- GovernanceSatelliteAggregator
+  - Table removed entirely
+- GovernanceSatelliteAggregatorOracle
+  - Table removed entirely
+- GovernanceSatelliteSatelliteOracle
+  - Table renamed to GovernanceSatelliteOracle
+  - AggregatorsSubscribed column removed
+  - Oracle column related name renamed from governance_satellite_satellite_oracles to governance_satellite_oracles (relation GovernanceSatelliteOracle->MavrykUser)
+- GovernanceSatelliteSatelliteOracleAggregatorPair
+  - Table removed entirely
+- TokenSaleBuyOption
+  - BuyOptionInternalId column renamed to InternalId
+
+## Version 0.17/0.18
 
 ### What's new
 
