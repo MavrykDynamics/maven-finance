@@ -591,30 +591,6 @@ block {
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
 
-                // -----------------------
-                // Update Rewards
-                // ------------------------
-
-                // Make big map key - (userAddress, loanTokenName)
-                const userAddressLoanTokenKey : (address * string) = (initiator, loanTokenRecord.tokenName);
-
-                // Get user's token pool deposit balance 
-                const tokenPoolDepositorBalance : nat = case Big_map.find_opt(userAddressLoanTokenKey, s.tokenPoolDepositorLedger) of [
-                        Some(_record) -> _record
-                    |   None          -> 0n
-                ];
-
-                // Update token pool depositor ledger
-                s.tokenPoolDepositorLedger[userAddressLoanTokenKey] := tokenPoolDepositorBalance + amount;
-
-                // -----------------------
-                // Update Rewards
-                // ------------------------
-                
-                // N.B. update rewards based on user's current token pool deposit balance, and not the updated balance
-                const updateRewardsOperation : operation = updateRewardsOperation(initiator, loanTokenName, tokenPoolDepositorBalance, s);
-                operations := updateRewardsOperation # operations;
-
             }
         |   _ -> skip
     ];
@@ -692,32 +668,6 @@ block {
 
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
-
-                // -----------------------
-                // Update Rewards
-                // ------------------------
-
-                // Make big map key - (userAddress, loanTokenName)
-                const userAddressLoanTokenKey : (address * string) = (initiator, loanTokenRecord.tokenName);
-
-                // Get user's token pool deposit balance 
-                const tokenPoolDepositorBalance : nat = case Big_map.find_opt(userAddressLoanTokenKey, s.tokenPoolDepositorLedger) of [
-                        Some(_record) -> _record
-                    |   None          -> 0n
-                ];
-
-                // Update token pool depositor ledger
-                if amount > tokenPoolDepositorBalance then failwith(error_CANNOT_REMOVE_MORE_LIQUIDITY_THAN_BALANCE) else skip;
-                s.tokenPoolDepositorLedger[userAddressLoanTokenKey] := abs(tokenPoolDepositorBalance - amount);
-
-                // -----------------------
-                // Update Rewards
-                // ------------------------
-                
-                // N.B. update rewards based on user's current token pool deposit balance, and not the updated balance
-                const updateRewardsOperation : operation = updateRewardsOperation(initiator, loanTokenName, tokenPoolDepositorBalance, s);
-                operations := updateRewardsOperation # operations;
-
 
             }
         |   _ -> skip
@@ -1068,12 +1018,13 @@ block {
                 s := loanTokenRecordUpdated.1;
 
                 // Get loan token parameters
-                const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
-                const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
-                const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
-                const loanTokenDecimals : nat         = loanTokenRecord.tokenDecimals;
-                const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
-                const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
+                const tokenPoolTotal      : nat         = loanTokenRecord.tokenPoolTotal;
+                const totalBorrowed       : nat         = loanTokenRecord.totalBorrowed;
+                const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
+                const loanTokenDecimals   : nat         = loanTokenRecord.tokenDecimals;
+                const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
+                const tokenBorrowIndex    : nat         = loanTokenRecord.borrowIndex;
+                const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
 
                 // Get loan token price
                 const loanTokenLastCompletedData  : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
@@ -1361,10 +1312,10 @@ block {
                 // Calculate Fees from Interest
                 // ------------------------------------------------------------------
 
-                // Calculate share of interest that goes to the Treasury 
+                // Calculate amount of interest that goes to the Treasury 
                 const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-                // Calculate share of interest that goes to the Reward Pool 
+                // Calculate amount of interest that goes to the Reward Pool 
                 if interestSentToTreasury > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
                 const interestSentToRewardPool : nat = abs(totalInterestPaid - interestSentToTreasury);
 
@@ -1434,13 +1385,22 @@ block {
                 operations := transferLiquidationAmountOperation # operations;
 
                 // ------------------------------------------------------------------
+                // Update Loan Token Accumulated Rewards Per Share
+                // ------------------------------------------------------------------
+
+                // Calculate loan token accumulated rewards per share increment (1e6 * 1e27 / 1e6 -> 1e27)
+                const accRewardsPerShareIncrement  : nat = (interestSentToRewardPool * fixedPointAccuracy) / newTokenPoolTotal;
+                const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
+                
+                // ------------------------------------------------------------------
                 // Update Storage
                 // ------------------------------------------------------------------
 
                 // update token storage
-                loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
-                loanTokenRecord.totalBorrowed           := newTotalBorrowed;
-                loanTokenRecord.totalRemaining          := newTotalRemaining;
+                loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
+                loanTokenRecord.totalBorrowed               := newTotalBorrowed;
+                loanTokenRecord.totalRemaining              := newTotalRemaining;
+                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
@@ -1958,6 +1918,7 @@ block {
                 const tokenBorrowIndex    : nat         = loanTokenRecord.borrowIndex;
                 const minRepaymentAmount  : nat         = loanTokenRecord.minRepaymentAmount;
                 const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
+                const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
 
                 // check that minimum repayment amount is reached
                 if initialRepaymentAmount < minRepaymentAmount then failwith(error_MIN_REPAYMENT_AMOUNT_NOT_REACHED) else skip;
@@ -2063,12 +2024,12 @@ block {
                 if finalRepaymentAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
                 newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
 
-                // Calculate share of interest that goes to the Treasury 
-                const interestTreasuryShare : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                // Calculate amount of interest that goes to the Treasury 
+                const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
-                // Calculate share of interest that goes to the Reward Pool 
-                if interestTreasuryShare > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
-                const interestRewardPoolShare : nat = abs(totalInterestPaid - interestTreasuryShare);
+                // Calculate amount of interest that goes to the Reward Pool 
+                if interestSentToTreasury > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
+                const interestSentToRewardPool : nat = abs(totalInterestPaid - interestSentToTreasury);
 
                 // ------------------------------------------------------------------
                 // Process Interest Repayment - Fee Transfers
@@ -2078,7 +2039,7 @@ block {
                 const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
                     Tezos.get_self_address(),    // from_
                     treasuryAddress,             // to_
-                    interestTreasuryShare,       // amount
+                    interestSentToTreasury,      // amount
                     loanTokenType                // token type
                 );
 
@@ -2086,7 +2047,7 @@ block {
                 const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
                     Tezos.get_self_address(),    // from_   
                     tokenPoolRewardAddress,      // to_
-                    interestRewardPoolShare,     // amount
+                    interestSentToRewardPool,    // amount
                     loanTokenType                // token type
                 );
 
@@ -2140,13 +2101,22 @@ block {
                 } else skip;
 
                 // ------------------------------------------------------------------
+                // Update Loan Token Accumulated Rewards Per Share
+                // ------------------------------------------------------------------
+
+                // Calculate loan token accumulated rewards per share increment (1e6 * 1e27 / 1e6 -> 1e27)
+                const accRewardsPerShareIncrement  : nat = (interestSentToRewardPool * fixedPointAccuracy) / newTokenPoolTotal;
+                const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
+
+                // ------------------------------------------------------------------
                 // Update Storage
                 // ------------------------------------------------------------------
 
                 // update token storage
-                loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
-                loanTokenRecord.totalBorrowed           := newTotalBorrowed;
-                loanTokenRecord.totalRemaining          := newTotalRemaining;
+                loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
+                loanTokenRecord.totalBorrowed               := newTotalBorrowed;
+                loanTokenRecord.totalRemaining              := newTotalRemaining;
+                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
