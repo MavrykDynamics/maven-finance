@@ -210,8 +210,8 @@ export const Council = () => {
                 {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
                 {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember {...councilMemberMaxLength} /> : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
-                {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee /> : null}
-                {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
+                {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee councilMemberAddressMaxLength={councilMemberMaxLength.councilMemberAddressMaxLength} /> : null}
+                {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock councilMemberAddressMaxLength={councilMemberMaxLength.councilMemberAddressMaxLength} /> : null}
                 {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember {...councilMemberMaxLength} /> : null}
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
                 {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
