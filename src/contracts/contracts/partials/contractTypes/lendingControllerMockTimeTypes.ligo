@@ -71,8 +71,6 @@ type lendingControllerBreakGlassConfigType is record [
 ]
 
 
-type tokenPoolDepositorLedgerType is big_map((address * string), nat)   // key - user address and token name e.g. USDT, EURL, value - amount
-
 
 type collateralTokenRecordType is [@layout:comb] record [
     tokenName               : string;
@@ -423,9 +421,6 @@ type lendingControllerStorageType is [@layout:comb] record [
     whitelistContracts          : whitelistContractsType;       // can be used for vaults whitelist contracts as well
     generalContracts            : generalContractsType;
     whitelistTokenContracts     : whitelistTokenContractsType;      
-
-    // token pool
-    tokenPoolDepositorLedger    : tokenPoolDepositorLedgerType;
 
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);

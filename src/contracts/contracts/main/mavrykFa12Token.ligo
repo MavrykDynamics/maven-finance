@@ -12,7 +12,7 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// LP Token Types
+// FA12 Token Types
 #include "../partials/contractTypes/mavrykFa12TokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
@@ -366,7 +366,7 @@ block {
 function mintOrBurn(const mintOrBurnParams: mintOrBurnType; var s : mavrykFa12TokenStorageType) : return is
 block {
 
-    // check sender is from cfmm contract
+    // check sender is whitelisted
     if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     const quantity        : int       = mintOrBurnParams.quantity;

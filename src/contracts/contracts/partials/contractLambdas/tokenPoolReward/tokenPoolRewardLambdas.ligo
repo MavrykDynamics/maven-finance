@@ -212,7 +212,7 @@ function lambdaUpdateRewards(const tokenPoolRewardLambdaAction : tokenPoolReward
 block {
 
     checkNoAmount(Unit);                       // entrypoint should not receive any tez amount    
-    checkSenderIsLendingControllerContract(s); // check that sender is Lending Controller contract
+    checkSenderIsValidLpToken(s);              // check that sender is a valid LP Token contract address (must be linked to a Loan Token record on the Lending Controller)
     checkUpdateRewardsIsNotPaused(s);          // check that %updaRetewards entrypoint is not paused (e.g. if glass broken)
 
     var operations : list(operation) := nil;
@@ -220,35 +220,44 @@ block {
     case tokenPoolRewardLambdaAction of [
         |   LambdaUpdateRewards(updateRewardsParams) -> {
 
-                // init parameters
-                const loanTokenName     : string  = updateRewardsParams.loanTokenName;
-                const userAddress       : address = updateRewardsParams.userAddress;
-                const depositorBalance  : nat     = updateRewardsParams.depositorBalance;
+                const updateRewardsList : list(updateUserRewardsType) = updateRewardsParams;
 
-                // Make big map key - (userAddress, loanTokenName)
-                const userTokenNameKey : (address * string) = (userAddress, loanTokenName);
+                function updateUserRewards(var accumulator : tokenPoolRewardStorageType; const userReward : updateUserRewardsType) : tokenPoolRewardStorageType is
+                block {
 
-                // Get loan token record from lending controller and accumulated rewards per share
-                const loanTokenRecord : loanTokenRecordType = getLoanTokenRecordFromLendingController(loanTokenName, s);
-                const loanTokenAccumulatedRewardsPerShare : nat = loanTokenRecord.accumulatedRewardsPerShare;            
+                    // init parameters
+                    const loanTokenName     : string  = userReward.loanTokenName;
+                    const userAddress       : address = userReward.userAddress;
+                    const depositorBalance  : nat     = userReward.depositorBalance;
 
-                // Get or create user's rewards record
-                var userRewardsRecord : rewardsRecordType := getOrCreateUserRewardsRecord(userTokenNameKey, loanTokenAccumulatedRewardsPerShare, s);
-                const userRewardsPerShare : nat = userRewardsRecord.rewardsPerShare;            
+                    // Make big map key - (userAddress, loanTokenName)
+                    const userTokenNameKey : (address * string) = (userAddress, loanTokenName);
 
-                // Calculate user's accrued rewards - i.e. new unclaimed rewards
-                // - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
-                // - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
-                
-                const accruedRewards      : nat = calculateAccruedRewards(depositorBalance, userRewardsPerShare, loanTokenAccumulatedRewardsPerShare);
+                    // Get loan token record from lending controller and accumulated rewards per share
+                    const loanTokenRecord : loanTokenRecordType = getLoanTokenRecordFromLendingController(loanTokenName, accumulator);
+                    const loanTokenAccumulatedRewardsPerShare : nat = loanTokenRecord.accumulatedRewardsPerShare;            
 
-                // Update user's rewards record 
-                // - set rewardsPerShare to token's accumulatedRewardsPerShare
-                // - increment user's unpaid rewards by the calculated rewards
+                    // Get or create user's rewards record
+                    var userRewardsRecord : rewardsRecordType := getOrCreateUserRewardsRecord(userTokenNameKey, loanTokenAccumulatedRewardsPerShare, accumulator);
+                    const userRewardsPerShare : nat = userRewardsRecord.rewardsPerShare;            
 
-                userRewardsRecord.rewardsPerShare   := loanTokenAccumulatedRewardsPerShare;
-                userRewardsRecord.unpaid            := userRewardsRecord.unpaid + accruedRewards;
-                s.rewardsLedger[userTokenNameKey]   := userRewardsRecord;
+                    // Calculate user's accrued rewards - i.e. new unclaimed rewards
+                    // - calculate rewards ratio: difference between token's accumulatedRewardsPerShare and user's current rewardsPerShare
+                    // - user's new rewards is equal to his deposited liquitity amount multiplied by rewards ratio
+                    
+                    const accruedRewards : nat = calculateAccruedRewards(depositorBalance, userRewardsPerShare, loanTokenAccumulatedRewardsPerShare);
+
+                    // Update user's rewards record 
+                    // - set rewardsPerShare to token's accumulatedRewardsPerShare
+                    // - increment user's unpaid rewards by the calculated rewards
+
+                    userRewardsRecord.rewardsPerShare             := loanTokenAccumulatedRewardsPerShare;
+                    userRewardsRecord.unpaid                      := userRewardsRecord.unpaid + accruedRewards;
+                    accumulator.rewardsLedger[userTokenNameKey]   := userRewardsRecord;
+
+                } with accumulator;
+
+                s := List.fold(updateUserRewards, updateRewardsList, s);
 
             }
         |   _ -> skip

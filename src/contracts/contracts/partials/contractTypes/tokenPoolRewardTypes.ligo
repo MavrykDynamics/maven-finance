@@ -41,11 +41,13 @@ type tokenPoolRewardTogglePauseEntrypointType is [@layout:comb] record [
 ];
 
 
-type updateRewardsActionType is [@layout:comb] record [
+type updateUserRewardsType is [@layout:comb] record [
     loanTokenName     : string;
     userAddress       : address; 
     depositorBalance  : nat; 
 ]
+
+type updateRewardsActionType is list(updateUserRewardsType)
 
 type claimRewardsActionType is [@layout:comb] record [
     userAddress : address; 
