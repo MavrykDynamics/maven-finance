@@ -62,8 +62,7 @@ export const Council = () => {
   const { councilMembers } = councilStorage
 
   const councilMemberMaxLength = {
-    councilMemberAddressMaxLendth: accountPkh?.length,
-    councilMemberImageMaxLength: councilStorage.councilMemberImageMaxLength,
+    councilMemberAddressMaxLength: accountPkh?.length || 0,
     councilMemberNameMaxLength: councilStorage.councilMemberNameMaxLength,
     councilMemberWebsiteMaxLength: councilStorage.councilMemberWebsiteMaxLength,
   }
@@ -213,7 +212,7 @@ export const Council = () => {
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
                 {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee /> : null}
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
-                {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember /> : null}
+                {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember {...councilMemberMaxLength} /> : null}
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
                 {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
                 {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens /> : null}
@@ -271,7 +270,7 @@ export const Council = () => {
       </CouncilStyled>
       {isUpdateCouncilMemberInfo ? (
         <ModalPopup width={750} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
-          <CouncilFormUpdateCouncilMemberInfo />
+          <CouncilFormUpdateCouncilMemberInfo {...councilMemberMaxLength} />
         </ModalPopup>
       ) : null}
     </Page>

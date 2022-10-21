@@ -3,11 +3,6 @@ import type { Council, Council_Action } from '../generated/graphqlTypes'
 
 import { noralizeCouncilStorage } from '../../pages/Council/Council.helpers'
 
-type CouncilConfig = {
-  threshold: number
-  actionExpiryDays: number
-}
-
 export type CouncilActionSigner = {
   signerId: string
   id: number
@@ -40,7 +35,7 @@ export type CouncilGraphQL = Omit<Council, '__typename'>
 export type CouncilActionRecordhQL = Omit<Council_Action, '__typename'>
 
 export type CouncilMemberMaxLength = {
-  councilMemberImageMaxLength: number
+  councilMemberAddressMaxLength: number
   councilMemberNameMaxLength: number
   councilMemberWebsiteMaxLength: number
 }
