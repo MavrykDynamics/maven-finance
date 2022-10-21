@@ -960,45 +960,43 @@
 [@inline] const error_ORACLE_INFORMATION_NOT_FOUND                                                                      = 692n;
 [@inline] const error_AGGREGATOR_NEW_STATUS_NOT_FOUND                                                                   = 693n;
 [@inline] const error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND                                               = 694n;
-[@inline] const error_WRONG_AGGREGATOR_ADDRESS_PROVIDED                                                                 = 695n;
-[@inline] const error_SATELLITE_AGGREGATORS_SUBSCRIBED_CALCULATION_ERROR                                                = 696n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
-[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                   = 697n;
-[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                              = 698n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                             = 699n;
-[@inline] const error_UPDATE_CONFIG_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                               = 700n;
-[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                  = 701n;
-[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                    = 702n;
-[@inline] const error_SUSPEND_SATELLITE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                           = 703n;
-[@inline] const error_BAN_SATELLITE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                               = 704n;
-[@inline] const error_RESTORE_SATELLITE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                           = 705n;
-[@inline] const error_REMOVE_ALL_SATELLITE_ORACLES_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                = 706n;
-[@inline] const error_ADD_ORACLE_TO_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                    = 707n;
-[@inline] const error_REMOVE_ORACLE_IN_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                 = 708n;
-[@inline] const error_REGISTER_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                         = 709n;
-[@inline] const error_SET_AGGREGATOR_REFERENCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                    = 710n;
-[@inline] const error_FIX_MISTAKEN_TRANSFER_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                       = 711n;
-[@inline] const error_DROP_ACTION_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                 = 712n;
-[@inline] const error_VOTE_FOR_ACTION_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                             = 713n;
-[@inline] const error_SET_LAMBDA_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                  = 714n;
-[@inline] const error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                           = 715n;
+[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                   = 695n;
+[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                              = 696n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                             = 697n;
+[@inline] const error_UPDATE_CONFIG_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                               = 698n;
+[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                  = 699n;
+[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                    = 700n;
+[@inline] const error_SUSPEND_SATELLITE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                           = 701n;
+[@inline] const error_BAN_SATELLITE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                               = 702n;
+[@inline] const error_RESTORE_SATELLITE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                           = 703n;
+[@inline] const error_REMOVE_ALL_SATELLITE_ORACLES_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                = 704n;
+[@inline] const error_ADD_ORACLE_TO_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                    = 705n;
+[@inline] const error_REMOVE_ORACLE_IN_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                 = 706n;
+[@inline] const error_REGISTER_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                         = 707n;
+[@inline] const error_SET_AGGREGATOR_REFERENCE_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                    = 708n;
+[@inline] const error_FIX_MISTAKEN_TRANSFER_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                       = 709n;
+[@inline] const error_DROP_ACTION_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                 = 710n;
+[@inline] const error_VOTE_FOR_ACTION_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                             = 711n;
+[@inline] const error_SET_LAMBDA_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                  = 712n;
+[@inline] const error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                           = 713n;
 
 // VIEWS NOT FOUND ERRORS
-[@inline] const error_GET_ADMIN_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                         = 716n;
-[@inline] const error_GET_CONFIG_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                        = 717n;
-[@inline] const error_GET_GOVERNANCE_ADDRESS_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                            = 718n;
-[@inline] const error_GET_WHITELIST_CONTRACTS_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                           = 719n;
-[@inline] const error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                             = 720n;
-[@inline] const error_GET_GOVERNANCE_SATELLITE_ACTION_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND               = 721n;
-[@inline] const error_GET_GOVERNANCE_SATELLITE_ACTION_COUNTER_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND           = 722n;
-[@inline] const error_GET_GOVERNANCE_SATELLITE_VOTER_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                = 723n;
-[@inline] const error_GET_ACTIONS_INITATOR_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                          = 724n;
-[@inline] const error_GET_GOVERNANCE_CYCLE_SNAPSHOT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                     = 725n;
-[@inline] const error_GET_SATELLITE_ORACLE_RECORD_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                   = 726n;
-[@inline] const error_GET_AGGREGATOR_RECORD_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                         = 727n;
-[@inline] const error_GET_LAMBDA_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                    = 728n;
-[@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                 = 729n;
+[@inline] const error_GET_ADMIN_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                         = 714n;
+[@inline] const error_GET_CONFIG_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                        = 715n;
+[@inline] const error_GET_GOVERNANCE_ADDRESS_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                            = 716n;
+[@inline] const error_GET_WHITELIST_CONTRACTS_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                           = 717n;
+[@inline] const error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                             = 718n;
+[@inline] const error_GET_GOVERNANCE_SATELLITE_ACTION_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND               = 719n;
+[@inline] const error_GET_GOVERNANCE_SATELLITE_ACTION_COUNTER_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND           = 720n;
+[@inline] const error_GET_GOVERNANCE_SATELLITE_VOTER_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                = 721n;
+[@inline] const error_GET_ACTIONS_INITATOR_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                          = 722n;
+[@inline] const error_GET_GOVERNANCE_CYCLE_SNAPSHOT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                     = 723n;
+[@inline] const error_GET_SATELLITE_ORACLE_RECORD_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                   = 724n;
+[@inline] const error_GET_AGGREGATOR_RECORD_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                         = 725n;
+[@inline] const error_GET_LAMBDA_OPT_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                    = 726n;
+[@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                 = 727n;
 
 
 
@@ -1008,48 +1006,48 @@
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_MVK_PAY_AMOUNT_NOT_MET                                                                            = 730n;
-[@inline] const error_MIN_MVK_AMOUNT_NOT_REACHED                                                                        = 731n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                                                                        = 732n;
-[@inline] const error_TOKEN_SALE_HAS_ENDED                                                                              = 733n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_ENDED                                                                          = 734n;
-[@inline] const error_TOKEN_SALE_IS_PAUSED                                                                              = 735n;
-[@inline] const error_TOKEN_SALE_IS_NOT_PAUSED                                                                          = 736n;
-[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                                                                    = 737n;
-[@inline] const error_USER_IS_NOT_WHITELISTED                                                                           = 738n;
-[@inline] const error_MAX_AMOUNT_WHITELIST_WALLET_EXCEEDED                                                              = 739n;
-[@inline] const error_MIN_AMOUNT_NOT_REACHED                                                                            = 740n;
-[@inline] const error_MAX_AMOUNT_CLAIMED                                                                                = 741n;
-[@inline] const error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                                                              = 742n;
-[@inline] const error_MAX_AMOUNT_CAP_EXCEEDED                                                                           = 743n;
-[@inline] const error_BUY_OPTION_NOT_FOUND                                                                              = 744n;
-[@inline] const error_USER_TOKEN_SALE_RECORD_NOT_FOUND                                                                  = 745n;
+[@inline] const error_MVK_PAY_AMOUNT_NOT_MET                                                                            = 728n;
+[@inline] const error_MIN_MVK_AMOUNT_NOT_REACHED                                                                        = 729n;
+[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                                                                        = 730n;
+[@inline] const error_TOKEN_SALE_HAS_ENDED                                                                              = 731n;
+[@inline] const error_TOKEN_SALE_HAS_NOT_ENDED                                                                          = 732n;
+[@inline] const error_TOKEN_SALE_IS_PAUSED                                                                              = 733n;
+[@inline] const error_TOKEN_SALE_IS_NOT_PAUSED                                                                          = 734n;
+[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                                                                    = 735n;
+[@inline] const error_USER_IS_NOT_WHITELISTED                                                                           = 736n;
+[@inline] const error_MAX_AMOUNT_WHITELIST_WALLET_EXCEEDED                                                              = 737n;
+[@inline] const error_MIN_AMOUNT_NOT_REACHED                                                                            = 738n;
+[@inline] const error_MAX_AMOUNT_CLAIMED                                                                                = 739n;
+[@inline] const error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                                                              = 740n;
+[@inline] const error_MAX_AMOUNT_CAP_EXCEEDED                                                                           = 741n;
+[@inline] const error_BUY_OPTION_NOT_FOUND                                                                              = 742n;
+[@inline] const error_USER_TOKEN_SALE_RECORD_NOT_FOUND                                                                  = 743n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
-[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                             = 746n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                       = 747n;
-[@inline] const error_UPDATE_CONFIG_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                         = 748n;
-[@inline] const error_SET_WHITELIST_DATETIME_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                = 749n;
-[@inline] const error_ADD_TO_WHITELIST_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                      = 750n;
-[@inline] const error_REMOVE_FROM_WHITELIST_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                 = 751n;
-[@inline] const error_START_SALE_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 752n;
-[@inline] const error_CLOSE_SALE_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 753n;
-[@inline] const error_PAUSE_SALE_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 754n;
-[@inline] const error_BUY_TOKENS_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 755n;
-[@inline] const error_CLAIM_TOKENS_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                          = 756n;
+[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                             = 744n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                       = 745n;
+[@inline] const error_UPDATE_CONFIG_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                         = 746n;
+[@inline] const error_SET_WHITELIST_DATETIME_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                = 747n;
+[@inline] const error_ADD_TO_WHITELIST_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                      = 748n;
+[@inline] const error_REMOVE_FROM_WHITELIST_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                 = 749n;
+[@inline] const error_START_SALE_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 750n;
+[@inline] const error_CLOSE_SALE_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 751n;
+[@inline] const error_PAUSE_SALE_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 752n;
+[@inline] const error_BUY_TOKENS_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 753n;
+[@inline] const error_CLAIM_TOKENS_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                          = 754n;
 
 // VIEWS NOT FOUND ERRORS
-[@inline] const error_GET_ADMIN_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                                   = 757n;
-[@inline] const error_GET_CONFIG_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                                  = 758n;
-[@inline] const error_GET_TREASURY_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                        = 759n;
-[@inline] const error_GET_WHITELISTED_ADDRESS_OPT_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                 = 760n;
-[@inline] const error_GET_TOKEN_SALE_RECORD_OPT_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                   = 761n;
-[@inline] const error_GET_WHITELIST_START_TIMESTAMP_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                               = 762n;
-[@inline] const error_GET_WHITELIST_END_TIMESTAMP_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                 = 763n;
-[@inline] const error_GET_TOKEN_SALE_HAS_STARTED_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                  = 764n;
-[@inline] const error_GET_TOKEN_SALE_HAS_ENDED_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                    = 765n;
-[@inline] const error_GET_TOKEN_SALE_END_TIMESTAMP_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                = 766n;
-[@inline] const error_GET_TOKEN_SALE_END_BLOCK_LEVEL_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                              = 767n;
+[@inline] const error_GET_ADMIN_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                                   = 755n;
+[@inline] const error_GET_CONFIG_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                                  = 756n;
+[@inline] const error_GET_TREASURY_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                        = 757n;
+[@inline] const error_GET_WHITELISTED_ADDRESS_OPT_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                 = 758n;
+[@inline] const error_GET_TOKEN_SALE_RECORD_OPT_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                   = 759n;
+[@inline] const error_GET_WHITELIST_START_TIMESTAMP_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                               = 760n;
+[@inline] const error_GET_WHITELIST_END_TIMESTAMP_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                 = 761n;
+[@inline] const error_GET_TOKEN_SALE_HAS_STARTED_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                  = 762n;
+[@inline] const error_GET_TOKEN_SALE_HAS_ENDED_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                    = 763n;
+[@inline] const error_GET_TOKEN_SALE_END_TIMESTAMP_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                = 764n;
+[@inline] const error_GET_TOKEN_SALE_END_BLOCK_LEVEL_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                              = 765n;
 
 // ------------------------------------------------------------------------------
 //
@@ -1057,8 +1055,8 @@
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND                                                          = 768n;
-[@inline] const error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED                                                       = 769n;
+[@inline] const error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND                                                          = 766n;
+[@inline] const error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED                                                       = 767n;
 
 
 // ------------------------------------------------------------------------------
@@ -1067,16 +1065,16 @@
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_TOKEN_POOL_CONTRACT_NOT_FOUND                                                                     = 770n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 771n;
-[@inline] const error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED                                                  = 772n;
+[@inline] const error_TOKEN_POOL_CONTRACT_NOT_FOUND                                                                     = 768n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 769n;
+[@inline] const error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED                                                  = 770n;
 
-[@inline] const error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                             = 773n;
-[@inline] const error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 774n;
-[@inline] const error_TOKEN_POOL_RESERVES_RATIO_NOT_MET                                                                 = 775n;
-[@inline] const error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT                                                             = 776n;
-[@inline] const error_DEPOSITOR_RECORD_NOT_FOUND                                                                        = 777n;
-[@inline] const error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 778n;
+[@inline] const error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                             = 771n;
+[@inline] const error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 772n;
+[@inline] const error_TOKEN_POOL_RESERVES_RATIO_NOT_MET                                                                 = 773n;
+[@inline] const error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT                                                             = 774n;
+[@inline] const error_DEPOSITOR_RECORD_NOT_FOUND                                                                        = 775n;
+[@inline] const error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 776n;
 
 
 
@@ -1087,13 +1085,13 @@
 // ------------------------------------------------------------------------------
 
 
-[@inline] const error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                                              = 779n;
-[@inline] const error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND                                                               = 780n;
+[@inline] const error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                                              = 777n;
+[@inline] const error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND                                                               = 778n;
 
-[@inline] const error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_PAUSED                                    = 781n;
-[@inline] const error_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_PAUSED                                     = 782n;
-[@inline] const error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                 = 783n;
-[@inline] const error_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                  = 784n;
+[@inline] const error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_PAUSED                                    = 779n;
+[@inline] const error_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_PAUSED                                     = 780n;
+[@inline] const error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                 = 781n;
+[@inline] const error_CLAIM_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                  = 782n;
 
 
 // ------------------------------------------------------------------------------
@@ -1102,28 +1100,28 @@
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT                                                              = 785n;
-[@inline] const error_NOT_AUTHORISED_TO_WITHDRAW_FROM_VAULT                                                             = 786n;
-[@inline] const error_AMOUNT_NOT_EQUAL_TO_DEPOSIT                                                                       = 787n;
+[@inline] const error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT                                                              = 783n;
+[@inline] const error_NOT_AUTHORISED_TO_WITHDRAW_FROM_VAULT                                                             = 784n;
+[@inline] const error_AMOUNT_NOT_EQUAL_TO_DEPOSIT                                                                       = 785n;
 
-[@inline] const error_ONLY_VAULT_OWNER_ALLOWED                                                                          = 788n;
+[@inline] const error_ONLY_VAULT_OWNER_ALLOWED                                                                          = 786n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
-[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                  = 789n;
-[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                             = 790n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                            = 791n;
-[@inline] const error_DELEGATE_TEZ_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                      = 792n;
-[@inline] const error_VAULT_DELEGATE_MVK_TO_SATELLITE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                            = 793n;
-[@inline] const error_VAULT_DEPOSIT_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                              = 794n;
-[@inline] const error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                   = 795n;
-[@inline] const error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                               = 796n;
-[@inline] const error_VAULT_UPDATE_DEPOSITOR_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                     = 797n;
-[@inline] const error_SET_LAMBDA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                 = 798n;
+[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                  = 787n;
+[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                             = 788n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                            = 789n;
+[@inline] const error_DELEGATE_TEZ_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                      = 790n;
+[@inline] const error_VAULT_DELEGATE_MVK_TO_SATELLITE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                            = 791n;
+[@inline] const error_VAULT_DEPOSIT_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                              = 792n;
+[@inline] const error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                   = 793n;
+[@inline] const error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                               = 794n;
+[@inline] const error_VAULT_UPDATE_DEPOSITOR_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                     = 795n;
+[@inline] const error_SET_LAMBDA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                 = 796n;
 
 // VIEWS NOT FOUND ERRORS
 
-[@inline] const error_CANNOT_DEPOSIT_PROTECTED_COLLATERAL_TOKEN                                                         = 799n;
-[@inline] const error_CANNOT_WITHDRAW_PROTECTED_COLLATERAL_TOKEN                                                        = 800n;
+[@inline] const error_CANNOT_DEPOSIT_PROTECTED_COLLATERAL_TOKEN                                                         = 797n;
+[@inline] const error_CANNOT_WITHDRAW_PROTECTED_COLLATERAL_TOKEN                                                        = 798n;
 
 
 // ------------------------------------------------------------------------------
@@ -1132,11 +1130,11 @@
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_VAULT_FACTORY_CONTRACT_NOT_FOUND                                                                  = 801n;
-[@inline] const error_ONLY_VAULT_FACTORY_CONTRACT_ALLOWED                                                               = 802n;
+[@inline] const error_VAULT_FACTORY_CONTRACT_NOT_FOUND                                                                  = 799n;
+[@inline] const error_ONLY_VAULT_FACTORY_CONTRACT_ALLOWED                                                               = 800n;
 
-[@inline] const error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED                                          = 803n;
-[@inline] const error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                       = 804n;
+[@inline] const error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_PAUSED                                          = 801n;
+[@inline] const error_CREATE_VAULT_ENTRYPOINT_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND                                       = 802n;
 
 
 // ------------------------------------------------------------------------------
@@ -1145,115 +1143,115 @@
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                                             = 805n;
+[@inline] const error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                                             = 803n;
 
-[@inline] const error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED                                                          = 806n;
+[@inline] const error_ONLY_LENDING_CONTROLLER_CONTRACT_ALLOWED                                                          = 804n;
 
-[@inline] const error_VAULT_ALREADY_EXISTS                                                                              = 807n;
-[@inline] const error_VAULT_CONTRACT_NOT_FOUND                                                                          = 808n;
-[@inline] const error_VAULT_ID_ALREADY_USED                                                                             = 809n;
-[@inline] const error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 810n;
-[@inline] const error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 811n;
-[@inline] const error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 812n;
-[@inline] const error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 813n;
+[@inline] const error_VAULT_ALREADY_EXISTS                                                                              = 805n;
+[@inline] const error_VAULT_CONTRACT_NOT_FOUND                                                                          = 806n;
+[@inline] const error_VAULT_ID_ALREADY_USED                                                                             = 807n;
+[@inline] const error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 808n;
+[@inline] const error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 809n;
+[@inline] const error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 810n;
+[@inline] const error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 811n;
+[@inline] const error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 812n;
+[@inline] const error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 813n;
 [@inline] const error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 814n;
-[@inline] const error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 815n;
-[@inline] const error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 816n;
-[@inline] const error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 817n;
-[@inline] const error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 818n;
-[@inline] const error_LOAN_INTEREST_MISCALCULATION                                                                      = 819n;
-[@inline] const error_LOAN_OUTSTANDING_IS_NOT_ZERO                                                                      = 820n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                       = 821n;
+[@inline] const error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 815n;
+[@inline] const error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 816n;
+[@inline] const error_LOAN_INTEREST_MISCALCULATION                                                                      = 817n;
+[@inline] const error_LOAN_OUTSTANDING_IS_NOT_ZERO                                                                      = 818n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                       = 819n;
 
 // ENTRYPOINTS PAUSED ERRORS
-[@inline] const error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 822n;
-[@inline] const error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                    = 823n;
-[@inline] const error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 824n;
-[@inline] const error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                             = 825n;
-[@inline] const error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                          = 826n;
-[@inline] const error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                      = 827n;
-[@inline] const error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 828n;
-[@inline] const error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                              = 829n;
-[@inline] const error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                             = 830n;
-[@inline] const error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                  = 831n;
-[@inline] const error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                           = 832n;
-[@inline] const error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                            = 833n;
-[@inline] const error_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                         = 834n;
-[@inline] const error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                        = 835n;
-[@inline] const error_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                       = 836n;
+[@inline] const error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 820n;
+[@inline] const error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                    = 821n;
+[@inline] const error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 822n;
+[@inline] const error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                             = 823n;
+[@inline] const error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                          = 824n;
+[@inline] const error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                      = 825n;
+[@inline] const error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 826n;
+[@inline] const error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                              = 827n;
+[@inline] const error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                             = 828n;
+[@inline] const error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                  = 829n;
+[@inline] const error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                           = 830n;
+[@inline] const error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                            = 831n;
+[@inline] const error_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                         = 832n;
+[@inline] const error_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                        = 833n;
+[@inline] const error_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                       = 834n;
 
-[@inline] const error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 837n;
-[@inline] const error_VAULT_DELEGATE_MVK_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 838n;
-[@inline] const error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                               = 839n;
-[@inline] const error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                              = 840n;
-[@inline] const error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                          = 841n;
-[@inline] const error_VAULT_UPDATE_DEPOSITOR_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                      = 842n;
+[@inline] const error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 835n;
+[@inline] const error_VAULT_DELEGATE_MVK_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 836n;
+[@inline] const error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                               = 837n;
+[@inline] const error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                              = 838n;
+[@inline] const error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                          = 839n;
+[@inline] const error_VAULT_UPDATE_DEPOSITOR_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                      = 840n;
 
-[@inline] const error_CLAIM_REWARDS_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                    = 843n;
+[@inline] const error_CLAIM_REWARDS_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                    = 841n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
-[@inline] const error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                              = 844n;
-[@inline] const error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 845n;
-[@inline] const error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                       = 846n;
+[@inline] const error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                              = 842n;
+[@inline] const error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 843n;
+[@inline] const error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                       = 844n;
 
-[@inline] const error_VAULT_LIQUIDATE_STAKED_MVK_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                               = 847n;
+[@inline] const error_VAULT_LIQUIDATE_STAKED_MVK_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                               = 845n;
 
 
-[@inline] const error_GET_VAULT_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                       = 848n;
+[@inline] const error_GET_VAULT_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                       = 846n;
 
-[@inline] const error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 849n;
-[@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 850n;
-[@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 851n;
-[@inline] const error_LOAN_TOKEN_ALREADY_EXISTS                                                                         = 852n;
-[@inline] const error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 853n;
-[@inline] const error_LOAN_TOKEN_LEDGER_NOT_FOUND                                                                       = 854n;
-[@inline] const error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 855n;
-[@inline] const error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 856n;
-[@inline] const error_COLLATERAL_TOKEN_ALREADY_EXISTS                                                                   = 857n;
-[@inline] const error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 858n;
+[@inline] const error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 847n;
+[@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 848n;
+[@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 849n;
+[@inline] const error_LOAN_TOKEN_ALREADY_EXISTS                                                                         = 850n;
+[@inline] const error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 851n;
+[@inline] const error_LOAN_TOKEN_LEDGER_NOT_FOUND                                                                       = 852n;
+[@inline] const error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 853n;
+[@inline] const error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 854n;
+[@inline] const error_COLLATERAL_TOKEN_ALREADY_EXISTS                                                                   = 855n;
+[@inline] const error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 856n;
 
-[@inline] const error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT                                                    = 859n;
-[@inline] const error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                                = 860n;
-[@inline] const error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED                                                     = 861n;
+[@inline] const error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT                                                    = 857n;
+[@inline] const error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                                = 858n;
+[@inline] const error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED                                                     = 859n;
 
-[@inline] const error_VAULT_IS_NOT_UNDERCOLLATERIZED                                                                    = 862n;
-[@inline] const error_VAULT_IS_NOT_LIQUIDATABLE                                                                         = 863n;
-[@inline] const error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION                                                     = 864n;
-[@inline] const error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED                                                               = 865n;
+[@inline] const error_VAULT_IS_NOT_UNDERCOLLATERIZED                                                                    = 860n;
+[@inline] const error_VAULT_IS_NOT_LIQUIDATABLE                                                                         = 861n;
+[@inline] const error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION                                                     = 862n;
+[@inline] const error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED                                                               = 863n;
 
-[@inline] const error_OWNER_VAULT_SET_DOES_NOT_EXIST                                                                    = 866n;
+[@inline] const error_OWNER_VAULT_SET_DOES_NOT_EXIST                                                                    = 864n;
 
-[@inline] const error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 867n;
-[@inline] const error_GET_COL_TOKEN_RECORD_BY_NAME_OPT_VIEW_NOT_FOUND                                                   = 868n;
+[@inline] const error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 865n;
+[@inline] const error_GET_COL_TOKEN_RECORD_BY_NAME_OPT_VIEW_NOT_FOUND                                                   = 866n;
 
-[@inline] const error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS                                                   = 869n;
-[@inline] const error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE                                                               = 870n;
-[@inline] const error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE                                                           = 871n;
+[@inline] const error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS                                                   = 867n;
+[@inline] const error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE                                                               = 868n;
+[@inline] const error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE                                                           = 869n;
 
-[@inline] const error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 872n;
+[@inline] const error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 870n;
 
-[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                               = 873n;
+[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                               = 871n;
 
-[@inline] const error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION                                                           = 874n;
-[@inline] const error_REBASE_DECIMALS_OUT_OF_BOUNDS                                                                     = 875n;
+[@inline] const error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION                                                           = 872n;
+[@inline] const error_REBASE_DECIMALS_OUT_OF_BOUNDS                                                                     = 873n;
 
-[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL                                           = 876n;
-[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE                                               = 877n;
+[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL                                           = 874n;
+[@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE                                               = 875n;
 
-[@inline] const error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL                        = 878n;
+[@inline] const error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL                        = 876n;
 
-[@inline] const error_CANNOT_REMOVE_MORE_LIQUIDITY_THAN_BALANCE                                                         = 879n;
-[@inline] const error_MINT_OR_BURN_ENTRYPOINT_IN_LP_TOKEN_NOT_FOUND                                                     = 880n;
-[@inline] const error_BREAK_GLASS_CONFIG_NOT_FOUND_IN_LENDING_CONTROLLER                                                = 881n;
+[@inline] const error_CANNOT_REMOVE_MORE_LIQUIDITY_THAN_BALANCE                                                         = 877n;
+[@inline] const error_MINT_OR_BURN_ENTRYPOINT_IN_LP_TOKEN_NOT_FOUND                                                     = 878n;
+[@inline] const error_BREAK_GLASS_CONFIG_NOT_FOUND_IN_LENDING_CONTROLLER                                                = 879n;
 
-[@inline] const error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 882n;
-[@inline] const error_GET_TOKEN_POOL_DEPOSITOR_BALANCE_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                = 883n;
+[@inline] const error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 880n;
+[@inline] const error_GET_TOKEN_POOL_DEPOSITOR_BALANCE_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                = 881n;
 
-[@inline] const error_MIN_REPAYMENT_AMOUNT_NOT_REACHED                                                                  = 884n;
-[@inline] const error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK                                                            = 885n;
-[@inline] const error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK                                                         = 886n;
+[@inline] const error_MIN_REPAYMENT_AMOUNT_NOT_REACHED                                                                  = 882n;
+[@inline] const error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK                                                            = 883n;
+[@inline] const error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK                                                         = 884n;
 
-[@inline] const error_VAULT_NEEDS_TO_BE_MARKED_FOR_LIQUIDATION_AGAIN                                                    = 887n;
+[@inline] const error_VAULT_NEEDS_TO_BE_MARKED_FOR_LIQUIDATION_AGAIN                                                    = 885n;
 
 
 
