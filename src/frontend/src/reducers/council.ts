@@ -33,6 +33,8 @@ const defaultCouncilStorage: CouncilStorage = {
   councilMemberImageMaxLength: 0,
   councilMemberNameMaxLength: 0,
   councilMemberWebsiteMaxLength: 0,
+  requestPurposeMaxLength: 0,
+  requestTokenNameMaxLength: 0,
   councilActionsLedger: [],
   councilMembers: [],
   actionCounter: 0,
