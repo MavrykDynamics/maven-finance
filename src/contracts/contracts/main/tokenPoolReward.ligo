@@ -129,6 +129,32 @@ block{
 } with unit
 
 
+function checkSenderIsValidLpToken(var s : tokenPoolRewardStorageType) : unit is 
+block {
+
+    // Get Lending Controller Address from the General Contracts map on the Governance Contract
+    const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
+
+    // get loan token ledger from Lending Controller contract
+    const getLoanTokenLedgerView : option (loanTokenLedgerType) = Tezos.call_view ("getLoanTokenLedger", unit, lendingControllerAddress);
+    const loanTokenLedger : loanTokenLedgerType = case getLoanTokenLedgerView of [
+            Some (_ledger)  -> _ledger
+        |   None            -> failwith (error_GET_LOAN_TOKEN_LEDGER_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
+    ];
+
+    // get LP Token addresses from loan tokens
+    var lpTokenAddresses : set(address) := set[];
+    for _loanTokenName -> loanTokenRecord in map loanTokenLedger block {
+        lpTokenAddresses := Set.add(loanTokenRecord.lpTokenContractAddress, lpTokenAddresses);
+    };
+
+    // check if sender is any of the LP token contract addresses
+    if(Set.mem(Tezos.get_sender(), lpTokenAddresses)) then skip 
+    else failwith(error_ONLY_WHITELISTED_LP_TOKEN_CONTRACT_ADDRESSES_ALLOWED);
+
+} with unit
+
+
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
@@ -208,6 +234,7 @@ block {
     var accruedRewards : nat := 0n;
     if userRewardsPerShare < loanTokenAccumulatedRewardsPerShare then {
         
+        // loanTokenAccumulatedRewardsPerShare is monotonically increasing
         const rewardsRatioDifference : nat = abs(loanTokenAccumulatedRewardsPerShare - userRewardsPerShare);
         accruedRewards := (tokenPoolDepositorBalance * rewardsRatioDifference) / fixedPointAccuracy;
 

@@ -12,8 +12,11 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// FA2 Token Types
-#include "../partials/contractTypes/mavrykFa2TokenTypes.ligo"
+// Lending LP FA2 Token Types
+#include "../partials/contractTypes/mavrykLendingLpTokenTypes.ligo"
+
+// Token Pool Reward Types
+#include "../partials/contractTypes/tokenPoolRewardTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -81,6 +84,25 @@ block{
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get updateRewards entrypoint from Token Pool Reward Contract
+function getUpdateRewardsEntrypoint(const tokenContractAddress : address) : contract(updateRewardsActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%updateRewards",
+        tokenContractAddress) : option(contract(updateRewardsActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND) : contract(updateRewardsActionType))
+        ]
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -333,48 +355,84 @@ function transfer(const transferParams : fa2TransferType; const s : mavrykFa2Tok
 block{
 
     function makeTransfer(const account : return; const transferParam : transfer) : return is
+    block {
+
+        const owner : ownerType = transferParam.from_;
+        const txs : list(transferDestination) = transferParam.txs;
+        
+        function transferTokens(var accumulator : return; const destination : transferDestination) : return is
         block {
 
-            const owner : ownerType = transferParam.from_;
-            const txs : list(transferDestination) = transferParam.txs;
-             
-            function transferTokens(const accumulator : mavrykFa2TokenStorageType; const destination : transferDestination) : mavrykFa2TokenStorageType is
-            block {
+            var storage := accumulator.1;
 
-                const tokenId : tokenIdType = destination.token_id;
-                const tokenAmount : tokenBalanceType = destination.amount;
-                const receiver : ownerType = destination.to_;
-                const ownerBalance : tokenBalanceType = get_balance((owner, 0n), accumulator);
-                const receiverBalance : tokenBalanceType = get_balance((receiver, 0n), accumulator);
+            const tokenId : tokenIdType = destination.token_id;
+            const tokenAmount : tokenBalanceType = destination.amount;
+            const receiver : ownerType = destination.to_;
+            const ownerBalance : tokenBalanceType = get_balance((owner, 0n), storage);
+            const receiverBalance : tokenBalanceType = get_balance((receiver, 0n), storage);
 
-                // Validate operator
-                checkOperator(owner, tokenId, account.1.operators);
+            // Validate operator
+            checkOperator(owner, tokenId, account.1.operators);
 
-                // Validate token type
-                checkTokenId(tokenId);
+            // Validate token type
+            checkTokenId(tokenId);
 
-                // Validate that sender has enough token
-                checkBalance(ownerBalance,tokenAmount);
+            // Validate that sender has enough token
+            checkBalance(ownerBalance,tokenAmount);
 
-                // Update users' balances
-                var ownerNewBalance     : tokenBalanceType := ownerBalance;
-                var receiverNewBalance  : tokenBalanceType := receiverBalance;
+            // Update users' balances
+            var ownerNewBalance     : tokenBalanceType := ownerBalance;
+            var receiverNewBalance  : tokenBalanceType := receiverBalance;
 
-                if owner =/= receiver then {
-                    ownerNewBalance     := abs(ownerBalance - tokenAmount);
-                    receiverNewBalance  := receiverBalance + tokenAmount;
-                }
-                else skip;
+            if owner =/= receiver then {
+                ownerNewBalance     := abs(ownerBalance - tokenAmount);
+                receiverNewBalance  := receiverBalance + tokenAmount;
+            }
+            else skip;
 
-                var updatedLedger : ledgerType := Big_map.update(owner, Some (ownerNewBalance), accumulator.ledger);
-                updatedLedger := Big_map.update(receiver, Some (receiverNewBalance), updatedLedger);
+            // -----------------------------------------
+            // Update storage 
+            // -----------------------------------------
 
-            } with accumulator with record[ledger=updatedLedger];
+            var updatedLedger : ledgerType := Big_map.update(owner, Some (ownerNewBalance), storage.ledger);
+            updatedLedger := Big_map.update(receiver, Some (receiverNewBalance), updatedLedger);
+            
+            storage.ledger := updatedLedger;
 
-            const updatedOperations : list(operation) = (nil: list(operation));
-            const updatedStorage : mavrykFa2TokenStorageType = List.fold(transferTokens, txs, account.1);
+            // -----------------------------------------
+            // Update user rewards
+            // -----------------------------------------
 
-        } with (mergeOperations(updatedOperations,account.0), updatedStorage)
+            const updateOwnerReward : updateUserRewardsType = record [
+                loanTokenName     = storage.loanToken;
+                userAddress       = owner; 
+                depositorBalance  = ownerNewBalance; 
+            ];
+
+            const updateReceiverReward : updateUserRewardsType = record [
+                loanTokenName     = storage.loanToken;
+                userAddress       = receiver; 
+                depositorBalance  = receiverNewBalance; 
+            ];
+
+            const updateRewardsParams : updateRewardsActionType = list[updateOwnerReward; updateReceiverReward];
+
+            const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", storage.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+
+            const updateRewardsOperation : operation = Tezos.transaction(
+                updateRewardsParams,
+                0mutez,
+                getUpdateRewardsEntrypoint(tokenPoolRewardAddress)
+            );
+
+        } with (list[updateRewardsOperation], storage);
+
+        const transferAccumulator : return = List.fold(transferTokens, txs, account);
+
+        const updatedOperations : list(operation) = transferAccumulator.0;
+        const updatedStorage : mavrykFa2TokenStorageType = transferAccumulator.1;
+
+    } with (mergeOperations(updatedOperations, account.0), updatedStorage)
 
 } with List.fold(makeTransfer, transferParams, ((nil: list(operation)), s))
 
@@ -448,7 +506,8 @@ block {
     checkTokenId(tokenId);
     
     // get target balance    
-    const userBalance : tokenBalanceType    = get_balance((targetAddress, 0n), s);
+    const userBalance : tokenBalanceType     = get_balance((targetAddress, 0n), s);
+    var targetNewBalance : tokenBalanceType := userBalance;
 
     if quantity < 0 then block {
         // burn Token
@@ -459,7 +518,7 @@ block {
         else skip;
 
         (* Update target balance *)
-        const targetNewBalance = abs(userBalance - tokenAmount);
+        targetNewBalance := abs(userBalance - tokenAmount);
         const newTotalSupply : tokenBalanceType = abs(s.totalSupply - tokenAmount);
 
         (* Update storage *)
@@ -472,7 +531,7 @@ block {
         // mint Token
 
         // Update target's balance
-        const targetNewBalance  : tokenBalanceType = userBalance + tokenAmount;
+        targetNewBalance := userBalance + tokenAmount;
         const newTotalSupply    : tokenBalanceType = s.totalSupply + tokenAmount;
         
         // Update storage
@@ -482,7 +541,27 @@ block {
         s.totalSupply  := newTotalSupply;
     };
 
-} with (noOperations, s)
+    // -----------------------------------------
+    // Update user rewards
+    // -----------------------------------------
+
+    const updateUserReward : updateUserRewardsType = record [
+        loanTokenName     = s.loanToken;
+        userAddress       = targetAddress; 
+        depositorBalance  = targetNewBalance; 
+    ];
+
+    const updateRewardsParams : updateRewardsActionType = list[updateUserReward];
+
+    const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+
+    const updateRewardsOperation : operation = Tezos.transaction(
+        updateRewardsParams,
+        0mutez,
+        getUpdateRewardsEntrypoint(tokenPoolRewardAddress)
+    );
+
+} with (list[updateRewardsOperation], s)
 
 // ------------------------------------------------------------------------------
 // Additional Entrypoints End 
