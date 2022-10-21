@@ -4,13 +4,14 @@ import { State } from 'reducers'
 
 // type
 import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
-import type { CouncilMember } from '../../../utils/TypesAndInterfaces/Council'
+import type { CouncilMember, CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
+import { checkMaxLength } from 'utils/validation'
 
 // const
-import { ERROR, INFO, SUCCESS } from '../../../app/App.components/Toaster/Toaster.constants'
+import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -26,7 +27,11 @@ import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
-export const CouncilFormChangeCouncilMember = () => {
+export const CouncilFormChangeCouncilMember = ({
+  councilMemberAddressMaxLength,
+  councilMemberNameMaxLength,
+  councilMemberWebsiteMaxLength
+ }: CouncilMemberMaxLength) => {
   const dispatch = useDispatch()
   const { councilStorage } = useSelector((state: State) => state.council)
   const { councilMembers } = councilStorage
@@ -111,9 +116,14 @@ export const CouncilFormChangeCouncilMember = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>, maxLength: number) => {
     setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
+      const { value, name } = e.target
+
+      const checkMaxLengthField = checkMaxLength(value, maxLength) ? 'success' : 'error' 
+      const checkEmptyField = value ? checkMaxLengthField : 'error'
+
+      return { ...prev, [name]: checkEmptyField }
     })
   }
 
@@ -163,9 +173,9 @@ export const CouncilFormChangeCouncilMember = () => {
             name="newCouncilMemberAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberAddressMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberAddressMaxLength)}
             inputStatus={formInputStatus.newCouncilMemberAddress}
           />
         </div>
@@ -178,9 +188,9 @@ export const CouncilFormChangeCouncilMember = () => {
             name="newMemberName"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberNameMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberNameMaxLength)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -193,9 +203,9 @@ export const CouncilFormChangeCouncilMember = () => {
             name="newMemberWebsite"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberWebsiteMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberWebsiteMaxLength)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>

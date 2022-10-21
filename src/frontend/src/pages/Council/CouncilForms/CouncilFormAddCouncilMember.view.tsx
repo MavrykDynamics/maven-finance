@@ -18,7 +18,7 @@ import { CouncilFormStyled } from './CouncilForms.style'
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 export const CouncilFormAddCouncilMember = ({ 
-  councilMemberImageMaxLength,
+  councilMemberAddressMaxLength,
   councilMemberNameMaxLength,
   councilMemberWebsiteMaxLength
  }: CouncilMemberMaxLength) => {
@@ -102,7 +102,7 @@ export const CouncilFormAddCouncilMember = ({
               handleChange(e)
               handleBlur(e, 500)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, 500)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberAddressMaxLength)}
             inputStatus={formInputStatus.newMemberAddress}
           />
         </div>
@@ -147,7 +147,7 @@ export const CouncilFormAddCouncilMember = ({
         className="form-ipfs"
         setIpfsImageUrl={(e: string) => {
           setForm({ ...form, newMemberImage: e })
-          setFormInputStatus({ ...formInputStatus, newMemberImage: checkMaxLength(e, councilMemberImageMaxLength) ? 'success' : 'error' })
+          setFormInputStatus({ ...formInputStatus, newMemberImage: Boolean(e) ? 'success' : 'error' })
         }}
         title={'Upload Profile Pic'}
       />
