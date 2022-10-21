@@ -27,22 +27,6 @@ class BreakGlassConfig(BaseModel):
     distributeRewardStakedMvkIsPaused: bool
 
 
-class Key(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    string_0: str
-    string_1: str
-
-
-class TrackedAggregator(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Key
-    value: str
-
-
 class AggregatorFactoryStorage(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -52,9 +36,9 @@ class AggregatorFactoryStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
+    trackedAggregators: List[str]
+    breakGlassConfig: BreakGlassConfig
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
-    breakGlassConfig: BreakGlassConfig
-    trackedAggregators: List[TrackedAggregator]
     lambdaLedger: Dict[str, str]
     aggregatorLambdaLedger: Dict[str, str]

@@ -28,8 +28,8 @@ async def on_token_sale_update_config(
         for update_config_attribute in update_config.parameter.updateConfigAction:
             targetted_buy_option    = update_config_attribute[1]
             buy_option              = await models.TokenSaleBuyOption.get(
-                token_sale              = token_sale,
-                buy_option_internal_id  = targetted_buy_option
+                token_sale  = token_sale,
+                internal_id = targetted_buy_option
             )
 
             if update_config_action == configMaxAmountCap:

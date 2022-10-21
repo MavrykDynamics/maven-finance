@@ -12,9 +12,7 @@ async def on_aggregator_factory_track_aggregator(
 
     # Get operation info
     aggregator_factory_address  = track_aggregator.data.target_address
-    aggregator_address          = track_aggregator.parameter.aggregatorAddress
-    token_0_symbol              = track_aggregator.parameter.pairFirst
-    token_1_symbol              = track_aggregator.parameter.pairSecond
+    aggregator_address          = track_aggregator.parameter.__root__
 
     # Update record
     aggregator_factory  = await models.AggregatorFactory.get(
@@ -25,6 +23,4 @@ async def on_aggregator_factory_track_aggregator(
     )
     if aggregator:
         aggregator.factory              = aggregator_factory
-        aggregator.token_0_symbol       = token_0_symbol
-        aggregator.token_1_symbol       = token_1_symbol
         await aggregator.save()
