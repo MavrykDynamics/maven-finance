@@ -4,6 +4,9 @@ import { useDispatch } from 'react-redux'
 // type
 import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 
+// helpers
+import { checkMaxLength } from 'utils/validation'
+
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -15,7 +18,11 @@ import { toggleVesteeLock } from '../Council.actions'
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
-export const CouncilFormToggleVesteeLock = () => {
+type Props = {
+  councilMemberAddressMaxLength: number
+}
+
+export const CouncilFormToggleVesteeLock = ({ councilMemberAddressMaxLength }: Props) => {
   const dispatch = useDispatch()
   const [form, setForm] = useState({
     vesteeAddress: '',
@@ -48,9 +55,15 @@ export const CouncilFormToggleVesteeLock = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>, maxLength: number) => {
     setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
+      const { value, name } = e.target
+
+      const checkMaxLengthField = checkMaxLength(value, maxLength) ? 'success' : 'error' 
+      const checkEmptyField = value ? checkMaxLengthField : 'error'
+
+      return { ...prev, [name]: checkEmptyField }
     })
   }
 
@@ -71,9 +84,9 @@ export const CouncilFormToggleVesteeLock = () => {
             name="vesteeAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberAddressMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberAddressMaxLength)}
             inputStatus={formInputStatus.vesteeAddress}
           />
         </div>
