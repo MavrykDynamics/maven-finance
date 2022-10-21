@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
-// type
-
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
+import { CouncilMemberMaxLength } from 'utils/TypesAndInterfaces/Council'
+
+// helpers
+import { checkMaxLength } from 'utils/validation'
 
 // action
 import { addCouncilMember } from '../Council.actions'
@@ -15,7 +17,11 @@ import { addCouncilMember } from '../Council.actions'
 import { CouncilFormStyled } from './CouncilForms.style'
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
-export const CouncilFormAddCouncilMember = () => {
+export const CouncilFormAddCouncilMember = ({ 
+  councilMemberImageMaxLength,
+  councilMemberNameMaxLength,
+  councilMemberWebsiteMaxLength
+ }: CouncilMemberMaxLength) => {
   const dispatch = useDispatch()
   const [form, setForm] = useState({
     newMemberAddress: '',
@@ -66,9 +72,14 @@ export const CouncilFormAddCouncilMember = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>, maxLength: number) => {
     setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
+      const { value, name } = e.target
+
+      const checkMaxLengthField = checkMaxLength(value, maxLength) ? 'success' : 'error' 
+      const checkEmptyField = value ? checkMaxLengthField : 'error'
+
+      return { ...prev, [name]: checkEmptyField }
     })
   }
 
@@ -89,9 +100,9 @@ export const CouncilFormAddCouncilMember = () => {
             name="newMemberAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, 500)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, 500)}
             inputStatus={formInputStatus.newMemberAddress}
           />
         </div>
@@ -105,9 +116,9 @@ export const CouncilFormAddCouncilMember = () => {
             name="newMemberName"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberNameMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberNameMaxLength)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -121,9 +132,9 @@ export const CouncilFormAddCouncilMember = () => {
             name="newMemberWebsite"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberWebsiteMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberWebsiteMaxLength)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>
@@ -136,7 +147,7 @@ export const CouncilFormAddCouncilMember = () => {
         className="form-ipfs"
         setIpfsImageUrl={(e: string) => {
           setForm({ ...form, newMemberImage: e })
-          setFormInputStatus({ ...formInputStatus, newMemberImage: Boolean(e) ? 'success' : 'error' })
+          setFormInputStatus({ ...formInputStatus, newMemberImage: checkMaxLength(e, councilMemberImageMaxLength) ? 'success' : 'error' })
         }}
         title={'Upload Profile Pic'}
       />

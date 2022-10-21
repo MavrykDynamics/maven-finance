@@ -44,6 +44,9 @@ export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
       actionExpiryDays: storage?.action_expiry_days,
     },
     actionCounter: storage?.action_counter,
+    councilMemberImageMaxLength: storage?.council_member_image_max_length || 0,
+    councilMemberNameMaxLength: storage?.council_member_name_max_length || 0,
+    councilMemberWebsiteMaxLength: storage?.council_member_website_max_length || 0,
     councilActionsLedger,
     councilMembers: storage?.members?.length ? councilMembers : [],
   }
