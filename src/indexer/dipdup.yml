@@ -50,70 +50,70 @@ contracts:
     address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
     typename: liquidity_baking
   mvk:
-    address: KT1PXu2dse3QrtsDNvJUEB8NwpvZN2reecC4
+    address: KT1UQKrwpU82ngJkNDGssFJVn54BuFs6cQon
     typename: mvk
   governance_proxy:
-    address: KT1X4cvX1x6stcZpCnWQ5sJy2nhFssTiRC5y
+    address: KT1Wu7Ww63jXYADFwhXyxvxeSVKKSZKVGY7m
     typename: governance_proxy
   governance:
-    address: KT1WiSvMyKuhBbXefQEJVpvu83AgTxr3kXBP
+    address: KT1NvzQGiDCQRSMw8p7gaqvwB6Be8cX2bokN
     typename: governance
   doorman:
-    address: KT19G72NDhCkL7X3tYKedqsqTAjhkCDxgbvV
+    address: KT1Jsb7wSRNuF9rqR74K23fP8ta1wUH28c7U
     typename: doorman
   farm:
-    address: KT1E9w4vRfCASS6eu8dxMDNShDzk85KoHEZp #KT1JmzhFzjiehs1NgUbaCCuVk3WBzsBkfwpE
+    address: KT1FGpHmPmGPQre6CdJWirW54yarAE69AC6v #KT1FGpHmPmGPQre6CdJWirW54yarAE69AC6v
     typename: farm
   farm_factory:
-    address: KT1L3WdwfrEoy53U8QfVFTRiYtzHL8oAj4s3
+    address: KT1JZwikNu2wzU94snXjLcTKcpf3tymGnWoY
     typename: farm_factory
   delegation:
-    address: KT1QMqypK4MdaGy7UVv93nfaXUNUvXuzBNbc
+    address: KT1W3a9rVBQu8f1Jr5RvzRxCXauy3MJQtKhH
     typename: delegation
   vesting:
-    address: KT1HB4PjaP9YCM3zLxPD6tJdGBvLXLxqLBGN
+    address: KT1RuqJfxdresBfKQkNEDt7no76gcWEe88hZ
     typename: vesting
   emergency_governance:
-    address: KT1FGQbqPmZ1fiL2brm5riuQBco4oQW4ZciP
+    address: KT1CgyjH7BPhk4nma5SmE7xgYjreWr1y1vq8
     typename: emergency_governance
   council:
-    address: KT1HsbSozpYrSryavbZJB1no58fAnVDdK84R
+    address: KT1RQH5Nwwxs7hUqXX57LVc312LC4muvTC58
     typename: council
   break_glass:
-    address: KT1FwGNXKoVE6GJ68mqK9VuGexySCTWBiTVs
+    address: KT1GdqT3Kw278HkFuwTHeaJGC3FxCu5YRVTT
     typename: break_glass
   governance_financial:
-    address: KT1HAS78k87YQUC3wjfPGu62ke5WisDBbFA9
+    address: KT1DHj4hewsGaa2vpLYKDMmXrXENmnfQKapY
     typename: governance_financial
   governance_satellite:
-    address: KT1X65mCJyq7YrDffR1zm5UM3wa3HcJeD4Zw
+    address: KT1DkGCHHMDrVC9V4YeKf8sDSoRVtDXGKhEE
     typename: governance_satellite
   aggregator:
-    address: KT1SBrUdD7vUoYyj6jNWpiVVghsaiDd6Ubgx
+    address: KT1SCkhFC1pFbu89XvzLf13xvAeBGi4WQNLG
     typename: aggregator
   aggregator_factory:
-    address: KT1ACNnTdVtGWaSbv9NJamdcP5iW2Y19mRQp
+    address: KT1FwvvhZfEgWWihbEpcbVHDZ4grvS3UdxSg
     typename: aggregator_factory
   treasury:
-    address: KT1AQkjCJbfQhpZ8hGh1DH73vokE1figmU6S
+    address: KT1QWk4f39jGHBEx6uUwwPgcd8TYNrznsGyg
     typename: treasury
   treasury_factory:
-    address: KT1SfUbUWTPHY9SjiGXFwqf6cNsw29ZGKDEZ
+    address: KT1FgJLzorzNPQtVhwH5UPzUJA3BJJNAVUGD
     typename: treasury_factory
   token_sale:
-    address: KT1RiEVdrC6CycBaNzpFQFaanGjUVQ6mFMZo
+    address: KT1EWAvHpNcAgXN5cCBdNatzPNBzR2sX6146
     typename: token_sale
   lending_controller:
-    address: KT1KxTyZTVKTgKavYPPJ5GEc1sZTXJ2dWnGm
+    address: KT1VhdtgrgA3SHJyhLbzr1TGJL9rPaPbHaZd
     typename: lending_controller
   token_pool_reward:
-    address: KT1K5CVb9Xw1KXjgHoksGZn6K9oEjGHudWPC
+    address: KT1De3nsKNtJ4cRpxYYsh2TNsbNM4q8arC2n
     typename: token_pool_reward
   vault:
-    address: KT1Qn4Dc2DPCUNfXKkJLTi2jBxDJL2MH4oDy
+    address: KT1FDXbVGHMXynKRjGWcPpyMxecZwdx9S814
     typename: vault
   vault_factory:
-    address: KT1SMBFPt3Q95DXnHFyCQJVdtz2kz79LGC3G
+    address: KT1Xsguyd57ToGudw9YiPVozYsGUSTaJBkXU
     typename: vault_factory
 
 templates:
@@ -510,10 +510,6 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: updateProposalData
-      - callback: on_governance_update_payment_data
-        pattern:
-          - destination: governance
-            entrypoint: updatePaymentData
       - callback: on_governance_lock_proposal
         pattern:
           - destination: governance
@@ -1265,14 +1261,10 @@ indexes:
         pattern:
           - destination: governance_satellite
             entrypoint: removeOracleInAggregator
-      - callback: on_governance_satellite_register_aggregator
+      - callback: on_governance_satellite_toggle_pause_aggregator
         pattern:
           - destination: governance_satellite
-            entrypoint: registerAggregator
-      - callback: on_governance_satellite_update_aggregator_status
-        pattern:
-          - destination: governance_satellite
-            entrypoint: updateAggregatorStatus
+            entrypoint: togglePauseAggregator
       - callback: on_governance_satellite_fix_mistaken_transfer
         pattern:
           - destination: governance_satellite

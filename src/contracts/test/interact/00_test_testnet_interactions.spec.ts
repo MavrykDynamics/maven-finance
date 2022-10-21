@@ -2230,6 +2230,15 @@ describe("Testnet interactions helper", async () => {
     })
 
     describe("AGGREGATOR", async () => {
+
+        before("AggregatorFactory tracks aggregator", async () => {
+            await signerFactory(bob.sk)
+            
+            // Operation
+            const operation = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorAddress.address).send();
+            await operation.confirmation();
+        });
+
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
         });
@@ -2406,8 +2415,6 @@ describe("Testnet interactions helper", async () => {
         it('Admin withdraws rewards xtz', async () => {
             try{
                 // Operation
-                var operation   = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorAddress.address).send()
-                await operation.confirmation()
                 var operation = await aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
@@ -2808,7 +2815,7 @@ describe("Testnet interactions helper", async () => {
                 await nextRoundOperation.confirmation();
                 const proposeOperation          = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
                 await proposeOperation.confirmation();
-                const addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, null, paymentData).send()
+                const addPaymentDataOperation   = await governanceInstance.methods.updateProposalData(proposalId, null, paymentData).send()
                 await addPaymentDataOperation.confirmation();
                 const lockOperation             = await governanceInstance.methods.lockProposal(proposalId).send();
                 await lockOperation.confirmation();
@@ -4427,62 +4434,62 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin deposits smvk into the vault', async () => {
-            try{
-                // Initial values
-                vaultFactoryStorage                     = await vaultFactoryInstance.storage();
-                const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const depositAmount                     = 1000;
-                const tokenName                         = "sMVK";
-                const tokenContractAddress              = mvkTokenAddress.address;
-                const tokenType                         = "fa2";
-                const tokenId                           = 0;
+        // it('Admin deposits smvk into the vault', async () => {
+        //     try{
+        //         // Initial values
+        //         vaultFactoryStorage                     = await vaultFactoryInstance.storage();
+        //         const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+        //         const depositAmount                     = 1000;
+        //         const tokenName                         = "sMVK";
+        //         const tokenContractAddress              = mvkTokenAddress.address;
+        //         const tokenType                         = "fa2";
+        //         const tokenId                           = 0;
 
-                const tokenDecimals                     = 9;
-                const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
-                const tokenProtected                    = true; // sMVK is protected
+        //         const tokenDecimals                     = 9;
+        //         const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
+        //         const tokenProtected                    = true; // sMVK is protected
 
-                // Add SMVK as collateral
-                const setCollateralTokenOperation       = await lendingControllerInstance.methods.setCollateralToken(
-                    "createCollateralToken",
+        //         // Add SMVK as collateral
+        //         const setCollateralTokenOperation       = await lendingControllerInstance.methods.setCollateralToken(
+        //             "createCollateralToken",
 
-                    tokenName,
-                    tokenContractAddress,
-                    tokenDecimals,
+        //             tokenName,
+        //             tokenContractAddress,
+        //             tokenDecimals,
 
-                    oracleAddress,
-                    tokenProtected,
+        //             oracleAddress,
+        //             tokenProtected,
 
-                    // fa2 token type - token contract address
-                    tokenType,
-                    tokenContractAddress,
-                    tokenId
+        //             // fa2 token type - token contract address
+        //             tokenType,
+        //             tokenContractAddress,
+        //             tokenId
 
-                ).send();
-                await setCollateralTokenOperation.confirmation();
+        //         ).send();
+        //         await setCollateralTokenOperation.confirmation();
 
-                // Operation
-                const operation                         = await lendingControllerInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+        //         // Operation
+        //         const operation                         = await lendingControllerInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
+        //         await operation.confirmation();
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     }
+        // });
 
-        it('Admin withdraws smvk from the vault', async () => {
-            try{
-                // Initial values
-                vaultFactoryStorage         = await vaultFactoryInstance.storage();
-                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-                const withdrawAmount        = 1000;
+        // it('Admin withdraws smvk from the vault', async () => {
+        //     try{
+        //         // Initial values
+        //         vaultFactoryStorage         = await vaultFactoryInstance.storage();
+        //         const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+        //         const withdrawAmount        = 1000;
 
-                // Operation
-                const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+        //         // Operation
+        //         const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
+        //         await operation.confirmation();
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     }
+        // });
 
         it('Admin claims rewards', async () => {
             try{

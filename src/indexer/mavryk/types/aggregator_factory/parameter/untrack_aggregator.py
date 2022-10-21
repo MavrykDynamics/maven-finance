@@ -3,12 +3,8 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel
 
 
 class UntrackAggregatorParameter(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pairFirst: str
-    pairSecond: str
+    __root__: str
