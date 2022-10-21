@@ -387,17 +387,6 @@ function getOnVaultLiquidateStakedMvkEntrypoint(const contractAddress : address)
         
 
 
-// helper function to get %transfer entrypoint in a FA2 Token Contract
-function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(fa2TransferType) is
-    case (Tezos.get_entrypoint_opt(
-        "%transfer",
-        tokenAddress) : option(contract(fa2TransferType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(fa2TransferType))
-        ];
-
-
-
 // helper function to get mintOrBurn entrypoint from LP Token contract (FA2 Token Standard)
 function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnType) is
     case (Tezos.get_entrypoint_opt(
@@ -405,17 +394,6 @@ function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : 
         tokenContractAddress) : option(contract(mintOrBurnType))) of [
                 Some(contr) -> contr
             |   None -> (failwith(error_MINT_OR_BURN_ENTRYPOINT_IN_LP_TOKEN_NOT_FOUND) : contract(mintOrBurnType))
-        ]
-
-
-
-// helper function to get updateRewards entrypoint from Token Pool Reward contract
-function getUpdateRewardsEntrypointInTokenPoolRewardContract(const tokenPoolRewardAddress : address) : contract(updateRewardsActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateRewards",
-        tokenPoolRewardAddress) : option(contract(updateRewardsActionType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND) : contract(updateRewardsActionType))
         ]
 
 // ------------------------------------------------------------------------------
@@ -1082,37 +1060,6 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Rewards Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-function updateRewardsOperation(const userAddress : address; const loanTokenName : string; const depositorBalance : nat; const s : lendingControllerStorageType) : operation is 
-block {
-
-    // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
-    const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
-
-    // update rewards params
-    const updateRewardsParams : updateRewardsActionType = record [
-        loanTokenName     = loanTokenName;
-        userAddress       = userAddress;
-        depositorBalance  = depositorBalance;
-    ];
-
-    const updateRewardsOperation : operation = Tezos.transaction(
-        updateRewardsParams,
-        0mutez,
-        getUpdateRewardsEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress)
-    );
-
-} with updateRewardsOperation
-
-// ------------------------------------------------------------------------------
-// Rewards Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Token Pool Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -1379,12 +1326,6 @@ block {
 (* View: get vault by handle *)
 [@view] function getVaultOpt(const vaultHandle : vaultHandleType; const s : lendingControllerStorageType) : option(vaultRecordType) is
     Big_map.find_opt(vaultHandle, s.vaults)
-
-
-
-(* View: get token pool depositor balance *)
-[@view] function getTokenPoolDepositorBalanceOpt(const userTokenNameKey : (address * string); const s : lendingControllerStorageType) : option(nat) is
-    Big_map.find_opt(userTokenNameKey, s.tokenPoolDepositorLedger)
 
 
 
