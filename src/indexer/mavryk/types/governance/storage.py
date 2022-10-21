@@ -30,12 +30,13 @@ class Config(BaseModel):
     proposalSourceCodeMaxLength: str
 
 
-class ProposalMetadatum(BaseModel):
+class ProposalDatum(BaseModel):
     class Config:
         extra = Extra.forbid
 
     title: str
-    data: str
+    encodedCode: str
+    codeDescription: str
 
 
 class TokenItem(BaseModel):
@@ -76,7 +77,7 @@ class Transaction(BaseModel):
     token: Union[TokenItem, TokenItem1, TokenItem2]
 
 
-class PaymentMetadatum(BaseModel):
+class PaymentDatum(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -89,9 +90,9 @@ class ProposalLedger(BaseModel):
         extra = Extra.forbid
 
     proposerAddress: str
-    proposalData: Dict[str, Optional[ProposalMetadatum]]
+    proposalData: Dict[str, Optional[ProposalDatum]]
     proposalDataExecutionCounter: str
-    paymentData: Dict[str, Optional[PaymentMetadatum]]
+    paymentData: Dict[str, Optional[PaymentDatum]]
     status: str
     title: str
     description: str

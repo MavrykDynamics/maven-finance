@@ -8,12 +8,28 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, Extra
 
 
-class ProposalMetadatum(BaseModel):
+class AddOrSetProposalData(BaseModel):
     class Config:
         extra = Extra.forbid
 
     title: str
-    data: str
+    encodedCode: str
+    codeDescription: Optional[str]
+    index: Optional[str]
+
+
+class ProposalDatum(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    addOrSetProposalData: AddOrSetProposalData
+
+
+class ProposalDatum1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    removeProposalData: str
 
 
 class TokenItem(BaseModel):
@@ -54,12 +70,27 @@ class Transaction(BaseModel):
     token: Union[TokenItem, TokenItem1, TokenItem2]
 
 
-class PaymentMetadatum(BaseModel):
+class AddOrSetPaymentData(BaseModel):
     class Config:
         extra = Extra.forbid
 
     title: str
     transaction: Transaction
+    index: Optional[str]
+
+
+class PaymentDatum(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    addOrSetPaymentData: AddOrSetPaymentData
+
+
+class PaymentDatum1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    removePaymentData: str
 
 
 class ProposeParameter(BaseModel):
@@ -70,5 +101,5 @@ class ProposeParameter(BaseModel):
     description: str
     invoice: str
     sourceCode: str
-    proposalData: Optional[List[ProposalMetadatum]]
-    paymentData: Optional[List[PaymentMetadatum]]
+    proposalData: Optional[List[Union[ProposalDatum, ProposalDatum1]]]
+    paymentData: Optional[List[Union[PaymentDatum, PaymentDatum1]]]
