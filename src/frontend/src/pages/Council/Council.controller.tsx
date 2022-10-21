@@ -54,12 +54,19 @@ export const Council = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const { search, pathname } = useLocation()
-  const loading = useSelector((state: State) => state.loading)
+
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
+
+  const councilMemberMaxLength = {
+    councilMemberAddressMaxLendth: accountPkh?.length,
+    councilMemberImageMaxLength: councilStorage.councilMemberImageMaxLength,
+    councilMemberNameMaxLength: councilStorage.councilMemberNameMaxLength,
+    councilMemberWebsiteMaxLength: councilStorage.councilMemberWebsiteMaxLength,
+  }
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
@@ -202,7 +209,7 @@ export const Council = () => {
                   />
                 </DropdownWrap>
                 {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
-                {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember /> : null}
+                {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember {...councilMemberMaxLength} /> : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
                 {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee /> : null}
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}

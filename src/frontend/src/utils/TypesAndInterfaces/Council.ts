@@ -38,3 +38,9 @@ export type CouncilStorage = ReturnType<typeof noralizeCouncilStorage>
 
 export type CouncilGraphQL = Omit<Council, '__typename'>
 export type CouncilActionRecordhQL = Omit<Council_Action, '__typename'>
+
+export type CouncilMemberMaxLength = {
+  councilMemberImageMaxLength: number
+  councilMemberNameMaxLength: number
+  councilMemberWebsiteMaxLength: number
+}
