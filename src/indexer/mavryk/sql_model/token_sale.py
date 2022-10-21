@@ -21,7 +21,7 @@ class TokenSale(MavrykContract, Model):
 
 class TokenSaleBuyOption(Model):
     id                                      = fields.BigIntField(pk=True)
-    buy_option_internal_id                  = fields.SmallIntField(default=0, index=True)
+    internal_id                             = fields.SmallIntField(default=0, index=True)
     token_sale                              = fields.ForeignKeyField('models.TokenSale', related_name='token_sale_buy_options')
     max_amount_per_wallet_total             = fields.FloatField(default=0.0)
     whitelist_max_amount_total              = fields.FloatField(default=0.0)
