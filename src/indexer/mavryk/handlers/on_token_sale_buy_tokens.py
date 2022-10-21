@@ -33,7 +33,7 @@ async def on_token_sale_buy_tokens(
         last_claim_level        = int(buy_record_option.lastClaimLevel)
 
         buy_option              = await models.TokenSaleBuyOption.get(
-            buy_option_internal_id  = int(buy_option_index),
+            internal_id             = int(buy_option_index),
             token_sale              = token_sale
         )
 

@@ -67,7 +67,7 @@ async def on_token_sale_origination(
 
         # Save record
         buy_option          = models.TokenSaleBuyOption(
-            buy_option_internal_id                  = int(buy_option_index),
+            internal_id                             = int(buy_option_index),
             token_sale                              = token_sale,
             max_amount_per_wallet_total             = max_amount_per_wallet_total,
             whitelist_max_amount_total              = whitelist_max_amount_total,
