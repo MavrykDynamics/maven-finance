@@ -16,9 +16,9 @@ terraform {
 }
 
 inputs = {
-  name                        = "mavryk-indexer-timescale-db-droplet"
+  name                        = "mavryk-indexer-timescale-db-droplet-2"
   region                      = local.do_region
-  ssh_keys_names              = ["Tristan", "Sylvain"]
+  ssh_keys_names              = ["Tristan"]
   vpc_id                      = dependency.vpc.outputs.vpc_id
   image                       = "ubuntu-20-04-x64"
   size                        = "s-1vcpu-2gb-intel"
