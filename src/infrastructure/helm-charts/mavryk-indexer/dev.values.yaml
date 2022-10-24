@@ -12,6 +12,36 @@ dipdup:
     name: dipdup-dev
     backup:
       enabled: false
+  env:
+    - name: POSTGRES_HOST
+      valueFrom:
+        secretKeyRef:
+          name: indexer
+          key: POSTGRES_HOST_DEV
+    - name: POSTGRES_PORT
+      valueFrom:
+        secretKeyRef:
+          name: indexer
+          key: POSTGRES_PORT_DEV
+    - name: POSTGRES_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: indexer
+          key: POSTGRES_USERNAME_DEV
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: indexer
+          key: POSTGRES_PASSWORD_DEV
+    - name: ADMIN_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: indexer
+          key: HASURA_GRAPHQL_ADMIN_SECRET
+    - name: TZKT_GHOSTNET_URL
+      value: https://api.ghostnet.tzkt.io
+    - name: TZKT_MAINNET_URL
+      value: https://api.tzkt.io
   extraConfig: |-
     contracts:
       liquidity_baking:
@@ -1828,11 +1858,13 @@ dipdup:
                 entrypoint: claimRewards
 
 hasura:
+  enabled: true
   image:
     registry: docker.io
     repository: hasura/graphql-engine
     tag: v2.13.0
   ingress:
+    enabled: true
     host: api-dev.mavryk.finance
     secretName: api-dev-mavryk-tls
   databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
