@@ -939,9 +939,8 @@ block {
                 const liquidationDelayInMins        : nat  = s.config.liquidationDelayInMins;
                 const liquidationDelayInBlockLevel  : nat  = liquidationDelayInMins * blocksPerMinute; 
 
-                // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
+                // Get Treasury Address from the General Contracts map on the Governance Contract
                 const treasuryAddress           : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
-                const tokenPoolRewardAddress    : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
                 // ------------------------------------------------------------------
                 // Get Vault record and parameters
@@ -1304,7 +1303,7 @@ block {
 
                 // Calculate amount of interest that goes to the Reward Pool 
                 if interestSentToTreasury > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
-                const interestSentToRewardPool : nat = abs(totalInterestPaid - interestSentToTreasury);
+                const interestRewards : nat = abs(totalInterestPaid - interestSentToTreasury);
 
                 // ------------------------------------------------------------------
                 // Process Fee Transfers
@@ -1318,15 +1317,6 @@ block {
                     loanTokenType                // token type
                 );
                 operations := sendInterestToTreasuryOperation # operations;
-
-                // Send interest as rewards from Lending Controller Token Pool to Token Pool Rewards Contract
-                const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),       // from_
-                    tokenPoolRewardAddress,         // to_
-                    interestSentToRewardPool,       // amount
-                    loanTokenType                   // token type
-                );
-                operations := sendInterestRewardToTokenPoolRewardContractOperation # operations;
 
                 // ------------------------------------------------------------------
                 // Process repayment of Principal
@@ -1376,8 +1366,12 @@ block {
                 // ------------------------------------------------------------------
 
                 // Calculate loan token accumulated rewards per share increment (1e6 * 1e27 / 1e6 -> 1e27)
-                const accRewardsPerShareIncrement  : nat = (interestSentToRewardPool * fixedPointAccuracy) / newTokenPoolTotal;
+                // - N.B. divide by token pool total before it is updated
+                const accRewardsPerShareIncrement  : nat = (interestRewards * fixedPointAccuracy) / tokenPoolTotal;
                 const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
+
+                newTokenPoolTotal := newTokenPoolTotal + interestRewards;
+                newTotalRemaining := newTotalRemaining + interestRewards;
 
                 // ------------------------------------------------------------------
                 // Update Storage
@@ -1664,9 +1658,8 @@ block {
                 const initialLoanAmount  : nat                     = borrowParams.quantity;
                 const initiator          : initiatorAddressType    = Tezos.get_sender();
 
-                // Get Treasury Address and Token Pool Reward Address from the General Contracts map on the Governance Contract
+                // Get Treasury Address from the General Contracts map on the Governance Contract
                 const treasuryAddress: address        = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
-                const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -1692,12 +1685,13 @@ block {
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
 
                 // Get loan token parameters
-                const reserveRatio      : nat         = loanTokenRecord.reserveRatio;
-                const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
-                const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
-                const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
-                const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
-                const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
+                const reserveRatio          : nat         = loanTokenRecord.reserveRatio;
+                const tokenPoolTotal        : nat         = loanTokenRecord.tokenPoolTotal;
+                const totalBorrowed         : nat         = loanTokenRecord.totalBorrowed;
+                const totalRemaining        : nat         = loanTokenRecord.totalRemaining;
+                const loanTokenType         : tokenType   = loanTokenRecord.tokenType;
+                const tokenBorrowIndex      : nat         = loanTokenRecord.borrowIndex;
+                const accRewardsPerShare    : nat         = loanTokenRecord.accumulatedRewardsPerShare;
 
                 // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
@@ -1711,7 +1705,7 @@ block {
 
                 // Calculate share of fees that goes to the Reward Pool 
                 if minimumLoanFeeToTreasury > minimumLoanFee then failwith(error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE) else skip;
-                const minimumLoanFeeRewardPool : nat = abs(minimumLoanFee - minimumLoanFeeToTreasury);
+                const minimumLoanFeeReward : nat = abs(minimumLoanFee - minimumLoanFeeToTreasury);
 
                 // ------------------------------------------------------------------
                 // Get current user borrow index
@@ -1763,17 +1757,21 @@ block {
                 // Token Pool Calculations
                 // ------------------------------------------------------------------
 
-                // Calculate required reserve amount for token in token pool
+                var newTokenPoolTotal   : nat  := tokenPoolTotal;
+                var newTotalBorrowed    : nat  := totalBorrowed;
+                var newTotalRemaining   : nat  := totalRemaining;
+
+                // calculate required reserve amount for token in token pool
                 const requiredTokenPoolReserves = (tokenPoolTotal * fixedPointAccuracy * reserveRatio) / (10000n * fixedPointAccuracy);
 
-                // Calculate new totalBorrowed 
-                const newTotalBorrowed   : nat = totalBorrowed + initialLoanAmount;
+                // calculate new totalBorrowed 
+                newTotalBorrowed := totalBorrowed + initialLoanAmount;
                 
-                // Calculate new total remaining
+                // calculate new total remaining
                 if initialLoanAmount > totalRemaining then failwith(error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED) else skip;
-                const newTotalRemaining  : nat = abs(totalRemaining - initialLoanAmount);
+                newTotalRemaining := abs(totalRemaining - initialLoanAmount);
 
-                // Check that new total remaining is greater than required token pool reserves
+                // check that new total remaining is greater than required token pool reserves
                 if newTotalRemaining > requiredTokenPoolReserves then skip else failwith(error_TOKEN_POOL_RESERVES_RATIO_NOT_MET);
 
                 // ------------------------------------------------------------------
@@ -1794,27 +1792,32 @@ block {
                     loanTokenType               // token type
                 );
 
-                const transferFeesToTokenPoolRewardOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),   // from_
-                    tokenPoolRewardAddress,     // to_
-                    minimumLoanFeeRewardPool,   // amount
-                    loanTokenType               // token type
-                );
-
                 operations := list[
                     transferLoanToBorrowerOperation; 
                     transferFeesToTreasuryOperation;
-                    transferFeesToTokenPoolRewardOperation;
                 ];
+
+                // ------------------------------------------------------------------
+                // Update Loan Token Accumulated Rewards Per Share
+                // ------------------------------------------------------------------
+
+                // Calculate loan token accumulated rewards per share increment (1e6 * 1e27 / 1e6 -> 1e27)
+                // - N.B. divide by token pool total before it is updated
+                const accRewardsPerShareIncrement  : nat = (minimumLoanFeeReward * fixedPointAccuracy) / tokenPoolTotal;
+                const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
+
+                newTokenPoolTotal := newTotalBorrowed + newTotalRemaining + minimumLoanFeeReward;
+                newTotalRemaining := newTotalRemaining + minimumLoanFeeReward;
 
                 // ------------------------------------------------------------------
                 // Update Storage
                 // ------------------------------------------------------------------
                 
                 // Update token storage
-                loanTokenRecord.tokenPoolTotal         := newTotalBorrowed + newTotalRemaining;
-                loanTokenRecord.totalBorrowed          := newTotalBorrowed;
-                loanTokenRecord.totalRemaining         := newTotalRemaining;
+                loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
+                loanTokenRecord.totalBorrowed               := newTotalBorrowed;
+                loanTokenRecord.totalRemaining              := newTotalRemaining;
+                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;   
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1861,9 +1864,8 @@ block {
                 const initiator                 : initiatorAddressType    = Tezos.get_sender();
                 var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
 
-                // Get Treasury Address and Token Pool Reward Address  from the General Contracts map on the Governance Contract
+                // Get Treasury Address from the General Contracts map on the Governance Contract
                 const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
-                const tokenPoolRewardAddress : address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -1924,7 +1926,6 @@ block {
 
                 if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
                 newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
-
 
                 // ------------------------------------------------------------------
                 // Calculate Principal / Interest Repayments
@@ -1991,7 +1992,7 @@ block {
 
                 // Calculate share of interest that goes to the Reward Pool 
                 if interestSentToTreasury > totalInterestPaid then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID) else skip;
-                const interestSentToRewardPool : nat = abs(totalInterestPaid - interestSentToTreasury);
+                const interestRewards : nat = abs(totalInterestPaid - interestSentToTreasury);
 
                 // ------------------------------------------------------------------
                 // Process Interest Repayment - Fee Transfers
@@ -2005,19 +2006,7 @@ block {
                     loanTokenType                // token type
                 );
 
-                // Send interest as rewards to Token Pool Rewards Contract
-                const sendInterestRewardToTokenPoolRewardContractOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),    // from_   
-                    tokenPoolRewardAddress,      // to_
-                    interestSentToRewardPool,    // amount
-                    loanTokenType                // token type
-                );
-
-
-                operations := list[
-                    sendInterestToTreasuryOperation;
-                    sendInterestRewardToTokenPoolRewardContractOperation;
-                ];
+                operations := sendInterestToTreasuryOperation # operations;
 
                 // ------------------------------------------------------------------
                 // Process Principal Repayment
@@ -2067,8 +2056,12 @@ block {
                 // ------------------------------------------------------------------
 
                 // Calculate loan token accumulated rewards per share increment (1e6 * 1e27 / 1e6 -> 1e27)
-                const accRewardsPerShareIncrement  : nat = (interestSentToRewardPool * fixedPointAccuracy) / newTokenPoolTotal;
+                // - N.B. divide by token pool total before it is updated
+                const accRewardsPerShareIncrement  : nat = (interestRewards * fixedPointAccuracy) / tokenPoolTotal;
                 const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
+
+                newTokenPoolTotal := newTokenPoolTotal + interestRewards;
+                newTotalRemaining := newTotalRemaining + interestRewards;
                 
                 // ------------------------------------------------------------------
                 // Update Storage
