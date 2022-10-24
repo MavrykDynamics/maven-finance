@@ -11,9 +11,10 @@ const roundDecimalPart = (number: string, symbolsCount: number): string => {
   let formatterNumber = parseFloat(`0.${number}`)
   return formatterNumber.toFixed(symbolsCount).split('.')[1]
 }
-export const formatNumber = (showDecimal: boolean, number?: number): string | undefined =>
-  number?.toLocaleString('en-US', { maximumFractionDigits: showDecimal ? DECIMALS_TO_SHOW : 0 })
-
+export const formatNumber = (showDecimal: boolean, number?: number): string | undefined => {
+  if (showDecimal && !number) return '0.00'
+  return number?.toLocaleString('en-US', { maximumFractionDigits: showDecimal ? DECIMALS_TO_SHOW : 0 })
+}
 export const CommaNumber = ({
   value,
   loading,
