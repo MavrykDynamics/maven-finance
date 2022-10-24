@@ -330,11 +330,13 @@ export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme 
       width: 6px;
       height: 13px;
       transform: rotate(180deg);
+      stroke: ${({ theme }) => theme.secondaryColor};
+      opacity: 0.8;
     }
   
     &:hover {
       svg {
-        stroke: ${cyanColor};
+        opacity: 1;
       }
     }
   }
