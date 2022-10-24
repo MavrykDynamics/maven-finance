@@ -65,7 +65,7 @@ describe('Lending Controller Supporting Contracts', async () => {
             // LP Token for Mock FA12 Token in Lending Controller Token Pool 
             mTokenStorage.governanceAddress = governanceAddress.address;
             mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
-                "lendingController"             : lendingControllerAddress.address,
+                "lendingController"     : lendingControllerAddress.address,
                 "lendingControllerMockTime"     : lendingControllerMockTimeAddress.address
             })
             mTokenStorage.loanToken = "mockFa12";  // should correspond to loan token record in lending controller
