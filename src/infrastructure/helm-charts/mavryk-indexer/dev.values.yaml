@@ -1922,11 +1922,8 @@ hasura:
       memory: 2000Mi
       cpu: 1500m
   ingress:
-<<<<<<< HEAD
     service:
       name: hasura-dev
-=======
->>>>>>> 8c3542ff (MetricsServer installed on k8s + Mavryk Prod2 DB installed, configured and used on a new indexer + Ansible script fixed + Mavryk helm chart updated)
     enabled: true
     host: api-dev.mavryk.finance
     secretName: api-dev-mavryk-tls
