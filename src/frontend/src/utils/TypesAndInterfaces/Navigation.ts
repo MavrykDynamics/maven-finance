@@ -11,6 +11,7 @@ export interface SubNavigationRoute {
   routeSubPath: string | string[]
   protectedRoute: boolean
   requires?: RequiresProperties
+  disabled?: boolean
 }
 export interface MainNavigationRoute {
   title: string
@@ -20,5 +21,6 @@ export interface MainNavigationRoute {
   icon: string
   subPages?: SubNavigationRoute[]
   protectedRoute: boolean
+  disabled?: boolean
   requires?: RequiresProperties
 }
