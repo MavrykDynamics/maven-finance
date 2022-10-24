@@ -1863,6 +1863,16 @@ hasura:
     registry: docker.io
     repository: hasura/graphql-engine
     tag: v2.13.0
+  hpa:
+    enabled: false
+  resources:
+    enabled: true
+    requests:
+      memory: 500Mi
+      cpu: 250m
+    limits:
+      memory: 1000Mi
+      cpu: 500m
   ingress:
     enabled: true
     host: api-dev.mavryk.finance
