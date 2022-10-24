@@ -13,7 +13,7 @@ spec:
           volumes:
             - name: backup-pv-storage
               persistentVolumeClaim:
-                claimName: mavryk-indexer-backup
+                claimName: mavryk-indexer-backup-{{ .Release.Name }}
             - name: backup-script
               configMap:
                 name: backup-script-{{ .Release.Name }}
@@ -33,36 +33,23 @@ spec:
                 - -c
                 - /backup.sh
               env:
-                - name: PGHOST
+              {{- range .Values.dipdup.database.backup.env }}
+                - name: {{ .name }}
+                  {{- if ((.value))}}
+                  value: "{{.value}}"
+                  {{- else }}
                   valueFrom:
                     secretKeyRef:
-                      name: indexer
-                      key: POSTGRES_HOST
-                - name: PGPORT
-                  valueFrom:
-                    secretKeyRef:
-                      name: indexer
-                      key: POSTGRES_PORT
-                - name: PGUSER
-                  valueFrom:
-                    secretKeyRef:
-                      name: indexer
-                      key: POSTGRES_USERNAME
-                - name: PGPASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: indexer
-                      key: POSTGRES_PASSWORD
-                - name: BACKUP_RETENTION_IN_DAYS
-                  value: '7'
-                - name: BACKUP_FOLDER
-                  value: '/usr/indexer-backup'
+                      name: {{ .valueFrom.secretKeyRef.name }}
+                      key: {{ .valueFrom.secretKeyRef.key }}
+                  {{- end }}
+              {{- end }}
           restartPolicy: OnFailure
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mavryk-indexer-backup
+  name: mavryk-indexer-backup-{{ .Release.Name }}
 spec:
   storageClassName: do-block-storage
   accessModes:

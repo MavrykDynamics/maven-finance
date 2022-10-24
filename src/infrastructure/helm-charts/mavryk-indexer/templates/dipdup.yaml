@@ -58,35 +58,17 @@ spec:
         - name: schema-approve-{{ .Release.Name }}
           args: ['-c', 'dipdup.yml', 'schema', 'wipe', '--force']
           env:
-            - name: POSTGRES_HOST
+          {{- range .Values.dipdup.env }}
+            - name: {{ .name }}
+              {{- if ((.value))}}
+              value: "{{.value}}"
+              {{- else }}
               valueFrom:
                 secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_HOST
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_PORT
-            - name: POSTGRES_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_USERNAME
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_PASSWORD
-            - name: ADMIN_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: HASURA_GRAPHQL_ADMIN_SECRET
-            - name: TZKT_GHOSTNET_URL
-              value: https://api.ghostnet.tzkt.io
-            - name: TZKT_MAINNET_URL
-              value: https://api.tzkt.io
+                  name: {{ .valueFrom.secretKeyRef.name }}
+                  key: {{ .valueFrom.secretKeyRef.key }}
+              {{- end }}
+          {{- end }}
           image: '{{ .Values.dipdup.image.registry }}/{{ .Values.dipdup.image.repository }}:{{ .Values.dipdup.image.tag }}'
           imagePullPolicy: '{{ .Values.dipdup.image.pullPolicy }}'
           ports:
@@ -101,35 +83,17 @@ spec:
         - name: dipdup-{{ .Release.Name }}
           args: ['-c', 'dipdup.yml', 'run']
           env:
-            - name: POSTGRES_HOST
+          {{- range .Values.dipdup.env }}
+            - name: {{ .name }}
+              {{- if ((.value))}}
+              value: "{{.value}}"
+              {{- else }}
               valueFrom:
                 secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_HOST
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_PORT
-            - name: POSTGRES_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_USERNAME
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_PASSWORD
-            - name: ADMIN_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: HASURA_GRAPHQL_ADMIN_SECRET
-            - name: TZKT_GHOSTNET_URL
-              value: https://api.ghostnet.tzkt.io
-            - name: TZKT_MAINNET_URL
-              value: https://api.tzkt.io
+                  name: {{ .valueFrom.secretKeyRef.name }}
+                  key: {{ .valueFrom.secretKeyRef.key }}
+              {{- end }}
+          {{- end }}
           image: '{{ .Values.dipdup.image.registry }}/{{ .Values.dipdup.image.repository }}:{{ .Values.dipdup.image.tag }}'
           imagePullPolicy: '{{ .Values.dipdup.image.pullPolicy }}'
           ports:
