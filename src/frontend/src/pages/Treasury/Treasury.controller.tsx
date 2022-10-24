@@ -21,7 +21,6 @@ import { reduceTreasuryAssets } from './Treasury.helpers'
 
 export const Treasury = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
   const { treasuryStorage, treasuryFactoryAddress } = useSelector((state: State) => state.treasury)
 
   const itemsForDropDown = 
