@@ -41,7 +41,7 @@ import { TokenPoolReward, setTokenPoolRewardLambdas } from "../helpers/tokenPool
 
 import { MavrykFa12Token } from '../helpers/mavrykFa12TokenHelper'
 import { MavrykFa2Token } from '../helpers/mavrykFa2TokenHelper'
-import { MavrykLendingLpToken } from '../helpers/mavrykLendingLpTokenHelper'
+import { MToken } from '../helpers/mTokenHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -56,7 +56,7 @@ import { tokenPoolRewardStorage } from "../../storage/tokenPoolRewardStorage"
 
 import { mavrykFa12TokenStorage } from '../../storage/mavrykFa12TokenStorage'
 import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
-import { mavrykLendingLpTokenStorage } from '../../storage/mavrykLendingLpTokenStorage'
+import { mTokenStorage } from '../../storage/mTokenStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -76,9 +76,9 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
 
   var mockFa12Token                     : MavrykFa12Token
   var mockFa2Token                      : MavrykFa2Token
-  var lpTokenPoolMockFa12Token          : MavrykLendingLpToken;
-  var lpTokenPoolMockFa2Token           : MavrykLendingLpToken;
-  var lpTokenPoolXtz                    : MavrykLendingLpToken;
+  var lpTokenPoolMockFa12Token          : MToken;
+  var lpTokenPoolMockFa2Token           : MToken;
+  var lpTokenPoolXtz                    : MToken;
 
   var lendingController                 : LendingController
   var vaultFactory                      : VaultFactory
@@ -150,12 +150,12 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         // LP Token for Mock FA12 Token in Lending Controller Token Pool 
         // Note: LP Tokens follow the FA2 Token Standard
         //----------------------------
-        mavrykLendingLpTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
+        mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
             "lendingController"     : lendingController.contract.address
         })
-        lpTokenPoolMockFa12Token = await MavrykLendingLpToken.originate(
+        lpTokenPoolMockFa12Token = await MToken.originate(
             utils.tezos,
-            mavrykLendingLpTokenStorage
+            mTokenStorage
         );
 
         await saveContractAddress("lpTokenPoolMockFa12TokenAddress", lpTokenPoolMockFa12Token.contract.address)
@@ -165,9 +165,9 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         //----------------------------
         // LP Token for Mock FA2 Token in Lending Controller Token Pool 
         //----------------------------
-        lpTokenPoolMockFa2Token = await MavrykLendingLpToken.originate(
+        lpTokenPoolMockFa2Token = await MToken.originate(
             utils.tezos,
-            mavrykLendingLpTokenStorage
+            mTokenStorage
         );
     
         await saveContractAddress("lpTokenPoolMockFa2TokenAddress", lpTokenPoolMockFa2Token.contract.address)
@@ -177,9 +177,9 @@ describe('Lending Controller Contracts Deployment for Tests', async () => {
         //----------------------------
         // LP Token for XTZ in Lending Controller Token Pool 
         //----------------------------
-        lpTokenPoolXtz= await MavrykLendingLpToken.originate(
+        lpTokenPoolXtz= await MToken.originate(
             utils.tezos,
-            mavrykLendingLpTokenStorage
+            mTokenStorage
         );
 
         await saveContractAddress("lpTokenPoolXtzAddress", lpTokenPoolXtz.contract.address)
