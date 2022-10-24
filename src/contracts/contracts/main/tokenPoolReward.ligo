@@ -55,7 +55,7 @@ type tokenPoolRewardAction is
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
-    
+        
 const noOperations : list (operation) = nil;
 type return is list (operation) * tokenPoolRewardStorageType
 
