@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Page as PageBase, Card, royalPurpleColor, textsColor, headerColor, skyColor } from 'styles'
+import { Page as PageBase, Card, textsColor, headerColor, skyColor } from 'styles'
 import ModalPopupBase from '../../app/App.components/Modal/ModalPopup.view'
 
 import { MavrykTheme } from '../../styles/interfaces'
@@ -118,8 +118,6 @@ export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
     justify-content: space-between;
     padding: 0 20px 0 30px;
     height: 75px;
-
-    border-bottom: 1px solid ${royalPurpleColor};
   }
 
   .top-bar-title {
