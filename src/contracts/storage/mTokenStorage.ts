@@ -6,11 +6,7 @@ import { zeroAddress } from "../test/helpers/Utils";
 
 const { bob, alice, eve, mallory } = require('../scripts/sandbox/accounts')
 
-import { mavrykLendingLpTokenStorageType } from "../test/types/mavrykLendingLpTokenStorageType";
-
-const totalSupply   = 20000000000;
-const initialSupply = new BigNumber(totalSupply); // 20,000 MOCK FA2 Tokens in mu (10^6)
-const singleUserSupply = new BigNumber(totalSupply / 4);
+import { mTokenStorageType } from "../test/types/mTokenStorageType";
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -41,19 +37,14 @@ const metadata = MichelsonMap.fromLiteral({
     ).toString('hex'),
   })
 
-const ledger = MichelsonMap.fromLiteral({
-    [bob.pkh]: singleUserSupply,
-    [alice.pkh]: singleUserSupply,
-    [eve.pkh]: singleUserSupply,
-    [mallory.pkh]: singleUserSupply
-})
+const ledger = MichelsonMap.fromLiteral({})
 
 const token_metadata = MichelsonMap.fromLiteral({
     0: {
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA2').toString('hex'),
-            name: Buffer.from('MAVRYKFA2').toString('hex'),
+            name: Buffer.from('mToken').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
             icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
             shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
@@ -62,19 +53,19 @@ const token_metadata = MichelsonMap.fromLiteral({
     },
 })
 
-export const mavrykLendingLpTokenStorage: mavrykLendingLpTokenStorageType = {
+export const mTokenStorage: mTokenStorageType = {
     
     admin               : bob.pkh,
     metadata            : metadata,
 
-    loanToken           : 'something',                   // reference to Lending Controller loan token
+    loanToken           : "something",
+    rewardIndexLedger   :  MichelsonMap.fromLiteral({}),
 
     governanceAddress   : zeroAddress,
 
     whitelistContracts  :  MichelsonMap.fromLiteral({}),
 
     token_metadata      : token_metadata,
-    totalSupply         : initialSupply,
     ledger              : ledger,
     operators           :  MichelsonMap.fromLiteral({})
 
