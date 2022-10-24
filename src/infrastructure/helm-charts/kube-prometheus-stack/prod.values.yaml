@@ -869,7 +869,7 @@ kube-prometheus-stack:
   ## Component scraping the kubelet and kubelet-hosted cAdvisor
   ##
   kubelet:
-    enabled: false
+    enabled: true
     namespace: kube-system
 
     serviceMonitor:
@@ -1612,7 +1612,7 @@ kube-prometheus-stack:
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/helm/prometheus-operator/README.md
     ##
     kubeletService:
-      enabled: false
+      enabled: true
       namespace: kube-system
       ## Use '{{ template "kube-prometheus-stack.fullname" . }}-kubelet' by default
       name: ''
