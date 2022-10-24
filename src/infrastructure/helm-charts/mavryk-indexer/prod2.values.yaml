@@ -32,11 +32,7 @@ dipdup:
           valueFrom:
             secretKeyRef:
               name: indexer
-<<<<<<< HEAD
               key: POSTGRES_PASSWORD_PROD_2
-=======
-              key: POSTGRES_PASSWORD
->>>>>>> 8c3542ff (MetricsServer installed on k8s + Mavryk Prod2 DB installed, configured and used on a new indexer + Ansible script fixed + Mavryk helm chart updated)
         - name: BACKUP_RETENTION_IN_DAYS
           value: '7'
         - name: BACKUP_FOLDER
