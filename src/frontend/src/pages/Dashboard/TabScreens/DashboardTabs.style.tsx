@@ -17,6 +17,11 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
   flex-direction: column;
   justify-content: flex-start;
 
+  svg {
+    stroke: none;
+    fill: ${({ theme }) => theme.containerColor};
+  }
+
   .top {
     display: flex;
     width: 100%;
