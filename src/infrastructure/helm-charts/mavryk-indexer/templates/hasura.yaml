@@ -83,21 +83,6 @@ spec:
 {{- end}}
 {{- if .Values.hasura.ingress.enabled }}
 ---
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: hasura-{{ .Release.Name }}
-spec:
-  maxReplicas: 10
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: hasura-{{ .Release.Name }}
-  targetCPUUtilizationPercentage: 80
-{{- end}}
-{{- if .Values.hasura.ingress.enabled }}
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
