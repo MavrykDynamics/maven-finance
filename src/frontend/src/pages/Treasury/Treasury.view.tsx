@@ -3,12 +3,12 @@ import React, { useState, useMemo } from 'react'
 // view
 import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 import PieChartView from '../../app/App.components/PieСhart/PieСhart.view'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
+// helpers
 import { calcPersent } from './helpers/treasury.utils'
 
 // style
-import { TreasuryViewStyle } from './Treasury.style'
+import { TreasuryViewStyle, TzAddress } from './Treasury.style'
 import { getPieChartData } from './helpers/calculateChartData'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { CYAN } from 'app/App.components/TzAddress/TzAddress.constants'
@@ -41,7 +41,7 @@ export default function TreasuryView({ treasury, isGlobal = false, factoryAddres
         {factoryAddress ? (
           <div className="factory_address">
             <div className="text">Treasury Factory address</div>{' '}
-            <TzAddress type={CYAN} tzAddress={factoryAddress} hasIcon />
+            <TzAddress type={CYAN} tzAddress={factoryAddress} hasIcon={false} />
           </div>
         ) : null}
         <div>
