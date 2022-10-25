@@ -31,7 +31,10 @@ type mavrykFa2TokenStorageType is [@layout:comb] record [
     admin                   : address;
     metadata                : metadataType;
     
+    // additional storage types for scaled token
     loanToken               : string;                   // reference to Lending Controller loan token
+    isScaledToken           : bool;
+    tokenRewardIndex        : nat;
     rewardIndexLedger       : rewardIndexLedgerType;
 
     governanceAddress       : address;

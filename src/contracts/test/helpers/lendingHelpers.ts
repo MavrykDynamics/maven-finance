@@ -152,7 +152,7 @@ export const calculateInterestSentToTreasury = (interestTreasuryShare, totalInte
 }
 
 
-export const calculateInterestSentToRewardPool = (interestSentToTreasury, totalInterestPaid) => {
+export const calculateInterestRewards = (interestSentToTreasury, totalInterestPaid) => {
     return totalInterestPaid - interestSentToTreasury
 }
 
