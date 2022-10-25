@@ -113,28 +113,19 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
             </div>
             <div className="bottom">
               <DataFeedInfoBlock>
-                <DataFeedsTitle fontSize={18} fontWeidth={600}>
-                  Oracle responses
-                  <CustomTooltip
-                    text={`The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
-                    responses to be able to calculate a trusted answer.`}
-                    iconId={'info'}
-                  />
+                <DataFeedsTitle fontSize={16} fontWeidth={600}>
+                  Decimals
+                  <CustomTooltip text={`Countdown until the data is next written on-chain`} iconId={'info'} />
                 </DataFeedsTitle>
-                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  Minimum of {feed.pct_oracle_threshold}%
-                </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_data_pct_oracle_resp}% / {feed.pct_oracle_threshold}%
+                  {''.padEnd(feed.decimals, '0')}
                 </DataFeedValueText>
               </DataFeedInfoBlock>
-              <DataFeedInfoBlock>
-                <DataFeedsTitle fontSize={18} fontWeidth={600}>
-                  Last update
-                  <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
-                </DataFeedsTitle>
+              
+              <DataFeedInfoBlock justifyContent={'flex-end'}>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'MMM DD, YYYY' })}
+                  Heartbeat
+                  <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} />
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {feed.last_completed_data_last_updated_at ? (
@@ -149,19 +140,31 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                   ) : null}
                 </DataFeedValueText>
               </DataFeedInfoBlock>
+
               <DataFeedInfoBlock>
-                <DataFeedsTitle fontSize={18} fontWeidth={600}>
-                  Decimals
-                  <CustomTooltip text={`Countdown until the data is next written on-chain`} iconId={'info'} />
+                <DataFeedsTitle fontSize={16} fontWeidth={600}>
+                  Oracle responses
+                  <CustomTooltip
+                    text={`The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
+                    responses to be able to calculate a trusted answer.`}
+                    iconId={'info'}
+                  />
                 </DataFeedsTitle>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                  Minimum of {feed.pct_oracle_threshold}%
+                </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {''.padEnd(feed.decimals, '0')}
+                  {feed.last_completed_data_pct_oracle_resp}% / {feed.pct_oracle_threshold}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
-              <DataFeedInfoBlock justifyContent={'flex-end'}>
+              
+              <DataFeedInfoBlock>
+                <DataFeedsTitle fontSize={16} fontWeidth={600}>
+                  Last update
+                  <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
+                </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  Heartbeat
-                  <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} />
+                  {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'MMM DD, YYYY' })}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {feed.last_completed_data_last_updated_at ? (

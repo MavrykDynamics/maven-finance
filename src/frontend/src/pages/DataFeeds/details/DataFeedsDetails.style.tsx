@@ -1,5 +1,5 @@
-import styled, { css } from 'styled-components'
-import { boxShadowColor, cyanColor, downColor, upColor, Card } from 'styles'
+import styled from 'styled-components'
+import { boxShadowColor, cyanColor } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const DataFeedsStyled = styled.div`
@@ -70,11 +70,10 @@ export const DataFeedsStyled = styled.div`
 
       .bottom {
         display: grid;
-        grid-template-columns: 1.2fr 1.1fr 1fr;
+        grid-template-columns: 1fr 1.1fr 1.1fr 1.1fr;
         grid-template-rows: minmax(auto, 85px);
-        padding: 20px 40px 30px 40px;
-        column-gap: 60px;
-        row-gap: 30px;
+        padding: 5px 40px 30px;
+        column-gap: 5px;
       }
     }
 
@@ -89,7 +88,7 @@ export const DataFeedsStyled = styled.div`
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin: 15px 0;
+        margin-top: 10px;
       }
 
       .adresses-info,
@@ -97,7 +96,7 @@ export const DataFeedsStyled = styled.div`
         background: #160e3f;
         border: 1px solid #503eaa;
         border-radius: 10px;
-        padding: 25px 30px;
+        padding: 0 30px 10px 30px;
       }
 
       .register-pair-wrapper {
@@ -180,7 +179,7 @@ export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?:
 
   &.title {
     margin: 0 auto;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
 
   &.descr {
