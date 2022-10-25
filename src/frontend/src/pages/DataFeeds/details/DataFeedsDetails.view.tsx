@@ -94,7 +94,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                 </DataFeedsTitle>
                 <a href="https://mavryk.finance/litepaper" target="_blank" rel="noreferrer">
                   Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
-                  <CustomTooltip iconId={'question'} />
+                  <CustomTooltip className='info-icon' iconId={'question'} />
                 </a>
               </div>
               <div className="price-part">
@@ -102,11 +102,12 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                   <Icon id={isTrustedAnswer ? 'trustShield' : 'notTrustedShield'} />
                   <CommaNumber beginningText="$" value={feed.last_completed_data} />
                 </DataFeedValueText>
-                <DataFeedsTitle className="margin-r">
+                <DataFeedsTitle>
                   {isTrustedAnswer ? 'Trusted Answer' : 'Not Trusted Answer'}
                   <CustomTooltip
                     text={`Answer is calculated in the smart contract and required a minimum of 60% of oracles to be trusted`}
                     iconId={'info'}
+                    className='info-icon'
                   />
                 </DataFeedsTitle>
               </div>
@@ -119,6 +120,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                     text={`A new trusted answer is written when the off-chain data moves more than the deviation threshold or 3600
                     seconds have passed since the last answer was written on-chain.`}
                     iconId={'info'}
+                    className='info-icon'
                   />
                 </DataFeedsTitle>
 
@@ -134,7 +136,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
               <DataFeedInfoBlock justifyContent={'flex-end'}>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   Heartbeat
-                  <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} />
+                  <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} className='info-icon' />
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {feed.last_completed_data_last_updated_at ? (
@@ -154,6 +156,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                 <DataFeedsTitle fontSize={16} fontWeidth={600}>
                   Oracle responses
                   <CustomTooltip
+                    className='info-icon'
                     text={`The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
                     responses to be able to calculate a trusted answer.`}
                     iconId={'info'}
@@ -170,7 +173,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
               <DataFeedInfoBlock>
                 <DataFeedsTitle fontSize={16} fontWeidth={600}>
                   Last update
-                  <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
+                  <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} className='info-icon' />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'MMM DD, YYYY' })}
@@ -227,7 +230,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
               <div className="info-wrapper">
                 <DataFeedsTitle fontSize={14} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   ENS address
-                  <CustomTooltip iconId={'question'} />
+                  <CustomTooltip iconId={'question'} className='info-icon' />
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   eth-usd.data.eth
