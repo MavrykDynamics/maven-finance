@@ -75,8 +75,8 @@ export const DataFeedsStyled = styled.div`
 
       .bottom {
         display: grid;
-        grid-template-columns: 1.2fr 1fr 1.1fr 1fr;
-        grid-template-rows: minmax(auto, 85px);
+        grid-template-columns: 170px 155px 155px 155px;
+        column-gap: 13px;
         padding: 5px 40px 30px;
       }
     }
@@ -139,10 +139,12 @@ export const DataFeedsStyled = styled.div`
 `
 
 export const DataFeedInfoBlock = styled.div<{ justifyContent?: string }>`
+  position: relative; 
   display: flex;
   flex-direction: column;
   padding-top: 15px;
   justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
+  top: ${({ justifyContent }) => justifyContent === 'flex-end' ? '-2px' : ''};
   min-height: 85px;
 `
 
