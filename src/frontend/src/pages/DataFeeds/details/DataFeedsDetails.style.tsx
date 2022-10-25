@@ -70,10 +70,9 @@ export const DataFeedsStyled = styled.div`
 
       .bottom {
         display: grid;
-        grid-template-columns: 1fr 1.1fr 1.1fr 1.1fr;
+        grid-template-columns: 1.2fr 1fr 1.1fr 1fr;
         grid-template-rows: minmax(auto, 85px);
         padding: 5px 40px 30px;
-        column-gap: 5px;
       }
     }
 

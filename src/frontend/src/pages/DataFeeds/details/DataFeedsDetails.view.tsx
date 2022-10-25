@@ -103,7 +103,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                   <CommaNumber beginningText="$" value={feed.last_completed_data} />
                 </DataFeedValueText>
                 <DataFeedsTitle className="margin-r">
-                  {isTrustedAnswer ? 'Trusted answer' : 'Not Trusted'}
+                  {isTrustedAnswer ? 'Trusted Answer' : 'Not Trusted Answer'}
                   <CustomTooltip
                     text={`Answer is calculated in the smart contract and required a minimum of 60% of oracles to be trusted`}
                     iconId={'info'}
@@ -114,11 +114,20 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
             <div className="bottom">
               <DataFeedInfoBlock>
                 <DataFeedsTitle fontSize={16} fontWeidth={600}>
-                  Decimals
-                  <CustomTooltip text={`Countdown until the data is next written on-chain`} iconId={'info'} />
+                  Trigger parameters
+                  <CustomTooltip
+                    text={`A new trusted answer is written when the off-chain data moves more than the deviation threshold or 3600
+                    seconds have passed since the last answer was written on-chain.`}
+                    iconId={'info'}
+                  />
                 </DataFeedsTitle>
+
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                    Deviation threshold
+                </DataFeedSubTitleText>
+
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {''.padEnd(feed.decimals, '0')}
+                  {feed.pct_oracle_threshold}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               
@@ -132,7 +141,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                     <Timer
                       options={{
                         showZeros: false,
-                        negativeColor: downColor,
+                        negativeColor: isTrustedAnswer ? cyanColor : downColor,
                         defaultColor: cyanColor,
                       }}
                       timestamp={new Date(feed.last_completed_data_last_updated_at).getTime() + 1000 * 60 * 30}
@@ -154,7 +163,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                   Minimum of {feed.pct_oracle_threshold}%
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_data_pct_oracle_resp}% / {feed.pct_oracle_threshold}%
+                  {feed.last_completed_data_pct_oracle_resp}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               
@@ -171,7 +180,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                     <Timer
                       options={{
                         showZeros: false,
-                        negativeColor: downColor,
+                        negativeColor: cyanColor,
                         defaultColor: cyanColor,
                       }}
                       timestamp={new Date(feed.last_completed_data_last_updated_at).getTime() + 1000 * 60 * 30}
