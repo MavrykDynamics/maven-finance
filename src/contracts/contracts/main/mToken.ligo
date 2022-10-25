@@ -233,9 +233,8 @@ block {
 
     const userAddress : address = userAndId.0;
 
-    // get loan token record from Lending Controller
-    const loanTokenRecord               : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const loanTokenAccRewardsPerShare   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+    // get current token reward index i.e. loan token accumulated rewards per share
+    const loanTokenAccRewardsPerShare : nat = s.tokenRewardIndex;
 
     // get user reward index
     const rewardIndex : nat = case s.rewardIndexLedger[userAddress] of [
@@ -265,17 +264,6 @@ block {
     };
 
 } with tokenBalance
-
-
-(* total_supply View - reference lending controller *)
-[@view] function total_supply(const _tokenId : nat; const s : mavrykFa2TokenStorageType) : tokenBalanceType is
-block {
-    
-    // get loan token record from Lending Controller
-    const loanTokenRecord : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const tokenPoolTotal : nat = loanTokenRecord.tokenPoolTotal;
-
-} with tokenPoolTotal
 
 
 
@@ -501,6 +489,8 @@ block{
                 accumulator.rewardIndexLedger[owner]    := loanTokenAccRewardsPerShare;       
                 accumulator.rewardIndexLedger[receiver] := loanTokenAccRewardsPerShare;       
 
+                accumulator.tokenRewardIndex            := loanTokenAccRewardsPerShare;
+
             } with accumulator;
 
             const updatedOperations : list(operation) = (nil: list(operation));
@@ -517,54 +507,54 @@ block{
 function balanceOf(const balanceOfParams : balanceOfType; const s : mavrykFa2TokenStorageType) : return is
 block{
 
+    const loanTokenRecord               : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
+    const loanTokenAccRewardsPerShare   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+
     function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
-        block{
+    block{
 
-            const loanTokenRecord               : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-            const loanTokenAccRewardsPerShare   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+        const requestOwner : ownerType = request.owner;
 
-            const requestOwner : ownerType = request.owner;
+        // get user token balance from ledger
+        var tokenBalance : tokenBalanceType := case s.ledger[requestOwner] of [
+                Some (balance) -> balance
+            |   None           -> 0n
+        ];
 
-            // get user token balance from ledger
-            var tokenBalance : tokenBalanceType := case s.ledger[requestOwner] of [
-                    Some (balance) -> balance
-                |   None           -> 0n
-            ];
+        // reward index <-> identical to user participation fees per share used in doorman contract
+        const rewardIndex : nat = case s.rewardIndexLedger[requestOwner] of [
+                Some (index) -> index
+            |   None         -> loanTokenAccRewardsPerShare
+        ];
 
-            // reward index <-> identical to user participation fees per share used in doorman contract
-            const rewardIndex : nat = case s.rewardIndexLedger[requestOwner] of [
-                    Some (index) -> index
-                |   None         -> loanTokenAccRewardsPerShare
-            ];
+        // reflect token updated balance
+        if(rewardIndex = loanTokenAccRewardsPerShare) then skip     // no change to token balance
+        else {
+            
+            // loanTokenAccRewardsPerShare is monotonically increasing and should always be greater than owner index
+            if rewardIndex > loanTokenAccRewardsPerShare then failwith(error_CALCULATION_ERROR) else skip;
+            const currentRewardsPerShare : nat = abs(loanTokenAccRewardsPerShare - rewardIndex);
 
-            // reflect token updated balance
-            if(rewardIndex = loanTokenAccRewardsPerShare) then skip     // no change to token balance
-            else {
-                
-                // loanTokenAccRewardsPerShare is monotonically increasing and should always be greater than owner index
-                if rewardIndex > loanTokenAccRewardsPerShare then failwith(error_CALCULATION_ERROR) else skip;
-                const currentRewardsPerShare : nat = abs(loanTokenAccRewardsPerShare - rewardIndex);
+            // calculate additional rewards
+            const additionalRewards : nat = (currentRewardsPerShare * tokenBalance) / fixedPointAccuracy;
 
-                // calculate additional rewards
-                const additionalRewards : nat = (currentRewardsPerShare * tokenBalance) / fixedPointAccuracy;
+            // increment token balance with the rewards
+            tokenBalance := tokenBalance + additionalRewards;
+        };
 
-                // increment token balance with the rewards
-                tokenBalance := tokenBalance + additionalRewards;
-            };
+        const response : balanceOfResponse = record[
+            request = request;
+            balance = tokenBalance
+        ];
 
-            const response : balanceOfResponse = record[
-                request = request;
-                balance = tokenBalance
-            ];
+    } with (response);
 
-        } with (response);
+    const requests   : list(balanceOfRequestType) = balanceOfParams.requests;
+    const callback   : contract(list(balanceOfResponse)) = balanceOfParams.callback;
+    const responses  : list(balanceOfResponse) = List.map(retrieveBalance, requests);
+    const operation  : operation = Tezos.transaction(responses, 0tez, callback);
 
-      const requests   : list(balanceOfRequestType) = balanceOfParams.requests;
-      const callback   : contract(list(balanceOfResponse)) = balanceOfParams.callback;
-      const responses  : list(balanceOfResponse) = List.map(retrieveBalance, requests);
-      const operation  : operation = Tezos.transaction(responses, 0tez, callback);
-
-} with (list[operation],s)
+} with (list[operation], s with record[tokenRewardIndex = loanTokenAccRewardsPerShare])
 
 
 
@@ -665,6 +655,9 @@ block {
         s.ledger[targetAddress]             := targetNewBalance;       
         s.rewardIndexLedger[targetAddress]  := loanTokenAccRewardsPerShare; 
     };
+
+    // update token reward index
+    s.tokenRewardIndex := loanTokenAccRewardsPerShare;
 
 } with (noOperations, s)
 
