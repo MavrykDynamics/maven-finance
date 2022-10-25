@@ -49,7 +49,6 @@ import { MToken } from '../helpers/mTokenHelper'
 
 import { aggregatorStorage } from '../../storage/aggregatorStorage'
 
-import { vaultStorage } from "../../storage/vaultStorage"
 import { lendingControllerMockTimeStorage } from "../../storage/lendingControllerMockTimeStorage"
 import { vaultFactoryStorage } from "../../storage/vaultFactoryStorage"
 import { tokenPoolRewardStorage } from "../../storage/tokenPoolRewardStorage"
@@ -151,9 +150,11 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             // LP Token for Mock FA12 Token in Lending Controller Token Pool 
             // Note: LP Tokens follow the FA2 Token Standard
             //----------------------------
+            mTokenStorage.governanceAddress = governanceAddress.address;
             mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
                 "lendingController"     : lendingControllerMockTime.contract.address
-            })
+            });
+            mTokenStorage.loanToken = "mockFa12";  // should correspond to loan token record in lending controller
             lpTokenPoolMockFa12Token = await MToken.originate(
                 utils.tezos,
                 mTokenStorage
@@ -166,6 +167,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             //----------------------------
             // LP Token for Mock FA2 Token in Lending Controller Token Pool 
             //----------------------------
+            mTokenStorage.loanToken = "mockFa2";  // should correspond to loan token record in lending controller
             lpTokenPoolMockFa2Token = await MToken.originate(
                 utils.tezos,
                 mTokenStorage
@@ -178,6 +180,7 @@ describe('Lending Controller Mock Time Contracts Deployment for Tests', async ()
             //----------------------------
             // LP Token for XTZ in Lending Controller Token Pool 
             //----------------------------
+            mTokenStorage.loanToken = "tez";  // should correspond to loan token record in lending controller
             lpTokenPoolXtz= await MToken.originate(
                 utils.tezos,
                 mTokenStorage

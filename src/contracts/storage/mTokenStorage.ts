@@ -59,6 +59,7 @@ export const mTokenStorage: mTokenStorageType = {
     metadata            : metadata,
 
     loanToken           : "something",
+    tokenRewardIndex    : new BigNumber(1),
     rewardIndexLedger   :  MichelsonMap.fromLiteral({}),
 
     governanceAddress   : zeroAddress,
