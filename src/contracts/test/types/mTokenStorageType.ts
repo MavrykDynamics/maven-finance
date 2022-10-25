@@ -7,6 +7,7 @@ export type mTokenStorageType = {
     metadata            : MichelsonMap<MichelsonMapKey, unknown>;
     
     loanToken           : string;
+    tokenRewardIndex    : BigNumber;
     rewardIndexLedger   : MichelsonMap<MichelsonMapKey, unknown>;
 
     governanceAddress   : string;
