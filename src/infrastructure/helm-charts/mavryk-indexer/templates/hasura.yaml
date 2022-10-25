@@ -73,7 +73,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: hasura-{{ .Release.Name }}
 spec:
-  maxReplicas: 10
+  maxReplicas: 5
   minReplicas: 1
   scaleTargetRef:
     apiVersion: apps/v1
