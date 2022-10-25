@@ -6,6 +6,11 @@ export const DataFeedsStyled = styled.div`
   display: flex;
   flex-direction: column;
 
+  .info-icon, svg {
+      width: 12px;
+      height: 12px;
+  }
+
   .top-section-wrapper {
     display: flex;
     justify-content: space-between;
@@ -145,14 +150,9 @@ export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: numbe
   font-weight: ${({ fontWeidth }) => fontWeidth || 400};
   font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : '12px')};
   color: #8d86eb;
-  text-transform: capitalize;
   display: flex;
   align-items: center;
   padding: 2px 0 3px 0;
-
-  &.margin-r {
-    margin-right: 20px;
-  }
 
   &.title {
     margin: 0 auto;
