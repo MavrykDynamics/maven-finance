@@ -21,7 +21,6 @@ import { reduceTreasuryAssets } from './Treasury.helpers'
 
 export const Treasury = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
   const { treasuryStorage, treasuryFactoryAddress } = useSelector((state: State) => state.treasury)
 
   const itemsForDropDown = 
@@ -76,7 +75,7 @@ export const Treasury = () => {
           <h2>Active Treasuries</h2>
           <DropDown
             clickOnDropDown={handleClickDropdown}
-            placeholder='Choose action'
+            placeholder='Choose treasury'
             isOpen={ddIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
