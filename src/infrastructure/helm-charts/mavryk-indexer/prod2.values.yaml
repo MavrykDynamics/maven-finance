@@ -32,7 +32,7 @@ dipdup:
           valueFrom:
             secretKeyRef:
               name: indexer
-              key: POSTGRES_PASSWORD
+              key: POSTGRES_PASSWORD_PROD_2
         - name: BACKUP_RETENTION_IN_DAYS
           value: '7'
         - name: BACKUP_FOLDER
@@ -1894,10 +1894,10 @@ hasura:
     enabled: true
     requests:
       memory: 1000Mi
-      cpu: 500m
+      cpu: 1000m
     limits:
       memory: 2000Mi
-      cpu: 1000m
+      cpu: 1500m
   ingress:
     enabled: false
     host:
