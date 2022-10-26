@@ -7,8 +7,8 @@ export const DataFeedsStyled = styled.div`
   flex-direction: column;
 
   .info-icon, svg {
-      width: 12px;
-      height: 12px;
+    width: 12px;
+    height: 12px;
   }
 
   .top-section-wrapper {
@@ -75,8 +75,8 @@ export const DataFeedsStyled = styled.div`
 
       .bottom {
         display: grid;
-        grid-template-columns: 170px 155px 155px 155px;
-        column-gap: 13px;
+        grid-template-columns: 170px 165px 155px 165px;
+        column-gap: 5px;
         padding: 5px 40px 30px;
       }
     }
