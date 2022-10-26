@@ -48,6 +48,8 @@
 //     var eveVaultSet = []
 //     var malloryVaultSet = [] 
 
+//     let updateTokenRewardIndexOperation
+
 //     // 20 seconds blocks
 //     // const oneDayLevelBlocks = 4320
 //     // const oneMonthLevelBlocks = 129600
@@ -226,6 +228,63 @@
 //         console.log('Bob address: '   + bob.pkh);
 //         console.log('Eve address: '   + eve.pkh);
 
+//         // ------------------------------------------------------------------
+//         //
+//         // Update LP Tokens (i.e. mTokens) tokenRewardIndex by transferring 0
+//         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
+//         //
+//         // ------------------------------------------------------------------
+//         await signerFactory(bob.sk);
+
+//         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("mockFa12"); 
+//         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
+//         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
+        
+//         if(mockFa12LoanToken !== undefined){
+//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
+//             {
+//                 from_: bob.pkh,
+//                 txs: [
+//                     {
+//                         to_: eve.pkh,
+//                         token_id: 0,
+//                         amount: 0,
+//                     },
+//                 ]
+//             }]).send();
+//             await updateTokenRewardIndexOperation.confirmation();
+//         }
+
+//         if(mockFa2LoanToken !== undefined){
+//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+//             {
+//                 from_: bob.pkh,
+//                 txs: [
+//                     {
+//                         to_: eve.pkh,
+//                         token_id: 0,
+//                         amount: 0,
+//                     },
+//                 ]
+//             }]).send();
+//             await updateTokenRewardIndexOperation.confirmation();
+//         }
+
+//         if(tezLoanToken !== undefined){
+//             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
+//             {
+//                 from_: bob.pkh,
+//                 txs: [
+//                     {
+//                         to_: eve.pkh,
+//                         token_id: 0,
+//                         amount: 0,
+//                     },
+//                 ]
+//             }]).send();
+//             await updateTokenRewardIndexOperation.confirmation();
+//         }
+
 //     });
 
 
@@ -305,7 +364,6 @@
 //                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
     
 //                     assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
 //                     assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -330,7 +388,6 @@
                 
 //                     // other variables will be affected by repeated tests
 //                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
 
 //                 }
 
@@ -410,8 +467,6 @@
 //                     const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2LoanToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2LoanToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
 //                     assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -436,8 +491,6 @@
 
 //                     // other variables will be affected by repeated tests
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2LoanToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2LoanToken.tokenId                , tokenId);
 
 //                 }
                 
@@ -534,7 +587,6 @@
 //                     assert.equal(tezLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
 //                     assert.equal(tezLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
     
-
 //                 } else {
 
 //                     lendingControllerStorage  = await lendingControllerInstance.storage();
@@ -733,8 +785,6 @@
 //                     const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2CollateralToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
 //                     assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
@@ -793,8 +843,6 @@
 //                     const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2CollateralToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
 //                     assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
