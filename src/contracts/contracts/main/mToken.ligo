@@ -150,7 +150,7 @@ block{
 
 // removeOperator helper function - used in update_operators entrypoint
 function removeOperator(const operatorParameter : operatorParameterType; const operators : operatorsType) : operatorsType is
-block{
+block {
 
     const owner     : ownerType     = operatorParameter.owner;
     const operator  : operatorType  = operatorParameter.operator;
@@ -162,6 +162,58 @@ block{
     const operatorKey : (ownerType * operatorType * tokenIdType) = (owner, operator, tokenId)
 
 } with(Big_map.remove(operatorKey, operators))
+
+
+
+// get raw user balance from ledger
+function getRawBalance(const userAddress : address; const s : mavrykFa2TokenStorageType) : nat is 
+block {
+
+    var rawUserBalance : tokenBalanceType := case s.ledger[userAddress] of [
+            Some (balance) -> balance
+        |   None           -> 0n
+    ];
+
+} with rawUserBalance
+
+
+
+// get raw user reward index
+function getUserRewardIndex(const userAddress : address; const tokenRewardIndex : nat; const s : mavrykFa2TokenStorageType) : nat is 
+block {
+
+    const userRewardIndex : nat = case s.rewardIndexLedger[userAddress] of [
+            Some (index) -> index
+        |   None         -> tokenRewardIndex
+    ];
+
+} with userRewardIndex
+
+
+
+// calculate additional rewards
+function calculateAdditionalRewards(const userRewardIndex : nat; const tokenRewardIndex : nat; const userTokenBalance : nat) : nat is
+block {
+
+    // tokenRewardIndex is monotonically increasing and should always be greater than user reward index
+    if userRewardIndex > tokenRewardIndex then failwith(error_CALCULATION_ERROR) else skip;
+    const currentRewardsPerShare : nat = abs(tokenRewardIndex - userRewardIndex);
+
+    // calculate additional rewards
+    const additionalRewards : nat = (currentRewardsPerShare * userTokenBalance) / fixedPointAccuracy;
+
+} with additionalRewards
+
+
+
+// update user balance and user reward index
+function updateUserBalanceAndRewardIndex(const userAddress : address; const newUserBalance : nat; const newUserRewardIndex : nat; var s : mavrykFa2TokenStorageType) : mavrykFa2TokenStorageType is 
+block {
+
+    s.ledger[userAddress]            := newUserBalance;
+    s.rewardIndexLedger[userAddress] := newUserRewardIndex;
+
+} with s
 
 // ------------------------------------------------------------------------------
 // FA2 Helper Functions End
@@ -180,7 +232,7 @@ block {
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
         
-    // get loan token record of user from Lending Controlelr contract
+    // get loan token record of user from Lending Controller through on-chain views
     const getLoanTokenRecordOptView : option (option (loanTokenRecordType)) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
     const loanTokenRecord : loanTokenRecordType = case getLoanTokenRecordOptView of [
             Some (_viewResult)  -> case _viewResult of [
@@ -210,7 +262,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var s : mavrykFa2TokenStorageType) : address is
+[@view] function getAdmin(const _ : unit; const s : mavrykFa2TokenStorageType) : address is
     s.admin
 
 
@@ -231,39 +283,27 @@ block {
 [@view] function get_balance(const userAndId : ownerType * nat; const s : mavrykFa2TokenStorageType) : tokenBalanceType is
 block {
 
-    const userAddress : address = userAndId.0;
+    // init user address
+    const userAddress       : address           = userAndId.0;
 
     // get current token reward index i.e. loan token accumulated rewards per share
-    const loanTokenAccRewardsPerShare : nat = s.tokenRewardIndex;
+    const tokenRewardIndex  : nat               = s.tokenRewardIndex;
 
-    // get user reward index
-    const rewardIndex : nat = case s.rewardIndexLedger[userAddress] of [
-            Some (index) -> index
-        |   None         -> loanTokenAccRewardsPerShare
-    ];
-
-    // get user token balance from ledger
-    var tokenBalance : tokenBalanceType := case s.ledger[userAddress] of [
-            Some (balance) -> balance
-        |   None           -> 0n
-    ];
+    // get user reward index and user raw balance
+    const userRewardIndex   : nat               = getUserRewardIndex(userAddress, tokenRewardIndex, s);
+    var userTokenBalance    : tokenBalanceType := getRawBalance(userAddress, s);
 
     // reflect token updated balance
-    if(rewardIndex = loanTokenAccRewardsPerShare) then skip     // no change to token balance
+    if(userRewardIndex = tokenRewardIndex) then skip     // no change to token balance
     else {
-        
-        // loanTokenAccRewardsPerShare is monotonically increasing and should always be greater than owner index
-        if rewardIndex > loanTokenAccRewardsPerShare then failwith(error_CALCULATION_ERROR) else skip;
-        const currentRewardsPerShare : nat = abs(loanTokenAccRewardsPerShare - rewardIndex);
 
-        // calculate additional rewards
-        const additionalRewards : nat = (currentRewardsPerShare * tokenBalance) / fixedPointAccuracy;
+        // increment token balance with calculated additional rewards 
+        const additionalRewards : nat = calculateAdditionalRewards(userRewardIndex, tokenRewardIndex, userTokenBalance);
+        userTokenBalance := userTokenBalance + additionalRewards;
 
-        // increment token balance with the rewards
-        tokenBalance := tokenBalance + additionalRewards;
     };
 
-} with tokenBalance
+} with userTokenBalance
 
 
 
@@ -401,66 +441,42 @@ block{
             const owner : ownerType = transferParam.from_;
             const txs : list(transferDestination) = transferParam.txs;
 
-            // get loan token record and accumulated rewards per share
-            const loanTokenRecord               : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-            const loanTokenAccRewardsPerShare   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+            // get loan token record from Lending Controller through on-chain views
+            const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
+            const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
              
             function transferTokens(var accumulator : mavrykFa2TokenStorageType; const destination : transferDestination) : mavrykFa2TokenStorageType is
             block {
 
-                const tokenId : tokenIdType = destination.token_id;
-                const tokenAmount : tokenBalanceType = destination.amount;
-                const receiver : ownerType = destination.to_;
+                const tokenId       : tokenIdType       = destination.token_id;
+                const tokenAmount   : tokenBalanceType  = destination.amount;
+                const receiver      : ownerType         = destination.to_;
 
-                // get token balances from ledger for owner and receiver
-                var ownerBalance : tokenBalanceType := case s.ledger[owner] of [
-                        Some (balance) -> balance
-                    |   None           -> 0n
-                ];
-
-                var receiverBalance : tokenBalanceType := case s.ledger[receiver] of [
-                        Some (balance) -> balance
-                    |   None           -> 0n
-                ];
+                // get token balance for owner and receiver
+                var ownerTokenBalance      : tokenBalanceType := getRawBalance(owner, s);
+                var receiverTokenBalance   : tokenBalanceType := getRawBalance(receiver, s);
 
                 // get reward indexes for owner and receiver
-                const ownerRewardIndex : nat = case s.rewardIndexLedger[owner] of [
-                        Some (index) -> index
-                    |   None         -> loanTokenAccRewardsPerShare
-                ];
-
-                const receiverRewardIndex : nat = case s.rewardIndexLedger[receiver] of [
-                        Some (index) -> index
-                    |   None         -> loanTokenAccRewardsPerShare
-                ];
+                const ownerRewardIndex     : nat               = getUserRewardIndex(owner, tokenRewardIndex, s);
+                const receiverRewardIndex  : nat               = getUserRewardIndex(owner, tokenRewardIndex, s);
 
                 // reflect token updated balance for owner and receiver
-                if(ownerRewardIndex = loanTokenAccRewardsPerShare) then skip     // no change to token balance
+                if(ownerRewardIndex = tokenRewardIndex) then skip     // no change to token balance
                 else {
                     
-                    // loanTokenAccRewardsPerShare is monotonically increasing and should always be greater than owner index
-                    if ownerRewardIndex > loanTokenAccRewardsPerShare then failwith(error_CALCULATION_ERROR) else skip;
-                    const ownerCurrentRewardsPerShare : nat = abs(loanTokenAccRewardsPerShare - ownerRewardIndex);
+                    // increment token balance with calculated additional rewards 
+                    const ownerAdditionalRewards : nat = calculateAdditionalRewards(ownerRewardIndex, tokenRewardIndex, ownerTokenBalance);
+                    ownerTokenBalance := ownerTokenBalance + ownerAdditionalRewards;
 
-                    // calculate additional rewards
-                    const ownerAdditionalRewards : nat = (ownerCurrentRewardsPerShare * ownerBalance) / fixedPointAccuracy;
-
-                    // increment token balance with the rewards
-                    ownerBalance := ownerBalance + ownerAdditionalRewards;
                 }; 
 
-                if(receiverRewardIndex = loanTokenAccRewardsPerShare) then skip     // no change to token balance
+                if(receiverRewardIndex = tokenRewardIndex) then skip     // no change to token balance
                 else {
-                    
-                    // loanTokenAccRewardsPerShare is monotonically increasing and should always be greater than owner index
-                    if receiverRewardIndex > loanTokenAccRewardsPerShare then failwith(error_CALCULATION_ERROR) else skip;
-                    const receiverCurrentRewardsPerShare : nat = abs(loanTokenAccRewardsPerShare - receiverRewardIndex);
 
-                    // calculate additional rewards
-                    const receiverAdditionalRewards : nat = (receiverCurrentRewardsPerShare * receiverBalance) / fixedPointAccuracy;
+                    // increment token balance with calculated additional rewards 
+                    const receiverAdditionalRewards : nat = calculateAdditionalRewards(receiverRewardIndex, tokenRewardIndex, receiverTokenBalance);
+                    receiverTokenBalance := receiverTokenBalance + receiverAdditionalRewards;
 
-                    // increment token balance with the rewards
-                    receiverBalance := receiverBalance + receiverAdditionalRewards;
                 }; 
 
                 // Validate operator
@@ -470,26 +486,23 @@ block{
                 checkTokenId(tokenId);
 
                 // Validate that sender has enough token
-                checkBalance(ownerBalance,tokenAmount);
+                checkBalance(ownerTokenBalance,tokenAmount);
 
                 // Update users' balances
-                var ownerNewBalance     : tokenBalanceType := ownerBalance;
-                var receiverNewBalance  : tokenBalanceType := receiverBalance;
+                var ownerNewBalance     : tokenBalanceType := ownerTokenBalance;
+                var receiverNewBalance  : tokenBalanceType := receiverTokenBalance;
 
                 if owner =/= receiver then {
-                    ownerNewBalance     := abs(ownerBalance - tokenAmount);
-                    receiverNewBalance  := receiverBalance + tokenAmount;
+                    ownerNewBalance     := abs(ownerTokenBalance - tokenAmount);
+                    receiverNewBalance  := receiverTokenBalance + tokenAmount;
                 }
                 else skip;
 
                 // update storage
-                accumulator.ledger[owner]               := ownerNewBalance;       
-                accumulator.ledger[receiver]            := receiverNewBalance;       
+                accumulator := updateUserBalanceAndRewardIndex(owner, ownerNewBalance, tokenRewardIndex, accumulator);
+                accumulator := updateUserBalanceAndRewardIndex(receiver, receiverNewBalance, tokenRewardIndex, accumulator);
 
-                accumulator.rewardIndexLedger[owner]    := loanTokenAccRewardsPerShare;       
-                accumulator.rewardIndexLedger[receiver] := loanTokenAccRewardsPerShare;       
-
-                accumulator.tokenRewardIndex            := loanTokenAccRewardsPerShare;
+                accumulator.tokenRewardIndex            := tokenRewardIndex;
 
             } with accumulator;
 
@@ -507,44 +520,32 @@ block{
 function balanceOf(const balanceOfParams : balanceOfType; const s : mavrykFa2TokenStorageType) : return is
 block{
 
-    const loanTokenRecord               : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const loanTokenAccRewardsPerShare   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+    // get loan token record from Lending Controller through on-chain views
+    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
+    const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
 
     function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
     block{
 
         const requestOwner : ownerType = request.owner;
 
-        // get user token balance from ledger
-        var tokenBalance : tokenBalanceType := case s.ledger[requestOwner] of [
-                Some (balance) -> balance
-            |   None           -> 0n
-        ];
-
-        // reward index <-> identical to user participation fees per share used in doorman contract
-        const rewardIndex : nat = case s.rewardIndexLedger[requestOwner] of [
-                Some (index) -> index
-            |   None         -> loanTokenAccRewardsPerShare
-        ];
+        // get token balance and reward index for user
+        var userTokenBalance   : tokenBalanceType  := getRawBalance(requestOwner, s);
+        const userRewardIndex  : nat                = getUserRewardIndex(requestOwner, tokenRewardIndex, s);
 
         // reflect token updated balance
-        if(rewardIndex = loanTokenAccRewardsPerShare) then skip     // no change to token balance
+        if(userRewardIndex = tokenRewardIndex) then skip     // no change to token balance
         else {
-            
-            // loanTokenAccRewardsPerShare is monotonically increasing and should always be greater than owner index
-            if rewardIndex > loanTokenAccRewardsPerShare then failwith(error_CALCULATION_ERROR) else skip;
-            const currentRewardsPerShare : nat = abs(loanTokenAccRewardsPerShare - rewardIndex);
 
-            // calculate additional rewards
-            const additionalRewards : nat = (currentRewardsPerShare * tokenBalance) / fixedPointAccuracy;
+            // increment token balance with calculated additional rewards 
+            const additionalRewards : nat = calculateAdditionalRewards(userRewardIndex, tokenRewardIndex, userTokenBalance);
+            userTokenBalance := userTokenBalance + additionalRewards;
 
-            // increment token balance with the rewards
-            tokenBalance := tokenBalance + additionalRewards;
         };
 
         const response : balanceOfResponse = record[
             request = request;
-            balance = tokenBalance
+            balance = userTokenBalance
         ];
 
     } with (response);
@@ -554,7 +555,7 @@ block{
     const responses  : list(balanceOfResponse) = List.map(retrieveBalance, requests);
     const operation  : operation = Tezos.transaction(responses, 0tez, callback);
 
-} with (list[operation], s with record[tokenRewardIndex = loanTokenAccRewardsPerShare])
+} with (list[operation], s with record[tokenRewardIndex = tokenRewardIndex])
 
 
 
@@ -595,38 +596,25 @@ block {
     const tokenId         : tokenIdType     = mintOrBurnParams.tokenId;
     const tokenAmount     : nat             = abs(quantity);
 
-    // get loan token record from Lending Controller
-    const loanTokenRecord               : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const loanTokenAccRewardsPerShare   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+    // get loan token record from Lending Controller through on-chain views
+    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
+    const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
 
     // check token id
     checkTokenId(tokenId);
 
-    // get user token balance from ledger
-    var userBalance : tokenBalanceType := case s.ledger[targetAddress] of [
-            Some (balance) -> balance
-        |   None           -> 0n
-    ];
-
-    // get user reward index
-    const rewardIndex : nat = case s.rewardIndexLedger[targetAddress] of [
-            Some (index) -> index
-        |   None         -> loanTokenAccRewardsPerShare
-    ];
+    // get token balance and reward index for user
+    var userTokenBalance      : tokenBalanceType := getRawBalance(targetAddress, s);
+    const userRewardIndex     : nat               = getUserRewardIndex(targetAddress, tokenRewardIndex, s);
 
     // reflect token updated balance
-    if(rewardIndex = loanTokenAccRewardsPerShare) then skip     // no change to token balance
+    if(userRewardIndex = tokenRewardIndex) then skip     // no change to token balance
     else {
-        
-        // loanTokenAccRewardsPerShare is monotonically increasing and should always be greater than owner index
-        if rewardIndex > loanTokenAccRewardsPerShare then failwith(error_CALCULATION_ERROR) else skip;
-        const currentRewardsPerShare : nat = abs(loanTokenAccRewardsPerShare - rewardIndex);
 
-        // calculate additional rewards
-        const additionalRewards : nat = (currentRewardsPerShare * userBalance) / fixedPointAccuracy;
+        // increment token balance with calculated additional rewards 
+        const additionalRewards : nat = calculateAdditionalRewards(userRewardIndex, tokenRewardIndex, userTokenBalance);
+        userTokenBalance := userTokenBalance + additionalRewards;
 
-        // increment token balance with the rewards
-        userBalance := userBalance + additionalRewards;
     };
 
     // process mint or burn
@@ -634,30 +622,25 @@ block {
         // burn Token
 
         // Balance check
-        if userBalance < tokenAmount then
+        if userTokenBalance < tokenAmount then
         failwith("NotEnoughBalance")
         else skip;
 
-        // Update target balance 
-        const targetNewBalance  : tokenBalanceType  = abs(userBalance - tokenAmount);
-
-        // Update storage
-        s.ledger[targetAddress]             := targetNewBalance;       
-        s.rewardIndexLedger[targetAddress]  := loanTokenAccRewardsPerShare;               
+        // get new balance and update storage
+        const targetNewBalance  : tokenBalanceType  = abs(userTokenBalance - tokenAmount);
+        s := updateUserBalanceAndRewardIndex(targetAddress, targetNewBalance, tokenRewardIndex, s);
 
     } else block {
         // mint Token
 
-        // Update target's balance
-        const targetNewBalance  : tokenBalanceType = userBalance + tokenAmount;
-        
-        // Update storage
-        s.ledger[targetAddress]             := targetNewBalance;       
-        s.rewardIndexLedger[targetAddress]  := loanTokenAccRewardsPerShare; 
+        // get new balance and update storage
+        const targetNewBalance  : tokenBalanceType = userTokenBalance + tokenAmount;
+        s := updateUserBalanceAndRewardIndex(targetAddress, targetNewBalance, tokenRewardIndex, s);
+
     };
 
     // update token reward index
-    s.tokenRewardIndex := loanTokenAccRewardsPerShare;
+    s.tokenRewardIndex := tokenRewardIndex;
 
 } with (noOperations, s)
 

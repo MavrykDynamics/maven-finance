@@ -48,6 +48,8 @@
 //     var eveVaultSet = []
 //     var malloryVaultSet = [] 
 
+//     let updateTokenRewardIndexOperation
+
 //     // const oneDayLevelBlocks = 4320
 //     // const oneMonthLevelBlocks = 129600
 //     // const oneYearLevelBlocks = 1576800
@@ -227,6 +229,63 @@
 //         console.log('Bob address: '   + bob.pkh);
 //         console.log('Eve address: '   + eve.pkh);
 
+//         // ------------------------------------------------------------------
+//         //
+//         // Update LP Tokens (i.e. mTokens) tokenRewardIndex by transferring 0
+//         //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
+//         //
+//         // ------------------------------------------------------------------
+//         await signerFactory(bob.sk);
+
+//         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("mockFa12"); 
+//         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
+//         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
+        
+//         if(mockFa12LoanToken !== undefined){
+//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
+//             {
+//                 from_: bob.pkh,
+//                 txs: [
+//                     {
+//                         to_: eve.pkh,
+//                         token_id: 0,
+//                         amount: 0,
+//                     },
+//                 ]
+//             }]).send();
+//             await updateTokenRewardIndexOperation.confirmation();
+//         }
+
+//         if(mockFa2LoanToken !== undefined){
+//             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+//             {
+//                 from_: bob.pkh,
+//                 txs: [
+//                     {
+//                         to_: eve.pkh,
+//                         token_id: 0,
+//                         amount: 0,
+//                     },
+//                 ]
+//             }]).send();
+//             await updateTokenRewardIndexOperation.confirmation();
+//         }
+
+//         if(tezLoanToken !== undefined){
+//             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
+//             {
+//                 from_: bob.pkh,
+//                 txs: [
+//                     {
+//                         to_: eve.pkh,
+//                         token_id: 0,
+//                         amount: 0,
+//                     },
+//                 ]
+//             }]).send();
+//             await updateTokenRewardIndexOperation.confirmation();
+//         }
+
 //     });
 
 
@@ -331,7 +390,6 @@
                 
 //                     // other variables will be affected by repeated tests
 //                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
 
 //                 }
 
@@ -437,8 +495,6 @@
 
 //                     // other variables will be affected by repeated tests
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2LoanToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2LoanToken.tokenId                , tokenId);
 
 //                 }
                 
@@ -675,8 +731,6 @@
 //                     const mockFa12CollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
                 
 //                     assert.equal(mockFa12CollateralToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa12CollateralToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa12CollateralToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa12CollateralToken.tokenDecimals          , tokenDecimals);
 //                     assert.equal(mockFa12CollateralToken.oracleAddress          , oracleAddress);
@@ -735,8 +789,6 @@
 //                     const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2CollateralToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
 //                     assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
@@ -794,8 +846,6 @@
 //                     const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2CollateralToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2CollateralToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
 //                     assert.equal(mockFa2CollateralToken.oracleAddress          , oracleAddress);
