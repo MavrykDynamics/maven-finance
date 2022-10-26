@@ -365,9 +365,10 @@ block {
                                 |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                             ];
 
-                            loanTokenRecord.oracleAddress                       := updateLoanTokenParams.oracleAddress;
+                            loanTokenRecord.oracleAddress                        := updateLoanTokenParams.oracleAddress;
 
                             loanTokenRecord.reserveRatio                         := updateLoanTokenParams.reserveRatio;
+                            loanTokenRecord.optimalUtilisationRate               := updateLoanTokenParams.optimalUtilisationRate;
                             loanTokenRecord.baseInterestRate                     := updateLoanTokenParams.baseInterestRate;
                             loanTokenRecord.maxInterestRate                      := updateLoanTokenParams.maxInterestRate;
                             loanTokenRecord.interestRateBelowOptimalUtilisation  := updateLoanTokenParams.interestRateBelowOptimalUtilisation;
@@ -425,12 +426,9 @@ block {
 
                             const collateralTokenName : string = updateCollateralTokenParams.tokenName;
                     
-                            var collateralTokenRecord : collateralTokenRecordType := case s.collateralTokenLedger[collateralTokenName] of [
-                                    Some(_record) -> _record
-                                |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-                            ];
+                            var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
-                            collateralTokenRecord.oracleAddress          := updateCollateralTokenParams.oracleAddress;
+                            collateralTokenRecord.oracleAddress := updateCollateralTokenParams.oracleAddress;
 
                             // update storage
                             s.collateralTokenLedger[collateralTokenName] := collateralTokenRecord;
@@ -479,10 +477,7 @@ block {
                 ];
 
                 // Get loan token record
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 if loanTokenRecord.tokenPoolTotal > 0n then {
@@ -559,11 +554,8 @@ block {
                 const amount              : nat                 = addLiquidityParams.amount;
                 const initiator           : address             = Tezos.get_sender();
 
-                // Get Token Record
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
-                        Some(_record) -> _record 
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := loanTokenRecord.tokenPoolTotal + amount;
@@ -617,11 +609,8 @@ block {
                 const amount                : nat       = removeLiquidityParams.amount;
                 const initiator             : address   = Tezos.get_sender();
 
-                // Get Token Record
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
-                        Some(_record) -> _record 
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
                 
                 const loanTokenType             : tokenType   = loanTokenRecord.tokenType;
                 const loanTokenPoolTotal        : nat         = loanTokenRecord.tokenPoolTotal;
@@ -717,41 +706,62 @@ block {
                 checkZeroLoanOutstanding(vault);
 
                 // get tokens and token balances and initiate transfer back to the vault owner
-                for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
+                for collateralTokenName -> collateralTokenBalance in map vault.collateralBalanceLedger block {
                     
-                    if tokenName = "tez" then block {
+                    // init final token balance var
+                    var finalTokenBalance  : nat := collateralTokenBalance;
 
-                        const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), tokenBalance * 1mutez );
+                    if collateralTokenName = "tez" then block {
+
+                        const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
                         operations := transferTezOperation # operations;
 
-                        vault.collateralBalanceLedger[tokenName]  := 0n;
+                        vault.collateralBalanceLedger[collateralTokenName]  := 0n;
                         
                     } else block {
 
-                        const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                                Some(_record) -> _record
-                            |   None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-                        ];
+                        const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
 
-                        if collateralTokenRecord.tokenName = "mvk" then block {
+                        if collateralTokenName = "smvk" then {
+                            
+                            // get user staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
+                            // - for better accuracy, there should be a frontend call to compound rewards for the vault first
+                            finalTokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
 
                             // for special case of sMVK
                             const withdrawAllStakedMvkOperation : operation = onWithdrawStakedMvkFromVaultOperation(
                                 vaultOwner,                         // vault owner
                                 vaultAddress,                       // vault address
-                                tokenBalance,                       // withdraw amount
+                                finalTokenBalance,                  // withdraw amount
                                 s                                   // storage
                             );
 
                             operations := withdrawAllStakedMvkOperation # operations;
 
-                        } else block {
+                        } else if collateralTokenRecord.isScaledToken then {
 
-                            // for other collateral token types besides sMVK
+                            // for scaled tokens
+                            
+                            // get updated scaled token balance (e.g. mToken)
+                            finalTokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
+
+                            // for other collateral token types besides sMVK and scaled tokens
                             const withdrawTokenOperation : operation = liquidateFromVaultOperation(
                                 vaultOwner,                         // to_
-                                tokenName,                          // token name
-                                tokenBalance,                       // token amount to be withdrawn
+                                collateralTokenName,                // token name
+                                finalTokenBalance,                  // token amount to be withdrawn
+                                collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
+                                vaultAddress                        // vault address
+                            );
+                            operations := withdrawTokenOperation # operations;
+
+                        } else {
+
+                            // for other collateral token types besides sMVK and scaled tokens
+                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                vaultOwner,                         // to_
+                                collateralTokenName,                // token name
+                                finalTokenBalance,                  // token amount to be withdrawn
                                 collateralTokenRecord.tokenType,    // token type (i.e. tez, fa12, fa2) 
                                 vaultAddress                        // vault address
                             );
@@ -760,12 +770,11 @@ block {
                         };
 
                         // save and update balance for collateral token to zero
-                        vault.collateralBalanceLedger[tokenName]  := 0n;
+                        vault.collateralBalanceLedger[collateralTokenName]  := 0n;
 
                     }; // end if/else check for tez/token
 
                 }; // end loop for withdraw operations of tez/tokens in vault collateral 
-
 
                 // remove vault from stroage
                 var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
@@ -824,11 +833,8 @@ block {
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
                 const vaultLoanTokenName : string = vault.loanToken; 
 
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
@@ -1005,11 +1011,8 @@ block {
                 // Get Loan Token and update Loan Token State
                 // ------------------------------------------------------------------
 
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
@@ -1095,7 +1098,7 @@ block {
                 const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * totalLiquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
                 
                 // calculate vault collateral value rebased (1e32 or 10^32)
-                const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
+                const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vaultAddress, vault.collateralBalanceLedger, s);
                 
                 // loop tokens in vault collateral balance ledger to be liquidated
                 for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
@@ -1103,26 +1106,32 @@ block {
                     // skip if token balance is 0n
                     if tokenBalance = 0n then skip else block {
 
-                        const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                                Some(_record) -> _record
-                            |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-                        ];
+                        // get collateral token record through on-chain view
+                        const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
+
                         const collateralTokenType : tokenType = collateralTokenRecord.tokenType;
 
                         // get last completed data of token from Aggregator view
                         const collateralTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(collateralTokenRecord.oracleAddress);
                         
-                        const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
-                        const priceDecimals    : nat  = collateralTokenLastCompletedData.decimals;
-                        const tokenPrice       : nat  = collateralTokenLastCompletedData.data;            
-                        var   tokenBalance     : nat := tokenBalance;
+                        const tokenDecimals   : nat  = collateralTokenRecord.tokenDecimals; 
+                        const priceDecimals   : nat  = collateralTokenLastCompletedData.decimals;
+                        const tokenPrice      : nat  = collateralTokenLastCompletedData.data;            
+                        var   tokenBalance    : nat := tokenBalance;
 
                         // if token is sMVK, get latest balance from Doorman Contract through on-chain views
                         // - may differ from token balance if rewards have been claimed 
                         // - requires a call to %compound on doorman contract to compound rewards for the vault and get the latest balance
-                        if tokenName = "mvk" then {
+                        if tokenName = "smvk" then {
                     
+                            // get user staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
+                            // - for better accuracy, there should be a frontend call to compound rewards for the vault first
                             tokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
+
+                        } else if collateralTokenRecord.isScaledToken then {
+
+                            // get updated scaled token balance (e.g. mToken)
+                            tokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
 
                         } else skip;
 
@@ -1177,7 +1186,7 @@ block {
 
                         // Calculate new collateral balance
                         if liquidatorTokenQuantityTotal > tokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
-                        var newTokenCollateralBalance : nat := abs(tokenBalance - liquidatorTokenQuantityTotal);
+                        var newCollateralTokenBalance : nat := abs(tokenBalance - liquidatorTokenQuantityTotal);
 
                         // ------------------------------------------------------------------
                         // Calculate Treasury's Amount 
@@ -1196,14 +1205,14 @@ block {
                         const treasuryTokenQuantityTotal : nat = (treasuryTokenProportionalValueAdjusted / tokenPrice) / fixedPointAccuracy;
 
                         // Calculate new collateral balance
-                        if treasuryTokenQuantityTotal > newTokenCollateralBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
-                        newTokenCollateralBalance := abs(newTokenCollateralBalance - treasuryTokenQuantityTotal);
+                        if treasuryTokenQuantityTotal > newCollateralTokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
+                        newCollateralTokenBalance := abs(newCollateralTokenBalance - treasuryTokenQuantityTotal);
 
                         // ------------------------------------------------------------------
                         // Process liquidation transfer of collateral token
                         // ------------------------------------------------------------------
                         
-                        if tokenName = "mvk" then {
+                        if collateralTokenName = "smvk" then {
 
                             // use %onVaultLiquidateStakedMvk entrypoint in Doorman Contract to transfer staked MVK balances
 
@@ -1258,7 +1267,7 @@ block {
                         // ------------------------------------------------------------------
 
                         // save and update new balance for collateral token
-                        vault.collateralBalanceLedger[tokenName]  := newTokenCollateralBalance;
+                        vault.collateralBalanceLedger[tokenName] := newCollateralTokenBalance;
 
                     };
 
@@ -1438,6 +1447,9 @@ block {
                 const tokenName       : string            = registerDepositParams.tokenName;
                 const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
+                // Check that token name is not protected (e.g. mvk)
+                if tokenName = "smvk" then failwith(error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK) else skip;
+
                 // get vault
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
@@ -1452,11 +1464,8 @@ block {
                 var vaultBorrowIndex      : nat := vault.borrowIndex;
                 const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Get loan token parameters
                 const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
@@ -1554,6 +1563,9 @@ block {
                 const tokenName           : string            = registerWithdrawalParams.tokenName;
                 const initiator           : address           = Tezos.get_sender(); // vault address that initiated withdrawal
 
+                // Check that token name is not protected (e.g. sMVK)
+                if tokenName = "smvk" then failwith(error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK) else skip;
+
                 // get vault
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
 
@@ -1568,11 +1580,8 @@ block {
                 var vaultBorrowIndex      : nat := vault.borrowIndex;
                 const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Get loan token parameters
                 const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
@@ -1688,11 +1697,8 @@ block {
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
@@ -1742,17 +1748,12 @@ block {
                 // Calculate fees on past loan outstanding
                 // ------------------------------------------------------------------
 
-                s.tempMap["borrow-vaultBorrowIndex"] := vaultBorrowIndex;
-                s.tempMap["borrow-tokenBorrowIndex"] := tokenBorrowIndex;
-
                 // calculate interest
                 newLoanOutstandingTotal := accrueInterestToVault(
                     currentLoanOutstandingTotal,
                     vaultBorrowIndex,
                     tokenBorrowIndex
                 );
-
-                s.tempMap["borrow-newLoanOutstandingTotalAfterAccruedInterest"] := newLoanOutstandingTotal;
 
                 if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
                 newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
@@ -1902,11 +1903,8 @@ block {
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
@@ -2161,7 +2159,7 @@ block {
                 const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
                 const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "mvk";
+                const tokenName       : string            = "smvk";
 
                 // check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
@@ -2184,11 +2182,8 @@ block {
                 var vaultBorrowIndex      : nat := vault.borrowIndex;
                 const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
                 loanTokenRecord := loanTokenRecordUpdated.0;
@@ -2231,7 +2226,8 @@ block {
                 );
                 operations := vaultDepositStakedMvkOperation # operations;
                 
-                // Get current vault staked MVK balance from Doorman contract
+                // get vault staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
+                // - for better accuracy, there should be a frontend call to compound rewards for the vault first
                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
 
                 // calculate new collateral balance
@@ -2282,7 +2278,7 @@ block {
                 const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
                 const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
                 const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
-                const tokenName       : string            = "mvk";
+                const tokenName       : string            = "smvk";
 
                 // check if token (sMVK) exists in collateral token ledger
                 checkCollateralTokenExists(tokenName, s);
@@ -2305,11 +2301,8 @@ block {
                 var vaultBorrowIndex      : nat   := vault.borrowIndex;
                 const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
 
-                // Get loan token type
-                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-                ];
+                // Get loan token record
+                var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
                 loanTokenRecord := loanTokenRecordUpdated.0;
@@ -2352,7 +2345,8 @@ block {
                 );
                 operations := vaultWithdrawStakedMvkOperation # operations;
                 
-                // Get current vault staked MVK balance from Doorman contract
+                // get vault staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
+                // - for better accuracy, there should be a frontend call to compound rewards for the vault first
                 const currentVaultStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(vault.address, s);
 
                 // calculate new collateral balance                
