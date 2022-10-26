@@ -26,7 +26,6 @@ type Props = {
   id: number
   purpose: string
   governanceType: string
-  linkAddress: string
   smvkPercentageForApproval: number
   yayVotesSmvkTotal: number
   nayVotesSmvkTotal: number
@@ -43,7 +42,6 @@ export const SatelliteGovernanceCard = ({
   status,
   purpose,
   governanceType,
-  linkAddress,
   smvkPercentageForApproval,
   yayVotesSmvkTotal,
   nayVotesSmvkTotal,
@@ -66,8 +64,6 @@ export const SatelliteGovernanceCard = ({
   const timeNow = Date.now()
   const expirationDatetime = new Date(date).getTime()
   const isEndingVotingTime = expirationDatetime > timeNow
-
-  const timeFormat = `${new Date(date).getHours()}:${new Date(date).getMinutes()}`
 
   const statusFlag = executed
     ? ProposalStatus.EXECUTED
@@ -128,8 +124,8 @@ export const SatelliteGovernanceCard = ({
         <div>
           <h3>Purpose</h3>
           <p className="purpose">{purpose}</p>
-          {linkAddress ? (
-            <Link className={'view-satellite'} to={`/satellites/satellite-details/${linkAddress}`}>
+          {initiatorId ? (
+            <Link className={'view-satellite'} to={`/satellites/satellite-details/${initiatorId}`}>
               View Satellite
             </Link>
           ) : null}
