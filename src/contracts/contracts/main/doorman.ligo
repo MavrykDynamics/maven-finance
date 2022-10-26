@@ -445,7 +445,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var s : doormanStorageType) : address is
+[@view] function getAdmin(const _ : unit; const s : doormanStorageType) : address is
     s.admin
 
 
@@ -475,7 +475,7 @@ block {
 
 
 (* View: get userStakeBalance *)
-[@view] function getUserStakeBalanceOpt(const userAddress : address; var s : doormanStorageType) : option(userStakeBalanceRecordType) is
+[@view] function getUserStakeBalanceOpt(const userAddress : address; const s : doormanStorageType) : option(userStakeBalanceRecordType) is
     Big_map.find_opt(userAddress, s.userStakeBalanceLedger)
 
 
@@ -493,22 +493,44 @@ block {
 
 
 (* View: stakedBalance *)
-[@view] function getStakedBalance(const userAddress : address; var s : doormanStorageType) : nat is
-    case s.userStakeBalanceLedger[userAddress] of [
-            Some (_val) -> _val.balance
-        |   None        -> 0n
-    ]
+[@view] function getStakedBalance(const userAddress : address; const s : doormanStorageType) : nat is
+block {
+
+    const userStakeRecord : userStakeBalanceRecordType = case s.userStakeBalanceLedger[userAddress] of [
+            Some (_record) -> _record
+        |   None           -> record[
+                balance                        = 0n;
+                totalExitFeeRewardsClaimed     = 0n;
+                totalSatelliteRewardsClaimed   = 0n;
+                totalFarmRewardsClaimed        = 0n;
+                participationFeesPerShare      = s.accumulatedFeesPerShare;
+            ]
+    ];
+
+    // get user balance and current participation fees per share
+    const userBalance : nat = userStakeRecord.balance;
+    const userParticipationFeesPerShare : nat = userStakeRecord.participationFeesPerShare;
+
+    // calculate user rewards increment 
+    const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userParticipationFeesPerShare);
+    const additionalRewards : nat = (currentFeesPerShare * userBalance) / fixedPointAccuracy;
+
+    // calculate user total staked balance
+    const userTotalStakedBalance : nat = userBalance + additionalRewards;
+
+} with userTotalStakedBalance
+    
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : doormanStorageType) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; const s : doormanStorageType) : option(bytes) is
     Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; var s : doormanStorageType) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _ : unit; const s : doormanStorageType) : lambdaLedgerType is
     s.lambdaLedger
 
 // ------------------------------------------------------------------------------

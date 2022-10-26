@@ -389,7 +389,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     round,
                     aggregatorAddress: mockUsdXtzAggregatorAddress.address
                 });
-            } else if(tokenName == "mvk"){
+            } else if(tokenName == "smvk"){
                 // Set observations
                 oracleObservations.set(oracle, {
                     data,
@@ -425,7 +425,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             setPriceOperation = await mockUsdXtzAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
             
-        } else if(tokenName == "mvk"){
+        } else if(tokenName == "smvk"){
 
             setPriceOperation = await mockUsdMvkAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
             
@@ -643,7 +643,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         mockFa12TokenIndex                      = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa12"));
         mockFa2TokenIndex                       = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa2"));
         tezIndex                                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
-        mvkIndex                                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mvk"));
+        mvkIndex                                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "smvk"));
 
         const defaultMockFa12TokenMedianPrice   = lendingHelper.defaultPriceObservations[mockFa12TokenIndex].medianPrice;
         const defaultMockFa2TokenMedianPrice    = lendingHelper.defaultPriceObservations[mockFa2TokenIndex].medianPrice;
@@ -706,7 +706,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
 
             // reset token price to default observations
-            await setTokenPrice(epoch, round, defaultObservations, "mvk");
+            await setTokenPrice(epoch, round, defaultObservations, "smvk");
         }
 
         // Update token oracles for local test calulations
@@ -743,7 +743,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             'tokenDecimals': 9
         })
 
-        // update mTokens tokenRewardIndex with transfer 0
+        // ------------------------------------------------------------------
+        //
+        // Update LP Tokens (i.e. mTokens) tokenRewardIndex by transferring 0
+        //  - this will ensure that fetching user balances through on-chain views are accurate for continuous re-testing
+        //
+        // ------------------------------------------------------------------
         await signerFactory(bob.sk);
 
         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("mockFa12"); 
@@ -760,13 +765,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                         token_id: 0,
                         amount: 0,
                     },
-                ],
+                ]
             }]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
         if(mockFa2LoanToken !== undefined){
-        updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
+            updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
             {
                 from_: bob.pkh,
                 txs: [
@@ -775,7 +780,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                         token_id: 0,
                         amount: 0,
                     },
-                ],
+                ]
             }]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
@@ -790,7 +795,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                         token_id: 0,
                         amount: 0,
                     },
-                ],
+                ]
             }]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
@@ -1373,7 +1378,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 await signerFactory(bob.sk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
-                const tokenName                         = "mvk";
+                const tokenName                         = "smvk";
                 const tokenContractAddress              = mvkTokenAddress.address;
                 const tokenType                         = "fa2";
                 const tokenId                           = 0;
@@ -1543,18 +1548,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             
             // get mock fa12 token storage and lp token pool mock fa12 token storage
             const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
-            const lpTokenPoolMockFa12TokenStorage   = await lpTokenPoolMockFa12TokenInstance.storage();
             
             // get initial eve's Mock FA12 Token balance
             const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : parseInt(eveMockFa12Ledger.balance);
 
             // get initial eve's Token Pool FA2 LP - Mock FA12 Token - balance
-            // const eveLpTokenPoolMockFa12Ledger                 = await lpTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
-            // const eveInitialLpTokenPoolMockFa12TokenBalance    = eveLpTokenPoolMockFa12Ledger == undefined ? 0 : parseInt(eveLpTokenPoolMockFa12Ledger);
-
             const eveInitialLpTokenPoolMockFa12TokenBalance    = await lpTokenPoolMockFa12TokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
-            console.log("eveInitialLpTokenPoolMockFa12TokenBalance: " + eveInitialLpTokenPoolMockFa12TokenBalance);
 
             // get initial lending controller's Mock FA12 Token balance
             const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
@@ -1604,9 +1604,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
             // check Eve's LP Token Pool Mock FA12 Token balance
-            // const updatedEveLpTokenPoolMockFa12Ledger        = await updatedLpTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
             const updatedEveLpTokenPoolMockFa12Ledger    = await lpTokenPoolMockFa12TokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
-            console.log("updatedEveLpTokenPoolMockFa12Ledger: " + updatedEveLpTokenPoolMockFa12Ledger);
             assert.equal(updatedEveLpTokenPoolMockFa12Ledger, parseInt(eveInitialLpTokenPoolMockFa12TokenBalance) + liquidityAmount);        
 
         });
@@ -2776,7 +2774,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockFa12TokenIndex                  = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa12"));
             mockFa2TokenIndex                   = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa2"));
             tezIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
-            mvkIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mvk"));
+            mvkIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "smvk"));
 
             round = 1;
 
@@ -2841,7 +2839,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch;
             epoch = parseInt(epoch) + 1;            
             defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
-            await setTokenPrice(epoch, round, defaultObservations, "mvk");
+            await setTokenPrice(epoch, round, defaultObservations, "smvk");
 
             const mvkMedianPrice = lendingHelper.defaultPriceObservations[mvkIndex].medianPrice;
             tokenOracles[mvkIndex].price = mvkMedianPrice;
@@ -3282,7 +3280,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const mockFa12CollateralTokenValue  = lendingHelper.calculateTokenValue(mockFa12DepositAmount   , "mockFa12"    , tokenOracles);
             const mockFa2CollateralTokenValue   = lendingHelper.calculateTokenValue(mockFa2DepositAmount    , "mockFa2"     , tokenOracles);
             const tezCollateralTokenValue       = lendingHelper.calculateTokenValue(tezDepositAmount        , "tez"         , tokenOracles);
-            const mvkCollateralTokenValue       = lendingHelper.calculateTokenValue(mvkDepositAmount        , "mvk"         , tokenOracles);
+            const mvkCollateralTokenValue       = lendingHelper.calculateTokenValue(mvkDepositAmount        , "smvk"         , tokenOracles);
 
             // calculate proportion of collateral based on their value
             const mockFa12TokenProportion       = lendingHelper.calculateTokenProportion(mockFa12CollateralTokenValue, vaultCollateralValue);
@@ -3318,7 +3316,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             adminLiquidationFeeTez                          = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "tez", tokenOracles, adminLiquidationFeeTez);
                 
             adminLiquidationFeeMvk                          = mvkProportion * adminLiquidationFee;
-            adminLiquidationFeeMvk                          = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "mvk", tokenOracles, adminLiquidationFeeMvk);
+            adminLiquidationFeeMvk                          = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "smvk", tokenOracles, adminLiquidationFeeMvk);
 
             // - amount sent to liquidator
             liquidationAmountWithIncentiveMockFa12          = mockFa12TokenProportion * liquidationAmountWithIncentive
@@ -3331,7 +3329,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             liquidationAmountWithIncentiveTez               = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "tez", tokenOracles, liquidationAmountWithIncentiveTez);
 
             liquidationAmountWithIncentiveMvk               = mvkProportion * liquidationAmountWithIncentive
-            liquidationAmountWithIncentiveMvk               = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "mvk", tokenOracles, liquidationAmountWithIncentiveMvk);
+            liquidationAmountWithIncentiveMvk               = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "smvk", tokenOracles, liquidationAmountWithIncentiveMvk);
             
             // - total liquidated from vault
             liquidationAmountWithFeesAndIncentiveMockFa12   = mockFa12TokenProportion * liquidationAmountWithFeesAndIncentive;
@@ -3344,7 +3342,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             liquidationAmountWithFeesAndIncentiveTez        = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "tez", tokenOracles, liquidationAmountWithFeesAndIncentiveTez);
 
             liquidationAmountWithFeesAndIncentiveMvk        = mvkProportion * liquidationAmountWithFeesAndIncentive;
-            liquidationAmountWithFeesAndIncentiveMvk        = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "mvk", tokenOracles, liquidationAmountWithFeesAndIncentiveMvk);
+            liquidationAmountWithFeesAndIncentiveMvk        = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "smvk", tokenOracles, liquidationAmountWithFeesAndIncentiveMvk);
 
             // - total liquidation amount
             totalLiquidationAmountMockFa12                  = mockFa12TokenProportion * totalLiquidationAmount;
@@ -3357,7 +3355,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             totalLiquidationAmountTez                       = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "tez", tokenOracles, totalLiquidationAmountTez);
 
             totalLiquidationAmountMvk                       = mvkProportion * totalLiquidationAmount;
-            totalLiquidationAmountMvk                       = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "mvk", tokenOracles, totalLiquidationAmountMvk);
+            totalLiquidationAmountMvk                       = lendingHelper.convertLoanTokenToCollateralToken("mockFa2", "smvk", tokenOracles, totalLiquidationAmountMvk);
     
             // interest will be in the loan token type (i.e. mock FA2)
             interestSentToTreasury                          = lendingHelper.calculateInterestSentToTreasury(interestTreasuryShare, totalInterestPaid)
@@ -3569,7 +3567,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockFa12TokenIndex                  = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa12"));
             mockFa2TokenIndex                   = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mockFa2"));
             tezIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
-            mvkIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mvk"));
+            mvkIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "smvk"));
 
             round = 1;
 
@@ -3634,7 +3632,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch;
             epoch = parseInt(epoch) + 1;            
             defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
-            await setTokenPrice(epoch, round, defaultObservations, "mvk");
+            await setTokenPrice(epoch, round, defaultObservations, "smvk");
 
             const mvkMedianPrice = lendingHelper.defaultPriceObservations[mvkIndex].medianPrice;
             tokenOracles[mvkIndex].price = mvkMedianPrice;
