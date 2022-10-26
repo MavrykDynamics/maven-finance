@@ -138,6 +138,110 @@ const defaultTimestamp  : timestamp = ("2000-01-01T00:00:00Z" : timestamp);
 
 
 
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin *)
+[@view] function getAdmin(const _ : unit; var s : lendingControllerStorageType) : address is
+    s.admin
+
+
+
+(* View: get config *)
+[@view] function getConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerConfigType is
+    s.config
+
+
+
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerBreakGlassConfigType is
+    s.breakGlassConfig
+
+
+
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
+    s.governanceAddress
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _ : unit; var s : lendingControllerStorageType) : whitelistContractsType is
+    s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _ : unit; var s : lendingControllerStorageType) : generalContractsType is
+    s.generalContracts
+
+
+
+(* View: get token in collateral token ledger *)
+[@view] function getColTokenRecordByNameOpt(const tokenName : string; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
+    Map.find_opt(tokenName, s.collateralTokenLedger)
+
+
+
+(* View: get token by token contract address in collateral token ledger *)
+[@view] function getColTokenRecordByAddressOpt(const tokenContractAddress : address; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
+block {
+
+    var tokenName : string := "empty";
+    for _key -> value in map s.collateralTokenLedger block {
+        if value.tokenContractAddress = tokenContractAddress then tokenName := _key else skip;
+    };
+
+    const collateralTokenRecord : option(collateralTokenRecordType) = Map.find_opt(tokenName, s.collateralTokenLedger)
+
+} with collateralTokenRecord
+
+
+
+(* View: get loan token record *)
+[@view] function getLoanTokenRecordOpt(const tokenName : string; const s : lendingControllerStorageType) : option(loanTokenRecordType) is
+    Map.find_opt(tokenName, s.loanTokenLedger)
+
+
+
+(* View: get loan token ledger *)
+[@view] function getLoanTokenLedger(const _ : unit; const s : lendingControllerStorageType) : loanTokenLedgerType is 
+    s.loanTokenLedger
+
+
+
+(* View: get owned vaults by user *)
+[@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; const s : lendingControllerStorageType) : option(ownerVaultSetType) is
+    Big_map.find_opt(ownerAddress, s.ownerLedger)
+
+
+
+(* View: get vault by handle *)
+[@view] function getVaultOpt(const vaultHandle : vaultHandleType; const s : lendingControllerStorageType) : option(vaultRecordType) is
+    Big_map.find_opt(vaultHandle, s.vaults)
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName : string; var s : lendingControllerStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _ : unit; var s : lendingControllerStorageType) : lambdaLedgerType is
+    s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+
 
 // ------------------------------------------------------------------------------
 //
@@ -408,17 +512,6 @@ function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : 
 // Contract Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to check collateral token exists
-function checkCollateralTokenExists(const tokenName : string; const s : lendingControllerStorageType) : unit is 
-block {
-    const collateralTokenExists : unit = case s.collateralTokenLedger[tokenName] of [
-            Some(_record) -> unit 
-        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-    ];
-} with collateralTokenExists
-
-
-
 // helper function to get user staked mvk balance from Doorman contract
 function getUserStakedMvkBalanceFromDoorman(const userAddress : address; const s : lendingControllerStorageType) : nat is 
 block {
@@ -434,6 +527,21 @@ block {
     ];
 
 } with userStakedMvkBalance
+
+
+
+// helper function to get target user balance from scaled token contract (e.g. mToken)
+function getBalanceFromScaledTokenContract(const userAddress : address; const tokenContractAddress : address) : nat is 
+block {
+
+    // get balance of user from scaled token contract
+    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (userAddress, 0), tokenContractAddress);
+    const scaledBalance : nat = case getBalanceView of [
+            Some (_balance) -> _balance
+        |   None            -> 0n
+    ];
+
+} with scaledBalance
 
 
 
@@ -522,6 +630,7 @@ block {
     const tokenDecimals         : nat          = createCollateralTokenParams.tokenDecimals;
     const oracleAddress         : address      = createCollateralTokenParams.oracleAddress;
     const protected             : bool         = createCollateralTokenParams.protected;
+    const isScaledToken         : bool         = createCollateralTokenParams.isScaledToken;
     
     const newCollateralTokenRecord : collateralTokenRecordType = record [
         tokenName            = tokenName;
@@ -530,6 +639,7 @@ block {
 
         oracleAddress        = oracleAddress;
         protected            = protected;
+        isScaledToken        = isScaledToken;
 
         tokenType            = tokenType;
     ];
@@ -565,16 +675,71 @@ block {
 
 
 
-function checkInCollateralTokenLedger(const collateralTokenRecord : collateralTokenRecordType; const s : lendingControllerStorageType) : bool is 
+// helper function to get collateral token record reference through on-chain views
+function getCollateralTokenReference(const collateralTokenName : string; const s : lendingControllerStorageType) : collateralTokenRecordType is
 block {
-  
-  var inCollateralTokenLedgerBool : bool := False;
-  for _key -> value in map s.collateralTokenLedger block {
-    if collateralTokenRecord = value then inCollateralTokenLedgerBool := True
-    else skip;
-  }  
 
-} with inCollateralTokenLedgerBool
+    const collateralTokenRecordOpt : option(collateralTokenRecordType) = getColTokenRecordByNameOpt(collateralTokenName, s);
+    const collateralTokenRecord : collateralTokenRecordType = case collateralTokenRecordOpt of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+    ]
+
+} with collateralTokenRecord
+
+
+
+// helper function to get collateral token record 
+function getCollateralTokenRecord(const collateralTokenName : string; const s : lendingControllerStorageType) : collateralTokenRecordType is
+block {
+
+    const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[collateralTokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+} with collateralTokenRecord
+
+
+
+// helper function to check collateral token exists
+function checkCollateralTokenExists(const collateralTokenName : string; const s : lendingControllerStorageType) : unit is 
+block {
+
+    const collateralTokenRecordOpt : option(collateralTokenRecordType) = getColTokenRecordByNameOpt(collateralTokenName, s);
+    const collateralTokenExists : unit = case collateralTokenRecordOpt of [
+            Some(_record) -> unit
+        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+    ]
+
+} with collateralTokenExists
+
+
+
+// helper function to get loan token record reference through on-chain views
+function getLoanTokenReference(const loanTokenName : string; const s : lendingControllerStorageType) : loanTokenRecordType is
+block {
+
+    const loanTokenRecordOpt : option(loanTokenRecordType) = getLoanTokenRecordOpt(loanTokenName, s);
+    const loanTokenRecord : loanTokenRecordType = case loanTokenRecordOpt of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+} with loanTokenRecord
+
+
+
+// helper function to get loan token record 
+function getLoanTokenRecord(const loanTokenName : string; const s : lendingControllerStorageType) : loanTokenRecordType is
+block {
+
+    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[loanTokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+} with loanTokenRecord
 
 
 
@@ -902,17 +1067,16 @@ block {
 
 
 // helper function to calculate token value rebased (to max decimals 1e32)
-function calculateCollateralTokenValueRebased(const tokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
+function calculateCollateralTokenValueRebased(const collateralTokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
 block {
 
     const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
 
-    const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-    ];
+    // get collateral token reference using on-chain views
+    const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
 
     // get last completed round price of token from Aggregator view
+    // todo: for mToken, aggregator could be set to pegged token to reduce the need to have another aggregator
     const collateralTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(collateralTokenRecord.oracleAddress);
     
     const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
@@ -935,15 +1099,13 @@ block {
 
 
 // helper function to calculate loan token value rebased (to max decimals 1e32)
-function calculateLoanTokenValueRebased(const tokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
+function calculateLoanTokenValueRebased(const loanTokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
 block {
 
     const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
 
-    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[tokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    ];
+    // get loan token record reference using on-chain views
+    const loanTokenRecord : loanTokenRecordType = getLoanTokenReference(loanTokenName, s);
 
     // get last completed round price of token from Oracle view
     const loanTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
@@ -967,13 +1129,11 @@ block {
 
 
 // helper function to calculate loan token value (without rebasing)
-function calculateLoanTokenValue(const tokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
+function calculateLoanTokenValue(const loanTokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
 block {
 
-    const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[tokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
-    ];
+    // get loan token record reference using on-chain views
+    const loanTokenRecord : loanTokenRecordType = getLoanTokenReference(loanTokenName, s);
 
     // get last completed round price of token from Oracle view
     const loanTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
@@ -992,16 +1152,34 @@ function multiplyTokenAmountByPrice(const tokenAmount : nat; const tokenPrice : 
 
 
 // helper function to calculate vault's collateral value rebased (to max decimals 1e32)
-function calculateVaultCollateralValueRebased(const collateralBalanceLedger : collateralBalanceLedgerType; const s : lendingControllerStorageType) : nat is
+function calculateVaultCollateralValueRebased(const vaultAddress : address; const collateralBalanceLedger : collateralBalanceLedgerType; const s : lendingControllerStorageType) : nat is
 block {
 
     var vaultCollateralValueRebased  : nat := 0n;
 
-    for tokenName -> tokenBalance in map collateralBalanceLedger block {
+    for collateralTokenName -> collateralTokenBalance in map collateralBalanceLedger block {
+
+        // init final token balance
+        var finalTokenBalance  : nat := collateralTokenBalance;
+
+        // get collateral token reference using on-chain views
+        const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
+
+        // check if collateral token is sMVK or a scaled token (e.g. mToken) - get balance from doorman contract and token contract address respectively
+        if collateralTokenName = "smvk" then {
+
+            finalTokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
+
+        } else if collateralTokenRecord.isScaledToken then {
+
+            // get updated scaled token balance (e.g. mToken)
+            finalTokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
+        
+        } else skip;
 
         // get collateral token value based on oracle/aggregator's price and rebase to 1e32 (or 10^32) for comparison
-        const tokenValueRebased : nat = calculateCollateralTokenValueRebased(tokenName, tokenBalance, s);
-        
+        const tokenValueRebased : nat = calculateCollateralTokenValueRebased(collateralTokenName, finalTokenBalance, s);
+
         // increment vault collateral value (decimals: 1e32 or 10^32)
         vaultCollateralValueRebased := vaultCollateralValueRebased + tokenValueRebased;      
 
@@ -1022,20 +1200,14 @@ block {
     const collateralRatio            : nat    = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
-    const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
-
-    s.tempMap["isUnderCollaterized - vaultCollateralValueRebased"] := vaultCollateralValueRebased;
+    const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.address, vault.collateralBalanceLedger, s);
 
     // calculate loan outstanding value rebased
     const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
 
-    s.tempMap["isUnderCollaterized - loanOutstandingRebased"] := loanOutstandingRebased;
-
     // check is vault is under collaterized based on collateral ratio
     const isUnderCollaterized : bool = vaultCollateralValueRebased < (collateralRatio * loanOutstandingRebased) / 1000n;
 
-    s.tempMap["isUnderCollaterized - isUnderCollaterized"] := if isUnderCollaterized then 1n else 0n;
-    
 } with (isUnderCollaterized, s)
 
 
@@ -1050,21 +1222,14 @@ block {
     const liquidationRatio           : nat    = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
-    const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
-
-    // s.tempMap["isLiquidatable - vaultCollateralValueRebased"] := vaultCollateralValueRebased;
+    const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.address, vault.collateralBalanceLedger, s);
 
     // calculate loan outstanding value rebased
     const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
-
-    // s.tempMap["isLiquidatable - loanOutstandingRebased"] := loanOutstandingRebased;
-    // s.tempMap["isLiquidatable - liquidationPoint"] := (liquidationRatio * loanOutstandingRebased) / 1000n;
-
+    
     // check is vault is liquidatable based on liquidation ratio
     const isLiquidatable : bool = vaultCollateralValueRebased < (liquidationRatio * loanOutstandingRebased) / 1000n;
 
-    // s.tempMap["isLiquidatable - isLiquidatable"] := if isLiquidatable then 1n else 0n;
-    
 } with isLiquidatable
 
 // ------------------------------------------------------------------------------
@@ -1101,9 +1266,6 @@ block{
     
     const interestRateOverSecondsInYear : nat = ((interestRate * fixedPointAccuracy) / secondsInYear) / fixedPointAccuracy; // 1e27 * 1e27 / const / 1e27 -> 1e27
 
-    s.tempMap["calculateCompoundedInterest - exp"] := exp;
-    s.tempMap["calculateCompoundedInterest - interestRateOverSecondsInYear"] := interestRateOverSecondsInYear;
-
     var compoundedInterest : nat := 0n;
 
     if exp > 0n then {
@@ -1119,12 +1281,7 @@ block{
 
         compoundedInterest := fixedPointAccuracy + (interestRateOverSecondsInYear * exp) + secondTerm + thirdTerm;
 
-        s.tempMap["calculateCompoundedInterest - secondTerm"] := secondTerm;
-        s.tempMap["calculateCompoundedInterest - thirdTerm"] := thirdTerm;
-
     } else skip;
-
-    s.tempMap["calculateCompoundedInterest - compoundedInterest"] := compoundedInterest;
    
 } with (compoundedInterest)
 
@@ -1182,9 +1339,6 @@ block{
 
         };
 
-        s.tempMap["updateInterestRate - utilisationRate"]       := utilisationRate;
-        s.tempMap["updateInterestRate - currentInterestRate"]   := currentInterestRate;
-
     } else skip;
     
 
@@ -1192,9 +1346,6 @@ block{
 
         const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel, s); // 1e27 
         borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1e27 x 1e27 / 1e27 -> 1e27
-
-        s.tempMap["updateLoanTokenState - compoundedInterest"] := compoundedInterest;
-        s.tempMap["updateLoanTokenState - borrowIndex"]        := borrowIndex;
 
     } else skip;
 
@@ -1271,112 +1422,6 @@ block {
 // Lambda Methods End
 //
 // ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Views Begin
-//
-// ------------------------------------------------------------------------------
-
-(* View: get admin *)
-[@view] function getAdmin(const _ : unit; var s : lendingControllerStorageType) : address is
-    s.admin
-
-
-
-(* View: get config *)
-[@view] function getConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerConfigType is
-    s.config
-
-
-
-(* View: get break glass config *)
-[@view] function getBreakGlassConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerBreakGlassConfigType is
-    s.breakGlassConfig
-
-
-
-(* View: get Governance address *)
-[@view] function getGovernanceAddress(const _ : unit; var s : lendingControllerStorageType) : address is
-    s.governanceAddress
-
-
-
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; var s : lendingControllerStorageType) : whitelistContractsType is
-    s.whitelistContracts
-
-
-
-(* View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; var s : lendingControllerStorageType) : generalContractsType is
-    s.generalContracts
-
-
-
-(* View: get token in collateral token ledger *)
-[@view] function getColTokenRecordByNameOpt(const tokenName : string; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
-    Map.find_opt(tokenName, s.collateralTokenLedger)
-
-
-
-(* View: get token by token contract address in collateral token ledger *)
-[@view] function getColTokenRecordByAddressOpt(const tokenContractAddress : address; const s : lendingControllerStorageType) : option(collateralTokenRecordType) is
-block {
-
-    var tokenName : string := "empty";
-    for _key -> value in map s.collateralTokenLedger block {
-        if value.tokenContractAddress = tokenContractAddress then tokenName := _key else skip;
-    };
-
-    const collateralTokenRecord : option(collateralTokenRecordType) = Map.find_opt(tokenName, s.collateralTokenLedger)
-
-} with collateralTokenRecord
-
-
-
-(* View: get loan token record *)
-[@view] function getLoanTokenRecordOpt(const tokenName : string; const s : lendingControllerStorageType) : option(loanTokenRecordType) is
-    Map.find_opt(tokenName, s.loanTokenLedger)
-
-
-
-(* View: get loan token ledger *)
-[@view] function getLoanTokenLedger(const _ : unit; const s : lendingControllerStorageType) : loanTokenLedgerType is 
-    s.loanTokenLedger
-
-
-
-(* View: get owned vaults by user *)
-[@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; const s : lendingControllerStorageType) : option(ownerVaultSetType) is
-    Big_map.find_opt(ownerAddress, s.ownerLedger)
-
-
-
-(* View: get vault by handle *)
-[@view] function getVaultOpt(const vaultHandle : vaultHandleType; const s : lendingControllerStorageType) : option(vaultRecordType) is
-    Big_map.find_opt(vaultHandle, s.vaults)
-
-
-
-(* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName : string; var s : lendingControllerStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; var s : lendingControllerStorageType) : lambdaLedgerType is
-    s.lambdaLedger
-
-// ------------------------------------------------------------------------------
-//
-// Views End
-//
-// ------------------------------------------------------------------------------
-
 
 
 
