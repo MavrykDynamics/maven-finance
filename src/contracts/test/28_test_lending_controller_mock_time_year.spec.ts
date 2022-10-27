@@ -196,7 +196,7 @@
 //         })
 
 //         tokenOracles.push({
-//             'name': 'mvk', 
+//             'name': "smvk", 
 //             'price': parseInt(mockUsdMvkAggregatorStorage.lastCompletedData.data),
 //             'priceDecimals': parseInt(mockUsdMvkAggregatorStorage.config.decimals),
 //             'tokenDecimals': 9

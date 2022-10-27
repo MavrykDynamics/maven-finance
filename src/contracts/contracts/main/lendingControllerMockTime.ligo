@@ -1128,6 +1128,7 @@ block {
 } with tokenValueRebased
 
 
+
 // helper function to calculate loan token value (without rebasing)
 function calculateLoanTokenValue(const loanTokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
 block {
@@ -1289,7 +1290,7 @@ block{
 
 // helper function to update token state
 // - updates last updated block level and borrow index
-function updateLoanTokenState(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : (loanTokenRecordType * lendingControllerStorageType) is
+function updateLoanTokenState(var loanTokenRecord : loanTokenRecordType; var s : lendingControllerStorageType) : loanTokenRecordType is
 block{
     
     const tokenPoolTotal            : nat    = loanTokenRecord.tokenPoolTotal;             // 1e6
@@ -1354,7 +1355,7 @@ block{
     loanTokenRecord.utilisationRate         := utilisationRate;
     loanTokenRecord.currentInterestRate     := currentInterestRate;
 
-} with (loanTokenRecord, s)
+} with (loanTokenRecord)
 
 
 
