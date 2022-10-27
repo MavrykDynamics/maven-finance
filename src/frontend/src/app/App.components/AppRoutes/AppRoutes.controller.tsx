@@ -27,6 +27,7 @@ import { SatelliteDetails } from '../../../pages/SatelliteDetails/SatelliteDetai
 import { SatelliteGovernance } from '../../../pages/SatelliteGovernance/SatelliteGovernance.controller'
 import { Treasury } from '../../../pages/Treasury/Treasury.controller'
 import { Vaults } from '../../../pages/Vaults/Vaults.controller'
+import { scrollUpPage } from 'utils/scrollUpPage'
 // pages
 import ProtectedRoute from './ProtectedRoute'
 
@@ -35,15 +36,13 @@ export const AppRoutes = () => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
-
+  // get origin pathname
+  const [path] = pathname.slice(1).split('/')
+  
   // Scroll to the top of the page when moving to others page
   useEffect(() => {
-    const isActiveScroll = document.body.scrollHeight !== window.innerHeight
-
-    if (isActiveScroll) {
-      window.scrollTo(0, 0)
-    }
-  }, [pathname])
+    scrollUpPage()
+  }, [path])
 
   return (
     <Switch>

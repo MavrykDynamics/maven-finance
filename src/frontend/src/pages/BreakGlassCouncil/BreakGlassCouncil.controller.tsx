@@ -28,6 +28,7 @@ import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
 import { getSeparateSnakeCase } from 'utils/parse'
 import { memberIsFirstOfList } from 'pages/Council/Council.helpers'
+import { scrollUpPage } from 'utils/scrollUpPage'
 
 // styles
 import {
@@ -95,6 +96,7 @@ export function BreakGlassCouncil() {
 
   const handleClickReview = () => {
     history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+    scrollUpPage()
   }
 
   const handleClickGoBack = () => {
