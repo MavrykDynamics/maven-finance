@@ -737,7 +737,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         })
 
         tokenOracles.push({
-            'name': 'mvk', 
+            'name': "smvk", 
             'price': parseInt(mockUsdMvkAggregatorStorage.lastCompletedData.data),
             'priceDecimals': parseInt(mockUsdMvkAggregatorStorage.config.decimals),
             'tokenDecimals': 9
@@ -1215,6 +1215,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenDecimals                     = 6;
                 const oracleAddress                     = mockUsdMockFa12TokenAggregatorAddress.address;
                 const tokenProtected                    = false;
+                const isScaledToken                     = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -1231,6 +1232,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                         oracleAddress,
                         tokenProtected,
+                        isScaledToken,
 
                         // fa12 token type - token contract address
                         tokenType,
@@ -1272,6 +1274,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = mockUsdMockFa2TokenAggregatorAddress.address;
                 const tokenProtected                        = false;
+                const isScaledToken                         = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -1288,6 +1291,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                         oracleAddress,
                         tokenProtected,
+                        isScaledToken,
                         
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -1329,6 +1333,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = mockUsdXtzAggregatorAddress.address;
                 const tokenProtected                        = false;
+                const isScaledToken                         = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -1345,6 +1350,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                         
                         oracleAddress,
                         tokenProtected,
+                        isScaledToken,
                         
                         // fa2 token type - token contract address + token id
                         tokenType,
@@ -1386,6 +1392,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenDecimals                     = 9;
                 const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
                 const tokenProtected                    = true; // sMVK is protected
+                const isScaledToken                     = false;
                 
                 // check if collateral token exists
                 const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
@@ -1402,6 +1409,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                         oracleAddress,
                         tokenProtected,
+                        isScaledToken,
 
                         // fa12 token type - token contract address
                         tokenType,
@@ -1445,6 +1453,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const tokenDecimals                         = 6;
                 const oracleAddress                         = zeroAddress;
                 const tokenProtected                        = false;
+                const isScaledToken                         = false;
             
                 await chai.expect(lendingControllerInstance.methods.setCollateralToken(
                         
@@ -1456,6 +1465,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                     oracleAddress,
                     tokenProtected,
+                    isScaledToken,
                     
                     // fa2 token type - token contract address + token id
                     tokenType,
@@ -1895,7 +1905,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
             lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
-            const yearsPassed  = 7; 
+            const yearsPassed  = 8; 
             mockLevelChange = yearsPassed * oneYearLevelBlocks;
             newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
 
@@ -2741,8 +2751,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             // check vault records 
             // - since not a lot of time has passed for interest to accrue, the liquidation amount has covered the total loan interest accrued
-            assert.equal(vaultLoanOutstandingTotal, finalLoanOutstandingTotal);
-            assert.equal(vaultLoanPrincipalTotal, finalLoanPrincipalTotal);
+            // - use almost equal as there could be a slight rounding error of 1
+            assert.equal(almostEqual(vaultLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(vaultLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
             assert.equal(vaultLoanInterestTotal, 0);
 
         })
@@ -4027,7 +4038,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const remainingMockFa12CollateralBalance    = await vaultRecord.collateralBalanceLedger.get('mockFa12');
             const remainingMockFa2CollateralBalance     = await vaultRecord.collateralBalanceLedger.get('mockFa2');
             const remainingTezCollateralBalance         = await vaultRecord.collateralBalanceLedger.get('tez');
-            const remainingStakedMvkCollateralBalance   = await vaultRecord.collateralBalanceLedger.get('mvk');
+            const remainingStakedMvkCollateralBalance   = await vaultRecord.collateralBalanceLedger.get("smvk");
             
             console.log('   - remaining collateral: Mock FA12 token: ' + remainingMockFa12CollateralBalance + ' | Mock FA2 token: ' + remainingMockFa2CollateralBalance + ' | Tez: ' + remainingTezCollateralBalance + ' | Staked MVK: ' + remainingStakedMvkCollateralBalance);
 
