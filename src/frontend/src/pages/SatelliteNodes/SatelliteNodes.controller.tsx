@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import OracleSatellitesView from './SatelliteNodes.view'
 
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
-import { DropDown, DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
+import { DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 
 import { State } from 'reducers'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
