@@ -481,9 +481,10 @@ block {
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 if loanTokenRecord.tokenPoolTotal > 0n then {
-                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                    loanTokenRecord := loanTokenRecordUpdated.0;
-                    s := loanTokenRecordUpdated.1;
+                    // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                    // loanTokenRecord := loanTokenRecordUpdated.0;
+                    // s := loanTokenRecordUpdated.1;
+                    loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
                 } else skip;
 
                 // Get borrow index of token
@@ -576,9 +577,10 @@ block {
                 operations := mintLpTokensTokensOperation # operations;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
@@ -651,9 +653,10 @@ block {
                 loanTokenRecord.totalRemaining   := newTotalRemaining;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
@@ -837,9 +840,10 @@ block {
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 const tokenBorrowIndex : nat = loanTokenRecord.borrowIndex;
 
@@ -1015,9 +1019,10 @@ block {
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 const tokenPoolTotal      : nat         = loanTokenRecord.tokenPoolTotal;
@@ -1212,7 +1217,7 @@ block {
                         // Process liquidation transfer of collateral token
                         // ------------------------------------------------------------------
                         
-                        if collateralTokenName = "smvk" then {
+                        if tokenName = "smvk" then {
 
                             // use %onVaultLiquidateStakedMvk entrypoint in Doorman Contract to transfer staked MVK balances
 
@@ -1406,9 +1411,10 @@ block {
                 loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Update loan token
                 s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
@@ -1534,9 +1540,10 @@ block {
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 if loanTokenRecord.tokenPoolTotal > 0n then {
-                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                    loanTokenRecord := loanTokenRecordUpdated.0;
-                    s := loanTokenRecordUpdated.1;
+                    // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                    // loanTokenRecord := loanTokenRecordUpdated.0;
+                    // s := loanTokenRecordUpdated.1;
+                    loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
                 } else skip;
                 s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
 
@@ -1654,9 +1661,10 @@ block {
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 if loanTokenRecord.tokenPoolTotal > 0n then {
 
-                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                    loanTokenRecord := loanTokenRecordUpdated.0;
-                    s := loanTokenRecordUpdated.1;
+                    // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                    // loanTokenRecord := loanTokenRecordUpdated.0;
+                    // s := loanTokenRecordUpdated.1;
+                    loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
                 } else skip;
                 s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
                 
@@ -1701,9 +1709,10 @@ block {
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 const reserveRatio          : nat         = loanTokenRecord.reserveRatio;
@@ -1841,9 +1850,10 @@ block {
                 loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 s.loanTokenLedger[vaultLoanTokenName]  := loanTokenRecord;
 
@@ -1907,9 +1917,10 @@ block {
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 const tokenPoolTotal      : nat         = loanTokenRecord.tokenPoolTotal;
@@ -2112,9 +2123,10 @@ block {
                 loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 s.loanTokenLedger[vaultLoanTokenName] := loanTokenRecord;
 
@@ -2185,9 +2197,10 @@ block {
                 // Get loan token record
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
@@ -2249,9 +2262,10 @@ block {
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 if loanTokenRecord.tokenPoolTotal > 0n then {
 
-                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                    loanTokenRecord := loanTokenRecordUpdated.0;
-                    s               := loanTokenRecordUpdated.1;
+                    // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                    // loanTokenRecord := loanTokenRecordUpdated.0;
+                    // s               := loanTokenRecordUpdated.1;
+                    loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 } else skip;
                 s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
@@ -2304,9 +2318,10 @@ block {
                 // Get loan token record
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
 
-                const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                loanTokenRecord := loanTokenRecordUpdated.0;
-                s := loanTokenRecordUpdated.1;
+                // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                // loanTokenRecord := loanTokenRecordUpdated.0;
+                // s := loanTokenRecordUpdated.1;
+                loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
 
                 // Get loan token parameters
                 const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
@@ -2368,9 +2383,10 @@ block {
 
                 // Token Pool: Update utilisation rate, current interest rate, compounded interest and borrow index
                 if loanTokenRecord.tokenPoolTotal > 0n then {
-                    const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
-                    loanTokenRecord := loanTokenRecordUpdated.0;
-                    s               := loanTokenRecordUpdated.1;
+                    // const loanTokenRecordUpdated : (loanTokenRecordType * lendingControllerStorageType) = updateLoanTokenState(loanTokenRecord, s);
+                    // loanTokenRecord := loanTokenRecordUpdated.0;
+                    // s               := loanTokenRecordUpdated.1;
+                    loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);
                 } else skip;
                 s.loanTokenLedger[vaultLoanTokenName]     := loanTokenRecord;
                 
