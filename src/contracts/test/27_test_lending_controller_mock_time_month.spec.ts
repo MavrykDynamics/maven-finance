@@ -196,7 +196,7 @@
 //         })
 
 //         tokenOracles.push({
-//             'name': 'mvk', 
+//             'name': "smvk", 
 //             'price': parseInt(mockUsdMvkAggregatorStorage.lastCompletedData.data),
 //             'priceDecimals': parseInt(mockUsdMvkAggregatorStorage.config.decimals),
 //             'tokenDecimals': 9
@@ -365,7 +365,6 @@
 //                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
     
 //                     assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
 //                     assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -469,8 +468,6 @@
 //                     const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
 //                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
-//                     // assert.equal(mockFa2LoanToken.tokenContractAddress   , tokenContractAddress);
-//                     // assert.equal(mockFa2LoanToken.tokenId                , tokenId);
 
 //                     assert.equal(mockFa2LoanToken.lpTokensTotal          , 0);
 //                     assert.equal(mockFa2LoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -1385,10 +1382,6 @@
 //             const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
 //             const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
 //             const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
-
-//             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
-//             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
-//             // console.log("REPAY OP ESTIMATION: ", estimate);
 
 //             // repay operation
 //             const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
