@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { parseDate } from 'utils/time'
 import { StatBlock } from '../Dashboard.style'
-import { OraclesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
+import { OraclesContentStyled, TabWrapperStyled, PopularFeed } from './DashboardTabs.style'
 
 export const OraclesTab = () => {
   const dispatch = useDispatch()
@@ -49,7 +49,7 @@ export const OraclesTab = () => {
       </div>
 
       <OraclesContentStyled>
-        <div className="top">
+        <div className="top padding-left">
           <StatBlock>
             <div className="name">Total Oracle Rewards Paid</div>
             <div className="value">
@@ -64,12 +64,12 @@ export const OraclesTab = () => {
           </StatBlock>
         </div>
 
-        <div className="block-name">Popular Feeds</div>
+        <div className="block-name padding-left">Popular Feeds</div>
 
         <div className="feeds-grid">
           {popularFeeds.map((feed) => (
             <Link to={`/satellites/feed-details/${feed.address}`}>
-              <div className="row" key={feed.address}>
+              <PopularFeed className="row" key={feed.address}>
                 <StatBlock className="icon-first">
                   <CoinsLogo assetName={feed.token_1_symbol} className="feed-token" />
                   <div className="name">Feed</div>
@@ -95,7 +95,7 @@ export const OraclesTab = () => {
                     {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'DD MMM YYYY / HH:mm' })}
                   </div>
                 </StatBlock>
-              </div>
+              </PopularFeed>
             </Link>
           ))}
         </div>

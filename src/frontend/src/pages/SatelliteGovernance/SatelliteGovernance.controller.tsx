@@ -258,9 +258,7 @@ export const SatelliteGovernance = () => {
       </SatelliteGovernanceStyled>
 
       {paginatedItemsList?.length
-        ? paginatedItemsList.map((item: GovernanceSatelliteActionGraphQL) => {
-            const linkAddress = item.parameters?.[0]?.value || ''
-
+        ? paginatedItemsList.map((item: GovernanceSatelliteActionGraphQL) => {          
             return (
               <SatelliteGovernanceCard
                 key={item.id}
@@ -272,7 +270,6 @@ export const SatelliteGovernance = () => {
                 status={item.status}
                 purpose={item.governance_purpose}
                 governanceType={item.governance_type}
-                linkAddress={linkAddress}
                 yayVotesSmvkTotal={item.yay_vote_smvk_total}
                 nayVotesSmvkTotal={item.nay_vote_smvk_total}
                 snapshotSmvkTotalSupply={item.snapshot_smvk_total_supply}
