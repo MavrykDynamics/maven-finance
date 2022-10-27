@@ -85,11 +85,6 @@ export const SatelliteListItem = ({
     ? proposalLedger.find((proposal) => proposal.id === currentlySupportingProposalId)
     : null
 
-  const signedFeedsCount = React.useMemo(
-    () => feeds.filter((feed) => feed.admin === satellite.address).length,
-    [feeds, satellite.address],
-  )
-
   const oracleStatusType = getOracleStatus(satellite, feeds)
   const satelliteStatusColor = satellite.status === SatelliteStatus.BANNED ? DOWN : WARNING
   const isSatelliteInactive = satellite.status !== SatelliteStatus.ACTIVE
@@ -149,7 +144,7 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {isDetailsPage && !isSatelliteOracle ? (
+            {isDetailsPage ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Your delegated MVK</SatelliteMainText>
                 <SatelliteSubText>
@@ -165,14 +160,6 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {isDetailsPage && isSatelliteOracle ? (
-              <SatelliteTextGroup>
-                <SatelliteMainText>Signed feeds</SatelliteMainText>
-                <SatelliteSubText>
-                  <CommaNumber value={signedFeedsCount} />
-                </SatelliteSubText>
-              </SatelliteTextGroup>
-            ) : null}
           </SatelliteCardTopRow>
 
           <SatelliteCardTopRow isExtendedListItem={isDetailsPage}>
@@ -194,7 +181,7 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {(isDetailsPage && isSatelliteOracle) || !isSatelliteOracle ? (
+            {isDetailsPage ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Fee</SatelliteMainText>
                 <SatelliteSubText>
@@ -203,9 +190,9 @@ export const SatelliteListItem = ({
               </SatelliteTextGroup>
             ) : null}
 
-            {isDetailsPage && !isSatelliteOracle ? (
+            {!isSatelliteOracle ? (
               <SatelliteTextGroup>
-                <SatelliteMainText>Count of delegators</SatelliteMainText>
+                <SatelliteMainText># Delegators</SatelliteMainText>
                 <SatelliteSubText>
                   <CommaNumber value={satellite.delegatorCount} />
                 </SatelliteSubText>
