@@ -135,7 +135,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         },
       },
       { id: 57471, subTitle: 'Data Feeds', subPath: 'data-feeds', routeSubPath: ['/data-feeds', '/satellites/feed-details/:tabId'], protectedRoute: false },
-      { id: 15757, subTitle: 'Users', subPath: 'oracle-users', routeSubPath: '/oracle-users', protectedRoute: false },
+      { id: 15757, subTitle: 'Users', subPath: 'oracle-users', routeSubPath: ['/oracle-users', '/satellites/user-details/:tabId'], protectedRoute: false },
     ],
   },
   {
