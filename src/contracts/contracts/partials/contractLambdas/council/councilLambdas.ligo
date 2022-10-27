@@ -178,7 +178,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionAddMember lambda  *)
-function lambdaCouncilActionAddMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilAddMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -192,7 +192,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        |   LambdaCouncilActionAddMember(newCouncilMember) -> {
+        |   LambdaCouncilAddMember(newCouncilMember) -> {
 
                 // Validate inputs
                 if String.length(newCouncilMember.memberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -226,7 +226,7 @@ block {
 
 
 (*  councilActionRemoveMember lambda  *)
-function lambdaCouncilActionRemoveMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilRemoveMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -240,7 +240,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        |   LambdaCouncilActionRemoveMember(councilMemberAddress) -> {
+        |   LambdaCouncilRemoveMember(councilMemberAddress) -> {
                 
                 // Check if council member is in the council
                 if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
@@ -270,7 +270,7 @@ block {
 
 
 (*  councilActionChangeMember lambda  *)
-function lambdaCouncilActionChangeMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilChangeMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -285,7 +285,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        |   LambdaCouncilActionChangeMember(councilActionChangeMemberParams) -> {
+        |   LambdaCouncilChangeMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
                 if String.length(councilActionChangeMemberParams.newCouncilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -323,7 +323,7 @@ block {
 
 
 (*  councilActionSetBaker lambda  *)
-function lambdaCouncilActionSetBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilSetBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -335,7 +335,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        |   LambdaCouncilActionSetBaker(setBakerParams) -> {
+        |   LambdaCouncilSetBaker(setBakerParams) -> {
 
                 const dataMap          : dataMapType     = map [
                     ("keyHash"  : string) -> Bytes.pack(setBakerParams);
@@ -364,7 +364,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionAddVestee lambda  *)
-function lambdaCouncilActionAddVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilAddVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -379,7 +379,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        |   LambdaCouncilActionAddVestee(addVesteeParams) -> {
+        |   LambdaCouncilAddVestee(addVesteeParams) -> {
                 
                 // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
@@ -426,7 +426,7 @@ block {
 
 
 (*  councilActionRemoveVestee lambda  *)
-function lambdaCouncilActionRemoveVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilRemoveVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -441,7 +441,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        |   LambdaCouncilActionRemoveVestee(vesteeAddress) -> {
+        |   LambdaCouncilRemoveVestee(vesteeAddress) -> {
                 
                 // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
@@ -479,7 +479,7 @@ block {
 
 
 (*  councilActionUpdateVestee lambda  *)
-function lambdaCouncilActionUpdateVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilUpdateVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -494,7 +494,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        |   LambdaCouncilActionUpdateVestee(updateVesteeParams) -> {
+        |   LambdaCouncilUpdateVestee(updateVesteeParams) -> {
                 
                 // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
@@ -601,7 +601,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionTransfer lambda  *)
-function lambdaCouncilActionTransfer(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilTransfer(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -615,7 +615,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        |   LambdaCouncilActionTransfer(councilActionTransferParams) -> {
+        |   LambdaCouncilTransfer(councilActionTransferParams) -> {
                 
                 // Validate inputs
                 if String.length(councilActionTransferParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -651,7 +651,7 @@ block {
 
 
 (*  councilActionRequestTokens lambda  *)
-function lambdaCouncilActionRequestTokens(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilRequestTokens(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -711,7 +711,7 @@ block {
 
 
 (*  councilActionRequestMint lambda  *)
-function lambdaCouncilActionRequestMint(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilRequestMint(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
     // Steps Overview:
@@ -759,7 +759,7 @@ block {
 
 
 (*  councilActionSetContractBaker lambda  *)
-function lambdaCouncilActionSetContractBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilSetContractBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
     // Steps Overview:
@@ -802,7 +802,7 @@ block {
 
 
 (*  councilActionDropFinancialRequest lambda  *)
-function lambdaCouncilActionDropFinancialRequest(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilDropFinancialRequest(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
     // Steps Overview:

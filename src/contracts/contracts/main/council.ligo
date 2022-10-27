@@ -1344,13 +1344,13 @@ block {
 function councilActionAddMember(const newCouncilMember : councilActionAddMemberType ; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionAddMember"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilAddMember"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionAddMember(newCouncilMember);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilAddMember(newCouncilMember);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -1363,13 +1363,13 @@ block {
 function councilActionRemoveMember(const councilMemberAddress : address ; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionRemoveMember"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilRemoveMember"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionRemoveMember(councilMemberAddress);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilRemoveMember(councilMemberAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -1382,13 +1382,13 @@ block {
 function councilActionChangeMember(const councilActionChangeMemberParams : councilActionChangeMemberType; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionChangeMember"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilChangeMember"] of [
         | Some(_v) -> _v
         | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionChangeMember(councilActionChangeMemberParams);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilChangeMember(councilActionChangeMemberParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -1401,13 +1401,13 @@ block {
 function councilActionSetBaker(const councilActionSetBakerParams : setBakerType; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionSetBaker"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilSetBaker"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionSetBaker(councilActionSetBakerParams);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilSetBaker(councilActionSetBakerParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -1428,13 +1428,13 @@ block {
 function councilActionAddVestee(const addVesteeParams : addVesteeType ; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionAddVestee"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilAddVestee"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionAddVestee(addVesteeParams);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilAddVestee(addVesteeParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -1447,13 +1447,13 @@ block {
 function councilActionRemoveVestee(const vesteeAddress : address ; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionRemoveVestee"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilRemoveVestee"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionRemoveVestee(vesteeAddress);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilRemoveVestee(vesteeAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -1466,13 +1466,13 @@ block {
 function councilActionUpdateVestee(const updateVesteeParams : updateVesteeType; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionUpdateVestee"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilUpdateVestee"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionUpdateVestee(updateVesteeParams);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilUpdateVestee(updateVesteeParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -1512,13 +1512,13 @@ block {
 function councilActionTransfer(const councilActionTransferParams : councilActionTransferType; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionTransfer"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilTransfer"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionTransfer(councilActionTransferParams);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilTransfer(councilActionTransferParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -1531,7 +1531,7 @@ block {
 function councilActionRequestTokens(const councilActionRequestTokensParams : councilActionRequestTokensType ; var s : councilStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionRequestTokens"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilRequestTokens"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1550,7 +1550,7 @@ block {
 function councilActionRequestMint(const councilActionRequestMintParams : councilActionRequestMintType ; var s : councilStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionRequestMint"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilRequestMint"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1569,7 +1569,7 @@ block {
 function councilActionSetContractBaker(const councilActionSetContractBakerParams : councilActionSetContractBakerType ; var s : councilStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionSetContractBaker"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilSetContractBaker"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1588,7 +1588,7 @@ block {
 function councilActionDropFinancialRequest(const requestId : nat ; var s : councilStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionDropFinancialRequest"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilDropFinancialRequest"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
