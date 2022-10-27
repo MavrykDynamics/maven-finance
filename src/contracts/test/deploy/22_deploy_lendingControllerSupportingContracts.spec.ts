@@ -1,6 +1,8 @@
-import { Utils } from "../helpers/Utils";
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from "bignumber.js";
+
+import { Utils } from "../helpers/Utils";
+
 const saveContractAddress = require("../../helpers/saveContractAddress")
 
 const chai = require('chai')
@@ -17,6 +19,7 @@ import { bob, eve, mallory, oracleMaintainer, oscar } from '../../scripts/sandbo
 import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 import governanceAddress from '../../deployments/governanceAddress.json';
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
+import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -63,7 +66,8 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             // LP Token for Mock FA12 Token in Lending Controller Token Pool 
             mavrykLendingLpTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
-                "lendingController"     : lendingControllerAddress.address
+                "lendingController"             : lendingControllerAddress.address,
+                "lendingControllerMockTime"     : lendingControllerMockTimeAddress.address
             })
             lpTokenPoolMockFa12Token = await MavrykLendingLpToken.originate(
                 utils.tezos,
