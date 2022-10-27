@@ -37,7 +37,7 @@ export const AppRoutes = () => {
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
   // get origin pathname
-  const [path] = pathname.slice(1).split('/')
+  const [, path] = pathname.split('/')
   
   // Scroll to the top of the page when moving to others page
   useEffect(() => {
