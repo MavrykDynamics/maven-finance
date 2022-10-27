@@ -162,22 +162,22 @@ export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLed
     let mockFa12Balance             = collateralBalanceLedger.get('mockFa12') == undefined ? 0 : collateralBalanceLedger.get('mockFa12');
     let mockFa2Balance              = collateralBalanceLedger.get('mockFa2')  == undefined ? 0 : collateralBalanceLedger.get('mockFa2');
     let xtzBalance                  = collateralBalanceLedger.get('tez')      == undefined ? 0 : collateralBalanceLedger.get('tez');
-    let mvkBalance                  = collateralBalanceLedger.get('mvk')      == undefined ? 0 : collateralBalanceLedger.get('mvk');
+    let mvkBalance                  = collateralBalanceLedger.get("smvk")     == undefined ? 0 : collateralBalanceLedger.get("smvk");
 
     let mockFa12TokenPrice          = tokenOracles.find(o => o.name === "mockFa12").price;
     let mockFa2TokenPrice           = tokenOracles.find(o => o.name === "mockFa2").price;
     let tezPrice                    = tokenOracles.find(o => o.name === "tez").price;
-    let mvkPrice                    = tokenOracles.find(o => o.name === "mvk").price;
+    let mvkPrice                    = tokenOracles.find(o => o.name === "smvk").price;
 
     let mockFa12TokenPriceDecimals  = tokenOracles.find(o => o.name === "mockFa12").priceDecimals;
     let mockFa2TokenPriceDecimals   = tokenOracles.find(o => o.name === "mockFa2").priceDecimals;
     let tezPriceDecimals            = tokenOracles.find(o => o.name === "tez").priceDecimals;
-    let mvkPriceDecimals            = tokenOracles.find(o => o.name === "mvk").priceDecimals;
+    let mvkPriceDecimals            = tokenOracles.find(o => o.name === "smvk").priceDecimals;
 
     let mockFa12TokenDecimals       = tokenOracles.find(o => o.name === "mockFa12").tokenDecimals;
     let mockFa2TokenDecimals        = tokenOracles.find(o => o.name === "mockFa2").tokenDecimals;
     let tezTokenDecimals            = tokenOracles.find(o => o.name === "tez").tokenDecimals;
-    let mvkTokenDecimals            = tokenOracles.find(o => o.name === "mvk").tokenDecimals;
+    let mvkTokenDecimals            = tokenOracles.find(o => o.name === "smvk").tokenDecimals;
 
     // rebased to no decimals (Math.trunc to simulate smart contract division)
     let vaultMockFa12TokenValue     = Math.trunc(Math.trunc(mockFa12Balance / (10 ** mockFa12TokenDecimals)) * mockFa12TokenPrice ) / (10 ** mockFa12TokenPriceDecimals);
@@ -401,7 +401,7 @@ export const defaultPriceObservations = [
 
 
     {
-        "name": "mvk",
+        "name": "smvk",
         "medianPrice": 1000000000, // 1,000,000,000 -> $1
         "observations" : [ 
             {
@@ -499,7 +499,7 @@ export const priceDecreaseObservations = [
     },
 
     {
-        "name": "mvk",
+        "name": "smvk",
         "medianPrice": 333333333, // 333,333,333 -> $0.33
         "observations" : [
             {
@@ -598,7 +598,7 @@ export const priceIncreaseObservations = [
     },
 
     {
-        "name": "mvk",
+        "name": "smvk",
         "medianPrice": 1666666666, // 1,666,666,666 -> $1.66
         "observations" : [
             {
