@@ -14,8 +14,6 @@ import env from "../../env";
 import {confirmOperation} from "../../scripts/confirmation";
 import {aggregatorStorageType} from "../types/aggregatorStorageType";
 
-import aggregatorLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/aggregator/aggregatorLambdaIndex.json';
 import aggregatorLambdas from "../../build/lambdas/aggregatorLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -52,9 +50,10 @@ export const setAggregatorLambdas = async (tezosToolkit: TezosToolkit, contract:
     const batch = tezosToolkit.wallet
         .batch();
 
-    aggregatorLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, aggregatorLambdas[index]))
-    });
+    for (let lambdaName in aggregatorLambdas) {
+        let bytes   = aggregatorLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupAggregatorLambdasOperation = await batch.send()
 

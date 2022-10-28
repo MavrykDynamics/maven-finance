@@ -235,11 +235,7 @@
         "lambdaStake",
         "lambdaUnstake",
         "lambdaCompound",
-        "lambdaFarmClaim",
-
-        "lambdaOnVaultDepositStakedMvk",
-        "lambdaOnVaultWithdrawStakedMvk",
-        "lambdaOnVaultLiquidateStakedMvk"
+        "lambdaFarmClaim"
     ],
     "emergencyGovernance": [
         "lambdaSetAdmin",
@@ -325,8 +321,8 @@
         "lambdaAddOracleToAggregator",
         "lambdaRemoveOracleInAggregator",
 
-        "lambdaRegisterAggregator",
-        "lambdaUpdateAggregatorStatus",
+        "lambdaSetAggregatorReference",
+        "lambdaTogglePauseAggregator",
 
         "lambdaFixMistakenTransfer",
 
