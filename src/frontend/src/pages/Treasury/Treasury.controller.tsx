@@ -77,6 +77,7 @@ export const Treasury = () => {
             clickOnDropDown={handleClickDropdown}
             placeholder='Choose treasury'
             isOpen={ddIsOpen}
+            setIsOpen={setDdIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
