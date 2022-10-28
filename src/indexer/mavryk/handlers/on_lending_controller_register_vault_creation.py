@@ -1,5 +1,4 @@
 
-from mavryk.utils.persisters import persist_token_metadata
 from mavryk.types.lending_controller.parameter.register_vault_creation import RegisterVaultCreationParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -19,7 +18,8 @@ async def on_lending_controller_register_vault_creation(
 
     # Create / Update record
     lending_controller          = await models.LendingController.get(
-        address = lending_controller_address
+        address         = lending_controller_address,
+        mock_time       = False
     )
     vault_owner, _              = await models.MavrykUser.get_or_create(
         address = vault_owner_address
