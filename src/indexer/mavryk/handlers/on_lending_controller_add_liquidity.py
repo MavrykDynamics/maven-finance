@@ -1,7 +1,5 @@
 
 from dipdup.context import HandlerContext
-from mavryk.utils.persisters import persist_token_metadata
-from ..sql_model.lending_controller import LendingControllerDepositor
 from mavryk.types.lending_controller.parameter.add_liquidity import AddLiquidityParameter
 from dipdup.models import Transaction
 from mavryk.types.lending_controller.storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
@@ -25,7 +23,6 @@ async def on_lending_controller_add_liquidity(
     loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
     loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
     loan_token_current_interest_rate        = float(loan_token_storage.currentInterestRate)
-    token_pool_depositor_storage            = add_liquidity.storage.tokenPoolDepositorLedger
     loan_token_address                      = ""
     
     # Loan Token attributes
@@ -38,7 +35,8 @@ async def on_lending_controller_add_liquidity(
 
     # Create / Update record
     lending_controller                      = await models.LendingController.get(
-        address = lending_controller_address
+        address     = lending_controller_address,
+        mock_time   = False
     )
     depositor, _                            = await models.MavrykUser.get_or_create(
         address = depositor_address
@@ -56,15 +54,3 @@ async def on_lending_controller_add_liquidity(
     lending_controller_loan_token.utilisation_rate          = loan_token_utilisation_rate
     lending_controller_loan_token.current_interest_rate     = loan_token_current_interest_rate
     await lending_controller_loan_token.save()
-
-    for depositor_storage in token_pool_depositor_storage:
-        depositor_address_storage   = depositor_storage.key.address
-        deposited_amount            = float(depositor_storage.value)
-        if depositor_address_storage == depositor_address:
-            lending_controller_depositor, _         = await models.LendingControllerDepositor.get_or_create(
-                lending_controller  = lending_controller,
-                depositor           = depositor,
-                loan_token          = lending_controller_loan_token
-            )
-            lending_controller_depositor.deposited_amount   = deposited_amount
-            await lending_controller_depositor.save()
