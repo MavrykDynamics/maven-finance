@@ -82,6 +82,12 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
     dispatch(toggleSidebarCollapsing(false))
   }, [])
 
+  const navLinkClickHandler = useCallback(() => {
+    if (!sidebarOpened) {
+      burgerClickHandler()
+    }
+  }, [burgerClickHandler, sidebarOpened])
+
   return (
     <>
       <MenuTopBar
@@ -103,6 +109,7 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
                   selectedMainLink={selectedMainLink}
                   isMobMenuExpanded={sidebarOpened}
                   accountPkh={accountPkh}
+                  navLinkClickHandler={navLinkClickHandler}
                   {...navigationLink}
                 />
               )
