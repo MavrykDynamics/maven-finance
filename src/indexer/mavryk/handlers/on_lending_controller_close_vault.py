@@ -18,7 +18,8 @@ async def on_lending_controller_close_vault(
 
     # Update record
     lending_controller          = await models.LendingController.get(
-        address = lending_controller_address
+        address             = lending_controller_address,
+        mock_time           = False
     )
     owner, _                    = await models.MavrykUser.get_or_create(
         address = vault_owner_address
