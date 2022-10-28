@@ -42,6 +42,7 @@ type NavigationLinkProps = {
   isMobMenuExpanded: boolean
   accountPkh?: string
   disabled?: boolean
+  navLinkClickHandler: () => void
 }
 
 export const NavigationLink = ({
@@ -54,6 +55,7 @@ export const NavigationLink = ({
   isMobMenuExpanded,
   accountPkh,
   disabled,
+  navLinkClickHandler,
 }: NavigationLinkProps) => {
   const { pathname } = useLocation()
   const {
@@ -101,6 +103,7 @@ export const NavigationLink = ({
           className="header"
           {...getToggleProps({ onClick: () => (!disabled ? setShowSubPages(!showSubPages) : null) })}
           disabled={disabled}
+          onClick={navLinkClickHandler}
         >
           {mainLink}
         </NavigationLinkItem>
@@ -124,7 +127,7 @@ export const NavigationLink = ({
 
   return (
     <NavigationLinkContainer key={id} selected={selectedMainLink === id} isMobMenuExpanded={isMobMenuExpanded}>
-      <NavigationLinkItem selected={selectedMainLink === id} isMobMenuExpanded={isMobMenuExpanded} disabled={disabled}>
+      <NavigationLinkItem onClick={navLinkClickHandler} selected={selectedMainLink === id} isMobMenuExpanded={isMobMenuExpanded} disabled={disabled}>
         {mainLink}
       </NavigationLinkItem>
     </NavigationLinkContainer>
