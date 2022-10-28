@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { emergencyGovernanceStorageType } from "../types/emergencyGovernanceStorageType";
 
-import emergencyGovernanceLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/emergencyGovernance/emergencyGovernanceLambdaIndex.json';
 import emergencyGovernanceLambdas from "../../build/lambdas/emergencyGovernanceLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -52,9 +50,10 @@ export const setEmergencyGovernanceLambdas = async (tezosToolkit: TezosToolkit, 
     const batch = tezosToolkit.wallet
         .batch();
 
-    emergencyGovernanceLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, emergencyGovernanceLambdas[index]))
-    });
+    for (let lambdaName in emergencyGovernanceLambdas) {
+        let bytes   = emergencyGovernanceLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupEmergencyGovernanceLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupEmergencyGovernanceLambdasOperation.opHash);

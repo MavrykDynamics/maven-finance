@@ -54,113 +54,117 @@ describe("Governance tests", async () => {
     };
 
     before("setup", async () => {
-
-        utils = new Utils();
-        await utils.init(bob.sk);
-        
-        doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
-        delegationInstance = await utils.tezos.contract.at(delegationAddress.address);
-        mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
-        governanceInstance = await utils.tezos.contract.at(governanceAddress.address);
-        governanceProxyInstance = await utils.tezos.contract.at(governanceProxyAddress.address);
-        emergencyGovernanceInstance = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
-        breakGlassInstance = await utils.tezos.contract.at(breakGlassAddress.address);
-        councilInstance = await utils.tezos.contract.at(councilAddress.address);
+        try {
+            utils = new Utils();
+            await utils.init(bob.sk);
             
-        doormanStorage    = await doormanInstance.storage();
-        delegationStorage = await delegationInstance.storage();
-        mvkTokenStorage   = await mvkTokenInstance.storage();
-        governanceStorage = await governanceInstance.storage();
-        governanceProxyStorage  = await governanceProxyInstance.storage();
-        emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
-        breakGlassStorage = await breakGlassInstance.storage();
-        councilStorage  = await councilInstance.storage();
-
-        console.log('-- -- -- -- -- Governance Tests -- -- -- --')
-        console.log('Doorman Contract deployed at:', doormanInstance.address);
-        console.log('Delegation Contract deployed at:', delegationInstance.address);
-        console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        console.log('Governance Contract deployed at:', governanceInstance.address);
-        console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-        console.log('Bob address: ' + bob.pkh);
-        console.log('Alice address: ' + alice.pkh);
-        console.log('Eve address: ' + eve.pkh);
-
-        // Init multiple satellites
-        delegationStorage       = await delegationInstance.storage();
-        const satelliteCreated  = await delegationStorage.satelliteLedger.get(eve.pkh);
-        if(satelliteCreated === undefined){
-            var updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: doormanAddress.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
-            var stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
-            await stakeOperation.confirmation();
-            
-            await signerFactory(alice.sk)
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: alice.pkh,
-                        operator: doormanAddress.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
-            stakeOperation = await doormanInstance.methods.stake(MVK(1)).send();
-            await stakeOperation.confirmation();
-            var registerAsSatellite = await delegationInstance.methods
-            .registerAsSatellite(
-                "Alice Satellite", 
-                "Test description", 
-                "Test image", 
-                "Test website", 
-                700
-            ).send();
-            await registerAsSatellite.confirmation();
-
-            await signerFactory(eve.sk)
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: eve.pkh,
-                        operator: doormanAddress.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();
-            stakeOperation = await doormanInstance.methods.stake(MVK(20000)).send();
-            await stakeOperation.confirmation();
-            registerAsSatellite = await delegationInstance.methods
-            .registerAsSatellite(
-                "Eve Satellite", 
-                "Test description", 
-                "Test image", 
-                "Test website", 
-                700
-            ).send();
-            await registerAsSatellite.confirmation();
-
-            // Reset signer
-            await signerFactory(bob.sk)
+            doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
+            delegationInstance = await utils.tezos.contract.at(delegationAddress.address);
+            mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
+            governanceInstance = await utils.tezos.contract.at(governanceAddress.address);
+            governanceProxyInstance = await utils.tezos.contract.at(governanceProxyAddress.address);
+            emergencyGovernanceInstance = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
+            breakGlassInstance = await utils.tezos.contract.at(breakGlassAddress.address);
+            councilInstance = await utils.tezos.contract.at(councilAddress.address);
+                
+            doormanStorage    = await doormanInstance.storage();
+            delegationStorage = await delegationInstance.storage();
+            mvkTokenStorage   = await mvkTokenInstance.storage();
+            governanceStorage = await governanceInstance.storage();
+            governanceProxyStorage  = await governanceProxyInstance.storage();
+            emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+            breakGlassStorage = await breakGlassInstance.storage();
+            councilStorage  = await councilInstance.storage();
     
-            // Set council contract admin to governance proxy for later tests
-            const setAdminOperation = await councilInstance.methods.setAdmin(governanceProxyAddress.address).send();
-            await setAdminOperation.confirmation()
+            console.log('-- -- -- -- -- Governance Tests -- -- -- --')
+            console.log('Doorman Contract deployed at:', doormanInstance.address);
+            console.log('Delegation Contract deployed at:', delegationInstance.address);
+            console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+            console.log('Governance Contract deployed at:', governanceInstance.address);
+            console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
+            console.log('Bob address: ' + bob.pkh);
+            console.log('Alice address: ' + alice.pkh);
+            console.log('Eve address: ' + eve.pkh);
+    
+            // Init multiple satellites
+            delegationStorage       = await delegationInstance.storage();
+            const satelliteCreated  = await delegationStorage.satelliteLedger.get(eve.pkh);
+            if(satelliteCreated === undefined){
+                var updateOperators = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperators.confirmation();
+                var stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
+                await stakeOperation.confirmation();
+                
+                await signerFactory(alice.sk)
+                updateOperators = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: alice.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperators.confirmation();
+                stakeOperation = await doormanInstance.methods.stake(MVK(1)).send();
+                await stakeOperation.confirmation();
+                console.log(await delegationStorage.lambdaLedger.get("lambdaRegisterAsSatellite"))
+                var registerAsSatellite = await delegationInstance.methods
+                .registerAsSatellite(
+                    "Alice Satellite", 
+                    "Test description", 
+                    "Test image", 
+                    "Test website", 
+                    700
+                ).send();
+                await registerAsSatellite.confirmation();
+    
+                await signerFactory(eve.sk)
+                updateOperators = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: eve.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperators.confirmation();
+                stakeOperation = await doormanInstance.methods.stake(MVK(20000)).send();
+                await stakeOperation.confirmation();
+                registerAsSatellite = await delegationInstance.methods
+                .registerAsSatellite(
+                    "Eve Satellite", 
+                    "Test description", 
+                    "Test image", 
+                    "Test website", 
+                    700
+                ).send();
+                await registerAsSatellite.confirmation();
+    
+                // Reset signer
+                await signerFactory(bob.sk)
+        
+                // Set council contract admin to governance proxy for later tests
+                const setAdminOperation = await councilInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                await setAdminOperation.confirmation()
+            }
+        } catch (e) {
+            console.dir(e, {depth: 5})
         }
     });
 

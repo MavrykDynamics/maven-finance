@@ -1485,7 +1485,7 @@ block {
 function councilActionToggleVesteeLock(const vesteeAddress : address ; var s : councilStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionToggleVesteeLock"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilToggleVesteeLock"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1588,7 +1588,7 @@ block {
 function councilActionDropFinancialRequest(const requestId : nat ; var s : councilStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilDropFinancialRequest"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilDropFinancialReq"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];

@@ -541,7 +541,7 @@ block {
 
 
 (*  councilActionToggleVesteeLock lambda  *)
-function lambdaCouncilActionToggleVesteeLock(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilToggleVesteeLock(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -802,7 +802,7 @@ block {
 
 
 (*  councilActionDropFinancialRequest lambda  *)
-function lambdaCouncilDropFinancialRequest(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
+function lambdaCouncilDropFinancialReq(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
     // Steps Overview:
