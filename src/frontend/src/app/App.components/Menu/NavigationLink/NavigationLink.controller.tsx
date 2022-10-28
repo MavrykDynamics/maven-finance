@@ -69,8 +69,12 @@ export const NavigationLink = ({
   }, [pathname])
 
   useEffect(() => {
-    setShowSubPages(id === selectedMainLink)
-  }, [selectedMainLink])
+    const newStatusToShowSubPages = isMobMenuExpanded ? id === selectedMainLink : false
+    
+    if (showSubPages !== newStatusToShowSubPages) {
+      setShowSubPages(newStatusToShowSubPages)
+    }
+  }, [id, isMobMenuExpanded, selectedMainLink, showSubPages])
 
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: showSubPages })
 
