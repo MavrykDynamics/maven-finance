@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.19.0
+    tag: v0.20.0
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -129,9 +129,9 @@ dipdup:
       lending_controller:
         address: KT1VhdtgrgA3SHJyhLbzr1TGJL9rPaPbHaZd
         typename: lending_controller
-      token_pool_reward:
-        address: KT1De3nsKNtJ4cRpxYYsh2TNsbNM4q8arC2n
-        typename: token_pool_reward
+      lending_controller_mock_time:
+        address: KT1X32FdE4udzReNM55cG5ShTM6McaLdM6z8
+        typename: lending_controller_mock_time
       vault:
         address: KT1FDXbVGHMXynKRjGWcPpyMxecZwdx9S814
         typename: vault
@@ -1799,14 +1799,14 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: registerWithdrawal
-          # - callback: on_lending_controller_mark_for_liquidation
-          #   pattern:
-          #     - destination: lending_controller
-          #       entrypoint: markForLiquidation
-          # - callback: on_lending_controller_liquidate_vault
-          #   pattern:
-          #     - destination: lending_controller
-          #       entrypoint: liquidateVault
+          - callback: on_lending_controller_mark_for_liquidation
+            pattern:
+              - destination: lending_controller
+                entrypoint: markForLiquidation
+          - callback: on_lending_controller_liquidate_vault
+            pattern:
+              - destination: lending_controller
+                entrypoint: liquidateVault
           - callback: on_lending_controller_borrow
             pattern:
               - destination: lending_controller
@@ -1827,60 +1827,108 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: setLambda
-      # Token Pool Reward contract indexes
-      token_pool_reward:
+      # Lending Controller Mock Time contract indexes
+      lending_controller_mock_time:
         kind: operation
         datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
         contracts:
-          - token_pool_reward
+          - lending_controller_mock_time
         handlers:
-          - callback: on_token_pool_reward_origination
+          - callback: on_lending_controller_mock_time_origination
             pattern:
               - type: origination
-                originated_contract: token_pool_reward
-          - callback: on_token_pool_reward_set_admin
+                originated_contract: lending_controller_mock_time
+          - callback: on_lending_controller_mock_time_set_admin
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: setAdmin
-          - callback: on_token_pool_reward_set_governance
+          - callback: on_lending_controller_mock_time_set_governance
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: setGovernance
-          - callback: on_token_pool_reward_update_whitelist_contracts
+          - callback: on_lending_controller_mock_time_update_config
             pattern:
-              - destination: token_pool_reward
-                entrypoint: updateWhitelistContracts
-          - callback: on_token_pool_reward_update_general_contracts
+              - destination: lending_controller_mock_time
+                entrypoint: updateConfig
+          - callback: on_lending_controller_mock_time_update_whitelist_token_contracts
             pattern:
-              - destination: token_pool_reward
-                entrypoint: updateGeneralContracts
-          - callback: on_token_pool_reward_update_whitelist_token_contracts
-            pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: updateWhitelistTokenContracts
-          - callback: on_token_pool_reward_pause_all
+          - callback: on_lending_controller_mock_time_pause_all
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: pauseAll
-          - callback: on_token_pool_reward_unpause_all
+          - callback: on_lending_controller_mock_time_unpause_all
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: unpauseAll
-          - callback: on_token_pool_reward_toggle_pause_entrypoint
+          - callback: on_lending_controller_mock_time_toggle_pause_entrypoint
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: togglePauseEntrypoint
-          - callback: on_token_pool_reward_update_rewards
+          - callback: on_lending_controller_mock_time_set_loan_token
             pattern:
-              - destination: token_pool_reward
-                entrypoint: updateRewards
-          - callback: on_token_pool_reward_claim_rewards
+              - destination: lending_controller_mock_time
+                entrypoint: setLoanToken
+          - callback: on_lending_controller_mock_time_set_collateral_token
             pattern:
-              - destination: token_pool_reward
-                entrypoint: claimRewards
+              - destination: lending_controller_mock_time
+                entrypoint: setCollateralToken
+          - callback: on_lending_controller_mock_time_register_vault_creation
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: registerVaultCreation
+          - callback: on_lending_controller_mock_time_add_liquidity
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: addLiquidity
+          - callback: on_lending_controller_mock_time_remove_liquidity
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: removeLiquidity
+          - callback: on_lending_controller_mock_time_close_vault
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: closeVault
+          - callback: on_lending_controller_mock_time_register_deposit
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: registerDeposit
+          - callback: on_lending_controller_mock_time_register_withdrawal
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: registerWithdrawal
+          - callback: on_lending_controller_mock_time_mark_for_liquidation
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: markForLiquidation
+          - callback: on_lending_controller_mock_time_liquidate_vault
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: liquidateVault
+          - callback: on_lending_controller_mock_time_borrow
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: borrow
+          - callback: on_lending_controller_mock_time_repay
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: repay
+          - callback: on_lending_controller_mock_time_vault_deposit_staked_mvk
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: vaultDepositStakedMvk
+          - callback: on_lending_controller_mock_time_vault_withdraw_staked_mvk
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: vaultWithdrawStakedMvk
+          - callback: on_lending_controller_mock_time_set_lambda
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: setLambda
 
 hasura:
   enabled: true

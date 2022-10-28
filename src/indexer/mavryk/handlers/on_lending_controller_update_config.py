@@ -18,7 +18,8 @@ async def on_lending_controller_update_config(
 
     # Update contract
     lending_controller = await models.LendingController.get(
-        address = lending_controller_address
+        address         = lending_controller_address,
+        mock_time       = False
     )
     lending_controller.last_updated_at    = timestamp
     if update_config_action == configAdminLiquidationFee:

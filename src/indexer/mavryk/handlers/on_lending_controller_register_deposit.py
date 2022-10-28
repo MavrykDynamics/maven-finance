@@ -20,7 +20,8 @@ async def on_lending_controller_register_deposit(
 
     # Update record
     lending_controller          = await models.LendingController.get(
-        address = lending_controller_address
+        address         = lending_controller_address,
+        mock_time       = False
     )
     vault_owner, _              = await models.MavrykUser.get_or_create(
         address = vault_owner_address
