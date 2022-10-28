@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { governanceFinancialStorageType } from "../types/governanceFinancialStorageType";
 
-import governanceFinancialLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/governanceFinancial/governanceFinancialLambdaIndex.json';
 import governanceFinancialLambdas from "../../build/lambdas/governanceFinancialLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -57,9 +55,10 @@ export const setGovernanceFinancialLambdas = async (tezosToolkit: TezosToolkit, 
     const batch = tezosToolkit.wallet
         .batch();
 
-    governanceFinancialLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, governanceFinancialLambdas[index]))
-    });
+    for (let lambdaName in governanceFinancialLambdas) {
+        let bytes   = governanceFinancialLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupGovernanceFinancialLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupGovernanceFinancialLambdasOperation.opHash);

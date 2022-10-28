@@ -38,10 +38,10 @@ help () {
 }
 
 # Parse arguments
-if [ $# -eq 0 ]
-then
-    help
-fi
+# if [ $# -eq 0 ]
+# then
+#     help
+# fi
 while [ $# -gt 0 ] ; do
   case $1 in
     -h | --help)
@@ -85,7 +85,7 @@ compile_single_lambda () {
     then
         compile_single_lambda $1 $2
     else
-        echo "{ $2: $BYTES }" >> $TMP_FILE
+        echo -e "{ $2: $BYTES }\n" >> $TMP_FILE
     fi
 }
 
@@ -133,9 +133,11 @@ compile_all_lambdas () {
         # Create json file
         echo "{}" | jq '.' > $COMPILED_FILE
         while read l; do
-            TMP_COMP=$(cat $COMPILED_FILE)
-            ENTRY=$(echo $l)
-            echo $TMP_COMP | jq ". += $ENTRY" > $COMPILED_FILE
+            if [[ ! -z $l ]]; then
+                TMP_COMP=$(cat $COMPILED_FILE)
+                ENTRY=$(echo $l)
+                echo $TMP_COMP | jq ". += $ENTRY" > $COMPILED_FILE
+            fi
         done < $TMP_FILE
         rm $TMP_FILE
     else

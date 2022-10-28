@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { delegationStorageType } from "../types/delegationStorageType";
 
-import delegationLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/delegation/delegationLambdaIndex.json';
 import delegationLambdas from "../../build/lambdas/delegationLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {BigNumber} from "bignumber.js";
@@ -60,9 +58,10 @@ export const setDelegationLambdas = async (tezosToolkit: TezosToolkit, contract:
     const batch = tezosToolkit.wallet
         .batch();
 
-    delegationLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, delegationLambdas[index]))
-    });
+    for (let lambdaName in delegationLambdas) {
+        let bytes   = delegationLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupDelegationLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupDelegationLambdasOperation.opHash);
