@@ -8,6 +8,7 @@ from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContr
 
 class LendingController(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='lending_controllers', null=True)
+    mock_time                               = fields.BooleanField(default=False)
     collateral_ratio                        = fields.SmallIntField(default=0)
     liquidation_ratio                       = fields.SmallIntField(default=0)
     liquidation_fee_pct                     = fields.SmallIntField(default=0)
@@ -94,16 +95,6 @@ class LendingControllerVaultCollateralBalance(Model):
 
     class Meta:
         table = 'lending_controller_vault_collateral_balance'
-
-class LendingControllerDepositor(Model):
-    id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='depositors', null=True)
-    depositor                               = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_depositors', null=True, index=True)
-    loan_token                              = fields.ForeignKeyField('models.LendingControllerLoanToken', related_name='depositors', null=True, index=True)
-    deposited_amount                        = fields.FloatField(default=0.0)
-
-    class Meta:
-        table = 'lending_controller_depositor'
 
 class LendingControllerCollateralToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)

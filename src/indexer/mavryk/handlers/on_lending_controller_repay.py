@@ -16,7 +16,8 @@ async def on_lending_controller_repay(
     vault_internal_id                       = int(repay.parameter.vaultId)
     vaults_storage                          = repay.storage.vaults
     lending_controller                      = await models.LendingController.get(
-        address             = lending_controller_address
+        address             = lending_controller_address,
+        mock_time           = False
     )
     lending_controller_vault                = await models.LendingControllerVault.get(
         lending_controller  = lending_controller,
