@@ -95,6 +95,7 @@ export const CouncilFormDropFinancialRequest = () => {
             clickOnDropDown={handleClickDropdown}
             placeholder='Choose Financial Request'
             isOpen={ddIsOpen}
+            setIsOpen={setDdIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}

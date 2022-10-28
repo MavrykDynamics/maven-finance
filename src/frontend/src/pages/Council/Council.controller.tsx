@@ -197,6 +197,7 @@ export const Council = () => {
                     clickOnDropDown={handleClickDropdown}
                     placeholder="Choose action"
                     isOpen={ddIsOpen}
+                    setIsOpen={setDdIsOpen}
                     itemSelected={chosenDdItem?.text}
                     items={ddItems}
                     clickOnItem={(e) => handleOnClickDropdownItem(e)}

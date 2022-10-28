@@ -238,6 +238,7 @@ export function BreakGlassCouncil() {
                       clickOnDropDown={handleClickDropdown}
                       placeholder='Choose action'
                       isOpen={ddIsOpen}
+                      setIsOpen={setDdIsOpen}
                       itemSelected={chosenDdItem?.text}
                       items={ddItems}
                       clickOnItem={(e) => handleClickDropdownItem(e)}
