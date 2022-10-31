@@ -14,11 +14,8 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { treasuryFactoryStorageType } from "../types/treasuryFactoryStorageType";
 
-import treasuryFactoryLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/treasuryFactory/treasuryFactoryLambdaIndex.json';
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {treasuryStorageType} from "../types/treasuryStorageType";
-import treasuryLambdaIndex from "../../contracts/partials/contractLambdas/treasury/treasuryLambdaIndex.json";
 import treasuryFactoryLambdas from '../../build/lambdas/treasuryFactoryLambdas.json'
 import treasuryLambdas from '../../build/lambdas/treasuryLambdas.json'
 import {MichelsonMap} from "@taquito/michelson-encoder";
@@ -58,9 +55,10 @@ export const setTreasuryFactoryLambdas = async (tezosToolkit: TezosToolkit, cont
     const batch = tezosToolkit.wallet
         .batch();
 
-    treasuryFactoryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, treasuryFactoryLambdas[index]))
-    });
+    for (let lambdaName in treasuryFactoryLambdas) {
+        let bytes   = treasuryFactoryLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const op = await batch.send()
     await confirmOperation(tezosToolkit, op.opHash);
@@ -70,9 +68,10 @@ export const setTreasuryFactoryProductLambdas = async (tezosToolkit: TezosToolki
     const batch = tezosToolkit.wallet
         .batch();
 
-    treasuryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setProductLambda(name, treasuryLambdas[index]))
-    });
+    for (let lambdaName in treasuryLambdas) {
+        let bytes   = treasuryLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+    }
 
     const op = await batch.send()
     await confirmOperation(tezosToolkit, op.opHash);
