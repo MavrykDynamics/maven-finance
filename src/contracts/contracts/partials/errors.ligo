@@ -1252,10 +1252,11 @@
 
 
 [@inline] const error_MIN_REPAYMENT_AMOUNT_NOT_REACHED                                                                  = 884n;
-[@inline] const error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK                                                            = 885n;
-[@inline] const error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK                                                         = 886n;
+[@inline] const error_CANNOT_REGISTER_DEPOSIT_FOR_PROTECTED_COLLATERAL_TOKEN                                                            = 885n;
+[@inline] const error_CANNOT_REGISTER_WITHDRAWAL_FOR_PROTECTED_COLLATERAL_TOKEN                                                         = 886n;
 
 [@inline] const error_VAULT_NEEDS_TO_BE_MARKED_FOR_LIQUIDATION_AGAIN                                                    = 887n;
 
+[@inline] const error_GET_STAKED_BALANCE_VIEW_IN_CONTRACT_NOT_FOUND                                                     = 888n;
 
 

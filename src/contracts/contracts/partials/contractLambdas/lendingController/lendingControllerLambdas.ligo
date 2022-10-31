@@ -1428,8 +1428,11 @@ block {
                 const tokenName       : string            = registerDepositParams.tokenName;
                 const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
-                // Check that token name is not protected (e.g. mvk)
-                if tokenName = "smvk" then failwith(error_CANNOT_REGISTER_DEPOSIT_FOR_STAKED_MVK) else skip;
+                // get collateral token record reference
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
+
+                // Check that token name is not protected (e.g. smvk)
+                if collateralTokenRecord.protected then failwith(error_CANNOT_REGISTER_DEPOSIT_FOR_PROTECTED_COLLATERAL_TOKEN) else skip;
 
                 // get vault
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
@@ -1542,8 +1545,11 @@ block {
                 const tokenName           : string            = registerWithdrawalParams.tokenName;
                 const initiator           : address           = Tezos.get_sender(); // vault address that initiated withdrawal
 
-                // Check that token name is not protected (e.g. sMVK)
-                if tokenName = "smvk" then failwith(error_CANNOT_REGISTER_WITHDRAWAL_FOR_STAKED_MVK) else skip;
+                // get collateral token record reference
+                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
+
+                // Check that token name is not protected (e.g. smvk)
+                if collateralTokenRecord.protected then failwith(error_CANNOT_REGISTER_WITHDRAWAL_FOR_PROTECTED_COLLATERAL_TOKEN) else skip;
 
                 // get vault
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
