@@ -18,6 +18,7 @@ THREADS=5
 PROTOCOL=kathmandu
 COMPILE_CONTRACTS=1
 COMPILE_LAMBDAS=1
+APPLE_SILICON=
 WIPE_ALL=0
 
 # Get all contracts
@@ -28,12 +29,13 @@ CONTRACTS_ARRAY=("${CONTRACTS_ARRAY[@]%.ligo}")
 # Help message
 help () {
     echo "==ARGUMENTS=="
-    echo "-c | --contracts  : one or multiple contracts separated by a comma ','"
-    echo "-t | --threads    : (optional) number of lambdas compiled in parallel at the same time (default: 5)"
-    echo "-p | --protocol   : (optional) tezos protocol used in the compilation (default: kathmandu)"
-    echo "-w | --wipe       : (optional) wipe old compiled contracts files"
-    echo "--contracts-only  : (optional) when set, only the contracts are compiled, not their lambdas"
-    echo "--lambdas-only    : (optional) when set, only the lambdas are compiled, not their contracts"
+    echo "-c | --contracts      : one or multiple contracts separated by a comma ','"
+    echo "-t | --threads        : (optional) number of lambdas compiled in parallel at the same time (default: 5)"
+    echo "-p | --protocol       : (optional) tezos protocol used in the compilation (default: kathmandu)"
+    echo "-w | --wipe           : (optional) wipe old compiled contracts files"
+    echo "-a | --apple-silicon  : (optional) use apple silicon docker images instead"
+    echo "--contracts-only      : (optional) when set, only the contracts are compiled, not their lambdas"
+    echo "--lambdas-only        : (optional) when set, only the lambdas are compiled, not their contracts"
     exit 1
 }
 
@@ -74,13 +76,14 @@ while [ $# -gt 0 ] ; do
     ;;
     -p | --protocol) PROTOCOL=$2;;
     -w | --wipe) WIPE_ALL=1;;
+    -a | --apple-silicon) APPLE_SILICON=--platform=linux/amd64;;
   esac
   shift
 done
 
 # Compile lambda function
 compile_single_lambda () {
-    BYTES=$(docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile expression pascaligo "Bytes.pack($2)" --michelson-format json --init-file $PWD/contracts/main/$1.ligo --protocol $PROTOCOL | jq '.bytes')
+    BYTES=$(docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile expression pascaligo "Bytes.pack($2)" --michelson-format json --init-file $PWD/contracts/main/$1.ligo --protocol $PROTOCOL | jq '.bytes')
     if [ -z $BYTES ]
     then
         compile_single_lambda $1 $2
@@ -146,8 +149,8 @@ compile_all_lambdas () {
 }
 
 compile_single_contract () {
-    docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --protocol $PROTOCOL > $CONTRACT_COMPILED_FOLDER/$1.tz
-    docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --michelson-format json --protocol $PROTOCOL > $PWD/.$1_tmp.json
+    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --protocol $PROTOCOL > $CONTRACT_COMPILED_FOLDER/$1.tz
+    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --michelson-format json --protocol $PROTOCOL > $PWD/.$1_tmp.json
     jq -n --arg name $1 --slurpfile code $PWD/.$1_tmp.json --arg version $LIGO_VERSION '{ "contractName": $name, "michelson": $code[0], "networks": {}, "compiler": { "name": "ligo", "version": $version }, "networkType": "Tezos" }' > $CONTRACT_BUILD_FOLDER/$1.json
     rm $PWD/.$1_tmp.json
 }
@@ -197,6 +200,10 @@ echo -e "# CONTRACT COMPILER SCRIPT"
 echo -e "# ligo version: $LIGO_DOCKER_VERSION"
 echo -e "# threads: $THREADS"
 echo -e "# protocol: $PROTOCOL"
+if [ ! -z $APPLE_SILICON ]
+then 
+    echo -e "# running Apple Silicon docker images"
+fi
 if [ $COMPILE_LAMBDAS -eq 0 ]
 then 
     echo -e "# compiling contracts only"

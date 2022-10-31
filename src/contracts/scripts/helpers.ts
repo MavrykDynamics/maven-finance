@@ -6,51 +6,6 @@ import * as fs from 'fs'
 import env from '../env'
 import { confirmOperation } from './confirmation'
 
-export const getLigo = (
-
-    isDockerizedLigo: boolean,
-    ligoVersion: string = env.ligoVersion,
-    isAppleSilicon: string = 'false',
-
-) => {
-
-    let path: string = 'ligo'
-    let isAppleM1 = JSON.parse(isAppleSilicon)
-
-    if (isDockerizedLigo) {
-        if (isAppleM1) {
-            path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
-        } else {
-            path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
-        }
-
-        try {
-            execSync(`${path}  --help`)
-        } catch (err) {
-            path = 'ligo'
-            execSync(`${path}  --help`)
-        }
-    } else {
-        try {
-            
-            execSync(`${path}  --help`)
-
-        } catch (err) {
-
-            if (isAppleM1) {
-                path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:next`
-            } else {
-                path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
-            }
-
-            execSync(`${path}  --help`)
-        }
-    }
-
-    return path
-}
-
-
 
 export const getContractsList = () => {
     return fs
