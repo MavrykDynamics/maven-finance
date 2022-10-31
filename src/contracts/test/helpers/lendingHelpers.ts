@@ -157,6 +157,21 @@ export const calculateInterestRewards = (interestSentToTreasury, totalInterestPa
 }
 
 
+export const calculateNewRewardIndex = (interestRewards, tokenPoolTotal, currentRewardIndex) => {
+    const incrementRewardIndex = Math.trunc((interestRewards * fixedPointAccuracy )/ tokenPoolTotal);
+    const newRewardIndex = currentRewardIndex.toNumber() + incrementRewardIndex;
+    return newRewardIndex;
+}
+
+
+export const calculateScaledTokenBalance = (initialTokenBalance, initialUserRewardIndex, tokenRewardIndex) => {
+    const currentRewardsPerShare = tokenRewardIndex - initialUserRewardIndex;
+    const additionalRewards = (currentRewardsPerShare * initialTokenBalance) / fixedPointAccuracy;
+    const newTokenBalance = initialTokenBalance + additionalRewards;
+    return newTokenBalance;
+}
+
+
 export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLedger) => {
     
     let mockFa12Balance             = collateralBalanceLedger.get('mockFa12') == undefined ? 0 : collateralBalanceLedger.get('mockFa12');
