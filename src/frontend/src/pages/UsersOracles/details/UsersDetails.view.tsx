@@ -9,6 +9,7 @@ import { UserType } from '../../../utils/TypesAndInterfaces/User'
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
 import UsersPagination from '../pagination/UsersPagination.controler'
+import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
 
 // styles
 import { Page } from 'styles'
@@ -103,9 +104,11 @@ const UserDetailsView = ({
               <a href="#">
                 <h5>
                   Total value locked
-                  <svg>
-                    <use xlinkHref="/icons/sprites.svg#info" />
-                  </svg>
+                  <CustomTooltip
+                    className='info-icon'
+                    text={`Total value locked (TVL) according to defillama.com TVL represents the sum dollar value of crypto assets locked in a DeFi protocol.           `}
+                    iconId={'info'}
+                  />
                 </h5>
               </a>
               <var>{user.valueLocked}</var>
