@@ -755,7 +755,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
         
-        if(mockFa12LoanToken !== undefined){
+        if(mockFa12LoanToken !== null){
             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
             {
                 from_: bob.pkh,
@@ -770,7 +770,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await updateTokenRewardIndexOperation.confirmation();
         }
 
-        if(mockFa2LoanToken !== undefined){
+        if(mockFa2LoanToken !== null){
             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
             {
                 from_: bob.pkh,
@@ -785,7 +785,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await updateTokenRewardIndexOperation.confirmation();
         }
 
-        if(tezLoanToken !== undefined){
+        if(tezLoanToken !== null){
             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
             {
                 from_: bob.pkh,
@@ -1905,7 +1905,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
             lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
-            const yearsPassed  = 8; 
+            const yearsPassed  = 7; 
             mockLevelChange = yearsPassed * oneYearLevelBlocks;
             newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
 
@@ -4078,3 +4078,220 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     })
 
 });
+
+
+// ----------------------
+//
+// CONSOLE LOGS 
+//
+// ----------------------
+
+
+    // ----------------------
+    // CHANGES IN BALANCES
+    // ----------------------
+
+    // console.log("---");
+    // console.log("vault owner");
+    // console.log("-");
+
+    // console.log("initialVaultOwnerMockFa12TokenBalance: "+ initialVaultOwnerMockFa12TokenBalance);
+    // console.log("updatedVaultOwnerMockFa12TokenBalance: "+ updatedVaultOwnerMockFa12TokenBalance);
+    // console.log("change: "+ (updatedVaultOwnerMockFa12TokenBalance - initialVaultOwnerMockFa12TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialVaultOwnerMockFa2TokenBalance: "+ initialVaultOwnerMockFa2TokenBalance);
+    // console.log("updatedVaultOwnerMockFa2TokenBalance: "+ updatedVaultOwnerMockFa2TokenBalance);
+    // console.log("change: "+ (updatedVaultOwnerMockFa2TokenBalance - initialVaultOwnerMockFa2TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialVaultOwnerTezBalance: "+ initialVaultOwnerTezBalance);
+    // console.log("updatedVaultOwnerTezBalance: "+ updatedVaultOwnerTezBalance);
+    // console.log("change: "+ (updatedVaultOwnerTezBalance - initialVaultOwnerTezBalance));
+
+    // console.log("-");
+
+    // console.log("initialVaultOwnerStakedMvkBalance: "+ initialVaultOwnerStakedMvkBalance);
+    // console.log("updatedVaultOwnerStakedMvkBalance: "+ updatedVaultOwnerStakedMvkBalance);
+    // console.log("change: "+ (updatedVaultOwnerStakedMvkBalance - initialVaultOwnerStakedMvkBalance));
+    // console.log("---");
+
+
+    // console.log("");
+
+
+    // console.log("---");
+    // console.log("vault");
+    // console.log("-");
+
+    // console.log("initialVaultMockFa12TokenBalance: "+ initialVaultMockFa12TokenBalance);
+    // console.log("updatedVaultMockFa12TokenBalance: "+ updatedVaultMockFa12TokenBalance);
+    // console.log("change: "+ (updatedVaultMockFa12TokenBalance - initialVaultMockFa12TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialVaultMockFa2TokenBalance: "+ initialVaultMockFa2TokenBalance);
+    // console.log("updatedVaultMockFa2TokenBalance: "+ updatedVaultMockFa2TokenBalance);
+    // console.log("change: "+ (updatedVaultMockFa2TokenBalance - initialVaultMockFa2TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialVaultTezBalance: "+ initialVaultTezBalance);
+    // console.log("updatedVaultTezBalance: "+ updatedVaultTezBalance);
+    // console.log("change: "+ (updatedVaultTezBalance - initialVaultTezBalance));
+
+    // console.log("-");
+
+    // console.log("initialVaultStakedMvkBalance: "+ initialVaultStakedMvkBalance);
+    // console.log("updatedVaultStakedMvkBalance: "+ updatedVaultStakedMvkBalance);
+    // console.log("change: "+ (updatedVaultStakedMvkBalance - initialVaultStakedMvkBalance));
+
+    // console.log("---");
+
+
+    // console.log("");
+
+
+    // console.log("---");
+    // console.log("liquidator");
+    // console.log("-");
+
+    // console.log("initialLiquidatorMockFa12TokenBalance: "+ initialLiquidatorMockFa12TokenBalance);
+    // console.log("updatedLiquidatorMockFa12TokenBalance: "+ updatedLiquidatorMockFa12TokenBalance);
+    // console.log("change: "+ (updatedLiquidatorMockFa12TokenBalance - initialLiquidatorMockFa12TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialLiquidatorMockFa2TokenBalance: "+ initialLiquidatorMockFa2TokenBalance);
+    // console.log("updatedLiquidatorMockFa2TokenBalance: "+ updatedLiquidatorMockFa2TokenBalance);
+    // console.log("change: "+ (updatedLiquidatorMockFa2TokenBalance - initialLiquidatorMockFa2TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialLiquidatorTezBalance: "+ initialLiquidatorTezBalance);
+    // console.log("updatedLiquidatorTezBalance: "+ updatedLiquidatorTezBalance);
+    // console.log("change: "+ (updatedLiquidatorTezBalance - initialLiquidatorTezBalance));
+
+    // console.log("-");
+
+    // console.log("initialLiquidatorStakedMvkBalance: "+ initialLiquidatorStakedMvkBalance);
+    // console.log("updatedLiquidatorStakedMvkBalance: "+ updatedLiquidatorStakedMvkBalance);
+    // console.log("change: "+ (updatedLiquidatorStakedMvkBalance - initialLiquidatorStakedMvkBalance));
+    // console.log("---");
+
+
+    // console.log("");
+
+
+    // console.log("---");
+    // console.log("treasury");
+    // console.log("---");
+
+    // console.log("initialTreasuryMockFa12TokenBalance: "+ initialTreasuryMockFa12TokenBalance);
+    // console.log("updatedTreasuryMockFa12TokenBalance: "+ updatedTreasuryMockFa12TokenBalance);
+    // console.log("change: "+ (updatedTreasuryMockFa12TokenBalance - initialTreasuryMockFa12TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialTreasuryMockFa2TokenBalance: "+ initialTreasuryMockFa2TokenBalance);
+    // console.log("updatedTreasuryMockFa2TokenBalance: "+ updatedTreasuryMockFa2TokenBalance);
+    // console.log("change: "+ (updatedTreasuryMockFa2TokenBalance - initialTreasuryMockFa2TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialTreasuryTezBalance: "+ initialTreasuryTezBalance);
+    // console.log("updatedTreasuryTezBalance: "+ updatedTreasuryTezBalance);
+    // console.log("change: "+ (updatedTreasuryTezBalance - initialTreasuryTezBalance));
+
+    // console.log("-");
+
+    // console.log("initialTreasuryStakedMvkBalance: "+ initialTreasuryStakedMvkBalance);
+    // console.log("updatedTreasuryStakedMvkBalance: "+ updatedTreasuryStakedMvkBalance);
+    // console.log("change: "+ (updatedTreasuryStakedMvkBalance - initialTreasuryStakedMvkBalance));
+
+    // console.log("---");
+
+    // console.log("");
+
+
+    // console.log("---");
+    // console.log("lending controller");
+    // console.log("-");
+
+    // console.log("initialLendingControllerMockFa12TokenBalance: "+ initialLendingControllerMockFa12TokenBalance);
+    // console.log("updatedLendingControllerMockFa12TokenBalance: "+ updatedLendingControllerMockFa12TokenBalance);
+    // console.log("change: "+ (updatedLendingControllerMockFa12TokenBalance - initialLendingControllerMockFa12TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialLendingControllerMockFa2TokenBalance: "+ initialLendingControllerMockFa2TokenBalance);
+    // console.log("updatedLendingControllerMockFa2TokenBalance: "+ updatedLendingControllerMockFa2TokenBalance);
+    // console.log("change: "+ (updatedLendingControllerMockFa2TokenBalance - initialLendingControllerMockFa2TokenBalance));
+
+    // console.log("-");
+
+    // console.log("initialLendingControllerTezBalance: "+ initialLendingControllerTezBalance);
+    // console.log("updatedLendingControllerTezBalance: "+ updatedLendingControllerTezBalance);
+    // console.log("change: "+ (updatedLendingControllerTezBalance - initialLendingControllerTezBalance));
+
+    // console.log("---");
+
+
+    // ----------------------
+    // LOANS
+    // ----------------------
+
+
+    // console.log('----')
+    // console.log("loanOutstandingWithAccruedInterest: "   + loanOutstandingWithAccruedInterest);
+    // console.log('-')
+    // console.log("totalInterest: "                        + totalInterest);
+    // console.log("remainingInterest: "                    + remainingInterest);
+    // console.log("totalInterestPaid: "                    + totalInterestPaid);
+    // console.log("interestSentToTreasury: "               + interestSentToTreasury);
+    // console.log("interestRewards: "                      + interestRewards);
+    // console.log('-')
+    // console.log("finalLoanOutstandingTotal: "            + finalLoanOutstandingTotal);
+    // console.log("finalLoanPrincipalTotal: "              + finalLoanPrincipalTotal);
+    // console.log("finalLoanInterestTotal: "               + finalLoanInterestTotal);
+    // console.log('----')
+
+
+    // ----------------------
+    // LIQUIDATION AMOUNTS
+    // ----------------------
+
+    // console.log('final liquidation amounts');
+            
+    // console.log('')
+    // console.log('totalLiquidationAmount: '       + totalLiquidationAmount ); 
+    
+    // console.log('')
+    // console.log('admin liquidation amounts');
+    // console.log('adminLiquidationFeeMockFa12: '  + adminLiquidationFeeMockFa12 ); 
+    // console.log('adminLiquidationFeeMockFa2: '   + adminLiquidationFeeMockFa2 ); 
+    // console.log('adminLiquidationFeeTez: '       + adminLiquidationFeeTez ); 
+    // console.log('adminLiquidationFeeMvk: '       + adminLiquidationFeeMvk ); 
+
+    // console.log('')
+    // console.log('liquidation amounts with incentive');
+    // console.log('liquidationAmountWithIncentiveMockFa12: '   + liquidationAmountWithIncentiveMockFa12 ); 
+    // console.log('liquidationAmountWithIncentiveMockFa2: '    + liquidationAmountWithIncentiveMockFa2 ); 
+    // console.log('liquidationAmountWithIncentiveTez: '        + liquidationAmountWithIncentiveTez ); 
+    // console.log('liquidationAmountWithIncentiveMvk: '        + liquidationAmountWithIncentiveMvk ); 
+
+    // console.log('')
+    // console.log('liquidation amounts with fees and incentive');
+    // console.log('liquidationAmountWithFeesAndIncentiveMockFa12: '    + liquidationAmountWithFeesAndIncentiveMockFa12 ); 
+    // console.log('liquidationAmountWithFeesAndIncentiveMockFa2: '     + liquidationAmountWithFeesAndIncentiveMockFa2 ); 
+    // console.log('liquidationAmountWithFeesAndIncentiveTez: '         + liquidationAmountWithFeesAndIncentiveTez ); 
+    // console.log('liquidationAmountWithFeesAndIncentiveMvk: '         + liquidationAmountWithFeesAndIncentiveMvk ); 
+
+    // console.log('')
+    // console.log('total liquidation amounts');
+    // console.log('totalLiquidationAmountMockFa12: '   + totalLiquidationAmountMockFa12 ); 
+    // console.log('totalLiquidationAmountMockFa2: '    + totalLiquidationAmountMockFa2 ); 
+    // console.log('totalLiquidationAmountTez: '        + totalLiquidationAmountTez ); 
+    // console.log('totalLiquidationAmountMvk: '        + totalLiquidationAmountMvk );
