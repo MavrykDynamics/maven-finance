@@ -68,8 +68,8 @@ export const OraclesTab = () => {
 
         <div className="feeds-grid">
           {popularFeeds.map((feed) => (
-            <Link to={`/satellites/feed-details/${feed.address}`}>
-              <PopularFeed className="row" key={feed.address}>
+            <Link key={feed.address} to={`/satellites/feed-details/${feed.address}`}>
+              <PopularFeed className="row">
                 <StatBlock className="icon-first">
                   <CoinsLogo assetName={feed.token_1_symbol} className="feed-token" />
                   <div className="name">Feed</div>
