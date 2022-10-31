@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import { useClickAway } from 'react-use';
 
 // styles
 import { DropDownStyled, DropDownMenu, DropDownListContainer, DropDownList, DropDownListItem } from './DropDown.style'
@@ -8,7 +9,6 @@ import Icon from '../Icon/Icon.view'
 
 // helpers
 import { scrollToFullView } from 'utils/scrollToFullView'
-import { useOnClickOutside } from '../../../utils/hooks'
 
 type DropDownViewProps = {
   placeholder: string
@@ -23,7 +23,7 @@ type DropDownViewProps = {
 export const DropDownView = ({ placeholder, isOpen, onClick, setIsOpen, clickItem, itemSelected, items }: DropDownViewProps) => {
   const ref = useRef<HTMLDivElement | null>(null)
   const refDropdownWrapper = useRef<HTMLDivElement | null>(null)
-  useOnClickOutside(refDropdownWrapper, () => setIsOpen(false))
+  useClickAway(refDropdownWrapper, () => setIsOpen(false))
 
   // if the dropdown is not fully visible in the window,
   // move the scroll to fix it
