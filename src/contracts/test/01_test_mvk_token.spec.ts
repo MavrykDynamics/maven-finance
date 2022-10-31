@@ -133,8 +133,8 @@
 //         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(
-//           parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase.minus(2000)),
+//           bobTokenLedgerAfter.toNumber(),
+//           bobTokenLedgerBase.minus(2000).toNumber(),
 //           'Bob MVK Ledger should have ' +
 //             (bobTokenLedgerBase.minus(2000)) +
 //             'MVK but she has ' +
@@ -142,8 +142,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//           parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase.plus(2000)),
+//           eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.plus(2000).toNumber(),
 //           'Eve MVK Ledger should have ' +
 //             (eveTokenLedgerBase.plus(2000)) +
 //             'MVK but she has ' +
@@ -176,13 +176,13 @@
 //         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //             'Bob MVK Ledger should have ' + bobTokenLedgerBase + 'MVK but she has ' + bobTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt( aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//              aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           'Alice MVK Ledger should have ' + aliceTokenLedgerBase + 'MVK but she has ' + aliceTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -210,8 +210,8 @@
 //         tokenStorage = await tokenInstance.storage()
 //         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           'Bob MVK Ledger should have ' + bobTokenLedgerBase + 'MVK but she has ' + bobTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -239,8 +239,8 @@
 //         tokenStorage = await tokenInstance.storage()
 //         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           'Bob MVK Ledger should have ' + bobTokenLedgerBase + 'MVK but she has ' + bobTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -270,8 +270,8 @@
 //         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
 //         assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Bob shouldn't be able to send more than she has")
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -309,8 +309,8 @@
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase.minus(20000)),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.minus(20000).toNumber(),
 //           'Bob MVK Ledger should have ' +
 //             (bobTokenLedgerBase.minus(20000)) +
 //             'MVK but she has ' +
@@ -318,13 +318,13 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           'Alice MVK Ledger should have ' + aliceTokenLedgerBase + 'MVK but she has ' + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase.plus(20000)),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.plus(20000).toNumber(),
 //           'Eve MVK Ledger should have ' +
 //             (eveTokenLedgerBase.plus(20000)) +
 //             'MVK but she has ' +
@@ -359,13 +359,13 @@
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Bob shouldn't be able to send more than she has")
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -399,8 +399,8 @@
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase.minus(60)),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.minus(60).toNumber(),
 //           'Bob MVK Ledger should have ' +
 //             (bobTokenLedgerBase.minus(60)) +
 //             'MVK but she has ' +
@@ -408,13 +408,13 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase.plus(10)),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.plus(10).toNumber(),
 //           'Alice MVK Ledger should have ' + (aliceTokenLedgerBase.plus(10)) + 'MVK but he has ' + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase.plus(50)),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.plus(50).toNumber(),
 //           'Eve MVK Ledger should have ' + (eveTokenLedgerBase.plus(50)) + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -445,13 +445,13 @@
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -487,13 +487,13 @@
 //           "Alice shouldn't be able to send a token from an id that does not exist on the contract",
 //         )
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -527,13 +527,13 @@
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Bob shouldn't be able to send more than she has")
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -573,18 +573,18 @@
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(e.message, 'FA2_NOT_OPERATOR', "Bob isn't the operator of Alice and Eve")
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.toNumber(),
 //           "Eve MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -626,8 +626,8 @@
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase.minus(200)),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.minus(200).toNumber(),
 //           'Bob MVK Ledger should have ' +
 //             (bobTokenLedgerBase.minus(200)) +
 //             'MVK but she has ' +
@@ -635,13 +635,13 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase.plus(200)),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.plus(200).toNumber(),
 //           'Eve MVK Ledger should have ' + (eveTokenLedgerBase.plus(200)) + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
 //         )
 //         //Resetting Bob to be the current signer
@@ -689,18 +689,18 @@
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(e.message, 'FA2_NOT_OPERATOR', "Alice isn't the operator of Bob")
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.toNumber(),
 //           "Eve MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -769,8 +769,8 @@
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase.plus(600)),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.plus(600).toNumber(),
 //           'Bob MVK Ledger should have ' +
 //             (bobTokenLedgerBase.plus(600)) +
 //             'MVK but she has ' +
@@ -778,14 +778,14 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase.minus(300)),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.minus(300).toNumber(),
 //           'Alice MVK Ledger should have ' + (aliceTokenLedgerBase.minus(300)) + 'MVK but he has ' + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         // 0 should be set to 300 but look as previous issue with Taquito operator and Eve mentioned earlier
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase.minus(300)),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.minus(300).toNumber(),
 //           "Eve MVK Ledger shouldn't have changed. Should have " +
 //             (eveTokenLedgerBase.minus(300)) +
 //             'MVK but she has ' +
@@ -849,8 +849,8 @@
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase.minus(2000)),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.minus(2000).toNumber(),
 //           "Eve's MVK Ledger should have " +
 //             (eveTokenLedgerBase.minus(2000)) +
 //             'MVK but she has ' +
@@ -858,8 +858,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//             parseInt(malloryTokenLedgerBase.plus(2000)),
+//             malloryTokenLedgerAfter.toNumber(),
+//             malloryTokenLedgerBase.plus(2000).toNumber(),
 //           "Mallory's MVK Ledger should have " +
 //             (malloryTokenLedgerBase.plus(2000)) +
 //             'MVK but she has ' +
@@ -893,13 +893,13 @@
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         assert.equal(
-//           parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//           eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           'Eve MVK Ledger should have ' + eveTokenLedgerBase + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.toNumber(),
 //           "Alice's MVK Ledger should have " + aliceTokenLedgerBase + 'MVK but she has ' + aliceTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -928,8 +928,8 @@
 //         tokenStorage = await tokenInstance.storage()
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK Ledger should have " + eveTokenLedgerBase + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -958,8 +958,8 @@
 //         tokenStorage = await tokenInstance.storage()
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK Ledger should have " + eveTokenLedgerBase + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -993,8 +993,8 @@
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -1033,8 +1033,8 @@
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase.minus(20000)),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.minus(20000).toNumber(),
 //           "Eve's MVK Ledger should have " +
 //             (eveTokenLedgerBase - 20000) +
 //             'MVK but she has ' +
@@ -1042,8 +1042,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase.plus(20000)),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.plus(20000).toNumber(),
 //           "Alice's MVK Ledger should have " +
 //             (aliceTokenLedgerBase + 20000) +
 //             'MVK but he has ' +
@@ -1051,8 +1051,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.toNumber(),
 //           "Mallory's MVK Ledger should have " +
 //             malloryTokenLedgerBase +
 //             'MVK but she has ' +
@@ -1088,13 +1088,13 @@
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
 //         assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.toNumber(),
 //           "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -1129,8 +1129,8 @@
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase.minus(60)),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.minus(60).toNumber(),
 //           "Eve's MVK Ledger should have " +
 //             (eveTokenLedgerBase.minus(60)) +
 //             'MVK but she has ' +
@@ -1138,8 +1138,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase.plus(10)),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.plus(10).toNumber(),
 //           "Mallory's MVK Ledger should have " +
 //             (malloryTokenLedgerBase.plus(10)) +
 //             'MVK but she has ' +
@@ -1147,8 +1147,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//             parseInt(aliceTokenLedgerBase.plus(50)),
+//             aliceTokenLedgerAfter.toNumber(),
+//             aliceTokenLedgerBase.plus(50).toNumber(),
 //           "Alice's MVK Ledger should have " + (aliceTokenLedgerBase.plus(50)) + 'MVK but he has ' + aliceTokenLedgerAfter + 'MVK',
 //         )
 //       } catch (e) {
@@ -1184,13 +1184,13 @@
 //           "Mallory shouldn't be able to send a token from an id that does not exist on the contract",
 //         )
 //         assert.equal(
-//           parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase),
+//           malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.toNumber(),
 //           "Eve MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -1225,13 +1225,13 @@
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
 //         assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//             parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//             eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//             parseInt(malloryTokenLedgerBase),
+//             malloryTokenLedgerAfter.toNumber(),
+//             malloryTokenLedgerBase.toNumber(),
 //           "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -1272,18 +1272,18 @@
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
 //         assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Alice and Mallory")
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.toNumber(),
 //           "Alice's MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.toNumber(),
 //           "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -1326,8 +1326,8 @@
 //         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase.minus(200)),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.minus(200).toNumber(),
 //           "Mallory's MVK Ledger should have " +
 //             (malloryTokenLedgerBase.minus(200)) +
 //             'MVK but she has ' +
@@ -1335,13 +1335,13 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase.plus(200)),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.plus(200).toNumber(),
 //           "Alice's MVK Ledger should have " +
 //             (aliceTokenLedgerBase.plus(200)) +
 //             'MVK but she has ' +
@@ -1394,18 +1394,18 @@
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
 //         assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Mallory")
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.toNumber(),
 //           "Alice's MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.toNumber(),
 //           "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -1474,8 +1474,8 @@
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
 
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase.plus(600)),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.plus(600).toNumber(),
 //           "Eve's MVK Ledger should have " +
 //             (eveTokenLedgerBase.plus(600)) +
 //             'MVK but she has ' +
@@ -1483,14 +1483,14 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase.minus(300)),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.minus(300).toNumber(),
 //           'Alice MVK Ledger should have ' + (aliceTokenLedgerBase.minus(300)) + 'MVK but he has ' + aliceTokenLedgerAfter + 'MVK',
 //         )
 
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase.minus(300)),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.minus(300).toNumber(),
 //           "Mallory's MVK Ledger shouldn't have changed. Should have " +
 //             (eveTokenLedgerBase.minus(300)) +
 //             'MVK but she has ' +
@@ -1578,8 +1578,8 @@
 //         const bobTokenLedgerAfter = await tokenStorageTransfer.ledger.get(bob.pkh)
 
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase.plus(200)),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.plus(200).toNumber(),
 //           'Alice MVK Ledger should have ' +
 //             (aliceTokenLedgerBase.plus(200)) +
 //             'MVK but he has ' +
@@ -1587,8 +1587,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase.minus(200)),
+//             bobTokenLedgerAfter.toNumber(),
+//           bobTokenLedgerBase.minus(200).toNumber(),
 //           'Bob MVK Ledger should have ' +
 //             (bobTokenLedgerBase.minus(200)) +
 //             'MVK but she has ' +
@@ -1646,13 +1646,13 @@
 //         const bobTokenLedgerAfter = await tokenStorageTransfer.ledger.get(bob.pkh)
 //         assert.equal(e.message, 'FA2_NOT_OPERATOR', "Alice isn't the operator of Bob")
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//           bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -1710,13 +1710,13 @@
 //         const bobTokenLedgerAfter = await tokenStorageTransfer.ledger.get(bob.pkh)
 //         assert.equal(e.message, 'FA2_NOT_OPERATOR', "Alice isn't the operator of Bob")
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//           bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //       }
@@ -1780,8 +1780,8 @@
 //         const bobTokenLedgerAfter = await tokenStorageTransfer.ledger.get(bob.pkh)
 
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase.plus(200)),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.plus(200).toNumber(),
 //           'Alice MVK Ledger should have ' +
 //             (aliceTokenLedgerBase.plus(200)) +
 //             'MVK but he has ' +
@@ -1789,8 +1789,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase.minus(200)),
+//             bobTokenLedgerAfter.toNumber(),
+//           bobTokenLedgerBase.minus(200).toNumber(),
 //           'Bob MVK Ledger should have ' +
 //             (bobTokenLedgerBase.minus(200)) +
 //             'MVK but she has ' +
@@ -1839,18 +1839,18 @@
 //           "Bob address isn't in the whitelistContracts map",
 //         )
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.toNumber(),
 //           "Alice MVK balance shouldn't have changed: " + aliceTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(totalSupplyAfter),
-//           parseInt(totalSupplyBase),
+//             totalSupplyAfter.toNumber(),
+//           totalSupplyBase.toNumber(),
 //           "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
 //         )
 //       }
@@ -1877,13 +1877,13 @@
 //         const totalSupplyAfter = await tokenStorage.totalSupply
 
 //         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase),
+//             bobTokenLedgerAfter.toNumber(),
+//             bobTokenLedgerBase.toNumber(),
 //           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase.plus(20000)),
+//             aliceTokenLedgerAfter.toNumber(),
+//           aliceTokenLedgerBase.plus(20000).toNumber(),
 //           'Alice MVK Ledger should have ' +
 //             (aliceTokenLedgerBase.plus(20000)) +
 //             'MVK but he has ' +
@@ -1891,8 +1891,8 @@
 //             'MVK',
 //         )
 //         assert.equal(
-//             parseInt(totalSupplyAfter),
-//           parseInt(totalSupplyBase.plus(20000)),
+//             totalSupplyAfter.toNumber(),
+//           totalSupplyBase.plus(20000).toNumber(),
 //           'MVK total supply should have increased by 20000MVK. Current supply: ' + totalSupplyBase + 'MVK',
 //         )
 //       } catch (e) {
@@ -1929,18 +1929,18 @@
 //           "Eve's address isn't in the whitelistContracts map",
 //         )
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.toNumber(),
 //           "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(totalSupplyAfter),
-//           parseInt(totalSupplyBase),
+//             totalSupplyAfter.toNumber(),
+//           totalSupplyBase.toNumber(),
 //           "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
 //         )
 //       }
@@ -1960,18 +1960,18 @@
 //         const whitelistEveOperationRemove = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
 //         await whitelistEveOperationRemove.confirmation()
 //         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
+//             eveTokenLedgerAfter.toNumber(),
+//           eveTokenLedgerBase.toNumber(),
 //           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase),
+//             malloryTokenLedgerAfter.toNumber(),
+//           malloryTokenLedgerBase.toNumber(),
 //           "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
 //         )
 //         assert.equal(
-//             parseInt(totalSupplyAfter),
-//             parseInt(totalSupplyBase),
+//             totalSupplyAfter.toNumber(),
+//             totalSupplyBase.toNumber(),
 //           "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
 //         )
 //       }
@@ -2011,7 +2011,7 @@
 //             tokenStorage = await tokenInstance.storage();
 //             const currentTotalSupplyEnd = await tokenStorage.totalSupply;
 
-//             assert.equal(parseInt(currentTotalSupply),parseInt(currentTotalSupplyEnd));
+//             assert.equal(currentTotalSupply),parseInt(currentTotalSupplyEnd).toNumber();
 //         } catch (e) {
 //             console.log(e)
 //         }
