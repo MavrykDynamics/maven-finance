@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { farmStorageType } from "../types/farmStorageType";
 
-import farmLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/farm/farmLambdaIndex.json';
 import farmLambdas from "../../build/lambdas/farmLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -52,9 +50,10 @@ export const setFarmLambdas = async (tezosToolkit: TezosToolkit, contract: FarmC
     const batch = tezosToolkit.wallet
         .batch();
 
-    farmLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, farmLambdas[index]))
-    });
+    for (let lambdaName in farmLambdas) {
+        let bytes   = farmLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupFarmLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupFarmLambdasOperation.opHash);

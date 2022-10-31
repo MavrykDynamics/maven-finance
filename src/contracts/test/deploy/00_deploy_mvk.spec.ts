@@ -39,9 +39,7 @@ describe('MVK Token', async () => {
       //----------------------------
       // Originate and deploy contracts
       //----------------------------
-  
       mvkToken = await MvkToken.originate(utils.tezos, mvkStorage)
-  
       await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
       console.log('MVK Token Contract deployed at:', mvkToken.contract.address)
   

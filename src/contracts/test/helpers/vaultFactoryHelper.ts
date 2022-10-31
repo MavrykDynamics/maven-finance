@@ -14,11 +14,8 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { vaultFactoryStorageType } from "../types/vaultFactoryStorageType";
 
-import vaultFactoryLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/vaultFactory/vaultFactoryLambdaIndex.json';
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {vaultStorageType} from "../types/vaultStorageType";
-import vaultLambdaIndex from "../../contracts/partials/contractLambdas/vault/vaultLambdaIndex.json";
 import vaultFactoryLambdas from '../../build/lambdas/vaultFactoryLambdas.json'
 import vaultLambdas from '../../build/lambdas/vaultLambdas.json'
 import {MichelsonMap} from "@taquito/michelson-encoder";
@@ -58,9 +55,10 @@ export const setVaultFactoryLambdas = async (tezosToolkit: TezosToolkit, contrac
     const batch = tezosToolkit.wallet
         .batch();
 
-    vaultFactoryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, vaultFactoryLambdas[index]))
-    });
+    for (let lambdaName in vaultFactoryLambdas) {
+        let bytes   = vaultFactoryLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
   const op = await batch.send()
   await confirmOperation(tezosToolkit, op.opHash);
@@ -70,9 +68,10 @@ export const setVaultFactoryProductLambdas = async (tezosToolkit: TezosToolkit, 
     const batch = tezosToolkit.wallet
         .batch();
 
-    vaultLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setProductLambda(name, vaultLambdas[index]))
-    });
+    for (let lambdaName in vaultLambdas) {
+        let bytes   = vaultLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+    }
 
     const op = await batch.send()
     await confirmOperation(tezosToolkit, op.opHash);

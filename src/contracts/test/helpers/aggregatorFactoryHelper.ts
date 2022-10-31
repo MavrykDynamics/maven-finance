@@ -14,11 +14,8 @@ import env from "../../env";
 import {confirmOperation} from "../../scripts/confirmation";
 import {aggregatorFactoryStorageType} from "../types/aggregatorFactoryStorageType";
 
-import aggregatorFactoryLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/aggregatorFactory/aggregatorFactoryLambdaIndex.json';
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {aggregatorStorageType} from "../types/aggregatorStorageType";
-import aggregatorLambdaIndex from "../../contracts/partials/contractLambdas/aggregator/aggregatorLambdaIndex.json";
 import aggregatorFactoryLambdas from '../../build/lambdas/aggregatorFactoryLambdas.json'
 import aggregatorLambdas from '../../build/lambdas/aggregatorLambdas.json'
 import {MichelsonMap} from "@taquito/michelson-encoder";
@@ -80,10 +77,10 @@ export const setAggregatorFactoryLambdas = async (tezosToolkit: TezosToolkit, co
     const batch = tezosToolkit.wallet
         .batch();
 
-    aggregatorFactoryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, aggregatorFactoryLambdas[index]))
-    });
-
+    for (let lambdaName in aggregatorFactoryLambdas) {
+        let bytes   = aggregatorFactoryLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const op = await batch.send()
     await confirmOperation(tezosToolkit, op.opHash);
@@ -94,9 +91,10 @@ export const setAggregatorFactoryProductLambdas = async (tezosToolkit: TezosTool
     const batch = tezosToolkit.wallet
         .batch();
 
-    aggregatorLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setProductLambda(name, aggregatorLambdas[index]))
-    });
+    for (let lambdaName in aggregatorLambdas) {
+        let bytes   = aggregatorLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setProductLambda(lambdaName, bytes))
+    }
 
     const op = await batch.send()
     await confirmOperation(tezosToolkit, op.opHash);
