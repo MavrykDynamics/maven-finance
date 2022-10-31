@@ -486,9 +486,9 @@
 //                 const initialRecipientTwoAccount     = await mavrykFa12TokenStorage.ledger.get(recipient_two);
 //                 const initialRecipientThreeAccount   = await mavrykFa12TokenStorage.ledger.get(recipient_three);
 
-//                 const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount.balance);
-//                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.balance);
-//                 const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.balance);
+//                 const initialRecipientOneBalance     = initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount.balance.toNumber();
+//                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.balance.toNumber();
+//                 const initialRecipientThreeBalance   = initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.balance.toNumber();
 
 //                 await signerFactory(bob.sk);
 //                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
@@ -523,9 +523,9 @@
 //                 const finalRecipientTwoBalance       = await updatedMavrykFa12TokenStorage.ledger.get(recipient_two);
 //                 const finalRecipientThreeBalance     = await updatedMavrykFa12TokenStorage.ledger.get(recipient_three);
 
-//                 assert.equal(parseInt(finalRecipientOneBalance.balance),   initialRecipientOneBalance   + amount_one);
-//                 assert.equal(parseInt(finalRecipientTwoBalance.balance),   initialRecipientTwoBalance   + amount_two);
-//                 assert.equal(parseInt(finalRecipientThreeBalance.balance), initialRecipientThreeBalance + amount_three);
+//                 assert.equal(finalRecipientOneBalance.balance),   initialRecipientOneBalance   + amount_one.toNumber();
+//                 assert.equal(finalRecipientTwoBalance.balance),   initialRecipientTwoBalance   + amount_two.toNumber();
+//                 assert.equal(finalRecipientThreeBalance.balance), initialRecipientThreeBalance + amount_three.toNumber();
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -553,9 +553,9 @@
 //                 const initialRecipientTwoAccount     = await mavrykFa2TokenStorage.ledger.get(recipient_two);
 //                 const initialRecipientThreeAccount   = await mavrykFa2TokenStorage.ledger.get(recipient_three);
 
-//                 const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount);
-//                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount);
-//                 const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount);
+//                 const initialRecipientOneBalance     = initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount.toNumber();
+//                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.toNumber();
+//                 const initialRecipientThreeBalance   = initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.toNumber();
 
 //                 await signerFactory(bob.sk);
 //                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
@@ -599,9 +599,9 @@
 //                 const finalRecipientTwoBalance       = await updatedMavrykFa2TokenStorage.ledger.get(recipient_two);
 //                 const finalRecipientThreeBalance     = await updatedMavrykFa2TokenStorage.ledger.get(recipient_three);
 
-//                 assert.equal(parseInt(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one);
-//                 assert.equal(parseInt(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two);
-//                 assert.equal(parseInt(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three);
+//                 assert.equal(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one.toNumber();
+//                 assert.equal(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two.toNumber();
+//                 assert.equal(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three.toNumber();
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -629,9 +629,9 @@
 //                 const initialRecipientTwoAccount     = await mvkTokenStorage.ledger.get(recipient_two);
 //                 const initialRecipientThreeAccount   = await mvkTokenStorage.ledger.get(recipient_three);
 
-//                 const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount);
-//                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount);
-//                 const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount);
+//                 const initialRecipientOneBalance     = initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount.toNumber();
+//                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.toNumber();
+//                 const initialRecipientThreeBalance   = initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.toNumber();
 
 //                 await signerFactory(bob.sk);
 //                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
@@ -675,9 +675,9 @@
 //                 const finalRecipientTwoBalance       = await updatedMvkTokenStorage.ledger.get(recipient_two);
 //                 const finalRecipientThreeBalance     = await updatedMvkTokenStorage.ledger.get(recipient_three);
 
-//                 assert.equal(parseInt(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one);
-//                 assert.equal(parseInt(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two);
-//                 assert.equal(parseInt(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three);
+//                 assert.equal(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one.toNumber();
+//                 assert.equal(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two.toNumber();
+//                 assert.equal(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three.toNumber();
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -719,9 +719,9 @@
 //                 const initialRecipientThreeAccount   = await mavrykFa2TokenStorage.ledger.get(recipient_three);
 //                 const initialRecipientFourAccount    = await mvkTokenStorage.ledger.get(recipient_four);
 
-//                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount    === undefined ? 0 : initialRecipientTwoAccount.balance);
-//                 const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount  === undefined ? 0 : initialRecipientThreeAccount);
-//                 const initialRecipientFourBalance    = parseInt(initialRecipientFourAccount   === undefined ? 0 : initialRecipientFourAccount);
+//                 const initialRecipientTwoBalance     = initialRecipientTwoAccount    === undefined ? 0 : initialRecipientTwoAccount.balance.toNumber();
+//                 const initialRecipientThreeBalance   = initialRecipientThreeAccount  === undefined ? 0 : initialRecipientThreeAccount.toNumber();
+//                 const initialRecipientFourBalance    = initialRecipientFourAccount   === undefined ? 0 : initialRecipientFourAccount.toNumber();
 
 //                 await signerFactory(bob.sk);
 //                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
@@ -774,9 +774,9 @@
 //                 const finalRecipientThreeMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(recipient_four);
 
 //                 assert.equal(finalRecipientOneTezBalance,   initRecipientOneTezBalance.toNumber()    + amount_one);
-//                 assert.equal(parseInt(finalRecipientTwoMavrykFa12TokenBalance.balance.toNumber()),  initialRecipientTwoBalance    + amount_two);
-//                 assert.equal(parseInt(finalRecipientThreeMavrykFa2TokenBalance.toNumber()),         initialRecipientThreeBalance  + amount_three);
-//                 assert.equal(parseInt(finalRecipientThreeMvkTokenBalance.toNumber()),             initialRecipientFourBalance   + amount_four);
+//                 assert.equal(finalRecipientTwoMavrykFa12TokenBalance.balance.toNumber()),  initialRecipientTwoBalance    + amount_two.toNumber();
+//                 assert.equal(finalRecipientThreeMavrykFa2TokenBalance.toNumber()),         initialRecipientThreeBalance  + amount_three.toNumber();
+//                 assert.equal(finalRecipientThreeMvkTokenBalance.toNumber()),             initialRecipientFourBalance   + amount_four.toNumber();
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -1022,7 +1022,7 @@
 //                 const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
 //                 const updatedBobMvkTokenBalance  = await updatedMvkTokenStorage.ledger.get(bob.pkh);
 
-//                 assert.equal(parseInt(updatedBobMvkTokenBalance), parseInt(initialBobMvkTokenBalance) + amount);
+//                 assert.equal(updatedBobMvkTokenBalance), parseInt(initialBobMvkTokenBalance) + amount.toNumber();
                 
 
 //             } catch(e){

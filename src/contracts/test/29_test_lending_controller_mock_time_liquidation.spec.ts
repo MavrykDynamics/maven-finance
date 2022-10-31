@@ -654,7 +654,7 @@
 //         if(mockUsdMockFa12TokenLastData != defaultMockFa12TokenMedianPrice){
 
 //             epoch = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;
+//             epoch = epoch.toNumber() + 1;
 //             round = 1;
 
 //             // default observation data for mock FA-12 token
@@ -669,7 +669,7 @@
 //         if(mockUsdMockFa2TokenLastData != defaultMockFa2TokenMedianPrice){
 
 //             epoch = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;
+//             epoch = epoch.toNumber() + 1;
 //             round = 1;
 
 //             // default observation data for mock FA-2 token
@@ -684,7 +684,7 @@
 //         if(mockUsdTezLastData != defaultTezMedianPrice){
 
 //             epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;
+//             epoch = epoch.toNumber() + 1;
 //             round = 1;
 
 //             // default observation data for xtz
@@ -699,7 +699,7 @@
 //         if(mockUsdMvkLastData != defaultMvkMedianPrice){
 
 //             epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;
+//             epoch = epoch.toNumber() + 1;
 //             round = 1;
 
 //             // default observation data for mvk
@@ -717,29 +717,29 @@
 
 //         tokenOracles.push({
 //             'name': 'mockFa12', 
-//             'price': parseInt(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data),
-//             'priceDecimals': parseInt(mockUsdMockFa12TokenAggregatorStorage.config.decimals),
+//             'price': mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data.toNumber(),
+//             'priceDecimals': mockUsdMockFa12TokenAggregatorStorage.config.decimals.toNumber(),
 //             'tokenDecimals': 6
 //         })
 
 //         tokenOracles.push({
 //             'name': 'mockFa2', 
-//             'price': parseInt(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data),
-//             'priceDecimals': parseInt(mockUsdMockFa2TokenAggregatorStorage.config.decimals),
+//             'price': mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data.toNumber(),
+//             'priceDecimals': mockUsdMockFa2TokenAggregatorStorage.config.decimals.toNumber(),
 //             'tokenDecimals': 6
 //         })
 
 //         tokenOracles.push({
 //             'name': 'tez', 
-//             'price': parseInt(mockUsdXtzAggregatorStorage.lastCompletedData.data),
-//             'priceDecimals': parseInt(mockUsdXtzAggregatorStorage.config.decimals),
+//             'price': mockUsdXtzAggregatorStorage.lastCompletedData.data.toNumber(),
+//             'priceDecimals': mockUsdXtzAggregatorStorage.config.decimals.toNumber(),
 //             'tokenDecimals': 6
 //         })
 
 //         tokenOracles.push({
 //             'name': "smvk", 
-//             'price': parseInt(mockUsdMvkAggregatorStorage.lastCompletedData.data),
-//             'priceDecimals': parseInt(mockUsdMvkAggregatorStorage.config.decimals),
+//             'price': mockUsdMvkAggregatorStorage.lastCompletedData.data.toNumber(),
+//             'priceDecimals': mockUsdMvkAggregatorStorage.config.decimals.toNumber(),
 //             'tokenDecimals': 9
 //         })
 
@@ -755,7 +755,7 @@
 //         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
 //         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
         
-//         if(mockFa12LoanToken !== undefined){
+//         if(mockFa12LoanToken !== null){
 //             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -770,7 +770,7 @@
 //             await updateTokenRewardIndexOperation.confirmation();
 //         }
 
-//         if(mockFa2LoanToken !== undefined){
+//         if(mockFa2LoanToken !== null){
 //             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -785,7 +785,7 @@
 //             await updateTokenRewardIndexOperation.confirmation();
 //         }
 
-//         if(tezLoanToken !== undefined){
+//         if(tezLoanToken !== null){
 //             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -1561,18 +1561,18 @@
             
 //             // get initial eve's Mock FA12 Token balance
 //             const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
-//             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : parseInt(eveMockFa12Ledger.balance);
+//             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
 //             // get initial eve's Token Pool FA2 LP - Mock FA12 Token - balance
 //             const eveInitialLpTokenPoolMockFa12TokenBalance    = await lpTokenPoolMockFa12TokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
 
 //             // get initial lending controller's Mock FA12 Token balance
 //             const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : parseInt(lendingControllerMockFa12Ledger.balance);
+//             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
 //             // get initial lending controller token pool total
 //             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
-//             const lendingControllerInitialTokenPoolTotal = parseInt(initialLoanTokenRecord.tokenPoolTotal);
+//             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
 //             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
 //             // reset token allowance
@@ -1615,7 +1615,7 @@
 
 //             // check Eve's LP Token Pool Mock FA12 Token balance
 //             const updatedEveLpTokenPoolMockFa12Ledger    = await lpTokenPoolMockFa12TokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
-//             assert.equal(updatedEveLpTokenPoolMockFa12Ledger, parseInt(eveInitialLpTokenPoolMockFa12TokenBalance) + liquidityAmount);        
+//             assert.equal(updatedEveLpTokenPoolMockFa12Ledger, eveInitialLpTokenPoolMockFa12TokenBalance) + liquidityAmount.toNumber();        
 
 //         });
 
@@ -1634,19 +1634,19 @@
             
 //             // get initial eve's Mock FA2 Token balance
 //             const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
-//             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : parseInt(eveMockFa2Ledger);
+//             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
 //             // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
 //             const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
-//             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : parseInt(eveLpTokenPoolMockFa2Ledger);
+//             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
 
 //             // get initial lending controller's Mock FA2 Token balance
 //             const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : parseInt(lendingControllerMockFa2Ledger);
+//             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
 
 //             // get initial lending controller token pool total
 //             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
-//             const lendingControllerInitialTokenPoolTotal = parseInt(initialLoanTokenRecord.tokenPoolTotal);
+//             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
 //             // update operators for vault
 //             const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
@@ -1710,7 +1710,7 @@
 
 //             // get initial eve's Token Pool FA2 LP - Tez - balance
 //             const eveLpTokenPoolXtzLedger            = await lpTokenPoolXtzStorage.ledger.get(eve.pkh);            
-//             const eveInitialLpTokenPoolXtzBalance    = eveLpTokenPoolXtzLedger == undefined ? 0 : parseInt(eveLpTokenPoolXtzLedger);
+//             const eveInitialLpTokenPoolXtzBalance    = eveLpTokenPoolXtzLedger == undefined ? 0 : eveLpTokenPoolXtzLedger.toNumber();
             
 //             // get initial lending controller's XTZ balance
 //             const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
@@ -1718,7 +1718,7 @@
 
 //             // get initial lending controller token pool total
 //             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
-//             const lendingControllerInitialTokenPoolTotal = parseInt(initialLoanTokenRecord.tokenPoolTotal);
+//             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
 //             // eve deposits mock XTZ into lending controller token pool
 //             const eveAddLiquidityOperation  = await lendingControllerInstance.methods.addLiquidity(
@@ -1767,12 +1767,12 @@
 //             currentMockLevel      = lendingControllerStorage.mockLevel;
 
 //             // config variables
-//             const liquidationDelayInMins        = parseInt(lendingControllerStorage.config.liquidationDelayInMins);
-//             const liquidationMaxDuration        = parseInt(lendingControllerStorage.config.liquidationMaxDuration);
-//             const maxVaultLiquidationPercent    = parseInt(lendingControllerStorage.config.maxVaultLiquidationPercent);
-//             const adminLiquidationFeePercent    = parseInt(lendingControllerStorage.config.adminLiquidationFeePercent);
-//             const liquidationFeePercent         = parseInt(lendingControllerStorage.config.liquidationFeePercent);
-//             const interestTreasuryShare         = parseInt(lendingControllerStorage.config.interestTreasuryShare);
+//             const liquidationDelayInMins        = lendingControllerStorage.config.liquidationDelayInMins.toNumber();
+//             const liquidationMaxDuration        = lendingControllerStorage.config.liquidationMaxDuration.toNumber();
+//             const maxVaultLiquidationPercent    = lendingControllerStorage.config.maxVaultLiquidationPercent.toNumber();
+//             const adminLiquidationFeePercent    = lendingControllerStorage.config.adminLiquidationFeePercent.toNumber();
+//             const liquidationFeePercent         = lendingControllerStorage.config.liquidationFeePercent.toNumber();
+//             const interestTreasuryShare         = lendingControllerStorage.config.interestTreasuryShare.toNumber();
             
 
 //             // ----------------------------------------------------------------------------------------------
@@ -1783,7 +1783,7 @@
 //             await signerFactory(eve.sk);
 
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-//             const vaultId       = parseInt(vaultCounter);
+//             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
 //             const liquidator    = mallory.pkh;
 //             const depositors    = "any";
@@ -1863,19 +1863,19 @@
 
 //             // get initial Mock FA12 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
 //             vaultOwnerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(vaultOwner);            
-//             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
+//             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
 
 //             vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
-//             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
+//             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
 
 //             liquidatorMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(liquidator);            
-//             initialLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa12TokenAccount.balance);
+//             initialLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
 
 //             treasuryMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
-//             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
+//             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
 
 //             lendingControllerMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             initialLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
+//             initialLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
 
 //             // get token pool stats
 //             lendingControllerStorage       = await lendingControllerInstance.storage();
@@ -1885,8 +1885,8 @@
 //             loanTokenDecimals              = loanTokenRecord.tokenDecimals;
 //             const interestRateDecimals     = (27 - 2); 
 
-//             const tokenPoolTotal           = parseInt(loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals);
-//             const totalBorrowed            = parseInt(loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals);
+//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals.toNumber();
+//             const totalBorrowed            = loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals.toNumber();
 //             const optimalUtilisationRate   = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const utilisationRate          = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const currentInterestRate      = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
@@ -1907,7 +1907,7 @@
 
 //             const yearsPassed  = 7; 
 //             mockLevelChange = yearsPassed * oneYearLevelBlocks;
-//             newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
+//             newMockLevel = lastUpdatedBlockLevel.toNumber() + mockLevelChange;
 
 //             const setMockLevelOperationOne = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
 //             await setMockLevelOperationOne.confirmation();
@@ -1932,7 +1932,7 @@
 
 //             lendingControllerStorage                = await lendingControllerInstance.storage();
 //             vaultRecord                             = await lendingControllerStorage.vaults.get(vaultHandle);
-//             currentMockLevel                        = parseInt(lendingControllerStorage.config.mockLevel);            
+//             currentMockLevel                        = lendingControllerStorage.config.mockLevel.toNumber();            
 //             tempMap                                 = lendingControllerStorage.tempMap;
 
 //             const expectedMarkedForLiquidationLevel = currentMockLevel;
@@ -1966,7 +1966,7 @@
 
 //             minutesPassed  = liquidationDelayInMins / 2; 
 //             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
-//             newMockLevel = parseInt(markedForLiquidationLevel) + mockLevelChange;
+//             newMockLevel = markedForLiquidationLevel.toNumber() + mockLevelChange;
 
 //             const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
 //             await setMockLevelOperationTwo.confirmation();
@@ -2001,7 +2001,7 @@
 
 //             minutesPassed  = liquidationDelayInMins + 1;
 //             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
-//             newMockLevel = parseInt(markedForLiquidationLevel) + mockLevelChange;
+//             newMockLevel = markedForLiquidationLevel.toNumber() + mockLevelChange;
 
 //             const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
 //             await setMockLevelOperationThree.confirmation();
@@ -2062,7 +2062,7 @@
 
 //             // vault calculations
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+//             totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
 //             remainingInterest                       = lendingHelper.calculateRemainingInterest(liquidationAmount, totalInterest)
 
 
@@ -2097,19 +2097,19 @@
 
 //             // get updated Mock FA12 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
 //             vaultOwnerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(vaultOwner);            
-//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
+//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
 
 //             vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
-//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
+//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
 
 //             liquidatorMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(liquidator);            
-//             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa12TokenAccount.balance);
+//             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
 
 //             treasuryMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
-//             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
+//             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
 
 //             lendingControllerMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             updatedLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
+//             updatedLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
 
 
 //             // --------------------------------------------------------
@@ -2136,7 +2136,7 @@
 //             // check vault records that loan outstanding has decreased
 //             // - no change to vault loan principal as liquidation amount is not enough to cover total interest accrued
 //             assert.equal(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest - liquidationAmount);
-//             assert.equal(parseInt(vaultLoanPrincipalTotal), parseInt(initialVaultLoanPrincipalTotal));
+//             assert.equal(vaultLoanPrincipalTotal), parseInt(initialVaultLoanPrincipalTotal).toNumber();
 //             assert.equal(vaultLoanInterestTotal, remainingInterest);
 
 
@@ -2216,7 +2216,7 @@
 
 //             // vault calculations
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+//             totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
 //             remainingInterest                       = lendingHelper.calculateRemainingInterest(totalLiquidationAmount, totalInterest);
 //             totalInterestPaid                       = lendingHelper.calculateTotalInterestPaid(totalLiquidationAmount, totalInterest);
 
@@ -2230,16 +2230,16 @@
 
 //             // get updated Mock FA12 Token balance for liquidator, vault, Treasury and Token Pool Reward Contract
 //             vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
-//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
+//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
 
 //             liquidatorMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(liquidator);            
-//             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa12TokenAccount.balance);
+//             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
 
 //             treasuryMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
-//             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
+//             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
 
 //             lendingControllerMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             updatedLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
+//             updatedLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
 
 //             // ----------------------------------------------------------------------------------------------
 //             // Refund checks and assertions
@@ -2285,12 +2285,12 @@
 //             currentMockLevel      = lendingControllerStorage.mockLevel;
 
 //             // config variables
-//             const liquidationDelayInMins        = parseInt(lendingControllerStorage.config.liquidationDelayInMins);
-//             const liquidationMaxDuration        = parseInt(lendingControllerStorage.config.liquidationMaxDuration);
-//             const maxVaultLiquidationPercent    = parseInt(lendingControllerStorage.config.maxVaultLiquidationPercent);
-//             const adminLiquidationFeePercent    = parseInt(lendingControllerStorage.config.adminLiquidationFeePercent);
-//             const liquidationFeePercent         = parseInt(lendingControllerStorage.config.liquidationFeePercent);
-//             const interestTreasuryShare         = parseInt(lendingControllerStorage.config.interestTreasuryShare);
+//             const liquidationDelayInMins        = lendingControllerStorage.config.liquidationDelayInMins.toNumber();
+//             const liquidationMaxDuration        = lendingControllerStorage.config.liquidationMaxDuration.toNumber();
+//             const maxVaultLiquidationPercent    = lendingControllerStorage.config.maxVaultLiquidationPercent.toNumber();
+//             const adminLiquidationFeePercent    = lendingControllerStorage.config.adminLiquidationFeePercent.toNumber();
+//             const liquidationFeePercent         = lendingControllerStorage.config.liquidationFeePercent.toNumber();
+//             const interestTreasuryShare         = lendingControllerStorage.config.interestTreasuryShare.toNumber();
             
 
 //             // ----------------------------------------------------------------------------------------------
@@ -2301,7 +2301,7 @@
 //             await signerFactory(eve.sk);
 
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-//             const vaultId       = parseInt(vaultCounter);
+//             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
 //             const liquidator    = mallory.pkh;
 //             const depositors    = "any";
@@ -2378,40 +2378,40 @@
 //             await eveBorrowOperation.confirmation();
 
 //             lendingControllerStorage   = await lendingControllerInstance.storage();
-//             currentMockLevel           = parseInt(lendingControllerStorage.config.mockLevel);            
+//             currentMockLevel           = lendingControllerStorage.config.mockLevel.toNumber();            
 
 //             console.log('   - borrowed: ' + borrowAmount + " | type: " + loanTokenName + " | current block level: " + currentMockLevel);
 
 //             // get initial Mock FA-12 Token and Mock FA-2 balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
 //             vaultOwnerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(vaultOwner);            
 //             vaultOwnerMockFa2TokenAccount           =  await mockFa2TokenStorage.ledger.get(vaultOwner);            
-//             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
-//             initialVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa2TokenAccount);
+//             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
+//             initialVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
 
 //             vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
 //             vaultMockFa2TokenAccount                =  await mockFa2TokenStorage.ledger.get(vaultAddress);            
-//             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
-//             initialVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : parseInt(vaultMockFa2TokenAccount);
+//             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
+//             initialVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
 
 //             liquidatorMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(liquidator);            
 //             liquidatorMockFa2TokenAccount           =  await mockFa2TokenStorage.ledger.get(liquidator);            
-//             initialLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa12TokenAccount.balance);
-//             initialLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa2TokenAccount);
+//             initialLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
+//             initialLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : liquidatorMockFa2TokenAccount.toNumber();
 
 //             treasuryMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             treasuryMockFa2TokenAccount             =  await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-//             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
-//             initialTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : parseInt(treasuryMockFa2TokenAccount);
+//             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
+//             initialTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : treasuryMockFa2TokenAccount.toNumber();
 
 //             lendingControllerMockFa12TokenAccount         =  await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             lendingControllerMockFa2TokenAccount          =  await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             initialLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
-//             initialLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa2TokenAccount);
+//             initialLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
+//             initialLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 
 //             lendingControllerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             lendingControllerMockFa2TokenAccount           =  await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             initialLendingControllerMockFa12TokenBalance   = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
-//             initialLendingControllerMockFa2TokenBalance    = lendingControllerMockFa2TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa2TokenAccount);
+//             initialLendingControllerMockFa12TokenBalance   = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
+//             initialLendingControllerMockFa2TokenBalance    = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 
 
 //             // get token pool stats
@@ -2422,8 +2422,8 @@
 //             loanTokenDecimals              = loanTokenRecord.tokenDecimals;
 //             const interestRateDecimals     = (27 - 2); 
 
-//             const tokenPoolTotal           = parseInt(loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals);
-//             const totalBorrowed            = parseInt(loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals);
+//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals.toNumber();
+//             const totalBorrowed            = loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals.toNumber();
 //             const optimalUtilisationRate   = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const utilisationRate          = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const currentInterestRate      = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
@@ -2442,7 +2442,7 @@
 //             mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
 
 //             lastEpoch   = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch
-//             epoch       = parseInt(lastEpoch) + 1;
+//             epoch       = lastEpoch.toNumber() + 1;
 //             round       = 1;
 
 //             lendingControllerStorage     = await lendingControllerInstance.storage();
@@ -2487,7 +2487,7 @@
 
 //             lendingControllerStorage   = await lendingControllerInstance.storage();
 //             vaultRecord                = await lendingControllerStorage.vaults.get(vaultHandle);
-//             currentMockLevel           = parseInt(lendingControllerStorage.config.mockLevel);            
+//             currentMockLevel           = lendingControllerStorage.config.mockLevel.toNumber();            
 //             tempMap                    = lendingControllerStorage.tempMap;
 
 //             const expectedMarkedForLiquidationLevel = currentMockLevel;
@@ -2521,7 +2521,7 @@
 
 //             minutesPassed               = liquidationDelayInMins / 2; 
 //             mockLevelChange             = minutesPassed * oneMinuteLevelBlocks;
-//             newMockLevel                = parseInt(markedForLiquidationLevel) + mockLevelChange;
+//             newMockLevel                = markedForLiquidationLevel.toNumber() + mockLevelChange;
 
 //             const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
 //             await setMockLevelOperationTwo.confirmation();
@@ -2556,7 +2556,7 @@
 
 //             minutesPassed               = liquidationDelayInMins + 1;
 //             mockLevelChange             = minutesPassed * oneMinuteLevelBlocks;
-//             newMockLevel                = parseInt(markedForLiquidationLevel) + mockLevelChange;
+//             newMockLevel                = markedForLiquidationLevel.toNumber() + mockLevelChange;
 
 //             const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
 //             await setMockLevelOperationThree.confirmation();
@@ -2594,7 +2594,7 @@
 
 //             // vault calculations
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = parseInt(initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+//             totalInterest                           = initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal.toNumber();
 
 
 //             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
@@ -2682,7 +2682,7 @@
 //             totalInterestPaid                       = lendingHelper.calculateTotalInterestPaid(totalLiquidationAmount, vaultLoanInterestTotal);
 
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+//             totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
 //             remainingInterest                       = lendingHelper.calculateRemainingInterest(totalLiquidationAmount, totalInterest)
 
 //             finalLoanOutstandingTotal               = lendingHelper.calculateFinalLoanOutstandingTotal(totalLiquidationAmount, loanOutstandingWithAccruedInterest);
@@ -2698,33 +2698,33 @@
 //             // get updated Mock FA-12 and Mock FA-2 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
 //             vaultOwnerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(vaultOwner);            
 //             vaultOwnerMockFa2TokenAccount           =  await mockFa2TokenStorage.ledger.get(vaultOwner);            
-//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
-//             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa2TokenAccount);
+//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
+//             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
 
 //             vaultMockFa12TokenAccount               =  await mockFa12TokenStorage.ledger.get(vaultAddress);            
 //             vaultMockFa2TokenAccount                =  await mockFa2TokenStorage.ledger.get(vaultAddress);            
-//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
-//             updatedVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : parseInt(vaultMockFa2TokenAccount);
+//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
+//             updatedVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
 
 //             liquidatorMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(liquidator);            
 //             liquidatorMockFa2TokenAccount           =  await mockFa2TokenStorage.ledger.get(liquidator);            
-//             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa12TokenAccount.balance);
-//             updatedLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa2TokenAccount);
+//             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
+//             updatedLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : liquidatorMockFa2TokenAccount.toNumber();
 
 //             treasuryMockFa12TokenAccount            =  await mockFa12TokenStorage.ledger.get(treasuryAddress.address);            
 //             treasuryMockFa2TokenAccount             =  await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-//             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
-//             updatedTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : parseInt(treasuryMockFa2TokenAccount);
+//             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
+//             updatedTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : treasuryMockFa2TokenAccount.toNumber();
 
 //             lendingControllerMockFa12TokenAccount         =  await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             lendingControllerMockFa2TokenAccount          =  await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             updatedLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
-//             updatedLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa2TokenAccount);
+//             updatedLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
+//             updatedLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 
 //             lendingControllerMockFa12TokenAccount          =  await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             lendingControllerMockFa2TokenAccount           =  await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
-//             updatedLendingControllerMockFa12TokenBalance   = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
-//             updatedLendingControllerMockFa2TokenBalance    = lendingControllerMockFa2TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa2TokenAccount);
+//             updatedLendingControllerMockFa12TokenBalance   = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
+//             updatedLendingControllerMockFa2TokenBalance    = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 
 
 //             // --------------------------------------------------------
@@ -2770,12 +2770,12 @@
 //             maxDecimals              = lendingControllerStorage.config.maxDecimalsForCalculation;
     
 //             // config variables
-//             const liquidationDelayInMins        = parseInt(lendingControllerStorage.config.liquidationDelayInMins);
-//             const liquidationMaxDuration        = parseInt(lendingControllerStorage.config.liquidationMaxDuration);
-//             const maxVaultLiquidationPercent    = parseInt(lendingControllerStorage.config.maxVaultLiquidationPercent);
-//             const adminLiquidationFeePercent    = parseInt(lendingControllerStorage.config.adminLiquidationFeePercent);
-//             const liquidationFeePercent         = parseInt(lendingControllerStorage.config.liquidationFeePercent);
-//             const interestTreasuryShare         = parseInt(lendingControllerStorage.config.interestTreasuryShare);
+//             const liquidationDelayInMins        = lendingControllerStorage.config.liquidationDelayInMins.toNumber();
+//             const liquidationMaxDuration        = lendingControllerStorage.config.liquidationMaxDuration.toNumber();
+//             const maxVaultLiquidationPercent    = lendingControllerStorage.config.maxVaultLiquidationPercent.toNumber();
+//             const adminLiquidationFeePercent    = lendingControllerStorage.config.adminLiquidationFeePercent.toNumber();
+//             const liquidationFeePercent         = lendingControllerStorage.config.liquidationFeePercent.toNumber();
+//             const interestTreasuryShare         = lendingControllerStorage.config.interestTreasuryShare.toNumber();
             
 //             // ----------------------------------------------------------------------------------------------
 //             // Reset token prices back to default
@@ -2794,7 +2794,7 @@
 //             // ---------------------------------
 
 //             epoch = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;            
+//             epoch = epoch.toNumber() + 1;            
 //             defaultObservations = lendingHelper.defaultPriceObservations[mockFa12TokenIndex].observations;
 //             await setTokenPrice(epoch, round, defaultObservations, "mockFa12");
 
@@ -2812,7 +2812,7 @@
 //             // ---------------------------------
 
 //             epoch = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;            
+//             epoch = epoch.toNumber() + 1;            
 //             defaultObservations = lendingHelper.defaultPriceObservations[mockFa2TokenIndex].observations;
 //             await setTokenPrice(epoch, round, defaultObservations, "mockFa2");
 
@@ -2830,7 +2830,7 @@
 //             // ---------------------------------
 
 //             epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;            
+//             epoch = epoch.toNumber() + 1;            
 //             defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
 //             await setTokenPrice(epoch, round, defaultObservations, "tez");
 
@@ -2848,7 +2848,7 @@
 //             // ---------------------------------
 
 //             epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;            
+//             epoch = epoch.toNumber() + 1;            
 //             defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
 //             await setTokenPrice(epoch, round, defaultObservations, "smvk");
 
@@ -2868,7 +2868,7 @@
 //             await signerFactory(eve.sk);
     
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-//             const vaultId       = parseInt(vaultCounter);
+//             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
 //             const liquidator    = mallory.pkh;
 //             const depositors    = "any";
@@ -3002,7 +3002,7 @@
 //             await eveBorrowOperation.confirmation();
     
 //             lendingControllerStorage   = await lendingControllerInstance.storage();
-//             currentMockLevel           = parseInt(lendingControllerStorage.config.mockLevel);            
+//             currentMockLevel           = lendingControllerStorage.config.mockLevel.toNumber();            
     
 //             console.log('   - borrowed: ' + borrowAmount + " | type: " + loanTokenName + " | current block level: " + currentMockLevel);
     
@@ -3018,8 +3018,8 @@
 //             vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
 //             vaultOwnerStakedMvkAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
-//             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
-//             initialVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa2TokenAccount);
+//             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
+//             initialVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
 //             initialVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
 //             initialVaultOwnerStakedMvkBalance       = vaultOwnerStakedMvkAccount == undefined ? 0 : vaultOwnerStakedMvkAccount.balance.toNumber();
             
@@ -3031,8 +3031,8 @@
 //             vaultTezAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
 //             vaultStakedMvkAccount                   = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
 
-//             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
-//             initialVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : parseInt(vaultMockFa2TokenAccount);
+//             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
+//             initialVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
 //             initialVaultTezBalance                  = vaultTezAccount.toNumber();
 //             initialVaultStakedMvkBalance            = vaultStakedMvkAccount == undefined ? 0 : vaultStakedMvkAccount.balance.toNumber();
 
@@ -3044,8 +3044,8 @@
 //             liquidatorTezAccount                    = await utils.tezos.tz.getBalance(liquidator);
 //             liquidatorStakedMvkAccount              = await doormanStorage.userStakeBalanceLedger.get(liquidator);
 
-//             initialLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa12TokenAccount.balance);
-//             initialLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa2TokenAccount);
+//             initialLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
+//             initialLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : liquidatorMockFa2TokenAccount.toNumber();
 //             initialLiquidatorTezBalance             = liquidatorTezAccount.toNumber();
 //             initialLiquidatorStakedMvkBalance       = liquidatorStakedMvkAccount == undefined ? 0 : liquidatorStakedMvkAccount.balance.toNumber();
 
@@ -3057,8 +3057,8 @@
 //             treasuryTezAccount                      = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             treasuryStakedMvkAccount                = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
 
-//             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
-//             initialTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : parseInt(treasuryMockFa2TokenAccount);
+//             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
+//             initialTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : treasuryMockFa2TokenAccount.toNumber();
 //             initialTreasuryTezBalance               = treasuryTezAccount.toNumber();
 //             initialTreasuryStakedMvkBalance         = treasuryStakedMvkAccount == undefined ? 0 : treasuryStakedMvkAccount.balance.toNumber();
 
@@ -3069,8 +3069,8 @@
 //             lendingControllerMockFa2TokenAccount          = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             lendingControllerTezAccount                   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
 
-//             initialLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
-//             initialLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa2TokenAccount);
+//             initialLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
+//             initialLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 //             initialLendingControllerTezBalance            = lendingControllerTezAccount.toNumber();
 
 //             // ----            
@@ -3083,8 +3083,8 @@
 //             loanTokenDecimals              = loanTokenRecord.tokenDecimals;
 //             const interestRateDecimals     = (27 - 2); 
     
-//             const tokenPoolTotal           = parseInt(loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals);
-//             const totalBorrowed            = parseInt(loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals);
+//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals.toNumber();
+//             const totalBorrowed            = loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals.toNumber();
 //             const optimalUtilisationRate   = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const utilisationRate          = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const currentInterestRate      = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
@@ -3101,7 +3101,7 @@
     
 //             mockUsdMockFa12TokenAggregatorStorage     = await mockUsdMockFa12TokenAggregatorInstance.storage();
 //             lastEpoch                                 = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch
-//             epoch                                     = parseInt(lastEpoch) + 1;
+//             epoch                                     = lastEpoch.toNumber() + 1;
 //             round                                     = 1;
     
 //             lendingControllerStorage                  = await lendingControllerInstance.storage();
@@ -3132,7 +3132,7 @@
 
 //             mockUsdXtzAggregatorStorage   = await mockUsdXtzAggregatorInstance.storage();
 //             lastEpoch                     = mockUsdXtzAggregatorStorage.lastCompletedData.epoch
-//             epoch                         = parseInt(lastEpoch) + 1;
+//             epoch                         = lastEpoch.toNumber() + 1;
 //             round                         = 1;
     
 //             lendingControllerStorage     = await lendingControllerInstance.storage();
@@ -3174,7 +3174,7 @@
     
 //             lendingControllerStorage   = await lendingControllerInstance.storage();
 //             vaultRecord                = await lendingControllerStorage.vaults.get(vaultHandle);
-//             currentMockLevel           = parseInt(lendingControllerStorage.config.mockLevel);            
+//             currentMockLevel           = lendingControllerStorage.config.mockLevel.toNumber();            
 //             tempMap                    = lendingControllerStorage.tempMap;
     
 //             const expectedMarkedForLiquidationLevel = currentMockLevel;
@@ -3208,7 +3208,7 @@
     
 //             minutesPassed   = liquidationDelayInMins / 2; 
 //             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
-//             newMockLevel    = parseInt(markedForLiquidationLevel) + mockLevelChange;
+//             newMockLevel    = markedForLiquidationLevel.toNumber() + mockLevelChange;
     
 //             const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
 //             await setMockLevelOperationTwo.confirmation();
@@ -3242,7 +3242,7 @@
     
 //             minutesPassed   = liquidationDelayInMins + 1;
 //             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
-//             newMockLevel    = parseInt(markedForLiquidationLevel) + mockLevelChange;
+//             newMockLevel    = markedForLiquidationLevel.toNumber() + mockLevelChange;
     
 //             const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
 //             await setMockLevelOperationThree.confirmation();
@@ -3278,7 +3278,7 @@
     
 //             // vault calculations
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = parseInt(initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+//             totalInterest                           = initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal.toNumber();
 
     
 //             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
@@ -3437,7 +3437,7 @@
 //             totalInterestPaid                       = lendingHelper.calculateTotalInterestPaid(totalLiquidationAmount, vaultLoanInterestTotal);
 
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+//             totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
 //             remainingInterest                       = lendingHelper.calculateRemainingInterest(totalLiquidationAmount, totalInterest)
 
 //             finalLoanOutstandingTotal               = lendingHelper.calculateFinalLoanOutstandingTotal(totalLiquidationAmount, loanOutstandingWithAccruedInterest);
@@ -3456,8 +3456,8 @@
 //             vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
 //             vaultOwnerStakedMvkAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
-//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
-//             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa2TokenAccount);
+//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
+//             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
 //             updatedVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
 //             updatedVaultOwnerStakedMvkBalance       = vaultOwnerStakedMvkAccount == undefined ? 0 : vaultOwnerStakedMvkAccount.balance.toNumber();
     
@@ -3469,8 +3469,8 @@
 //             vaultTezAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
 //             vaultStakedMvkAccount                   = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
 
-//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
-//             updatedVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : parseInt(vaultMockFa2TokenAccount);
+//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
+//             updatedVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
 //             updatedVaultTezBalance                  = vaultTezAccount.toNumber();
 //             updatedVaultStakedMvkBalance            = vaultStakedMvkAccount == undefined ? 0 : vaultStakedMvkAccount.balance.toNumber();
     
@@ -3482,8 +3482,8 @@
 //             liquidatorTezAccount                    = await utils.tezos.tz.getBalance(liquidator);
 //             liquidatorStakedMvkAccount              = await doormanStorage.userStakeBalanceLedger.get(liquidator);
 
-//             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa12TokenAccount.balance);
-//             updatedLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : parseInt(liquidatorMockFa2TokenAccount);
+//             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
+//             updatedLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : liquidatorMockFa2TokenAccount.toNumber();
 //             updatedLiquidatorTezBalance             = liquidatorTezAccount.toNumber();
 //             updatedLiquidatorStakedMvkBalance       = liquidatorStakedMvkAccount == undefined ? 0 : liquidatorStakedMvkAccount.balance.toNumber();
     
@@ -3495,8 +3495,8 @@
 //             treasuryTezAccount                      = await utils.tezos.tz.getBalance(treasuryAddress.address);
 //             treasuryStakedMvkAccount                = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
 
-//             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : parseInt(treasuryMockFa12TokenAccount.balance);
-//             updatedTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : parseInt(treasuryMockFa2TokenAccount);
+//             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
+//             updatedTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : treasuryMockFa2TokenAccount.toNumber();
 //             updatedTreasuryTezBalance               = treasuryTezAccount.toNumber();
 //             updatedTreasuryStakedMvkBalance         = treasuryStakedMvkAccount == undefined ? 0 : treasuryStakedMvkAccount.balance.toNumber();
 
@@ -3507,8 +3507,8 @@
 //             lendingControllerMockFa2TokenAccount          = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
 //             lendingControllerTezAccount                   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
 
-//             updatedLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa12TokenAccount.balance);
-//             updatedLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : parseInt(lendingControllerMockFa2TokenAccount);
+//             updatedLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
+//             updatedLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
 //             updatedLendingControllerTezBalance            = lendingControllerTezAccount.toNumber();
 
             
@@ -3550,7 +3550,7 @@
 //             // check vault records 
 //             // - there could be some accrued interest leftover as the liquidation amount is very small (e.g. 0.0001 Mock FA2 token ~ $0.00035)
 //             assert.equal(vaultLoanOutstandingTotal, finalLoanOutstandingTotal);
-//             assert.equal(parseInt(vaultLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal));
+//             assert.equal(vaultLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal).toNumber();
 //             assert.equal(vaultLoanInterestTotal, finalLoanInterestTotal);
     
 //         })    
@@ -3587,7 +3587,7 @@
 //             // ---------------------------------
 
 //             epoch = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;            
+//             epoch = epoch.toNumber() + 1;            
 //             defaultObservations = lendingHelper.defaultPriceObservations[mockFa12TokenIndex].observations;
 //             await setTokenPrice(epoch, round, defaultObservations, "mockFa12");
 
@@ -3605,7 +3605,7 @@
 //             // ---------------------------------
 
 //             epoch = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;            
+//             epoch = epoch.toNumber() + 1;            
 //             defaultObservations = lendingHelper.defaultPriceObservations[mockFa2TokenIndex].observations;
 //             await setTokenPrice(epoch, round, defaultObservations, "mockFa2");
 
@@ -3623,7 +3623,7 @@
 //             // ---------------------------------
 
 //             epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;            
+//             epoch = epoch.toNumber() + 1;            
 //             defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
 //             await setTokenPrice(epoch, round, defaultObservations, "tez");
 
@@ -3641,7 +3641,7 @@
 //             // ---------------------------------
 
 //             epoch = await mockUsdMvkAggregatorStorage.lastCompletedData.epoch;
-//             epoch = parseInt(epoch) + 1;            
+//             epoch = epoch.toNumber() + 1;            
 //             defaultObservations = lendingHelper.defaultPriceObservations[mvkIndex].observations;
 //             await setTokenPrice(epoch, round, defaultObservations, "smvk");
 
@@ -3663,7 +3663,7 @@
 //             await signerFactory(eve.sk);
 
 //             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-//             const vaultId       = parseInt(vaultCounter);
+//             const vaultId       = vaultCounter.toNumber();
 //             const vaultOwner    = eve.pkh;
 //             const depositors    = "any";
 //             const loanTokenName = "mockFa12";
@@ -3816,8 +3816,8 @@
 //             vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
 //             vaultOwnerStakedMvkAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
-//             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
-//             initialVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa2TokenAccount);
+//             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
+//             initialVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
 //             initialVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
 //             initialVaultOwnerStakedMvkBalance       = vaultOwnerStakedMvkAccount == undefined ? 0 : vaultOwnerStakedMvkAccount.balance.toNumber();
             
@@ -3829,8 +3829,8 @@
 //             vaultTezAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
 //             vaultStakedMvkAccount                   = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
 
-//             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
-//             initialVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : parseInt(vaultMockFa2TokenAccount);
+//             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
+//             initialVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
 //             initialVaultTezBalance                  = vaultTezAccount.toNumber();
 //             initialVaultStakedMvkBalance            = vaultStakedMvkAccount == undefined ? 0 : vaultStakedMvkAccount.balance.toNumber();
 
@@ -3848,7 +3848,7 @@
 
 //             const monthsPassed  = 1; 
 //             mockLevelChange = monthsPassed * oneMonthLevelBlocks;
-//             newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
+//             newMockLevel = lastUpdatedBlockLevel.toNumber() + mockLevelChange;
 
 //             const setMockLevelOperationOne = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
 //             await setMockLevelOperationOne.confirmation();
@@ -3884,7 +3884,7 @@
 
 //             // vault calculations
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = parseInt(initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+//             totalInterest                           = initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal.toNumber();
 
 //             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
 //             assert.equal(almostEqual(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest, 0.0001), true);
@@ -3949,12 +3949,12 @@
 //             updatedLoanTokenBorrowIndex  = loanTokenRecord.borrowIndex;
             
 //             // check that vault borrow index is equal to loan token borrow index
-//             assert.equal(parseInt(vaultBorrowIndex), parseInt(updatedLoanTokenBorrowIndex));
+//             assert.equal(vaultBorrowIndex), parseInt(updatedLoanTokenBorrowIndex).toNumber();
 
 
 //             // check if repayAmount covers whole or partial of total interest 
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = parseInt(initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal);
+//             totalInterest                           = initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal.toNumber();
 //             totalInterestPaid                       = lendingHelper.calculateTotalInterestPaid(repayAmount, vaultLoanInterestTotal);
 //             remainingInterest                       = lendingHelper.calculateRemainingInterest(repayAmount, totalInterest);
 
@@ -3980,8 +3980,8 @@
 //             vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
 //             vaultOwnerStakedMvkAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
-//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
-//             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa2TokenAccount);
+//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
+//             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
 //             updatedVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
 //             updatedVaultOwnerStakedMvkBalance       = vaultOwnerStakedMvkAccount == undefined ? 0 : vaultOwnerStakedMvkAccount.balance.toNumber();
     
@@ -3993,8 +3993,8 @@
 //             vaultTezAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
 //             vaultStakedMvkAccount                   = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
 
-//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : parseInt(vaultMockFa12TokenAccount.balance);
-//             updatedVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : parseInt(vaultMockFa2TokenAccount);
+//             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
+//             updatedVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
 //             updatedVaultTezBalance                  = vaultTezAccount.toNumber();
 //             updatedVaultStakedMvkBalance            = vaultStakedMvkAccount == undefined ? 0 : vaultStakedMvkAccount.balance.toNumber();
     
@@ -4053,18 +4053,18 @@
 //             vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
 //             vaultOwnerStakedMvkAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
-//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa12TokenAccount.balance);
-//             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : parseInt(vaultOwnerMockFa2TokenAccount);
+//             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
+//             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
 //             updatedVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
 //             updatedVaultOwnerStakedMvkBalance       = vaultOwnerStakedMvkAccount == undefined ? 0 : vaultOwnerStakedMvkAccount.balance.toNumber();
     
 
 //             // check that vault owner receives the remaining collateral balances
-//             assert.equal(updatedVaultOwnerMockFa12TokenBalance  , initialVaultOwnerMockFa12TokenBalance  + parseInt(remainingMockFa12CollateralBalance));
-//             assert.equal(updatedVaultOwnerMockFa2TokenBalance   , initialVaultOwnerMockFa2TokenBalance   + parseInt(remainingMockFa2CollateralBalance));
-//             assert.equal(updatedVaultOwnerStakedMvkBalance      , initialVaultOwnerStakedMvkBalance      + parseInt(remainingStakedMvkCollateralBalance));
+//             assert.equal(updatedVaultOwnerMockFa12TokenBalance  , initialVaultOwnerMockFa12TokenBalance  + remainingMockFa12CollateralBalance).toNumber();
+//             assert.equal(updatedVaultOwnerMockFa2TokenBalance   , initialVaultOwnerMockFa2TokenBalance   + remainingMockFa2CollateralBalance).toNumber();
+//             assert.equal(updatedVaultOwnerStakedMvkBalance      , initialVaultOwnerStakedMvkBalance      + remainingStakedMvkCollateralBalance).toNumber();
 //             // account for minor difference from gas cost to transact operation
-//             assert.equal(almostEqual(updatedVaultOwnerTezBalance  , initialVaultOwnerTezBalance          + parseInt(remainingTezCollateralBalance), 0.0001), true);
+//             assert.equal(almostEqual(updatedVaultOwnerTezBalance  , initialVaultOwnerTezBalance          + remainingTezCollateralBalance), 0.0001), true.toNumber();
 
 //             // update storage
 //             lendingControllerStorage   = await lendingControllerInstance.storage();
