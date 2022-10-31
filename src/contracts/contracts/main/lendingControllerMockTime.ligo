@@ -530,6 +530,22 @@ block {
 
 
 
+// helper function to get user staked mvk balance from staking contract (e.g. Doorman)
+function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address; const s : lendingControllerStorageType) : nat is 
+block {
+
+    // get staked MVK balance of user from staking contract (e.g. Doorman)
+    const testString : string = "getStakedBalance";
+    const getStakedBalanceView : option (nat) = Tezos.call_view (testString, userAddress, contractAddress);
+    const userStakedMvkBalance : nat = case getStakedBalanceView of [
+            Some (_value) -> _value
+        |   None          -> failwith(error_GET_STAKED_BALANCE_VIEW_IN_CONTRACT_NOT_FOUND)
+    ];
+
+} with userStakedMvkBalance
+
+
+
 // helper function to get target user balance from scaled token contract (e.g. mToken)
 function getBalanceFromScaledTokenContract(const userAddress : address; const tokenContractAddress : address) : nat is 
 block {
@@ -630,7 +646,12 @@ block {
     const tokenDecimals         : nat          = createCollateralTokenParams.tokenDecimals;
     const oracleAddress         : address      = createCollateralTokenParams.oracleAddress;
     const protected             : bool         = createCollateralTokenParams.protected;
+    
     const isScaledToken         : bool         = createCollateralTokenParams.isScaledToken;
+
+    // To extend functionality beyond sMVK to other staked tokens in future
+    // const isStakedToken         : bool         = createCollateralTokenParams.isStakedToken;
+    // const stakingContractAddress   : option(address)         = createCollateralTokenParams.stakingContractAddress;
     
     const newCollateralTokenRecord : collateralTokenRecordType = record [
         tokenName            = tokenName;
