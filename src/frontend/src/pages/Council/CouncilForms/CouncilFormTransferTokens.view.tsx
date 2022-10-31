@@ -165,6 +165,7 @@ export const CouncilFormTransferTokens = () => {
             clickOnDropDown={handleClickDropdown}
             placeholder={'Choose token type'}
             isOpen={ddIsOpen}
+            setIsOpen={setDdIsOpen}
             itemSelected={tokenType?.text}
             items={ddItems}
             clickOnItem={handleClickDropdownItem}
