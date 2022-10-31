@@ -1,7 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useRef, useMemo } from 'react'
 import useEmblaCarousel, { EmblaOptionsType } from 'embla-carousel-react'
 
 import { CarouselStyle, CarouselViewport, CarouselContainer, CarouselButton } from './Carousel.style'
+
+const compareValues = (element: HTMLDivElement | null) => {
+  if (element) {
+    return element.scrollWidth > element.offsetWidth
+  }
+
+  return false
+}
 
 type Props = {
   children: React.ReactNode
@@ -18,6 +26,12 @@ const Carousel = (props: Props) => {
   const [viewportRef, embla] = useEmblaCarousel(options)
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false)
+
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const showArrows = useMemo(() => compareValues(containerRef.current), [
+    containerRef.current?.offsetHeight,
+    containerRef.current?.scrollWidth
+  ])
 
   const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla])
   const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla])
@@ -51,9 +65,9 @@ const Carousel = (props: Props) => {
         {selectedIndex + 1} from {itemLength}
       </small>
       <CarouselViewport ref={viewportRef}>
-        <CarouselContainer>{children}</CarouselContainer>
+        <CarouselContainer ref={containerRef}>{children}</CarouselContainer>
       </CarouselViewport>
-      {itemLength > 1 ? (
+      {showArrows ? (
         <>
           <CarouselButton className="button--prev" onClick={scrollPrev} disabled={!prevBtnEnabled}>
             {arrowIcon}
