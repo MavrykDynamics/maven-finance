@@ -51,7 +51,6 @@ export const UserDetailsStyled = styled.div`
         stroke: ${headerColor};
         width: 13px;
         height: 13px;
-        margin-left: 3px;
         transition: 0.5s all;
       }
 
