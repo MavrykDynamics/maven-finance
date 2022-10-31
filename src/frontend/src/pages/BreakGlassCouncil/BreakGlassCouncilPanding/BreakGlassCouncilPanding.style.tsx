@@ -4,7 +4,6 @@ import { Card, skyColor, headerColor, containerColor, cyanColor } from 'styles'
 export const CouncilPendingStyled = styled(Card)`
   margin: 0;
   height: 200px;
-  width: 100%;
   padding: 25px;
   min-width: 237px;
 
