@@ -71,7 +71,7 @@ const UserDetailsView = ({
 
   return user ? (
     <Page>
-      <PageHeader page={'data-feeds'} />
+      <PageHeader page={'oracles-users'} />
       <UsersPagination />
 
       <UserDetailsStyled>
