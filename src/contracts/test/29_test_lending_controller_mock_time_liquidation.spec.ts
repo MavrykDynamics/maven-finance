@@ -1905,7 +1905,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
             lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
-            const yearsPassed  = 8; 
+            const yearsPassed  = 7; 
             mockLevelChange = yearsPassed * oneYearLevelBlocks;
             newMockLevel = parseInt(lastUpdatedBlockLevel) + mockLevelChange;
 
