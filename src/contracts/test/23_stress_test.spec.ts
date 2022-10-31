@@ -223,7 +223,7 @@
 //                 for (const index in randomUserAccounts){
 //                     const account: any  = randomUserAccounts[index];
 
-//                     if(parseInt(index) < (batchSize * (i + 1)) && (parseInt(index) >= batchSize * i)){
+//                     if(index) < (batchSize * (i + 1)) && (parseInt(index) >= batchSize * i).toNumber(){
 //                         // Prepare a transfer of MVK
 //                         txsTransferList.push({
 //                             to_: account.pkh,
@@ -357,12 +357,12 @@
 //                         const minimalRegisteringCost    = minimalCost.estimations.length > 0 ? minimalCost.estimations[minimalCost.estimations.length-1].totalCost : MVK(999999);
 //                         const maximalRegisteringCost    = maximalCost.estimations.length > 0 ? maximalCost.estimations[maximalCost.estimations.length-1].totalCost : 0;
 //                         minimalCost         = {
-//                             batchIndex: minimalRegisteringCost > registeringCost ? parseInt(index) : minimalCost.batchIndex,
+//                             batchIndex: minimalRegisteringCost > registeringCost ? index.toNumber() : minimalCost.batchIndex,
 //                             totalCostMutez: minimalRegisteringCost > registeringCost ? totalCost : minimalCost.totalCostMutez,
 //                             estimations: minimalRegisteringCost > registeringCost ? batchTotalCost : minimalCost.estimations
 //                         }
 //                         maximalCost         = {
-//                             batchIndex: maximalRegisteringCost < registeringCost ? parseInt(index) : maximalCost.batchIndex,
+//                             batchIndex: maximalRegisteringCost < registeringCost ? index.toNumber() : maximalCost.batchIndex,
 //                             totalCostMutez: maximalRegisteringCost < registeringCost ? totalCost : maximalCost.totalCostMutez,
 //                             estimations: maximalRegisteringCost < registeringCost ? batchTotalCost : maximalCost.estimations
 //                         }
@@ -785,7 +785,7 @@
 //                     for (const index in randomUserAccounts){
 //                         const account: any  = randomUserAccounts[index];
 
-//                         if(parseInt(index) < (batchSize * (i + 1)) && (parseInt(index) >= batchSize * i)){
+//                         if(index) < (batchSize * (i + 1)) && (parseInt(index) >= batchSize * i).toNumber(){
 //                             // Transfer only if receiver as less than 1XTZ
 //                             const userLPRecord  = await lpTokenStorage.ledger.get(account.pkh);
 //                             const userLPBalance = userLPRecord !== undefined ? userLPRecord.balance.toNumber() : 0;
