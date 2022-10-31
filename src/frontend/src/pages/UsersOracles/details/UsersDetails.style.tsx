@@ -62,16 +62,17 @@ export const UserDetailsStyled = styled.div`
     }
 
     var {
+      display: flex;
       font-style: normal;
       color: ${cyanColor};
       font-weight: 700;
       font-size: 14px;
       line-height: 14px;
 
-      svg {
-        stroke: ${cyanColor};
-        width: 13px;
-        height: 13px;
+      .openLink {
+        margin-left: 4px;
+        width: 15px;
+        height: 15px;
       }
     }
   }

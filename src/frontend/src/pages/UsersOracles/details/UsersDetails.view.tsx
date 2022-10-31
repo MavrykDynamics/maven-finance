@@ -10,6 +10,7 @@ import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
 import UsersPagination from '../pagination/UsersPagination.controler'
 import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
+import Icon from 'app/App.components/Icon/Icon.view'
 
 // styles
 import { Page } from 'styles'
@@ -93,9 +94,7 @@ const UserDetailsView = ({
               <a href={user.website}>
                 <var>
                   {user.website}{' '}
-                  <svg>
-                    <use xlinkHref="/icons/sprites.svg#openLink" />
-                  </svg>
+                  <Icon id="openLinkRight" className="openLink" />
                 </var>
               </a>
             </div>
