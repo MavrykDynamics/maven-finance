@@ -307,6 +307,20 @@ block {
 
 
 
+(* get: reward index View *)
+[@view] function get_reward_index(const userAddress : ownerType; const s : mavrykFa2TokenStorageType) : nat is
+block {
+
+    // get user reward index 
+    const userRewardIndex : nat = case s.rewardIndexLedger[userAddress] of [
+            Some (index) -> index
+        |   None         -> 0n
+    ];
+
+} with userRewardIndex
+
+
+
 (* all_tokens View *)
 [@view] function all_tokens(const _ : unit; const _s : mavrykFa2TokenStorageType) : list(nat) is
     list[0n]
@@ -458,7 +472,7 @@ block{
 
                 // get reward indexes for owner and receiver
                 const ownerRewardIndex     : nat               = getUserRewardIndex(owner, tokenRewardIndex, s);
-                const receiverRewardIndex  : nat               = getUserRewardIndex(owner, tokenRewardIndex, s);
+                const receiverRewardIndex  : nat               = getUserRewardIndex(receiver, tokenRewardIndex, s);
 
                 // reflect token updated balance for owner and receiver
                 if(ownerRewardIndex = tokenRewardIndex) then skip     // no change to token balance
