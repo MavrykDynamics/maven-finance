@@ -126,6 +126,7 @@ const UserDetailsView = ({
             clickOnDropDown={handleClickDropdown}
             placeholder='Choose category'
             isOpen={ddIsOpen}
+            setIsOpen={setDdIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}

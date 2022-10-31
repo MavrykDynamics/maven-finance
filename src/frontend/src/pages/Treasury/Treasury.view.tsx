@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 
 // view
 import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
@@ -6,6 +6,7 @@ import PieChartView from '../../app/App.components/PieСhart/PieСhart.view'
 
 // helpers
 import { calcPersent } from './helpers/treasury.utils'
+import { scrollToFullView } from 'utils/scrollToFullView'
 
 // style
 import { TreasuryViewStyle, TzAddress } from './Treasury.style'
@@ -22,13 +23,20 @@ type Props = {
 
 export default function TreasuryView({ treasury, isGlobal = false, factoryAddress = '' }: Props) {
   const [hoveredPath, setHoveredPath] = useState<null | string>(null)
+  const ref = useRef<HTMLDivElement | null>(null)
 
   const chartData = useMemo(() => {
     return getPieChartData(treasury.balances, treasury.treasuryTVL, hoveredPath)
   }, [hoveredPath, treasury.treasuryTVL, treasury.balances])
 
+  useEffect(() => {
+    if (treasury) {
+      scrollToFullView(ref.current)
+    }
+  }, [treasury])
+
   return (
-    <TreasuryViewStyle>
+    <TreasuryViewStyle ref={ref}>
       <div className="content-wrapper">
         <header>
           {treasury.name ? <h1 title={treasury.name}>{treasury.name}</h1> : null}

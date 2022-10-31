@@ -71,6 +71,7 @@ export function FormRemoveCouncilMemberView() {
             clickOnDropDown={handleClickDropdown}
             placeholder='Choose member'
             isOpen={ddIsOpen}
+            setIsOpen={setDdIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
             clickOnItem={(e) => handleClickDropdownItem(e)}

@@ -6,6 +6,7 @@ type DropDownProps = {
   clickOnDropDown: () => void
   clickOnItem: (value: string) => void
   isOpen: boolean
+  setIsOpen: (arg: boolean) => void
   itemSelected: string | undefined
 }
 
@@ -14,7 +15,7 @@ export type DropdownItemType = {
   value: string
 }
 
-export const DropDown = ({ placeholder, items, isOpen, itemSelected, clickOnItem, clickOnDropDown }: DropDownProps) => {
+export const DropDown = ({ placeholder, items, isOpen, setIsOpen, itemSelected, clickOnItem, clickOnDropDown }: DropDownProps) => {
   return (
     <DropDownView
       placeholder={placeholder}
@@ -23,6 +24,7 @@ export const DropDown = ({ placeholder, items, isOpen, itemSelected, clickOnItem
       itemSelected={itemSelected}
       onClick={clickOnDropDown}
       clickItem={clickOnItem}
+      setIsOpen={setIsOpen}
     />
   )
 }
