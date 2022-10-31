@@ -79,7 +79,10 @@ type collateralTokenRecordType is [@layout:comb] record [
 
     oracleAddress           : address;   
     protected               : bool;
+    
     isScaledToken           : bool;
+    // isStakedToken           : bool;
+    // stakingContractAddress  : option(address);
 
     tokenType               : tokenType; 
 ]
@@ -247,7 +250,12 @@ type createCollateralTokenActionType is [@layout:comb] record [
 
     oracleAddress           : address;  
     protected               : bool;
-    isScaledToken           : bool;
+    
+    isScaledToken           : bool; // mToken
+    
+    // To extend functionality beyond sMVK to other staked tokens in future
+    // isStakedToken           : bool;
+    // stakingContractAddress  : option(address);
 
     // variants at the end for taquito 
     tokenType               : tokenType; 
@@ -257,6 +265,9 @@ type createCollateralTokenActionType is [@layout:comb] record [
 type updateCollateralTokenActionType is [@layout:comb] record [
     tokenName               : string;
     oracleAddress           : address;  
+    
+    // stakingContractAddress  : option(address);
+    // viewName : string;
 ]
 
 

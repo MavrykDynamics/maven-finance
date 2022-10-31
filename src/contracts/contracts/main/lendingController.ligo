@@ -528,6 +528,21 @@ block {
 
 
 
+// helper function to get user staked mvk balance from Doorman contract
+function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address; const s : lendingControllerStorageType) : nat is 
+block {
+
+    // get staked MVK balance of user from Doorman contract
+    const getStakedBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, contractAddress);
+    const userStakedMvkBalance : nat = case getStakedBalanceView of [
+            Some (_value) -> _value
+        |   None          -> failwith(error_GET_STAKED_BALANCE_VIEW_IN_CONTRACT_NOT_FOUND)
+    ];
+
+} with userStakedMvkBalance
+
+
+
 // helper function to get user balance from scaled token contract (e.g. mToken)
 function getBalanceFromScaledTokenContract(const userAddress : address; const tokenContractAddress : address) : nat is 
 block {
