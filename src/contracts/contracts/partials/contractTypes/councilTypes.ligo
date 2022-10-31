@@ -111,19 +111,19 @@ type councilLambdaActionType is
     |   LambdaUpdateCouncilMemberInfo               of councilMemberInfoType
 
         // Council Actions for Internal Control
-    |   LambdaCouncilActionAddMember                of councilActionAddMemberType
-    |   LambdaCouncilActionRemoveMember             of address
-    |   LambdaCouncilActionChangeMember             of councilActionChangeMemberType
-    |   LambdaCouncilActionSetBaker                 of setBakerType
+    |   LambdaCouncilAddMember                      of councilActionAddMemberType
+    |   LambdaCouncilRemoveMember                   of address
+    |   LambdaCouncilChangeMember                   of councilActionChangeMemberType
+    |   LambdaCouncilSetBaker                       of setBakerType
 
         // Council Actions for Vesting
-    |   LambdaCouncilActionAddVestee                of addVesteeType
-    |   LambdaCouncilActionRemoveVestee             of address
-    |   LambdaCouncilActionUpdateVestee             of updateVesteeType
+    |   LambdaCouncilAddVestee                      of addVesteeType
+    |   LambdaCouncilRemoveVestee                   of address
+    |   LambdaCouncilUpdateVestee                   of updateVesteeType
     |   LambdaCouncilToggleVesteeLock               of address
 
         // Council Actions for Financial Governance
-    |   LambdaCouncilActionTransfer                 of councilActionTransferType
+    |   LambdaCouncilTransfer                       of councilActionTransferType
     |   LambdaCouncilRequestTokens                  of councilActionRequestTokensType
     |   LambdaCouncilRequestMint                    of councilActionRequestMintType
     |   LambdaCouncilSetContractBaker               of councilActionSetContractBakerType
