@@ -106,7 +106,7 @@ const DataFeedDetailsView = ({
                 </DataFeedsTitle>
                 <a href="https://mavryk.finance/litepaper" target="_blank" rel="noreferrer">
                   Learn how to use {feed.name} in your smart contracts here
-                  <CustomTooltip iconId={'question'} />
+                  <CustomTooltip className="info-icon" iconId={'question'} />
                 </a>
               </div>
               <div className="price-part">
@@ -114,20 +114,66 @@ const DataFeedDetailsView = ({
                   <Icon id={isTrustedAnswer ? 'trustShield' : 'notTrustedShield'} />
                   <CommaNumber beginningText="$" value={feed.last_completed_data} />
                 </DataFeedValueText>
-                <DataFeedsTitle className="margin-r">
-                  {isTrustedAnswer ? 'Trusted answer' : 'Not Trusted'}
+                <DataFeedsTitle>
+                  {isTrustedAnswer ? 'Trusted Answer' : 'Not Trusted Answer'}
                   <CustomTooltip
                     text={`Answer is calculated in the smart contract and required a minimum of 60% of oracles to be trusted`}
                     iconId={'info'}
+                    className="info-icon"
                   />
                 </DataFeedsTitle>
               </div>
             </div>
             <div className="bottom">
               <DataFeedInfoBlock>
-                <DataFeedsTitle fontSize={18} fontWeidth={600}>
+                <DataFeedsTitle fontSize={16} fontWeidth={600}>
+                  Trigger parameters
+                  <CustomTooltip
+                    text={`A new trusted answer is written when the off-chain data moves more than the deviation threshold or 3600
+                    seconds have passed since the last answer was written on-chain.`}
+                    iconId={'info'}
+                    className="info-icon"
+                  />
+                </DataFeedsTitle>
+
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                  Deviation threshold
+                </DataFeedSubTitleText>
+
+                <DataFeedValueText fontSize={16} fontWeidth={600}>
+                  {feed.pct_oracle_threshold}%
+                </DataFeedValueText>
+              </DataFeedInfoBlock>
+
+              <DataFeedInfoBlock justifyContent={'flex-end'}>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                  Heartbeat
+                  <CustomTooltip
+                    text={heartbeatUpdateInfo}
+                    defaultStrokeColor="#77a4f2"
+                    iconId={'info'}
+                    className="info-icon"
+                  />
+                </DataFeedSubTitleText>
+                <DataFeedValueText fontSize={16} fontWeidth={600}>
+                  {feed.last_completed_data_last_updated_at ? (
+                    <Timer
+                      options={{
+                        showZeros: false,
+                        negativeColor: isTrustedAnswer ? cyanColor : downColor,
+                        defaultColor: cyanColor,
+                      }}
+                      timestamp={new Date(feed.last_completed_data_last_updated_at).getTime() + 1000 * 60 * 30}
+                    />
+                  ) : null}
+                </DataFeedValueText>
+              </DataFeedInfoBlock>
+
+              <DataFeedInfoBlock>
+                <DataFeedsTitle fontSize={16} fontWeidth={600}>
                   Oracle responses
                   <CustomTooltip
+                    className="info-icon"
                     text={`The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
                     responses to be able to calculate a trusted answer.`}
                     iconId={'info'}
@@ -137,13 +183,18 @@ const DataFeedDetailsView = ({
                   Minimum of {feed.pct_oracle_threshold}%
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_data_pct_oracle_resp}% / {feed.pct_oracle_threshold}%
+                  {feed.last_completed_data_pct_oracle_resp}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
+
               <DataFeedInfoBlock>
-                <DataFeedsTitle fontSize={18} fontWeidth={600}>
+                <DataFeedsTitle fontSize={16} fontWeidth={600}>
                   Last update
-                  <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} />
+                  <CustomTooltip
+                    text={`Time since last answer was written on-chain`}
+                    iconId={'info'}
+                    className="info-icon"
+                  />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'MMM DD, YYYY' })}
@@ -153,34 +204,7 @@ const DataFeedDetailsView = ({
                     <Timer
                       options={{
                         showZeros: false,
-                        negativeColor: downColor,
-                        defaultColor: cyanColor,
-                      }}
-                      timestamp={new Date(feed.last_completed_data_last_updated_at).getTime() + 1000 * 60 * 30}
-                    />
-                  ) : null}
-                </DataFeedValueText>
-              </DataFeedInfoBlock>
-              <DataFeedInfoBlock>
-                <DataFeedsTitle fontSize={18} fontWeidth={600}>
-                  Decimals
-                  <CustomTooltip text={`Countdown until the data is next written on-chain`} iconId={'info'} />
-                </DataFeedsTitle>
-                <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {''.padEnd(feed.decimals, '0')}
-                </DataFeedValueText>
-              </DataFeedInfoBlock>
-              <DataFeedInfoBlock justifyContent={'flex-end'}>
-                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  Heartbeat
-                  <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} />
-                </DataFeedSubTitleText>
-                <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  {feed.last_completed_data_last_updated_at ? (
-                    <Timer
-                      options={{
-                        showZeros: false,
-                        negativeColor: downColor,
+                        negativeColor: cyanColor,
                         defaultColor: cyanColor,
                       }}
                       timestamp={new Date(feed.last_completed_data_last_updated_at).getTime() + 1000 * 60 * 30}
@@ -227,7 +251,7 @@ const DataFeedDetailsView = ({
               <div className="info-wrapper">
                 <DataFeedsTitle fontSize={14} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   ENS address
-                  <CustomTooltip iconId={'question'} />
+                  <CustomTooltip iconId={'question'} className="info-icon" />
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   eth-usd.data.eth

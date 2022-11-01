@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { cyanColor } from 'styles'
+import { CardHover, cyanColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
 export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage?: string }>`
@@ -16,6 +16,11 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+
+  svg {
+    stroke: none;
+    fill: ${({ theme }) => theme.containerColor};
+  }
 
   .top {
     display: flex;
@@ -122,7 +127,6 @@ export const SatellitesContentStyled = styled.div<{ theme: MavrykTheme }>`
 export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
-  padding-left: 20px;
   margin-top: 25px;
 
   .top {
@@ -174,6 +178,10 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
         }
       }
     }
+  }
+
+  .padding-left {
+    padding-left: 20px;
   }
 `
 
@@ -515,4 +523,10 @@ export const FarmsContentStyled = styled.div<{ theme: MavrykTheme }>`
       }
     }
   }
+`
+
+export const PopularFeed = styled(CardHover)`
+  margin-top: 0;
+  padding: 12px 20px 12px 19px;
+  border: 1px solid transparent;
 `

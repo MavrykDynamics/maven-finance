@@ -23,7 +23,7 @@ export const getPieChartData = (
 
           // calculating hover effect on segment
           const isHoveredPathAsset =
-            hoveredPath &&
+            hoveredPath === item.symbol &&
             balances.find((item) => hoveredPath === item.symbol && calcPersent(tokenUsdValue, reducedBalance) < 10)
 
           // if we don't have grouped assets object, create it

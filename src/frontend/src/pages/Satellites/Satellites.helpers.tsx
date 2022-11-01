@@ -186,41 +186,36 @@ type DataFeedsHistoryProps = {
 
 export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
   const { aggregator_history_data = [] } = storage
-  
+
   return aggregator_history_data?.length
     ? aggregator_history_data.map((item) => {
         return {
           xAxis: item.timestamp,
           // TODO: ask Sam if the decimal is right we use?
-          yAxis: symbolsAfterDecimalPoint(item.data / 10**item.aggregator.decimals),
+          yAxis: symbolsAfterDecimalPoint(item.data / 10 ** item.aggregator.decimals),
         }
       })
     : []
 }
 
-export function normalizeDataFeedsVolatility(storage: DataFeedsHistoryProps) {
+export function normalizeDataFeedsVolatility(storage: DataFeedsHistoryProps): DataFeedsVolatility {
   const { aggregator_history_data = [] } = storage
 
-  let volatility: DataFeedsVolatility = [];
-
-  if (aggregator_history_data.length < 2) {
-    return volatility
-  }
-  
-  for (let i = 1; i < aggregator_history_data.length; i++) {
-    const yAxis = percentageDifference(aggregator_history_data[i].data, aggregator_history_data[i - 1].data)
-
-    volatility.push({
-      xAxis: aggregator_history_data[i].timestamp,
-      yAxis,
-    })
-  }
-
-  return volatility
+  return aggregator_history_data?.length >= 2
+    ? aggregator_history_data.map(({ data, aggregator: { decimals }, timestamp }, idx, arr) => {
+        return {
+          xAxis: timestamp,
+          yAxis: percentageDifference(
+            symbolsAfterDecimalPoint(data / 10 ** decimals),
+            symbolsAfterDecimalPoint(arr[idx - 1]?.data / 10 ** decimals),
+          ),
+        }
+      })
+    : []
 }
 
 export const percentageDifference = (a: number, b: number): number => {
-  const twoNumberDifference = ((a / b) - 1) * 100
+  const twoNumberDifference = (a / b - 1) * 100
 
   return Number(twoNumberDifference.toFixed(2))
 }

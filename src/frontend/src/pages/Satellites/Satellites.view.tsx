@@ -7,6 +7,7 @@ import { FEEDS_TOP_LIST_NAME, SATELITES_TOP_LIST_NAME } from 'pages/FinacialRequ
 import { Link } from 'react-router-dom'
 // styles
 import { Page, PageContent } from 'styles'
+import { SatelliteListStyled } from './Satellites.style'
 // types
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
@@ -102,7 +103,7 @@ const SatellitesView = ({
                       <Icon id="arrow-left-stroke" />
                     </div>
                   </Link>
-                  <SatelliteList
+                  <SatelliteListStyled
                     listTitle={'Popular Feeds'}
                     loading={isLoading}
                     items={dataFeedsData.items}

@@ -28,6 +28,7 @@ import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
 import { getSeparateSnakeCase } from 'utils/parse'
 import { memberIsFirstOfList } from 'pages/Council/Council.helpers'
+import { scrollUpPage } from 'utils/scrollUpPage'
 
 // styles
 import {
@@ -80,7 +81,7 @@ export function BreakGlassCouncil() {
 
   const ddItems = useMemo(() => itemsForDropDown.map(({ text }) => text), [itemsForDropDown])
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>(itemsForDropDown[0])
+  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
 
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
@@ -95,6 +96,7 @@ export function BreakGlassCouncil() {
 
   const handleClickReview = () => {
     history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+    scrollUpPage()
   }
 
   const handleClickGoBack = () => {
@@ -234,8 +236,9 @@ export function BreakGlassCouncil() {
                   <div className="dropdown-size">
                     <DropDown
                       clickOnDropDown={handleClickDropdown}
-                      placeholder={ddItems[0]}
+                      placeholder='Choose action'
                       isOpen={ddIsOpen}
+                      setIsOpen={setDdIsOpen}
                       itemSelected={chosenDdItem?.text}
                       items={ddItems}
                       clickOnItem={(e) => handleClickDropdownItem(e)}

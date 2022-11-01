@@ -9,6 +9,8 @@ import { UserType } from '../../../utils/TypesAndInterfaces/User'
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
 import UsersPagination from '../pagination/UsersPagination.controler'
+import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
+import Icon from 'app/App.components/Icon/Icon.view'
 
 // styles
 import { Page } from 'styles'
@@ -69,7 +71,7 @@ const UserDetailsView = ({
 
   return user ? (
     <Page>
-      <PageHeader page={'data-feeds'} />
+      <PageHeader page={'oracles-users'} />
       <UsersPagination />
 
       <UserDetailsStyled>
@@ -92,9 +94,7 @@ const UserDetailsView = ({
               <a href={user.website}>
                 <var>
                   {user.website}{' '}
-                  <svg>
-                    <use xlinkHref="/icons/sprites.svg#openLink" />
-                  </svg>
+                  <Icon id="openLinkRight" className="openLink" />
                 </var>
               </a>
             </div>
@@ -103,9 +103,11 @@ const UserDetailsView = ({
               <a href="#">
                 <h5>
                   Total value locked
-                  <svg>
-                    <use xlinkHref="/icons/sprites.svg#info" />
-                  </svg>
+                  <CustomTooltip
+                    className='info-icon'
+                    text={`Total value locked (TVL) according to defillama.com TVL represents the sum dollar value of crypto assets locked in a DeFi protocol.           `}
+                    iconId={'info'}
+                  />
                 </h5>
               </a>
               <var>{user.valueLocked}</var>
@@ -126,6 +128,7 @@ const UserDetailsView = ({
             clickOnDropDown={handleClickDropdown}
             placeholder='Choose category'
             isOpen={ddIsOpen}
+            setIsOpen={setDdIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
