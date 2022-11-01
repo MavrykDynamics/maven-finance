@@ -52,7 +52,7 @@ export const CarouselButton = styled.button`
   background-color: var(--carousel-button-bg);
   touch-action: manipulation;
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   top: 50%;
   transform: translateY(-50%);
   border: 1px solid #503eaa;
