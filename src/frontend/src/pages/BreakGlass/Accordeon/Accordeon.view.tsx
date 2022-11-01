@@ -1,4 +1,5 @@
 import Icon from 'app/App.components/Icon/Icon.view'
+import { Truncate } from 'app/App.style'
 import * as React from 'react'
 import { AccordionContent, AccordionItem, AccordionToggler, AccordionWrapper } from './Accordeon.style'
 
@@ -19,7 +20,7 @@ export const BGAccordion = ({ methods, accordionClickHandler, accordionId, isExp
       <AccordionContent className={`${isExpanded ? 'expanded' : ''}`}>
         {methodsList.map((method: string) => (
           <AccordionItem key={method} status={methods[method]}>
-            <div className="truncated_text">{method}</div>
+            <Truncate>{method}</Truncate>
           </AccordionItem>
         ))}
       </AccordionContent>
