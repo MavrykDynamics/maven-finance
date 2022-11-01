@@ -24,6 +24,9 @@ import {
 import { normalizeBreakGlassAction, normalizeBreakGlassCouncilMember } from './BreakGlassCouncil.helpers'
 import { parseDate } from 'utils/time'
 
+// actions
+import { toggleLoader } from 'app/App.components/Loader/Loader.action'
+
 const time = String(new Date())
 const timeFormat = 'YYYY-MM-DD'
 const timestamptz = parseDate({ time, timeFormat }) || undefined
@@ -507,6 +510,7 @@ export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState:
     const done = await transaction?.confirmation()
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+    dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error('propagateBreakGlass - ERROR ', error)
