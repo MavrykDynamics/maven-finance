@@ -111,16 +111,16 @@ query GetGovernanceStorageQuery {
         voter_id
       }
       data {
-        bytes
+        encoded_code
         governance_proposal_id
+        code_description
         id
-        record_internal_id
         title
       }
       payments {
         governance_proposal_id
         id
-        record_internal_id
+        internal_id
         title
         to__id
         token_amount
@@ -181,16 +181,16 @@ query GetCurrentRoundProposalsQuery {
         }
       }
       data {
-        bytes
+        encoded_code
         governance_proposal_id
+        code_description
         id
-        record_internal_id
         title
       }
       payments {
         governance_proposal_id
         id
-        record_internal_id
+        internal_id
         title
         to__id
         token_amount

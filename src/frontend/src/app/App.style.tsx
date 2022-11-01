@@ -1,4 +1,4 @@
-import styled from 'styled-components/macro'
+import styled, { css } from 'styled-components/macro'
 
 import { MavrykTheme } from '../styles/interfaces'
 
@@ -54,4 +54,17 @@ export const EmptyContainer = styled.figure<{ theme: MavrykTheme }>`
   &.centered {
     margin: 50px auto 0 auto;
   }
+`
+
+export const Truncate = styled.div<{ maxWidth?: number }>`
+  text-overflow: ellipsis;
+  ${({ maxWidth }) =>
+    maxWidth
+      ? css`
+          max-width: ${maxWidth}%;
+        `
+      : ''};
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
 `

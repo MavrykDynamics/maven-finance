@@ -11,9 +11,7 @@ export const UserDataFeedCard = ({ feed }: { feed: FeedGQL }) => {
       <SatelliteItemStyle className="userFeed">
         <div className="item">
           <h5>FeedGQL</h5>
-          <var>
-            {feed.token_1_symbol}/{feed.token_0_symbol}
-          </var>
+          <var>{feed.name}</var>
         </div>
 
         <div className="item">
