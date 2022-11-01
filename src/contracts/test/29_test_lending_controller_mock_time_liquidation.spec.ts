@@ -755,7 +755,7 @@
 //         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
 //         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
         
-//         if(mockFa12LoanToken !== null){
+//         if(mockFa12LoanToken !== undefined){
 //             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -770,7 +770,7 @@
 //             await updateTokenRewardIndexOperation.confirmation();
 //         }
 
-//         if(mockFa2LoanToken !== null){
+//         if(mockFa2LoanToken !== undefined){
 //             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -785,7 +785,7 @@
 //             await updateTokenRewardIndexOperation.confirmation();
 //         }
 
-//         if(tezLoanToken !== null){
+//         if(tezLoanToken !== undefined){
 //             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -1615,7 +1615,7 @@
 
 //             // check Eve's LP Token Pool Mock FA12 Token balance
 //             const updatedEveLpTokenPoolMockFa12Ledger    = await lpTokenPoolMockFa12TokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
-//             assert.equal(updatedEveLpTokenPoolMockFa12Ledger, eveInitialLpTokenPoolMockFa12TokenBalance) + liquidityAmount.toNumber();        
+//             assert.equal(updatedEveLpTokenPoolMockFa12Ledger.toNumber(), eveInitialLpTokenPoolMockFa12TokenBalance.toNumber() + liquidityAmount);
 
 //         });
 
@@ -1885,8 +1885,8 @@
 //             loanTokenDecimals              = loanTokenRecord.tokenDecimals;
 //             const interestRateDecimals     = (27 - 2); 
 
-//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals.toNumber();
-//             const totalBorrowed            = loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals.toNumber();
+//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals.toNumber());
+//             const totalBorrowed            = loanTokenRecord.totalBorrowed.toNumber() / (10 ** loanTokenDecimals.toNumber());
 //             const optimalUtilisationRate   = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const utilisationRate          = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const currentInterestRate      = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
@@ -2136,7 +2136,7 @@
 //             // check vault records that loan outstanding has decreased
 //             // - no change to vault loan principal as liquidation amount is not enough to cover total interest accrued
 //             assert.equal(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest - liquidationAmount);
-//             assert.equal(vaultLoanPrincipalTotal), parseInt(initialVaultLoanPrincipalTotal).toNumber();
+//             assert.equal(vaultLoanPrincipalTotal.toNumber(), initialVaultLoanPrincipalTotal.toNumber());
 //             assert.equal(vaultLoanInterestTotal, remainingInterest);
 
 
@@ -2422,8 +2422,8 @@
 //             loanTokenDecimals              = loanTokenRecord.tokenDecimals;
 //             const interestRateDecimals     = (27 - 2); 
 
-//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals.toNumber();
-//             const totalBorrowed            = loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals.toNumber();
+//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals.toNumber());
+//             const totalBorrowed            = loanTokenRecord.totalBorrowed.toNumber() / (10 ** loanTokenDecimals.toNumber());
 //             const optimalUtilisationRate   = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const utilisationRate          = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const currentInterestRate      = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
@@ -2594,7 +2594,7 @@
 
 //             // vault calculations
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal.toNumber();
+//             totalInterest                           = initialVaultLoanPrincipalTotal.toNumber() > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
 
 
 //             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
@@ -3083,8 +3083,8 @@
 //             loanTokenDecimals              = loanTokenRecord.tokenDecimals;
 //             const interestRateDecimals     = (27 - 2); 
     
-//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals.toNumber();
-//             const totalBorrowed            = loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals.toNumber();
+//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals.toNumber());
+//             const totalBorrowed            = loanTokenRecord.totalBorrowed.toNumber() / (10 ** loanTokenDecimals.toNumber());
 //             const optimalUtilisationRate   = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const utilisationRate          = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const currentInterestRate      = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
@@ -3278,7 +3278,7 @@
     
 //             // vault calculations
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal.toNumber();
+//             totalInterest                           = initialVaultLoanPrincipalTotal.toNumber() > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
 
     
 //             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
@@ -3550,7 +3550,7 @@
 //             // check vault records 
 //             // - there could be some accrued interest leftover as the liquidation amount is very small (e.g. 0.0001 Mock FA2 token ~ $0.00035)
 //             assert.equal(vaultLoanOutstandingTotal, finalLoanOutstandingTotal);
-//             assert.equal(vaultLoanPrincipalTotal), parseInt(finalLoanPrincipalTotal).toNumber();
+//             assert.equal(vaultLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal);
 //             assert.equal(vaultLoanInterestTotal, finalLoanInterestTotal);
     
 //         })    
@@ -3884,7 +3884,7 @@
 
 //             // vault calculations
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal.toNumber();
+//             totalInterest                           = initialVaultLoanPrincipalTotal.toNumber() > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
 
 //             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
 //             assert.equal(almostEqual(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest, 0.0001), true);
@@ -3949,12 +3949,12 @@
 //             updatedLoanTokenBorrowIndex  = loanTokenRecord.borrowIndex;
             
 //             // check that vault borrow index is equal to loan token borrow index
-//             assert.equal(vaultBorrowIndex), parseInt(updatedLoanTokenBorrowIndex).toNumber();
+//             assert.equal(vaultBorrowIndex.toNumber(), updatedLoanTokenBorrowIndex.toNumber());
 
 
 //             // check if repayAmount covers whole or partial of total interest 
 //             loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(initialVaultLoanOutstandingTotal, initialVaultBorrowIndex, updatedLoanTokenBorrowIndex);
-//             totalInterest                           = initialVaultLoanPrincipalTotal) > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - parseInt(initialVaultLoanPrincipalTotal.toNumber();
+//             totalInterest                           = initialVaultLoanPrincipalTotal.toNumber() > loanOutstandingWithAccruedInterest ? 0 :  loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
 //             totalInterestPaid                       = lendingHelper.calculateTotalInterestPaid(repayAmount, vaultLoanInterestTotal);
 //             remainingInterest                       = lendingHelper.calculateRemainingInterest(repayAmount, totalInterest);
 
@@ -4060,11 +4060,11 @@
     
 
 //             // check that vault owner receives the remaining collateral balances
-//             assert.equal(updatedVaultOwnerMockFa12TokenBalance  , initialVaultOwnerMockFa12TokenBalance  + remainingMockFa12CollateralBalance).toNumber();
-//             assert.equal(updatedVaultOwnerMockFa2TokenBalance   , initialVaultOwnerMockFa2TokenBalance   + remainingMockFa2CollateralBalance).toNumber();
-//             assert.equal(updatedVaultOwnerStakedMvkBalance      , initialVaultOwnerStakedMvkBalance      + remainingStakedMvkCollateralBalance).toNumber();
+//             assert.equal(updatedVaultOwnerMockFa12TokenBalance  , initialVaultOwnerMockFa12TokenBalance  + remainingMockFa12CollateralBalance.toNumber());
+//             assert.equal(updatedVaultOwnerMockFa2TokenBalance   , initialVaultOwnerMockFa2TokenBalance   + remainingMockFa2CollateralBalance.toNumber());
+//             assert.equal(updatedVaultOwnerStakedMvkBalance      , initialVaultOwnerStakedMvkBalance      + remainingStakedMvkCollateralBalance.toNumber());
 //             // account for minor difference from gas cost to transact operation
-//             assert.equal(almostEqual(updatedVaultOwnerTezBalance  , initialVaultOwnerTezBalance          + remainingTezCollateralBalance), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedVaultOwnerTezBalance  , initialVaultOwnerTezBalance          + remainingTezCollateralBalance.toNumber(), 0.0001), true);
 
 //             // update storage
 //             lendingControllerStorage   = await lendingControllerInstance.storage();

@@ -52,9 +52,10 @@
 //     // const oneYearLevelBlocks = 1576800
 
 //     // 3 seconds blocks (docker sandbox)
-//     const oneDayLevelBlocks   = 28800
-//     const oneMonthLevelBlocks = 864000
-//     const oneYearLevelBlocks  = 10512000 // 365 days
+//     const oneMinuteLevelBlocks  = 20
+//     const oneDayLevelBlocks     = 28800
+//     const oneMonthLevelBlocks   = 864000
+//     const oneYearLevelBlocks    = 10512000 // 365 days
 
 //     const secondsInYears = 31536000
 //     const fixedPointAccuracy = 10**27
@@ -1688,8 +1689,8 @@
 //             loanTokenDecimals              = loanTokenRecord.tokenDecimals;
 //             const interestRateDecimals     = (27 - 2); 
 
-//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal) / (10 ** loanTokenDecimals.toNumber();
-//             const totalBorrowed            = loanTokenRecord.totalBorrowed) / (10 ** loanTokenDecimals.toNumber();
+//             const tokenPoolTotal           = loanTokenRecord.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals.toNumber());
+//             const totalBorrowed            = loanTokenRecord.totalBorrowed.toNumber() / (10 ** loanTokenDecimals.toNumber());
 //             const optimalUtilisationRate   = Number(loanTokenRecord.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const utilisationRate          = Number(loanTokenRecord.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 //             const currentInterestRate      = Number(loanTokenRecord.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
@@ -1939,7 +1940,7 @@
 //             // check vault records that loan outstanding has decreased
 //             // - no change to vault loan principal as liquidation amount is not enough to cover total interest accrued
 //             assert.equal(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest - liquidationAmount);
-//             assert.equal(vaultLoanPrincipalTotal), parseInt(initialVaultLoanPrincipalTotal).toNumber();
+//             assert.equal(vaultLoanPrincipalTotal.toNumber(), initialVaultLoanPrincipalTotal.toNumber());
 //             assert.equal(vaultLoanInterestTotal, remainingInterest);
 
 

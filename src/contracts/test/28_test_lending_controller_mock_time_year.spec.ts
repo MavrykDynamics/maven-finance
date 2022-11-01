@@ -240,7 +240,7 @@
 //         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
 //         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
         
-//         if(mockFa12LoanToken !== null){
+//         if(mockFa12LoanToken !== undefined){
 //             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -255,7 +255,7 @@
 //             await updateTokenRewardIndexOperation.confirmation();
 //         }
 
-//         if(mockFa2LoanToken !== null){
+//         if(mockFa2LoanToken !== undefined){
 //             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -270,7 +270,7 @@
 //             await updateTokenRewardIndexOperation.confirmation();
 //         }
 
-//         if(tezLoanToken !== null){
+//         if(tezLoanToken !== undefined){
 //             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -1444,7 +1444,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -1717,7 +1717,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -1989,7 +1989,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -2260,7 +2260,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -2536,7 +2536,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
@@ -2810,7 +2810,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -3083,7 +3083,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -3355,7 +3355,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 //             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -3618,7 +3618,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             
@@ -3878,7 +3878,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 
@@ -4139,7 +4139,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             
@@ -4399,7 +4399,7 @@
 //             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
 //             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-//             assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
+//             assert.equal(almostEqual(updatedLoanPrincipalTotal.toNumber(), finalLoanPrincipalTotal, 0.0001), true);
 //             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 //             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             
