@@ -190,7 +190,7 @@ query GetCurrentRoundProposalsQuery {
       payments {
         governance_proposal_id
         id
-        record_internal_id
+        internal_id
         title
         to__id
         token_amount
