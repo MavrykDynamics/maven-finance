@@ -220,10 +220,11 @@
 
 //             for(let i = 0; i < batchesCount; i++) {
 //                 const batch = utils.tezos.wallet.batch();
-//                 for (const index in randomUserAccounts){
+//                 for (const indexStr in randomUserAccounts){
+//                     const index: number = parseInt(indexStr);
 //                     const account: any  = randomUserAccounts[index];
 
-//                     if(index) < (batchSize * (i + 1)) && (parseInt(index) >= batchSize * i).toNumber(){
+//                     if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
 //                         // Prepare a transfer of MVK
 //                         txsTransferList.push({
 //                             to_: account.pkh,
@@ -278,8 +279,9 @@
 //                 }
 
 //                 // Operation
-//                 for (const index in randomUserAccounts){
+//                 for (const indexStr in randomUserAccounts){
                     
+//                     const index: number         = parseInt(indexStr);
 //                     delegationStorage           = await delegationInstance.storage();
 //                     doormanStorage              = await doormanInstance.storage();
 //                     const accessAmount          = delegationStorage.config.minimumStakedMvkBalance.toNumber() > doormanStorage.config.minMvkAmount.toNumber() ? delegationStorage.config.minimumStakedMvkBalance.toNumber() : doormanStorage.config.minMvkAmount.toNumber();
@@ -357,12 +359,12 @@
 //                         const minimalRegisteringCost    = minimalCost.estimations.length > 0 ? minimalCost.estimations[minimalCost.estimations.length-1].totalCost : MVK(999999);
 //                         const maximalRegisteringCost    = maximalCost.estimations.length > 0 ? maximalCost.estimations[maximalCost.estimations.length-1].totalCost : 0;
 //                         minimalCost         = {
-//                             batchIndex: minimalRegisteringCost > registeringCost ? index.toNumber() : minimalCost.batchIndex,
+//                             batchIndex: minimalRegisteringCost > registeringCost ? index : minimalCost.batchIndex,
 //                             totalCostMutez: minimalRegisteringCost > registeringCost ? totalCost : minimalCost.totalCostMutez,
 //                             estimations: minimalRegisteringCost > registeringCost ? batchTotalCost : minimalCost.estimations
 //                         }
 //                         maximalCost         = {
-//                             batchIndex: maximalRegisteringCost < registeringCost ? index.toNumber() : maximalCost.batchIndex,
+//                             batchIndex: maximalRegisteringCost < registeringCost ? index : maximalCost.batchIndex,
 //                             totalCostMutez: maximalRegisteringCost < registeringCost ? totalCost : maximalCost.totalCostMutez,
 //                             estimations: maximalRegisteringCost < registeringCost ? batchTotalCost : maximalCost.estimations
 //                         }
@@ -782,10 +784,11 @@
 
 //                 for(let i = 0; i < batchesCount; i++) {
 //                     const batch = utils.tezos.wallet.batch();
-//                     for (const index in randomUserAccounts){
+//                     for (const indexStr in randomUserAccounts){
+//                         const index: number = parseInt(indexStr);
 //                         const account: any  = randomUserAccounts[index];
 
-//                         if(index) < (batchSize * (i + 1)) && (parseInt(index) >= batchSize * i).toNumber(){
+//                         if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
 //                             // Transfer only if receiver as less than 1XTZ
 //                             const userLPRecord  = await lpTokenStorage.ledger.get(account.pkh);
 //                             const userLPBalance = userLPRecord !== undefined ? userLPRecord.balance.toNumber() : 0;

@@ -2011,7 +2011,7 @@
 //             tokenStorage = await tokenInstance.storage();
 //             const currentTotalSupplyEnd = await tokenStorage.totalSupply;
 
-//             assert.equal(currentTotalSupply),parseInt(currentTotalSupplyEnd).toNumber();
+//             assert.equal(currentTotalSupply.toNumber(), currentTotalSupplyEnd.toNumber());
 //         } catch (e) {
 //             console.log(e)
 //         }
