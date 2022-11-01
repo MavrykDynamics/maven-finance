@@ -94,7 +94,7 @@ export const updateProposal =
       const listTransactions = proposalBytes.map((item) => {
         return {
           kind: OpKind.TRANSACTION,
-          ...contract?.methods.updateProposalData(proposalId, item.title, item.bytes).toTransferParams(),
+          ...contract?.methods.updateProposalData(proposalId, item.title, item.encoded_code).toTransferParams(),
         }
       })
 

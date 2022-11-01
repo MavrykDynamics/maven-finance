@@ -59,16 +59,53 @@ export default function CoinsIcons({
   )
 }
 
+const AssetLogoStyled = styled.div<{ theme: MavrykTheme }>`
+  &.no-image {
+    fill: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
+  }
+  height: inherit;
+  width: inherit;
+  svg,
+  img {
+    width: 100%;
+    height: 100%;
+  }
+`
+
 // General Assets logo component
-export const CoinsLogo = ({ assetName, className }: { assetName: string; className?: string }) => {
-  return assetName.toLowerCase() === 'mvk' ? (
-    <Icon id="mvkTokenGold" className={className} />
-  ) : (
-    <img
-      className={className}
-      src={`//logo.chainbit.xyz/${assetName.toLowerCase()}`}
-      alt={`${assetName.toLowerCase()} logo`}
-      loading="lazy"
-    />
+export const CoinsLogo = ({
+  // assetName,
+  className,
+  imageLink,
+}: {
+  // assetName?: string
+  imageLink?: string
+  className?: string
+}) => {
+  // if (assetName) {
+  //   return assetName.toLowerCase() === 'mvk' ? (
+  //     <AssetLogoStyled className="icon">
+  //       <Icon id="mvkTokenGold" className={className} />
+  //     </AssetLogoStyled>
+  //   ) : (
+  //     <AssetLogoStyled className="icon">
+  //       <img
+  //         className={className}
+  //         src={`//logo.chainbit.xyz/${assetName.toLowerCase()}`}
+  //         alt={`${assetName.toLowerCase()} logo`}
+  //         loading="lazy"
+  //       />
+  //     </AssetLogoStyled>
+  //   )
+  // }
+
+  //TODO: finish it after tristan update
+  if (imageLink) {
+  }
+
+  return (
+    <AssetLogoStyled className="no-image icon">
+      <Icon id="noImage" />
+    </AssetLogoStyled>
   )
 }
