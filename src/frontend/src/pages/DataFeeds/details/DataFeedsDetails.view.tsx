@@ -34,11 +34,13 @@ import {
 } from './DataFeedsDetails.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
-import { cyanColor, downColor, Page, upColor } from 'styles'
+import { cyanColor, downColor, Page } from 'styles'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
 import { parseDate } from 'utils/time'
 import dayjs from 'dayjs'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 type FeedDetailsProps = {
   feed: FeedGQL | null
@@ -56,7 +58,15 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, dataFeedsHistory, dataFeedsVolatility }: FeedDetailsProps) => {
+const DataFeedDetailsView = ({
+  feed,
+  isLoading,
+  oracles,
+  registerFeedHandler,
+  dataFeedsHistory,
+  dataFeedsVolatility,
+}: FeedDetailsProps) => {
+  const { dipDupTokens } = useSelector((state: State) => state.tokens)
   const [isClickedRegister, setClickedRegister] = useState(false)
   const oraclesForFeed = useMemo(
     () => oracles.filter(({ oracleRecords }) => oracleRecords.find(({ feedAddress }) => feed?.address === feedAddress)),
@@ -76,6 +86,8 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
   Price feed updated every 30 mins, starting from latest time it was updated
   `
 
+  const imageLink = dipDupTokens.find(({ contract }) => contract === feed?.address)?.metadata?.icon
+
   return feed ? (
     <Page>
       <PageHeader page={'data-feeds'} />
@@ -87,14 +99,14 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
             <div className="top">
               <div className="name-part">
                 <div className="img-wrapper">
-                  <CoinsLogo assetName={feed.token_1_symbol} />
+                  <CoinsLogo imageLink={imageLink} />
                 </div>
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
-                  {feed.token_1_symbol}/{feed.token_0_symbol}
+                  {feed.name}
                 </DataFeedsTitle>
                 <a href="https://mavryk.finance/litepaper" target="_blank" rel="noreferrer">
-                  Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
-                  <CustomTooltip className='info-icon' iconId={'question'} />
+                  Learn how to use {feed.name} in your smart contracts here
+                  <CustomTooltip className="info-icon" iconId={'question'} />
                 </a>
               </div>
               <div className="price-part">
@@ -107,7 +119,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                   <CustomTooltip
                     text={`Answer is calculated in the smart contract and required a minimum of 60% of oracles to be trusted`}
                     iconId={'info'}
-                    className='info-icon'
+                    className="info-icon"
                   />
                 </DataFeedsTitle>
               </div>
@@ -120,23 +132,28 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                     text={`A new trusted answer is written when the off-chain data moves more than the deviation threshold or 3600
                     seconds have passed since the last answer was written on-chain.`}
                     iconId={'info'}
-                    className='info-icon'
+                    className="info-icon"
                   />
                 </DataFeedsTitle>
 
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                    Deviation threshold
+                  Deviation threshold
                 </DataFeedSubTitleText>
 
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {feed.pct_oracle_threshold}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
-              
+
               <DataFeedInfoBlock justifyContent={'flex-end'}>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   Heartbeat
-                  <CustomTooltip text={heartbeatUpdateInfo} defaultStrokeColor="#77a4f2" iconId={'info'} className='info-icon' />
+                  <CustomTooltip
+                    text={heartbeatUpdateInfo}
+                    defaultStrokeColor="#77a4f2"
+                    iconId={'info'}
+                    className="info-icon"
+                  />
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   {feed.last_completed_data_last_updated_at ? (
@@ -156,7 +173,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                 <DataFeedsTitle fontSize={16} fontWeidth={600}>
                   Oracle responses
                   <CustomTooltip
-                    className='info-icon'
+                    className="info-icon"
                     text={`The smart contract is connected to X oracles. Each aggregation requires a minimum of 60% oracles
                     responses to be able to calculate a trusted answer.`}
                     iconId={'info'}
@@ -169,11 +186,15 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
                   {feed.last_completed_data_pct_oracle_resp}%
                 </DataFeedValueText>
               </DataFeedInfoBlock>
-              
+
               <DataFeedInfoBlock>
                 <DataFeedsTitle fontSize={16} fontWeidth={600}>
                   Last update
-                  <CustomTooltip text={`Time since last answer was written on-chain`} iconId={'info'} className='info-icon' />
+                  <CustomTooltip
+                    text={`Time since last answer was written on-chain`}
+                    iconId={'info'}
+                    className="info-icon"
+                  />
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'MMM DD, YYYY' })}
@@ -230,7 +251,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
               <div className="info-wrapper">
                 <DataFeedsTitle fontSize={14} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   ENS address
-                  <CustomTooltip iconId={'question'} className='info-icon' />
+                  <CustomTooltip iconId={'question'} className="info-icon" />
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   eth-usd.data.eth

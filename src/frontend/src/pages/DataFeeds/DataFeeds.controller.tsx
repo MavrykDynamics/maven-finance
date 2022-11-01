@@ -92,7 +92,7 @@ export const DataFeeds = () => {
     if (searchQuery !== '') {
       searchResult = allSatellites.filter(
         (item: FeedGQL) =>
-          `${item.token_1_symbol}/${item.token_0_symbol}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.address.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     } else {
@@ -116,8 +116,9 @@ export const DataFeeds = () => {
     <Page>
       <PageHeader page={'data-feeds'} />
       <SatelliteSearchFilter dataFeeds>
-        {//TODO: to fix it later [MAV-390]
-        /* <DropdownContainer className="dropDown">
+        {
+          //TODO: to fix it later [MAV-390]
+          /* <DropdownContainer className="dropDown">
           <h4>Category:</h4>
           <DropDown
             clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
@@ -132,7 +133,8 @@ export const DataFeeds = () => {
               handleSelect(chosenItem)
             }}
           />
-        </DropdownContainer> */}
+        </DropdownContainer> */
+        }
         <Input
           type="text"
           kind={'search'}

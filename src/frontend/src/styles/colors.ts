@@ -70,6 +70,7 @@ export const dark = {
   chartLinerGradientSecondary: 'rgba(22, 14, 63, 1)',
   topBarLinkColor: cyanColor,
   topBarLinkColorActive: '#8D86EB',
+  lPurple_dPurple_lPuprple:'#8D86EB',
 }
 
 export const light = {
@@ -112,6 +113,7 @@ export const light = {
   chartLinerGradientSecondary: 'rgba(22, 14, 63, 1)',
   topBarLinkColor: '#27007A',
   topBarLinkColorActive: '#77A4F2',
+  lPurple_dPurple_lPuprple:'#27007A',
 }
 
 export const space = dark

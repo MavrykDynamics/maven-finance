@@ -90,18 +90,10 @@ export const StatBlock = styled.div`
   row-gap: 4px;
   position: relative;
 
-  > svg {
-    height: 45px;
-    width: 45px;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
   &.icon-first {
     padding-left: 50px;
 
-    .feed-token {
+    > .icon {
       height: 40px;
       width: 40px;
       position: absolute;
