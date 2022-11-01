@@ -69,10 +69,13 @@ export const UserDetailsStyled = styled.div`
       font-size: 14px;
       line-height: 14px;
 
-      .openLink {
+      .icon-send {
+        fill: none;
+        stroke: ${headerColor};
+
         margin-left: 4px;
-        width: 15px;
-        height: 15px;
+        width: 13px;
+        height: 13px;
       }
     }
   }
