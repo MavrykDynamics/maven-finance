@@ -1,10 +1,10 @@
+import { useLocation } from 'react-router'
 import Icon from 'app/App.components/Icon/Icon.view'
-
 import { TopBarLinksStyled } from './TopBarLinks.style'
 
 type TopBarLinksProps = {
   groupName: string | JSX.Element
-  groupLinks: Array<{ name: string; href: string, disabled: boolean }>
+  groupLinks: Array<{ name: string; href: string, disabled?: boolean, path?: string }>
   useClickOpening?: boolean
   selectedLinksBlock?: null | string
   setSelectedLinksBlock?: () => void
@@ -19,6 +19,8 @@ export const TopBarLinks = ({
   setSelectedLinksBlock,
   groupNameLink,
 }: TopBarLinksProps) => {
+  const { pathname } = useLocation()
+
   return (
     <TopBarLinksStyled useClickOpening={useClickOpening} selected={selectedLinksBlock === groupName}>
       <div
@@ -37,9 +39,19 @@ export const TopBarLinks = ({
 
       {groupLinks.length ? (
         <div className={`group-links ${selectedLinksBlock === groupName ? 'selected' : ''}`}>
-          {groupLinks.map(({ name, href, disabled }) => (
-            <div className={`link-wrapper ${disabled ? 'disabled' : ''}`} key={name + href}>
-              <a className={`${disabled ? 'disabled' : ''}`} href={href} target="_blank" rel="noreferrer">
+          {groupLinks.map(({ name, href, disabled = false, path }) => (
+            <div
+              className={`link-wrapper ${disabled ? 'disabled' : ''}${
+                path && pathname.includes(path) ? 'selected' : ''
+              }`}
+              key={name + href}
+            >
+              <a
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className={`${disabled ? 'disabled' : ''} ${path && pathname.includes(path) ? 'selected' : ''}`}
+              >
                 {name}
               </a>
             </div>
