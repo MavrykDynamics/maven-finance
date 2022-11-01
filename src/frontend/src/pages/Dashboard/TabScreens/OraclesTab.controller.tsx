@@ -17,6 +17,7 @@ import { OraclesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 export const OraclesTab = () => {
   const dispatch = useDispatch()
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
+  const { dipDupTokens } = useSelector((state: State) => state.tokens)
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { satelliteLedger = [] } = useSelector((state: State) => state.delegation.delegationStorage)
 
@@ -67,37 +68,40 @@ export const OraclesTab = () => {
         <div className="block-name">Popular Feeds</div>
 
         <div className="feeds-grid">
-          {popularFeeds.map((feed) => (
-            <Link to={`/satellites/feed-details/${feed.address}`}>
-              <div className="row" key={feed.address}>
-                <StatBlock className="icon-first">
-                  <CoinsLogo assetName={feed.token_1_symbol} className="feed-token" />
-                  <div className="name">Feed</div>
-                  <div className="value">
-                    {feed.token_1_symbol}/{feed.token_0_symbol}
-                  </div>
-                </StatBlock>
-                <StatBlock>
-                  <div className="name">Answer</div>
-                  <div className="value">
-                    <CommaNumber beginningText="$" value={feed.last_completed_data} />
-                  </div>
-                </StatBlock>
-                <StatBlock>
-                  <div className="name">Contract Address</div>
-                  <div className="value">
-                    <TzAddress type={BLUE} tzAddress={feed.address} hasIcon />
-                  </div>
-                </StatBlock>
-                <StatBlock>
-                  <div className="name">Date/Time</div>
-                  <div className="value">
-                    {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'DD MMM YYYY / HH:mm' })}
-                  </div>
-                </StatBlock>
-              </div>
-            </Link>
-          ))}
+          {popularFeeds.map((feed) => {
+            const imageLink = dipDupTokens.find(({ contract }) => contract === feed.address)?.metadata?.icon
+            return (
+              <Link to={`/satellites/feed-details/${feed.address}`}>
+                <div className="row" key={feed.address}>
+                  <StatBlock className="icon-first">
+                    <CoinsLogo imageLink={imageLink} className="feed-token" />
+                    <div className="name">Feed</div>
+                    <div className="value">
+                      <div className="truncate">{feed.name}</div>
+                    </div>
+                  </StatBlock>
+                  <StatBlock>
+                    <div className="name">Answer</div>
+                    <div className="value">
+                      <CommaNumber beginningText="$" value={feed.last_completed_data} />
+                    </div>
+                  </StatBlock>
+                  <StatBlock>
+                    <div className="name">Contract Address</div>
+                    <div className="value">
+                      <TzAddress type={BLUE} tzAddress={feed.address} hasIcon />
+                    </div>
+                  </StatBlock>
+                  <StatBlock>
+                    <div className="name">Date/Time</div>
+                    <div className="value">
+                      {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'DD MMM YYYY / HH:mm' })}
+                    </div>
+                  </StatBlock>
+                </div>
+              </Link>
+            )
+          })}
         </div>
       </OraclesContentStyled>
 

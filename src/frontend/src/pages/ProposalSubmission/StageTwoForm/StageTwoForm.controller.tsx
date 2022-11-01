@@ -51,9 +51,9 @@ export const StageTwoForm = ({
       handleCreateNewByte()
     }
     setBytesValidation(
-      proposalData.map(({ id, title, bytes }) => ({
+      proposalData.map(({ id, title, encoded_code }) => ({
         validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
-        validBytes: proposalId >= 0 ? getBytesPairValidationStatus(bytes, 'validBytes', id, proposalData) : '',
+        validBytes: proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes', id, proposalData) : '',
         proposalId: id,
       })),
     )
@@ -117,7 +117,7 @@ export const StageTwoForm = ({
           proposalId,
         )
       } else {
-        dispatch(deleteProposalDataPair(pairToRemove.title, pairToRemove.bytes, proposalId))
+        dispatch(deleteProposalDataPair(pairToRemove.title, pairToRemove.encoded_code, proposalId))
       }
       setBytesChanged(true)
     }
@@ -256,7 +256,7 @@ export const StageTwoForm = ({
               <label>Enter Proposal Bytes Title</label>
               <TextArea
                 className="step-2-textarea"
-                value={item.bytes}
+                value={item.encoded_code}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnCange(item, e.target.value, 'bytes')}
                 onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(item, e.target.value, 'validBytes')}
                 inputStatus={validityObject?.validBytes}

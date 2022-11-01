@@ -45,6 +45,13 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
       margin-bottom: 6px;
     }
 
+    .truncate {
+      text-overflow: ellipsis;
+      max-width: 80%;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
     var {
       font-style: normal;
       color: ${cyanColor};

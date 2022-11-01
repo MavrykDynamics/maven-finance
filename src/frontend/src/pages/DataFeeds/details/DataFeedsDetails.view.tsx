@@ -34,11 +34,13 @@ import {
 } from './DataFeedsDetails.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
-import { cyanColor, downColor, Page, upColor } from 'styles'
+import { cyanColor, downColor, Page } from 'styles'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { CustomTooltip } from 'app/App.components/Tooltip/Tooltip.view'
 import { parseDate } from 'utils/time'
 import dayjs from 'dayjs'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 type FeedDetailsProps = {
   feed: FeedGQL | null
@@ -56,7 +58,15 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, dataFeedsHistory, dataFeedsVolatility }: FeedDetailsProps) => {
+const DataFeedDetailsView = ({
+  feed,
+  isLoading,
+  oracles,
+  registerFeedHandler,
+  dataFeedsHistory,
+  dataFeedsVolatility,
+}: FeedDetailsProps) => {
+  const { dipDupTokens } = useSelector((state: State) => state.tokens)
   const [isClickedRegister, setClickedRegister] = useState(false)
   const oraclesForFeed = useMemo(
     () => oracles.filter(({ oracleRecords }) => oracleRecords.find(({ feedAddress }) => feed?.address === feedAddress)),
@@ -76,6 +86,8 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
   Price feed updated every 30 mins, starting from latest time it was updated
   `
 
+  const imageLink = dipDupTokens.find(({ contract }) => contract === feed?.address)?.metadata?.icon
+
   return feed ? (
     <Page>
       <PageHeader page={'data-feeds'} />
@@ -87,13 +99,13 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler, da
             <div className="top">
               <div className="name-part">
                 <div className="img-wrapper">
-                  <CoinsLogo assetName={feed.token_1_symbol} />
+                  <CoinsLogo imageLink={imageLink} />
                 </div>
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
-                  {feed.token_1_symbol}/{feed.token_0_symbol}
+                  {feed.name}
                 </DataFeedsTitle>
                 <a href="https://mavryk.finance/litepaper" target="_blank" rel="noreferrer">
-                  Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
+                  Learn how to use {feed.name} in your smart contracts here
                   <CustomTooltip iconId={'question'} />
                 </a>
               </div>
