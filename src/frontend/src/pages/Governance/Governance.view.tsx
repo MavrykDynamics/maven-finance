@@ -415,8 +415,8 @@ export const GovernanceView = ({
                           <span className="proposal-list-bites">
                             {visibleMeta === unique ? (
                               <span className="byte">
-                                <button onClick={() => handleCopyToClipboard(item.bytes)}>
-                                  {item.bytes} <Icon id="copyToClipboard" />
+                                <button onClick={() => handleCopyToClipboard(item.encoded_code)}>
+                                  {item.encoded_code} <Icon id="copyToClipboard" />
                                 </button>
                                 <br />
                                 <button onClick={() => setVisibleMeta('')} className="visible-button">
@@ -425,7 +425,7 @@ export const GovernanceView = ({
                               </span>
                             ) : (
                               <span className="short-byte">
-                                {getShortByte(item.bytes)}{' '}
+                                {getShortByte(item.encoded_code)}{' '}
                                 <button onClick={() => setVisibleMeta(unique)} className="visible-button">
                                   see all
                                 </button>
