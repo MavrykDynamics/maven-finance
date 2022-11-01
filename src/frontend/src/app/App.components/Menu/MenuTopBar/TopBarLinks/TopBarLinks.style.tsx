@@ -65,6 +65,34 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
     max-width: 285px;
     width: 100%;
 
+    .disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .link-wrapper {
+      position: relative;
+      width: 100%;
+
+      &.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      &:hover:not(.disabled),
+      &.selected {
+        &::before {
+          content: '✓';
+          position: absolute;
+          right: -20px;
+          font-size: 18px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: ${({ theme }) => theme.topBarLinkColorActive};
+        }
+      }
+    }
+
     a {
       text-transform: capitalize;
       position: relative;
@@ -77,17 +105,14 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
       padding-left: 10px;
       border-radius: 5px;
       color: ${({ theme }) => theme.topBarLinkColor};
-      &:hover {
-        color: ${({ theme }) => theme.topBarLinkColorActive};
 
-        &::before {
-          content: '✓';
-          position: absolute;
-          right: 10px;
-          font-size: 18px;
-          top: 50%;
-          transform: translateY(-50%);
-        }
+      &.disabled {
+        pointer-events: none;
+      }
+
+      &:hover:not(.disabled),
+      &.selected {
+        color: ${({ theme }) => theme.topBarLinkColorActive};
       }
     }
   }
@@ -96,6 +121,7 @@ export const TopBarLinksStyled = styled.div<{ useClickOpening?: boolean; selecte
     cursor: pointer;
     svg {
       transform: rotate(90deg);
+      stroke: ${({ theme }) => theme.topBarLinkColorActive};
     }
   }
 

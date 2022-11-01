@@ -4,7 +4,7 @@ import { TopBarLinksStyled } from './TopBarLinks.style'
 
 type TopBarLinksProps = {
   groupName: string | JSX.Element
-  groupLinks: Array<{ name: string; href: string }>
+  groupLinks: Array<{ name: string; href: string, disabled: boolean }>
   useClickOpening?: boolean
   selectedLinksBlock?: null | string
   setSelectedLinksBlock?: () => void
@@ -37,10 +37,12 @@ export const TopBarLinks = ({
 
       {groupLinks.length ? (
         <div className={`group-links ${selectedLinksBlock === groupName ? 'selected' : ''}`}>
-          {groupLinks.map(({ name, href }) => (
-            <a href={href} key={name + href} target="_blank" rel="noreferrer">
-              {name}
-            </a>
+          {groupLinks.map(({ name, href, disabled }) => (
+            <div className={`link-wrapper ${disabled ? 'disabled' : ''}`} key={name + href}>
+              <a className={`${disabled ? 'disabled' : ''}`} href={href} target="_blank" rel="noreferrer">
+                {name}
+              </a>
+            </div>
           ))}
         </div>
       ) : null}
