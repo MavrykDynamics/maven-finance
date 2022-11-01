@@ -18,15 +18,16 @@ type MenuTopBarProps = {
 }
 
 export const PRODUCTS_LINKS = [
-  { name: 'Dapp', href: 'https://front-dev.mavryk-dapp.pages.dev/', disabled: false },
-  { name: 'Liquidity Baking (Soon)', href: 'mavryk.finance/liquidity-baking', disabled: true },
+  { name: 'Dapp', href: 'https://front-dev.mavryk-dapp.pages.dev', disabled: false, path: '/' },
+  { name: 'Liquidity Baking (Soon)', href: 'mavryk.finance/liquidity-baking', disabled: true, path: '/liquidity-baking' },
   { name: 'Mavryk Bakery (Soon)', href: '/', disabled: true },
   { name: 'DAO Bakery (Soon)', href: '/', disabled: true },
 ]
 
 export const ABOUT_LINKS = [
   { name: 'MVK Token (Soon)', href: '/', disabled: true },
-  { name: 'Team', href: 'https://mavryk.finance/#team', disabled: false },
+  { name: 'Team', href: 'https://mavryk.finance/#team', disabled: false, path: 'https://mavryk.finance/#team' },
+  // TODO: [MAV-501]
   // { name: 'Who we are', href: 'https://mavryk.finance/', disabled: false },
   // { name: 'Roadmap', href: 'https://mavryk.finance/#roadmap', disabled: false },
 ]
@@ -34,7 +35,7 @@ export const ABOUT_LINKS = [
 export const BLOG_LINKS = []
 
 export const DOCS_LINKS = [
-  { name: 'Litepaper', href: 'https://mavryk.finance/litepaper', disabled: false },
+  { name: 'Litepaper', href: 'https://mavryk.finance/litepaper', disabled: false, path: 'https://mavryk.finance/litepaper' },
   { name: 'DAO docs (Soon)', href: '/', disabled: true },
   { name: 'Security Audits (Soon)', href: '/', disabled: true },
   { name: 'Github (Soon)', href: 'https://github.com/mavrykfinance/', disabled: true },
