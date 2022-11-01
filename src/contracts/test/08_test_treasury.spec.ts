@@ -523,9 +523,9 @@
 //                 const finalRecipientTwoBalance       = await updatedMavrykFa12TokenStorage.ledger.get(recipient_two);
 //                 const finalRecipientThreeBalance     = await updatedMavrykFa12TokenStorage.ledger.get(recipient_three);
 
-//                 assert.equal(finalRecipientOneBalance.balance),   initialRecipientOneBalance   + amount_one.toNumber();
-//                 assert.equal(finalRecipientTwoBalance.balance),   initialRecipientTwoBalance   + amount_two.toNumber();
-//                 assert.equal(finalRecipientThreeBalance.balance), initialRecipientThreeBalance + amount_three.toNumber();
+//                 assert.equal(finalRecipientOneBalance.balance.toNumber(),   initialRecipientOneBalance   + amount_one);
+//                 assert.equal(finalRecipientTwoBalance.balance.toNumber(),   initialRecipientTwoBalance   + amount_two);
+//                 assert.equal(finalRecipientThreeBalance.balance.toNumber(), initialRecipientThreeBalance + amount_three);
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -599,9 +599,9 @@
 //                 const finalRecipientTwoBalance       = await updatedMavrykFa2TokenStorage.ledger.get(recipient_two);
 //                 const finalRecipientThreeBalance     = await updatedMavrykFa2TokenStorage.ledger.get(recipient_three);
 
-//                 assert.equal(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one.toNumber();
-//                 assert.equal(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two.toNumber();
-//                 assert.equal(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three.toNumber();
+//                 assert.equal(finalRecipientOneBalance.toNumber(),   initialRecipientOneBalance   + amount_one);
+//                 assert.equal(finalRecipientTwoBalance.toNumber(),   initialRecipientTwoBalance   + amount_two);
+//                 assert.equal(finalRecipientThreeBalance.toNumber(), initialRecipientThreeBalance + amount_three);
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -675,9 +675,9 @@
 //                 const finalRecipientTwoBalance       = await updatedMvkTokenStorage.ledger.get(recipient_two);
 //                 const finalRecipientThreeBalance     = await updatedMvkTokenStorage.ledger.get(recipient_three);
 
-//                 assert.equal(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one.toNumber();
-//                 assert.equal(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two.toNumber();
-//                 assert.equal(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three.toNumber();
+//                 assert.equal(finalRecipientOneBalance.toNumber(),   initialRecipientOneBalance   + amount_one);
+//                 assert.equal(finalRecipientTwoBalance.toNumber(),   initialRecipientTwoBalance   + amount_two);
+//                 assert.equal(finalRecipientThreeBalance.toNumber(), initialRecipientThreeBalance + amount_three);
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -774,9 +774,9 @@
 //                 const finalRecipientThreeMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(recipient_four);
 
 //                 assert.equal(finalRecipientOneTezBalance,   initRecipientOneTezBalance.toNumber()    + amount_one);
-//                 assert.equal(finalRecipientTwoMavrykFa12TokenBalance.balance.toNumber()),  initialRecipientTwoBalance    + amount_two.toNumber();
-//                 assert.equal(finalRecipientThreeMavrykFa2TokenBalance.toNumber()),         initialRecipientThreeBalance  + amount_three.toNumber();
-//                 assert.equal(finalRecipientThreeMvkTokenBalance.toNumber()),             initialRecipientFourBalance   + amount_four.toNumber();
+//                 assert.equal(finalRecipientTwoMavrykFa12TokenBalance.balance.toNumber(),  initialRecipientTwoBalance    + amount_two);
+//                 assert.equal(finalRecipientThreeMavrykFa2TokenBalance.toNumber(),         initialRecipientThreeBalance  + amount_three);
+//                 assert.equal(finalRecipientThreeMvkTokenBalance.toNumber(),             initialRecipientFourBalance   + amount_four);
 
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -1022,7 +1022,7 @@
 //                 const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
 //                 const updatedBobMvkTokenBalance  = await updatedMvkTokenStorage.ledger.get(bob.pkh);
 
-//                 assert.equal(updatedBobMvkTokenBalance), parseInt(initialBobMvkTokenBalance) + amount.toNumber();
+//                 assert.equal(updatedBobMvkTokenBalance.toNumber(), initialBobMvkTokenBalance.toNumber() + amount);
                 
 
 //             } catch(e){
