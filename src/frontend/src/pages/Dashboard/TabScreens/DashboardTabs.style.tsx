@@ -162,21 +162,6 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
         height: 22px;
         transition: color 0.4s ease-in-out;
       }
-
-      &:hover {
-        .value {
-          color: ${({ theme }) => theme.textColorHovered};
-
-          > div {
-            div {
-              color: ${({ theme }) => theme.textColorHovered};
-            }
-            svg {
-              stroke: ${({ theme }) => theme.textColorHovered};
-            }
-          }
-        }
-      }
     }
   }
 
