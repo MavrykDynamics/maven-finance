@@ -90,18 +90,10 @@ export const StatBlock = styled.div`
   row-gap: 4px;
   position: relative;
 
-  > .icon {
-    height: 40px;
-    width: 40px;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
   &.icon-first {
     padding-left: 50px;
 
-    .feed-token {
+    > .icon {
       height: 40px;
       width: 40px;
       position: absolute;
@@ -124,14 +116,6 @@ export const StatBlock = styled.div`
     column-gap: 4px;
     height: 36px;
     align-items: center;
-
-    > .truncate {
-      text-overflow: ellipsis;
-      max-width: 80%;
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-    }
 
     p {
       margin: 0;

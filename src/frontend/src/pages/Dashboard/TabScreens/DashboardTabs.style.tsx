@@ -17,7 +17,7 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
   flex-direction: column;
   justify-content: flex-start;
 
-  svg {
+  button svg {
     stroke: none;
     fill: ${({ theme }) => theme.containerColor};
   }
@@ -147,11 +147,12 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
   }
 
   .feeds-grid {
-    margin-top: 20px;
+    margin-top: 15px;
+    margin-bottom: 5px;
     max-width: 720px;
     display: flex;
     flex-direction: column;
-    row-gap: 20px;
+    row-gap: 7px;
     cursor: pointer;
 
     .row {

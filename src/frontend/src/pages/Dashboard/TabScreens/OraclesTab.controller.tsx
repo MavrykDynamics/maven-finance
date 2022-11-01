@@ -4,6 +4,7 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { BLUE } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { Truncate } from 'app/App.style'
 import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getOracleStorage } from 'pages/Satellites/Satellites.actions'
 import { useEffect, useMemo } from 'react'
@@ -77,7 +78,7 @@ export const OraclesTab = () => {
                     <CoinsLogo imageLink={imageLink} />
                     <div className="name">Feed</div>
                     <div className="value">
-                      <div className="truncate">{feed.name}</div>
+                      <Truncate maxWidth={80}>{feed.name}</Truncate>
                     </div>
                   </StatBlock>
                   <StatBlock>
