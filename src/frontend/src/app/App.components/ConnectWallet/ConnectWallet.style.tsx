@@ -16,7 +16,6 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     font-weight: 400;
     font-size: 14px;
     color: ${theme.headerSkyColor};
-    transition: 0.6s all;
   }
 
   .end-icon {
@@ -24,8 +23,7 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     width: 10px;
     transform: rotate(-90deg);
     margin-left: 3px;
-    transition: 0.6s all;
-    stroke: ${theme.headerSkyColor};
+    stroke: ${theme.textColor};
   }
 
   .openLink {
@@ -38,6 +36,16 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     height: 20px;
     stroke: none;
     fill: ${theme.headerSkyColor};
+  }
+
+  .icon-copy {
+    margin-left: 5px;
+    width: 15px;
+    height: 15px;
+    stroke: transparent;
+  }
+
+  .hover {
     transition: 0.6s all;
   }
 
@@ -45,7 +53,7 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
     isMobileDetails
       ? ''
       : ` &:hover {
-      var, .wallet, .end-icon {
+      .hover {
         color: ${cyanColor};
         fill: ${cyanColor};
 
@@ -55,6 +63,10 @@ const VISIBLE_PART_CONNECTED_WALLET = (theme: MavrykTheme, isMobileDetails?: boo
 
         svg {
           fill: ${cyanColor};
+        }
+
+        .icon-copy {
+          stroke: ${cyanColor};
         }
       }
     }
@@ -116,10 +128,16 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
     }
   }
 
+  hr {
+    border: none;
+    margin: 0;
+    height: 1px;
+    background-color: ${({ theme }) => theme.cardBorderColor};
+  }
+
   .wallet-details {
     position: absolute;
     visibility: hidden;
-    padding: 30px;
     top: 85px;
     opacity: 0;
     right: 15px;
@@ -136,6 +154,52 @@ export const ConnectedWalletStyled = styled.div<{ theme: MavrykTheme }>`
 
     &.mobile {
       display: none;
+    }
+
+    .icon-send {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: ${({ theme }) => theme.textColor};
+      cursor: pointer;
+      transition: stroke 0.6s;
+    }
+
+    .icon-send:hover {
+      stroke: ${({ theme }) => theme.headerSkyColor};
+    }
+
+    .wallet-details-address {
+      display: flex;
+      align-items: center;
+
+      font-weight: 600;
+      font-size: 22px;
+      line-height: 22px;
+    }
+
+    .wallet-details-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 35px 30px;
+    }
+
+    .wallet-details-body {
+      padding: 13px 30px 26px;
+    }
+
+    .wallet-details-footer {
+      padding: 0 20px 44px;
+      display: flex;
+      justify-content: space-between;
+
+      button:first-of-type {
+        width: 140px;
+      }
+
+      button:last-of-type {
+        width: 185px;
+      }
     }
   }
 
@@ -207,25 +271,40 @@ export const MobileDetailsStyled = styled.div<{ theme: MavrykTheme }>`
 export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  position: relative;
+  padding: 10px 0 7px;
+  border-bottom: 1px solid ${({ theme }) => theme.cardBorderColor};
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+  }
 
   .left-part {
+    display: flex;
+  }
+
+  .left-part-info {
     display: flex;
     flex-direction: column;
 
     > div {
       &.main {
-        font-size: 20px;
-        line-height: 20px;
-        color: #8d86eb;
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 18px;
+        color: ${({ theme }) => theme.dashboardTextColor};
       }
 
       &.subtext {
         font-weight: 600;
-        font-size: 12px;
-        line-height: 22px;
-        color: #77a4f2;
+        font-size: 14px;
+        line-height: 21px;
+        color: ${({ theme }) => theme.headerSkyColor};
       }
 
       p {
@@ -239,25 +318,25 @@ export const ConnectedWalletDetailsItemStyled = styled.div<{ theme: MavrykTheme 
   .btn-wrapper {
     display: flex;
     align-items: center;
+
+    button {
+      height: 21px;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 21px;
+      opacity: 1;
+    }
+
     svg {
       width: 6px;
       height: 13px;
       transform: rotate(180deg);
+      stroke: ${({ theme }) => theme.secondaryColor};
     }
+  
     &:hover {
-      svg {
-        stroke: ${cyanColor};
-      }
+      opacity: 0.8;
     }
-  }
-
-  &:not(:nth-last-child(2)):before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 1px;
-    background: #503eaa;
   }
 `
 

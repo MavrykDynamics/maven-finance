@@ -31,7 +31,7 @@ type Props = {
   list: ChartItem[]
   style?: ChartStyle
   tickFormater?: (value: any, index: number) => string
-  tooltipValueFormatter?: (value: string | number) => string
+  tooltipValueFormatter?: (value: number) => string
   className?: string
 }
 
@@ -55,9 +55,13 @@ const initialChartStyle: ChartStyle = {
   paddingLeft: 22,
 }
 
-const renderTooltipContent = (o: TooltipContent, data: ChartData, tooltipValueFormatter?: (value: string | number) => string) => {
+const renderTooltipContent = (
+  o: TooltipContent,
+  data: ChartData,
+  tooltipValueFormatter?: (value: number) => string,
+) => {
   const { label } = o
-  const { uv: value = '', pv: date = '' } = data.find((item) => item.time === label) ?? {}
+  const { uv: value = 0, pv: date = '' } = data.find((item) => item.time === label) ?? {}
 
   return (
     <ChartTooltip>
@@ -78,10 +82,10 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
   const [chartStyle, setChartStyle] = useState(initialChartStyle)
 
   // this is necessary to ensure that a large number of figures are not cut
-  const maxValue = list.length ? list.reduce((acc, curr) => acc.yAxis > curr.yAxis ? acc : curr).yAxis : 0
+  const maxValue = list.length ? list.reduce((acc, curr) => (acc.yAxis > curr.yAxis ? acc : curr)).yAxis : 0
   const maxValueLength = String(maxValue).length
   const marginRight = maxValueLength > 5 ? maxValueLength * 4.5 : 5
-  
+
   const data = list?.length
     ? list.map(({ yAxis, xAxis }) => {
         return {
@@ -95,7 +99,7 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
   useEffect(() => {
     if (style) {
       const updatedStyle = {
-        ...initialChartStyle, 
+        ...initialChartStyle,
         ...style,
       }
 
@@ -135,7 +139,10 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
           tickFormatter={tickFormater}
         />
 
-        <Tooltip cursor={{ stroke: themeColors[themeSelected].cardBorderColor, strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data, tooltipValueFormatter)} />
+        <Tooltip
+          cursor={{ stroke: themeColors[themeSelected].cardBorderColor, strokeWidth: 3 }}
+          content={(o) => renderTooltipContent(o, data, tooltipValueFormatter)}
+        />
         <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
       </AreaChart>
     </ResponsiveContainer>

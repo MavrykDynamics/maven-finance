@@ -13,6 +13,7 @@ const SatelliteList = ({
   listType,
   additionaldata,
   loading,
+  className,
 }: SatellitesListProps) => {
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, name)
@@ -31,6 +32,7 @@ const SatelliteList = ({
       listTitle={listTitle}
       onClickHandler={onClickHandler}
       loading={loading}
+      className={className}
     />
   )
 }

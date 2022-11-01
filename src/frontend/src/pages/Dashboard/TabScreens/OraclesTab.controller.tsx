@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { parseDate } from 'utils/time'
 import { StatBlock } from '../Dashboard.style'
-import { OraclesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
+import { OraclesContentStyled, TabWrapperStyled, PopularFeed } from './DashboardTabs.style'
 
 export const OraclesTab = () => {
   const dispatch = useDispatch()
@@ -50,7 +50,7 @@ export const OraclesTab = () => {
       </div>
 
       <OraclesContentStyled>
-        <div className="top">
+        <div className="top padding-left">
           <StatBlock>
             <div className="name">Total Oracle Rewards Paid</div>
             <div className="value">
@@ -65,16 +65,16 @@ export const OraclesTab = () => {
           </StatBlock>
         </div>
 
-        <div className="block-name">Popular Feeds</div>
+        <div className="block-name padding-left">Popular Feeds</div>
 
         <div className="feeds-grid">
           {popularFeeds.map((feed) => {
             const imageLink = dipDupTokens.find(({ contract }) => contract === feed.address)?.metadata?.icon
             return (
-              <Link to={`/satellites/feed-details/${feed.address}`}>
-                <div className="row" key={feed.address}>
+              <Link key={feed.address} to={`/satellites/feed-details/${feed.address}`}>
+                <PopularFeed className="row">
                   <StatBlock className="icon-first">
-                    <CoinsLogo imageLink={imageLink} className="feed-token" />
+                    <CoinsLogo imageLink={imageLink} />
                     <div className="name">Feed</div>
                     <div className="value">
                       <div className="truncate">{feed.name}</div>
@@ -98,7 +98,7 @@ export const OraclesTab = () => {
                       {parseDate({ time: feed.last_completed_data_last_updated_at, timeFormat: 'DD MMM YYYY / HH:mm' })}
                     </div>
                   </StatBlock>
-                </div>
+                </PopularFeed>
               </Link>
             )
           })}

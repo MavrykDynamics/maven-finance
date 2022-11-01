@@ -18,7 +18,6 @@ import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/Sl
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 type BreakGlassViewProps = {
-  contracts: ContractBreakGlass[]
   glassBroken: boolean
   whitelistDev: string
   pauseAllActive: boolean
@@ -29,7 +28,6 @@ const ALL = 'All Contracts'
 const GENERAL = 'General Contracts'
 
 export const BreakGlassView = ({
-  contracts,
   glassBroken,
   pauseAllActive,
   breakGlassStatuses,
@@ -57,17 +55,22 @@ export const BreakGlassView = ({
         })
     : []
 
-  const brakeGlassTabsList = uniqueContracts.map((item, i) => {
-    return {
-      text: item,
-      id: i + 1,
-      active: i === 0,
-    }
-  })
+  const brakeGlassTabsList = useMemo(
+    () =>
+      uniqueContracts.map((item, i) => {
+        return {
+          text: item,
+          id: i + 1,
+          active: item === selectedContract,
+        }
+      }),
+    [selectedContract, uniqueContracts],
+  )
 
   const handleTabChange = (tabId?: number) => {
     setSelectedContract(tabId ? brakeGlassTabsList.find((item) => item.id === tabId)?.text || '' : '')
   }
+
   return (
     <BGStyled className={'breakGlassContainer'}>
       <BGTop>

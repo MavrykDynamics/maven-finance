@@ -226,4 +226,13 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
       backgroundImageSrc: '/images/dapp-header-bg.svg',
     },
   ],
+  [
+    'oracles-users',
+    {
+      title: 'Oracles Users',
+      subText: 'Decentralized oracles powered by Mavryk Finance',
+      foregroundImageSrc: '/images/data-feeds-header.svg',
+      backgroundImageSrc: '/images/dapp-header-bg.svg',
+    },
+  ],
 ])

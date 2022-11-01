@@ -11,7 +11,6 @@ import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyG
 
 export const BreakGlass = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
   const { breakGlassStatus, glassBroken, whitelistDev } = useSelector((state: State) => state.breakGlass)
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
@@ -25,7 +24,6 @@ export const BreakGlass = () => {
       <PageHeader page={'break glass'} />
       <BreakGlassView
         breakGlassStatuses={breakGlassStatus}
-        contracts={MOCK_CONTRACTS}
         glassBroken={glassBroken}
         pauseAllActive={glassBroken}
         whitelistDev={whitelistDev}

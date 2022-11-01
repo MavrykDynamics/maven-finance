@@ -1,9 +1,11 @@
 import styled from 'styled-components/macro'
 import { skyColor, headerColor, textsColor, upColor } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
-export const FormStyled = styled.div`
+export const FormStyled = styled.div<{ theme: MavrykTheme }>`
   position: relative;
   padding: 40px 20px;
+  border-top: 1px solid ${({ theme }) => theme.cardBorderColor};
 
   h1 {
     margin: 0;

@@ -15,8 +15,9 @@ type TzAddressProps = {
   iconToLeft?: boolean | undefined
   isBold?: boolean
   shouldCopy?: boolean
+  className?: string
 }
-export const TzAddress = ({ tzAddress, type, hasIcon, iconToLeft, isBold, shouldCopy = true }: TzAddressProps) => {
+export const TzAddress = ({ className, tzAddress, type, hasIcon, iconToLeft, isBold, shouldCopy = true }: TzAddressProps) => {
   const addrClasses = `${type} ${isBold ? 'bold' : ''}`
   const dispatch = useDispatch()
 
@@ -28,7 +29,7 @@ export const TzAddress = ({ tzAddress, type, hasIcon, iconToLeft, isBold, should
   }
 
   return (
-    <TzAddressContainer className={'tzAddressToClick'} onClick={handleCopyToClipboard}>
+    <TzAddressContainer className={`${className} tzAddressToClick`} onClick={handleCopyToClipboard}>
       {hasIcon && iconToLeft && (
         <TzAddressIcon className={addrClasses}>
           <use xlinkHref="/icons/sprites.svg#copyToClipboard" />
