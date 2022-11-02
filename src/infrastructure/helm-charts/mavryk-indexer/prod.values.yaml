@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.18.1
+    tag: v0.20.1
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -73,70 +73,70 @@ dipdup:
         address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
         typename: liquidity_baking
       mvk:
-        address: KT1PXu2dse3QrtsDNvJUEB8NwpvZN2reecC4
+        address: KT1UQKrwpU82ngJkNDGssFJVn54BuFs6cQon
         typename: mvk
       governance_proxy:
-        address: KT1X4cvX1x6stcZpCnWQ5sJy2nhFssTiRC5y
+        address: KT1Wu7Ww63jXYADFwhXyxvxeSVKKSZKVGY7m
         typename: governance_proxy
       governance:
-        address: KT1WiSvMyKuhBbXefQEJVpvu83AgTxr3kXBP
+        address: KT1NvzQGiDCQRSMw8p7gaqvwB6Be8cX2bokN
         typename: governance
       doorman:
-        address: KT19G72NDhCkL7X3tYKedqsqTAjhkCDxgbvV
+        address: KT1Jsb7wSRNuF9rqR74K23fP8ta1wUH28c7U
         typename: doorman
       farm:
-        address: KT1E9w4vRfCASS6eu8dxMDNShDzk85KoHEZp #KT1JmzhFzjiehs1NgUbaCCuVk3WBzsBkfwpE
+        address: KT1FGpHmPmGPQre6CdJWirW54yarAE69AC6v #KT1FGpHmPmGPQre6CdJWirW54yarAE69AC6v
         typename: farm
       farm_factory:
-        address: KT1L3WdwfrEoy53U8QfVFTRiYtzHL8oAj4s3
+        address: KT1JZwikNu2wzU94snXjLcTKcpf3tymGnWoY
         typename: farm_factory
       delegation:
-        address: KT1QMqypK4MdaGy7UVv93nfaXUNUvXuzBNbc
+        address: KT1W3a9rVBQu8f1Jr5RvzRxCXauy3MJQtKhH
         typename: delegation
       vesting:
-        address: KT1HB4PjaP9YCM3zLxPD6tJdGBvLXLxqLBGN
+        address: KT1RuqJfxdresBfKQkNEDt7no76gcWEe88hZ
         typename: vesting
       emergency_governance:
-        address: KT1FGQbqPmZ1fiL2brm5riuQBco4oQW4ZciP
+        address: KT1CgyjH7BPhk4nma5SmE7xgYjreWr1y1vq8
         typename: emergency_governance
       council:
-        address: KT1HsbSozpYrSryavbZJB1no58fAnVDdK84R
+        address: KT1RQH5Nwwxs7hUqXX57LVc312LC4muvTC58
         typename: council
       break_glass:
-        address: KT1FwGNXKoVE6GJ68mqK9VuGexySCTWBiTVs
+        address: KT1GdqT3Kw278HkFuwTHeaJGC3FxCu5YRVTT
         typename: break_glass
       governance_financial:
-        address: KT1HAS78k87YQUC3wjfPGu62ke5WisDBbFA9
+        address: KT1DHj4hewsGaa2vpLYKDMmXrXENmnfQKapY
         typename: governance_financial
       governance_satellite:
-        address: KT1X65mCJyq7YrDffR1zm5UM3wa3HcJeD4Zw
+        address: KT1DkGCHHMDrVC9V4YeKf8sDSoRVtDXGKhEE
         typename: governance_satellite
       aggregator:
-        address: KT1SBrUdD7vUoYyj6jNWpiVVghsaiDd6Ubgx
+        address: KT1SCkhFC1pFbu89XvzLf13xvAeBGi4WQNLG
         typename: aggregator
       aggregator_factory:
-        address: KT1ACNnTdVtGWaSbv9NJamdcP5iW2Y19mRQp
+        address: KT1FwvvhZfEgWWihbEpcbVHDZ4grvS3UdxSg
         typename: aggregator_factory
       treasury:
-        address: KT1AQkjCJbfQhpZ8hGh1DH73vokE1figmU6S
+        address: KT1QWk4f39jGHBEx6uUwwPgcd8TYNrznsGyg
         typename: treasury
       treasury_factory:
-        address: KT1SfUbUWTPHY9SjiGXFwqf6cNsw29ZGKDEZ
+        address: KT1FgJLzorzNPQtVhwH5UPzUJA3BJJNAVUGD
         typename: treasury_factory
       token_sale:
-        address: KT1RiEVdrC6CycBaNzpFQFaanGjUVQ6mFMZo
+        address: KT1EWAvHpNcAgXN5cCBdNatzPNBzR2sX6146
         typename: token_sale
       lending_controller:
-        address: KT1KxTyZTVKTgKavYPPJ5GEc1sZTXJ2dWnGm
+        address: KT1VhdtgrgA3SHJyhLbzr1TGJL9rPaPbHaZd
         typename: lending_controller
-      token_pool_reward:
-        address: KT1K5CVb9Xw1KXjgHoksGZn6K9oEjGHudWPC
-        typename: token_pool_reward
+      lending_controller_mock_time:
+        address: KT1X32FdE4udzReNM55cG5ShTM6McaLdM6z8
+        typename: lending_controller_mock_time
       vault:
-        address: KT1Qn4Dc2DPCUNfXKkJLTi2jBxDJL2MH4oDy
+        address: KT1FDXbVGHMXynKRjGWcPpyMxecZwdx9S814
         typename: vault
       vault_factory:
-        address: KT1SMBFPt3Q95DXnHFyCQJVdtz2kz79LGC3G
+        address: KT1Xsguyd57ToGudw9YiPVozYsGUSTaJBkXU
         typename: vault_factory
 
     templates:
@@ -533,10 +533,6 @@ dipdup:
             pattern:
               - destination: governance
                 entrypoint: updateProposalData
-          - callback: on_governance_update_payment_data
-            pattern:
-              - destination: governance
-                entrypoint: updatePaymentData
           - callback: on_governance_lock_proposal
             pattern:
               - destination: governance
@@ -1288,14 +1284,10 @@ dipdup:
             pattern:
               - destination: governance_satellite
                 entrypoint: removeOracleInAggregator
-          - callback: on_governance_satellite_register_aggregator
+          - callback: on_governance_satellite_toggle_pause_aggregator
             pattern:
               - destination: governance_satellite
-                entrypoint: registerAggregator
-          - callback: on_governance_satellite_update_aggregator_status
-            pattern:
-              - destination: governance_satellite
-                entrypoint: updateAggregatorStatus
+                entrypoint: togglePauseAggregator
           - callback: on_governance_satellite_fix_mistaken_transfer
             pattern:
               - destination: governance_satellite
@@ -1807,14 +1799,14 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: registerWithdrawal
-          # - callback: on_lending_controller_mark_for_liquidation
-          #   pattern:
-          #     - destination: lending_controller
-          #       entrypoint: markForLiquidation
-          # - callback: on_lending_controller_liquidate_vault
-          #   pattern:
-          #     - destination: lending_controller
-          #       entrypoint: liquidateVault
+          - callback: on_lending_controller_mark_for_liquidation
+            pattern:
+              - destination: lending_controller
+                entrypoint: markForLiquidation
+          - callback: on_lending_controller_liquidate_vault
+            pattern:
+              - destination: lending_controller
+                entrypoint: liquidateVault
           - callback: on_lending_controller_borrow
             pattern:
               - destination: lending_controller
@@ -1835,60 +1827,108 @@ dipdup:
             pattern:
               - destination: lending_controller
                 entrypoint: setLambda
-      # Token Pool Reward contract indexes
-      token_pool_reward:
+      # Lending Controller Mock Time contract indexes
+      lending_controller_mock_time:
         kind: operation
         datasource: tzkt_ghostnet
         types:
           - origination
           - transaction
         contracts:
-          - token_pool_reward
+          - lending_controller_mock_time
         handlers:
-          - callback: on_token_pool_reward_origination
+          - callback: on_lending_controller_mock_time_origination
             pattern:
               - type: origination
-                originated_contract: token_pool_reward
-          - callback: on_token_pool_reward_set_admin
+                originated_contract: lending_controller_mock_time
+          - callback: on_lending_controller_mock_time_set_admin
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: setAdmin
-          - callback: on_token_pool_reward_set_governance
+          - callback: on_lending_controller_mock_time_set_governance
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: setGovernance
-          - callback: on_token_pool_reward_update_whitelist_contracts
+          - callback: on_lending_controller_mock_time_update_config
             pattern:
-              - destination: token_pool_reward
-                entrypoint: updateWhitelistContracts
-          - callback: on_token_pool_reward_update_general_contracts
+              - destination: lending_controller_mock_time
+                entrypoint: updateConfig
+          - callback: on_lending_controller_mock_time_update_whitelist_token_contracts
             pattern:
-              - destination: token_pool_reward
-                entrypoint: updateGeneralContracts
-          - callback: on_token_pool_reward_update_whitelist_token_contracts
-            pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: updateWhitelistTokenContracts
-          - callback: on_token_pool_reward_pause_all
+          - callback: on_lending_controller_mock_time_pause_all
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: pauseAll
-          - callback: on_token_pool_reward_unpause_all
+          - callback: on_lending_controller_mock_time_unpause_all
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: unpauseAll
-          - callback: on_token_pool_reward_toggle_pause_entrypoint
+          - callback: on_lending_controller_mock_time_toggle_pause_entrypoint
             pattern:
-              - destination: token_pool_reward
+              - destination: lending_controller_mock_time
                 entrypoint: togglePauseEntrypoint
-          - callback: on_token_pool_reward_update_rewards
+          - callback: on_lending_controller_mock_time_set_loan_token
             pattern:
-              - destination: token_pool_reward
-                entrypoint: updateRewards
-          - callback: on_token_pool_reward_claim_rewards
+              - destination: lending_controller_mock_time
+                entrypoint: setLoanToken
+          - callback: on_lending_controller_mock_time_set_collateral_token
             pattern:
-              - destination: token_pool_reward
-                entrypoint: claimRewards
+              - destination: lending_controller_mock_time
+                entrypoint: setCollateralToken
+          - callback: on_lending_controller_mock_time_register_vault_creation
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: registerVaultCreation
+          - callback: on_lending_controller_mock_time_add_liquidity
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: addLiquidity
+          - callback: on_lending_controller_mock_time_remove_liquidity
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: removeLiquidity
+          - callback: on_lending_controller_mock_time_close_vault
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: closeVault
+          - callback: on_lending_controller_mock_time_register_deposit
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: registerDeposit
+          - callback: on_lending_controller_mock_time_register_withdrawal
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: registerWithdrawal
+          - callback: on_lending_controller_mock_time_mark_for_liquidation
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: markForLiquidation
+          - callback: on_lending_controller_mock_time_liquidate_vault
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: liquidateVault
+          - callback: on_lending_controller_mock_time_borrow
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: borrow
+          - callback: on_lending_controller_mock_time_repay
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: repay
+          - callback: on_lending_controller_mock_time_vault_deposit_staked_mvk
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: vaultDepositStakedMvk
+          - callback: on_lending_controller_mock_time_vault_withdraw_staked_mvk
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: vaultWithdrawStakedMvk
+          - callback: on_lending_controller_mock_time_set_lambda
+            pattern:
+              - destination: lending_controller_mock_time
+                entrypoint: setLambda
 
 hasura:
   enabled: true
@@ -1907,6 +1947,8 @@ hasura:
       memory: 2000Mi
       cpu: 1500m
   ingress:
+    service:
+      name: hasura-prod2
     enabled: true
     host: api.mavryk.finance
     secretName: api-mavryk-tls
