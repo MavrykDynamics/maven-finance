@@ -23,11 +23,10 @@ export const OraclesTab = () => {
   const { satelliteLedger = [] } = useSelector((state: State) => state.delegation.delegationStorage)
 
   const oracleFeeds = feeds.length
-  const popularFeeds = feeds.splice(0, 3)
-
+  const popularFeeds = feeds.slice(0, 3)
   useEffect(() => {
     dispatch(getOracleStorage())
-  }, [])
+  }, [dispatch])
 
   const oracleRevardsTotal = useMemo(
     () =>

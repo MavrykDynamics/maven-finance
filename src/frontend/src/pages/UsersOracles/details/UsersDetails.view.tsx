@@ -94,7 +94,7 @@ const UserDetailsView = ({
               <a href={user.website}>
                 <var>
                   {user.website}{' '}
-                  <Icon id="openLinkRight" className="openLink" />
+                  <Icon id="send" className='icon-send' />
                 </var>
               </a>
             </div>

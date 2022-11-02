@@ -5,10 +5,13 @@ import themeColors from 'styles/colors'
 import { AreaChart, Area, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts'
 
 // styles
-import { ChartTooltip } from './Chart.style'
+import { ChartTooltip, Plug } from './Chart.style'
 
 // helpers
 import { parseDate } from '../../../utils/time'
+
+// components
+import Icon from '../Icon/Icon.view'
 
 type ChartStyle = {
   color?: string
@@ -106,6 +109,19 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
       setChartStyle(updatedStyle)
     }
   }, [style])
+
+  if (list.length <= 1) {
+    return (
+      <Plug>
+        <div>
+          <Icon id="stars" className='icon-stars' />
+          <Icon id="cow" className='icon-cow' />
+        </div>
+
+        <p>There is not enough data to display the graph</p>
+      </Plug>
+    )
+  }
 
   return (
     <ResponsiveContainer width={chartStyle.width} height={chartStyle.height}>
