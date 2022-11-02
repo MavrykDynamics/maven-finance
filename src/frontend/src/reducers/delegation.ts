@@ -1,15 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
-import {
-  DELEGATE_ERROR,
-  DELEGATE_REQUEST,
-  DELEGATE_RESULT,
-  GET_DELEGATION_STORAGE,
-  REGISTER_FEED,
-  REGISTER_FEED_ERROR,
-  UNDELEGATE_ERROR,
-  UNDELEGATE_REQUEST,
-  UNDELEGATE_RESULT,
-} from 'pages/Satellites/Satellites.actions'
+import { GET_DELEGATION_STORAGE, REGISTER_FEED, REGISTER_FEED_ERROR } from 'pages/Satellites/Satellites.actions'
 import {
   REGISTER_AS_SATELLITE_ERROR,
   REGISTER_AS_SATELLITE_REQUEST,
@@ -100,42 +90,6 @@ export function delegation(state = delegationDefaultState, action: Action) {
       return {
         ...state,
         delegationStorage: action.delegationStorage,
-      }
-    case DELEGATE_REQUEST:
-      return {
-        ...state,
-        type: DELEGATE,
-        error: undefined,
-      }
-    case DELEGATE_RESULT:
-      return {
-        ...state,
-        type: DELEGATE,
-        error: undefined,
-      }
-    case DELEGATE_ERROR:
-      return {
-        ...state,
-        type: DELEGATE,
-        error: action.error,
-      }
-    case UNDELEGATE_REQUEST:
-      return {
-        ...state,
-        type: UNDELEGATE,
-        error: undefined,
-      }
-    case UNDELEGATE_RESULT:
-      return {
-        ...state,
-        type: UNDELEGATE,
-        error: undefined,
-      }
-    case UNDELEGATE_ERROR:
-      return {
-        ...state,
-        type: UNDELEGATE,
-        error: action.error,
       }
     case REGISTER_AS_SATELLITE_REQUEST:
       return {
