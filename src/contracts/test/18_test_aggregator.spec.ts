@@ -373,6 +373,15 @@ describe('Aggregator Tests', async () => {
         await signerFactory(alice.sk)
         const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryInstance.address, amount: 50});
         await aliceTransferTezToTreasuryOperation.confirmation();
+        const aggregatorMetadataBase = Buffer.from(
+        JSON.stringify({
+            name: 'MAVRYK Aggregator Contract',
+            icon: 'https://logo.chainbit.xyz/xtz',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+        ).toString('hex')
 
         // Alice transfers 100 MVK Tokens to Treasury
         const aliceTransferMvkTokensToTreasuryOperation = await mvkTokenInstance.methods.transfer([
