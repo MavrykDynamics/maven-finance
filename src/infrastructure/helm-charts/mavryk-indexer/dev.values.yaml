@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.20.0
+    tag: v0.20.1
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -1922,6 +1922,8 @@ hasura:
       memory: 2000Mi
       cpu: 1500m
   ingress:
+    service:
+      name: hasura-dev
     enabled: true
     host: api-dev.mavryk.finance
     secretName: api-dev-mavryk-tls

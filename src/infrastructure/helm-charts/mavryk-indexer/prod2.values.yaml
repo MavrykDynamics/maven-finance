@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.20.0
+    tag: v0.20.1
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -1948,6 +1948,8 @@ hasura:
       cpu: 1500m
   ingress:
     enabled: false
+    service:
+      name:
     host:
     secretName:
   databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
