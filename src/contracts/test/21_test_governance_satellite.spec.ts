@@ -252,7 +252,7 @@
 //             const createAggregatorsBatch = await utils.tezos.wallet
 //             .batch()
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDBTC',
+//                 'USD/BTC',
 //                 true,
 
 //                 oracleMap,
@@ -269,12 +269,12 @@
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDXTZ',
+//                 'USD/XTZ',
 //                 true,
 
 //                 oracleMap,
 
-//                 new BigNumber(8),             // decimals
+//                 new BigNumber(6),             // decimals
 //                 new BigNumber(2),             // alphaPercentPerThousand
 
 //                 new BigNumber(60),            // percentOracleThreshold
@@ -286,7 +286,7 @@
 //                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-//                 'USDDOGE',
+//                 'USD/DOGE',
 //                 true,
 
 //                 oracleMap,
