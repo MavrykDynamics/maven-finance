@@ -165,7 +165,7 @@ export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl)
     config: {
       maxSatellites: delegationStorage?.max_satellites,
       delegationRatio: delegationStorage?.delegation_ratio,
-      minimumStakedMvkBalance: calcWithoutMu(delegationStorage?.minimum_smvk_balance),
+      minimumStakedMvkBalance: calcWithoutPrecision(delegationStorage?.minimum_smvk_balance),
       satelliteNameMaxLength: delegationStorage?.satellite_name_max_length,
       satelliteDescriptionMaxLength: delegationStorage?.satellite_description_max_length,
       satelliteImageMaxLength: delegationStorage?.satellite_image_max_length,

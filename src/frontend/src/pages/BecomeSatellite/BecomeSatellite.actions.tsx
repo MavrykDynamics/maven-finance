@@ -80,7 +80,7 @@ export const updateSatelliteRecord =
       console.log('contract', contract)
 
       const transaction = await contract?.methods
-        .updateSatelliteRecord(form.name, form.description, form.image, form.website, form.fee * PRECISION_NUMBER)
+        .updateSatelliteRecord(form.name, form.description, form.image, form.website, form.fee * 100)
         .send()
       console.log('transaction', transaction)
 
