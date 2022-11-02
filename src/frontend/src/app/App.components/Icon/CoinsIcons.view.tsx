@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import Icon from './Icon.view'
@@ -73,34 +74,31 @@ const AssetLogoStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 // General Assets logo component
-export const CoinsLogo = ({
-  // assetName,
-  className,
-  imageLink,
-}: {
-  // assetName?: string
-  imageLink?: string
-  className?: string
-}) => {
-  // if (assetName) {
-  //   return assetName.toLowerCase() === 'mvk' ? (
-  //     <AssetLogoStyled className="icon">
-  //       <Icon id="mvkTokenGold" className={className} />
-  //     </AssetLogoStyled>
-  //   ) : (
-  //     <AssetLogoStyled className="icon">
-  //       <img
-  //         className={className}
-  //         src={`//logo.chainbit.xyz/${assetName.toLowerCase()}`}
-  //         alt={`${assetName.toLowerCase()} logo`}
-  //         loading="lazy"
-  //       />
-  //     </AssetLogoStyled>
-  //   )
-  // }
+export const CoinsLogo = ({ imageLink, assetName }: { imageLink?: string; assetName?: string }) => {
+  const [imageExists, setImageExists] = useState(true)
+  if (imageLink && imageExists) {
+    return (
+      <AssetLogoStyled className="icon">
+        <img src={imageLink} alt={`logo`} loading="lazy" onError={() => setImageExists(false)} />
+      </AssetLogoStyled>
+    )
+  }
 
-  //TODO: finish it after tristan update
-  if (imageLink) {
+  if (assetName && imageExists) {
+    return assetName.toLowerCase() === 'mvk' ? (
+      <AssetLogoStyled className="icon">
+        <Icon id="mvkTokenGold" />
+      </AssetLogoStyled>
+    ) : (
+      <AssetLogoStyled className="icon">
+        <img
+          src={`//logo.chainbit.xyz/${assetName.toLowerCase()}`}
+          onError={() => setImageExists(false)}
+          alt={`logo`}
+          loading="lazy"
+        />
+      </AssetLogoStyled>
+    )
   }
 
   return (
