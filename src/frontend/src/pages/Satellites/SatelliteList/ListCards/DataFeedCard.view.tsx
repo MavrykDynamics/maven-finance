@@ -13,11 +13,12 @@ import { SatelliteItemStyle } from './SatelliteCard.style'
 export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
   const { dipDupTokens } = useSelector((state: State) => state.tokens)
   const imageLink = dipDupTokens.find(({ contract }) => contract === feed.address)?.metadata?.icon
+
   return (
     <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle className="feed">
         <div className="item with-img">
-          <CoinsLogo imageLink={imageLink} />
+          <CoinsLogo imageLink={imageLink} assetName={feed.name.split('/')?.[1]} />
           <h5>Feed</h5>
           <var>
             <Truncate maxWidth={80}>{feed.name}</Truncate>

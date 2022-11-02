@@ -2,6 +2,7 @@ import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { getSatelliteMetrics } from 'pages/Satellites/Satellites.helpers'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -12,15 +13,29 @@ import { SatellitesContentStyled, TabWrapperStyled } from './DashboardTabs.style
 
 export const SatellitesTab = () => {
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+  const {
+    governanceStorage: { financialRequestLedger, proposalLedger },
+    pastProposals,
+  } = useSelector((state: State) => state.governance)
+  const {
+    emergencyGovernanceStorage: { emergencyGovernanceLedger },
+  } = useSelector((state: State) => state.emergencyGovernance)
 
   const satellitesInfo = satelliteLedger.reduce(
     (acc, satellite: SatelliteRecord) => {
       if (satellite.status !== 0) return acc
+      const metrics = getSatelliteMetrics(
+        pastProposals,
+        proposalLedger,
+        emergencyGovernanceLedger,
+        satellite,
+        financialRequestLedger,
+      )
 
       acc.activeSatellites += 1
       acc.avgFee += satellite.satelliteFee
       acc.avgStakedMVK += satellite.sMvkBalance
-      acc.partisipationRate += satellite.participation || 0
+      acc.partisipationRate += (metrics.proposalParticipation + metrics.votingPartisipation) / 2
       acc.avgFreesMVKSpace += Math.max(
         satellite.sMvkBalance * satellite.delegationRatio - satellite.totalDelegatedAmount,
         0,

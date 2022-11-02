@@ -15,8 +15,14 @@ import {
 } from 'gql/queries'
 import { fetchFromIndexer, fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import type { AppDispatch, GetState } from '../../app/App.controller'
-import { normalizeDelegationStorage, normalizeDataFeedsHistory, normalizeDataFeedsVolatility } from './Satellites.helpers'
+import {
+  normalizeDelegationStorage,
+  normalizeDataFeedsHistory,
+  normalizeDataFeedsVolatility,
+} from './Satellites.helpers'
 import { normalizeOracle } from 'app/App.helpers'
+import { toggleLoader } from 'app/App.components/Loader/Loader.action'
+import { ROCKET_LOADER } from 'utils/constants'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -45,13 +51,9 @@ export const getDelegationStorage = () => async (dispatch: AppDispatch, getState
   }
 }
 
-export const DELEGATE_REQUEST = 'DELEGATE_REQUEST'
-export const DELEGATE_RESULT = 'DELEGATE_RESULT'
-export const DELEGATE_ERROR = 'DELEGATE_ERROR'
 export const delegate = (satelliteAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  console.log('Here in delegate action')
   if (!state.wallet.ready) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
@@ -74,43 +76,27 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.delegateToSatellite(state.wallet.accountPkh, satelliteAddress).send()
-    console.log('transaction', transaction)
-
-    dispatch({
-      type: DELEGATE_REQUEST,
-    })
+    dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Delegating...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Delegation done', 'All good :)'))
+    dispatch(toggleLoader())
 
-    dispatch({
-      type: DELEGATE_RESULT,
-    })
+    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
 
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
-
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDelegationStorage())
-    dispatch(getDoormanStorage())
+    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getDelegationStorage())
+    await dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: DELEGATE_ERROR,
-        error,
-      })
+      dispatch(toggleLoader())
     }
   }
 }
 
-export const UNDELEGATE_REQUEST = 'UNSTAKE_REQUEST'
-export const UNDELEGATE_RESULT = 'UNSTAKE_RESULT'
-export const UNDELEGATE_ERROR = 'UNSTAKE_ERROR'
 export const undelegate = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -126,36 +112,24 @@ export const undelegate = () => async (dispatch: AppDispatch, getState: GetState
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.undelegateFromSatellite(state.wallet.accountPkh).send()
-    console.log('transaction', transaction)
 
-    dispatch({
-      type: UNDELEGATE_REQUEST,
-    })
+    dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Undelegating...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Undelegating done', 'All good :)'))
+    dispatch(toggleLoader())
 
-    dispatch({
-      type: UNDELEGATE_RESULT,
-    })
+    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
 
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
-
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDelegationStorage())
-    dispatch(getDoormanStorage())
+    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getDelegationStorage())
+    await dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: UNDELEGATE_ERROR,
-        error,
-      })
+      dispatch(toggleLoader())
     }
   }
 }
