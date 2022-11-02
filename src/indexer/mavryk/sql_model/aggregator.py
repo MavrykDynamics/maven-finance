@@ -29,16 +29,29 @@ class Aggregator(MavrykContract, Model):
     class Meta:
         table = 'aggregator'
 
-class AggregatorOracle(ContractLambda, Model):
+class AggregatorOracle(Model):
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles', index=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles', index=True)
     public_key                              = fields.CharField(max_length=54, default="")
     peer_id                                 = fields.CharField(max_length=36, default="")
+    init_round                              = fields.BigIntField(index=True)
+    init_epoch                              = fields.BigIntField(index=True)
 
     class Meta:
         table = 'aggregator_oracle'
 
-class AggregatorOracleReward(ContractLambda, Model):
+class AggregatorOracleObservation(Model):
+    id                                      = fields.BigIntField(pk=True)
+    oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='observations', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
+    data                                    = fields.FloatField(default=0.0)
+    epoch                                   = fields.BigIntField(default=0, index=True)
+    round                                   = fields.BigIntField(default=0, index=True)
+
+    class Meta:
+        table = 'aggregator_oracle_observation'
+
+class AggregatorOracleReward(Model):
     id                                      = fields.BigIntField(pk=True)
     oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='rewards', index=True)
     type                                    = fields.IntEnumField(enum_type=RewardType, index=True)
@@ -65,7 +78,7 @@ class AggregatorWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'aggregator_whitelist_contract'
 
-class AggregatorHistoryData(ContractLambda, Model):
+class AggregatorHistoryData(Model):
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='history_data', index=True)
     timestamp                               = fields.DatetimeField(index=True)
     round                                   = fields.BigIntField(default=0, index=True)
