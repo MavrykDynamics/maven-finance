@@ -80,31 +80,12 @@ describe('Oracle Setup', async () => {
               .batch()
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
 
-                  'USDBTC',
+                  'USD/BTC',
                   true,
                   
                   oracleMap,
   
-                  new BigNumber(16),            // decimals
-                  new BigNumber(2),             // alphaPercentPerThousand
-                  
-                  new BigNumber(60),            // percentOracleThreshold
-                  new BigNumber(30),            // heartBeatSeconds
-
-                  new BigNumber(10000000),      // rewardAmountStakedMvk
-                  new BigNumber(1300),          // rewardAmountXtz
-                  
-                  aggregatorMetadataBase       // metadata bytes
-
-              ))
-              .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-  
-                  'USDXTZ',
-                  true,
-  
-                  oracleMap,
-  
-                  new BigNumber(16),            // decimals
+                  new BigNumber(8),             // decimals
                   new BigNumber(2),             // alphaPercentPerThousand
                   
                   new BigNumber(60),            // percentOracleThreshold
@@ -118,7 +99,26 @@ describe('Oracle Setup', async () => {
               ))
               .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
   
-                  'USDDOGE',
+                  'USD/XTZ',
+                  true,
+  
+                  oracleMap,
+  
+                  new BigNumber(6),             // decimals
+                  new BigNumber(2),             // alphaPercentPerThousand
+                  
+                  new BigNumber(60),            // percentOracleThreshold
+                  new BigNumber(30),            // heartBeatSeconds
+
+                  new BigNumber(10000000),      // rewardAmountStakedMvk
+                  new BigNumber(1300),          // rewardAmountXtz
+                  
+                  aggregatorMetadataBase        // metadata bytes
+
+              ))
+              .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+  
+                  'USD/DOGE',
                   true,
   
                   oracleMap,

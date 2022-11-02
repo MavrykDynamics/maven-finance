@@ -12,6 +12,16 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## Version 0.21
+
+### What's new
+
+- AggregatorOracle:
+  - Column InitEpoch added: always equal to the epoch that was currently set when the oracle joined an Aggregator
+  - Column InitRound added: always equal to the round that was currently set when the oracle joined an Aggregator
+- AggregatorOracleObservation:
+  - Table added: tracks all observations made by an AggregatorOracle for each round/epoch it participated
+
 ## Version 0.20
 
 ### What's new
