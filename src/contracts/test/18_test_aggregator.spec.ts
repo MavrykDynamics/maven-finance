@@ -133,15 +133,15 @@
 //                 },
 //                 ])
 //                 .send()
-//             await updateOperators.confirmation();  
+//             await updateOperators.confirmation();
 //             const bobStakeAmount                  = MVK(100);
 //             const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
-//             await bobStakeAmountOperation.confirmation();                        
+//             await bobStakeAmountOperation.confirmation();
 //             const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-//                 "New Satellite by Bob", 
-//                 "New Satellite Description - Bob", 
-//                 "https://image.url", 
-//                 "https://image.url", 
+//                 "New Satellite by Bob",
+//                 "New Satellite Description - Bob",
+//                 "https://image.url",
+//                 "https://image.url",
 //                 "1000",
 //                 bob.pk,
 //                 bob.peerId
@@ -167,7 +167,7 @@
 
 //         if(aliceSatellite === undefined){
 
-//             // Alice stakes 100 MVK tokens and registers as a satellite 
+//             // Alice stakes 100 MVK tokens and registers as a satellite
 //             await signerFactory(alice.sk);
 //             updateOperators = await mvkTokenInstance.methods
 //                 .update_operators([
@@ -180,15 +180,15 @@
 //                 },
 //                 ])
 //                 .send()
-//             await updateOperators.confirmation(); 
+//             await updateOperators.confirmation();
 //             const aliceStakeAmount                  = MVK(100);
 //             const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
-//             await aliceStakeAmountOperation.confirmation();                        
+//             await aliceStakeAmountOperation.confirmation();
 //             const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-//                 "New Satellite by Alice", 
+//                 "New Satellite by Alice",
 //                 "New Satellite Description - Alice",
-//                 "https://image.url", 
-//                 "https://image.url", 
+//                 "https://image.url",
+//                 "https://image.url",
 //                 "1000",
 //                 alice.pk,
 //                 alice.peerId
@@ -198,7 +198,7 @@
 
 //         if(eveSatellite === undefined){
 
-//             // Eve stakes 100 MVK tokens and registers as a satellite 
+//             // Eve stakes 100 MVK tokens and registers as a satellite
 //             await signerFactory(eve.sk);
 //             updateOperators = await mvkTokenInstance.methods
 //                 .update_operators([
@@ -211,15 +211,15 @@
 //                 },
 //                 ])
 //                 .send()
-//             await updateOperators.confirmation(); 
+//             await updateOperators.confirmation();
 //             const eveStakeAmount                  = MVK(100);
 //             const eveStakeAmountOperation         = await doormanInstance.methods.stake(eveStakeAmount).send();
-//             await eveStakeAmountOperation.confirmation();                        
+//             await eveStakeAmountOperation.confirmation();
 //             const eveRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-//                 "New Satellite by Eve", 
-//                 "New Satellite Description - Eve", 
-//                 "https://image.url", 
-//                 "https://image.url", 
+//                 "New Satellite by Eve",
+//                 "New Satellite Description - Eve",
+//                 "https://image.url",
+//                 "https://image.url",
 //                 "1000",
 //                 eve.pk,
 //                 eve.peerId
@@ -229,7 +229,7 @@
 
 //         if(mallorySatellite === undefined){
 
-//             // Mallory stakes 100 MVK tokens and registers as a satellite 
+//             // Mallory stakes 100 MVK tokens and registers as a satellite
 //             await signerFactory(mallory.sk);
 //             updateOperators = await mvkTokenInstance.methods
 //                 .update_operators([
@@ -242,15 +242,15 @@
 //                 },
 //                 ])
 //                 .send()
-//             await updateOperators.confirmation(); 
+//             await updateOperators.confirmation();
 //             const malloryStakeAmount                  = MVK(100);
 //             const malloryStakeAmountOperation         = await doormanInstance.methods.stake(malloryStakeAmount).send();
-//             await malloryStakeAmountOperation.confirmation();                        
+//             await malloryStakeAmountOperation.confirmation();
 //             const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-//                 "New Satellite by Mallory", 
-//                 "New Satellite Description - Mallory", 
-//                 "https://image.url", 
-//                 "https://image.url", 
+//                 "New Satellite by Mallory",
+//                 "New Satellite Description - Mallory",
+//                 "https://image.url",
+//                 "https://image.url",
 //                 "1000",
 //                 mallory.pk,
 //                 mallory.peerId
@@ -260,7 +260,7 @@
 
 //         if(susieSatellite === undefined){
 
-//             // Susie stakes 100 MVK tokens and registers as a satellite 
+//             // Susie stakes 100 MVK tokens and registers as a satellite
 //             await signerFactory(susie.sk);
 //             updateOperators = await mvkTokenInstance.methods
 //                 .update_operators([
@@ -273,15 +273,15 @@
 //                 },
 //                 ])
 //                 .send()
-//             await updateOperators.confirmation(); 
+//             await updateOperators.confirmation();
 //             const susieStakeAmount                  = MVK(100);
 //             const susieStakeAmountOperation         = await doormanInstance.methods.stake(susieStakeAmount).send();
-//             await susieStakeAmountOperation.confirmation();                        
+//             await susieStakeAmountOperation.confirmation();
 //             const susieRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-//                 "New Satellite by Susie", 
-//                 "New Satellite Description - Susie", 
-//                 "https://image.url", 
-//                 "https://image.url", 
+//                 "New Satellite by Susie",
+//                 "New Satellite Description - Susie",
+//                 "https://image.url",
+//                 "https://image.url",
 //                 "1000",
 //                 susie.pk,
 //                 susie.peerId
@@ -291,7 +291,7 @@
 
 //         if(oracleSatellite === undefined){
 
-//             // Oracle Maintainer stakes 100 MVK tokens and registers as a satellite 
+//             // Oracle Maintainer stakes 100 MVK tokens and registers as a satellite
 //             await signerFactory(oracleMaintainer.sk);
 //             updateOperators = await mvkTokenInstance.methods
 //                 .update_operators([
@@ -304,15 +304,15 @@
 //                 },
 //                 ])
 //                 .send()
-//             await updateOperators.confirmation(); 
+//             await updateOperators.confirmation();
 //             const oracleMaintainerStakeAmount                  = MVK(100);
 //             const oracleMaintainerStakeAmountOperation         = await doormanInstance.methods.stake(oracleMaintainerStakeAmount).send();
-//             await oracleMaintainerStakeAmountOperation.confirmation();                        
+//             await oracleMaintainerStakeAmountOperation.confirmation();
 //             const oracleMaintainerRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
-//                 "New Satellite by Oracle Maintainer", 
-//                 "New Satellite Description - Oracle Maintainer", 
-//                 "https://image.url", 
-//                 "https://image.url", 
+//                 "New Satellite by Oracle Maintainer",
+//                 "New Satellite Description - Oracle Maintainer",
+//                 "https://image.url",
+//                 "https://image.url",
 //                 "1000",
 //                 oracleMaintainer.pk,
 //                 oracleMaintainer.peerId
@@ -470,10 +470,10 @@
     
 //                 // Operation
 //                 const susieUpdateSatelliteOperation = await delegationInstance.methods.updateSatelliteRecord(
-//                     "Updated Satellite by Susie", 
-//                     "Updated Satellite Description - Susie", 
-//                     "https://image.url", 
-//                     "https://image.url", 
+//                     "Updated Satellite by Susie",
+//                     "Updated Satellite Description - Susie",
+//                     "https://image.url",
+//                     "https://image.url",
 //                     "1000",
 //                     newPublicKey,
 //                     newPeerId
@@ -513,7 +513,7 @@
 //                 await signerFactory(david.sk);
 //                 const oracleAddress = susie.pkh;
 
-//                 // Operation    
+//                 // Operation
 //                 await chai.expect(aggregatorInstance.methods.removeOracle(oracleAddress).send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -695,7 +695,7 @@
 //                     },
 //                     ])
 //                     .send()
-//                 await updateOperators.confirmation();  
+//                 await updateOperators.confirmation();
 //                 stakeOperation                          = await doormanInstance.methods.stake(additionalStakeAmount).send();
 //                 await stakeOperation.confirmation();
 //                 const delegateOperation                 = await delegationInstance.methods.delegateToSatellite(trudy.pkh, bob.pkh).send()
@@ -872,7 +872,7 @@
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
-//             }   
+//             }
 //         });
 
 //         it('Oracle should not be able to call this entrypoint if there too few signatures in the map', async () => {
@@ -1080,7 +1080,7 @@
 //                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
-//             }   
+//             }
 //         });
 
 //         it('Oracle should not be able to call this entrypoint if the epoch mentionned in the observations is less or equal than the previous one', async () => {
@@ -1267,7 +1267,7 @@
 //                 assert.equal(resetOracleMaintainerRewardXtz, 0);
 //                 assert.equal(resetEveRewardXtz, undefined);
 //                 assert.equal(oracleMaintainerTezBalance.toNumber(), beforeOracleMaintainerTezBalance.plus(oraclePendingRewards).toNumber());
-//                 assert.equal(eveTezBalance.toNumber(), beforeEveTezBalance.toNumber());  
+//                 assert.equal(eveTezBalance.toNumber(), beforeEveTezBalance.toNumber());
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})
 //             }
