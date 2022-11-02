@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { Card } from 'styles'
 
-import { cyanColor, headerColor, upColor } from '../../styles/colors'
+import { headerColor } from '../../styles/colors'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
@@ -17,11 +17,6 @@ export const BecomeSatelliteForm = styled(Card)`
     margin: 0;
     color: ${headerColor};
     padding-bottom: 26px;
-  }
-
-  input.success,
-  input.error {
-    border-color: ${({ theme }) => theme.cardBorderColor};
   }
 
   label,
