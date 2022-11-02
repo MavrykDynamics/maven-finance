@@ -243,6 +243,13 @@ const DataFeedDetailsView = ({
               <div className="info-wrapper">
                 <DataFeedsTitle fontSize={14} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   Contract address
+                  <CustomTooltip
+                    text={`The contract address is an on-chain address that points to this particular data feed.
+                    The ENS address resolves to the contract address and is preferred as an easily-identifiable, tamper-proof agaddress.`}
+                    defaultStrokeColor="#8D86EB"
+                    iconId={'info'}
+                    className="info-icon"
+                  />
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   <TzAddress tzAddress={feed.address} hasIcon={false} />
@@ -251,7 +258,12 @@ const DataFeedDetailsView = ({
               <div className="info-wrapper">
                 <DataFeedsTitle fontSize={14} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   ENS address
-                  <CustomTooltip iconId={'question'} className="info-icon" />
+                  <CustomTooltip
+                    text={''}
+                    defaultStrokeColor="#8D86EB"
+                    iconId={'info'}
+                    className="info-icon"
+                  />
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   eth-usd.data.eth
