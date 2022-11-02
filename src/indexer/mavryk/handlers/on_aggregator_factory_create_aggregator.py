@@ -72,7 +72,8 @@ async def on_aggregator_factory_create_aggregator(
             address     = governance_address
         )
         existing_aggregator         = await models.Aggregator.get_or_none(
-            factory             = aggregator_factory
+            factory             = aggregator_factory,
+            address             = aggregator_address
         )
         if existing_aggregator:
             existing_aggregator.factory  = None
@@ -114,6 +115,8 @@ async def on_aggregator_factory_create_aggregator(
                 aggregator  = aggregator,
                 user        = oracle,
                 public_key  = oracle_pk,
-                peer_id     = oracle_peer_id
+                peer_id     = oracle_peer_id,
+                init_round  = last_completed_data_round,
+                init_epoch  = last_completed_data_epoch
             )
             await aggregator_oracle.save()

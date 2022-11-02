@@ -21,7 +21,7 @@ async def on_aggregator_withdraw_reward_xtz(
     )
     await user.save()
     aggregator                      = await models.Aggregator.get(address   = aggregator_address)
-    oracle, _                       = await models.AggregatorOracle.get_or_create(
+    oracle                          = await models.AggregatorOracle.get(
         aggregator  = aggregator,
         user        = user
     )
