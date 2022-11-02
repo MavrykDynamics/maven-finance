@@ -5,8 +5,10 @@ import type { MavrykUserGraphQl } from '../../utils/TypesAndInterfaces/User'
 import type { SatelliteRecordGraphQl, DelegationGraphQl } from '../../utils/TypesAndInterfaces/Delegation'
 import type { DataFeedsHistoryGraphQL, DataFeedsVolatility } from './helpers/Satellites.types'
 // helpers
-import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
+import { calcWithoutPrecision } from '../../utils/calcFunctions'
 import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
+import { GovernanceFinancialRequestGraphQL, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
+import { EmergergencyGovernanceItem } from 'utils/TypesAndInterfaces/EmergencyGovernance'
 
 export function normalizeSatelliteRecord(
   satelliteRecord: SatelliteRecordGraphQl,
@@ -218,4 +220,35 @@ export const percentageDifference = (a: number, b: number): number => {
   const twoNumberDifference = (a / b - 1) * 100
 
   return Number(twoNumberDifference.toFixed(2))
+}
+
+export const getSatelliteMetrics = (
+  pastProposals: Array<ProposalRecordType>,
+  proposalLedger: Array<ProposalRecordType>,
+  emergencyGovernanceLedger: Array<EmergergencyGovernanceItem>,
+  satellite: SatelliteRecord,
+  financialRequestLedger?: Array<GovernanceFinancialRequestGraphQL>,
+) => {
+  const submittedProposalsCount = pastProposals
+    .concat(proposalLedger)
+    .reduce((acc, { locked, executed }) => (acc += locked && executed ? 1 : 0), 0)
+  const totalVotingPeriods =
+    (emergencyGovernanceLedger.length ?? 0) +
+    (financialRequestLedger?.length ?? 0) +
+    (proposalLedger.length ?? 0) +
+    (pastProposals.length ?? 0)
+
+  const votedProposalSubmitted =
+    satellite.proposalVotingHistory?.reduce((acc, { submitted }) => (submitted ? (acc += 1) : acc), 0) ?? 0
+  const satelliteVotes =
+    (satellite.emergencyGovernanceVotes?.length ?? 0) +
+    (satellite.satelliteActionVotes?.length ?? 0) +
+    (satellite.proposalVotingHistory?.length ?? 0) +
+    (satellite.financialRequestsVotes?.length ?? 0)
+
+  return {
+    proposalParticipation: (votedProposalSubmitted / submittedProposalsCount) * 100,
+    votingPartisipation: (satelliteVotes / totalVotingPeriods) * 100,
+    oracleEfficiency: 0,
+  }
 }
