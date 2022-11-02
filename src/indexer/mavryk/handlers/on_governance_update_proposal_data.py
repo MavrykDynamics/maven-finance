@@ -38,9 +38,9 @@ async def on_governance_update_proposal_data(
 
         # Update proposal data
         if proposal_single_data:
-            proposal_data.title             = proposal_single_data.title
-            proposal_data.encodedCode       = proposal_single_data.encodedCode
-            proposal_data.codeDescription   = proposal_single_data.codeDescription
+            proposal_data.title              = proposal_single_data.title
+            proposal_data.encoded_code       = proposal_single_data.encodedCode
+            proposal_data.code_description   = proposal_single_data.codeDescription
             await proposal_data.save()
         else:
             await proposal_data.delete()

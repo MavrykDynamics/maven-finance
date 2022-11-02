@@ -107,7 +107,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: hasura-{{ .Release.Name }}
+                name: '{{ .Values.hasura.ingress.service.name }}'
                 port:
                   number: 8080
 {{- end}}
