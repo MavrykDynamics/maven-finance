@@ -6,9 +6,14 @@ export const DataFeedsStyled = styled.div`
   display: flex;
   flex-direction: column;
 
-  .info-icon, svg {
+  .info-icon {
     width: 12px;
     height: 12px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
   }
 
   .top-section-wrapper {
@@ -154,6 +159,7 @@ export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: numbe
   color: #8d86eb;
   display: flex;
   align-items: center;
+
   padding: 2px 0 3px 0;
 
   &.title {

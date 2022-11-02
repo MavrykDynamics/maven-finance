@@ -41,14 +41,11 @@ export function DoormanChart({ className }: Props) {
 
   const shownData = isStakingHistory ? stakeHistoryData : smvkHistoryData
 
-  // TODO: decide what to show it no enought data
-  // if (!shownData.length) return null
-
   return (
     <ChartCard className={className}>
       {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
-      <Chart tooltipValueFormatter={tooltipValueFormatter} list={shownData} />
+      <Chart style={{ height: 290 }} tooltipValueFormatter={tooltipValueFormatter} list={shownData} />
     </ChartCard>
   )
 }
