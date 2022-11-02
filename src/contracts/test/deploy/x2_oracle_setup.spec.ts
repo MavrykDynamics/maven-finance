@@ -69,6 +69,7 @@ describe('Oracle Setup', async () => {
           const aggregatorMetadataBase = Buffer.from(
               JSON.stringify({
                   name: 'MAVRYK Aggregator Contract',
+                  icon: 'https://logo.chainbit.xyz/xtz',
                   version: 'v1.0.0',
                   authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
               }),
