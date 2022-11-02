@@ -7,6 +7,7 @@ export const DoormanStatsStyled = styled(Card)`
   display: flex;
   flex-direction: column;
   padding: 30px 49px;
+  margin-top: 20px;
   position: relative;
 
   &::after {
@@ -28,7 +29,7 @@ export const DoormanStatsStyled = styled(Card)`
 
 export const DoormanStatsHeader = styled(CardHeader)<{ theme: MavrykTheme }>`
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 
   font-weight: 600;
   font-size: 18px;
