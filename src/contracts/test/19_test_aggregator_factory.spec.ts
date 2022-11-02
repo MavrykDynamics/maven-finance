@@ -92,7 +92,7 @@ describe('AggregatorFactory', () => {
                 // Operation
                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
         
-                    'USDBTC',
+                    'USD/BTC',
                     true,
                     
                     oracleMap,
@@ -123,7 +123,7 @@ describe('AggregatorFactory', () => {
                 // Operation
                 const operation = await aggregatorFactoryInstance.methods.createAggregator(
         
-                    'USDBTC',
+                    'USD/BTC',
                     true,
                     
                     oracleMap,
@@ -329,7 +329,7 @@ describe('AggregatorFactory', () => {
                 // Test operations
                 await chai.expect(aggregatorFactoryInstance.methods.createAggregator(
             
-                    'USDBTC',
+                    'USD/BTC',
                     true,
                     
                     oracleMap,
@@ -499,7 +499,7 @@ describe('AggregatorFactory', () => {
                 // Test operations
                 const testCreateAggregatorOp    = await aggregatorFactoryInstance.methods.createAggregator(
             
-                    'USDTestv2',
+                    'USD/Testv2',
                     true,
                     
                     oracleMap,

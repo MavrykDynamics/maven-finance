@@ -82,6 +82,8 @@ async def on_aggregator_origination(
             aggregator  = aggregator,
             user        = oracle,
             public_key  = oracle_pk,
-            peer_id     = oracle_peer_id
+            peer_id     = oracle_peer_id,
+            init_round  = last_completed_data_round,
+            init_epoch  = last_completed_data_epoch
         )
         await aggregator_oracle.save()

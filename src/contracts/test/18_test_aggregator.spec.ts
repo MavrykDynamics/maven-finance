@@ -159,7 +159,7 @@
 //         // Setup second aggregator
 //         const createAggregatorOperation = await aggregatorFactoryInstance.methods.createAggregator(
 
-//             'USDDOGE',
+//             'USD/DOGE',
 //             true,
             
 //             oracleMap,
