@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { governanceSatelliteStorageType } from "../types/governanceSatelliteStorageType";
 
-import governanceSatelliteLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/governanceSatellite/governanceSatelliteLambdaIndex.json';
 import governanceSatelliteLambdas from "../../build/lambdas/governanceSatelliteLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -45,18 +43,21 @@ export const setGovernanceSatelliteLambdas = async (tezosToolkit: TezosToolkit, 
 
     const lambdasPerBatch = 10;
 
-    const lambdasCount = governanceSatelliteLambdas.length;
+    const lambdasCount = Object.keys(governanceSatelliteLambdas).length;
     const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
-    
+
     for(let i = 0; i < batchesCount; i++) {
         
         const batch = tezosToolkit.wallet.batch();
+        var index   = 0
 
-        governanceSatelliteLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {  
-        if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-            batch.withContractCall(contract.methods.setLambda(name, governanceSatelliteLambdas[index]))
+        for (let lambdaName in governanceSatelliteLambdas) {
+            let bytes   = governanceSatelliteLambdas[lambdaName]
+            if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+            }
+            index ++;
         }
-        });
 
         const setupGovernanceSatelliteLambdasOperation = await batch.send()
         await confirmOperation(tezosToolkit, setupGovernanceSatelliteLambdasOperation.opHash);
