@@ -16,7 +16,7 @@ import { TextArea } from '../../../app/App.components/TextArea/TextArea.controll
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { checkWhetherBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
-import { updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
+import { updateProposalData, removeProposalDataItem } from '../ProposalSubmission.actions'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 // styles
@@ -27,12 +27,16 @@ import {
   FormTitleContainer,
   FormTitleEntry,
 } from '../ProposalSubmission.style'
+import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
+import { INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 export const StageTwoForm = ({
   proposalId,
   currentProposal: { proposalData, title, locked },
   updateLocalProposalData,
   handleDropProposal,
+  proposalChangesState,
+  setProposalsChangesState,
 }: StageTwoFormProps) => {
   const dispatch = useDispatch()
   const {
@@ -51,9 +55,9 @@ export const StageTwoForm = ({
       handleCreateNewByte()
     }
     setBytesValidation(
-      proposalData.map(({ id, title, encoded_code }) => ({
-        validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
-        validBytes: proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes', id, proposalData) : '',
+      proposalData.map(({ id, title, encoded_code, isLocalBytes }) => ({
+        validTitle: isLocalBytes ? getBytesPairValidationStatus(title, 'validTitle') : INPUT_STATUS_SUCCESS,
+        validBytes: getBytesPairValidationStatus(encoded_code, 'validBytes'),
         proposalId: id,
       })),
     )
@@ -62,7 +66,7 @@ export const StageTwoForm = ({
   const [isBytesChanged, setBytesChanged] = useState<boolean>(false)
 
   const handleOnBlur = (byte: ProposalBytesType, text: string, type: 'validTitle' | 'validBytes') => {
-    const validationStatus = getBytesPairValidationStatus(text, type, byte.id, proposalData)
+    const validationStatus = getBytesPairValidationStatus(text, type)
     setBytesValidation(
       bytesValidation.map((validationObj) =>
         validationObj.proposalId === byte.id ? { ...validationObj, [type]: validationStatus } : validationObj,
@@ -70,25 +74,72 @@ export const StageTwoForm = ({
     )
   }
 
-  const handleOnCange = (byte: ProposalBytesType, text: string, type: 'title' | 'bytes') => {
+  const handleOnCange = (byte: ProposalBytesType, text: string, type: 'title' | 'encoded_code') => {
     updateLocalProposalData(
       {
-        proposalData: proposalData.map((oldByte) => (oldByte.id === byte.id ? { ...oldByte, [type]: text } : oldByte)),
+        proposalData: proposalData.map((oldByte) =>
+          oldByte.id === byte.id ? { ...oldByte, [type === 'title' ? 'title' : 'encoded_code']: text } : oldByte,
+        ),
       },
       proposalId,
     )
+
+    let bytesToUpdate = proposalChangesState[proposalId].proposalDataChanges
+    const hasByte = proposalChangesState[proposalId].proposalDataChanges.find(
+      (item) => item?.addOrSetProposalData?.localId === byte.id,
+    )
+
+    console.log(hasByte)
+
+    if (!hasByte) {
+      bytesToUpdate = [
+        ...bytesToUpdate,
+        {
+          addOrSetProposalData: {
+            title: type === 'title' ? text : byte.title,
+            encodedCode: type === 'encoded_code' ? text : byte.encoded_code,
+            codeDescription: '',
+            localId: byte.id,
+            index: proposalData.findIndex(({ id }) => id === byte.id)?.toString(),
+          },
+        },
+      ]
+    }
+
+    console.log('updatedChanges', bytesToUpdate)
+
+    const updatedChanges = bytesToUpdate.map((item) => {
+      if (byte.id === item?.addOrSetProposalData?.localId) {
+        item.addOrSetProposalData[type === 'encoded_code' ? 'encodedCode' : type] = text
+      }
+
+      return item
+    })
+
+    setProposalsChangesState({
+      ...proposalChangesState,
+      [proposalId]: {
+        ...proposalChangesState[proposalId],
+        proposalDataChanges: updatedChanges,
+      },
+    })
+
     setBytesChanged(true)
   }
 
   // add new bute pairs from local to server
   const submitBytePairs = async () => {
-    if (bytesValidation.every(({ validBytes, validTitle }) => validBytes && validTitle)) {
-      await dispatch(updateProposal(proposalData, proposalId))
+    if (
+      proposalId &&
+      bytesValidation.find(({ validBytes, validTitle }) => validBytes !== ERROR && validTitle !== ERROR)
+    ) {
+      await dispatch(updateProposalData(proposalChangesState[proposalId].proposalDataChanges, proposalId))
     }
   }
 
   // adding new empty bytes pair
   const handleCreateNewByte = () => {
+    // add bytes pair to actual proposal data to display it to user
     updateLocalProposalData(
       {
         proposalData: [
@@ -102,6 +153,24 @@ export const StageTwoForm = ({
       },
       proposalId,
     )
+    // add bytes pair to changes that are user do save this later onto back-end
+    setProposalsChangesState({
+      ...proposalChangesState,
+      [proposalId]: {
+        ...proposalChangesState[proposalId],
+        proposalDataChanges: [
+          ...proposalChangesState[proposalId].proposalDataChanges,
+          {
+            addOrSetProposalData: {
+              title: '',
+              encodedCode: '',
+              codeDescription: '',
+              localId: proposalData.length + 1,
+            },
+          },
+        ],
+      },
+    })
     setBytesChanged(true)
   }
 
@@ -109,16 +178,43 @@ export const StageTwoForm = ({
   const handleDeletePair = (removeId: number) => {
     const pairToRemove = proposalData?.find((item) => item.id === removeId)
     if (pairToRemove) {
-      if (pairToRemove?.isLocalBytes) {
-        updateLocalProposalData(
-          {
-            proposalData: proposalData.filter(({ id }) => id !== removeId),
-          },
-          proposalId,
-        )
-      } else {
-        dispatch(deleteProposalDataPair(pairToRemove.title, pairToRemove.encoded_code, proposalId))
+      // removing added bytes pair from proposal data to display
+      updateLocalProposalData(
+        {
+          proposalData: proposalData.filter(({ id }) => id !== removeId),
+        },
+        proposalId,
+      )
+
+      // removing added bytes pair from changes arr
+      const filteredChanges = proposalChangesState[proposalId].proposalDataChanges.filter(
+        (item) => item?.addOrSetProposalData?.localId !== removeId,
+      )
+      setProposalsChangesState({
+        ...proposalChangesState,
+        [proposalId]: {
+          ...proposalChangesState[proposalId],
+          proposalDataChanges: filteredChanges,
+        },
+      })
+
+      const idxToRemove = proposalData.findIndex(({ id }) => removeId === id)
+      setProposalsChangesState({
+        ...proposalChangesState,
+        [proposalId]: {
+          ...proposalChangesState[proposalId],
+          proposalDataChanges: [
+            ...proposalChangesState[proposalId].proposalDataChanges,
+            { removeProposalData: idxToRemove.toString() },
+          ],
+        },
+      })
+
+      // if we haven't add or edit pair, and just remove it
+      if (!pairToRemove?.isLocalBytes && !proposalChangesState[proposalId].proposalDataChanges.length) {
+        dispatch(removeProposalDataItem(idxToRemove, proposalId))
       }
+
       setBytesChanged(true)
     }
   }
@@ -141,7 +237,7 @@ export const StageTwoForm = ({
   }, [proposalData])
 
   const [DnDSelectedProposal, setDnDSeletedProposal] = useState<ProposalBytesType | null>(null)
-  const isDraggable = useMemo(() => proposalData.length > 1, [proposalData])
+  const isDraggable = useMemo(() => proposalData?.length > 1, [proposalData])
 
   // handling changing order of elements on drop event
   const dropHandler = (e: React.DragEvent<HTMLElement>, byteToDrop: ProposalBytesType) => {
@@ -168,6 +264,37 @@ export const StageTwoForm = ({
       },
       proposalId,
     )
+
+    if (DnDSelectedProposal) {
+      setProposalsChangesState({
+        ...proposalChangesState,
+        [proposalId]: {
+          ...proposalChangesState[proposalId],
+          proposalDataChanges: [
+            ...proposalChangesState[proposalId].proposalDataChanges,
+            {
+              addOrSetProposalData: {
+                title: DnDSelectedProposal?.title,
+                encodedCode: DnDSelectedProposal?.encoded_code,
+                codeDescription: '',
+                index: proposalData.findIndex(({ id }) => id === byteToDrop.id).toString(),
+                localId: DnDSelectedProposal.id,
+              },
+            },
+            {
+              addOrSetProposalData: {
+                title: byteToDrop.title,
+                encodedCode: byteToDrop.encoded_code,
+                codeDescription: '',
+                index: proposalData.findIndex(({ id }) => id === DnDSelectedProposal.id).toString(),
+                localId: byteToDrop.id,
+              },
+            },
+          ],
+        },
+      })
+    }
+
     setBytesChanged(true)
   }
 
@@ -257,7 +384,9 @@ export const StageTwoForm = ({
               <TextArea
                 className="step-2-textarea"
                 value={item.encoded_code}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnCange(item, e.target.value, 'bytes')}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  handleOnCange(item, e.target.value, 'encoded_code')
+                }
                 onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(item, e.target.value, 'validBytes')}
                 inputStatus={validityObject?.validBytes}
                 disabled={!isProposalPeriod || locked}
