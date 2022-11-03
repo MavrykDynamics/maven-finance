@@ -88,9 +88,17 @@ export const ProposalSubmission = () => {
             ? { [DEFAULT_PROPOSAL.id - 1]: DEFAULT_PROPOSAL }
             : { [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL }),
         })
+
+        setProposalsChangesState({
+          ...proposalChangesState,
+          [proposalState[DEFAULT_PROPOSAL.id] ? DEFAULT_PROPOSAL.id - 1 : DEFAULT_PROPOSAL.id]: {
+            proposalDataChanges: [],
+            proposalPaymentsChanges: [],
+          },
+        })
       }
     },
-    [proposalState],
+    [proposalChangesState, proposalState],
   )
 
   const updateLocalProposalData = useCallback(
@@ -123,16 +131,17 @@ export const ProposalSubmission = () => {
             [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL,
           },
     )
-    setSeletedUserProposalId(DEFAULT_PROPOSAL.id)
+    setSeletedUserProposalId(proposalKeys?.[0] ?? DEFAULT_PROPOSAL.id)
   }, [mappedProposals, proposalKeys])
 
-  // TODO: remove log, need it while Tristan won't update backEnd side of saving proposals
-  console.log('proposalState parent el:', proposalState, selectedUserProposalId)
+  useEffect(() => {}, [])
 
   const currentProposal = useMemo(
     () => proposalState[selectedUserProposalId] ?? {},
     [proposalState, selectedUserProposalId],
   )
+
+  console.log('proposalState', proposalState)
 
   return (
     <Page>
