@@ -24,8 +24,6 @@ export const Doorman = () => {
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { totalStakedMvk } = useSelector((state: State) => state.doorman)
 
-  // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
-  // const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
   useEffect(() => {
     if (accountPkh) {
       dispatch(getUserData(accountPkh))

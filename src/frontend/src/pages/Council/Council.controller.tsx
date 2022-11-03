@@ -13,6 +13,7 @@ import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from '.
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { memberIsFirstOfList } from './Council.helpers'
+import { scrollUpPage } from 'utils/scrollUpPage'
 
 // view
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -102,6 +103,7 @@ export const Council = () => {
 
   const handleClickReview = () => {
     history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+    scrollUpPage()
   }
 
   const handleClickGoBack = () => {
@@ -202,6 +204,7 @@ export const Council = () => {
                     clickOnDropDown={handleClickDropdown}
                     placeholder="Choose action"
                     isOpen={ddIsOpen}
+                    setIsOpen={setDdIsOpen}
                     itemSelected={chosenDdItem?.text}
                     items={ddItems}
                     clickOnItem={(e) => handleOnClickDropdownItem(e)}

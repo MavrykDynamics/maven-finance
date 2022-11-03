@@ -10,8 +10,6 @@ export const ORACLE_STORAGE_QUERY = `
       last_completed_data_pct_oracle_resp
       last_updated_at
       name
-      token_1_symbol
-      token_0_symbol
       reward_amount_xtz
       reward_amount_smvk
       pct_oracle_threshold

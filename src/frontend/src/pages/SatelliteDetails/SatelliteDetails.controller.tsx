@@ -10,6 +10,7 @@ import { SatelliteDetailsView } from './SatelliteDetails.view'
 import { getSatelliteByAddress } from './SatelliteDetails.actions'
 import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 import { rewardsCompound } from 'pages/Doorman/Doorman.actions'
+import { getSatelliteMetrics } from 'pages/Satellites/Satellites.helpers'
 
 export const SatelliteDetails = () => {
   const dispatch = useDispatch()
@@ -46,30 +47,17 @@ export const SatelliteDetails = () => {
     }
   }
 
-  const satelliteMetrics = useMemo(() => {
-    const submittedProposalsCount = pastProposals
-      .concat(proposalLedger)
-      .reduce((acc, { locked, executed }) => (acc += locked && executed ? 1 : 0), 0)
-    const totalVotingPeriods =
-      emergencyGovernanceLedger.length +
-      (financialRequestLedger?.length ?? 0) +
-      proposalLedger.length +
-      pastProposals.length
-
-    const votedProposalSubmitted =
-      currentSatellite.proposalVotingHistory?.reduce((acc, { submitted }) => (submitted ? (acc += 1) : acc), 0) ?? 0
-    const satelliteVotes =
-      (currentSatellite.emergencyGovernanceVotes?.length ?? 0) +
-      (currentSatellite.satelliteActionVotes?.length ?? 0) +
-      (currentSatellite.proposalVotingHistory?.length ?? 0) +
-      (currentSatellite.financialRequestsVotes?.length ?? 0)
-
-    return {
-      proposalParticipation: (votedProposalSubmitted * 100) / submittedProposalsCount,
-      votingPartisipation: (satelliteVotes * 100) / totalVotingPeriods,
-      oracleEfficiency: 0,
-    }
-  }, [currentSatellite])
+  const satelliteMetrics = useMemo(
+    () =>
+      getSatelliteMetrics(
+        pastProposals,
+        proposalLedger,
+        emergencyGovernanceLedger,
+        currentSatellite,
+        financialRequestLedger,
+      ),
+    [currentSatellite],
+  )
 
   return (
     <SatelliteDetailsView

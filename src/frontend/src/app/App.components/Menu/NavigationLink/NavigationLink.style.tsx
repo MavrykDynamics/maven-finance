@@ -43,14 +43,30 @@ export const NavigationLinkContainer = styled.div<{
         }
       }
     `}
+
+
+    a {
+    &.disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  }
 `
 
 export const NavigationLinkItem = styled.div<{
   selected: boolean
   isMobMenuExpanded: boolean
   theme: MavrykTheme
+  disabled?: boolean
 }>`
   width: 100%;
+
+  ${({ disabled }) =>
+    disabled
+      ? css`
+          cursor: not-allowed;
+        `
+      : ''}
 
   > a {
     display: flex;
@@ -117,7 +133,7 @@ export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykT
 export const NavigationSubLinks = styled.div<{ theme: MavrykTheme }>`
   background: ${({ theme }) => theme.backgroundColor};
 `
-export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
+export const SubNavLink = styled.div<{ theme: MavrykTheme; disabled?: boolean }>`
   width: 100%;
   height: 50px;
   display: flex;
@@ -128,6 +144,13 @@ export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
     align-items: center;
     margin-left: 75px;
   }
+
+  ${({ disabled }) =>
+    disabled
+      ? css`
+          cursor: not-allowed;
+        `
+      : ''}
 `
 
 export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
@@ -157,7 +180,7 @@ export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
       color: ${({ theme }) => theme.navLinkSubTitleActive};
     `}
 
-  &:hover {
+  &:hover:not(.disabled) {
     &:before {
       position: absolute;
       bottom: -1px;

@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { downColor, upColor, skyColor, headerColor, royalPurpleColor, containerColor } from 'styles'
+import { headerColor, royalPurpleColor, containerColor } from 'styles'
 
 export const CouncilStyled = styled.section`
   .pending {
@@ -78,7 +78,6 @@ export const CouncilStyled = styled.section`
     padding: 26px 30px;
     border-radius: 10px;
     width: 100%;
-    margin-bottom: 26px;
     color: ${headerColor};
     font-weight: 400;
     font-size: 14px;

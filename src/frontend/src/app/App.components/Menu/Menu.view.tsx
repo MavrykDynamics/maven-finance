@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { State } from 'reducers'
-import { matchPath } from 'react-router'
 
 // view
 import Icon from '../Icon/Icon.view'
@@ -52,35 +50,35 @@ export const SocialIcons = () => (
 export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewProps) => {
   const dispatch = useDispatch()
   const { pathname } = useLocation()
-  const showSidebarOpened = useMedia('(min-width: 1400px)')
   const { sidebarOpened } = useSelector((state: State) => state.preferences)
 
   useEffect(() => {
-    if (showSidebarOpened || sidebarOpened) {
-      const selectedMainRoute = mainNavigationLinks.find(({ routePath = '', subPages = null }) => {
-        if (subPages) {
-          return subPages.find(({ routeSubPath = '' }) => checkIfLinkSelected(pathname, routeSubPath))
-        }
+    const selectedMainRoute = mainNavigationLinks.find(({ routePath = '', subPages = null }) => {
+      if (subPages) {
+        return subPages.find(({ routeSubPath = '' }) => checkIfLinkSelected(pathname, routeSubPath))
+      }
 
-        return checkIfLinkSelected(pathname, routePath)
-      })
-      setSelectedMainLink(selectedMainRoute?.id || 0)
-    } else {
-      setSelectedMainLink(0)
-    }
-  }, [pathname, showSidebarOpened, sidebarOpened])
+      return checkIfLinkSelected(pathname, routePath)
+    })
+
+    setSelectedMainLink(selectedMainRoute?.id || 0)
+  }, [pathname])
 
   const [selectedMainLink, setSelectedMainLink] = useState<number>(0)
 
   const burgerClickHandler = useCallback(() => {
-    setSelectedMainLink(0)
     dispatch(toggleSidebarCollapsing())
   }, [])
 
   const sidebarBackdropClickHandler = useCallback(() => {
-    setSelectedMainLink(0)
     dispatch(toggleSidebarCollapsing(false))
   }, [])
+
+  const navLinkClickHandler = useCallback(() => {
+    if (!sidebarOpened) {
+      burgerClickHandler()
+    }
+  }, [burgerClickHandler, sidebarOpened])
 
   return (
     <>
@@ -103,6 +101,7 @@ export const MenuView = ({ accountPkh, openChangeNodePopupHandler }: MenuViewPro
                   selectedMainLink={selectedMainLink}
                   isMobMenuExpanded={sidebarOpened}
                   accountPkh={accountPkh}
+                  navLinkClickHandler={navLinkClickHandler}
                   {...navigationLink}
                 />
               )

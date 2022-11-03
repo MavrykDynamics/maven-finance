@@ -19,9 +19,9 @@ type Props = {
 }
 
 export const CouncilMemberView = (props: Props) => {
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { image, name, userId, website, openModal, showUpdateInfo = true } = props
-  const href = website?.length ? website : `/satellites/satellite-details/${userId}`
+  const href = `/satellites/satellite-details/${userId}`
 
   const isMe = userId === accountPkh
   const content = (

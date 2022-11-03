@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import Icon from './Icon.view'
@@ -59,16 +60,50 @@ export default function CoinsIcons({
   )
 }
 
+const AssetLogoStyled = styled.div<{ theme: MavrykTheme }>`
+  &.no-image {
+    fill: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
+  }
+  height: inherit;
+  width: inherit;
+  svg,
+  img {
+    width: 100%;
+    height: 100%;
+  }
+`
+
 // General Assets logo component
-export const CoinsLogo = ({ assetName, className }: { assetName: string; className?: string }) => {
-  return assetName.toLowerCase() === 'mvk' ? (
-    <Icon id="mvkTokenGold" className={className} />
-  ) : (
-    <img
-      className={className}
-      src={`//logo.chainbit.xyz/${assetName.toLowerCase()}`}
-      alt={`${assetName.toLowerCase()} logo`}
-      loading="lazy"
-    />
+export const CoinsLogo = ({ imageLink, assetName }: { imageLink?: string; assetName?: string }) => {
+  const [imageExists, setImageExists] = useState(true)
+  if (imageLink && imageExists) {
+    return (
+      <AssetLogoStyled className="icon">
+        <img src={imageLink} alt={`logo`} loading="lazy" onError={() => setImageExists(false)} />
+      </AssetLogoStyled>
+    )
+  }
+
+  if (assetName && imageExists) {
+    return assetName.toLowerCase() === 'mvk' ? (
+      <AssetLogoStyled className="icon">
+        <Icon id="mvkTokenGold" />
+      </AssetLogoStyled>
+    ) : (
+      <AssetLogoStyled className="icon">
+        <img
+          src={`//logo.chainbit.xyz/${assetName.toLowerCase()}`}
+          onError={() => setImageExists(false)}
+          alt={`logo`}
+          loading="lazy"
+        />
+      </AssetLogoStyled>
+    )
+  }
+
+  return (
+    <AssetLogoStyled className="no-image icon">
+      <Icon id="noImage" />
+    </AssetLogoStyled>
   )
 }

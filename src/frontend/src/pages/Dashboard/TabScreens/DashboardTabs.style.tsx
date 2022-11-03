@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { cyanColor } from 'styles'
+import { CardHover, cyanColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
 export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage?: string }>`
@@ -16,6 +16,11 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+
+  button svg {
+    stroke: none;
+    fill: ${({ theme }) => theme.containerColor};
+  }
 
   .top {
     display: flex;
@@ -122,7 +127,6 @@ export const SatellitesContentStyled = styled.div<{ theme: MavrykTheme }>`
 export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
-  padding-left: 20px;
   margin-top: 25px;
 
   .top {
@@ -143,11 +147,12 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
   }
 
   .feeds-grid {
-    margin-top: 20px;
+    margin-top: 15px;
+    margin-bottom: 5px;
     max-width: 720px;
     display: flex;
     flex-direction: column;
-    row-gap: 20px;
+    row-gap: 7px;
     cursor: pointer;
 
     .row {
@@ -158,22 +163,11 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
         height: 22px;
         transition: color 0.4s ease-in-out;
       }
-
-      &:hover {
-        .value {
-          color: ${({ theme }) => theme.textColorHovered};
-
-          > div {
-            div {
-              color: ${({ theme }) => theme.textColorHovered};
-            }
-            svg {
-              stroke: ${({ theme }) => theme.textColorHovered};
-            }
-          }
-        }
-      }
     }
+  }
+
+  .padding-left {
+    padding-left: 20px;
   }
 `
 
@@ -515,4 +509,10 @@ export const FarmsContentStyled = styled.div<{ theme: MavrykTheme }>`
       }
     }
   }
+`
+
+export const PopularFeed = styled(CardHover)`
+  margin-top: 0;
+  padding: 12px 20px 12px 19px;
+  border: 1px solid transparent;
 `

@@ -101,6 +101,7 @@ export const CouncilFormRemoveCouncilMember = () => {
             clickOnDropDown={handleClickDropdown}
             placeholder='Chose Member Address'
             isOpen={ddIsOpen}
+            setIsOpen={setDdIsOpen}
             itemSelected={chosenDdItem?.text}
             items={ddItems}
             clickOnItem={(e) => handleOnClickDropdownItem(e)}
