@@ -141,7 +141,8 @@ export const ProposalSubmission = () => {
     [proposalState, selectedUserProposalId],
   )
 
-  console.log('proposalState', proposalState)
+  // TODO: for testing purposes, remove after
+  console.log('proposalState:', proposalState, ', proposalChangesState:', proposalChangesState)
 
   return (
     <Page>
