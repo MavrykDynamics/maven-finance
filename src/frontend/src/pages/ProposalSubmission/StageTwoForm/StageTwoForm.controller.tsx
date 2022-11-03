@@ -87,31 +87,29 @@ export const StageTwoForm = ({
       proposalId,
     )
 
-    let bytesToUpdate = currentBytesChanges
-    const hasByte = currentBytesChanges.find((item) => item?.addOrSetProposalData?.localId === byte.id)
-    // We need to ensure that byteInfo that we wan't to update exists in changes stack
-    if (!hasByte) {
-      bytesToUpdate = [
-        ...bytesToUpdate,
-        {
-          addOrSetProposalData: {
-            title: type === 'title' ? text : byte.title,
-            encodedCode: type === 'encoded_code' ? text : byte.encoded_code,
-            codeDescription: '',
-            localId: byte.id,
-            index: proposalData.findIndex(({ id }) => id === byte.id)?.toString(),
-          },
-        },
-      ]
-    }
+    const updatedChanges = currentBytesChanges
+      .map((item) => {
+        if (byte.id === item?.addOrSetProposalData?.localId) {
+          item.addOrSetProposalData[type === 'encoded_code' ? 'encodedCode' : type] = text
+        }
 
-    const updatedChanges = bytesToUpdate.map((item) => {
-      if (byte.id === item?.addOrSetProposalData?.localId) {
-        item.addOrSetProposalData[type === 'encoded_code' ? 'encodedCode' : type] = text
-      }
-
-      return item
-    })
+        return item
+      })
+      .concat(
+        currentBytesChanges.find((item) => item?.addOrSetProposalData?.localId === byte.id)
+          ? []
+          : [
+              {
+                addOrSetProposalData: {
+                  title: type === 'title' ? text : byte.title,
+                  encodedCode: type === 'encoded_code' ? text : byte.encoded_code,
+                  codeDescription: '',
+                  localId: byte.id,
+                  index: proposalData.findIndex(({ id }) => id === byte.id)?.toString(),
+                },
+              },
+            ],
+      )
 
     setProposalsChangesState({
       ...proposalChangesState,
