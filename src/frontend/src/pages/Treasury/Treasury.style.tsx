@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
-
 import { Card, cyanColor, skyColor, headerColor, whiteColor, containerColor } from 'styles'
+import { TzAddress as TzAddressBase } from 'app/App.components/TzAddress/TzAddress.view'
 
 export const TreasuryViewStyle = styled(Card)`
   display: grid;
@@ -196,3 +196,11 @@ export const TreasurySelectStyle = styled(Card)<{ isSelectedTreasury?: boolean }
     }
   }
 ` //TreasurySelectStyle
+
+export const TzAddress = styled(TzAddressBase)`
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`

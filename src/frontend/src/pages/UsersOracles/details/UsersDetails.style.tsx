@@ -51,7 +51,6 @@ export const UserDetailsStyled = styled.div`
         stroke: ${headerColor};
         width: 13px;
         height: 13px;
-        margin-left: 3px;
         transition: 0.5s all;
       }
 
@@ -63,14 +62,18 @@ export const UserDetailsStyled = styled.div`
     }
 
     var {
+      display: flex;
       font-style: normal;
       color: ${cyanColor};
       font-weight: 700;
       font-size: 14px;
       line-height: 14px;
 
-      svg {
-        stroke: ${cyanColor};
+      .icon-send {
+        fill: none;
+        stroke: ${headerColor};
+
+        margin-left: 4px;
         width: 13px;
         height: 13px;
       }

@@ -1,21 +1,27 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { Truncate } from 'app/App.style'
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
+import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import { State } from 'reducers'
 import { parseDate } from 'utils/time'
 
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
 export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
+  const { dipDupTokens } = useSelector((state: State) => state.tokens)
+  const imageLink = dipDupTokens.find(({ contract }) => contract === feed.address)?.metadata?.icon
+
   return (
     <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle className="feed">
         <div className="item with-img">
-          <CoinsLogo assetName={feed.token_1_symbol} />
+          <CoinsLogo imageLink={imageLink} assetName={feed.name.split('/')?.[1]} />
           <h5>Feed</h5>
           <var>
-            {feed.token_1_symbol}/{feed.token_0_symbol}
+            <Truncate maxWidth={80}>{feed.name}</Truncate>
           </var>
         </div>
         <div className="item">

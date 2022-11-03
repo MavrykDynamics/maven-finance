@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import { useClickAway } from 'react-use';
 
 // styles
 import { DropDownStyled, DropDownMenu, DropDownListContainer, DropDownList, DropDownListItem } from './DropDown.style'
@@ -14,12 +15,15 @@ type DropDownViewProps = {
   onClick: () => void
   clickItem: (value: string) => void
   isOpen: boolean
+  setIsOpen: (arg: boolean) => void
   itemSelected: string | undefined
   items: readonly string[]
 }
 
-export const DropDownView = ({ placeholder, isOpen, onClick, clickItem, itemSelected, items }: DropDownViewProps) => {
+export const DropDownView = ({ placeholder, isOpen, onClick, setIsOpen, clickItem, itemSelected, items }: DropDownViewProps) => {
   const ref = useRef<HTMLDivElement | null>(null)
+  const refDropdownWrapper = useRef<HTMLDivElement | null>(null)
+  useClickAway(refDropdownWrapper, () => setIsOpen(false))
 
   // if the dropdown is not fully visible in the window,
   // move the scroll to fix it
@@ -29,7 +33,7 @@ export const DropDownView = ({ placeholder, isOpen, onClick, clickItem, itemSele
     }
   }, [isOpen])
   return (
-    <DropDownStyled className="drop-down">
+    <DropDownStyled ref={refDropdownWrapper} className="drop-down">
       <DropDownMenu onClick={onClick}>
         {itemSelected ?? placeholder}
         <span>

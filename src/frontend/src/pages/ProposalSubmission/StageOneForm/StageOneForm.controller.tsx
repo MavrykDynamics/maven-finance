@@ -74,7 +74,6 @@ export const StageOneForm = ({
         break
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(currentProposal.sourceCode)
-        setValidForm({ ...validForm, sourceCode: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, sourceCode: validityCheckResult ? 'success' : 'error' })
         break
       case 'IPFS':
@@ -200,7 +199,6 @@ export const StageOneForm = ({
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
             inputStatus={formInputStatus.sourceCode}
             disabled={disabled}
-            required
           />
         </div>
       )}

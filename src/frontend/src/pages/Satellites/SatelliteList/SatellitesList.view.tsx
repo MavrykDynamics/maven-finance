@@ -14,9 +14,9 @@ import { OracleCard } from './ListCards/DataFeedOracleCard.view'
 import { UserDataFeedCard } from './ListCards/UsersFeedCard.view'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
-function SatteliteListView({ listTitle, items, name, listType, additionaldata, loading }: SatellitesListProps) {
+function SatteliteListView({ listTitle, items, name, listType, additionaldata, className }: SatellitesListProps) {
   return items.length ? (
-    <FRListWrapper className="oracle">
+    <FRListWrapper className={`${className} oracle`}>
       {listTitle ? (
         <GovRightContainerTitleArea>
           <h1>{listTitle}</h1>

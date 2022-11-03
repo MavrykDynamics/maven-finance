@@ -23,6 +23,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: 'dashboard-personal',
         routeSubPath: '/dashboard-personal',
         protectedRoute: false,
+        disabled: true,
       },
       {
         id: 59526,
@@ -30,6 +31,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: 'your-vesting',
         routeSubPath: '/your-vesting',
         protectedRoute: true,
+        disabled: true,
         requires: {
           isVestee: true,
         },
@@ -43,6 +45,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     routePath: '/loans',
     icon: 'coin-loan',
     protectedRoute: false,
+    disabled: true,
     subPages: [
       {
         id: 57792,
@@ -50,6 +53,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: `loans`,
         routeSubPath: '/loans',
         protectedRoute: false,
+        disabled: true,
       },
       {
         id: 84765,
@@ -57,6 +61,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: 'borrow',
         routeSubPath: '/borrow',
         protectedRoute: false,
+        disabled: true,
       },
       {
         id: 59776,
@@ -64,6 +69,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: 'lend',
         routeSubPath: '/lend',
         protectedRoute: false,
+        disabled: true,
       },
       {
         id: 59777,
@@ -71,6 +77,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: 'personal-loans-history',
         routeSubPath: '/personal-loans-history',
         protectedRoute: true,
+        disabled: true,
       },
     ],
   },
@@ -81,6 +88,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     routePath: '/vaults',
     icon: 'vaults',
     protectedRoute: false,
+    disabled: true,
   },
   {
     title: 'Staking',
@@ -126,8 +134,8 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
           isSatellite: true,
         },
       },
-      { id: 57471, subTitle: 'Data Feeds', subPath: 'data-feeds', routeSubPath: '/data-feeds', protectedRoute: false },
-      { id: 15757, subTitle: 'Users', subPath: 'oracle-users', routeSubPath: '/oracle-users', protectedRoute: false },
+      { id: 57471, subTitle: 'Data Feeds', subPath: 'data-feeds', routeSubPath: ['/data-feeds', '/satellites/feed-details/:tabId'], protectedRoute: false },
+      { id: 15757, subTitle: 'Users', subPath: 'oracle-users', routeSubPath: ['/oracle-users', '/satellites/user-details/:tabId'], protectedRoute: false },
     ],
   },
   {

@@ -13,6 +13,7 @@ export type SatellitesListProps = {
   onClickHandler?: (arg0: string) => void
   loading: boolean
   additionaldata?: Record<string, boolean | number | callbackFunction | string | object>
+  className?: string
 }
 
 export type FeedFactory = {

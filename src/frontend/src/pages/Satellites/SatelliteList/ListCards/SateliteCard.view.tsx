@@ -35,6 +35,7 @@ import {
   SatelliteTextGroup,
   SideBySideImageAndText,
 } from './SatelliteCard.style'
+import { getSatelliteMetrics } from 'pages/Satellites/Satellites.helpers'
 
 const renderVotingHistoryItem = (vote: number) => {
   switch (vote) {
@@ -63,12 +64,17 @@ export const SatelliteListItem = ({
   const sMvkBalance = satellite.sMvkBalance
   const freesMVKSpace = Math.max(sMvkBalance * satellite.delegationRatio - totalDelegatedMVK, 0)
 
-  const {
-    governanceStorage: { proposalLedger },
-  } = useSelector((state: State) => state.governance)
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const { isSatellite } = useSelector((state: State) => state.user)
   const { ready } = useSelector((state: State) => state.wallet)
+  const {
+    governanceStorage: { financialRequestLedger, proposalLedger },
+    pastProposals,
+  } = useSelector((state: State) => state.governance)
+  const {
+    emergencyGovernanceStorage: { emergencyGovernanceLedger },
+  } = useSelector((state: State) => state.emergencyGovernance)
+
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const isSatelliteOracle = satellite.oracleRecords.length
@@ -85,14 +91,17 @@ export const SatelliteListItem = ({
     ? proposalLedger.find((proposal) => proposal.id === currentlySupportingProposalId)
     : null
 
-  const signedFeedsCount = React.useMemo(
-    () => feeds.filter((feed) => feed.admin === satellite.address).length,
-    [feeds, satellite.address],
-  )
-
   const oracleStatusType = getOracleStatus(satellite, feeds)
   const satelliteStatusColor = satellite.status === SatelliteStatus.BANNED ? DOWN : WARNING
   const isSatelliteInactive = satellite.status !== SatelliteStatus.ACTIVE
+
+  const satelliteMetrics = React.useMemo(
+    () =>
+      getSatelliteMetrics(pastProposals, proposalLedger, emergencyGovernanceLedger, satellite, financialRequestLedger),
+    [satellite],
+  )
+
+  const participation = (satelliteMetrics.proposalParticipation + satelliteMetrics.votingPartisipation) / 2
 
   const buttonToShow = satelliteUserIsDelegatedTo ? (
     <>
@@ -149,7 +158,7 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {isDetailsPage && !isSatelliteOracle ? (
+            {isDetailsPage ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Your delegated MVK</SatelliteMainText>
                 <SatelliteSubText>
@@ -164,15 +173,6 @@ export const SatelliteListItem = ({
                 <CommaNumber value={freesMVKSpace} />
               </SatelliteSubText>
             </SatelliteTextGroup>
-
-            {isDetailsPage && isSatelliteOracle ? (
-              <SatelliteTextGroup>
-                <SatelliteMainText>Signed feeds</SatelliteMainText>
-                <SatelliteSubText>
-                  <CommaNumber value={signedFeedsCount} />
-                </SatelliteSubText>
-              </SatelliteTextGroup>
-            ) : null}
           </SatelliteCardTopRow>
 
           <SatelliteCardTopRow isExtendedListItem={isDetailsPage}>
@@ -190,11 +190,11 @@ export const SatelliteListItem = ({
             <SatelliteTextGroup>
               <SatelliteMainText>Participation</SatelliteMainText>
               <SatelliteSubText>
-                <CommaNumber value={Number(satellite.participation || 0)} endingText="%" />
+                <CommaNumber value={participation} endingText="%" />
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {(isDetailsPage && isSatelliteOracle) || !isSatelliteOracle ? (
+            {isDetailsPage ? (
               <SatelliteTextGroup>
                 <SatelliteMainText>Fee</SatelliteMainText>
                 <SatelliteSubText>
@@ -203,11 +203,11 @@ export const SatelliteListItem = ({
               </SatelliteTextGroup>
             ) : null}
 
-            {isDetailsPage && !isSatelliteOracle ? (
+            {!isSatelliteOracle ? (
               <SatelliteTextGroup>
-                <SatelliteMainText>Count of delegators</SatelliteMainText>
+                <SatelliteMainText># Delegators</SatelliteMainText>
                 <SatelliteSubText>
-                  <CommaNumber value={satellite.delegatorCount} />
+                  <CommaNumber value={satellite.delegatorCount} showDecimal={false} />
                 </SatelliteSubText>
               </SatelliteTextGroup>
             ) : null}

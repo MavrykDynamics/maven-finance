@@ -5,7 +5,7 @@ import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/Type
 import { StageThreeValidityItem } from './ProposalSybmittion.types'
 
 export const checkWhetherBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
-  return proposalData.every(({ bytes, title }) => Boolean(bytes) && Boolean(title))
+  return proposalData.every(({ encoded_code, title }) => Boolean(encoded_code) && Boolean(title))
 }
 
 export const getBytesPairValidationStatus = (
@@ -39,15 +39,16 @@ export const getValidityStageThreeTable = (valueName: StageThreeValidityItem, va
 }
 
 export const PROPOSAL_BYTE = {
-  bytes: '',
+  encoded_code: '',
   id: 1,
+  internal_id: 0,
   title: '',
+  code_description: '',
   order: 1,
   isUnderTheDrop: false,
   isLocalBytes: true,
   governance_proposal: {} as Governance_Proposal,
   governance_proposal_id: 0,
-  record_internal_id: 0,
 }
 
 export const DEFAULT_PROPOSAL: CurrentRoundProposalsStorageType[number] = {
@@ -88,7 +89,7 @@ export const DEFAULT_VALIDITY: ValidSubmitProposalForm = {
   ipfs: true,
   successMVKReward: true,
   invoiceTable: true,
-  sourceCode: false,
+  sourceCode: true,
 }
 
 export const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {
