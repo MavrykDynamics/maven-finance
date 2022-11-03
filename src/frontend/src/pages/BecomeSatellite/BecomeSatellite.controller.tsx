@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Redirect } from 'react-router'
 import { State } from 'reducers'
 
 import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
@@ -53,10 +52,6 @@ export const BecomeSatellite = () => {
   }
   const updateSatelliteCallback = (form: RegisterAsSatelliteForm) => {
     dispatch(updateSatelliteRecord(form))
-  }
-
-  if (!accountPkh) {
-    return <Redirect to="/" />
   }
 
   return (
