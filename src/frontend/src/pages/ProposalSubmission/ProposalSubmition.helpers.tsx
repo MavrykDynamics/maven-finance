@@ -11,13 +11,9 @@ export const checkWhetherBytesIsValid = (proposalData: ProposalRecordType['propo
 export const getBytesPairValidationStatus = (
   newText: string,
   fieldToValidate: 'validTitle' | 'validBytes',
-  currentByteId: number,
-  proposalData?: ProposalRecordType['proposalData'],
 ): typeof INPUT_STATUS_SUCCESS | typeof INPUT_STATUS_ERROR => {
-  const isExistTitleInServer = proposalData?.some(({ id, isLocalBytes }) => id === currentByteId && !isLocalBytes)
-
   if (fieldToValidate === 'validTitle') {
-    return Boolean(newText) && !isExistTitleInServer ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR
+    return Boolean(newText) ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR
   } else {
     return Boolean(newText) ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR
   }

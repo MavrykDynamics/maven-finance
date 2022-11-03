@@ -14,7 +14,7 @@ import { Page } from 'styles'
 // types
 import { State } from 'reducers'
 import { CurrentRoundProposalsStorageType } from 'utils/TypesAndInterfaces/Governance'
-import { SubmittedProposalsMapper } from './ProposalSybmittion.types'
+import { ProposalChangesStateType, SubmittedProposalsMapper } from './ProposalSybmittion.types'
 
 // helpers
 import { DEFAULT_PROPOSAL } from './ProposalSubmition.helpers'
@@ -62,6 +62,15 @@ export const ProposalSubmission = () => {
   )
 
   const [proposalState, setProposalsState] = useState(mappedProposals)
+  const [proposalChangesState, setProposalsChangesState] = useState(
+    proposalKeys.reduce<ProposalChangesStateType>((acc, id) => {
+      acc[id] = {
+        proposalDataChanges: [],
+        proposalPaymentsChanges: [],
+      }
+      return acc
+    }, {}),
+  )
 
   const handleChangeTab = useCallback((tabId?: number) => {
     setActiveTab(tabId ?? 0)
@@ -146,6 +155,8 @@ export const ProposalSubmission = () => {
             currentProposal={currentProposal}
             updateLocalProposalData={updateLocalProposalData}
             handleDropProposal={handleDropProposal}
+            proposalChangesState={proposalChangesState}
+            setProposalsChangesState={setProposalsChangesState}
           />
         )}
         {activeTab === 3 && (

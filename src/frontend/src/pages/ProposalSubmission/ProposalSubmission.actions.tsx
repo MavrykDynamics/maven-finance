@@ -1,5 +1,5 @@
 import { validateAddress } from '@taquito/utils'
-import { OpKind } from '@taquito/taquito'
+import { OpKind, WalletParamsWithKind } from '@taquito/taquito'
 
 // helpres
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
@@ -14,6 +14,7 @@ import { State } from 'reducers'
 import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 import { ROCKET_LOADER } from 'utils/constants'
+import { ProposalDataChangesType } from './ProposalSybmittion.types'
 
 export const submitProposal =
   (form: SubmitProposalForm, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
@@ -125,9 +126,9 @@ export const lockProposal = (proposalId: number) => async (dispatch: AppDispatch
   }
 }
 
-// TODO: replace bottom action with new ones
-export const updateProposal =
-  (proposalBytes: ProposalRecordType['proposalData'], proposalId: number | undefined) =>
+// method for update proposal data (bytes)
+export const updateProposalData =
+  (proposalDataChanges: ProposalDataChangesType, proposalId?: number) =>
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
@@ -142,28 +143,29 @@ export const updateProposal =
     }
 
     try {
-      await dispatch(toggleLoader(ROCKET_LOADER))
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
 
-      const listTransactions = proposalBytes.map((item) => {
+      const listTransactions = proposalDataChanges.map((change) => {
         return {
           kind: OpKind.TRANSACTION,
-          ...contract?.methods.updateProposalData(proposalId, item.title, item.encoded_code).toTransferParams(),
+          ...contract?.methods.updateProposalData(proposalId, [change]).toTransferParams(),
         }
-      })
+      }) as WalletParamsWithKind[]
 
-      const batch =
-        // @ts-ignore
-        contract && listTransactions.length ? await state.wallet.tezos?.wallet.batch(listTransactions) : null
+      if (!contract || !listTransactions.length) {
+        throw new Error(
+          `no contarct or transactions provided, contract: ${contract}, listTransactions: ${listTransactions}`,
+        )
+      }
 
-      const batchOp = await batch?.send()
+      const query = await state.wallet.tezos?.wallet.batch(listTransactions)?.send()
 
-      dispatch(showToaster(INFO, 'Updating proposal...', 'Please wait 30s'))
-      const done = await batchOp?.confirmation()
-      console.log('done', done)
+      await dispatch(showToaster(INFO, 'Updating proposal...', 'Please wait 30s'))
+      await dispatch(toggleLoader(ROCKET_LOADER))
+
+      await query?.confirmation()
 
       await dispatch(showToaster(SUCCESS, 'Proposal updated.', 'All good :)'))
-
       await dispatch(toggleLoader())
 
       await dispatch(getGovernanceStorage())
@@ -178,9 +180,8 @@ export const updateProposal =
     }
   }
 
-export const deleteProposalDataPair =
-  (title: string, bytes: string, proposalId: number | undefined) =>
-  async (dispatch: AppDispatch, getState: GetState) => {
+export const removeProposalDataItem =
+  (removeIndex: number | string, proposalId?: number) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -194,18 +195,17 @@ export const deleteProposalDataPair =
     }
 
     try {
-      await dispatch(toggleLoader(ROCKET_LOADER))
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+      const query = await contract?.methods
+        .updateProposalData(proposalId, [{ removeProposalData: removeIndex }])
+        ?.send()
 
-      const transaction = await contract?.methods.updateProposalData(proposalId, title, bytes).send()
-      console.log('transaction', transaction)
+      await dispatch(showToaster(INFO, 'Removing bytes pair...', 'Please wait 30s'))
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
-      await dispatch(showToaster(INFO, 'Delete proposal Bype Pair...', 'Please wait 30s'))
+      await query?.confirmation()
 
-      const done = await transaction?.confirmation()
-      console.log('done', done)
-      await dispatch(showToaster(SUCCESS, 'Delete proposal Bype Pair updated.', 'All good :)'))
-
+      await dispatch(showToaster(SUCCESS, 'Bytes pair removed.', 'All good :)'))
       await dispatch(toggleLoader())
 
       await dispatch(getGovernanceStorage())
@@ -220,6 +220,45 @@ export const deleteProposalDataPair =
     }
   }
 
+export const removePaymentsDataItem =
+  (removeIndex: number | string, proposalId?: number) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+      const query = await contract?.methods.updateProposalData(proposalId, [{ removePaymentData: removeIndex }])?.send()
+
+      await dispatch(showToaster(INFO, 'Removing payment item...', 'Please wait 30s'))
+      await dispatch(toggleLoader(ROCKET_LOADER))
+
+      await query?.confirmation()
+
+      await dispatch(showToaster(SUCCESS, 'Payment item removed.', 'All good :)'))
+      await dispatch(toggleLoader())
+
+      await dispatch(getGovernanceStorage())
+      await dispatch(getDelegationStorage())
+      await dispatch(getCurrentRoundProposals())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+      }
+      await dispatch(toggleLoader())
+    }
+  }
+
+// TODO: replace bottom action with new ones
 export const submitFinancialRequestData =
   (proposalId: number, newProposalPayments: ProposalRecordType['proposalPayments']) =>
   async (dispatch: AppDispatch, getState: GetState) => {
