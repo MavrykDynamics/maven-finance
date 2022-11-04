@@ -56,7 +56,7 @@ export const IPFSUploaderView = ({
   const [isDocument, setIsDocument] = useState(false)
   const [fileName, setFileName] = useState('')
   const isTypeFileImage = typeFile === 'image'
-  const isUploaded = imageIpfsUrl && !isUploading
+  const isUploaded = Boolean(imageIpfsUrl && !isUploading)
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,7 +101,7 @@ export const IPFSUploaderView = ({
         </label>
       )}
       <div style={{ opacity: disabled ? 0.4 : 1 }}>
-        <UploaderFileSelector className={disabled ? 'disabled' : ''}>
+        <UploaderFileSelector isUploaded={isUploaded} className={disabled ? 'disabled' : '' }>
           <div>
             <input
               id="uploader"

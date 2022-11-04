@@ -159,6 +159,7 @@ const DataFeedDetailsView = ({
                   {feed.last_completed_data_last_updated_at ? (
                     <Timer
                       options={{
+                        short: true,
                         showZeros: false,
                         negativeColor: isTrustedAnswer ? cyanColor : downColor,
                         defaultColor: cyanColor,
@@ -203,6 +204,7 @@ const DataFeedDetailsView = ({
                   {feed.last_completed_data_last_updated_at ? (
                     <Timer
                       options={{
+                        short: true,
                         showZeros: false,
                         negativeColor: cyanColor,
                         defaultColor: cyanColor,

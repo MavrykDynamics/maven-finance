@@ -75,7 +75,7 @@ const SatellitesSideBarView = ({
             text={userIsSatellite ? 'Edit Satellite Profile' : 'Become a Satellite'}
             pathName={`/become-satellite`}
             pathParams={{ userIsSatellite: userIsSatellite }}
-            disabled={!Boolean(accountPkh)}
+            disabled={userIsSatellite ? !Boolean(accountPkh) : false}
           />
         ) : null}
 
