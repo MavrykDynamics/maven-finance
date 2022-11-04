@@ -4,7 +4,7 @@
 
 ### Deployment
 
-- DEV: 0.20
+- DEV: 0.21
 - PROD: 0.20
 - PROD2: 0.20
 
@@ -21,6 +21,22 @@
   - Column InitRound added: always equal to the round that was currently set when the oracle joined an Aggregator
 - AggregatorOracleObservation:
   - Table added: tracks all observations made by an AggregatorOracle for each round/epoch it participated
+- LiquidityBaking:
+  - Column SharePrice added
+- LiquidityBakingPosition:
+  - Table added
+- LiquidityBakingHistoryData:
+  - Column Trader added: you can now fetch all operations made by a trader through this foreign key
+  - Column Level added
+  - Column XTZQty added
+  - Column TokenQty added
+  - Column LqtQty added
+  - Column Slippage added
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+  - Column XTZTokenPrice and TokenXTZPrice replaced by Price (BTC price in XTZ)
 
 ## Version 0.20
 

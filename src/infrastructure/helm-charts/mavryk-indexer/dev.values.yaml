@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.20.2
+    tag: v0.21.2
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -47,6 +47,12 @@ dipdup:
       liquidity_baking:
         address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
         typename: liquidity_baking
+      sirius:
+        address: KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo
+        typename: sirius
+      tzbtc:
+        address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
+        typename: tzbtc
       mvk:
         address: KT1UQKrwpU82ngJkNDGssFJVn54BuFs6cQon
         typename: mvk
@@ -242,6 +248,10 @@ dipdup:
             pattern:
               - destination: <aggregator_contract>
                 entrypoint: setName
+          - callback: on_aggregator_update_metadata
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: updateMetadata
           - callback: on_aggregator_update_config
             pattern:
               - destination: <aggregator_contract>
@@ -342,22 +352,52 @@ dipdup:
             pattern:
               - destination: liquidity_baking
                 entrypoint: addLiquidity
+              - destination: tzbtc
+                entrypoint: transfer
+              - destination: sirius
+                entrypoint: mintOrBurn
           - callback: on_liquidity_baking_remove_liquidity
             pattern:
               - destination: liquidity_baking
                 entrypoint: removeLiquidity
+              - destination: sirius
+                entrypoint: mintOrBurn
+              - destination: tzbtc
+                entrypoint: transfer
+              - source: liquidity_baking
+                type: transaction
           - callback: on_liquidity_baking_token_to_xtz
             pattern:
               - destination: liquidity_baking
                 entrypoint: tokenToXtz
+              - destination: tzbtc
+                entrypoint: transfer
+              - source: liquidity_baking
+                type: transaction
           - callback: on_liquidity_baking_xtz_to_token
             pattern:
               - destination: liquidity_baking
                 entrypoint: xtzToToken
+              - destination: tzbtc
+                entrypoint: transfer
           - callback: on_liquidity_baking_token_to_token
             pattern:
               - destination: liquidity_baking
                 entrypoint: tokenToToken
+      # Sirius contract indexes
+      sirius:
+        kind: operation
+        datasource: tzkt_mainnet
+        types:
+          - origination
+          - transaction
+        contracts:
+          - sirius
+        handlers:
+          - callback: on_sirius_transfer
+            pattern:
+              - destination: sirius
+                entrypoint: transfer
       # MVK Token contract indexes
       mvk:
         kind: operation
@@ -1305,6 +1345,10 @@ dipdup:
             pattern:
               - destination: aggregator
                 entrypoint: setName
+          - callback: on_aggregator_update_metadata
+            pattern:
+              - destination: aggregator
+                entrypoint: updateMetadata
           - callback: on_aggregator_update_config
             pattern:
               - destination: aggregator

@@ -1,48 +1,86 @@
 
+from mavryk.types.liquidity_baking.storage import LiquidityBakingStorage
+from mavryk.types.tzbtc.storage import TzbtcStorage
 from dipdup.models import Transaction
 from mavryk.types.liquidity_baking.parameter.token_to_xtz import TokenToXtzParameter
+from dipdup.models import OperationData
+from mavryk.types.tzbtc.parameter.transfer import TransferParameter
 from dipdup.context import HandlerContext
-from mavryk.types.liquidity_baking.storage import LiquidityBakingStorage
 import mavryk.models as models
 
 async def on_liquidity_baking_token_to_xtz(
     ctx: HandlerContext,
     token_to_xtz: Transaction[TokenToXtzParameter, LiquidityBakingStorage],
+    transfer: Transaction[TransferParameter, TzbtcStorage],
+    transaction_2: OperationData,
 ) -> None:
     
     # Get operation data
+    trader_address              = token_to_xtz.data.sender_address
     liquidity_baking_address    = token_to_xtz.data.target_address
     timestamp                   = token_to_xtz.data.timestamp
+    level                       = token_to_xtz.data.level
+    tzkt                        = ctx.get_tzkt_datasource('tzkt_mainnet')
+    xtz_quotes                  = await tzkt.get_quotes(
+        first_level=level,
+        last_level=level
+    )
+    xtz_usd                     = float(xtz_quotes[0].usd)
     token_pool                  = int(token_to_xtz.storage.tokenPool)
     xtz_pool                    = int(token_to_xtz.storage.xtzPool)
     lqt_total                   = int(token_to_xtz.storage.lqtTotal)
     token_address               = token_to_xtz.storage.tokenAddress
     lqt_address                 = token_to_xtz.storage.lqtAddress
+    min_xtz_quantity            = float(token_to_xtz.parameter.minXtzBought)
+    token_quantity              = float(transfer.parameter.value)
+    xtz_quantity                = float(transaction_2.amount)
 
     # Create / Update record
     liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
         address = liquidity_baking_address
     )
-    liquidity_baking.token_pool     = token_pool
-    liquidity_baking.xtz_pool       = xtz_pool
-    liquidity_baking.lqt_total      = lqt_total
-    liquidity_baking.token_address  = token_address
-    liquidity_baking.lqt_address    = lqt_address
+
+    min_xtz_quantity_decimals       = min_xtz_quantity / (10**liquidity_baking.xtz_decimals)
+    token_quantity_decimals         = token_quantity / (10**liquidity_baking.token_decimals)
+    xtz_quantity_decimals           = xtz_quantity / (10**liquidity_baking.xtz_decimals)
+    slippage                        = 0
+    price                           = 0
+    if xtz_quantity_decimals > 0:
+        slippage    = (1 - (min_xtz_quantity_decimals / xtz_quantity_decimals))
+    if token_quantity_decimals > 0:
+        price       = xtz_quantity_decimals / token_quantity_decimals
+    xtz_pool_decimals               = xtz_pool / (10**liquidity_baking.xtz_decimals)
+    token_pool_decimals             = token_pool / (10**liquidity_baking.token_decimals)
+    share_price                     = (xtz_pool_decimals + (token_pool_decimals / xtz_pool_decimals) * token_pool_decimals) / lqt_total
+
+    liquidity_baking.token_pool         = token_pool
+    liquidity_baking.xtz_pool           = xtz_pool
+    liquidity_baking.lqt_total          = lqt_total
+    liquidity_baking.token_address      = token_address
+    liquidity_baking.lqt_address        = lqt_address
+    liquidity_baking.share_price        = share_price
+    liquidity_baking.share_price_usd    = share_price * xtz_usd
     await liquidity_baking.save()
 
-    xtz_pool_decimals       = xtz_pool * (10**-liquidity_baking.xtz_decimals)
-    token_pool_decimals     = token_pool * (10**-liquidity_baking.token_decimals)
-    xtz_token_price         = float(round(xtz_pool_decimals / token_pool_decimals, liquidity_baking.xtz_decimals))
-    token_xtz_price         = float(round(token_pool_decimals / xtz_pool_decimals, liquidity_baking.token_decimals))
+    trader, _                       = await models.MavrykUser.get_or_create(
+        address = trader_address
+    )
+    await trader.save()
 
     liquidity_baking_history_data   = models.LiquidityBakingHistoryData(
         timestamp           = timestamp,
+        level               = level,
+        trader              = trader,
         liquidity_baking    = liquidity_baking,
         type                = models.DexType.TOKEN_TO_XTZ,
+        token_price         = price,
+        token_price_usd     = price * xtz_usd,
+        lqt_qty             = 0,
+        xtz_qty             = xtz_quantity,
+        token_qty           = token_quantity,
+        slippage            = slippage,
         token_pool          = token_pool,
         xtz_pool            = xtz_pool,
-        lqt_total           = lqt_total,
-        xtz_token_price     = xtz_token_price,
-        token_xtz_price     = token_xtz_price
+        lqt_total           = lqt_total
     )
     await liquidity_baking_history_data.save()

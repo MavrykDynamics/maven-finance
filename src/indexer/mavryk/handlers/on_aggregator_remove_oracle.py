@@ -23,7 +23,7 @@ async def on_aggregator_remove_oracle(
         user        = oracle
     )
 
-    oracle_observations     = await models.AggregatorOracleObservation.filter(oracle__eq  = aggregator_oracle).all()
+    oracle_observations     = await models.AggregatorOracleObservation.filter(oracle = aggregator_oracle).all()
 
     for oracle_observation in oracle_observations:
         await oracle_observation.delete()
