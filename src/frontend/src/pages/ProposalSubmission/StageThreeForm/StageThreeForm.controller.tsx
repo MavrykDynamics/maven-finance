@@ -8,8 +8,7 @@ import { SubmitProposalStageThreeValidation } from '../../../utils/TypesAndInter
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 
 // helpers
-import { deletePaymentData, submitFinancialRequestData } from '../ProposalSubmission.actions'
-import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
+import { updateProposalPayments } from '../ProposalSubmission.actions'
 
 // components
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
@@ -20,7 +19,7 @@ import { Input } from 'app/App.components/Input/Input.controller'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { getValidityStageThreeTable, MAX_ROWS, PAYMENTS_TYPES } from '../ProposalSubmition.helpers'
+import { getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpers'
 import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 // styles
@@ -46,6 +45,8 @@ export const StageThreeForm = ({
   updateLocalProposalData,
   handleDropProposal,
   handleLockProposal,
+  proposalChangesState,
+  setProposalsChangesState,
 }: StageThreeFormProps) => {
   const { proposalPayments, locked, title } = currentProposal
   const dispatch = useDispatch()
@@ -56,7 +57,17 @@ export const StageThreeForm = ({
     },
     governancePhase,
   } = useSelector((state: State) => state.governance)
-  const { dipDupTokens } = useSelector((state: State) => state.tokens)
+
+  const currentPaymentsChanges = useMemo(
+    () => proposalChangesState?.[proposalId]?.proposalPaymentsChanges,
+    [proposalId, proposalChangesState],
+  )
+
+  // TODO: clarify it with Sam
+  const PaymentMethods = [
+    { symbol: 'XTZ', address: 'tez', id: 1 },
+    { symbol: 'MVK', address: 'mvk', id: 0 },
+  ]
 
   // we can modify only when current period is 'proposal'
   const isProposalRound = governancePhase === 'PROPOSAL'
@@ -100,7 +111,7 @@ export const StageThreeForm = ({
   }, [proposalId, proposalPayments])
 
   const handleSubmitFinancialRequestData = () => {
-    dispatch(submitFinancialRequestData(proposalId, proposalPayments))
+    dispatch(updateProposalPayments(currentPaymentsChanges, proposalId))
   }
 
   const handleChange = (
@@ -123,27 +134,134 @@ export const StageThreeForm = ({
       proposalId,
     )
 
+    const { id, title, token_address, token_amount, to__id } = proposalPayments[row]
+
+    // if local, so it exist in changes, just update it
+    if (id < 0 && currentPaymentsChanges.find((item) => item?.addOrSetPaymentData?.localId === id)) {
+      const updatedPaymentsData = currentPaymentsChanges.map((item) => {
+        if (item?.addOrSetPaymentData?.localId === id) {
+          switch (name) {
+            case 'to__id':
+              item.addOrSetPaymentData.transaction.to_ = String(value)
+              break
+            case 'title':
+              item.addOrSetPaymentData.title = String(value)
+              break
+            case 'token_amount':
+              item.addOrSetPaymentData.transaction.amount = parseFloat(value.toString())
+              break
+            case 'token_address':
+              const {
+                symbol = 'MVK',
+                address = 'mvk',
+                id = 0,
+              } = PaymentMethods.find(({ symbol }) => symbol === value) ?? {}
+              item.addOrSetPaymentData.transaction.token = {
+                [symbol]: {
+                  tokenContractAddress: address,
+                  tokenId: id,
+                },
+              }
+              break
+          }
+        }
+
+        return item
+      })
+
+      setProposalsChangesState({
+        ...proposalChangesState,
+        [proposalId]: {
+          ...proposalChangesState[proposalId],
+          proposalPaymentsChanges: updatedPaymentsData,
+        },
+      })
+    } else {
+      const {
+        symbol = 'MVK',
+        address = 'mvk',
+        id = 0,
+      } = (name === 'token_address'
+        ? PaymentMethods.find(({ address }) => address === String(value))
+        : PaymentMethods.find(({ address }) => address === token_address)) ?? {}
+
+      // Adding updated info for row, that exists on server
+      setProposalsChangesState({
+        ...proposalChangesState,
+        [proposalId]: {
+          ...proposalChangesState[proposalId],
+          proposalPaymentsChanges: currentPaymentsChanges.concat([
+            {
+              addOrSetPaymentData: {
+                title: name === 'title' ? String(value) : title,
+                transaction: {
+                  to_: name === 'to__id' ? String(value) : to__id ?? '',
+                  token: {
+                    [symbol]: {
+                      tokenContractAddress: address,
+                      tokenId: id,
+                    },
+                  },
+                  amount: name === 'token_amount' ? Number(value) : token_amount,
+                },
+                localId: id,
+                index: row.toString(),
+              },
+            },
+          ]),
+        },
+      })
+    }
+
     setOpenDrop('')
   }
 
   const handleAddRow = () => {
+    const { symbol = 'MVK', address = 'mvk', id = 0 } = PaymentMethods[0]
     updateLocalProposalData(
       {
         proposalPayments: proposalPayments.concat({
           // TODO: check how to remove it
           governance_proposal: currentProposal as unknown as Governance_Proposal,
           governance_proposal_id: 0,
-          id: -proposalPayments.length,
+          id: -(proposalPayments.length + 1),
           internal_id: 0,
           title: '',
           to__id: '',
           token_amount: 0,
-          token_id: 0,
-          token_address: 'mvk',
+          token_id: id,
+          token_address: address,
         }),
       },
       proposalId,
     )
+
+    setProposalsChangesState({
+      ...proposalChangesState,
+      [proposalId]: {
+        ...proposalChangesState[proposalId],
+        proposalPaymentsChanges: [
+          ...currentPaymentsChanges,
+          {
+            addOrSetPaymentData: {
+              title: '',
+              transaction: {
+                to_: '',
+                token: {
+                  [symbol]: {
+                    tokenContractAddress: address,
+                    tokenId: id,
+                  },
+                },
+                amount: 0,
+              },
+              localId: -(proposalPayments.length + 1),
+            },
+          },
+        ],
+      },
+    })
+
     setOpenDrop('')
   }
 
@@ -151,8 +269,18 @@ export const StageThreeForm = ({
     const row = proposalPayments[rowNumber]
     const existInServer = row.id >= 0
     if (existInServer) {
-      // TODO: implement this after Tristan updates
-      // dispatch(deletePaymentData(proposalId, row.id))
+      setProposalsChangesState({
+        ...proposalChangesState,
+        [proposalId]: {
+          ...proposalChangesState[proposalId],
+          proposalPaymentsChanges: [
+            ...currentPaymentsChanges,
+            {
+              removePaymentData: rowNumber.toString(),
+            },
+          ],
+        },
+      })
     } else {
       updateLocalProposalData(
         {
@@ -161,6 +289,17 @@ export const StageThreeForm = ({
         proposalId,
       )
     }
+
+    // if payment exists only on client, just remove it from changes queue
+    setProposalsChangesState({
+      ...proposalChangesState,
+      [proposalId]: {
+        ...proposalChangesState[proposalId],
+        proposalPaymentsChanges: [
+          ...currentPaymentsChanges.filter(({ addOrSetPaymentData: { localId = null } = {} }) => localId !== row.id),
+        ],
+      },
+    })
     setOpenDrop('')
   }
 
@@ -174,7 +313,8 @@ export const StageThreeForm = ({
         validForm.some(
           ({ token_amount, title, to__id }) => token_amount === 'error' || title === 'error' || to__id === 'error',
         )) ||
-      locked,
+      locked ||
+      currentPaymentsChanges.length === 0,
     [validForm, isProposalRound],
   )
   const disabledInputs = useMemo(() => !isProposalRound || locked, [isProposalRound, locked])
@@ -217,12 +357,10 @@ export const StageThreeForm = ({
                 <td key="row-names-asset">Payment Type (XTZ/MVK)</td>
               </tr>
               {proposalPayments.map((rowItems, i) => {
-                const isLocal = rowItems.id < 0,
-                  validationObj = validForm[i],
-                  paymentTypeSymbol =
-                    // TODO: temp slution cuz of saved wrong elements on back, also ask sam, cuz i can't find here xtz address
-                    dipDupTokens.find(({ contract }) => contract === rowItems.token_address)?.metadata.symbol ?? 'MVK',
-                  paymentType = paymentTypeSymbol === 'FA2' ? 'MVK' : paymentTypeSymbol
+                const isLocal = rowItems.id < 0
+                const validationObj = validForm[i]
+                const { symbol: selectedSymbol = 'MVK' } =
+                  PaymentMethods.find(({ address }) => address === rowItems.token_address) ?? {}
 
                 return (
                   <tr key={i}>
@@ -272,24 +410,24 @@ export const StageThreeForm = ({
                           disabled={locked || !isProposalRound}
                           className="table-drop-btn-cur"
                         >
-                          {paymentType === 'FA2' ? 'MVK' : paymentType}
+                          {selectedSymbol}
                         </button>
                         {openDrop === `${i}-asset` && (
                           <DropDownListContainer>
                             <DropDownList>
-                              {PAYMENTS_TYPES.map((symbol) => (
+                              {PaymentMethods.map(({ symbol, address }) => (
                                 <DropDownListItem
                                   onClick={() =>
                                     handleChange(
                                       {
-                                        target: { name: 'token_address', value: symbol },
+                                        target: { name: 'token_address', value: address },
                                       },
                                       i,
                                     )
                                   }
                                   key={symbol}
                                 >
-                                  {symbol} {paymentType === symbol ? <Icon id="check-stroke" /> : null}
+                                  {symbol} {selectedSymbol === symbol ? <Icon id="check-stroke" /> : null}
                                 </DropDownListItem>
                               ))}
                             </DropDownList>
