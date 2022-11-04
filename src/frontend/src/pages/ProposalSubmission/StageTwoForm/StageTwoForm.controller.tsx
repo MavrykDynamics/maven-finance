@@ -14,10 +14,12 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 
 // const
-import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { checkWhetherBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
-import { updateProposalData, removeProposalDataItem } from '../ProposalSubmission.actions'
+import { updateProposalData } from '../ProposalSubmission.actions'
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
+import { INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 // styles
 import {
@@ -27,8 +29,6 @@ import {
   FormTitleContainer,
   FormTitleEntry,
 } from '../ProposalSubmission.style'
-import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
-import { INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 export const StageTwoForm = ({
   proposalId,
