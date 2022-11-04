@@ -23,6 +23,7 @@ export const ORACLE_STORAGE_QUERY = `
       governance_id
       track_aggregator_paused
       untrack_aggregator_paused
+      aggregator_name_max_length
     }
   }
 `
