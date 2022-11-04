@@ -4,6 +4,9 @@ import { useDispatch } from 'react-redux'
 // type
 import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
 
+// helpers
+import { validateForm } from '../Council.helpers'
+
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -57,11 +60,7 @@ export const CouncilFormAddVestee = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateForm(setFormInputStatus)
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>

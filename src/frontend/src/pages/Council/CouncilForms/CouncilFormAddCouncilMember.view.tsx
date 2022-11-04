@@ -8,7 +8,7 @@ import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploa
 import { CouncilMemberMaxLength } from 'utils/TypesAndInterfaces/Council'
 
 // helpers
-import { checkMaxLength } from 'utils/validation'
+import { validateForm } from '../Council.helpers'
 
 // action
 import { addCouncilMember } from '../Council.actions'
@@ -18,7 +18,6 @@ import { CouncilFormStyled } from './CouncilForms.style'
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 export const CouncilFormAddCouncilMember = ({ 
-  councilMemberAddressMaxLength,
   councilMemberNameMaxLength,
   councilMemberWebsiteMaxLength
  }: CouncilMemberMaxLength) => {
@@ -72,16 +71,7 @@ export const CouncilFormAddCouncilMember = ({
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>, maxLength: number) => {
-    setFormInputStatus((prev) => {
-      const { value, name } = e.target
-
-      const checkMaxLengthField = checkMaxLength(value, maxLength) ? 'success' : 'error' 
-      const checkEmptyField = value ? checkMaxLengthField : 'error'
-
-      return { ...prev, [name]: checkEmptyField }
-    })
-  }
+  const handleBlur = validateForm(setFormInputStatus)
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>
@@ -100,9 +90,9 @@ export const CouncilFormAddCouncilMember = ({
             name="newMemberAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e, 500)
+              handleBlur(e)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberAddressMaxLength)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberAddress}
           />
         </div>
