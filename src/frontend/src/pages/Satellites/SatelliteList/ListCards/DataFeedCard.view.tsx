@@ -1,7 +1,7 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import { Truncate } from 'app/App.style'
+import { Trim } from 'app/App.components/Trim/Trim.view'
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -21,7 +21,7 @@ export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
           <CoinsLogo imageLink={imageLink} assetName={feed.name.split('/')?.[1]} />
           <h5>Feed</h5>
           <var>
-            <Truncate maxWidth={80}>{feed.name}</Truncate>
+            <Trim title={feed.name} />
           </var>
         </div>
         <div className="item">

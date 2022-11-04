@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TimerStyled = styled.div<{ negativeColor: string; defaultColor: string }>`
   margin: 0;
@@ -23,4 +24,11 @@ export const TimerStyled = styled.div<{ negativeColor: string; defaultColor: str
   li span {
     display: block;
   }
+`
+
+export const ShortTimer = styled.div<{ theme: MavrykTheme }>`
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 25px;
+  color: ${({ theme }) => theme.downColor}
 `

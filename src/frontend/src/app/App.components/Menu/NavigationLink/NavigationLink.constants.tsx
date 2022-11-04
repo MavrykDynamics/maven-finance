@@ -14,6 +14,10 @@ export const isSubLinkShown = (
 ): boolean => {
   const { isSatellite, isVestee, isNotSatellite } = subNavLink.requires || {}
 
+  if (isNotSatellite && !accountPkh) {
+    return true
+  }
+
   if (isSatellite || isVestee || isNotSatellite) {
     if (!accountPkh) return false
 
