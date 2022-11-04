@@ -3,6 +3,10 @@ import { useDispatch } from 'react-redux'
 
 // type
 import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
+import { RequestPurposeMaxLength } from 'utils/TypesAndInterfaces/Council'
+
+// helpers
+import { validateForm } from '../Council.helpers'
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -22,7 +26,7 @@ const INIT_FORM = {
   purpose: '',
 }
 
-export const CouncilFormRequestTokenMint = () => {
+export const CouncilFormRequestTokenMint = ({ requestPurposeMaxLength }: RequestPurposeMaxLength) => {
   const dispatch = useDispatch()
   const [form, setForm] = useState(INIT_FORM)
 
@@ -55,11 +59,7 @@ export const CouncilFormRequestTokenMint = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateForm(setFormInputStatus)
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>
@@ -110,9 +110,9 @@ export const CouncilFormRequestTokenMint = () => {
           name="purpose"
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
             handleChange(e)
-            handleBlur(e)
+            handleBlur(e, requestPurposeMaxLength)
           }}
-          onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e)}
+          onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e, requestPurposeMaxLength)}
           inputStatus={formInputStatus.purpose}
         />
       </div>

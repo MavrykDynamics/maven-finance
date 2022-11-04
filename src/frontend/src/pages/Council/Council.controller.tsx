@@ -63,7 +63,6 @@ export const Council = () => {
   const { councilMembers } = councilStorage
 
   const councilMemberMaxLength = {
-    councilMemberAddressMaxLength: accountPkh?.length || 0,
     councilMemberNameMaxLength: councilStorage.councilMemberNameMaxLength,
     councilMemberWebsiteMaxLength: councilStorage.councilMemberWebsiteMaxLength,
   }
@@ -213,13 +212,13 @@ export const Council = () => {
                 {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
                 {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember {...councilMemberMaxLength} /> : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
-                {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee councilMemberAddressMaxLength={councilMemberMaxLength.councilMemberAddressMaxLength} /> : null}
-                {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock councilMemberAddressMaxLength={councilMemberMaxLength.councilMemberAddressMaxLength} /> : null}
+                {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee /> : null}
+                {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
                 {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember {...councilMemberMaxLength} /> : null}
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
-                {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
-                {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens /> : null}
-                {chosenDdItem?.value === 'requestTokenMint' ? <CouncilFormRequestTokenMint /> : null}
+                {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
+                {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens requestTokenNameMaxLength={councilStorage.requestTokenNameMaxLength} requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
+                {chosenDdItem?.value === 'requestTokenMint' ? <CouncilFormRequestTokenMint requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
                 {chosenDdItem?.value === 'dropFinancialRequest' ? <CouncilFormDropFinancialRequest /> : null}
                 {chosenDdItem?.value === 'setBaker' ? <CouncilFormSetBaker /> : null}
                 {chosenDdItem?.value === 'setContractBaker' ? <CouncilFormSetContractBaker /> : null}
