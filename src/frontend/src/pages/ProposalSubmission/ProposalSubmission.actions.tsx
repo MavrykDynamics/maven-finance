@@ -130,69 +130,7 @@ export const lockProposal = (proposalId: number) => async (dispatch: AppDispatch
 export const updateProposalData =
   // (proposalDataChanges: ProposalDataChangesType, proposalId?: number) =>
 
-
-    (removeAll: ProposalDataChangesType, changes: ProposalDataChangesType, proposalId?: number) =>
-    async (dispatch: AppDispatch, getState: GetState) => {
-      const state: State = getState()
-
-      if (!state.wallet.ready) {
-        dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-        return
-      }
-
-      if (state.loading) {
-        dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-        return
-      }
-
-      try {
-        const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-        console.log('[...removeAll, ...changes]', [...removeAll, ...changes])
-
-        // cons t listTransactions = proposalDataChanges.map((change) => {
-        //   return {
-        //     kind: OpKind.TRANSACTION,
-        //     ...contract?.methods.updateProposalData(proposalId, [change]).toTransferParams(),
-        //   }
-        // }) as WalletParamsWithKind[]
-
-        // if (!contract || !listTransactions.length) {
-        if (!contract) {
-          throw new Error(
-            // `no contarct or transactions provided, contract: ${contract}, listTransactions: ${listTransactions}`,
-            `no contarct or transactions provided, contract: ${contract}`,
-          )
-        }
-
-        // const query = await state.wallet.tezos?.wallet.batch(listTransactions)?.send()
-
-        await dispatch(showToaster(INFO, 'Updating proposal...', 'Please wait 30s'))
-        await dispatch(toggleLoader(ROCKET_LOADER))
-
-        const removeAllQuery = await contract?.methods.updateProposalData(proposalId, [...removeAll, ...changes]).send()
-        await removeAllQuery?.confirmation()
-        // const saveAllQuery = await contract?.methods.updateProposalData(proposalId, changes).send()
-        // await saveAllQuery?.confirmation()
-
-        await dispatch(showToaster(SUCCESS, 'Proposal updated.', 'All good :)'))
-        await dispatch(toggleLoader())
-
-        await dispatch(getGovernanceStorage())
-        await dispatch(getDelegationStorage())
-        await dispatch(getCurrentRoundProposals())
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(error)
-          dispatch(showToaster(ERROR, 'Error', error.message))
-        }
-        await dispatch(toggleLoader())
-      }
-    }
-
-// method to update proposal payments (stage 3)
-export const updateProposalPayments =
-  (proposalPaymentChanges: PaymentsDataChangesType, proposalId?: number) =>
-  async (dispatch: AppDispatch, getState: GetState) => {
+  (changes: ProposalDataChangesType, proposalId?: number) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -208,20 +146,86 @@ export const updateProposalPayments =
     try {
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
 
-      const listTransactions = proposalPaymentChanges.map((change) => {
-        return {
-          kind: OpKind.TRANSACTION,
-          ...contract?.methods.updateProposalData(proposalId, [change]).toTransferParams(),
-        }
-      }) as WalletParamsWithKind[]
+      // TODO: generaing changes for back-end (remove it in case we don't need this)
+      // const listTransactions = proposalDataChanges.map((change) => {
+      //   return {
+      //     kind: OpKind.TRANSACTION,
+      //     ...contract?.methods.updateProposalData(proposalId, [change]).toTransferParams(),
+      //   }
+      // }) as WalletParamsWithKind[]
 
-      if (!contract || !listTransactions.length) {
+      // if (!contract || !listTransactions.length) {
+      if (!contract) {
         throw new Error(
-          `no contarct or transactions provided, contract: ${contract}, listTransactions: ${listTransactions}`,
+          // `no contarct or transactions provided, contract: ${contract}, listTransactions: ${listTransactions}`,
+          `no contarct or transactions provided, contract: ${contract}`,
         )
       }
 
-      const query = await state.wallet.tezos?.wallet.batch(listTransactions)?.send()
+      // const query = await state.wallet.tezos?.wallet.batch(listTransactions)?.send()
+
+      await dispatch(showToaster(INFO, 'Updating proposal...', 'Please wait 30s'))
+      await dispatch(toggleLoader(ROCKET_LOADER))
+
+      const query = await contract?.methods.updateProposalData(proposalId, changes).send()
+      await query?.confirmation()
+      // const saveAllQuery = await contract?.methods.updateProposalData(proposalId, changes).send()
+      // await saveAllQuery?.confirmation()
+
+      await dispatch(showToaster(SUCCESS, 'Proposal updated.', 'All good :)'))
+      await dispatch(toggleLoader())
+
+      await dispatch(getGovernanceStorage())
+      await dispatch(getDelegationStorage())
+      await dispatch(getCurrentRoundProposals())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        dispatch(showToaster(ERROR, 'Error', error.message))
+      }
+      await dispatch(toggleLoader())
+    }
+  }
+
+// method to update proposal payments (stage 3)
+export const updateProposalPayments =
+  // (proposalPaymentChanges: PaymentsDataChangesType, proposalId?: number) =>
+
+  (changes: PaymentsDataChangesType, proposalId?: number) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+
+      // TODO: generaing changes for back-end (remove it in case we don't need this)
+      // const listTransactions = proposalPaymentChanges.map((change) => {
+      //   return {
+      //     kind: OpKind.TRANSACTION,
+      //     ...contract?.methods.updateProposalData(proposalId, [change]).toTransferParams(),
+      //   }
+      // }) as WalletParamsWithKind[]
+
+      // if (!contract || !listTransactions.length) {
+      //   throw new Error(
+      //     `no contarct or transactions provided, contract: ${contract}, listTransactions: ${listTransactions}`,
+      //   )
+      // }
+
+      if (!contract) {
+        throw new Error(`no contarct or transactions provided, contract: ${contract}`)
+      }
+
+      const query = await contract?.methods.updateProposalData(proposalId, changes).send()
 
       await dispatch(showToaster(INFO, 'Updating proposal...', 'Please wait 30s'))
       await dispatch(toggleLoader(ROCKET_LOADER))

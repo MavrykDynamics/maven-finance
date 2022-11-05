@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import { StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmittion.types'
+import { PaymentsDataChangesType, StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmittion.types'
 import { SubmitProposalStageThreeValidation } from '../../../utils/TypesAndInterfaces/Forms'
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 
@@ -58,10 +58,11 @@ export const StageThreeForm = ({
     governancePhase,
   } = useSelector((state: State) => state.governance)
 
-  const currentPaymentsChanges = useMemo(
-    () => proposalChangesState?.[proposalId]?.proposalPaymentsChanges,
-    [proposalId, proposalChangesState],
-  )
+  // TODO: generaing changes for back-end (remove it in case we don't need this)
+  // const currentPaymentsChanges = useMemo(
+  //   () => proposalChangesState?.[proposalId]?.proposalPaymentsChanges,
+  //   [proposalId, proposalChangesState],
+  // )
 
   // TODO: clarify it with Sam
   const PaymentMethods = [
@@ -111,7 +112,32 @@ export const StageThreeForm = ({
   }, [proposalId, proposalPayments])
 
   const handleSubmitFinancialRequestData = () => {
-    dispatch(updateProposalPayments(currentPaymentsChanges, proposalId))
+    const queryChanges: PaymentsDataChangesType = proposalPayments
+      .map<PaymentsDataChangesType[number]>((_, idx) => ({ removePaymentData: idx.toString() }))
+      .concat(
+        proposalPayments.map(({ title, token_address, to__id, token_amount }) => {
+          const paymentToken = PaymentMethods.find(({ address }) => address === token_address) ?? PaymentMethods[0]
+          return {
+            addOrSetPaymentData: {
+              title,
+              transaction: {
+                to_: to__id ?? '',
+                token: {
+                  [paymentToken.symbol]: {
+                    tokenContractAddress: paymentToken.address,
+                    tokenId: paymentToken.id,
+                  },
+                },
+                amount: token_amount,
+              },
+            },
+          }
+        }),
+      )
+
+    dispatch(updateProposalPayments(queryChanges, proposalId))
+    // TODO: generaing changes for back-end (remove it in case we don't need this)
+    // dispatch(updateProposalPayments(currentPaymentsChanges, proposalId))
   }
 
   const handleChange = (
@@ -134,84 +160,85 @@ export const StageThreeForm = ({
       proposalId,
     )
 
-    const { id, title, token_address, token_amount, to__id } = proposalPayments[row]
+    // TODO: generaing changes for back-end (remove it in case we don't need this)
+    // const { id, title, token_address, token_amount, to__id } = proposalPayments[row]
 
-    // if local, so it exist in changes, just update it
-    if (id < 0 && currentPaymentsChanges.find((item) => item?.addOrSetPaymentData?.localId === id)) {
-      const updatedPaymentsData = currentPaymentsChanges.map((item) => {
-        if (item?.addOrSetPaymentData?.localId === id) {
-          switch (name) {
-            case 'to__id':
-              item.addOrSetPaymentData.transaction.to_ = String(value)
-              break
-            case 'title':
-              item.addOrSetPaymentData.title = String(value)
-              break
-            case 'token_amount':
-              item.addOrSetPaymentData.transaction.amount = parseFloat(value.toString())
-              break
-            case 'token_address':
-              const {
-                symbol = 'MVK',
-                address = 'mvk',
-                id = 0,
-              } = PaymentMethods.find(({ symbol }) => symbol === value) ?? {}
-              item.addOrSetPaymentData.transaction.token = {
-                [symbol]: {
-                  tokenContractAddress: address,
-                  tokenId: id,
-                },
-              }
-              break
-          }
-        }
+    // // if local, so it exist in changes, just update it
+    // if (id < 0 && currentPaymentsChanges.find((item) => item?.addOrSetPaymentData?.localId === id)) {
+    //   const updatedPaymentsData = currentPaymentsChanges.map((item) => {
+    //     if (item?.addOrSetPaymentData?.localId === id) {
+    //       switch (name) {
+    //         case 'to__id':
+    //           item.addOrSetPaymentData.transaction.to_ = String(value)
+    //           break
+    //         case 'title':
+    //           item.addOrSetPaymentData.title = String(value)
+    //           break
+    //         case 'token_amount':
+    //           item.addOrSetPaymentData.transaction.amount = parseFloat(value.toString())
+    //           break
+    //         case 'token_address':
+    //           const {
+    //             symbol = 'MVK',
+    //             address = 'mvk',
+    //             id = 0,
+    //           } = PaymentMethods.find(({ symbol }) => symbol === value) ?? {}
+    //           item.addOrSetPaymentData.transaction.token = {
+    //             [symbol]: {
+    //               tokenContractAddress: address,
+    //               tokenId: id,
+    //             },
+    //           }
+    //           break
+    //       }
+    //     }
 
-        return item
-      })
+    //     return item
+    //   })
 
-      setProposalsChangesState({
-        ...proposalChangesState,
-        [proposalId]: {
-          ...proposalChangesState[proposalId],
-          proposalPaymentsChanges: updatedPaymentsData,
-        },
-      })
-    } else {
-      const {
-        symbol = 'MVK',
-        address = 'mvk',
-        id = 0,
-      } = (name === 'token_address'
-        ? PaymentMethods.find(({ address }) => address === String(value))
-        : PaymentMethods.find(({ address }) => address === token_address)) ?? {}
+    //   setProposalsChangesState({
+    //     ...proposalChangesState,
+    //     [proposalId]: {
+    //       ...proposalChangesState[proposalId],
+    //       proposalPaymentsChanges: updatedPaymentsData,
+    //     },
+    //   })
+    // } else {
+    //   const {
+    //     symbol = 'MVK',
+    //     address = 'mvk',
+    //     id = 0,
+    //   } = (name === 'token_address'
+    //     ? PaymentMethods.find(({ address }) => address === String(value))
+    //     : PaymentMethods.find(({ address }) => address === token_address)) ?? {}
 
-      // Adding updated info for row, that exists on server
-      setProposalsChangesState({
-        ...proposalChangesState,
-        [proposalId]: {
-          ...proposalChangesState[proposalId],
-          proposalPaymentsChanges: currentPaymentsChanges.concat([
-            {
-              addOrSetPaymentData: {
-                title: name === 'title' ? String(value) : title,
-                transaction: {
-                  to_: name === 'to__id' ? String(value) : to__id ?? '',
-                  token: {
-                    [symbol]: {
-                      tokenContractAddress: address,
-                      tokenId: id,
-                    },
-                  },
-                  amount: name === 'token_amount' ? Number(value) : token_amount,
-                },
-                localId: id,
-                index: row.toString(),
-              },
-            },
-          ]),
-        },
-      })
-    }
+    //   // Adding updated info for row, that exists on server
+    //   setProposalsChangesState({
+    //     ...proposalChangesState,
+    //     [proposalId]: {
+    //       ...proposalChangesState[proposalId],
+    //       proposalPaymentsChanges: currentPaymentsChanges.concat([
+    //         {
+    //           addOrSetPaymentData: {
+    //             title: name === 'title' ? String(value) : title,
+    //             transaction: {
+    //               to_: name === 'to__id' ? String(value) : to__id ?? '',
+    //               token: {
+    //                 [symbol]: {
+    //                   tokenContractAddress: address,
+    //                   tokenId: id,
+    //                 },
+    //               },
+    //               amount: name === 'token_amount' ? Number(value) : token_amount,
+    //             },
+    //             localId: id,
+    //             index: row.toString(),
+    //           },
+    //         },
+    //       ]),
+    //     },
+    //   })
+    // }
 
     setOpenDrop('')
   }
@@ -236,70 +263,73 @@ export const StageThreeForm = ({
       proposalId,
     )
 
-    setProposalsChangesState({
-      ...proposalChangesState,
-      [proposalId]: {
-        ...proposalChangesState[proposalId],
-        proposalPaymentsChanges: [
-          ...currentPaymentsChanges,
-          {
-            addOrSetPaymentData: {
-              title: '',
-              transaction: {
-                to_: '',
-                token: {
-                  [symbol]: {
-                    tokenContractAddress: address,
-                    tokenId: id,
-                  },
-                },
-                amount: 0,
-              },
-              localId: -(proposalPayments.length + 1),
-            },
-          },
-        ],
-      },
-    })
+    // TODO: generaing changes for back-end (remove it in case we don't need this)
+    // setProposalsChangesState({
+    //   ...proposalChangesState,
+    //   [proposalId]: {
+    //     ...proposalChangesState[proposalId],
+    //     proposalPaymentsChanges: [
+    //       ...currentPaymentsChanges,
+    //       {
+    //         addOrSetPaymentData: {
+    //           title: '',
+    //           transaction: {
+    //             to_: '',
+    //             token: {
+    //               [symbol]: {
+    //                 tokenContractAddress: address,
+    //                 tokenId: id,
+    //               },
+    //             },
+    //             amount: 0,
+    //           },
+    //           localId: -(proposalPayments.length + 1),
+    //         },
+    //       },
+    //     ],
+    //   },
+    // })
 
     setOpenDrop('')
   }
 
   const handleDeleteRow = (rowNumber: number) => {
-    const row = proposalPayments[rowNumber]
-    const existInServer = row.id >= 0
-    if (existInServer) {
-      setProposalsChangesState({
-        ...proposalChangesState,
-        [proposalId]: {
-          ...proposalChangesState[proposalId],
-          proposalPaymentsChanges: [
-            ...currentPaymentsChanges,
-            {
-              removePaymentData: rowNumber.toString(),
-            },
-          ],
-        },
-      })
-    } else {
-      updateLocalProposalData(
-        {
-          proposalPayments: proposalPayments.filter((_, idx) => idx !== rowNumber),
-        },
-        proposalId,
-      )
-    }
-
-    // if payment exists only on client, just remove it from changes queue
-    setProposalsChangesState({
-      ...proposalChangesState,
-      [proposalId]: {
-        ...proposalChangesState[proposalId],
-        proposalPaymentsChanges: [
-          ...currentPaymentsChanges.filter(({ addOrSetPaymentData: { localId = null } = {} }) => localId !== row.id),
-        ],
+    // TODO: generaing changes for back-end (remove it in case we don't need this)
+    // const row = proposalPayments[rowNumber]
+    // const existInServer = row.id >= 0
+    // if (existInServer) {
+    //   setProposalsChangesState({
+    //     ...proposalChangesState,
+    //     [proposalId]: {
+    //       ...proposalChangesState[proposalId],
+    //       proposalPaymentsChanges: [
+    //         ...currentPaymentsChanges,
+    //         {
+    //           removePaymentData: rowNumber.toString(),
+    //         },
+    //       ],
+    //     },
+    //   })
+    // } else {
+    updateLocalProposalData(
+      {
+        proposalPayments: proposalPayments.filter((_, idx) => idx !== rowNumber),
       },
-    })
+      proposalId,
+    )
+    // }
+
+    // TODO: generaing changes for back-end (remove it in case we don't need this)
+    // if payment exists only on client, just remove it from changes queue
+    // setProposalsChangesState({
+    //   ...proposalChangesState,
+    //   [proposalId]: {
+    //     ...proposalChangesState[proposalId],
+    //     proposalPaymentsChanges: [
+    //       ...currentPaymentsChanges.filter(({ addOrSetPaymentData: { localId = null } = {} }) => localId !== row.id),
+    //     ],
+    //   },
+    // })
     setOpenDrop('')
   }
 
@@ -313,8 +343,8 @@ export const StageThreeForm = ({
         validForm.some(
           ({ token_amount, title, to__id }) => token_amount === 'error' || title === 'error' || to__id === 'error',
         )) ||
-      locked ||
-      currentPaymentsChanges.length === 0,
+      locked,
+    // currentPaymentsChanges.length === 0,
     [validForm, isProposalRound],
   )
   const disabledInputs = useMemo(() => !isProposalRound || locked, [isProposalRound, locked])
