@@ -111,13 +111,13 @@ export const StageTwoForm = ({
             ],
       )
 
-    setProposalsChangesState({
-      ...proposalChangesState,
-      [proposalId]: {
-        ...proposalChangesState[proposalId],
-        proposalDataChanges: updatedChanges,
-      },
-    })
+    // setProposalsChangesState({
+    //   ...proposalChangesState,
+    //   [proposalId]: {
+    //     ...proposalChangesState[proposalId],
+    //     proposalDataChanges: updatedChanges,
+    //   },
+    // })
   }
 
   // adding new bytes to server | updating bytes | saving order
@@ -126,12 +126,23 @@ export const StageTwoForm = ({
       proposalId &&
       bytesValidation.find(({ validBytes, validTitle }) => validBytes !== ERROR && validTitle !== ERROR)
     ) {
-      await dispatch(updateProposalData(currentBytesChanges, proposalId))
+      const removeAll = proposalData.map((_, idx) => ({ removeProposalData: idx.toString() }))
+      const actualChanges = proposalData.map(({ title, encoded_code }) => ({
+        addOrSetProposalData: {
+          title: title,
+          encodedCode: encoded_code,
+          codeDescription: '',
+        },
+      }))
+      // await dispatch(updateProposalData(currentBytesChanges, proposalId))
+      await dispatch(updateProposalData(removeAll, actualChanges, proposalId))
     }
   }
 
   // adding new empty bytes pair
   const handleCreateNewByte = () => {
+    const newId = Date.now()
+    const newOrder = Math.max(...proposalData.map(({ order }) => order), 0) + 1
     // add bytes pair to actual proposal data to display it to user
     updateLocalProposalData(
       {
@@ -139,37 +150,36 @@ export const StageTwoForm = ({
           ...proposalData,
           {
             ...PROPOSAL_BYTE,
-            id: proposalData.length + 1,
-            order: proposalData.length + 1,
+            id: newId,
+            order: newOrder,
           },
         ],
       },
       proposalId,
     )
     // add bytes pair to changes that are user do save this later onto back-end
-    setProposalsChangesState({
-      ...proposalChangesState,
-      [proposalId]: {
-        ...proposalChangesState[proposalId],
-        proposalDataChanges: [
-          ...currentBytesChanges,
-          {
-            addOrSetProposalData: {
-              title: '',
-              encodedCode: '',
-              codeDescription: '',
-              localId: proposalData.length + 1,
-            },
-          },
-        ],
-      },
-    })
+    // setProposalsChangesState({
+    //   ...proposalChangesState,
+    //   [proposalId]: {
+    //     ...proposalChangesState[proposalId],
+    //     proposalDataChanges: [
+    //       ...currentBytesChanges,
+    //       {
+    //         addOrSetProposalData: {
+    //           title: '',
+    //           encodedCode: '',
+    //           codeDescription: '',
+    //           localId: newId,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // })
   }
 
   // removing bytes pair
   const handleDeletePair = (removeId: number) => {
-    const idxToRemove = proposalData.findIndex(({ id }) => removeId === id)
-    const pairToRemove = proposalData[idxToRemove]
+    const pairToRemove = proposalData.find(({ id }) => removeId === id)
 
     if (pairToRemove) {
       // removing added bytes pair from proposal data to display
@@ -182,29 +192,24 @@ export const StageTwoForm = ({
 
       // removing added bytes pair from changes arr, if bytes pair is not local we need to add removing query to stack
       const filteredChanges = currentBytesChanges
-        .filter((item) => item?.addOrSetProposalData?.localId !== removeId)
-        .concat(!pairToRemove.isLocalBytes ? [{ removeProposalData: idxToRemove.toString() }] : [])
-      setProposalsChangesState({
-        ...proposalChangesState,
-        [proposalId]: {
-          ...proposalChangesState[proposalId],
-          proposalDataChanges: filteredChanges,
-        },
-      })
-
-      // TODO: if need (if we haven't added or edited pair, we can remove pair by click on the remove icon)
-      // if (!pairToRemove?.isLocalBytes && !currentBytesChanges.length) {
-      //   dispatch(removeProposalDataItem(idxToRemove, proposalId))
-      // }
+        .filter((item) => !(pairToRemove.isLocalBytes && item?.addOrSetProposalData?.localId === removeId))
+        .concat(!pairToRemove.isLocalBytes ? [{ removeProposalData: pairToRemove.order.toString() }] : [])
+      // setProposalsChangesState({
+      //   ...proposalChangesState,
+      //   [proposalId]: {
+      //     ...proposalChangesState[proposalId],
+      //     proposalDataChanges: filteredChanges,
+      //   },
+      // })
     }
   }
 
   // submit btn is disabled if no changes in bytes or if something is changed, but it doesn't pass the validation
   const submitBytesButtonDisabled = useMemo(() => {
     return (
-      !currentBytesChanges.length ||
-      (currentBytesChanges.length && !checkWhetherBytesIsValid(proposalData)) ||
-      proposalData.length === 0 ||
+      // !currentBytesChanges.length ||
+      // (currentBytesChanges.length && !checkWhetherBytesIsValid(proposalData)) ||
+      // proposalData.length === 0 ||
       locked
     )
   }, [proposalData, currentBytesChanges])
@@ -247,33 +252,35 @@ export const StageTwoForm = ({
       )
 
       // adding parts for query for reordering it on backend
-      setProposalsChangesState({
-        ...proposalChangesState,
-        [proposalId]: {
-          ...proposalChangesState[proposalId],
-          proposalDataChanges: [
-            ...currentBytesChanges,
-            {
-              addOrSetProposalData: {
-                title: DnDSelectedProposal?.title,
-                encodedCode: DnDSelectedProposal?.encoded_code,
-                codeDescription: '',
-                index: proposalData.findIndex(({ id }) => id === byteToDrop.id).toString(),
-                localId: DnDSelectedProposal.id,
-              },
-            },
-            {
-              addOrSetProposalData: {
-                title: byteToDrop.title,
-                encodedCode: byteToDrop.encoded_code,
-                codeDescription: '',
-                index: proposalData.findIndex(({ id }) => id === DnDSelectedProposal.id).toString(),
-                localId: byteToDrop.id,
-              },
-            },
-          ],
-        },
-      })
+      // setProposalsChangesState({
+      //   ...proposalChangesState,
+      //   [proposalId]: {
+      //     ...proposalChangesState[proposalId],
+      //     proposalDataChanges: currentBytesChanges
+      //       .filter(({ addOrSetProposalData: { localId = null } = {} }) => localId !== DnDSelectedProposal.id)
+      //       .filter(({ addOrSetProposalData: { localId = null } = {} }) => localId !== byteToDrop.id)
+      //       .concat([
+      //         {
+      //           addOrSetProposalData: {
+      //             title: DnDSelectedProposal?.title,
+      //             encodedCode: DnDSelectedProposal?.encoded_code,
+      //             codeDescription: '',
+      //             index: proposalData.findIndex(({ id }) => id === byteToDrop.id).toString(),
+      //             localId: DnDSelectedProposal.id,
+      //           },
+      //         },
+      //         {
+      //           addOrSetProposalData: {
+      //             title: byteToDrop.title,
+      //             encodedCode: byteToDrop.encoded_code,
+      //             codeDescription: '',
+      //             index: proposalData.findIndex(({ id }) => id === DnDSelectedProposal.id).toString(),
+      //             localId: byteToDrop.id,
+      //           },
+      //         },
+      //       ]),
+      //   },
+      // })
     }
   }
 

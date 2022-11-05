@@ -131,10 +131,17 @@ export const ProposalSubmission = () => {
             [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL,
           },
     )
+    setProposalsChangesState(
+      proposalKeys.reduce<ProposalChangesStateType>((acc, id) => {
+        acc[id] = {
+          proposalDataChanges: [],
+          proposalPaymentsChanges: [],
+        }
+        return acc
+      }, {}),
+    )
     setSeletedUserProposalId(proposalKeys?.[0] ?? DEFAULT_PROPOSAL.id)
   }, [mappedProposals, proposalKeys])
-
-  useEffect(() => {}, [])
 
   const currentProposal = useMemo(
     () => proposalState[selectedUserProposalId] ?? {},
