@@ -62,6 +62,8 @@ export const ProposalSubmission = () => {
   )
 
   const [proposalState, setProposalsState] = useState(mappedProposals)
+
+  // TODO: generaing changes for back-end (remove it in case we don't need this)
   const [proposalChangesState, setProposalsChangesState] = useState(
     proposalKeys.reduce<ProposalChangesStateType>((acc, id) => {
       acc[id] = {
