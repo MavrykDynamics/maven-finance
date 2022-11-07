@@ -6,43 +6,36 @@ import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 import { getUserData } from 'pages/Doorman/Doorman.actions'
 
-const Beacon_localStorage_keys = [
+// TODO: check ts-ignores, here NetworkType is not compatible with  NetworkType | undefined
+
+export const Beacon_localStorage_keys = [
   'beacon:active-account',
   'beacon:postmessage-peers-dapp',
   'beacon:accounts',
   'beacon:sdk-secret-seed',
   'beacon:sdk_version',
 ]
-
 export const network: Network = { type: NetworkType.GHOSTNET }
 export const WalletOptions = {
   name: process.env.REACT_APP_NAME || 'MAVRYK',
   preferredNetwork: network.type,
 }
 
-// TODO: check ts-ignores
-
 export const SET_WALLET = 'SET_WALLET'
 export const setWallet = (wallet?: BeaconWallet) => (dispatch: AppDispatch) => {
   try {
-    const walletOptions = {
-      name: process.env.REACT_APP_NAME || 'MAVRYK',
-      preferredNetwork: (process.env.REACT_APP_NETWORK || 'mainnet') as any,
-    }
-    const wallet = new BeaconWallet(walletOptions)
+    // @ts-ignore
+    const wallet = new BeaconWallet(WalletOptions)
     dispatch({
       type: SET_WALLET,
       wallet,
     })
   } catch (err: any) {
-    dispatch(showToaster(ERROR, 'Failed to initiate Wallet', err.message))
-    console.error(`Failed to initiate Wallet: ${err.message}`)
+    console.error(`Failed to initiate wallet: ${err.message}`)
+    if (err instanceof Error) {
+      dispatch(showToaster(ERROR, 'Failed to initiate wallet', err.message))
+    }
   }
-
-  dispatch({
-    type: SET_WALLET,
-    wallet,
-  })
 }
 
 export const changeWallet = () => async (dispatch: AppDispatch) => {
@@ -51,6 +44,9 @@ export const changeWallet = () => async (dispatch: AppDispatch) => {
     await dispatch(connect())
   } catch (err: any) {
     console.error(`Failed to change wallet: `, err)
+    if (err instanceof Error) {
+      dispatch(showToaster(ERROR, 'Failed to change wallet', err.message))
+    }
   }
 }
 
@@ -59,7 +55,7 @@ export const connect = () => async (dispatch: AppDispatch, getState: GetState) =
   const state = getState()
   try {
     const rpcNetwork = state.preferences.REACT_APP_RPC_PROVIDER
-    //@ts-ignore
+    // @ts-ignore
     const wallet = new BeaconWallet(WalletOptions)
     const walletResponse = await checkIfWalletIsConnected(wallet)
 
@@ -84,24 +80,27 @@ export const connect = () => async (dispatch: AppDispatch, getState: GetState) =
       if (account?.address) dispatch(getUserData(account?.address))
     }
   } catch (err: any) {
-    console.error(`Failed to connect Wallet:`, err)
+    console.error(`Failed to connect wallet:`, err)
+    if (err instanceof Error) {
+      dispatch(showToaster(ERROR, `Failed to connect wallet:`, err.message))
+    }
   }
 }
 
 export const DISCONNECT = 'DISCONNECT'
 export const disconnect = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state = getState()
   try {
-    const state = getState()
     // clearing wallet data
     await state.wallet.wallet?.clearActiveAccount()
     Beacon_localStorage_keys.forEach((key) => localStorage.removeItem(key))
+
     dispatch({ type: DISCONNECT })
-    // set some wallet data, so user can see connect wallet instead of install wallet btn
     dispatch(setWallet())
   } catch (err) {
+    console.error(`Failed to disconnect TempleWallet: `, err)
     if (err instanceof Error) {
       dispatch(showToaster(ERROR, 'Failed to disconnect TempleWallet', err.message))
-      console.error(`Failed to disconnect TempleWallet: ${err.message}`)
     }
   }
 }
