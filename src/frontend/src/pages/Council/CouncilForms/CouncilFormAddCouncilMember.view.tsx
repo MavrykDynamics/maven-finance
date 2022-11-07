@@ -8,7 +8,7 @@ import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploa
 import { CouncilMemberMaxLength } from 'utils/TypesAndInterfaces/Council'
 
 // helpers
-import { validateForm } from '../Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 // action
 import { addCouncilMember } from '../Council.actions'
@@ -71,7 +71,7 @@ export const CouncilFormAddCouncilMember = ({
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>

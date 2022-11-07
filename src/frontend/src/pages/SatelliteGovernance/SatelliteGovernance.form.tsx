@@ -28,7 +28,7 @@ import {
 import { AvailableActionsStyle } from './SatelliteGovernance.style'
 
 // helpers
-import { validateForm } from '../Council/Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 type Props = {
   variant: string
@@ -180,7 +180,7 @@ export const SatelliteGovernanceForm = ({ variant, maxLength }: Props) => {
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   if (!variant) return null
 

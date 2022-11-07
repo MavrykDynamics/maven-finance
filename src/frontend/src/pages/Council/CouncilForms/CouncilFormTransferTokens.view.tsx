@@ -6,7 +6,7 @@ import type { InputStatusType } from '../../../app/App.components/Input/Input.co
 import { RequestPurposeMaxLength } from 'utils/TypesAndInterfaces/Council'
 
 // helpers
-import { validateForm } from '../Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -89,7 +89,7 @@ export const CouncilFormTransferTokens = ({ requestPurposeMaxLength }: RequestPu
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   const handleClickDropdown = useCallback(() => {
     setDdIsOpen(!ddIsOpen)

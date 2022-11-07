@@ -8,7 +8,7 @@ import type { CouncilMember, CouncilMemberMaxLength } from '../../../utils/Types
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
-import { validateForm } from '../Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 // const
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
@@ -115,7 +115,7 @@ export const CouncilFormChangeCouncilMember = ({
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)

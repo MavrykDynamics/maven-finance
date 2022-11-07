@@ -11,7 +11,7 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
-import { validateForm } from '../../Council/Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 // types
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
@@ -75,7 +75,7 @@ export function FormUpdateCouncilMemberView({ councilMemberMaxLength }: Props) {
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   useEffect(() => {
     if (myInfo) {

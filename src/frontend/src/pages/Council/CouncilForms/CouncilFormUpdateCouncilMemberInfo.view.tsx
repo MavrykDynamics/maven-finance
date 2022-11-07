@@ -7,7 +7,7 @@ import type { InputStatusType } from '../../../app/App.components/Input/Input.co
 import type { CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
 
 // helpers
-import { validateForm } from '../Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -82,7 +82,7 @@ export const CouncilFormUpdateCouncilMemberInfo = ({
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   return (
     <CouncilFormStyled className="update-council-member-info" onSubmit={handleSubmit}>

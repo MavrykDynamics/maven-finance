@@ -6,7 +6,7 @@ import type { InputStatusType } from '../../../app/App.components/Input/Input.co
 import { RequestPurposeMaxLength } from 'utils/TypesAndInterfaces/Council'
 
 // helpers
-import { validateForm } from '../Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -59,7 +59,7 @@ export const CouncilFormRequestTokenMint = ({ requestPurposeMaxLength }: Request
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>
