@@ -2,17 +2,35 @@ import { CONNECT, DISCONNECT, SET_WALLET } from 'app/App.components/ConnectWalle
 import { TempleWallet } from '@temple-wallet/dapp'
 import { TezosToolkit } from '@taquito/taquito'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
+import { BeaconWallet } from '@taquito/beacon-wallet'
 
+// export interface WalletState {
+//   wallet?: TempleWallet
+//   tezos?: TezosToolkit
+//   accountPkh?: string
+//   ready: boolean
+// }
+const RpcNetwork = 'https://mainnet.smartpy.io'
 export interface WalletState {
-  wallet?: TempleWallet
-  tezos?: TezosToolkit
+  wallet?: BeaconWallet
+  tezos: TezosToolkit
   accountPkh?: string
   ready: boolean
+  error?: any
+  connect?: any
+  toTezos?: () => number | any
 }
 
-const walletDefaultState: WalletState = {
+// const walletDefaultState: WalletState = {
+//   wallet: undefined,
+//   tezos: undefined,
+//   accountPkh: undefined,
+//   ready: false,
+// }
+
+export const walletDefaultState: WalletState = {
   wallet: undefined,
-  tezos: undefined,
+  tezos: new TezosToolkit(RpcNetwork),
   accountPkh: undefined,
   ready: false,
 }
