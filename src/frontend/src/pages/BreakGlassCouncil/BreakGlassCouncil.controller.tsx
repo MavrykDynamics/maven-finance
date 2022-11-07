@@ -62,6 +62,7 @@ export function BreakGlassCouncil() {
 
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
+    breakGlassStorage,
     breakGlassCouncilMember,
     breakGlassActionPendingMySignature,
     pastBreakGlassCouncilAction,
@@ -93,6 +94,11 @@ export function BreakGlassCouncil() {
   const displayPendingSignature = Boolean(
     !isReviewPage && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
   )
+
+  const councilMemberMaxLength = {
+    councilMemberNameMaxLength: breakGlassStorage.config.councilMemberNameMaxLength,
+    councilMemberWebsiteMaxLength: breakGlassStorage.config.councilMemberWebsiteMaxLength,
+  }
 
   const handleClickReview = () => {
     history.replace(`${queryParameters.pathname}${queryParameters.review}`)
@@ -246,7 +252,7 @@ export function BreakGlassCouncil() {
                   </div>
                 </div>
 
-                <BreakGlassCouncilForm action={chosenDdItem?.value} />
+                <BreakGlassCouncilForm councilMemberMaxLength={councilMemberMaxLength} action={chosenDdItem?.value} />
               </AvaliableActions>
 
               {Boolean(myPastBreakGlassCouncilAction.length) && (
@@ -303,7 +309,7 @@ export function BreakGlassCouncil() {
       </BreakGlassCouncilStyled>
       {isUpdateCouncilMemberInfo ? (
         <ModalPopup width={750} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
-          <FormUpdateCouncilMemberView />
+          <FormUpdateCouncilMemberView councilMemberMaxLength={councilMemberMaxLength} />
         </ModalPopup>
       ) : null}
     </Page>

@@ -10,12 +10,20 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // types
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
+import { CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
+
+// helpers 
+import { validateForm } from '../../Council/Council.helpers'
 
 // styles
 import { FormStyled } from './BreakGlassCouncilForm.style'
 
 // actions
 import { addCouncilMember } from '../BreakGlassCouncil.actions'
+
+type Props = {
+  councilMemberMaxLength: CouncilMemberMaxLength
+}
 
 const INIT_FORM = {
   memberAddress: '',
@@ -24,7 +32,7 @@ const INIT_FORM = {
   newMemberImage: '',
 }
 
-export function FormAddCouncilMemberView() {
+export function FormAddCouncilMemberView({ councilMemberMaxLength }: Props) {
   const dispatch = useDispatch()
 
   const [uploadKey, setUploadKey] = useState(1)
@@ -65,11 +73,7 @@ export function FormAddCouncilMemberView() {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateForm(setFormInputStatus)
 
   return (
     <FormStyled>
@@ -107,9 +111,9 @@ export function FormAddCouncilMemberView() {
               name="newMemberName"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
-                handleBlur(e)
+                handleBlur(e, councilMemberMaxLength.councilMemberNameMaxLength)
               }}
-              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberMaxLength.councilMemberNameMaxLength)}
               inputStatus={formInputStatus.newMemberName}
             />
           </div>
@@ -123,9 +127,9 @@ export function FormAddCouncilMemberView() {
               name="newMemberWebsite"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
-                handleBlur(e)
+                handleBlur(e, councilMemberMaxLength.councilMemberWebsiteMaxLength)
               }}
-              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberMaxLength.councilMemberWebsiteMaxLength)}
               inputStatus={formInputStatus.newMemberWebsite}
             />
           </div>
