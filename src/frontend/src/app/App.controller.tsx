@@ -36,10 +36,15 @@ const AppContainer = () => {
   useEffect(() => {
     dispatch(onStart())
     dispatch(getGovernanceStorage())
-    // For using Beacon wallet, replace following lines with dispatch(setWallet())
-    return TempleWallet.onAvailabilityChange((available) => {
-      if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
-    })
+    // For using Temple wallet
+    // return TempleWallet.onAvailabilityChange((available) => {
+    //   if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
+    // })
+
+    // For using Beacon wallet
+    return () => {
+      dispatch(setWallet())
+    }
   }, [dispatch])
 
   useEffect(() => {
