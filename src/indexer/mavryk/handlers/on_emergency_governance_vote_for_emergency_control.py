@@ -36,8 +36,7 @@ async def on_emergency_governance_vote_for_emergency_control(
     emergency_record.execution_level       = execution_level
     await emergency_record.save()
 
-    voter, _                       = await models.MavrykUser.get_or_create(address  = voter_address)
-    await voter.save()
+    voter                       = await models.mavryk_user_cache.get(address=voter_address)
 
     emergency_vote_record       = models.EmergencyGovernanceVote(
         timestamp                   = timestamp,

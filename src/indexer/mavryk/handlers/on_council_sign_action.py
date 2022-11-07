@@ -83,8 +83,7 @@ async def on_council_sign_action(
             await updated_member.save() 
     
     # Create signature record
-    user, _                 = await models.MavrykUser.get_or_create(address = signer_address)
-    await user.save()
+    user                    = await models.mavryk_user_cache.get(address=signer_address)
     signer_record           = await models.CouncilActionSigner(
         council_action              = action_record,
         signer                      = user

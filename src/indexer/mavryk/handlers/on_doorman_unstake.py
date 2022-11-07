@@ -28,9 +28,7 @@ async def on_doorman_unstake(
     accumulated_fees_per_share              = float(unstake.storage.accumulatedFeesPerShare)
 
     # Get or create the interacting user
-    user, _             = await models.MavrykUser.get_or_create(
-        address=initiator_address
-    )
+    user                                    = await models.mavryk_user_cache.get(address=initiator_address)
     user.mvk_balance                        = mvk_balance
     user.smvk_balance                       = smvk_balance
     await user.save()

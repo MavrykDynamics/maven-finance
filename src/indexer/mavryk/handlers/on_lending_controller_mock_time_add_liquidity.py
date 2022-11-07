@@ -38,10 +38,6 @@ async def on_lending_controller_mock_time_add_liquidity(
         address     = lending_controller_address,
         mock_time   = True
     )
-    depositor, _                            = await models.MavrykUser.get_or_create(
-        address = depositor_address
-    )
-    await depositor.save()
     lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
         lending_controller  = lending_controller,
         loan_token_address  = loan_token_address

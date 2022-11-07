@@ -39,8 +39,7 @@ async def on_governance_voting_round_vote(
 
     # Create and update records
     governance  = await models.Governance.get(address   = governance_address)
-    voter, _    = await models.MavrykUser.get_or_create(address = voter_address)
-    await voter.save()
+    voter       = await models.mavryk_user_cache.get(address=voter_address)
 
     # Update or a satellite snapshot record
     governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(

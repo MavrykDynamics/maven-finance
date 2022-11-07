@@ -23,10 +23,7 @@ async def on_lending_controller_vault_deposit_staked_mvk(
         address             = lending_controller_address,
         mock_time           = False
     )
-    vault_owner, _              = await models.MavrykUser.get_or_create(
-        address             = vault_owner_address
-    )
-    await vault_owner.save()
+    vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
 
     for vault_storage in vaults_storage:
         if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:

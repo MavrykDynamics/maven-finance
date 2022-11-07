@@ -21,10 +21,7 @@ async def on_lending_controller_register_vault_creation(
         address         = lending_controller_address,
         mock_time       = False
     )
-    vault_owner, _              = await models.MavrykUser.get_or_create(
-        address = vault_owner_address
-    )
-    await vault_owner.save()
+    vault_owner                 = await models.mavryk_user_cache.get(address=vault_owner_address)
     for vault_storage in vaults_storage:
         vault_address                           = vault_storage.value.address
         vault_loan_token_name                   = vault_storage.value.loanToken
