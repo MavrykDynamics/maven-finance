@@ -8,7 +8,7 @@ import { ThunkDispatch } from 'redux-thunk'
 import { State } from '../reducers'
 import { onStart } from './App.actions'
 import { AppRoutes } from './App.components/AppRoutes/AppRoutes.controller'
-import { setWallet } from './App.components/ConnectWallet/ConnectWallet.actions'
+import { connect, setWallet } from './App.components/ConnectWallet/ConnectWallet.actions'
 import { Menu } from './App.components/Menu/Menu.controller'
 import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
 import { Toaster } from './App.components/Toaster/Toaster.controller'
@@ -42,6 +42,13 @@ const AppContainer = () => {
     // })
 
     // For using Beacon wallet
+    if (
+      localStorage.getItem('beacon:active-account') &&
+      localStorage.getItem('beacon:active-account') !== 'undefined'
+    ) {
+      dispatch(connect())
+    }
+
     return () => {
       dispatch(setWallet())
     }
