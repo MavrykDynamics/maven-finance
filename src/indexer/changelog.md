@@ -4,13 +4,49 @@
 
 ### Deployment
 
-- DEV: 0.21
+- DEV: 0.22
 - PROD: 0.20
 - PROD2: 0.20
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.22
+
+### What's new
+
+- MavrykUser:
+
+  - Table is now cached (no impact on queries)
+
+- GovernanceProposalData:
+
+  - Table now shows null values
+
+- GovernancePaymentData:
+
+  - Table now shows null values
+
+- LiquidityBaking:
+
+  - Column SharePriceUSD added
+
+- LiquidityBakingPosition:
+
+  - Column AvgSharePriceUSD added
+
+- LiquidityBakingHistoryData:
+  - Column TokenPriceUSD added
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+  - Column Price renamed to TokenPrice
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.21</summary>
 
 ## Version 0.21
 
@@ -37,6 +73,10 @@
 
 - LiquidityBakingHistoryData:
   - Column XTZTokenPrice and TokenXTZPrice replaced by Price (BTC price in XTZ)
+
+</details>
+
+<details><summary>0.20</summary>
 
 ## Version 0.20
 
@@ -78,6 +118,10 @@
 - TokenSaleBuyOption
   - BuyOptionInternalId column renamed to InternalId
 
+</details>
+
+<details><summary>0.17/0.18</summary>
+
 ## Version 0.17/0.18
 
 ### What's new
@@ -110,6 +154,10 @@
 - LendingControllerCollateralToken
   - OracleType removed
 
+</details>
+
+<details><summary>0.16</summary>
+
 ## Version 0.16
 
 ### What's new
@@ -130,6 +178,10 @@
 - LendingController/Vault/VaultFactory/TokenPoolReward tables
 - dipdup_token_metadata: Metadata of all tokens in the system
 - dipdup_contract_metadata: Metadata of all contracts in the system (due to a BCD bug, some contracts don't have their metadata)
+
+</details>
+
+<details><summary>0.13</summary>
 
 ## Version 0.13
 
@@ -252,3 +304,7 @@
   | VaultDepositor &rarr; MavrykUser | vault_depositor_records | vault_depositors |
   | VestingVestee &rarr; Vesting | vestee_records | vestees |
   | VestingVestee &rarr; MavrykUser | vesting_vestee_records | vesting_vestees |
+
+</details>
+
+</details>

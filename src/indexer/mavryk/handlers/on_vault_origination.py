@@ -47,10 +47,7 @@ async def on_vault_origination(
     # Register depositors
     if type(depositors) == Whitelist:
         for depositor_address in depositors.whitelist:
-            depositor, _        = await models.MavrykUser.get_or_create(
-                address = depositor_address
-            )
-            await depositor.save()
+            depositor           = await models.mavryk_user_cache.get(address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = depositor

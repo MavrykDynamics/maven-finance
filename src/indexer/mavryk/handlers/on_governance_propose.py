@@ -53,10 +53,7 @@ async def on_governance_propose(
     satellite_snapshots     = propose.storage.snapshotLedger
 
     # Proposal record
-    user, _ = await models.MavrykUser.get_or_create(
-        address = proposer_address
-    )
-    await user.save()
+    user                    = await models.mavryk_user_cache.get(address=proposer_address)
 
     proposalRecord              = models.GovernanceProposal(
         id                              = int(governance.next_proposal_id),

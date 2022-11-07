@@ -22,9 +22,7 @@ async def on_doorman_compound(
     accumulated_fees_per_share      = float(compound.storage.accumulatedFeesPerShare)
 
     # Get or create the interacting user
-    user, _             = await models.MavrykUser.get_or_create(
-        address=sender_address
-    )
+    user                            = await models.mavryk_user_cache.get(address=sender_address)
     amount                          = smvk_balance - user.smvk_balance
     user.smvk_balance               = smvk_balance
     await user.save()
@@ -38,9 +36,7 @@ async def on_doorman_compound(
     await stake_account.save()
     
     # Get doorman info
-    doorman_user, _     = await models.MavrykUser.get_or_create(
-        address = doorman_address
-    )
+    doorman_user        = await models.mavryk_user_cache.get(address=doorman_address)
     smvk_total_supply   = doorman_user.mvk_balance
     smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
     avg_smvk_per_user   = smvk_total_supply / smvk_users

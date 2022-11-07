@@ -20,10 +20,7 @@ async def on_token_sale_buy_tokens(
     token_sale          = await models.TokenSale.get(
         address = token_sale_address
     )
-    buyer, _            = await models.MavrykUser.get_or_create(
-        address = buyer_address
-    )
-    await buyer.save()
+    buyer               = await models.mavryk_user_cache.get(address=buyer_address)
     for buy_option_index in buy_record_storage:
         buy_record_option       = buy_record_storage[buy_option_index]
         token_bought            = float(buy_record_option.tokenBought)
