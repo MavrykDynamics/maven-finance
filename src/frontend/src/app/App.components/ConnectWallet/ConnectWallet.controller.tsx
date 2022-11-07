@@ -26,25 +26,25 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   const dispatch = useDispatch()
   const history = useHistory()
   const [showWertIoPopup, setShowWertIoPopup] = useState(false)
-  const { wallet, ready, accountPkh } = useSelector((state: State) => state.wallet)
+  const { ready, accountPkh } = useSelector((state: State) => state.wallet)
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { myMvkTokenBalance = 0, mySMvkTokenBalance = 0 } = useSelector((state: State) => state.user)
   const isMobileView = useMedia('(max-width: 870px)')
 
-  const handleConnect = () => {
-    dispatch(connect())
+  const handleConnect = async () => {
+    await dispatch(connect())
   }
 
   const handleNewConnect = async () => {
     await dispatch(changeWallet())
   }
 
-  const disconnectWallet = () => {
-    dispatch(disconnect())
+  const disconnectWallet = async () => {
+    await dispatch(disconnect())
   }
 
-  const wertLoaderToogler = (loader?: typeof WERT_IO_LOADER) => {
-    dispatch(toggleLoader(loader))
+  const wertLoaderToogler = async (loader?: typeof WERT_IO_LOADER) => {
+    await dispatch(toggleLoader(loader))
   }
 
   const showWertIoErrorToaster = () => {
