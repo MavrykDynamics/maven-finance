@@ -9,11 +9,11 @@ import {
   UNSTAKE_ERROR,
   UNSTAKE_REQUEST,
   UNSTAKE_RESULT,
-  GET_STAKE_HISTORY_DATA,
   GET_SMVK_HISTORY_DATA,
+  GET_MVK_MINT_HISTORY_DATA,
 } from 'pages/Doorman/Doorman.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
-import { DoormanStorage, StakeHistoryData, SmvkHistoryData } from '../utils/TypesAndInterfaces/Doorman'
+import { DoormanStorage, MvkMintHistoryData, SmvkHistoryData } from '../utils/TypesAndInterfaces/Doorman'
 
 export const STAKE = 'STAKE'
 export const UNSTAKE = 'UNSTAKE'
@@ -25,7 +25,7 @@ export interface DoormanState {
   error?: object
   doormanStorage?: DoormanStorage
   totalStakedMvk?: number
-  stakeHistoryData: StakeHistoryData
+  mvkMintHistoryData: MvkMintHistoryData
   smvkHistoryData: SmvkHistoryData
 }
 
@@ -48,7 +48,7 @@ const doormanDefaultState: DoormanState = {
   error: undefined,
   doormanStorage: defaultStorageState,
   totalStakedMvk: 0,
-  stakeHistoryData: [],
+  mvkMintHistoryData: [],
   smvkHistoryData: [],
 }
 
@@ -122,11 +122,11 @@ export function doorman(state = doormanDefaultState, action: Action) {
         totalStakedMvk: action.totalStakedMvkSupply,
         amount: 0,
       }
-    case GET_STAKE_HISTORY_DATA:
+    case GET_MVK_MINT_HISTORY_DATA:
       return {
         ...state,
-        type: GET_STAKE_HISTORY_DATA,
-        stakeHistoryData: action.stakeHistoryData,
+        type: GET_MVK_MINT_HISTORY_DATA,
+        mvkMintHistoryData: action.mvkMintHistoryData,
       }
     case GET_SMVK_HISTORY_DATA:
       return {
