@@ -2,6 +2,7 @@ import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 import { Link } from 'react-router-dom'
 import { parseDate } from 'utils/time'
+import { Trim } from 'app/App.components/Trim/Trim.view'
 
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
@@ -11,7 +12,9 @@ export const UserDataFeedCard = ({ feed }: { feed: FeedGQL }) => {
       <SatelliteItemStyle className="userFeed">
         <div className="item">
           <h5>FeedGQL</h5>
-          <var>{feed.name}</var>
+          <var>
+            <Trim title={feed.name} />
+          </var>
         </div>
 
         <div className="item">

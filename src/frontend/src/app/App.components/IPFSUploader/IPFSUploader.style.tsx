@@ -20,7 +20,7 @@ export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
+export const UploaderFileSelector = styled.div<{ isUploaded: boolean; theme: MavrykTheme }>`
   cursor: pointer;
   height: 107px;
   width: 100%;
@@ -30,8 +30,14 @@ export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   justify-content: center;
   align-items: center;
   position: relative;
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%23503EAAFF' stroke-width='2' stroke-dasharray='10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-
+  ${({ isUploaded }) => isUploaded
+    ? `
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='rgb(39, 174, 96)' stroke-width='2' stroke-dasharray='10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+    ` : `
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='rgb(255, 67, 67)' stroke-width='2' stroke-dasharray='10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+    `
+  }
+  
   &.disabled {
     cursor: default;
   }

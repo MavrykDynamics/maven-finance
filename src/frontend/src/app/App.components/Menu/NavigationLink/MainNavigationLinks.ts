@@ -111,7 +111,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         id: 57477,
         subTitle: 'Satellite Nodes',
         subPath: 'satellite-nodes',
-        routeSubPath: '/satellite-nodes',
+        routeSubPath: ['/satellite-nodes', '/satellites/satellite-details/:tabId'],
         protectedRoute: false,
       },
       {
