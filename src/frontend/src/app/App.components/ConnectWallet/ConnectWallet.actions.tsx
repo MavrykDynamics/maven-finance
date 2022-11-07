@@ -1,14 +1,3 @@
-// import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
-// import { State } from 'reducers'
-
-// import { CLEAN_USER_DATA, getUserData } from '../../../pages/Doorman/Doorman.actions'
-// import { showToaster } from '../Toaster/Toaster.actions'
-// import { ERROR } from '../Toaster/Toaster.constants'
-// import type { AppDispatch, GetState } from '../../App.controller'
-
-// // const network = process.env.REACT_APP_API_NETWORK
-// const network = 'ghostnet'
-
 import { BeaconWallet } from '@taquito/beacon-wallet'
 import { Network, NetworkType } from '@airgap/beacon-sdk'
 import { TezosToolkit } from '@taquito/taquito'
@@ -17,12 +6,6 @@ import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 import { getUserData } from 'pages/Doorman/Doorman.actions'
 
-export const SET_WALLET = 'SET_WALLET'
-
-export const CONNECT = 'CONNECT'
-
-export const DISCONNECT = 'DISCONNECT'
-
 const Beacon_localStorage_keys = [
   'beacon:active-account',
   'beacon:postmessage-peers-dapp',
@@ -30,11 +13,16 @@ const Beacon_localStorage_keys = [
   'beacon:sdk-secret-seed',
   'beacon:sdk_version',
 ]
-export const network: Network = { type: NetworkType.MAINNET }
+
+export const network: Network = { type: NetworkType.GHOSTNET }
 export const WalletOptions = {
   name: process.env.REACT_APP_NAME || 'MAVRYK',
   preferredNetwork: network.type,
 }
+
+// TODO: check ts-ignores
+
+export const SET_WALLET = 'SET_WALLET'
 export const setWallet = (wallet?: BeaconWallet) => (dispatch: AppDispatch) => {
   try {
     const walletOptions = {
@@ -66,10 +54,12 @@ export const changeWallet = () => async (dispatch: AppDispatch) => {
   }
 }
 
+export const CONNECT = 'CONNECT'
 export const connect = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state = getState()
   try {
-    const rpcNetwork = state.preferences.REACT_APP_RPC_PROVIDER || 'https://mainnet.smartpy.io'
+    const rpcNetwork = state.preferences.REACT_APP_RPC_PROVIDER
+    //@ts-ignore
     const wallet = new BeaconWallet(WalletOptions)
     const walletResponse = await checkIfWalletIsConnected(wallet)
 
@@ -78,6 +68,7 @@ export const connect = () => async (dispatch: AppDispatch, getState: GetState) =
       let account = await wallet.client.getActiveAccount()
       if (!account) {
         await wallet.client.requestPermissions({
+          // @ts-ignore
           network,
         })
         account = await wallet.client.getActiveAccount()
@@ -97,6 +88,7 @@ export const connect = () => async (dispatch: AppDispatch, getState: GetState) =
   }
 }
 
+export const DISCONNECT = 'DISCONNECT'
 export const disconnect = () => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     const state = getState()
