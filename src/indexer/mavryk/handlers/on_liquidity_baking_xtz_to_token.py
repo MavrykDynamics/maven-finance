@@ -59,10 +59,7 @@ async def on_liquidity_baking_xtz_to_token(
     liquidity_baking.share_price_usd    = share_price * xtz_usd
     await liquidity_baking.save()
 
-    trader, _                       = await models.MavrykUser.get_or_create(
-        address = trader_address
-    )
-    await trader.save()
+    trader                          = await models.mavryk_user_cache.get(address=trader_address)
 
     liquidity_baking_history_data   = models.LiquidityBakingHistoryData(
         timestamp           = timestamp,

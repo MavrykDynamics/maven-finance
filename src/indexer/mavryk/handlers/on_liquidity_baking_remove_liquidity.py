@@ -35,6 +35,9 @@ async def on_liquidity_baking_remove_liquidity(
     token_address               = remove_liquidity.storage.tokenAddress
     lqt_address                 = remove_liquidity.storage.lqtAddress
     lqt_burned                  = float(remove_liquidity.parameter.lqtBurned)
+    lqt_balance                 = 0
+    if trader_address in mint_or_burn.storage.tokens:
+        lqt_balance = float(mint_or_burn.storage.tokens[trader_address])
     xtz_qty                     = float(transaction_3.amount)
     token_qty                   = float(transfer.parameter.value)
 
@@ -51,10 +54,7 @@ async def on_liquidity_baking_remove_liquidity(
     if token_pool_decimals > 0:
         price   = xtz_pool_decimals / token_pool_decimals
     
-    trader, _               = await models.MavrykUser.get_or_create(
-        address = trader_address
-    )
-    await trader.save()
+    trader                  = await models.mavryk_user_cache.get(address=trader_address)
 
     share_price             = 0
     if lqt_burned > 0:
@@ -65,7 +65,7 @@ async def on_liquidity_baking_remove_liquidity(
     )
     position.realized_pl    += lqt_burned * (share_price - position.avg_share_price)
     position.realized_pl    = round(position.realized_pl, liquidity_baking.xtz_decimals)
-    position.shares_qty     -= lqt_burned
+    position.shares_qty     = lqt_balance
     await position.save()
 
     liquidity_baking.token_pool         = token_pool

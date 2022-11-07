@@ -14,7 +14,12 @@ async def on_sirius_transfer(
     liquidity_baking_address    = transfer.storage.admin
     sender_address              = transfer.parameter.from_
     receiver_address            = transfer.parameter.to
-    amount                      = float(transfer.parameter.value)
+    sender_balance              = 0
+    if sender_address in transfer.storage.tokens:
+        sender_balance      = float(transfer.storage.tokens[sender_address])
+    receiver_balance            = 0
+    if receiver_address in transfer.storage.tokens:
+        receiver_balance    = float(transfer.storage.tokens[receiver_address])
 
     # Update record
     liquidity_baking, _         = await models.LiquidityBaking.get_or_create(
@@ -22,24 +27,18 @@ async def on_sirius_transfer(
     )
     await liquidity_baking.save()
 
-    sender, _               = await models.MavrykUser.get_or_create(
-        address = sender_address
-    )
-    await sender.save()
+    sender                  = await models.mavryk_user_cache.get(address=sender_address)
     sender_position, _      = await models.LiquidityBakingPosition.get_or_create(
         liquidity_baking    = liquidity_baking,
         trader              = sender
     )
-    sender_position.shares_qty  -= amount
+    sender_position.shares_qty      = sender_balance
     await sender_position.save()
 
-    receiver, _             = await models.MavrykUser.get_or_create(
-        address = receiver_address
-    )
-    await receiver.save()
+    receiver                = await models.mavryk_user_cache.get(address=receiver_address)
     receiver_position, _    = await models.LiquidityBakingPosition.get_or_create(
         liquidity_baking    = liquidity_baking,
         trader              = receiver
     )
-    receiver_position.shares_qty    += amount
+    receiver_position.shares_qty    = receiver_balance
     await receiver_position.save()

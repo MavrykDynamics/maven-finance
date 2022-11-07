@@ -37,10 +37,7 @@ async def on_lending_controller_set_collateral_token(
             address         = lending_controller_address,
             mock_time       = False
         )
-        oracle, _                   = await models.MavrykUser.get_or_create(
-            address = collateral_token_oracle_address
-        )
-        await oracle.save()
+        oracle                      = await models.mavryk_user_cache.get(address=collateral_token_oracle_address)
         lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
             lending_controller  = lending_controller,
             token_address       = collateral_token_address,

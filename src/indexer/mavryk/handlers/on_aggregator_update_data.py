@@ -30,10 +30,7 @@ async def on_aggregator_update_data(
     aggregator.last_completed_data_last_updated_at  = parser.parse(last_completed_data.lastUpdatedAt)
     await aggregator.save()
 
-    user, _                         = await models.MavrykUser.get_or_create(
-        address     = oracle_address
-    )
-    await user.save()
+    user                            = await models.mavryk_user_cache.get(address=oracle_address)
     oracle                          = await models.AggregatorOracle.get(
         aggregator  = aggregator,
         user        = user
@@ -72,10 +69,7 @@ async def on_aggregator_update_data(
         round                           = int(oracle_observation.round)
 
         # Create observation records
-        user, _                         = await models.MavrykUser.get_or_create(
-            address     = oracle_address
-        )
-        await user.save()
+        user                            = await models.mavryk_user_cache.get(address=oracle_address)
         oracle                          = await models.AggregatorOracle.get(
             aggregator  = aggregator,
             user        = user
