@@ -96,8 +96,8 @@ export function BreakGlassCouncil() {
   )
 
   const councilMemberMaxLength = {
-    councilMemberNameMaxLength: breakGlassStorage.config.councilMemberNameMaxLength,
-    councilMemberWebsiteMaxLength: breakGlassStorage.config.councilMemberWebsiteMaxLength,
+    councilMemberNameMaxLength: breakGlassStorage?.config?.councilMemberNameMaxLength,
+    councilMemberWebsiteMaxLength: breakGlassStorage?.config?.councilMemberWebsiteMaxLength,
   }
 
   const handleClickReview = () => {

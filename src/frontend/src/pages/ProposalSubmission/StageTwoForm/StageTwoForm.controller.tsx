@@ -30,7 +30,7 @@ import {
 
 export const StageTwoForm = ({
   proposalId,
-  currentProposal: { proposalData, title, locked },
+  currentProposal: { proposalData = [], title, locked },
   updateLocalProposalData,
   handleDropProposal,
 }: StageTwoFormProps) => {
