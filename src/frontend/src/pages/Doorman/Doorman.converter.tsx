@@ -1,5 +1,5 @@
 // type
-import { DoormanGraphQl, StakeHistoryDataGraphQl, SmvkHistoryDataGraphQl } from '../../utils/TypesAndInterfaces/Doorman'
+import { DoormanGraphQl, MvkMintHistoryDataGraphQl, SmvkHistoryDataGraphQl } from '../../utils/TypesAndInterfaces/Doorman'
 import { MvkTokenGraphQL } from '../../utils/TypesAndInterfaces/MvkToken'
 
 // helpers
@@ -30,24 +30,6 @@ export function normalizeMvkToken(storage: MvkTokenGraphQL | null) {
   }
 }
 
-type StakeHistoryDataProps = {
-  stake_history_data: StakeHistoryDataGraphQl[]
-}
-
-export function normalizeStakeHistoryData(storage: StakeHistoryDataProps) {
-  const { stake_history_data = [] } = storage
-
-  return stake_history_data?.length
-    ? stake_history_data?.map((item) => {
-        return {
-          yAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.final_amount)),
-          xAxis: item.timestamp,
-          type: item.type,
-        }
-      })
-    : []
-}
-
 type SmvkHistoryDataProps = {
   smvk_history_data: SmvkHistoryDataGraphQl[]
 }
@@ -59,6 +41,23 @@ export function normalizeSmvkHistoryData(storage: SmvkHistoryDataProps) {
     ? smvk_history_data?.map((item) => {
         return {
           yAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.smvk_total_supply)),
+          xAxis: item.timestamp,
+        }
+      })
+    : []
+}
+
+type MvkMintHistoryDataProps = {
+  mvk_mint_history_data: MvkMintHistoryDataGraphQl[]
+}
+
+export function normalizeMvkMintHistoryData(storage: MvkMintHistoryDataProps) {
+  const { mvk_mint_history_data = [] } = storage
+
+  return mvk_mint_history_data?.length
+    ? mvk_mint_history_data?.map((item) => {
+        return {
+          yAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.mvk_total_supply)),
           xAxis: item.timestamp,
         }
       })
