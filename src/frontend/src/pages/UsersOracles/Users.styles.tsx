@@ -9,7 +9,7 @@ export const UsersListWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  margin-top: 30px;
+  margin-top: 20px;
 `
 
 export const UserCardWrapper = styled.div`
@@ -21,7 +21,7 @@ export const UserCardWrapper = styled.div`
   background: #160e3f;
   border: 1px solid #503eaa;
   border-radius: 10px;
-  height: 100%;
+  height: 185px;
   transition: 0.6s all;
 
   .top-wrapper {
