@@ -47,8 +47,7 @@ async def on_governance_satellite_vote_for_action(
         action_record.execution_datetime    = timestamp
     await action_record.save()
 
-    voter, _                = await models.MavrykUser.get_or_create(address = voter_address)
-    await voter.save()
+    voter                   = await models.mavryk_user_cache.get(address=voter_address)
 
     # Register vote
     satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(
@@ -68,8 +67,7 @@ async def on_governance_satellite_vote_for_action(
 
     # Save other personal executions
     for oracle_address in satellite_oracle_ledger:
-        oracle, _               = await models.MavrykUser.get_or_create(address = oracle_address)
-        await oracle.save()
+        oracle                      = await models.mavryk_user_cache.get(address=oracle_address)
         satellite_oracle_storage    = satellite_oracle_ledger[oracle_address]
         aggregators                 = satellite_oracle_storage
         satellite_oracle_record, _  = await models.GovernanceSatelliteOracle.get_or_create(

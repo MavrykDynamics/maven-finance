@@ -41,9 +41,11 @@ async def on_governance_update_proposal_data(
             proposal_data.title              = proposal_single_data.title
             proposal_data.encoded_code       = proposal_single_data.encodedCode
             proposal_data.code_description   = proposal_single_data.codeDescription
-            await proposal_data.save()
         else:
-            await proposal_data.delete()
+            proposal_data.title              = None
+            proposal_data.encoded_code       = None
+            proposal_data.code_description   = None
+        await proposal_data.save()
 
     # Update payment data
     for payment_data_index in payment_data_storage:
@@ -80,10 +82,7 @@ async def on_governance_update_proposal_data(
 
             # Get receiver
             receiver_address                = payment_single_data.transaction.to_
-            receiver, _                     = await models.MavrykUser.get_or_create(
-                address = receiver_address
-            )
-            await receiver.save()
+            receiver                        = await models.mavryk_user_cache.get(address=receiver_address)
 
             # Save the payment record
             payment_data.title              = payment_single_data.title
@@ -91,6 +90,10 @@ async def on_governance_update_proposal_data(
             payment_data.token_id           = token_id
             payment_data.to_                = receiver
             payment_data.token_amount       = float(payment_single_data.transaction.amount)
-            await payment_data.save()
         else:
-            await payment_data.delete()
+            payment_data.title              = None
+            payment_data.token_address      = None
+            payment_data.token_id           = None
+            payment_data.to_                = None
+            payment_data.token_amount       = None
+        await payment_data.save()

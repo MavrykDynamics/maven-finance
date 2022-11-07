@@ -87,8 +87,7 @@ async def on_break_glass_sign_action(
             await updated_member.save() 
     
     # Create signature record
-    user, _                 = await models.MavrykUser.get_or_create(address = signer_address)
-    await user.save()
+    user                    = await models.mavryk_user_cache.get(address=signer_address)
     signer_record           = await models.BreakGlassActionSigner(
         break_glass_action          = action_record,
         signer                      = user

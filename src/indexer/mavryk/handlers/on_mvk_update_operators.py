@@ -18,15 +18,8 @@ async def on_mvk_update_operators(
             ownerAddress        = operatorChange.add_operator.owner
             operatorAddress     = operatorChange.add_operator.operator
             
-            owner, _            = await models.MavrykUser.get_or_create(
-                address = ownerAddress
-            )
-            await owner.save()
-            
-            operator, _         = await models.MavrykUser.get_or_create(
-                address = operatorAddress
-            )
-            await operator.save()
+            owner               = await models.mavryk_user_cache.get(address=ownerAddress)            
+            operator            = await models.mavryk_user_cache.get(address=operatorAddress)
 
             operatorRecord, _   = await models.MavrykUserOperator.get_or_create(
                 owner       = owner,
@@ -37,15 +30,9 @@ async def on_mvk_update_operators(
             ownerAddress        = operatorChange.remove_operator.owner
             operatorAddress     = operatorChange.remove_operator.operator
             
-            owner, _            = await models.MavrykUser.get_or_create(
-                address = ownerAddress
-            )
-            await owner.save()
-            
-            operator, _         = await models.MavrykUser.get_or_create(
-                address = operatorAddress
-            )
-            await operator.save()
+            owner               = await models.mavryk_user_cache.get(address=ownerAddress)
+            operator            = await models.mavryk_user_cache.get(address=operatorAddress)
+
 
             operatorRecord, _   = await models.MavrykUserOperator.get_or_create(
                 owner       = owner,

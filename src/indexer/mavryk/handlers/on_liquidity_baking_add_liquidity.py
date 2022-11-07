@@ -57,10 +57,7 @@ async def on_liquidity_baking_add_liquidity(
         price   = xtz_pool_decimals / token_pool_decimals
     value                   = xtz_qty_decimals + price * token_qty_decimals
 
-    trader, _               = await models.MavrykUser.get_or_create(
-        address = trader_address
-    )
-    await trader.save()
+    trader                  = await models.mavryk_user_cache.get(address=trader_address)
 
     shares_qty              = lqt_balance
     position, _             = await models.LiquidityBakingPosition.get_or_create(
@@ -71,7 +68,8 @@ async def on_liquidity_baking_add_liquidity(
     if (shares_qty - position.shares_qty) > 0:
         share_price = value / (shares_qty - position.shares_qty)
     if shares_qty > 0:
-        position.avg_share_price    = (position.shares_qty * position.avg_share_price + value) / shares_qty
+        position.avg_share_price        = (position.shares_qty * position.avg_share_price + value) / shares_qty
+        position.avg_share_price_usd    = position.avg_share_price * xtz_usd
     position.shares_qty      = shares_qty
     await position.save()
 

@@ -26,6 +26,7 @@ class LiquidityBakingPosition(Model):
     trader                                  = fields.ForeignKeyField('models.MavrykUser', related_name='liquidity_baking_positions')
     shares_qty                              = fields.FloatField(default=0.0)
     avg_share_price                         = fields.FloatField(default=0.0)
+    avg_share_price_usd                     = fields.FloatField(default=0.0)
     realized_pl                             = fields.FloatField(default=0.0)
 
     class Meta:

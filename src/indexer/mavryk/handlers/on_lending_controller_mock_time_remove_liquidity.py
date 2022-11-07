@@ -12,7 +12,6 @@ async def on_lending_controller_mock_time_remove_liquidity(
 
     # Get operation info
     lending_controller_address              = remove_liquidity.data.target_address
-    depositor_address                       = remove_liquidity.data.sender_address
     loan_token_name                         = remove_liquidity.parameter.loanTokenName
     loan_token_storage                      = remove_liquidity.storage.loanTokenLedger[loan_token_name]
     loan_token_type_storage                 = loan_token_storage.tokenType
@@ -38,10 +37,6 @@ async def on_lending_controller_mock_time_remove_liquidity(
         address         = lending_controller_address,
         mock_time       = True
     )
-    depositor, _                            = await models.MavrykUser.get_or_create(
-        address = depositor_address
-    )
-    await depositor.save()
     lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
         lending_controller  = lending_controller,
         loan_token_address  = loan_token_address
