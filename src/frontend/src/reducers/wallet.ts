@@ -3,14 +3,25 @@ import { TempleWallet } from '@temple-wallet/dapp'
 import { TezosToolkit } from '@taquito/taquito'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { BeaconWallet } from '@taquito/beacon-wallet'
+import { preferencesDefaultState } from './preferences'
 
+// Temple wallet types
 // export interface WalletState {
 //   wallet?: TempleWallet
 //   tezos?: TezosToolkit
 //   accountPkh?: string
 //   ready: boolean
 // }
-const RpcNetwork = 'https://mainnet.smartpy.io'
+
+// const walletDefaultState: WalletState = {
+//   wallet: undefined,
+//   tezos: undefined,
+//   accountPkh: undefined,
+//   ready: false,
+// }
+
+const RpcNetwork = preferencesDefaultState.REACT_APP_RPC_PROVIDER
+
 export interface WalletState {
   wallet?: BeaconWallet
   tezos: TezosToolkit
@@ -20,13 +31,6 @@ export interface WalletState {
   connect?: any
   toTezos?: () => number | any
 }
-
-// const walletDefaultState: WalletState = {
-//   wallet: undefined,
-//   tezos: undefined,
-//   accountPkh: undefined,
-//   ready: false,
-// }
 
 export const walletDefaultState: WalletState = {
   wallet: undefined,

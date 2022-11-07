@@ -29,7 +29,7 @@ export interface PreferencesState {
   sidebarOpened: boolean
 }
 
-const preferencesDefaultState: PreferencesState = {
+export const preferencesDefaultState: PreferencesState = {
   themeSelected: getItemFromStorage('theme') || 'dark',
   changeNodePopupOpen: false,
   sidebarOpened: false,
