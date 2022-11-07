@@ -1,7 +1,7 @@
 import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
-import type { AppDispatch, GetState } from '../app/App.controller'
+import type { AppDispatch } from '../app/App.controller'
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 const isIPFS = require('is-ipfs')
@@ -93,7 +93,7 @@ export const validateFormField = (setFormInputStatus: (value: React.SetStateActi
 
     // if maxLength is missing, we check only for an empty field
     const checkMaxLengthField = maxLength ? isValidLength(value, 1, maxLength) ? 'success' : 'error' : 'success'
-    const checkEmptyField = value ? checkMaxLengthField : 'error'
+    const checkEmptyField = isNotAllWhitespace(value) ? checkMaxLengthField : 'error'
 
     return { ...prev, [name]: checkEmptyField }
   })

@@ -63,8 +63,8 @@ export const Council = () => {
   const { councilMembers } = councilStorage
 
   const councilMemberMaxLength = {
-    councilMemberNameMaxLength: councilStorage.councilMemberNameMaxLength,
-    councilMemberWebsiteMaxLength: councilStorage.councilMemberWebsiteMaxLength,
+    councilMemberNameMaxLength: councilStorage?.councilMemberNameMaxLength,
+    councilMemberWebsiteMaxLength: councilStorage?.councilMemberWebsiteMaxLength,
   }
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
