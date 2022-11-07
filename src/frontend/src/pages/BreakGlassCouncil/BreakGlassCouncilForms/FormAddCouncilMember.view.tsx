@@ -13,7 +13,7 @@ import { InputStatusType } from 'app/App.components/Input/Input.constants'
 import { CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
 
 // helpers 
-import { validateForm } from '../../Council/Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 // styles
 import { FormStyled } from './BreakGlassCouncilForm.style'
@@ -73,7 +73,7 @@ export function FormAddCouncilMemberView({ councilMemberMaxLength }: Props) {
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   return (
     <FormStyled>

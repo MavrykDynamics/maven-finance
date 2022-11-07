@@ -22,7 +22,7 @@ import { changeCouncilMember } from '../BreakGlassCouncil.actions'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
-import { validateForm } from '../../Council/Council.helpers'
+import { validateFormField } from 'utils/validatorFunctions' 
 
 type Props = {
   councilMemberMaxLength: CouncilMemberMaxLength
@@ -99,7 +99,7 @@ export function FormChangeCouncilMemberView({ councilMemberMaxLength }: Props) {
     })
   }
 
-  const handleBlur = validateForm(setFormInputStatus)
+  const handleBlur = validateFormField(setFormInputStatus)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
