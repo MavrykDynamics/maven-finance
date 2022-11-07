@@ -30,10 +30,10 @@ export const setWallet = (wallet?: BeaconWallet) => (dispatch: AppDispatch) => {
       type: SET_WALLET,
       wallet,
     })
-  } catch (err: any) {
-    console.error(`Failed to initiate wallet: ${err.message}`)
-    if (err instanceof Error) {
-      dispatch(showToaster(ERROR, 'Failed to initiate wallet', err.message))
+  } catch (e) {
+    console.error(`Failed to initiate wallet: `, e)
+    if (e instanceof Error) {
+      dispatch(showToaster(ERROR, 'Failed to initiate wallet', e.message))
     }
   }
 }
@@ -42,10 +42,10 @@ export const changeWallet = () => async (dispatch: AppDispatch) => {
   try {
     await dispatch(disconnect())
     await dispatch(connect())
-  } catch (err: any) {
-    console.error(`Failed to change wallet: `, err)
-    if (err instanceof Error) {
-      dispatch(showToaster(ERROR, 'Failed to change wallet', err.message))
+  } catch (e) {
+    console.error(`Failed to change wallet: `, e)
+    if (e instanceof Error) {
+      dispatch(showToaster(ERROR, 'Failed to change wallet', e.message))
     }
   }
 }
@@ -79,10 +79,10 @@ export const connect = () => async (dispatch: AppDispatch, getState: GetState) =
       })
       if (account?.address) dispatch(getUserData(account?.address))
     }
-  } catch (err: any) {
-    console.error(`Failed to connect wallet:`, err)
-    if (err instanceof Error) {
-      dispatch(showToaster(ERROR, `Failed to connect wallet:`, err.message))
+  } catch (e) {
+    console.error(`Failed to connect wallet:`, e)
+    if (e instanceof Error) {
+      dispatch(showToaster(ERROR, `Failed to connect wallet:`, e.message))
     }
   }
 }
@@ -97,10 +97,10 @@ export const disconnect = () => async (dispatch: AppDispatch, getState: GetState
 
     dispatch({ type: DISCONNECT })
     dispatch(setWallet())
-  } catch (err) {
-    console.error(`Failed to disconnect TempleWallet: `, err)
-    if (err instanceof Error) {
-      dispatch(showToaster(ERROR, 'Failed to disconnect TempleWallet', err.message))
+  } catch (e) {
+    console.error(`Failed to disconnect TempleWallet: `, e)
+    if (e instanceof Error) {
+      dispatch(showToaster(ERROR, 'Failed to disconnect TempleWallet', e.message))
     }
   }
 }
