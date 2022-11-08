@@ -19,6 +19,7 @@ import { checkWhetherBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE }
 import { updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 import { isValidLength } from 'utils/validatorFunctions'
+import { isHexadecimal } from 'utils/validatorFunctions'
 
 // styles
 import {
@@ -71,7 +72,9 @@ export const StageTwoForm = ({
         && (getBytesPairValidationStatus(text, type, byte.id, proposalData) === 'success')
         ? 'success' : 'error'
     } else {
-      validationStatus = getBytesPairValidationStatus(text, type, byte.id, proposalData)
+      validationStatus = isHexadecimal(text)
+        && (getBytesPairValidationStatus(text, type, byte.id, proposalData) === 'success')
+        ? 'success' : 'error'
     }
     
     setBytesValidation(

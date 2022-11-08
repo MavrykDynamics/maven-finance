@@ -99,3 +99,8 @@ export const validateFormField = (setFormInputStatus: (value: React.SetStateActi
     return { ...prev, [name]: checkEmptyField }
   })
 }
+
+export const isHexadecimal = (value: string) => {
+  const regex = /[0-9A-Fa-f]{6}/g;
+  return value.match(regex) ? true : false
+}
