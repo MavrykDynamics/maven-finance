@@ -101,6 +101,7 @@ export function normalizeSatelliteRecord(
         },
       )
 
+      // TODO: add calculation for oracle status
       const isActive = false //last_updated_at ? Date.now() - new Date(last_updated_at).getTime() < 24 * 60 * 60 * 1000 : false
 
       return {
