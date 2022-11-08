@@ -19,7 +19,12 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 
 // const
-import { checkWhetherBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
+import {
+  checkBytesPairExists,
+  checkWhetherBytesIsValid,
+  getBytesPairValidationStatus,
+  PROPOSAL_BYTE,
+} from '../ProposalSubmition.helpers'
 import { updateProposalData } from '../ProposalSubmission.actions'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
@@ -54,9 +59,10 @@ export const StageTwoForm = ({
 
   // effect to track change of proposal, by tab clicking, and default validate it
   useEffect(() => {
-    if (proposalData.length === 0) {
+    if (!proposalData.some(checkBytesPairExists)) {
       handleCreateNewByte()
     }
+
     setBytesValidation(
       proposalData.map(({ id, title, encoded_code }) =>
         title && encoded_code
@@ -101,6 +107,7 @@ export const StageTwoForm = ({
       proposalId &&
       bytesValidation.find(({ validBytes, validTitle }) => validBytes !== ERROR && validTitle !== ERROR)
     ) {
+      //TODO: add creatign changes diff
       await dispatch(updateProposalData([], proposalId))
     }
   }
@@ -133,7 +140,16 @@ export const StageTwoForm = ({
       // removing added bytes pair from proposal data to display
       updateLocalProposalData(
         {
-          proposalData: proposalData.filter(({ id }) => id !== removeId),
+          proposalData: proposalData.map((item) =>
+            item.id === removeId
+              ? {
+                  ...item,
+                  title: null,
+                  encoded_code: null,
+                  code_description: null,
+                }
+              : item,
+          ),
         },
         proposalId,
       )
@@ -247,7 +263,7 @@ export const StageTwoForm = ({
           const existInServer = Boolean(proposalData?.find(({ id }) => item.id === id && !item.isLocalBytes))
           const validityObject = bytesValidation.find(({ proposalId }) => proposalId === item.id)
 
-          if (!item.title || !item.encoded_code) return null
+          if (!checkBytesPairExists(item)) return null
 
           return (
             <article
@@ -265,7 +281,7 @@ export const StageTwoForm = ({
                 <label>Enter Proposal Bytes Title</label>
                 <Input
                   type="text"
-                  value={item.title}
+                  value={item.title ?? ''}
                   required
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOnChange(item, e.target.value, 'title')}
                   onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(item, e.target.value, 'validTitle')}
@@ -277,7 +293,7 @@ export const StageTwoForm = ({
               <label>Enter Proposal Bytes Title</label>
               <TextArea
                 className="step-2-textarea"
-                value={item.encoded_code}
+                value={item.encoded_code ?? ''}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   handleOnChange(item, e.target.value, 'encoded_code')
                 }

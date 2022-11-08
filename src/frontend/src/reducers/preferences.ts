@@ -34,10 +34,10 @@ export const preferencesDefaultState: PreferencesState = {
   changeNodePopupOpen: false,
   sidebarOpened: false,
   RPC_NODES: [
-    { title: 'MARIGOLD', url: 'https://jakartanet.tezos.marigold.dev/', nodeLogoUrl: 'marigold_logo.png' },
-    { title: 'ECADLABS', url: 'https://jakartanet.ecadinfra.com', nodeLogoUrl: 'ECAD_logo.png' },
+    { title: 'MARIGOLD', url: 'https://ghostnet.tezos.marigold.dev/', nodeLogoUrl: 'marigold_logo.png' },
+    { title: 'ECADLABS', url: 'https://ghostnet.smartpy.io', nodeLogoUrl: 'ECAD_logo.png' },
   ],
-  REACT_APP_RPC_PROVIDER: 'https://jakartanet.tezos.marigold.dev/',
+  REACT_APP_RPC_PROVIDER: 'https://ghostnet.tezos.marigold.dev/',
 }
 
 export function preferences(state = preferencesDefaultState, action: Action) {

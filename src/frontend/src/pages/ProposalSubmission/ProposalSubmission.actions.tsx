@@ -15,6 +15,8 @@ import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 import { ROCKET_LOADER } from 'utils/constants'
 import { PaymentsDataChangesType, ProposalDataChangesType } from './ProposalSybmittion.types'
+import { checkIfWalletIsConnected, WalletOptions } from 'app/App.components/ConnectWallet/ConnectWallet.actions'
+import { BeaconWallet } from '@taquito/beacon-wallet'
 
 export const submitProposal =
   (form: SubmitProposalForm, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
@@ -31,13 +33,23 @@ export const submitProposal =
     }
 
     try {
+      const rpcNetwork = state.preferences.REACT_APP_RPC_PROVIDER || 'https://mainnet.smartpy.io'
+      // @ts-ignore
+      // const wallet = new BeaconWallet(WalletOptions)
+      // const walletResponse = await checkIfWalletIsConnected(wallet)
+
+      // if (walletResponse.success) {
+      //   const tzs = state.wallet.tezos
+      //   await tzs.setRpcProvider(rpcNetwork)
+      //   await tzs.setWalletProvider(wallet)
       const { title, description, ipfs, sourceCode } = form
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+      const query = await contract?.methods.propose(title, description, ipfs, sourceCode).send({ amount })
 
       await dispatch(toggleLoader(ROCKET_LOADER))
       await dispatch(showToaster(INFO, 'Submitting proposal...', 'Please wait 30s'))
 
-      await (await contract?.methods.propose(title, description, ipfs, sourceCode).send({ amount }))?.confirmation()
+      await query?.confirmation()
 
       await dispatch(showToaster(SUCCESS, 'Proposal Submitted.', 'All good :)'))
       await dispatch(toggleLoader())
@@ -45,6 +57,7 @@ export const submitProposal =
       await dispatch(getGovernanceStorage())
       await dispatch(getDelegationStorage())
       await dispatch(getCurrentRoundProposals())
+      // }
     } catch (error) {
       console.error('submitProposal error:', error)
       if (error instanceof Error) {
