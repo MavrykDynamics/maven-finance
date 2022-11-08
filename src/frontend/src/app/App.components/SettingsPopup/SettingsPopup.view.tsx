@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { RPCNodeType } from 'reducers/preferences'
 import { ACTION_PRIMARY, TRANSPARENT } from '../Button/Button.constants'
-import { Button } from '../Button/Button.controller'
 import {
   DARK_THEME,
   LIGHT_THEME,
@@ -20,6 +19,7 @@ import {
   DescrText,
   PopupContainerWrapper,
   PopupTitle,
+  Button
 } from './SettingsPopup.style'
 
 export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) => {
@@ -105,6 +105,7 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
             kind={TRANSPARENT}
             onClick={() => setNewThemeHandler(SPACE_THEME)}
             className={`theme-btn ${themeSelected === SPACE_THEME ? 'selected' : ''}`}
+            disabled
           />
           <Button
             text={'Dark'}
@@ -117,6 +118,7 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
             kind={TRANSPARENT}
             onClick={() => setNewThemeHandler(LIGHT_THEME)}
             className={`theme-btn ${themeSelected === LIGHT_THEME ? 'selected' : ''}`}
+            disabled
           />
         </div>
       </div>
