@@ -88,6 +88,7 @@ export function isValidLength(input: string, minLength: number, maxLength: numbe
 }
 
 export const isValidRPCNode = (input: string): boolean => {
+  if (!input) return false
   let result
 
   try {
