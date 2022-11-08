@@ -1,7 +1,8 @@
+import { TezosToolkit } from '@taquito/taquito'
 import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
-import type { AppDispatch, GetState } from '../app/App.controller'
+import type { AppDispatch } from '../app/App.controller'
 
 const isIPFS = require('is-ipfs')
 
@@ -84,4 +85,16 @@ export const containsCode = (str: string) => /<[a-z][\s\S]*>/i.test(str) || /eva
 
 export function isValidLength(input: string, minLength: number, maxLength: number) {
   return input.length >= minLength && input.length <= maxLength
+}
+
+export const isValidRPCNode = (input: string): boolean => {
+  let result
+
+  try {
+    result = Boolean(new TezosToolkit(input))
+  } catch {
+    result = false
+  }
+  
+  return result;
 }
