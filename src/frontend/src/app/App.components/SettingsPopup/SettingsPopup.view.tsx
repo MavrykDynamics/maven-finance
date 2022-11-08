@@ -3,7 +3,14 @@ import React, { useCallback, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { RPCNodeType } from 'reducers/preferences'
+
+// helpers
 import { ACTION_PRIMARY, TRANSPARENT } from '../Button/Button.constants'
+import { isValidRPCNode } from 'utils/validatorFunctions'
+
+
+// actions
+import { selectNewRPCNode, setNewRPCNodes } from './SettingsPopup.actions'
 import {
   DARK_THEME,
   LIGHT_THEME,
@@ -11,8 +18,8 @@ import {
   themeSetterAction,
   ThemeType,
 } from '../DarkThemeProvider/DarkThemeProvider.actions'
-import { selectNewRPCNode, setNewRPCNodes } from './SettingsPopup.actions'
 
+// styles
 import {
   ChangeNodeNodesList,
   ChangeNodeNodesListItem,
@@ -22,6 +29,9 @@ import {
   Button
 } from './SettingsPopup.style'
 
+// types
+import { InputStatusType } from 'app/App.components/Input/Input.constants'
+
 export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) => {
   const dispatch = useDispatch()
   const { RPC_NODES, REACT_APP_RPC_PROVIDER, themeSelected } = useSelector((state: State) => state.preferences)
@@ -29,6 +39,17 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
   const [inputData, setInputData] = useState('')
   const [expandedInput, setExpandedInput] = useState(false)
   const [selectedNodeByClick, setSelectedNodeByClick] = useState(REACT_APP_RPC_PROVIDER)
+  const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
+    add_new_node_input: '',
+  })
+
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setExpandedInput(false)
+
+    setFormInputStatus((prev) => {
+      return { ...prev, [e.target.name]: isValidRPCNode(e.target.value) ? 'success' : 'error' }
+    })
+  }
 
   const confirmHandler = useCallback(() => {
     if (inputData) {
@@ -77,8 +98,9 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
             value={inputData}
             type="text"
             onFocus={() => setExpandedInput(true)}
-            onBlur={() => setExpandedInput(false)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputData(e.target.value)}
+            inputStatus={formInputStatus.add_new_node_input}
           />
         </ChangeNodeNodesListItem>
 
