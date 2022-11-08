@@ -28,8 +28,6 @@ export type StageTwoFormProps = {
   currentProposal: ProposalRecordType
   updateLocalProposalData: ChangeProposalFnType
   handleDropProposal: (proposalId: number) => void
-  proposalChangesState: ProposalChangesStateType
-  setProposalsChangesState: (arg: ProposalChangesStateType) => void
 }
 
 export type StageThreeFormProps = {
@@ -38,8 +36,6 @@ export type StageThreeFormProps = {
   updateLocalProposalData: ChangeProposalFnType
   handleDropProposal: (proposalId: number) => void
   handleLockProposal: (proposalId: number) => void
-  proposalChangesState: ProposalChangesStateType
-  setProposalsChangesState: (arg: ProposalChangesStateType) => void
 }
 
 export type StageThreeValidityItem = 'token_amount' | 'to__id' | 'title'

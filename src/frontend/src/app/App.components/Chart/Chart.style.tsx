@@ -21,3 +21,35 @@ export const ChartTooltip = styled.div<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.headerColor};
   }
 `
+
+export const Plug = styled.div`
+  div {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 60px;
+
+    .icon-cow {
+      position: absolute;
+      width: 73px;
+      height: 70px;
+    }
+
+    .icon-stars {
+      width: 238px;
+      height: 82px;
+    }
+  }
+
+  p {
+    margin-top: 55px;
+
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+  
+    text-align: center;
+    color: ${({ theme }) => theme.headerColor};
+  }
+`

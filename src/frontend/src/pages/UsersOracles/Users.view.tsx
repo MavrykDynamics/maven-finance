@@ -9,7 +9,7 @@ import { UserType } from '../../utils/TypesAndInterfaces/User'
 const UsersView = ({ users }: { users: UserType[] }) => {
   return (
     <Page>
-      <PageHeader page={'data-feeds'} />
+      <PageHeader page={'oracles-users'} />
 
       <UsersStyled>
         <GovRightContainerTitleArea>
