@@ -62,6 +62,11 @@ export const ProposalSubmission = () => {
   )
 
   const [proposalState, setProposalsState] = useState(mappedProposals)
+  const [proposalHasChange, setProposalHasChange] = useState(false)
+  const currentOriginalProposal = useMemo(
+    () => currentRoundProposals.find(({ id }) => selectedUserProposalId === id),
+    [selectedUserProposalId],
+  )
 
   const handleChangeTab = useCallback((tabId?: number) => {
     setActiveTab(tabId ?? 0)
@@ -146,6 +151,9 @@ export const ProposalSubmission = () => {
             currentProposal={currentProposal}
             updateLocalProposalData={updateLocalProposalData}
             handleDropProposal={handleDropProposal}
+            proposalHasChange={proposalHasChange}
+            setProposalHasChange={setProposalHasChange}
+            currentOriginalProposal={currentOriginalProposal}
           />
         )}
         {activeTab === 3 && (

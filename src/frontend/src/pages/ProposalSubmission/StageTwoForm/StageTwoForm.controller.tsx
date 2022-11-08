@@ -22,6 +22,7 @@ import { TextArea } from '../../../app/App.components/TextArea/TextArea.controll
 import {
   checkBytesPairExists,
   checkWhetherBytesIsValid,
+  getBytesDiff,
   getBytesPairValidationStatus,
   PROPOSAL_BYTE,
 } from '../ProposalSubmition.helpers'
@@ -40,11 +41,16 @@ import {
   FormTitleEntry,
 } from '../ProposalSubmission.style'
 
+// valiv bytes text: 05050505080508050805050505050505080505050507070017050505050508030b
+
 export const StageTwoForm = ({
   proposalId,
   currentProposal: { proposalData, title, locked },
   updateLocalProposalData,
   handleDropProposal,
+  currentOriginalProposal,
+  setProposalHasChange,
+  proposalHasChange,
 }: StageTwoFormProps) => {
   const dispatch = useDispatch()
   const {
@@ -56,6 +62,13 @@ export const StageTwoForm = ({
   } = useSelector((state: State) => state.governance)
   const isProposalPeriod = governancePhase === 'PROPOSAL'
   const [bytesValidation, setBytesValidation] = useState<ValidationStateType>([])
+  const isAllBytesValid = useMemo(
+    () =>
+      bytesValidation.every(
+        ({ validBytes, validTitle }) => validBytes === INPUT_STATUS_SUCCESS && validTitle === INPUT_STATUS_SUCCESS,
+      ),
+    [proposalHasChange, bytesValidation],
+  )
 
   // effect to track change of proposal, by tab clicking, and default validate it
   useEffect(() => {
@@ -64,28 +77,25 @@ export const StageTwoForm = ({
     }
 
     setBytesValidation(
-      proposalData.map(({ id, title, encoded_code }) =>
-        title && encoded_code
-          ? {
-              validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle') : '',
-              validBytes: proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes') : '',
-              proposalId: id,
-            }
-          : {
-              validTitle: 'success',
-              validBytes: 'success',
-              proposalId: id,
-            },
-      ),
+      proposalData.reduce<ValidationStateType>((acc, { id, title, encoded_code }) => {
+        if (title && encoded_code) {
+          acc.push({
+            validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle') : '',
+            validBytes: proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes') : '',
+            pairId: id,
+          })
+        }
+
+        return acc
+      }, []),
     )
   }, [proposalId, proposalData])
 
-  // INPUT HANDLERS: doing validation on input blur
   const handleOnBlur = (byte: ProposalBytesType, text: string, type: 'validTitle' | 'validBytes') => {
     const validationStatus = getBytesPairValidationStatus(text, type)
     setBytesValidation(
       bytesValidation.map((validationObj) =>
-        validationObj.proposalId === byte.id ? { ...validationObj, [type]: validationStatus } : validationObj,
+        validationObj.pairId === byte.id ? { ...validationObj, [type]: validationStatus } : validationObj,
       ),
     )
   }
@@ -99,16 +109,17 @@ export const StageTwoForm = ({
       },
       proposalId,
     )
+    setProposalHasChange(true)
   }
 
-  // adding new bytes to server | updating bytes | saving order
   const submitBytePairs = async () => {
-    if (
-      proposalId &&
-      bytesValidation.find(({ validBytes, validTitle }) => validBytes !== ERROR && validTitle !== ERROR)
-    ) {
-      //TODO: add creatign changes diff
-      await dispatch(updateProposalData([], proposalId))
+    if (proposalId && isAllBytesValid && currentOriginalProposal) {
+      console.log('currentOriginalProposal', currentOriginalProposal, proposalData)
+      const bytesDiff = getBytesDiff(currentOriginalProposal.proposalData, proposalData)
+      console.log('bytesDiff', bytesDiff)
+
+      await dispatch(updateProposalData(proposalId, bytesDiff))
+      setProposalHasChange(false)
     }
   }
 
@@ -130,6 +141,7 @@ export const StageTwoForm = ({
       },
       proposalId,
     )
+    setProposalHasChange(true)
   }
 
   // removing bytes pair
@@ -137,35 +149,21 @@ export const StageTwoForm = ({
     const pairToRemove = proposalData.find(({ id }) => removeId === id)
 
     if (pairToRemove) {
-      // removing added bytes pair from proposal data to display
       updateLocalProposalData(
         {
-          proposalData: proposalData.map((item) =>
-            item.id === removeId
-              ? {
-                  ...item,
-                  title: null,
-                  encoded_code: null,
-                  code_description: null,
-                }
-              : item,
-          ),
+          proposalData: proposalData.filter(({ id }) => id !== removeId),
         },
         proposalId,
       )
+      setProposalHasChange(true)
     }
   }
 
   // submit btn is disabled if no changes in bytes or if something is changed, but it doesn't pass the validation
-  const submitBytesButtonDisabled = useMemo(() => {
-    return (
-      // TODO: disabling button if there is no changes
-      // !currentBytesChanges.length ||
-      // (currentBytesChanges.length && !checkWhetherBytesIsValid(proposalData)) ||
-      // proposalData.length === 0 ||
-      locked
-    )
-  }, [proposalData])
+  const submitBytesButtonDisabled = useMemo(
+    () => !proposalHasChange || (!proposalHasChange && !isAllBytesValid) || locked,
+    [locked, proposalHasChange, isAllBytesValid],
+  )
 
   // Drag & drop variables and event handlers
   const [dndBytes, setdndBytes] = useState<Array<ProposalBytesType>>([])
@@ -260,10 +258,10 @@ export const StageTwoForm = ({
       </FormTitleAndFeeContainer>
       <div className="step-bytes">
         {dndBytes.map((item, i) => {
-          const existInServer = Boolean(proposalData?.find(({ id }) => item.id === id && !item.isLocalBytes))
-          const validityObject = bytesValidation.find(({ proposalId }) => proposalId === item.id)
-
           if (!checkBytesPairExists(item)) return null
+
+          const existInServer = Boolean(proposalData?.find(({ id }) => item.id === id && !item.isLocalBytes))
+          const validityObject = bytesValidation.find(({ pairId }) => pairId === item.id)
 
           return (
             <article

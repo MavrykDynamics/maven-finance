@@ -4,7 +4,7 @@ import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 export type ValidationStateType = {
   validTitle: InputStatusType
   validBytes: InputStatusType
-  proposalId: number
+  pairId: number
 }[]
 
 export type ProposalBytesType = ProposalRecordType['proposalData'][number]
@@ -26,6 +26,9 @@ export type StageOneFormProps = {
 export type StageTwoFormProps = {
   proposalId: number
   currentProposal: ProposalRecordType
+  currentOriginalProposal?: ProposalRecordType
+  proposalHasChange: boolean
+  setProposalHasChange: (arg: boolean) => void
   updateLocalProposalData: ChangeProposalFnType
   handleDropProposal: (proposalId: number) => void
 }
