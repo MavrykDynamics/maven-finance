@@ -2,7 +2,7 @@ import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Inp
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 import { ValidSubmitProposalForm, SubmitProposalFormInputStatus } from 'utils/TypesAndInterfaces/Forms'
 import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
-import { StageThreeValidityItem } from './ProposalSybmittion.types'
+import { ProposalDataChangesType, StageThreeValidityItem } from './ProposalSybmittion.types'
 
 export const checkWhetherBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
   return proposalData.every(({ encoded_code, title }) => Boolean(encoded_code) && Boolean(title))
@@ -36,6 +36,54 @@ export const getValidityStageThreeTable = (valueName: StageThreeValidityItem, va
 
 export const checkBytesPairExists = (proposalDataItem: ProposalRecordType['proposalData'][number]): boolean => {
   return proposalDataItem.title !== null && proposalDataItem.encoded_code !== null
+}
+
+export const getBytesDiff = (
+  originalData: ProposalRecordType['proposalData'],
+  updatedData: ProposalRecordType['proposalData'],
+): ProposalDataChangesType => {
+  // we need to irerate the arr, that has more elements, and secondaryArr is the array we will take elements to compare and give appropriate change el
+  const arrayToIterate = originalData.length <= updatedData.length ? updatedData : originalData
+  const secondaryArr = originalData.length <= updatedData.length ? originalData : updatedData
+
+  const changes = arrayToIterate
+    .map((item1, idx) => {
+      const item2 = secondaryArr[idx]
+
+      // if we have more items on client than on server, when we reach end of the items that stored on client array, just add everything to the end
+      if (!item2 && originalData.length <= updatedData.length) {
+        return {
+          addOrSetProposalData: {
+            title: item1.title,
+            encodedCode: item1.encoded_code,
+            codeDescription: '',
+          },
+        }
+      }
+
+      // if we have more items on server than on client, when we reach end of the items that stored on client array, just add removing change to the end
+      if (!item2 && originalData.length > updatedData.length) {
+        return {
+          removeProposalData: String(idx),
+        }
+      }
+
+      if (item2.title !== item1.title || item2.encoded_code !== item1.encoded_code) {
+        return {
+          addOrSetProposalData: {
+            title: item1.title,
+            encodedCode: item1.encoded_code,
+            codeDescription: '',
+            index: idx,
+          },
+        }
+      }
+
+      return null
+    })
+    .filter(Boolean) as ProposalDataChangesType
+
+  return changes
 }
 
 export const PROPOSAL_BYTE = {

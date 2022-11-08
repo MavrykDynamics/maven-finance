@@ -8,7 +8,6 @@ import { SubmitProposalStageThreeValidation } from '../../../utils/TypesAndInter
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 
 // helpers
-import { updateProposalPayments } from '../ProposalSubmission.actions'
 
 // components
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
@@ -118,7 +117,7 @@ export const StageThreeForm = ({
   }, [proposalId, proposalPayments])
 
   const handleSubmitFinancialRequestData = () => {
-    dispatch(updateProposalPayments([], proposalId))
+    // dispatch(updateProposalPayments([], proposalId))
   }
 
   const handleChange = (
