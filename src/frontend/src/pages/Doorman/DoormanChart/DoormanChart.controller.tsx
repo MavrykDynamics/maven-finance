@@ -37,18 +37,15 @@ export function DoormanChart({ className }: Props) {
     setActiveTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
   }
 
-  const tooltipValueFormatter = (value: number): string => `${formatNumber(true, value)} MVK`
+  const valueFormatter = (label: string) => (value: number): string => `${formatNumber(true, value)}${label}`
 
   const shownData = isStakingHistory ? stakeHistoryData : smvkHistoryData
-
-  // TODO: decide what to show it no enought data
-  // if (!shownData.length) return null
 
   return (
     <ChartCard className={className}>
       {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
-      <Chart tooltipValueFormatter={tooltipValueFormatter} list={shownData} />
+      <Chart style={{ height: 290 }} tooltipValueFormatter={valueFormatter(' MVK')} tickFormater={valueFormatter('')} list={shownData} />
     </ChartCard>
   )
 }

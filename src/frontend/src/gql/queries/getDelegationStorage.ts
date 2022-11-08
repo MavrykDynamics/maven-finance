@@ -41,7 +41,6 @@ export const DELEGATION_STORAGE_QUERY = `
           aggregator_oracles {
             aggregator_id
             user_id
-            last_updated_at
             aggregator {
               address
               oracles {

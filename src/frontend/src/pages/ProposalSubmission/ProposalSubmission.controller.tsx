@@ -63,17 +63,6 @@ export const ProposalSubmission = () => {
 
   const [proposalState, setProposalsState] = useState(mappedProposals)
 
-  // TODO: generaing changes for back-end (remove it in case we don't need this)
-  const [proposalChangesState, setProposalsChangesState] = useState(
-    proposalKeys.reduce<ProposalChangesStateType>((acc, id) => {
-      acc[id] = {
-        proposalDataChanges: [],
-        proposalPaymentsChanges: [],
-      }
-      return acc
-    }, {}),
-  )
-
   const handleChangeTab = useCallback((tabId?: number) => {
     setActiveTab(tabId ?? 0)
   }, [])
@@ -90,17 +79,9 @@ export const ProposalSubmission = () => {
             ? { [DEFAULT_PROPOSAL.id - 1]: DEFAULT_PROPOSAL }
             : { [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL }),
         })
-
-        setProposalsChangesState({
-          ...proposalChangesState,
-          [proposalState[DEFAULT_PROPOSAL.id] ? DEFAULT_PROPOSAL.id - 1 : DEFAULT_PROPOSAL.id]: {
-            proposalDataChanges: [],
-            proposalPaymentsChanges: [],
-          },
-        })
       }
     },
-    [proposalChangesState, proposalState],
+    [proposalState],
   )
 
   const updateLocalProposalData = useCallback(
@@ -133,15 +114,6 @@ export const ProposalSubmission = () => {
             [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL,
           },
     )
-    setProposalsChangesState(
-      proposalKeys.reduce<ProposalChangesStateType>((acc, id) => {
-        acc[id] = {
-          proposalDataChanges: [],
-          proposalPaymentsChanges: [],
-        }
-        return acc
-      }, {}),
-    )
     setSeletedUserProposalId(proposalKeys?.[0] ?? DEFAULT_PROPOSAL.id)
   }, [mappedProposals, proposalKeys])
 
@@ -151,7 +123,7 @@ export const ProposalSubmission = () => {
   )
 
   // TODO: for testing purposes, remove after
-  console.log('proposalState:', proposalState, ', proposalChangesState:', proposalChangesState)
+  console.log('proposalState:', proposalState)
 
   return (
     <Page>
@@ -174,8 +146,6 @@ export const ProposalSubmission = () => {
             currentProposal={currentProposal}
             updateLocalProposalData={updateLocalProposalData}
             handleDropProposal={handleDropProposal}
-            proposalChangesState={proposalChangesState}
-            setProposalsChangesState={setProposalsChangesState}
           />
         )}
         {activeTab === 3 && (
@@ -185,8 +155,6 @@ export const ProposalSubmission = () => {
             updateLocalProposalData={updateLocalProposalData}
             handleDropProposal={handleDropProposal}
             handleLockProposal={handleLockProposal}
-            proposalChangesState={proposalChangesState}
-            setProposalsChangesState={setProposalsChangesState}
           />
         )}
       </ProposalSubmissionForm>

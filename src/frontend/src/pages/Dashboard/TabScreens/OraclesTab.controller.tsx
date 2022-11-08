@@ -4,7 +4,7 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { CoinsLogo } from 'app/App.components/Icon/CoinsIcons.view'
 import { BLUE } from 'app/App.components/TzAddress/TzAddress.constants'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import { Truncate } from 'app/App.style'
+import { Trim } from 'app/App.components/Trim/Trim.view' 
 import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
 import { getOracleStorage } from 'pages/Satellites/Satellites.actions'
 import { useEffect, useMemo } from 'react'
@@ -23,11 +23,10 @@ export const OraclesTab = () => {
   const { satelliteLedger = [] } = useSelector((state: State) => state.delegation.delegationStorage)
 
   const oracleFeeds = feeds.length
-  const popularFeeds = feeds.splice(0, 3)
-
+  const popularFeeds = feeds.slice(0, 3)
   useEffect(() => {
     dispatch(getOracleStorage())
-  }, [])
+  }, [dispatch])
 
   const oracleRevardsTotal = useMemo(
     () =>
@@ -78,7 +77,7 @@ export const OraclesTab = () => {
                     <CoinsLogo imageLink={imageLink} />
                     <div className="name">Feed</div>
                     <div className="value">
-                      <Truncate maxWidth={80}>{feed.name}</Truncate>
+                      <Trim title={feed.name} />
                     </div>
                   </StatBlock>
                   <StatBlock>
