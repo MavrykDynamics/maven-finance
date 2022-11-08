@@ -34,6 +34,10 @@ export const getValidityStageThreeTable = (valueName: StageThreeValidityItem, va
   return true
 }
 
+export const checkBytesPairExists = (proposalDataItem: ProposalRecordType['proposalData'][number]): boolean => {
+  return proposalDataItem.title !== null && proposalDataItem.encoded_code !== null
+}
+
 export const PROPOSAL_BYTE = {
   encoded_code: '',
   id: 1,

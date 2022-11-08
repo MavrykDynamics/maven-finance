@@ -70,6 +70,9 @@ export const connect = () => async (dispatch: AppDispatch, getState: GetState) =
         account = await wallet.client.getActiveAccount()
       }
 
+      await Tezos.setRpcProvider(rpcNetwork)
+      await Tezos.setWalletProvider(wallet)
+
       dispatch({
         type: CONNECT,
         wallet,
