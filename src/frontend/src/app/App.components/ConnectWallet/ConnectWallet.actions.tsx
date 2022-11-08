@@ -1,68 +1,123 @@
-import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
-import { State } from 'reducers'
-
-import { CLEAN_USER_DATA, getUserData } from '../../../pages/Doorman/Doorman.actions'
+import { BeaconWallet } from '@taquito/beacon-wallet'
+import { Network, NetworkType } from '@airgap/beacon-sdk'
+import { TezosToolkit } from '@taquito/taquito'
+import { AppDispatch, GetState } from 'app/App.controller'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
-import type { AppDispatch, GetState } from '../../App.controller'
+import { getUserData } from 'pages/Doorman/Doorman.actions'
 
-// const network = process.env.REACT_APP_API_NETWORK
-const network = 'ghostnet'
+// TODO: check ts-ignores, here NetworkType is not compatible with  NetworkType | undefined
+
+export const Beacon_localStorage_keys = [
+  'beacon:active-account',
+  'beacon:postmessage-peers-dapp',
+  'beacon:accounts',
+  'beacon:sdk-secret-seed',
+  'beacon:sdk_version',
+]
+export const network: Network = { type: NetworkType.GHOSTNET }
+export const WalletOptions = {
+  name: process.env.REACT_APP_NAME || 'MAVRYK',
+  preferredNetwork: network.type,
+}
 
 export const SET_WALLET = 'SET_WALLET'
-export const setWallet = (wallet: TempleWallet) => (dispatch: AppDispatch) => {
-  dispatch({
-    type: SET_WALLET,
-    wallet,
-  })
+export const setWallet = (wallet?: BeaconWallet) => (dispatch: AppDispatch) => {
+  try {
+    // @ts-ignore
+    const wallet = new BeaconWallet(WalletOptions)
+    dispatch({
+      type: SET_WALLET,
+      wallet,
+    })
+  } catch (e) {
+    console.error(`Failed to initiate wallet: `, e)
+    if (e instanceof Error) {
+      dispatch(showToaster(ERROR, 'Failed to initiate wallet', e.message))
+    }
+  }
+}
+
+export const changeWallet = () => async (dispatch: AppDispatch) => {
+  try {
+    await dispatch(disconnect())
+    await dispatch(connect())
+  } catch (e) {
+    console.error(`Failed to change wallet: `, e)
+    if (e instanceof Error) {
+      dispatch(showToaster(ERROR, 'Failed to change wallet', e.message))
+    }
+  }
 }
 
 export const CONNECT = 'CONNECT'
-export const connect =
-  ({ forcePermission = false }: { forcePermission?: boolean }) =>
-  async (dispatch: AppDispatch, getState: GetState) => {
-    const state: State = getState()
-    try {
-      if (!state.wallet) {
-        dispatch(showToaster(ERROR, 'Temple Wallet not available', ''))
-        throw new Error('Temple Wallet not available')
-      } else {
-        await state.wallet.wallet?.connect((network || 'hangzhounet') as TempleDAppNetwork, {
-          forcePermission,
+export const connect = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state = getState()
+  try {
+    const rpcNetwork = state.preferences.REACT_APP_RPC_PROVIDER
+    // @ts-ignore
+    const wallet = new BeaconWallet(WalletOptions)
+    const walletResponse = await checkIfWalletIsConnected(wallet)
+
+    if (walletResponse.success) {
+      const Tezos = new TezosToolkit(rpcNetwork)
+      let account = await wallet.client.getActiveAccount()
+      if (!account) {
+        await wallet.client.requestPermissions({
+          // @ts-ignore
+          network,
         })
-        const tzs = state.wallet.wallet?.toTezos()
-        const accountPkh = await tzs?.wallet.pkh()
-        dispatch({
-          type: CONNECT,
-          tezos: tzs,
-          ready: Boolean(tzs),
-          accountPkh: accountPkh,
-        })
-        if (accountPkh) dispatch(getUserData(accountPkh))
+        account = await wallet.client.getActiveAccount()
       }
-    } catch (err) {
-      if (err instanceof Error) {
-        dispatch(showToaster(ERROR, 'Failed to connect TempleWallet', err.message))
-        console.error(`Failed to connect TempleWallet: ${err.message}`)
-      }
+
+      dispatch({
+        type: CONNECT,
+        wallet,
+        tezos: Tezos,
+        ready: Boolean(wallet),
+        accountPkh: account?.address,
+      })
+      if (account?.address) dispatch(getUserData(account?.address))
+    }
+  } catch (e) {
+    console.error(`Failed to connect wallet:`, e)
+    if (e instanceof Error) {
+      dispatch(showToaster(ERROR, `Failed to connect wallet:`, e.message))
     }
   }
+}
 
 export const DISCONNECT = 'DISCONNECT'
-export const disconnect = () => async (dispatch: AppDispatch) => {
+export const disconnect = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state = getState()
   try {
     // clearing wallet data
+    await state.wallet.wallet?.clearActiveAccount()
+    Beacon_localStorage_keys.forEach((key) => localStorage.removeItem(key))
+
     dispatch({ type: DISCONNECT })
-    // set some wallet data, so user can see connect wallet instead of install wallet btn
-    dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
-    // clear user data
-    dispatch({
-      type: CLEAN_USER_DATA,
-    })
-  } catch (err) {
-    if (err instanceof Error) {
-      dispatch(showToaster(ERROR, 'Failed to disconnect TempleWallet', err.message))
-      console.error(`Failed to disconnect TempleWallet: ${err.message}`)
+    dispatch(setWallet())
+  } catch (e) {
+    console.error(`Failed to disconnect TempleWallet: `, e)
+    if (e instanceof Error) {
+      dispatch(showToaster(ERROR, 'Failed to disconnect TempleWallet', e.message))
     }
+  }
+}
+
+export const checkIfWalletIsConnected = async (wallet: any) => {
+  try {
+    const activeAccount = await wallet.client.getActiveAccount()
+    if (!activeAccount) {
+      await wallet.client.requestPermissions({
+        network,
+      })
+    }
+    return {
+      success: true,
+    }
+  } catch (e) {
+    // The user is not connected. A button should be displayed where the user can connect to his wallet.
+    return { success: false, e }
   }
 }
