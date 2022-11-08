@@ -134,8 +134,20 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
           isSatellite: true,
         },
       },
-      { id: 57471, subTitle: 'Data Feeds', subPath: 'data-feeds', routeSubPath: ['/data-feeds', '/satellites/feed-details/:tabId'], protectedRoute: false },
-      { id: 15757, subTitle: 'Users', subPath: 'oracle-users', routeSubPath: ['/oracle-users', '/satellites/user-details/:tabId'], protectedRoute: false },
+      {
+        id: 57471,
+        subTitle: 'Data Feeds',
+        subPath: 'data-feeds',
+        routeSubPath: ['/data-feeds', '/satellites/feed-details/:tabId'],
+        protectedRoute: false,
+      },
+      {
+        id: 15757,
+        subTitle: 'Users',
+        subPath: 'oracle-users',
+        routeSubPath: ['/oracle-users', '/satellites/user-details/:tabId'],
+        protectedRoute: false,
+      },
     ],
   },
   {
@@ -196,6 +208,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: 'submit-proposal',
         routeSubPath: '/submit-proposal',
         protectedRoute: true,
+        disabled: true,
         requires: {
           isSatellite: true,
         },
