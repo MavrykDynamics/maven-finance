@@ -55,6 +55,7 @@ export const StageOneForm = ({
   ) => {
     let validityCheckResult
     const defaultMaxLength = 100
+    
     switch (formField) {
       case 'TITLE':
         validityCheckResult = isValidLength(currentProposal.title, 1, proposalTitleMaxLength || defaultMaxLength)

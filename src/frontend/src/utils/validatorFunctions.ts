@@ -84,6 +84,7 @@ export function mathRoundTwoDigit(digit: string | number | undefined): number | 
 export const containsCode = (str: string) => /<[a-z][\s\S]*>/i.test(str) || /eval/i.test(str)
 
 export function isValidLength(input: string, minLength: number, maxLength: number) {
+  if (!input) return false
   return input.length >= minLength && input.length <= maxLength
 }
 
