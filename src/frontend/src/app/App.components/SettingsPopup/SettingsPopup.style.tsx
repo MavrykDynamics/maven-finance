@@ -184,15 +184,12 @@ export const PopupStyled = styled.div`
   }
 
   .close_modal {
-    position: absolute;
-    font-size: 60px;
+    font-size: 50px;
     font-weight: 100;
-    height: 35px;
-    width: 35px;
-    color: #8d86eb;
+    height: 24px;
+    width: 24px;
+    color: ${({ theme }) => theme.dashboardTextColor};
     transform: rotate(45deg);
-    top: 15px;
-    right: 15px;
     cursor: pointer;
   }
 `
