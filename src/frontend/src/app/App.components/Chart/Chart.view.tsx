@@ -110,7 +110,7 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
     }
   }, [style])
 
-  if (list.length <= 1) {
+  if (list.length <= 15) {
     return (
       <Plug>
         <div>
