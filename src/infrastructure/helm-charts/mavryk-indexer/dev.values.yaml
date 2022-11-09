@@ -2,7 +2,7 @@ dipdup:
   image:
     registry: docker.io
     repository: tezosdynamics/mavryk-indexer
-    tag: v0.22.0
+    tag: v0.23.1
     pullPolicy: Always
     pullSecret: docker-pull-credentials
   metrics:
@@ -119,6 +119,22 @@ dipdup:
       vault_factory:
         address: KT1Xsguyd57ToGudw9YiPVozYsGUSTaJBkXU
         typename: vault_factory
+
+    hooks:
+      fetch_liquidity_baking_prices:
+        callback: fetch_liquidity_baking_prices
+        atomic: False
+        args:
+          datasource: str
+          batch_size: int
+
+    jobs:
+      fetch_liquidity_baking_prices:
+        hook: fetch_liquidity_baking_prices
+        interval: 500
+        args:
+          datasource: tzkt_mainnet
+          batch_size: 10000
 
     templates:
       # Template for Farm
