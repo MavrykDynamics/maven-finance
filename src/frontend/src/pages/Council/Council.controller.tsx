@@ -261,7 +261,6 @@ export const Council = () => {
                     image={item.image}
                     name={item.name}
                     userId={item.userId}
-                    website={item.website}
                     openModal={handleOpenleModal}
                   />
                 ))}
