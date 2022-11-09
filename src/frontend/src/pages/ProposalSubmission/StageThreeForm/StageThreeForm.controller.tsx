@@ -7,10 +7,6 @@ import { StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmitti
 import { SubmitProposalStageThreeValidation } from '../../../utils/TypesAndInterfaces/Forms'
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 
-// helpers
-import { deletePaymentData, submitFinancialRequestData } from '../ProposalSubmission.actions'
-import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
-
 // components
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -91,16 +87,24 @@ export const StageThreeForm = ({
     }
 
     setValidForm(
-      proposalPayments.map(({ token_amount, title, to__id }) => ({
-        token_amount: getValidityStageThreeTable('token_amount', token_amount) ? 'success' : 'error',
-        to__id: getValidityStageThreeTable('to__id', to__id ?? '') ? 'success' : 'error',
-        title: getValidityStageThreeTable('title', title) ? 'success' : 'error',
-      })),
+      proposalPayments.map(({ token_amount, title, to__id }) =>
+        token_amount && title && to__id
+          ? {
+              token_amount: getValidityStageThreeTable('token_amount', token_amount) ? 'success' : 'error',
+              to__id: getValidityStageThreeTable('to__id', to__id ?? '') ? 'success' : 'error',
+              title: getValidityStageThreeTable('title', title) ? 'success' : 'error',
+            }
+          : {
+              token_amount: 'success',
+              to__id: 'success',
+              title: 'success',
+            },
+      ),
     )
   }, [proposalId, proposalPayments])
 
   const handleSubmitFinancialRequestData = () => {
-    dispatch(submitFinancialRequestData(proposalId, proposalPayments))
+    // dispatch(submitFinancialRequestData(proposalId, proposalPayments))
   }
 
   const handleChange = (
@@ -223,6 +227,8 @@ export const StageThreeForm = ({
                     // TODO: temp slution cuz of saved wrong elements on back, also ask sam, cuz i can't find here xtz address
                     dipDupTokens.find(({ contract }) => contract === rowItems.token_address)?.metadata.symbol ?? 'MVK',
                   paymentType = paymentTypeSymbol === 'FA2' ? 'MVK' : paymentTypeSymbol
+
+                if (!rowItems || !rowItems.title || !rowItems.token_amount) return null
 
                 return (
                   <tr key={i}>

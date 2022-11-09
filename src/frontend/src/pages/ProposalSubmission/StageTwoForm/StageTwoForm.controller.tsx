@@ -51,11 +51,20 @@ export const StageTwoForm = ({
       handleCreateNewByte()
     }
     setBytesValidation(
-      proposalData.map(({ id, title, encoded_code }) => ({
-        validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
-        validBytes: proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes', id, proposalData) : '',
-        proposalId: id,
-      })),
+      proposalData.map(({ id, title, encoded_code }) =>
+        title && encoded_code
+          ? {
+              validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
+              validBytes:
+                proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes', id, proposalData) : '',
+              proposalId: id,
+            }
+          : {
+              validTitle: 'success',
+              validBytes: 'success',
+              proposalId: id,
+            },
+      ),
     )
   }, [proposalId, proposalData])
 
@@ -108,7 +117,7 @@ export const StageTwoForm = ({
   // removing bytes pair
   const handleDeletePair = (removeId: number) => {
     const pairToRemove = proposalData?.find((item) => item.id === removeId)
-    if (pairToRemove) {
+    if (pairToRemove && pairToRemove.title && pairToRemove.encoded_code) {
       if (pairToRemove?.isLocalBytes) {
         updateLocalProposalData(
           {
@@ -227,6 +236,8 @@ export const StageTwoForm = ({
         {dndBytes.map((item, i) => {
           const existInServer = Boolean(proposalData?.find(({ id }) => item.id === id && !item.isLocalBytes))
           const validityObject = bytesValidation.find(({ proposalId }) => proposalId === item.id)
+
+          if (!item.title || !item.encoded_code) return null
 
           return (
             <article
