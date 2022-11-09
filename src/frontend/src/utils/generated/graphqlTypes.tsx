@@ -1920,10 +1920,7 @@ export type Aggregator_History_Data = {
   aggregator_id: Scalars['String'];
   data: Scalars['float8'];
   epoch: Scalars['bigint'];
-  id: Scalars['bigint'];
-  lambda_bytes: Scalars['String'];
-  lambda_name: Scalars['String'];
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  id: Scalars['Int'];
   pct_oracle_resp: Scalars['smallint'];
   round: Scalars['bigint'];
   timestamp: Scalars['timestamptz'];
@@ -2002,10 +1999,7 @@ export type Aggregator_History_Data_Bool_Exp = {
   aggregator_id?: InputMaybe<String_Comparison_Exp>;
   data?: InputMaybe<Float8_Comparison_Exp>;
   epoch?: InputMaybe<Bigint_Comparison_Exp>;
-  id?: InputMaybe<Bigint_Comparison_Exp>;
-  lambda_bytes?: InputMaybe<String_Comparison_Exp>;
-  lambda_name?: InputMaybe<String_Comparison_Exp>;
-  last_updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Int_Comparison_Exp>;
   pct_oracle_resp?: InputMaybe<Smallint_Comparison_Exp>;
   round?: InputMaybe<Bigint_Comparison_Exp>;
   timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -2017,10 +2011,7 @@ export type Aggregator_History_Data_Max_Fields = {
   aggregator_id?: Maybe<Scalars['String']>;
   data?: Maybe<Scalars['float8']>;
   epoch?: Maybe<Scalars['bigint']>;
-  id?: Maybe<Scalars['bigint']>;
-  lambda_bytes?: Maybe<Scalars['String']>;
-  lambda_name?: Maybe<Scalars['String']>;
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  id?: Maybe<Scalars['Int']>;
   pct_oracle_resp?: Maybe<Scalars['smallint']>;
   round?: Maybe<Scalars['bigint']>;
   timestamp?: Maybe<Scalars['timestamptz']>;
@@ -2032,9 +2023,6 @@ export type Aggregator_History_Data_Max_Order_By = {
   data?: InputMaybe<Order_By>;
   epoch?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
   pct_oracle_resp?: InputMaybe<Order_By>;
   round?: InputMaybe<Order_By>;
   timestamp?: InputMaybe<Order_By>;
@@ -2046,10 +2034,7 @@ export type Aggregator_History_Data_Min_Fields = {
   aggregator_id?: Maybe<Scalars['String']>;
   data?: Maybe<Scalars['float8']>;
   epoch?: Maybe<Scalars['bigint']>;
-  id?: Maybe<Scalars['bigint']>;
-  lambda_bytes?: Maybe<Scalars['String']>;
-  lambda_name?: Maybe<Scalars['String']>;
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  id?: Maybe<Scalars['Int']>;
   pct_oracle_resp?: Maybe<Scalars['smallint']>;
   round?: Maybe<Scalars['bigint']>;
   timestamp?: Maybe<Scalars['timestamptz']>;
@@ -2061,9 +2046,6 @@ export type Aggregator_History_Data_Min_Order_By = {
   data?: InputMaybe<Order_By>;
   epoch?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
   pct_oracle_resp?: InputMaybe<Order_By>;
   round?: InputMaybe<Order_By>;
   timestamp?: InputMaybe<Order_By>;
@@ -2076,9 +2058,6 @@ export type Aggregator_History_Data_Order_By = {
   data?: InputMaybe<Order_By>;
   epoch?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
   pct_oracle_resp?: InputMaybe<Order_By>;
   round?: InputMaybe<Order_By>;
   timestamp?: InputMaybe<Order_By>;
@@ -2094,12 +2073,6 @@ export enum Aggregator_History_Data_Select_Column {
   Epoch = 'epoch',
   /** column name */
   Id = 'id',
-  /** column name */
-  LambdaBytes = 'lambda_bytes',
-  /** column name */
-  LambdaName = 'lambda_name',
-  /** column name */
-  LastUpdatedAt = 'last_updated_at',
   /** column name */
   PctOracleResp = 'pct_oracle_resp',
   /** column name */
@@ -2178,10 +2151,7 @@ export type Aggregator_History_Data_Stream_Cursor_Value_Input = {
   aggregator_id?: InputMaybe<Scalars['String']>;
   data?: InputMaybe<Scalars['float8']>;
   epoch?: InputMaybe<Scalars['bigint']>;
-  id?: InputMaybe<Scalars['bigint']>;
-  lambda_bytes?: InputMaybe<Scalars['String']>;
-  lambda_name?: InputMaybe<Scalars['String']>;
-  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  id?: InputMaybe<Scalars['Int']>;
   pct_oracle_resp?: InputMaybe<Scalars['smallint']>;
   round?: InputMaybe<Scalars['bigint']>;
   timestamp?: InputMaybe<Scalars['timestamptz']>;
@@ -2192,7 +2162,7 @@ export type Aggregator_History_Data_Sum_Fields = {
   __typename?: 'aggregator_history_data_sum_fields';
   data?: Maybe<Scalars['float8']>;
   epoch?: Maybe<Scalars['bigint']>;
-  id?: Maybe<Scalars['bigint']>;
+  id?: Maybe<Scalars['Int']>;
   pct_oracle_resp?: Maybe<Scalars['smallint']>;
   round?: Maybe<Scalars['bigint']>;
 };
@@ -2596,10 +2566,13 @@ export type Aggregator_Oracle = {
   /** An object relationship */
   aggregator: Aggregator;
   aggregator_id: Scalars['String'];
-  id: Scalars['bigint'];
-  lambda_bytes: Scalars['String'];
-  lambda_name: Scalars['String'];
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  id: Scalars['Int'];
+  init_epoch: Scalars['bigint'];
+  init_round: Scalars['bigint'];
+  /** An array relationship */
+  observations: Array<Aggregator_Oracle_Observation>;
+  /** An aggregate relationship */
+  observations_aggregate: Aggregator_Oracle_Observation_Aggregate;
   peer_id: Scalars['String'];
   public_key: Scalars['String'];
   /** An array relationship */
@@ -2609,6 +2582,26 @@ export type Aggregator_Oracle = {
   /** An object relationship */
   user: Mavryk_User;
   user_id: Scalars['String'];
+};
+
+
+/** columns and relationships of "aggregator_oracle" */
+export type Aggregator_OracleObservationsArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_Oracle_Observation_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_Oracle_Observation_Order_By>>;
+  where?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
+};
+
+
+/** columns and relationships of "aggregator_oracle" */
+export type Aggregator_OracleObservations_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_Oracle_Observation_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_Oracle_Observation_Order_By>>;
+  where?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
 };
 
 
@@ -2680,11 +2673,15 @@ export type Aggregator_Oracle_Aggregate_Order_By = {
 export type Aggregator_Oracle_Avg_Fields = {
   __typename?: 'aggregator_oracle_avg_fields';
   id?: Maybe<Scalars['Float']>;
+  init_epoch?: Maybe<Scalars['Float']>;
+  init_round?: Maybe<Scalars['Float']>;
 };
 
 /** order by avg() on columns of table "aggregator_oracle" */
 export type Aggregator_Oracle_Avg_Order_By = {
   id?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to filter rows from the table "aggregator_oracle". All fields are combined with a logical 'AND'. */
@@ -2694,10 +2691,10 @@ export type Aggregator_Oracle_Bool_Exp = {
   _or?: InputMaybe<Array<Aggregator_Oracle_Bool_Exp>>;
   aggregator?: InputMaybe<Aggregator_Bool_Exp>;
   aggregator_id?: InputMaybe<String_Comparison_Exp>;
-  id?: InputMaybe<Bigint_Comparison_Exp>;
-  lambda_bytes?: InputMaybe<String_Comparison_Exp>;
-  lambda_name?: InputMaybe<String_Comparison_Exp>;
-  last_updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Int_Comparison_Exp>;
+  init_epoch?: InputMaybe<Bigint_Comparison_Exp>;
+  init_round?: InputMaybe<Bigint_Comparison_Exp>;
+  observations?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
   peer_id?: InputMaybe<String_Comparison_Exp>;
   public_key?: InputMaybe<String_Comparison_Exp>;
   rewards?: InputMaybe<Aggregator_Oracle_Reward_Bool_Exp>;
@@ -2709,10 +2706,9 @@ export type Aggregator_Oracle_Bool_Exp = {
 export type Aggregator_Oracle_Max_Fields = {
   __typename?: 'aggregator_oracle_max_fields';
   aggregator_id?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['bigint']>;
-  lambda_bytes?: Maybe<Scalars['String']>;
-  lambda_name?: Maybe<Scalars['String']>;
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  id?: Maybe<Scalars['Int']>;
+  init_epoch?: Maybe<Scalars['bigint']>;
+  init_round?: Maybe<Scalars['bigint']>;
   peer_id?: Maybe<Scalars['String']>;
   public_key?: Maybe<Scalars['String']>;
   user_id?: Maybe<Scalars['String']>;
@@ -2722,9 +2718,8 @@ export type Aggregator_Oracle_Max_Fields = {
 export type Aggregator_Oracle_Max_Order_By = {
   aggregator_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
   peer_id?: InputMaybe<Order_By>;
   public_key?: InputMaybe<Order_By>;
   user_id?: InputMaybe<Order_By>;
@@ -2734,10 +2729,9 @@ export type Aggregator_Oracle_Max_Order_By = {
 export type Aggregator_Oracle_Min_Fields = {
   __typename?: 'aggregator_oracle_min_fields';
   aggregator_id?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['bigint']>;
-  lambda_bytes?: Maybe<Scalars['String']>;
-  lambda_name?: Maybe<Scalars['String']>;
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
+  id?: Maybe<Scalars['Int']>;
+  init_epoch?: Maybe<Scalars['bigint']>;
+  init_round?: Maybe<Scalars['bigint']>;
   peer_id?: Maybe<Scalars['String']>;
   public_key?: Maybe<Scalars['String']>;
   user_id?: Maybe<Scalars['String']>;
@@ -2747,12 +2741,322 @@ export type Aggregator_Oracle_Min_Fields = {
 export type Aggregator_Oracle_Min_Order_By = {
   aggregator_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
   peer_id?: InputMaybe<Order_By>;
   public_key?: InputMaybe<Order_By>;
   user_id?: InputMaybe<Order_By>;
+};
+
+/** columns and relationships of "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation = {
+  __typename?: 'aggregator_oracle_observation';
+  data: Scalars['float8'];
+  epoch: Scalars['bigint'];
+  id: Scalars['bigint'];
+  /** An object relationship */
+  oracle: Aggregator_Oracle;
+  oracle_id: Scalars['Int'];
+  round: Scalars['bigint'];
+  timestamp: Scalars['timestamptz'];
+};
+
+/** aggregated selection of "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Aggregate = {
+  __typename?: 'aggregator_oracle_observation_aggregate';
+  aggregate?: Maybe<Aggregator_Oracle_Observation_Aggregate_Fields>;
+  nodes: Array<Aggregator_Oracle_Observation>;
+};
+
+/** aggregate fields of "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Aggregate_Fields = {
+  __typename?: 'aggregator_oracle_observation_aggregate_fields';
+  avg?: Maybe<Aggregator_Oracle_Observation_Avg_Fields>;
+  count: Scalars['Int'];
+  max?: Maybe<Aggregator_Oracle_Observation_Max_Fields>;
+  min?: Maybe<Aggregator_Oracle_Observation_Min_Fields>;
+  stddev?: Maybe<Aggregator_Oracle_Observation_Stddev_Fields>;
+  stddev_pop?: Maybe<Aggregator_Oracle_Observation_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Aggregator_Oracle_Observation_Stddev_Samp_Fields>;
+  sum?: Maybe<Aggregator_Oracle_Observation_Sum_Fields>;
+  var_pop?: Maybe<Aggregator_Oracle_Observation_Var_Pop_Fields>;
+  var_samp?: Maybe<Aggregator_Oracle_Observation_Var_Samp_Fields>;
+  variance?: Maybe<Aggregator_Oracle_Observation_Variance_Fields>;
+};
+
+
+/** aggregate fields of "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Aggregator_Oracle_Observation_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** order by aggregate values of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Aggregate_Order_By = {
+  avg?: InputMaybe<Aggregator_Oracle_Observation_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Aggregator_Oracle_Observation_Max_Order_By>;
+  min?: InputMaybe<Aggregator_Oracle_Observation_Min_Order_By>;
+  stddev?: InputMaybe<Aggregator_Oracle_Observation_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Aggregator_Oracle_Observation_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Aggregator_Oracle_Observation_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Aggregator_Oracle_Observation_Sum_Order_By>;
+  var_pop?: InputMaybe<Aggregator_Oracle_Observation_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Aggregator_Oracle_Observation_Var_Samp_Order_By>;
+  variance?: InputMaybe<Aggregator_Oracle_Observation_Variance_Order_By>;
+};
+
+/** aggregate avg on columns */
+export type Aggregator_Oracle_Observation_Avg_Fields = {
+  __typename?: 'aggregator_oracle_observation_avg_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  oracle_id?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by avg() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Avg_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "aggregator_oracle_observation". All fields are combined with a logical 'AND'. */
+export type Aggregator_Oracle_Observation_Bool_Exp = {
+  _and?: InputMaybe<Array<Aggregator_Oracle_Observation_Bool_Exp>>;
+  _not?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
+  _or?: InputMaybe<Array<Aggregator_Oracle_Observation_Bool_Exp>>;
+  data?: InputMaybe<Float8_Comparison_Exp>;
+  epoch?: InputMaybe<Bigint_Comparison_Exp>;
+  id?: InputMaybe<Bigint_Comparison_Exp>;
+  oracle?: InputMaybe<Aggregator_Oracle_Bool_Exp>;
+  oracle_id?: InputMaybe<Int_Comparison_Exp>;
+  round?: InputMaybe<Bigint_Comparison_Exp>;
+  timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** aggregate max on columns */
+export type Aggregator_Oracle_Observation_Max_Fields = {
+  __typename?: 'aggregator_oracle_observation_max_fields';
+  data?: Maybe<Scalars['float8']>;
+  epoch?: Maybe<Scalars['bigint']>;
+  id?: Maybe<Scalars['bigint']>;
+  oracle_id?: Maybe<Scalars['Int']>;
+  round?: Maybe<Scalars['bigint']>;
+  timestamp?: Maybe<Scalars['timestamptz']>;
+};
+
+/** order by max() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Max_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Aggregator_Oracle_Observation_Min_Fields = {
+  __typename?: 'aggregator_oracle_observation_min_fields';
+  data?: Maybe<Scalars['float8']>;
+  epoch?: Maybe<Scalars['bigint']>;
+  id?: Maybe<Scalars['bigint']>;
+  oracle_id?: Maybe<Scalars['Int']>;
+  round?: Maybe<Scalars['bigint']>;
+  timestamp?: Maybe<Scalars['timestamptz']>;
+};
+
+/** order by min() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Min_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+};
+
+/** Ordering options when selecting data from "aggregator_oracle_observation". */
+export type Aggregator_Oracle_Observation_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle?: InputMaybe<Aggregator_Oracle_Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+};
+
+/** select columns of table "aggregator_oracle_observation" */
+export enum Aggregator_Oracle_Observation_Select_Column {
+  /** column name */
+  Data = 'data',
+  /** column name */
+  Epoch = 'epoch',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  OracleId = 'oracle_id',
+  /** column name */
+  Round = 'round',
+  /** column name */
+  Timestamp = 'timestamp'
+}
+
+/** aggregate stddev on columns */
+export type Aggregator_Oracle_Observation_Stddev_Fields = {
+  __typename?: 'aggregator_oracle_observation_stddev_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  oracle_id?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Stddev_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Aggregator_Oracle_Observation_Stddev_Pop_Fields = {
+  __typename?: 'aggregator_oracle_observation_stddev_pop_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  oracle_id?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_pop() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Stddev_Pop_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Aggregator_Oracle_Observation_Stddev_Samp_Fields = {
+  __typename?: 'aggregator_oracle_observation_stddev_samp_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  oracle_id?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_samp() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Stddev_Samp_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Aggregator_Oracle_Observation_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Aggregator_Oracle_Observation_Stream_Cursor_Value_Input = {
+  data?: InputMaybe<Scalars['float8']>;
+  epoch?: InputMaybe<Scalars['bigint']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  oracle_id?: InputMaybe<Scalars['Int']>;
+  round?: InputMaybe<Scalars['bigint']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+};
+
+/** aggregate sum on columns */
+export type Aggregator_Oracle_Observation_Sum_Fields = {
+  __typename?: 'aggregator_oracle_observation_sum_fields';
+  data?: Maybe<Scalars['float8']>;
+  epoch?: Maybe<Scalars['bigint']>;
+  id?: Maybe<Scalars['bigint']>;
+  oracle_id?: Maybe<Scalars['Int']>;
+  round?: Maybe<Scalars['bigint']>;
+};
+
+/** order by sum() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Sum_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_pop on columns */
+export type Aggregator_Oracle_Observation_Var_Pop_Fields = {
+  __typename?: 'aggregator_oracle_observation_var_pop_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  oracle_id?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_pop() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Var_Pop_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Aggregator_Oracle_Observation_Var_Samp_Fields = {
+  __typename?: 'aggregator_oracle_observation_var_samp_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  oracle_id?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_samp() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Var_Samp_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Aggregator_Oracle_Observation_Variance_Fields = {
+  __typename?: 'aggregator_oracle_observation_variance_fields';
+  data?: Maybe<Scalars['Float']>;
+  epoch?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  oracle_id?: Maybe<Scalars['Float']>;
+  round?: Maybe<Scalars['Float']>;
+};
+
+/** order by variance() on columns of table "aggregator_oracle_observation" */
+export type Aggregator_Oracle_Observation_Variance_Order_By = {
+  data?: InputMaybe<Order_By>;
+  epoch?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  oracle_id?: InputMaybe<Order_By>;
+  round?: InputMaybe<Order_By>;
 };
 
 /** Ordering options when selecting data from "aggregator_oracle". */
@@ -2760,9 +3064,9 @@ export type Aggregator_Oracle_Order_By = {
   aggregator?: InputMaybe<Aggregator_Order_By>;
   aggregator_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
+  observations_aggregate?: InputMaybe<Aggregator_Oracle_Observation_Aggregate_Order_By>;
   peer_id?: InputMaybe<Order_By>;
   public_key?: InputMaybe<Order_By>;
   rewards_aggregate?: InputMaybe<Aggregator_Oracle_Reward_Aggregate_Order_By>;
@@ -2774,12 +3078,9 @@ export type Aggregator_Oracle_Order_By = {
 export type Aggregator_Oracle_Reward = {
   __typename?: 'aggregator_oracle_reward';
   id: Scalars['bigint'];
-  lambda_bytes: Scalars['String'];
-  lambda_name: Scalars['String'];
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
   /** An object relationship */
   oracle: Aggregator_Oracle;
-  oracle_id: Scalars['bigint'];
+  oracle_id: Scalars['Int'];
   reward: Scalars['float8'];
   /** XTZ: 0\nSMVK: 1 */
   type: Scalars['smallint'];
@@ -2855,11 +3156,8 @@ export type Aggregator_Oracle_Reward_Bool_Exp = {
   _not?: InputMaybe<Aggregator_Oracle_Reward_Bool_Exp>;
   _or?: InputMaybe<Array<Aggregator_Oracle_Reward_Bool_Exp>>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
-  lambda_bytes?: InputMaybe<String_Comparison_Exp>;
-  lambda_name?: InputMaybe<String_Comparison_Exp>;
-  last_updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   oracle?: InputMaybe<Aggregator_Oracle_Bool_Exp>;
-  oracle_id?: InputMaybe<Bigint_Comparison_Exp>;
+  oracle_id?: InputMaybe<Int_Comparison_Exp>;
   reward?: InputMaybe<Float8_Comparison_Exp>;
   type?: InputMaybe<Smallint_Comparison_Exp>;
 };
@@ -2868,10 +3166,7 @@ export type Aggregator_Oracle_Reward_Bool_Exp = {
 export type Aggregator_Oracle_Reward_Max_Fields = {
   __typename?: 'aggregator_oracle_reward_max_fields';
   id?: Maybe<Scalars['bigint']>;
-  lambda_bytes?: Maybe<Scalars['String']>;
-  lambda_name?: Maybe<Scalars['String']>;
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
-  oracle_id?: Maybe<Scalars['bigint']>;
+  oracle_id?: Maybe<Scalars['Int']>;
   reward?: Maybe<Scalars['float8']>;
   /** XTZ: 0\nSMVK: 1 */
   type?: Maybe<Scalars['smallint']>;
@@ -2880,9 +3175,6 @@ export type Aggregator_Oracle_Reward_Max_Fields = {
 /** order by max() on columns of table "aggregator_oracle_reward" */
 export type Aggregator_Oracle_Reward_Max_Order_By = {
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
   oracle_id?: InputMaybe<Order_By>;
   reward?: InputMaybe<Order_By>;
   /** XTZ: 0\nSMVK: 1 */
@@ -2893,10 +3185,7 @@ export type Aggregator_Oracle_Reward_Max_Order_By = {
 export type Aggregator_Oracle_Reward_Min_Fields = {
   __typename?: 'aggregator_oracle_reward_min_fields';
   id?: Maybe<Scalars['bigint']>;
-  lambda_bytes?: Maybe<Scalars['String']>;
-  lambda_name?: Maybe<Scalars['String']>;
-  last_updated_at?: Maybe<Scalars['timestamptz']>;
-  oracle_id?: Maybe<Scalars['bigint']>;
+  oracle_id?: Maybe<Scalars['Int']>;
   reward?: Maybe<Scalars['float8']>;
   /** XTZ: 0\nSMVK: 1 */
   type?: Maybe<Scalars['smallint']>;
@@ -2905,9 +3194,6 @@ export type Aggregator_Oracle_Reward_Min_Fields = {
 /** order by min() on columns of table "aggregator_oracle_reward" */
 export type Aggregator_Oracle_Reward_Min_Order_By = {
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
   oracle_id?: InputMaybe<Order_By>;
   reward?: InputMaybe<Order_By>;
   /** XTZ: 0\nSMVK: 1 */
@@ -2917,9 +3203,6 @@ export type Aggregator_Oracle_Reward_Min_Order_By = {
 /** Ordering options when selecting data from "aggregator_oracle_reward". */
 export type Aggregator_Oracle_Reward_Order_By = {
   id?: InputMaybe<Order_By>;
-  lambda_bytes?: InputMaybe<Order_By>;
-  lambda_name?: InputMaybe<Order_By>;
-  last_updated_at?: InputMaybe<Order_By>;
   oracle?: InputMaybe<Aggregator_Oracle_Order_By>;
   oracle_id?: InputMaybe<Order_By>;
   reward?: InputMaybe<Order_By>;
@@ -2930,12 +3213,6 @@ export type Aggregator_Oracle_Reward_Order_By = {
 export enum Aggregator_Oracle_Reward_Select_Column {
   /** column name */
   Id = 'id',
-  /** column name */
-  LambdaBytes = 'lambda_bytes',
-  /** column name */
-  LambdaName = 'lambda_name',
-  /** column name */
-  LastUpdatedAt = 'last_updated_at',
   /** column name */
   OracleId = 'oracle_id',
   /** column name */
@@ -3012,10 +3289,7 @@ export type Aggregator_Oracle_Reward_Stream_Cursor_Input = {
 /** Initial value of the column from where the streaming should start */
 export type Aggregator_Oracle_Reward_Stream_Cursor_Value_Input = {
   id?: InputMaybe<Scalars['bigint']>;
-  lambda_bytes?: InputMaybe<Scalars['String']>;
-  lambda_name?: InputMaybe<Scalars['String']>;
-  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
-  oracle_id?: InputMaybe<Scalars['bigint']>;
+  oracle_id?: InputMaybe<Scalars['Int']>;
   reward?: InputMaybe<Scalars['float8']>;
   /** XTZ: 0\nSMVK: 1 */
   type?: InputMaybe<Scalars['smallint']>;
@@ -3025,7 +3299,7 @@ export type Aggregator_Oracle_Reward_Stream_Cursor_Value_Input = {
 export type Aggregator_Oracle_Reward_Sum_Fields = {
   __typename?: 'aggregator_oracle_reward_sum_fields';
   id?: Maybe<Scalars['bigint']>;
-  oracle_id?: Maybe<Scalars['bigint']>;
+  oracle_id?: Maybe<Scalars['Int']>;
   reward?: Maybe<Scalars['float8']>;
   /** XTZ: 0\nSMVK: 1 */
   type?: Maybe<Scalars['smallint']>;
@@ -3104,11 +3378,9 @@ export enum Aggregator_Oracle_Select_Column {
   /** column name */
   Id = 'id',
   /** column name */
-  LambdaBytes = 'lambda_bytes',
+  InitEpoch = 'init_epoch',
   /** column name */
-  LambdaName = 'lambda_name',
-  /** column name */
-  LastUpdatedAt = 'last_updated_at',
+  InitRound = 'init_round',
   /** column name */
   PeerId = 'peer_id',
   /** column name */
@@ -3121,33 +3393,45 @@ export enum Aggregator_Oracle_Select_Column {
 export type Aggregator_Oracle_Stddev_Fields = {
   __typename?: 'aggregator_oracle_stddev_fields';
   id?: Maybe<Scalars['Float']>;
+  init_epoch?: Maybe<Scalars['Float']>;
+  init_round?: Maybe<Scalars['Float']>;
 };
 
 /** order by stddev() on columns of table "aggregator_oracle" */
 export type Aggregator_Oracle_Stddev_Order_By = {
   id?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_pop on columns */
 export type Aggregator_Oracle_Stddev_Pop_Fields = {
   __typename?: 'aggregator_oracle_stddev_pop_fields';
   id?: Maybe<Scalars['Float']>;
+  init_epoch?: Maybe<Scalars['Float']>;
+  init_round?: Maybe<Scalars['Float']>;
 };
 
 /** order by stddev_pop() on columns of table "aggregator_oracle" */
 export type Aggregator_Oracle_Stddev_Pop_Order_By = {
   id?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_samp on columns */
 export type Aggregator_Oracle_Stddev_Samp_Fields = {
   __typename?: 'aggregator_oracle_stddev_samp_fields';
   id?: Maybe<Scalars['Float']>;
+  init_epoch?: Maybe<Scalars['Float']>;
+  init_round?: Maybe<Scalars['Float']>;
 };
 
 /** order by stddev_samp() on columns of table "aggregator_oracle" */
 export type Aggregator_Oracle_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "aggregator_oracle" */
@@ -3161,10 +3445,9 @@ export type Aggregator_Oracle_Stream_Cursor_Input = {
 /** Initial value of the column from where the streaming should start */
 export type Aggregator_Oracle_Stream_Cursor_Value_Input = {
   aggregator_id?: InputMaybe<Scalars['String']>;
-  id?: InputMaybe<Scalars['bigint']>;
-  lambda_bytes?: InputMaybe<Scalars['String']>;
-  lambda_name?: InputMaybe<Scalars['String']>;
-  last_updated_at?: InputMaybe<Scalars['timestamptz']>;
+  id?: InputMaybe<Scalars['Int']>;
+  init_epoch?: InputMaybe<Scalars['bigint']>;
+  init_round?: InputMaybe<Scalars['bigint']>;
   peer_id?: InputMaybe<Scalars['String']>;
   public_key?: InputMaybe<Scalars['String']>;
   user_id?: InputMaybe<Scalars['String']>;
@@ -3173,45 +3456,61 @@ export type Aggregator_Oracle_Stream_Cursor_Value_Input = {
 /** aggregate sum on columns */
 export type Aggregator_Oracle_Sum_Fields = {
   __typename?: 'aggregator_oracle_sum_fields';
-  id?: Maybe<Scalars['bigint']>;
+  id?: Maybe<Scalars['Int']>;
+  init_epoch?: Maybe<Scalars['bigint']>;
+  init_round?: Maybe<Scalars['bigint']>;
 };
 
 /** order by sum() on columns of table "aggregator_oracle" */
 export type Aggregator_Oracle_Sum_Order_By = {
   id?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
 };
 
 /** aggregate var_pop on columns */
 export type Aggregator_Oracle_Var_Pop_Fields = {
   __typename?: 'aggregator_oracle_var_pop_fields';
   id?: Maybe<Scalars['Float']>;
+  init_epoch?: Maybe<Scalars['Float']>;
+  init_round?: Maybe<Scalars['Float']>;
 };
 
 /** order by var_pop() on columns of table "aggregator_oracle" */
 export type Aggregator_Oracle_Var_Pop_Order_By = {
   id?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
 };
 
 /** aggregate var_samp on columns */
 export type Aggregator_Oracle_Var_Samp_Fields = {
   __typename?: 'aggregator_oracle_var_samp_fields';
   id?: Maybe<Scalars['Float']>;
+  init_epoch?: Maybe<Scalars['Float']>;
+  init_round?: Maybe<Scalars['Float']>;
 };
 
 /** order by var_samp() on columns of table "aggregator_oracle" */
 export type Aggregator_Oracle_Var_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
 };
 
 /** aggregate variance on columns */
 export type Aggregator_Oracle_Variance_Fields = {
   __typename?: 'aggregator_oracle_variance_fields';
   id?: Maybe<Scalars['Float']>;
+  init_epoch?: Maybe<Scalars['Float']>;
+  init_round?: Maybe<Scalars['Float']>;
 };
 
 /** order by variance() on columns of table "aggregator_oracle" */
 export type Aggregator_Oracle_Variance_Order_By = {
   id?: InputMaybe<Order_By>;
+  init_epoch?: InputMaybe<Order_By>;
+  init_round?: InputMaybe<Order_By>;
 };
 
 /** Ordering options when selecting data from "aggregator". */
@@ -21630,14 +21929,14 @@ export type Governance_Proposal_Bool_Exp = {
 /** columns and relationships of "governance_proposal_data" */
 export type Governance_Proposal_Data = {
   __typename?: 'governance_proposal_data';
-  code_description: Scalars['String'];
-  encoded_code: Scalars['String'];
+  code_description?: Maybe<Scalars['String']>;
+  encoded_code?: Maybe<Scalars['String']>;
   /** An object relationship */
   governance_proposal: Governance_Proposal;
   governance_proposal_id: Scalars['bigint'];
   id: Scalars['bigint'];
   internal_id: Scalars['smallint'];
-  title: Scalars['String'];
+  title?: Maybe<Scalars['String']>;
 };
 
 /** aggregated selection of "governance_proposal_data" */
@@ -22101,13 +22400,13 @@ export type Governance_Proposal_Payment = {
   governance_proposal_id: Scalars['bigint'];
   id: Scalars['bigint'];
   internal_id: Scalars['smallint'];
-  title: Scalars['String'];
+  title?: Maybe<Scalars['String']>;
   /** An object relationship */
   to_?: Maybe<Mavryk_User>;
   to__id?: Maybe<Scalars['String']>;
-  token_address: Scalars['String'];
-  token_amount: Scalars['float8'];
-  token_id: Scalars['smallint'];
+  token_address?: Maybe<Scalars['String']>;
+  token_amount?: Maybe<Scalars['float8']>;
+  token_id?: Maybe<Scalars['smallint']>;
 };
 
 /** aggregated selection of "governance_proposal_payment" */
@@ -31989,6 +32288,12 @@ export type Liquidity_Baking = {
   last_updated_at?: Maybe<Scalars['timestamptz']>;
   lqt_address: Scalars['String'];
   lqt_total: Scalars['bigint'];
+  /** An array relationship */
+  positions: Array<Liquidity_Baking_Position>;
+  /** An aggregate relationship */
+  positions_aggregate: Liquidity_Baking_Position_Aggregate;
+  share_price: Scalars['float8'];
+  share_price_usd: Scalars['float8'];
   token_address: Scalars['String'];
   token_decimals: Scalars['smallint'];
   token_pool: Scalars['bigint'];
@@ -32014,6 +32319,26 @@ export type Liquidity_BakingHistory_Data_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']>;
   order_by?: InputMaybe<Array<Liquidity_Baking_History_Data_Order_By>>;
   where?: InputMaybe<Liquidity_Baking_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "liquidity_baking" */
+export type Liquidity_BakingPositionsArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_Position_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+};
+
+
+/** columns and relationships of "liquidity_baking" */
+export type Liquidity_BakingPositions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_Position_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
 };
 
 /** aggregated selection of "liquidity_baking" */
@@ -32050,6 +32375,8 @@ export type Liquidity_Baking_Aggregate_FieldsCountArgs = {
 export type Liquidity_Baking_Avg_Fields = {
   __typename?: 'liquidity_baking_avg_fields';
   lqt_total?: Maybe<Scalars['Float']>;
+  share_price?: Maybe<Scalars['Float']>;
+  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -32067,6 +32394,9 @@ export type Liquidity_Baking_Bool_Exp = {
   last_updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   lqt_address?: InputMaybe<String_Comparison_Exp>;
   lqt_total?: InputMaybe<Bigint_Comparison_Exp>;
+  positions?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+  share_price?: InputMaybe<Float8_Comparison_Exp>;
+  share_price_usd?: InputMaybe<Float8_Comparison_Exp>;
   token_address?: InputMaybe<String_Comparison_Exp>;
   token_decimals?: InputMaybe<Smallint_Comparison_Exp>;
   token_pool?: InputMaybe<Bigint_Comparison_Exp>;
@@ -32078,17 +32408,25 @@ export type Liquidity_Baking_Bool_Exp = {
 export type Liquidity_Baking_History_Data = {
   __typename?: 'liquidity_baking_history_data';
   id: Scalars['bigint'];
+  level: Scalars['bigint'];
   /** An object relationship */
   liquidity_baking: Liquidity_Baking;
   liquidity_baking_id: Scalars['String'];
+  lqt_qty: Scalars['float8'];
   lqt_total: Scalars['bigint'];
+  slippage: Scalars['float8'];
   timestamp: Scalars['timestamptz'];
   token_pool: Scalars['bigint'];
-  token_xtz_price: Scalars['float8'];
+  token_price: Scalars['float8'];
+  token_price_usd: Scalars['float8'];
+  token_qty: Scalars['float8'];
+  /** An object relationship */
+  trader: Mavryk_User;
+  trader_id: Scalars['String'];
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type: Scalars['smallint'];
   xtz_pool: Scalars['bigint'];
-  xtz_token_price: Scalars['float8'];
+  xtz_qty: Scalars['float8'];
 };
 
 /** aggregated selection of "liquidity_baking_history_data" */
@@ -32140,25 +32478,35 @@ export type Liquidity_Baking_History_Data_Aggregate_Order_By = {
 export type Liquidity_Baking_History_Data_Avg_Fields = {
   __typename?: 'liquidity_baking_history_data_avg_fields';
   id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  lqt_qty?: Maybe<Scalars['Float']>;
   lqt_total?: Maybe<Scalars['Float']>;
+  slippage?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
-  token_xtz_price?: Maybe<Scalars['Float']>;
+  token_price?: Maybe<Scalars['Float']>;
+  token_price_usd?: Maybe<Scalars['Float']>;
+  token_qty?: Maybe<Scalars['Float']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['Float']>;
   xtz_pool?: Maybe<Scalars['Float']>;
-  xtz_token_price?: Maybe<Scalars['Float']>;
+  xtz_qty?: Maybe<Scalars['Float']>;
 };
 
 /** order by avg() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Avg_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to filter rows from the table "liquidity_baking_history_data". All fields are combined with a logical 'AND'. */
@@ -32167,87 +32515,125 @@ export type Liquidity_Baking_History_Data_Bool_Exp = {
   _not?: InputMaybe<Liquidity_Baking_History_Data_Bool_Exp>;
   _or?: InputMaybe<Array<Liquidity_Baking_History_Data_Bool_Exp>>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
+  level?: InputMaybe<Bigint_Comparison_Exp>;
   liquidity_baking?: InputMaybe<Liquidity_Baking_Bool_Exp>;
   liquidity_baking_id?: InputMaybe<String_Comparison_Exp>;
+  lqt_qty?: InputMaybe<Float8_Comparison_Exp>;
   lqt_total?: InputMaybe<Bigint_Comparison_Exp>;
+  slippage?: InputMaybe<Float8_Comparison_Exp>;
   timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
   token_pool?: InputMaybe<Bigint_Comparison_Exp>;
-  token_xtz_price?: InputMaybe<Float8_Comparison_Exp>;
+  token_price?: InputMaybe<Float8_Comparison_Exp>;
+  token_price_usd?: InputMaybe<Float8_Comparison_Exp>;
+  token_qty?: InputMaybe<Float8_Comparison_Exp>;
+  trader?: InputMaybe<Mavryk_User_Bool_Exp>;
+  trader_id?: InputMaybe<String_Comparison_Exp>;
   type?: InputMaybe<Smallint_Comparison_Exp>;
   xtz_pool?: InputMaybe<Bigint_Comparison_Exp>;
-  xtz_token_price?: InputMaybe<Float8_Comparison_Exp>;
+  xtz_qty?: InputMaybe<Float8_Comparison_Exp>;
 };
 
 /** aggregate max on columns */
 export type Liquidity_Baking_History_Data_Max_Fields = {
   __typename?: 'liquidity_baking_history_data_max_fields';
   id?: Maybe<Scalars['bigint']>;
+  level?: Maybe<Scalars['bigint']>;
   liquidity_baking_id?: Maybe<Scalars['String']>;
+  lqt_qty?: Maybe<Scalars['float8']>;
   lqt_total?: Maybe<Scalars['bigint']>;
+  slippage?: Maybe<Scalars['float8']>;
   timestamp?: Maybe<Scalars['timestamptz']>;
   token_pool?: Maybe<Scalars['bigint']>;
-  token_xtz_price?: Maybe<Scalars['float8']>;
+  token_price?: Maybe<Scalars['float8']>;
+  token_price_usd?: Maybe<Scalars['float8']>;
+  token_qty?: Maybe<Scalars['float8']>;
+  trader_id?: Maybe<Scalars['String']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['smallint']>;
   xtz_pool?: Maybe<Scalars['bigint']>;
-  xtz_token_price?: Maybe<Scalars['float8']>;
+  xtz_qty?: Maybe<Scalars['float8']>;
 };
 
 /** order by max() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Max_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
   liquidity_baking_id?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   timestamp?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
+  trader_id?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
 export type Liquidity_Baking_History_Data_Min_Fields = {
   __typename?: 'liquidity_baking_history_data_min_fields';
   id?: Maybe<Scalars['bigint']>;
+  level?: Maybe<Scalars['bigint']>;
   liquidity_baking_id?: Maybe<Scalars['String']>;
+  lqt_qty?: Maybe<Scalars['float8']>;
   lqt_total?: Maybe<Scalars['bigint']>;
+  slippage?: Maybe<Scalars['float8']>;
   timestamp?: Maybe<Scalars['timestamptz']>;
   token_pool?: Maybe<Scalars['bigint']>;
-  token_xtz_price?: Maybe<Scalars['float8']>;
+  token_price?: Maybe<Scalars['float8']>;
+  token_price_usd?: Maybe<Scalars['float8']>;
+  token_qty?: Maybe<Scalars['float8']>;
+  trader_id?: Maybe<Scalars['String']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['smallint']>;
   xtz_pool?: Maybe<Scalars['bigint']>;
-  xtz_token_price?: Maybe<Scalars['float8']>;
+  xtz_qty?: Maybe<Scalars['float8']>;
 };
 
 /** order by min() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Min_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
   liquidity_baking_id?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   timestamp?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
+  trader_id?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** Ordering options when selecting data from "liquidity_baking_history_data". */
 export type Liquidity_Baking_History_Data_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
   liquidity_baking?: InputMaybe<Liquidity_Baking_Order_By>;
   liquidity_baking_id?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   timestamp?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
+  trader?: InputMaybe<Mavryk_User_Order_By>;
+  trader_id?: InputMaybe<Order_By>;
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** select columns of table "liquidity_baking_history_data" */
@@ -32255,96 +32641,138 @@ export enum Liquidity_Baking_History_Data_Select_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  Level = 'level',
+  /** column name */
   LiquidityBakingId = 'liquidity_baking_id',
   /** column name */
+  LqtQty = 'lqt_qty',
+  /** column name */
   LqtTotal = 'lqt_total',
+  /** column name */
+  Slippage = 'slippage',
   /** column name */
   Timestamp = 'timestamp',
   /** column name */
   TokenPool = 'token_pool',
   /** column name */
-  TokenXtzPrice = 'token_xtz_price',
+  TokenPrice = 'token_price',
+  /** column name */
+  TokenPriceUsd = 'token_price_usd',
+  /** column name */
+  TokenQty = 'token_qty',
+  /** column name */
+  TraderId = 'trader_id',
   /** column name */
   Type = 'type',
   /** column name */
   XtzPool = 'xtz_pool',
   /** column name */
-  XtzTokenPrice = 'xtz_token_price'
+  XtzQty = 'xtz_qty'
 }
 
 /** aggregate stddev on columns */
 export type Liquidity_Baking_History_Data_Stddev_Fields = {
   __typename?: 'liquidity_baking_history_data_stddev_fields';
   id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  lqt_qty?: Maybe<Scalars['Float']>;
   lqt_total?: Maybe<Scalars['Float']>;
+  slippage?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
-  token_xtz_price?: Maybe<Scalars['Float']>;
+  token_price?: Maybe<Scalars['Float']>;
+  token_price_usd?: Maybe<Scalars['Float']>;
+  token_qty?: Maybe<Scalars['Float']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['Float']>;
   xtz_pool?: Maybe<Scalars['Float']>;
-  xtz_token_price?: Maybe<Scalars['Float']>;
+  xtz_qty?: Maybe<Scalars['Float']>;
 };
 
 /** order by stddev() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Stddev_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_pop on columns */
 export type Liquidity_Baking_History_Data_Stddev_Pop_Fields = {
   __typename?: 'liquidity_baking_history_data_stddev_pop_fields';
   id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  lqt_qty?: Maybe<Scalars['Float']>;
   lqt_total?: Maybe<Scalars['Float']>;
+  slippage?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
-  token_xtz_price?: Maybe<Scalars['Float']>;
+  token_price?: Maybe<Scalars['Float']>;
+  token_price_usd?: Maybe<Scalars['Float']>;
+  token_qty?: Maybe<Scalars['Float']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['Float']>;
   xtz_pool?: Maybe<Scalars['Float']>;
-  xtz_token_price?: Maybe<Scalars['Float']>;
+  xtz_qty?: Maybe<Scalars['Float']>;
 };
 
 /** order by stddev_pop() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Stddev_Pop_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_samp on columns */
 export type Liquidity_Baking_History_Data_Stddev_Samp_Fields = {
   __typename?: 'liquidity_baking_history_data_stddev_samp_fields';
   id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  lqt_qty?: Maybe<Scalars['Float']>;
   lqt_total?: Maybe<Scalars['Float']>;
+  slippage?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
-  token_xtz_price?: Maybe<Scalars['Float']>;
+  token_price?: Maybe<Scalars['Float']>;
+  token_price_usd?: Maybe<Scalars['Float']>;
+  token_qty?: Maybe<Scalars['Float']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['Float']>;
   xtz_pool?: Maybe<Scalars['Float']>;
-  xtz_token_price?: Maybe<Scalars['Float']>;
+  xtz_qty?: Maybe<Scalars['Float']>;
 };
 
 /** order by stddev_samp() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Stddev_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "liquidity_baking_history_data" */
@@ -32358,115 +32786,161 @@ export type Liquidity_Baking_History_Data_Stream_Cursor_Input = {
 /** Initial value of the column from where the streaming should start */
 export type Liquidity_Baking_History_Data_Stream_Cursor_Value_Input = {
   id?: InputMaybe<Scalars['bigint']>;
+  level?: InputMaybe<Scalars['bigint']>;
   liquidity_baking_id?: InputMaybe<Scalars['String']>;
+  lqt_qty?: InputMaybe<Scalars['float8']>;
   lqt_total?: InputMaybe<Scalars['bigint']>;
+  slippage?: InputMaybe<Scalars['float8']>;
   timestamp?: InputMaybe<Scalars['timestamptz']>;
   token_pool?: InputMaybe<Scalars['bigint']>;
-  token_xtz_price?: InputMaybe<Scalars['float8']>;
+  token_price?: InputMaybe<Scalars['float8']>;
+  token_price_usd?: InputMaybe<Scalars['float8']>;
+  token_qty?: InputMaybe<Scalars['float8']>;
+  trader_id?: InputMaybe<Scalars['String']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Scalars['smallint']>;
   xtz_pool?: InputMaybe<Scalars['bigint']>;
-  xtz_token_price?: InputMaybe<Scalars['float8']>;
+  xtz_qty?: InputMaybe<Scalars['float8']>;
 };
 
 /** aggregate sum on columns */
 export type Liquidity_Baking_History_Data_Sum_Fields = {
   __typename?: 'liquidity_baking_history_data_sum_fields';
   id?: Maybe<Scalars['bigint']>;
+  level?: Maybe<Scalars['bigint']>;
+  lqt_qty?: Maybe<Scalars['float8']>;
   lqt_total?: Maybe<Scalars['bigint']>;
+  slippage?: Maybe<Scalars['float8']>;
   token_pool?: Maybe<Scalars['bigint']>;
-  token_xtz_price?: Maybe<Scalars['float8']>;
+  token_price?: Maybe<Scalars['float8']>;
+  token_price_usd?: Maybe<Scalars['float8']>;
+  token_qty?: Maybe<Scalars['float8']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['smallint']>;
   xtz_pool?: Maybe<Scalars['bigint']>;
-  xtz_token_price?: Maybe<Scalars['float8']>;
+  xtz_qty?: Maybe<Scalars['float8']>;
 };
 
 /** order by sum() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Sum_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** aggregate var_pop on columns */
 export type Liquidity_Baking_History_Data_Var_Pop_Fields = {
   __typename?: 'liquidity_baking_history_data_var_pop_fields';
   id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  lqt_qty?: Maybe<Scalars['Float']>;
   lqt_total?: Maybe<Scalars['Float']>;
+  slippage?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
-  token_xtz_price?: Maybe<Scalars['Float']>;
+  token_price?: Maybe<Scalars['Float']>;
+  token_price_usd?: Maybe<Scalars['Float']>;
+  token_qty?: Maybe<Scalars['Float']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['Float']>;
   xtz_pool?: Maybe<Scalars['Float']>;
-  xtz_token_price?: Maybe<Scalars['Float']>;
+  xtz_qty?: Maybe<Scalars['Float']>;
 };
 
 /** order by var_pop() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Var_Pop_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** aggregate var_samp on columns */
 export type Liquidity_Baking_History_Data_Var_Samp_Fields = {
   __typename?: 'liquidity_baking_history_data_var_samp_fields';
   id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  lqt_qty?: Maybe<Scalars['Float']>;
   lqt_total?: Maybe<Scalars['Float']>;
+  slippage?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
-  token_xtz_price?: Maybe<Scalars['Float']>;
+  token_price?: Maybe<Scalars['Float']>;
+  token_price_usd?: Maybe<Scalars['Float']>;
+  token_qty?: Maybe<Scalars['Float']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['Float']>;
   xtz_pool?: Maybe<Scalars['Float']>;
-  xtz_token_price?: Maybe<Scalars['Float']>;
+  xtz_qty?: Maybe<Scalars['Float']>;
 };
 
 /** order by var_samp() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Var_Samp_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** aggregate variance on columns */
 export type Liquidity_Baking_History_Data_Variance_Fields = {
   __typename?: 'liquidity_baking_history_data_variance_fields';
   id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  lqt_qty?: Maybe<Scalars['Float']>;
   lqt_total?: Maybe<Scalars['Float']>;
+  slippage?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
-  token_xtz_price?: Maybe<Scalars['Float']>;
+  token_price?: Maybe<Scalars['Float']>;
+  token_price_usd?: Maybe<Scalars['Float']>;
+  token_qty?: Maybe<Scalars['Float']>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: Maybe<Scalars['Float']>;
   xtz_pool?: Maybe<Scalars['Float']>;
-  xtz_token_price?: Maybe<Scalars['Float']>;
+  xtz_qty?: Maybe<Scalars['Float']>;
 };
 
 /** order by variance() on columns of table "liquidity_baking_history_data" */
 export type Liquidity_Baking_History_Data_Variance_Order_By = {
   id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  lqt_qty?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  slippage?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
-  token_xtz_price?: InputMaybe<Order_By>;
+  token_price?: InputMaybe<Order_By>;
+  token_price_usd?: InputMaybe<Order_By>;
+  token_qty?: InputMaybe<Order_By>;
   /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nXTZ_TO_TOKEN: 2\nTOKEN_TO_XTZ: 3\nTOKEN_TO_TOKEN: 4 */
   type?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
-  xtz_token_price?: InputMaybe<Order_By>;
+  xtz_qty?: InputMaybe<Order_By>;
 };
 
 /** aggregate max on columns */
@@ -32477,6 +32951,8 @@ export type Liquidity_Baking_Max_Fields = {
   last_updated_at?: Maybe<Scalars['timestamptz']>;
   lqt_address?: Maybe<Scalars['String']>;
   lqt_total?: Maybe<Scalars['bigint']>;
+  share_price?: Maybe<Scalars['float8']>;
+  share_price_usd?: Maybe<Scalars['float8']>;
   token_address?: Maybe<Scalars['String']>;
   token_decimals?: Maybe<Scalars['smallint']>;
   token_pool?: Maybe<Scalars['bigint']>;
@@ -32492,6 +32968,8 @@ export type Liquidity_Baking_Min_Fields = {
   last_updated_at?: Maybe<Scalars['timestamptz']>;
   lqt_address?: Maybe<Scalars['String']>;
   lqt_total?: Maybe<Scalars['bigint']>;
+  share_price?: Maybe<Scalars['float8']>;
+  share_price_usd?: Maybe<Scalars['float8']>;
   token_address?: Maybe<Scalars['String']>;
   token_decimals?: Maybe<Scalars['smallint']>;
   token_pool?: Maybe<Scalars['bigint']>;
@@ -32507,11 +32985,339 @@ export type Liquidity_Baking_Order_By = {
   last_updated_at?: InputMaybe<Order_By>;
   lqt_address?: InputMaybe<Order_By>;
   lqt_total?: InputMaybe<Order_By>;
+  positions_aggregate?: InputMaybe<Liquidity_Baking_Position_Aggregate_Order_By>;
+  share_price?: InputMaybe<Order_By>;
+  share_price_usd?: InputMaybe<Order_By>;
   token_address?: InputMaybe<Order_By>;
   token_decimals?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
   xtz_decimals?: InputMaybe<Order_By>;
   xtz_pool?: InputMaybe<Order_By>;
+};
+
+/** columns and relationships of "liquidity_baking_position" */
+export type Liquidity_Baking_Position = {
+  __typename?: 'liquidity_baking_position';
+  avg_share_price: Scalars['float8'];
+  avg_share_price_usd: Scalars['float8'];
+  id: Scalars['bigint'];
+  /** An object relationship */
+  liquidity_baking: Liquidity_Baking;
+  liquidity_baking_id: Scalars['String'];
+  realized_pl: Scalars['float8'];
+  shares_qty: Scalars['float8'];
+  /** An object relationship */
+  trader: Mavryk_User;
+  trader_id: Scalars['String'];
+};
+
+/** aggregated selection of "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Aggregate = {
+  __typename?: 'liquidity_baking_position_aggregate';
+  aggregate?: Maybe<Liquidity_Baking_Position_Aggregate_Fields>;
+  nodes: Array<Liquidity_Baking_Position>;
+};
+
+/** aggregate fields of "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Aggregate_Fields = {
+  __typename?: 'liquidity_baking_position_aggregate_fields';
+  avg?: Maybe<Liquidity_Baking_Position_Avg_Fields>;
+  count: Scalars['Int'];
+  max?: Maybe<Liquidity_Baking_Position_Max_Fields>;
+  min?: Maybe<Liquidity_Baking_Position_Min_Fields>;
+  stddev?: Maybe<Liquidity_Baking_Position_Stddev_Fields>;
+  stddev_pop?: Maybe<Liquidity_Baking_Position_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Liquidity_Baking_Position_Stddev_Samp_Fields>;
+  sum?: Maybe<Liquidity_Baking_Position_Sum_Fields>;
+  var_pop?: Maybe<Liquidity_Baking_Position_Var_Pop_Fields>;
+  var_samp?: Maybe<Liquidity_Baking_Position_Var_Samp_Fields>;
+  variance?: Maybe<Liquidity_Baking_Position_Variance_Fields>;
+};
+
+
+/** aggregate fields of "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** order by aggregate values of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Aggregate_Order_By = {
+  avg?: InputMaybe<Liquidity_Baking_Position_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Liquidity_Baking_Position_Max_Order_By>;
+  min?: InputMaybe<Liquidity_Baking_Position_Min_Order_By>;
+  stddev?: InputMaybe<Liquidity_Baking_Position_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Liquidity_Baking_Position_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Liquidity_Baking_Position_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Liquidity_Baking_Position_Sum_Order_By>;
+  var_pop?: InputMaybe<Liquidity_Baking_Position_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Liquidity_Baking_Position_Var_Samp_Order_By>;
+  variance?: InputMaybe<Liquidity_Baking_Position_Variance_Order_By>;
+};
+
+/** aggregate avg on columns */
+export type Liquidity_Baking_Position_Avg_Fields = {
+  __typename?: 'liquidity_baking_position_avg_fields';
+  avg_share_price?: Maybe<Scalars['Float']>;
+  avg_share_price_usd?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  realized_pl?: Maybe<Scalars['Float']>;
+  shares_qty?: Maybe<Scalars['Float']>;
+};
+
+/** order by avg() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Avg_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "liquidity_baking_position". All fields are combined with a logical 'AND'. */
+export type Liquidity_Baking_Position_Bool_Exp = {
+  _and?: InputMaybe<Array<Liquidity_Baking_Position_Bool_Exp>>;
+  _not?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+  _or?: InputMaybe<Array<Liquidity_Baking_Position_Bool_Exp>>;
+  avg_share_price?: InputMaybe<Float8_Comparison_Exp>;
+  avg_share_price_usd?: InputMaybe<Float8_Comparison_Exp>;
+  id?: InputMaybe<Bigint_Comparison_Exp>;
+  liquidity_baking?: InputMaybe<Liquidity_Baking_Bool_Exp>;
+  liquidity_baking_id?: InputMaybe<String_Comparison_Exp>;
+  realized_pl?: InputMaybe<Float8_Comparison_Exp>;
+  shares_qty?: InputMaybe<Float8_Comparison_Exp>;
+  trader?: InputMaybe<Mavryk_User_Bool_Exp>;
+  trader_id?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** aggregate max on columns */
+export type Liquidity_Baking_Position_Max_Fields = {
+  __typename?: 'liquidity_baking_position_max_fields';
+  avg_share_price?: Maybe<Scalars['float8']>;
+  avg_share_price_usd?: Maybe<Scalars['float8']>;
+  id?: Maybe<Scalars['bigint']>;
+  liquidity_baking_id?: Maybe<Scalars['String']>;
+  realized_pl?: Maybe<Scalars['float8']>;
+  shares_qty?: Maybe<Scalars['float8']>;
+  trader_id?: Maybe<Scalars['String']>;
+};
+
+/** order by max() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Max_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  liquidity_baking_id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+  trader_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Liquidity_Baking_Position_Min_Fields = {
+  __typename?: 'liquidity_baking_position_min_fields';
+  avg_share_price?: Maybe<Scalars['float8']>;
+  avg_share_price_usd?: Maybe<Scalars['float8']>;
+  id?: Maybe<Scalars['bigint']>;
+  liquidity_baking_id?: Maybe<Scalars['String']>;
+  realized_pl?: Maybe<Scalars['float8']>;
+  shares_qty?: Maybe<Scalars['float8']>;
+  trader_id?: Maybe<Scalars['String']>;
+};
+
+/** order by min() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Min_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  liquidity_baking_id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+  trader_id?: InputMaybe<Order_By>;
+};
+
+/** Ordering options when selecting data from "liquidity_baking_position". */
+export type Liquidity_Baking_Position_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  liquidity_baking?: InputMaybe<Liquidity_Baking_Order_By>;
+  liquidity_baking_id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+  trader?: InputMaybe<Mavryk_User_Order_By>;
+  trader_id?: InputMaybe<Order_By>;
+};
+
+/** select columns of table "liquidity_baking_position" */
+export enum Liquidity_Baking_Position_Select_Column {
+  /** column name */
+  AvgSharePrice = 'avg_share_price',
+  /** column name */
+  AvgSharePriceUsd = 'avg_share_price_usd',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  LiquidityBakingId = 'liquidity_baking_id',
+  /** column name */
+  RealizedPl = 'realized_pl',
+  /** column name */
+  SharesQty = 'shares_qty',
+  /** column name */
+  TraderId = 'trader_id'
+}
+
+/** aggregate stddev on columns */
+export type Liquidity_Baking_Position_Stddev_Fields = {
+  __typename?: 'liquidity_baking_position_stddev_fields';
+  avg_share_price?: Maybe<Scalars['Float']>;
+  avg_share_price_usd?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  realized_pl?: Maybe<Scalars['Float']>;
+  shares_qty?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Stddev_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Liquidity_Baking_Position_Stddev_Pop_Fields = {
+  __typename?: 'liquidity_baking_position_stddev_pop_fields';
+  avg_share_price?: Maybe<Scalars['Float']>;
+  avg_share_price_usd?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  realized_pl?: Maybe<Scalars['Float']>;
+  shares_qty?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_pop() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Stddev_Pop_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Liquidity_Baking_Position_Stddev_Samp_Fields = {
+  __typename?: 'liquidity_baking_position_stddev_samp_fields';
+  avg_share_price?: Maybe<Scalars['Float']>;
+  avg_share_price_usd?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  realized_pl?: Maybe<Scalars['Float']>;
+  shares_qty?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_samp() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Stddev_Samp_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Liquidity_Baking_Position_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Liquidity_Baking_Position_Stream_Cursor_Value_Input = {
+  avg_share_price?: InputMaybe<Scalars['float8']>;
+  avg_share_price_usd?: InputMaybe<Scalars['float8']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  liquidity_baking_id?: InputMaybe<Scalars['String']>;
+  realized_pl?: InputMaybe<Scalars['float8']>;
+  shares_qty?: InputMaybe<Scalars['float8']>;
+  trader_id?: InputMaybe<Scalars['String']>;
+};
+
+/** aggregate sum on columns */
+export type Liquidity_Baking_Position_Sum_Fields = {
+  __typename?: 'liquidity_baking_position_sum_fields';
+  avg_share_price?: Maybe<Scalars['float8']>;
+  avg_share_price_usd?: Maybe<Scalars['float8']>;
+  id?: Maybe<Scalars['bigint']>;
+  realized_pl?: Maybe<Scalars['float8']>;
+  shares_qty?: Maybe<Scalars['float8']>;
+};
+
+/** order by sum() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Sum_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_pop on columns */
+export type Liquidity_Baking_Position_Var_Pop_Fields = {
+  __typename?: 'liquidity_baking_position_var_pop_fields';
+  avg_share_price?: Maybe<Scalars['Float']>;
+  avg_share_price_usd?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  realized_pl?: Maybe<Scalars['Float']>;
+  shares_qty?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_pop() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Var_Pop_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Liquidity_Baking_Position_Var_Samp_Fields = {
+  __typename?: 'liquidity_baking_position_var_samp_fields';
+  avg_share_price?: Maybe<Scalars['Float']>;
+  avg_share_price_usd?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  realized_pl?: Maybe<Scalars['Float']>;
+  shares_qty?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_samp() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Var_Samp_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Liquidity_Baking_Position_Variance_Fields = {
+  __typename?: 'liquidity_baking_position_variance_fields';
+  avg_share_price?: Maybe<Scalars['Float']>;
+  avg_share_price_usd?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  realized_pl?: Maybe<Scalars['Float']>;
+  shares_qty?: Maybe<Scalars['Float']>;
+};
+
+/** order by variance() on columns of table "liquidity_baking_position" */
+export type Liquidity_Baking_Position_Variance_Order_By = {
+  avg_share_price?: InputMaybe<Order_By>;
+  avg_share_price_usd?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  realized_pl?: InputMaybe<Order_By>;
+  shares_qty?: InputMaybe<Order_By>;
 };
 
 /** select columns of table "liquidity_baking" */
@@ -32526,6 +33332,10 @@ export enum Liquidity_Baking_Select_Column {
   LqtAddress = 'lqt_address',
   /** column name */
   LqtTotal = 'lqt_total',
+  /** column name */
+  SharePrice = 'share_price',
+  /** column name */
+  SharePriceUsd = 'share_price_usd',
   /** column name */
   TokenAddress = 'token_address',
   /** column name */
@@ -32542,6 +33352,8 @@ export enum Liquidity_Baking_Select_Column {
 export type Liquidity_Baking_Stddev_Fields = {
   __typename?: 'liquidity_baking_stddev_fields';
   lqt_total?: Maybe<Scalars['Float']>;
+  share_price?: Maybe<Scalars['Float']>;
+  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -32552,6 +33364,8 @@ export type Liquidity_Baking_Stddev_Fields = {
 export type Liquidity_Baking_Stddev_Pop_Fields = {
   __typename?: 'liquidity_baking_stddev_pop_fields';
   lqt_total?: Maybe<Scalars['Float']>;
+  share_price?: Maybe<Scalars['Float']>;
+  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -32562,6 +33376,8 @@ export type Liquidity_Baking_Stddev_Pop_Fields = {
 export type Liquidity_Baking_Stddev_Samp_Fields = {
   __typename?: 'liquidity_baking_stddev_samp_fields';
   lqt_total?: Maybe<Scalars['Float']>;
+  share_price?: Maybe<Scalars['Float']>;
+  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -32583,6 +33399,8 @@ export type Liquidity_Baking_Stream_Cursor_Value_Input = {
   last_updated_at?: InputMaybe<Scalars['timestamptz']>;
   lqt_address?: InputMaybe<Scalars['String']>;
   lqt_total?: InputMaybe<Scalars['bigint']>;
+  share_price?: InputMaybe<Scalars['float8']>;
+  share_price_usd?: InputMaybe<Scalars['float8']>;
   token_address?: InputMaybe<Scalars['String']>;
   token_decimals?: InputMaybe<Scalars['smallint']>;
   token_pool?: InputMaybe<Scalars['bigint']>;
@@ -32594,6 +33412,8 @@ export type Liquidity_Baking_Stream_Cursor_Value_Input = {
 export type Liquidity_Baking_Sum_Fields = {
   __typename?: 'liquidity_baking_sum_fields';
   lqt_total?: Maybe<Scalars['bigint']>;
+  share_price?: Maybe<Scalars['float8']>;
+  share_price_usd?: Maybe<Scalars['float8']>;
   token_decimals?: Maybe<Scalars['smallint']>;
   token_pool?: Maybe<Scalars['bigint']>;
   xtz_decimals?: Maybe<Scalars['smallint']>;
@@ -32604,6 +33424,8 @@ export type Liquidity_Baking_Sum_Fields = {
 export type Liquidity_Baking_Var_Pop_Fields = {
   __typename?: 'liquidity_baking_var_pop_fields';
   lqt_total?: Maybe<Scalars['Float']>;
+  share_price?: Maybe<Scalars['Float']>;
+  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -32614,6 +33436,8 @@ export type Liquidity_Baking_Var_Pop_Fields = {
 export type Liquidity_Baking_Var_Samp_Fields = {
   __typename?: 'liquidity_baking_var_samp_fields';
   lqt_total?: Maybe<Scalars['Float']>;
+  share_price?: Maybe<Scalars['Float']>;
+  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -32624,6 +33448,8 @@ export type Liquidity_Baking_Var_Samp_Fields = {
 export type Liquidity_Baking_Variance_Fields = {
   __typename?: 'liquidity_baking_variance_fields';
   lqt_total?: Maybe<Scalars['Float']>;
+  share_price?: Maybe<Scalars['Float']>;
+  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -32730,6 +33556,14 @@ export type Mavryk_User = {
   lending_controller_vaults: Array<Lending_Controller_Vault>;
   /** An aggregate relationship */
   lending_controller_vaults_aggregate: Lending_Controller_Vault_Aggregate;
+  /** An array relationship */
+  liquidity_baking_positions: Array<Liquidity_Baking_Position>;
+  /** An aggregate relationship */
+  liquidity_baking_positions_aggregate: Liquidity_Baking_Position_Aggregate;
+  /** An array relationship */
+  liquidity_baking_trades: Array<Liquidity_Baking_History_Data>;
+  /** An aggregate relationship */
+  liquidity_baking_trades_aggregate: Liquidity_Baking_History_Data_Aggregate;
   /** An array relationship */
   mint_history_data: Array<Mvk_Mint_History_Data>;
   /** An aggregate relationship */
@@ -33272,6 +34106,46 @@ export type Mavryk_UserLending_Controller_Vaults_AggregateArgs = {
 
 
 /** columns and relationships of "mavryk_user" */
+export type Mavryk_UserLiquidity_Baking_PositionsArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_Position_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+};
+
+
+/** columns and relationships of "mavryk_user" */
+export type Mavryk_UserLiquidity_Baking_Positions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_Position_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+};
+
+
+/** columns and relationships of "mavryk_user" */
+export type Mavryk_UserLiquidity_Baking_TradesArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_History_Data_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "mavryk_user" */
+export type Mavryk_UserLiquidity_Baking_Trades_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_History_Data_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "mavryk_user" */
 export type Mavryk_UserMint_History_DataArgs = {
   distinct_on?: InputMaybe<Array<Mvk_Mint_History_Data_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -33617,6 +34491,8 @@ export type Mavryk_User_Bool_Exp = {
   lending_controller_collateral_token_oracles?: InputMaybe<Lending_Controller_Collateral_Token_Bool_Exp>;
   lending_controller_loan_token_oracles?: InputMaybe<Lending_Controller_Loan_Token_Bool_Exp>;
   lending_controller_vaults?: InputMaybe<Lending_Controller_Vault_Bool_Exp>;
+  liquidity_baking_positions?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+  liquidity_baking_trades?: InputMaybe<Liquidity_Baking_History_Data_Bool_Exp>;
   mint_history_data?: InputMaybe<Mvk_Mint_History_Data_Bool_Exp>;
   mvk_balance?: InputMaybe<Float8_Comparison_Exp>;
   mvk_transfer_receiver?: InputMaybe<Mvk_Transfer_History_Data_Bool_Exp>;
@@ -33899,6 +34775,8 @@ export type Mavryk_User_Order_By = {
   lending_controller_collateral_token_oracles_aggregate?: InputMaybe<Lending_Controller_Collateral_Token_Aggregate_Order_By>;
   lending_controller_loan_token_oracles_aggregate?: InputMaybe<Lending_Controller_Loan_Token_Aggregate_Order_By>;
   lending_controller_vaults_aggregate?: InputMaybe<Lending_Controller_Vault_Aggregate_Order_By>;
+  liquidity_baking_positions_aggregate?: InputMaybe<Liquidity_Baking_Position_Aggregate_Order_By>;
+  liquidity_baking_trades_aggregate?: InputMaybe<Liquidity_Baking_History_Data_Aggregate_Order_By>;
   mint_history_data_aggregate?: InputMaybe<Mvk_Mint_History_Data_Aggregate_Order_By>;
   mvk_balance?: InputMaybe<Order_By>;
   mvk_transfer_receiver_aggregate?: InputMaybe<Mvk_Transfer_History_Data_Aggregate_Order_By>;
@@ -35480,6 +36358,12 @@ export type Query_Root = {
   aggregator_oracle_aggregate: Aggregator_Oracle_Aggregate;
   /** fetch data from the table: "aggregator_oracle" using primary key columns */
   aggregator_oracle_by_pk?: Maybe<Aggregator_Oracle>;
+  /** fetch data from the table: "aggregator_oracle_observation" */
+  aggregator_oracle_observation: Array<Aggregator_Oracle_Observation>;
+  /** fetch aggregated fields from the table: "aggregator_oracle_observation" */
+  aggregator_oracle_observation_aggregate: Aggregator_Oracle_Observation_Aggregate;
+  /** fetch data from the table: "aggregator_oracle_observation" using primary key columns */
+  aggregator_oracle_observation_by_pk?: Maybe<Aggregator_Oracle_Observation>;
   /** fetch data from the table: "aggregator_oracle_reward" */
   aggregator_oracle_reward: Array<Aggregator_Oracle_Reward>;
   /** fetch aggregated fields from the table: "aggregator_oracle_reward" */
@@ -36042,6 +36926,12 @@ export type Query_Root = {
   liquidity_baking_history_data_aggregate: Liquidity_Baking_History_Data_Aggregate;
   /** fetch data from the table: "liquidity_baking_history_data" using primary key columns */
   liquidity_baking_history_data_by_pk?: Maybe<Liquidity_Baking_History_Data>;
+  /** fetch data from the table: "liquidity_baking_position" */
+  liquidity_baking_position: Array<Liquidity_Baking_Position>;
+  /** fetch aggregated fields from the table: "liquidity_baking_position" */
+  liquidity_baking_position_aggregate: Liquidity_Baking_Position_Aggregate;
+  /** fetch data from the table: "liquidity_baking_position" using primary key columns */
+  liquidity_baking_position_by_pk?: Maybe<Liquidity_Baking_Position>;
   /** fetch data from the table: "mavryk_user" */
   mavryk_user: Array<Mavryk_User>;
   /** fetch aggregated fields from the table: "mavryk_user" */
@@ -36477,7 +37367,7 @@ export type Query_RootAggregator_History_Data_AggregateArgs = {
 
 
 export type Query_RootAggregator_History_Data_By_PkArgs = {
-  id: Scalars['bigint'];
+  id: Scalars['Int'];
 };
 
 
@@ -36523,6 +37413,29 @@ export type Query_RootAggregator_Oracle_AggregateArgs = {
 
 
 export type Query_RootAggregator_Oracle_By_PkArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type Query_RootAggregator_Oracle_ObservationArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_Oracle_Observation_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_Oracle_Observation_Order_By>>;
+  where?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
+};
+
+
+export type Query_RootAggregator_Oracle_Observation_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_Oracle_Observation_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_Oracle_Observation_Order_By>>;
+  where?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
+};
+
+
+export type Query_RootAggregator_Oracle_Observation_By_PkArgs = {
   id: Scalars['bigint'];
 };
 
@@ -38680,6 +39593,29 @@ export type Query_RootLiquidity_Baking_History_Data_AggregateArgs = {
 
 
 export type Query_RootLiquidity_Baking_History_Data_By_PkArgs = {
+  id: Scalars['bigint'];
+};
+
+
+export type Query_RootLiquidity_Baking_PositionArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_Position_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+};
+
+
+export type Query_RootLiquidity_Baking_Position_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_Position_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+};
+
+
+export type Query_RootLiquidity_Baking_Position_By_PkArgs = {
   id: Scalars['bigint'];
 };
 
@@ -41088,6 +42024,14 @@ export type Subscription_Root = {
   aggregator_oracle_aggregate: Aggregator_Oracle_Aggregate;
   /** fetch data from the table: "aggregator_oracle" using primary key columns */
   aggregator_oracle_by_pk?: Maybe<Aggregator_Oracle>;
+  /** fetch data from the table: "aggregator_oracle_observation" */
+  aggregator_oracle_observation: Array<Aggregator_Oracle_Observation>;
+  /** fetch aggregated fields from the table: "aggregator_oracle_observation" */
+  aggregator_oracle_observation_aggregate: Aggregator_Oracle_Observation_Aggregate;
+  /** fetch data from the table: "aggregator_oracle_observation" using primary key columns */
+  aggregator_oracle_observation_by_pk?: Maybe<Aggregator_Oracle_Observation>;
+  /** fetch data from the table in a streaming manner : "aggregator_oracle_observation" */
+  aggregator_oracle_observation_stream: Array<Aggregator_Oracle_Observation>;
   /** fetch data from the table: "aggregator_oracle_reward" */
   aggregator_oracle_reward: Array<Aggregator_Oracle_Reward>;
   /** fetch aggregated fields from the table: "aggregator_oracle_reward" */
@@ -41840,6 +42784,14 @@ export type Subscription_Root = {
   liquidity_baking_history_data_by_pk?: Maybe<Liquidity_Baking_History_Data>;
   /** fetch data from the table in a streaming manner : "liquidity_baking_history_data" */
   liquidity_baking_history_data_stream: Array<Liquidity_Baking_History_Data>;
+  /** fetch data from the table: "liquidity_baking_position" */
+  liquidity_baking_position: Array<Liquidity_Baking_Position>;
+  /** fetch aggregated fields from the table: "liquidity_baking_position" */
+  liquidity_baking_position_aggregate: Liquidity_Baking_Position_Aggregate;
+  /** fetch data from the table: "liquidity_baking_position" using primary key columns */
+  liquidity_baking_position_by_pk?: Maybe<Liquidity_Baking_Position>;
+  /** fetch data from the table in a streaming manner : "liquidity_baking_position" */
+  liquidity_baking_position_stream: Array<Liquidity_Baking_Position>;
   /** fetch data from the table in a streaming manner : "liquidity_baking" */
   liquidity_baking_stream: Array<Liquidity_Baking>;
   /** fetch data from the table: "mavryk_user" */
@@ -42403,7 +43355,7 @@ export type Subscription_RootAggregator_History_Data_AggregateArgs = {
 
 
 export type Subscription_RootAggregator_History_Data_By_PkArgs = {
-  id: Scalars['bigint'];
+  id: Scalars['Int'];
 };
 
 
@@ -42463,7 +43415,37 @@ export type Subscription_RootAggregator_Oracle_AggregateArgs = {
 
 
 export type Subscription_RootAggregator_Oracle_By_PkArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type Subscription_RootAggregator_Oracle_ObservationArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_Oracle_Observation_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_Oracle_Observation_Order_By>>;
+  where?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
+};
+
+
+export type Subscription_RootAggregator_Oracle_Observation_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Aggregator_Oracle_Observation_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Aggregator_Oracle_Observation_Order_By>>;
+  where?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
+};
+
+
+export type Subscription_RootAggregator_Oracle_Observation_By_PkArgs = {
   id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootAggregator_Oracle_Observation_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Aggregator_Oracle_Observation_Stream_Cursor_Input>>;
+  where?: InputMaybe<Aggregator_Oracle_Observation_Bool_Exp>;
 };
 
 
@@ -45286,6 +46268,36 @@ export type Subscription_RootLiquidity_Baking_History_Data_StreamArgs = {
   batch_size: Scalars['Int'];
   cursor: Array<InputMaybe<Liquidity_Baking_History_Data_Stream_Cursor_Input>>;
   where?: InputMaybe<Liquidity_Baking_History_Data_Bool_Exp>;
+};
+
+
+export type Subscription_RootLiquidity_Baking_PositionArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_Position_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+};
+
+
+export type Subscription_RootLiquidity_Baking_Position_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Liquidity_Baking_Position_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Liquidity_Baking_Position_Order_By>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
+};
+
+
+export type Subscription_RootLiquidity_Baking_Position_By_PkArgs = {
+  id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootLiquidity_Baking_Position_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Liquidity_Baking_Position_Stream_Cursor_Input>>;
+  where?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
 };
 
 
