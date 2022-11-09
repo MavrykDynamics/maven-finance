@@ -1,9 +1,9 @@
 // types
 import { FarmAccountsType, FarmContractType, FarmGraphQL } from '../../utils/TypesAndInterfaces/Farm'
+import { DipDupTokensGraphQl } from 'utils/TypesAndInterfaces/DipDupTokens'
 
 // helpers
 import { getContractBigmapKeys, network } from 'utils/api'
-import { DipDupTokensGraphQl } from 'utils/TypesAndInterfaces/DipDupTokens'
 
 type EndsInType = {
   endsIn: any
