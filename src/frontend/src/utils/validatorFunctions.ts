@@ -3,6 +3,7 @@ import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
 import type { AppDispatch } from '../app/App.controller'
+import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
 const isIPFS = require('is-ipfs')
 
@@ -84,6 +85,7 @@ export function mathRoundTwoDigit(digit: string | number | undefined): number | 
 export const containsCode = (str: string) => /<[a-z][\s\S]*>/i.test(str) || /eval/i.test(str)
 
 export function isValidLength(input: string, minLength: number, maxLength: number) {
+  if (!input) return false
   return input.length >= minLength && input.length <= maxLength
 }
 
@@ -98,4 +100,21 @@ export const isValidRPCNode = (input: string): boolean => {
   }
   
   return result;
+}
+
+export const validateFormField = (setFormInputStatus: (value: React.SetStateAction<Record<string, InputStatusType>>) => void) => (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>, maxLength?: number) => {
+  setFormInputStatus((prev) => {
+    const { value, name } = e.target
+
+    // if maxLength is missing, we check only for an empty field
+    const checkMaxLengthField = maxLength ? isValidLength(value, 1, maxLength) ? 'success' : 'error' : 'success'
+    const checkEmptyField = isNotAllWhitespace(value) ? checkMaxLengthField : 'error'
+
+    return { ...prev, [name]: checkEmptyField }
+  })
+}
+
+export const isHexadecimal = (value: string) => {
+  const regex = /[0-9A-Fa-f]{6}/g;
+  return value.match(regex) ? true : false
 }

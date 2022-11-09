@@ -25,6 +25,7 @@ export type FeedFactory = {
   governance_id: string
   track_aggregator_paused: boolean
   untrack_aggregator_paused: boolean
+  aggregator_name_max_length: number
 }
 
 export type FeedGQL = Omit<Aggregator, '__typename'>
