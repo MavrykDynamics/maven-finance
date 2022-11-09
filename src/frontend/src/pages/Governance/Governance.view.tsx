@@ -507,7 +507,6 @@ export const GovernanceView = ({
             <div className="drop-proposal">
               <Button
                 icon="close-stroke"
-                className="close"
                 text="Drop Proposal"
                 kind="actionSecondary"
                 onClick={handleDeleteProposal}
