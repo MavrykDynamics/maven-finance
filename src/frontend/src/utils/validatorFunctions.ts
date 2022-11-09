@@ -1,3 +1,4 @@
+import { TezosToolkit } from '@taquito/taquito'
 import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
@@ -86,6 +87,19 @@ export const containsCode = (str: string) => /<[a-z][\s\S]*>/i.test(str) || /eva
 export function isValidLength(input: string, minLength: number, maxLength: number) {
   if (!input) return false
   return input.length >= minLength && input.length <= maxLength
+}
+
+export const isValidRPCNode = (input: string): boolean => {
+  if (!input) return false
+  let result
+
+  try {
+    result = Boolean(new TezosToolkit(input))
+  } catch {
+    result = false
+  }
+  
+  return result;
 }
 
 export const validateFormField = (setFormInputStatus: (value: React.SetStateAction<Record<string, InputStatusType>>) => void) => (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>, maxLength?: number) => {
