@@ -78,7 +78,7 @@ export const VotingProposalsArea = ({
     return <VotingBar voteStatistics={voteStatistics} />
   }
 
-  if (isTimeLock && !accountPkh) {
+  if (!accountPkh) {
     return (
       <VotingAreaStyled className={className}>
         <div className="voted-block">
