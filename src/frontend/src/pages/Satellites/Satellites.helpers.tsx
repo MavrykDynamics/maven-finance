@@ -4,11 +4,12 @@ import type { DelegateRecord, SatelliteRecord } from '../../utils/TypesAndInterf
 import type { MavrykUserGraphQl } from '../../utils/TypesAndInterfaces/User'
 import type { SatelliteRecordGraphQl, DelegationGraphQl } from '../../utils/TypesAndInterfaces/Delegation'
 import type { DataFeedsHistoryGraphQL, DataFeedsVolatility } from './helpers/Satellites.types'
+import { GovernanceFinancialRequestGraphQL, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
+import { EmergergencyGovernanceItem } from 'utils/TypesAndInterfaces/EmergencyGovernance'
+
 // helpers
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
 import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
-import { GovernanceFinancialRequestGraphQL, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
-import { EmergergencyGovernanceItem } from 'utils/TypesAndInterfaces/EmergencyGovernance'
 
 export function normalizeSatelliteRecord(
   satelliteRecord: SatelliteRecordGraphQl,

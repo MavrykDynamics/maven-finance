@@ -12,6 +12,7 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // types
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
+import { CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
 
 // styles
 import { FormStyled } from './BreakGlassCouncilForm.style'
@@ -21,6 +22,11 @@ import { changeCouncilMember } from '../BreakGlassCouncil.actions'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
+import { validateFormField } from 'utils/validatorFunctions' 
+
+type Props = {
+  councilMemberMaxLength: CouncilMemberMaxLength
+}
 
 const INIT_FORM = {
   newCouncilMemberAddress: '',
@@ -29,7 +35,7 @@ const INIT_FORM = {
   newMemberImage: '',
 }
 
-export function FormChangeCouncilMemberView() {
+export function FormChangeCouncilMemberView({ councilMemberMaxLength }: Props) {
   const dispatch = useDispatch()
   const { breakGlassCouncilMember } = useSelector((state: State) => state.breakGlass)
 
@@ -93,11 +99,7 @@ export function FormChangeCouncilMemberView() {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateFormField(setFormInputStatus)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -158,9 +160,9 @@ export function FormChangeCouncilMemberView() {
               name="newMemberName"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
-                handleBlur(e)
+                handleBlur(e, councilMemberMaxLength.councilMemberNameMaxLength)
               }}
-              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberMaxLength.councilMemberNameMaxLength)}
               inputStatus={formInputStatus.newMemberName}
             />
           </div>
@@ -174,9 +176,9 @@ export function FormChangeCouncilMemberView() {
               name="newMemberWebsite"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
-                handleBlur(e)
+                handleBlur(e, councilMemberMaxLength.councilMemberWebsiteMaxLength)
               }}
-              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberMaxLength.councilMemberWebsiteMaxLength)}
               inputStatus={formInputStatus.newMemberWebsite}
             />
           </div>
