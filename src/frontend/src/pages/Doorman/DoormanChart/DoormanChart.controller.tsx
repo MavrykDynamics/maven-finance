@@ -28,7 +28,7 @@ const tabsList: TabItem[] = [
 ]
 
 export function DoormanChart({ className }: Props) {
-  const { stakeHistoryData, smvkHistoryData } = useSelector((state: State) => state.doorman)
+  const { mvkMintHistoryData, smvkHistoryData } = useSelector((state: State) => state.doorman)
 
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isStakingHistory = activeTab === tabsList[1].text
@@ -39,7 +39,7 @@ export function DoormanChart({ className }: Props) {
 
   const valueFormatter = (label: string) => (value: number): string => `${formatNumber(true, value)}${label}`
 
-  const shownData = isStakingHistory ? stakeHistoryData : smvkHistoryData
+  const shownData = isStakingHistory ? smvkHistoryData : mvkMintHistoryData
 
   return (
     <ChartCard className={className}>

@@ -16,12 +16,12 @@ import {
   USER_REWARDS_QUERY,
   USER_REWARDS_QUERY_NAME,
   USER_REWARDS_QUERY_VARIABLES,
-  STAKE_HISTORY_DATA_QUERY,
-  STAKE_HISTORY_DATA_QUERY_NAME,
-  STAKE_HISTORY_DATA_QUERY_VARIABLE,
   SMVK_HISTORY_DATA_QUERY,
   SMVK_HISTORY_DATA_QUERY_NAME,
   SMVK_HISTORY_DATA_QUERY_VARIABLE,
+  MVK_MINT_HISTORY_DATA_QUERY,
+  MVK_MINT_HISTORY_DATA_QUERY_NAME,
+  MVK_MINT_HISTORY_DATA_QUERY_VARIABLE,
 } from '../../gql/queries'
 import {
   calcUsersDoormanRewards,
@@ -39,12 +39,41 @@ import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import {
   normalizeDoormanStorage,
   normalizeMvkToken,
-  normalizeStakeHistoryData,
   normalizeSmvkHistoryData,
+  normalizeMvkMintHistoryData,
 } from './Doorman.converter'
 import { FarmContractType } from 'utils/TypesAndInterfaces/Farm'
 import { Farm } from 'utils/generated/graphqlTypes'
 import { UserState } from 'reducers/user'
+
+export const GET_MVK_MINT_HISTORY_DATA = 'GET_MVK_MINT_HISTORY_DATA'
+export const getMvkMintHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  try {
+    const storage = await fetchFromIndexer(
+      MVK_MINT_HISTORY_DATA_QUERY,
+      MVK_MINT_HISTORY_DATA_QUERY_NAME,
+      MVK_MINT_HISTORY_DATA_QUERY_VARIABLE,
+    )
+
+    const mvkMintHistoryData = normalizeMvkMintHistoryData(storage)
+
+    dispatch({
+      type: GET_MVK_MINT_HISTORY_DATA,
+      mvkMintHistoryData,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('mvkMintHistoryData', error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+    dispatch({
+      type: GET_MVK_MINT_HISTORY_DATA,
+      error,
+    })
+  }
+}
 
 export const GET_SMVK_HISTORY_DATA = 'GET_SMVK_HISTORY_DATA'
 export const getSmvkHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -70,35 +99,6 @@ export const getSmvkHistoryData = () => async (dispatch: AppDispatch, getState: 
     }
     dispatch({
       type: GET_SMVK_HISTORY_DATA,
-      error,
-    })
-  }
-}
-
-export const GET_STAKE_HISTORY_DATA = 'GET_STAKE_HISTORY_DATA'
-export const getStakeHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
-
-  try {
-    const storage = await fetchFromIndexer(
-      STAKE_HISTORY_DATA_QUERY,
-      STAKE_HISTORY_DATA_QUERY_NAME,
-      STAKE_HISTORY_DATA_QUERY_VARIABLE,
-    )
-
-    const stakeHistoryData = normalizeStakeHistoryData(storage)
-
-    dispatch({
-      type: GET_STAKE_HISTORY_DATA,
-      stakeHistoryData,
-    })
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('getStakeHistoryData', error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-    }
-    dispatch({
-      type: GET_STAKE_HISTORY_DATA,
       error,
     })
   }

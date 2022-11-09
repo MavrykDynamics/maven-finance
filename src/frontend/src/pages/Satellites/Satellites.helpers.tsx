@@ -4,11 +4,12 @@ import type { DelegateRecord, SatelliteRecord } from '../../utils/TypesAndInterf
 import type { MavrykUserGraphQl } from '../../utils/TypesAndInterfaces/User'
 import type { SatelliteRecordGraphQl, DelegationGraphQl } from '../../utils/TypesAndInterfaces/Delegation'
 import type { DataFeedsHistoryGraphQL, DataFeedsVolatility } from './helpers/Satellites.types'
+import { GovernanceFinancialRequestGraphQL, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
+import { EmergergencyGovernanceItem } from 'utils/TypesAndInterfaces/EmergencyGovernance'
+
 // helpers
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
 import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
-import { GovernanceFinancialRequestGraphQL, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
-import { EmergergencyGovernanceItem } from 'utils/TypesAndInterfaces/EmergencyGovernance'
 
 export function normalizeSatelliteRecord(
   satelliteRecord: SatelliteRecordGraphQl,
@@ -79,7 +80,7 @@ export function normalizeSatelliteRecord(
     : []
 
   const oracleRecords = (satelliteRecord?.user?.aggregator_oracles || []).map(
-    ({ aggregator: { oracles, address: feedAddress }, user_id: oracleAddress, last_updated_at }) => {
+    ({ aggregator: { oracles, address: feedAddress }, user_id: oracleAddress }) => {
       // getting rewards for oracle per feed
       const { sMVKReward, XTZReward } = oracles.reduce(
         (acc, { rewards, user_id: rewardUserId }) => {
@@ -101,7 +102,8 @@ export function normalizeSatelliteRecord(
         },
       )
 
-      const isActive = last_updated_at ? Date.now() - new Date(last_updated_at).getTime() < 24 * 60 * 60 * 1000 : false
+      // TODO: add calculation for oracle status
+      const isActive = false //last_updated_at ? Date.now() - new Date(last_updated_at).getTime() < 24 * 60 * 60 * 1000 : false
 
       return {
         feedAddress,

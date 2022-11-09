@@ -1,5 +1,7 @@
 import styled from 'styled-components/macro'
 import { cyanColor, royalPurpleColor } from 'styles'
+import { Button as ButtonBase } from '../Button/Button.controller'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const PopupContainerWrapper = styled.div`
   display: flex;
@@ -82,7 +84,7 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
   font-weight: 600;
   font-size: 18px;
   line-height: 18px;
-  color: #8d86eb;
+  color: ${({ theme }) => theme.dashboardTextColor};
   margin-top: 12px;
   border-radius: 10px;
   cursor: pointer;
@@ -99,7 +101,7 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       font-weight: 600;
       font-size: 18px;
       line-height: 18px;
-      color: #8d86eb;
+      color: ${({ theme }) => theme.dashboardTextColor};
       white-space: nowrap;
       margin-right: 10px;
 
@@ -113,11 +115,15 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       border: none;
       padding: 0;
       padding-left: 7px;
-      color: #6a6a9b;
+      color: ${({ theme }) => theme.dashboardTextColor};
       font-size: 16px;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+
+      &::placeholder {
+        color: ${({ theme }) => theme.dashboardTextColor};
+      }
     }
 
     &.expanded {
@@ -178,15 +184,12 @@ export const PopupStyled = styled.div`
   }
 
   .close_modal {
-    position: absolute;
-    font-size: 60px;
+    font-size: 50px;
     font-weight: 100;
-    height: 35px;
-    width: 35px;
-    color: #8d86eb;
+    height: 24px;
+    width: 24px;
+    color: ${({ theme }) => theme.dashboardTextColor};
     transform: rotate(45deg);
-    top: 15px;
-    right: 15px;
     cursor: pointer;
   }
 `
@@ -234,7 +237,7 @@ export const PopupTitle = styled.div`
   font-weight: 700;
   font-size: 25px;
   line-height: 25px;
-  color: #8d86eb;
+  color: ${({ theme }) => theme.dashboardTextColor};
   position: relative;
 
   &.change_node {
@@ -269,7 +272,7 @@ export const DescrText = styled.div`
   max-width: 620px;
   font-size: 16px;
   line-height: 24px;
-  color: #77a4f2;
+  color: ${({ theme }) => theme.dashboardTextColor};
   margin-top: 30px;
 
   &.change_node {
@@ -280,5 +283,24 @@ export const DescrText = styled.div`
 
   @media (max-width: 500px) {
     font-size: 14px;
+  }
+`
+
+export const Button = styled(ButtonBase)<{ theme: MavrykTheme }>`  
+  &.theme-btn {
+    color: ${({ theme }) => theme.dashboardTextColor};
+
+    &:hover,
+    &.selected {
+      border: 1px solid ${({ theme }) => theme.actionPrimaryBtnColor};
+      color: ${({ theme }) => theme.actionPrimaryBtnColor};
+    }
+  }
+
+  &.disabled {
+     &:hover {
+      border: 1px solid ${({ theme }) => theme.cardBorderColor};
+      color: ${({ theme }) => theme.dashboardTextColor};
+     }
   }
 `

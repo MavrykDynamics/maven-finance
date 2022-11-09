@@ -5,7 +5,7 @@ import { State } from 'reducers'
 
 // types
 import type { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
-import type { Governance_Proposal_Payment } from '../../utils/generated/graphqlTypes'
+import type { Governance_Proposal_Payment, Maybe } from '../../utils/generated/graphqlTypes'
 import { VoteStatistics } from 'app/App.components/VotingArea/helpers/voting'
 
 // actions
@@ -402,6 +402,7 @@ export const GovernanceView = ({
             {rightSideContent.proposalData?.length ? (
               <ol className="proposal-list">
                 {rightSideContent.proposalData.map((item) => {
+                  if (!item || !item.encoded_code) return null
                   const unique = `proposalDataItem${item.id}`
                   return (
                     <li key={item.id}>
@@ -415,7 +416,7 @@ export const GovernanceView = ({
                           <span className="proposal-list-bites">
                             {visibleMeta === unique ? (
                               <span className="byte">
-                                <button onClick={() => handleCopyToClipboard(item.encoded_code)}>
+                                <button onClick={() => handleCopyToClipboard(item.encoded_code ?? '')}>
                                   {item.encoded_code} <Icon id="copyToClipboard" />
                                 </button>
                                 <br />
@@ -456,7 +457,8 @@ export const GovernanceView = ({
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
                     {rightSideContent.proposalPayments.map((item: Governance_Proposal_Payment, i: number) => {
-                      const paymentType = dipDupTokens.find(({ contract }) => (contract = item.token_address))?.metadata
+                      if (!item || !item.token_amount) return null
+                      const paymentType = dipDupTokens.find(({ contract }) => contract === item.token_address)?.metadata
                         .symbol
 
                       const amount =

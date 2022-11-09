@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
-// type
-
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
+import { CouncilMemberMaxLength } from 'utils/TypesAndInterfaces/Council'
+
+// helpers
+import { validateFormField } from 'utils/validatorFunctions' 
 
 // action
 import { addCouncilMember } from '../Council.actions'
@@ -15,7 +17,10 @@ import { addCouncilMember } from '../Council.actions'
 import { CouncilFormStyled } from './CouncilForms.style'
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
 
-export const CouncilFormAddCouncilMember = () => {
+export const CouncilFormAddCouncilMember = ({ 
+  councilMemberNameMaxLength,
+  councilMemberWebsiteMaxLength
+ }: CouncilMemberMaxLength) => {
   const dispatch = useDispatch()
   const [form, setForm] = useState({
     newMemberAddress: '',
@@ -66,11 +71,7 @@ export const CouncilFormAddCouncilMember = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateFormField(setFormInputStatus)
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>
@@ -105,9 +106,9 @@ export const CouncilFormAddCouncilMember = () => {
             name="newMemberName"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberNameMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberNameMaxLength)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -121,9 +122,9 @@ export const CouncilFormAddCouncilMember = () => {
             name="newMemberWebsite"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberWebsiteMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberWebsiteMaxLength)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>
