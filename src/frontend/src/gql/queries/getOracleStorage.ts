@@ -38,7 +38,6 @@ export const DATA_FEEDS_HISTORY_QUERY = `
       data
       epoch
       id
-      lambda_bytes
       lambda_name
       last_updated_at
       pct_oracle_resp
