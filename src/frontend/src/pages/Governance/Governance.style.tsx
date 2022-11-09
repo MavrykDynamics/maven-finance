@@ -194,8 +194,19 @@ export const GovernanceRightContainer = styled(Card)<{ isAuthorized?: boolean; t
     padding-top: 20px;
     padding-bottom: 20px;
 
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 16px;
+
     button {
       width: 194px;
+    }
+
+    svg {
+      position: relative;
+      top: 3px;
+      width: 18px;
+      height: 18px;
     }
   }
 ` //GovernanceRightContainer
