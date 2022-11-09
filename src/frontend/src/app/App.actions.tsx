@@ -141,12 +141,12 @@ export const onStart = () => async (dispatch: AppDispatch) => {
     oraclesStorage,
   })
   dispatch({
-    type: GET_MVK_MINT_HISTORY_DATA,
-    mvkMintHistoryData,
-  })
-  dispatch({
     type: GET_SMVK_HISTORY_DATA,
     smvkHistoryData,
+  })
+  dispatch({
+    type: GET_MVK_MINT_HISTORY_DATA,
+    mvkMintHistoryData,
   })
 }
 

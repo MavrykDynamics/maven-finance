@@ -35,7 +35,7 @@ type SmvkHistoryDataProps = {
 }
 
 export function normalizeSmvkHistoryData(storage: SmvkHistoryDataProps) {
-  const { smvk_history_data = [] } = storage
+  const { smvk_history_data } = storage
 
   return smvk_history_data?.length
     ? smvk_history_data?.map((item) => {
@@ -52,7 +52,7 @@ type MvkMintHistoryDataProps = {
 }
 
 export function normalizeMvkMintHistoryData(storage: MvkMintHistoryDataProps) {
-  const { mvk_mint_history_data = [] } = storage
+  const { mvk_mint_history_data } = storage
 
   return mvk_mint_history_data?.length
     ? mvk_mint_history_data?.map((item) => {
