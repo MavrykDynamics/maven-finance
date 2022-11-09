@@ -8,8 +8,8 @@ import { getInitialData } from '../gql/fetchGraphQL'
 import {
   GET_DOORMAN_STORAGE,
   GET_MVK_TOKEN_STORAGE,
-  GET_STAKE_HISTORY_DATA,
   GET_SMVK_HISTORY_DATA,
+  GET_MVK_MINT_HISTORY_DATA,
 } from '../pages/Doorman/Doorman.actions'
 import { GET_DELEGATION_STORAGE, GET_ORACLES_STORAGE } from '../pages/Satellites/Satellites.actions'
 import {
@@ -30,8 +30,8 @@ import { normalizeAddressesStorage, normalizeVestingStorage, normalizeOracle } f
 import {
   normalizeDoormanStorage,
   normalizeMvkToken,
-  normalizeStakeHistoryData,
   normalizeSmvkHistoryData,
+  normalizeMvkMintHistoryData,
 } from '../pages/Doorman/Doorman.converter'
 import { normalizeDelegationStorage } from '../pages/Satellites/Satellites.helpers'
 import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/EmergencyGovernance.helpers'
@@ -70,8 +70,9 @@ export const onStart = () => async (dispatch: AppDispatch) => {
   const vestingStorage = normalizeVestingStorage(res[8]?.vesting[0])
   const governanceStorage = normalizeGovernanceStorage(res[9])
   const oraclesStorage = normalizeOracle(res[10])
-  const stakeHistoryData = normalizeStakeHistoryData(res[11])
-  const smvkHistoryData = normalizeSmvkHistoryData(res[12])
+  const smvkHistoryData = normalizeSmvkHistoryData(res[11])
+  const mvkMintHistoryData = normalizeMvkMintHistoryData(res[12])
+
 
   const emergencyGovActive = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId !== 0
 
@@ -140,12 +141,12 @@ export const onStart = () => async (dispatch: AppDispatch) => {
     oraclesStorage,
   })
   dispatch({
-    type: GET_STAKE_HISTORY_DATA,
-    stakeHistoryData,
-  })
-  dispatch({
     type: GET_SMVK_HISTORY_DATA,
     smvkHistoryData,
+  })
+  dispatch({
+    type: GET_MVK_MINT_HISTORY_DATA,
+    mvkMintHistoryData,
   })
 }
 

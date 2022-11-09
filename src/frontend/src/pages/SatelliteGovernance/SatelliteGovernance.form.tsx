@@ -27,8 +27,12 @@ import {
 // style
 import { AvailableActionsStyle } from './SatelliteGovernance.style'
 
+// helpers
+import { validateFormField } from 'utils/validatorFunctions' 
+
 type Props = {
   variant: string
+  maxLength: {[k:string]: number }
 }
 
 const CONTENT_FORM = new Map<string, Record<string, string>>([
@@ -114,7 +118,7 @@ const CONTENT_FORM = new Map<string, Record<string, string>>([
   ],
 ])
 
-export const SatelliteGovernanceForm = ({ variant }: Props) => {
+export const SatelliteGovernanceForm = ({ variant, maxLength }: Props) => {
   const dispatch = useDispatch()
   const [form, setForm] = useState({
     oracleAddress: '',
@@ -176,11 +180,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateFormField(setFormInputStatus)
 
   if (!variant) return null
 
@@ -250,9 +250,9 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
               required
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 handleChange(e)
-                handleBlur(e)
+                handleBlur(e, maxLength.purposeMaxLength)
               }}
-              onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e)}
+              onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e, maxLength.purposeMaxLength)}
               inputStatus={formInputStatus.purpose}
             />
           </div>

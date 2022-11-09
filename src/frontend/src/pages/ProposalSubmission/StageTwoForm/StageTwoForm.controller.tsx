@@ -18,6 +18,8 @@ import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { checkWhetherBytesIsValid, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
 import { updateProposal, deleteProposalDataPair } from '../ProposalSubmission.actions'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { isValidLength } from 'utils/validatorFunctions'
+import { isHexadecimal } from 'utils/validatorFunctions'
 
 // styles
 import {
@@ -30,7 +32,7 @@ import {
 
 export const StageTwoForm = ({
   proposalId,
-  currentProposal: { proposalData, title, locked },
+  currentProposal: { proposalData = [], title, locked },
   updateLocalProposalData,
   handleDropProposal,
 }: StageTwoFormProps) => {
@@ -39,7 +41,7 @@ export const StageTwoForm = ({
     governancePhase,
     governanceStorage: {
       fee,
-      config: { successReward },
+      config: { successReward, proposalMetadataTitleMaxLength },
     },
   } = useSelector((state: State) => state.governance)
   const isProposalPeriod = governancePhase === 'PROPOSAL'
@@ -51,18 +53,39 @@ export const StageTwoForm = ({
       handleCreateNewByte()
     }
     setBytesValidation(
-      proposalData.map(({ id, title, encoded_code }) => ({
-        validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
-        validBytes: proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes', id, proposalData) : '',
-        proposalId: id,
-      })),
+      proposalData.map(({ id, title, encoded_code }) =>
+        title && encoded_code
+          ? {
+              validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle', id, proposalData) : '',
+              validBytes:
+                proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes', id, proposalData) : '',
+              proposalId: id,
+            }
+          : {
+              validTitle: 'success',
+              validBytes: 'success',
+              proposalId: id,
+            },
+      ),
     )
   }, [proposalId, proposalData])
 
   const [isBytesChanged, setBytesChanged] = useState<boolean>(false)
 
   const handleOnBlur = (byte: ProposalBytesType, text: string, type: 'validTitle' | 'validBytes') => {
-    const validationStatus = getBytesPairValidationStatus(text, type, byte.id, proposalData)
+    let validationStatus: 'success' | 'error'
+
+    if (type === 'validTitle') {
+      const defaultMaxLength = 100
+      validationStatus = (isValidLength(text, 1, proposalMetadataTitleMaxLength || defaultMaxLength))
+        && (getBytesPairValidationStatus(text, type, byte.id, proposalData) === 'success')
+        ? 'success' : 'error'
+    } else {
+      validationStatus = isHexadecimal(text)
+        && (getBytesPairValidationStatus(text, type, byte.id, proposalData) === 'success')
+        ? 'success' : 'error'
+    }
+    
     setBytesValidation(
       bytesValidation.map((validationObj) =>
         validationObj.proposalId === byte.id ? { ...validationObj, [type]: validationStatus } : validationObj,
@@ -108,7 +131,7 @@ export const StageTwoForm = ({
   // removing bytes pair
   const handleDeletePair = (removeId: number) => {
     const pairToRemove = proposalData?.find((item) => item.id === removeId)
-    if (pairToRemove) {
+    if (pairToRemove && pairToRemove.title && pairToRemove.encoded_code) {
       if (pairToRemove?.isLocalBytes) {
         updateLocalProposalData(
           {
@@ -228,6 +251,8 @@ export const StageTwoForm = ({
           const existInServer = Boolean(proposalData?.find(({ id }) => item.id === id && !item.isLocalBytes))
           const validityObject = bytesValidation.find(({ proposalId }) => proposalId === item.id)
 
+          if (!item.title || !item.encoded_code) return null
+
           return (
             <article
               key={item.id}
@@ -253,7 +278,7 @@ export const StageTwoForm = ({
                 />
               </div>
 
-              <label>Enter Proposal Bytes Title</label>
+              <label>Enter Proposal Bytes Data</label>
               <TextArea
                 className="step-2-textarea"
                 value={item.encoded_code}

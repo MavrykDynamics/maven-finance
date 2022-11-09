@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 import { useHistory } from 'react-router-dom'
 
 import { State } from '../../../reducers'
-import { connect, disconnect } from './ConnectWallet.actions'
+import { changeWallet, connect, disconnect } from './ConnectWallet.actions'
 import { ConnectWalletStyled } from './ConnectWallet.style'
 import { ConnectedWalletBlock, CoinsInfoType, InstallWalletButton, NoWalletConnectedButton } from './ConnectWallet.view'
 import { getWertOptions } from './Wert/WertIO.const'
@@ -26,25 +26,25 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   const dispatch = useDispatch()
   const history = useHistory()
   const [showWertIoPopup, setShowWertIoPopup] = useState(false)
-  const { wallet, ready, accountPkh } = useSelector((state: State) => state.wallet)
+  const { ready, accountPkh } = useSelector((state: State) => state.wallet)
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { myMvkTokenBalance = 0, mySMvkTokenBalance = 0 } = useSelector((state: State) => state.user)
   const isMobileView = useMedia('(max-width: 870px)')
 
-  const handleConnect = () => {
-    dispatch(connect({ forcePermission: false }))
+  const handleConnect = async () => {
+    await dispatch(connect())
   }
 
-  const handleNewConnect = () => {
-    dispatch(connect({ forcePermission: true }))
+  const handleNewConnect = async () => {
+    await dispatch(changeWallet())
   }
 
-  const disconnectWallet = () => {
-    dispatch(disconnect())
+  const disconnectWallet = async () => {
+    await dispatch(disconnect())
   }
 
-  const wertLoaderToogler = (loader?: typeof WERT_IO_LOADER) => {
-    dispatch(toggleLoader(loader))
+  const wertLoaderToogler = async (loader?: typeof WERT_IO_LOADER) => {
+    await dispatch(toggleLoader(loader))
   }
 
   const showWertIoErrorToaster = () => {
@@ -88,28 +88,28 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   return (
     <ConnectWalletStyled className={className} id={'connectWalletButton'}>
       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
-      {wallet ? (
-        <>
-          {ready && accountPkh ? (
-            <>
-              <ConnectedWalletBlock
-                accountPkh={accountPkh}
-                signOutHandler={disconnectWallet}
-                changeWalletHandler={handleNewConnect}
-                coinsInfo={coinsInfo}
-                isMobile={isMobileView}
-                detailsHandlers={detailsHandlers}
-                closeMobileMenu={closeAllForMobileMenu}
-              />
-              <WertIoPopup closePopup={() => setShowWertIoPopup(false)} isOpened={showWertIoPopup} />
-            </>
-          ) : (
-            <NoWalletConnectedButton handleConnect={handleConnect} />
-          )}
-        </>
-      ) : (
-        <InstallWalletButton />
-      )}
+      {/* {wallet ? ( */}
+      <>
+        {ready && accountPkh ? (
+          <>
+            <ConnectedWalletBlock
+              accountPkh={accountPkh}
+              signOutHandler={disconnectWallet}
+              changeWalletHandler={handleNewConnect}
+              coinsInfo={coinsInfo}
+              isMobile={isMobileView}
+              detailsHandlers={detailsHandlers}
+              closeMobileMenu={closeAllForMobileMenu}
+            />
+            <WertIoPopup closePopup={() => setShowWertIoPopup(false)} isOpened={showWertIoPopup} />
+          </>
+        ) : (
+          <NoWalletConnectedButton handleConnect={handleConnect} />
+        )}
+      </>
+      {/* ) : ( */}
+      {/* <InstallWalletButton /> */}
+      {/* )} */}
     </ConnectWalletStyled>
   )
 }

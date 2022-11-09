@@ -32,18 +32,18 @@ import {
   ORACLE_STORAGE_QUERY,
   ORACLE_STORAGE_QUERY_NAME,
   ORACLE_STORAGE_QUERY_VARIABLE,
-  STAKE_HISTORY_DATA_QUERY,
-  STAKE_HISTORY_DATA_QUERY_NAME,
-  STAKE_HISTORY_DATA_QUERY_VARIABLE,
   SMVK_HISTORY_DATA_QUERY,
   SMVK_HISTORY_DATA_QUERY_NAME,
   SMVK_HISTORY_DATA_QUERY_VARIABLE,
+  MVK_MINT_HISTORY_DATA_QUERY,
+  MVK_MINT_HISTORY_DATA_QUERY_NAME,
+  MVK_MINT_HISTORY_DATA_QUERY_VARIABLE,
 } from './queries'
 
 async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, object | string>) {
-  const developmentAPI = process.env.REACT_APP_DEV_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql'
+  const developmentAPI = process.env.REACT_APP_DEV_GRAPHQL_API || 'https://api-dev.mavryk.finance/v1/graphql'
 
-  const prodictionAPI = process.env.REACT_APP_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql'
+  const prodictionAPI = process.env.REACT_APP_GRAPHQL_API || 'https://api-dev.mavryk.finance/v1/graphql'
   const gqlAPINetwork = process.env.NODE_ENV === 'development' ? developmentAPI : prodictionAPI
 
   return new Promise((resolve, reject) => {
@@ -144,14 +144,14 @@ export async function getInitialData() {
     ),
     fetchFromIndexerWithPromise(ORACLE_STORAGE_QUERY, ORACLE_STORAGE_QUERY_NAME, ORACLE_STORAGE_QUERY_VARIABLE),
     fetchFromIndexerWithPromise(
-      STAKE_HISTORY_DATA_QUERY,
-      STAKE_HISTORY_DATA_QUERY_NAME,
-      STAKE_HISTORY_DATA_QUERY_VARIABLE,
-    ),
-    fetchFromIndexerWithPromise(
       SMVK_HISTORY_DATA_QUERY,
       SMVK_HISTORY_DATA_QUERY_NAME,
       SMVK_HISTORY_DATA_QUERY_VARIABLE,
+    ),
+    fetchFromIndexerWithPromise(
+      MVK_MINT_HISTORY_DATA_QUERY,
+      MVK_MINT_HISTORY_DATA_QUERY_NAME,
+      MVK_MINT_HISTORY_DATA_QUERY_VARIABLE,
     ),
   ])
 }
