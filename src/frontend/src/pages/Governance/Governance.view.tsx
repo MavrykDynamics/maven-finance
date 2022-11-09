@@ -109,7 +109,7 @@ export const GovernanceView = ({
       setVoteStatistics({
         abstainVotesMVKTotal: Number(rightSideContent.abstainMvkTotal),
         againstVotesMVKTotal: Number(rightSideContent.downvoteMvkTotal),
-        forVotesMVKTotal: Number(rightSideContent.upvoteMvkTotal),
+        forVotesMVKTotal: Number(rightSideContent.passVoteMvkTotal),
         unusedVotesMVKTotal: Math.round(
           rightSideContent.quorumMvkTotal / PRECISION_NUMBER -
             rightSideContent.abstainMvkTotal -
