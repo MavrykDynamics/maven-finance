@@ -13,7 +13,6 @@ class LiquidityBaking(MavrykContract, Model):
     token_address                           = fields.CharField(max_length=36, default="", index=True)
     lqt_address                             = fields.CharField(max_length=36, default="", index=True)
     share_price                             = fields.FloatField(default=0.0)
-    share_price_usd                         = fields.FloatField(default=0.0)
     xtz_decimals                            = fields.SmallIntField(default=6)
     token_decimals                          = fields.SmallIntField(default=8)
 
@@ -26,7 +25,6 @@ class LiquidityBakingPosition(Model):
     trader                                  = fields.ForeignKeyField('models.MavrykUser', related_name='liquidity_baking_positions')
     shares_qty                              = fields.FloatField(default=0.0)
     avg_share_price                         = fields.FloatField(default=0.0)
-    avg_share_price_usd                     = fields.FloatField(default=0.0)
     realized_pl                             = fields.FloatField(default=0.0)
 
     class Meta:
@@ -40,7 +38,7 @@ class LiquidityBakingHistoryData(Model):
     level                                   = fields.BigIntField()
     type                                    = fields.IntEnumField(enum_type=DexType, index=True)
     token_price                             = fields.FloatField(default=0.0)
-    token_price_usd                         = fields.FloatField(default=0.0)
+    token_price_usd                         = fields.FloatField(null=True)
     xtz_qty                                 = fields.FloatField(default=0.0)
     token_qty                               = fields.FloatField(default=0.0)
     lqt_qty                                 = fields.FloatField(default=0.0)

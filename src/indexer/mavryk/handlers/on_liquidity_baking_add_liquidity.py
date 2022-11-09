@@ -20,12 +20,6 @@ async def on_liquidity_baking_add_liquidity(
     liquidity_baking_address    = add_liquidity.data.target_address
     timestamp                   = add_liquidity.data.timestamp
     level                       = add_liquidity.data.level
-    tzkt                        = ctx.get_tzkt_datasource('tzkt_mainnet')
-    xtz_quotes                  = await tzkt.get_quotes(
-        first_level=level,
-        last_level=level
-    )
-    xtz_usd                     = float(xtz_quotes[0].usd)
     trader_address              = add_liquidity.data.sender_address
     token_pool                  = int(add_liquidity.storage.tokenPool)
     xtz_pool                    = int(add_liquidity.storage.xtzPool)
@@ -69,7 +63,6 @@ async def on_liquidity_baking_add_liquidity(
         share_price = value / (shares_qty - position.shares_qty)
     if shares_qty > 0:
         position.avg_share_price        = (position.shares_qty * position.avg_share_price + value) / shares_qty
-        position.avg_share_price_usd    = position.avg_share_price * xtz_usd
     position.shares_qty      = shares_qty
     await position.save()
 
@@ -79,7 +72,6 @@ async def on_liquidity_baking_add_liquidity(
     liquidity_baking.token_address      = token_address
     liquidity_baking.lqt_address        = lqt_address
     liquidity_baking.share_price        = share_price
-    liquidity_baking.share_price_usd    = share_price * xtz_usd
     await liquidity_baking.save()
 
     liquidity_baking_history_data   = models.LiquidityBakingHistoryData(
@@ -89,7 +81,6 @@ async def on_liquidity_baking_add_liquidity(
         liquidity_baking    = liquidity_baking,
         type                = models.DexType.ADD_LIQUIDITY,
         token_price         = price,
-        token_price_usd     = price * xtz_usd,
         lqt_qty             = lqt_minted,
         xtz_qty             = xtz_qty,
         token_qty           = token_qty,

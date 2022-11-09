@@ -4,13 +4,32 @@
 
 ### Deployment
 
-- DEV: 0.22
-- PROD: 0.20
-- PROD2: 0.20
+- DEV: 0.23
+- PROD: 0.22
+- PROD2: 0.22
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.23
+
+### Breaking changes
+
+- LiquidityBakingHistoryData:
+
+  - Values in the TokenPriceUSD column are now fetched asynchronously to speed up the initial indexing process. While the data is not sync, a null value will appear.
+
+- LiquidityBaking:
+
+  - Column SharePriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with the formula: `SharePriceUSD = SharePrice * XTZUSDPrice`)
+
+- LiquidityBakingPosition:
+  - Column AvgPriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with the formula: `AvgPriceUSD = AvgPriceq * XTZUSDPrice`)
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.22</summary>
 
 ## Version 0.22
 
@@ -44,7 +63,7 @@
 - LiquidityBakingHistoryData:
   - Column Price renamed to TokenPrice
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.21</summary>
 

@@ -20,12 +20,6 @@ async def on_liquidity_baking_token_to_xtz(
     liquidity_baking_address    = token_to_xtz.data.target_address
     timestamp                   = token_to_xtz.data.timestamp
     level                       = token_to_xtz.data.level
-    tzkt                        = ctx.get_tzkt_datasource('tzkt_mainnet')
-    xtz_quotes                  = await tzkt.get_quotes(
-        first_level=level,
-        last_level=level
-    )
-    xtz_usd                     = float(xtz_quotes[0].usd)
     token_pool                  = int(token_to_xtz.storage.tokenPool)
     xtz_pool                    = int(token_to_xtz.storage.xtzPool)
     lqt_total                   = int(token_to_xtz.storage.lqtTotal)
@@ -51,7 +45,7 @@ async def on_liquidity_baking_token_to_xtz(
         price       = xtz_quantity_decimals / token_quantity_decimals
     xtz_pool_decimals               = xtz_pool / (10**liquidity_baking.xtz_decimals)
     token_pool_decimals             = token_pool / (10**liquidity_baking.token_decimals)
-    share_price                     = (xtz_pool_decimals + (token_pool_decimals / xtz_pool_decimals) * token_pool_decimals) / lqt_total
+    share_price                     = (xtz_pool_decimals + (xtz_pool_decimals / token_pool_decimals) * token_pool_decimals) / lqt_total
 
     liquidity_baking.token_pool         = token_pool
     liquidity_baking.xtz_pool           = xtz_pool
@@ -59,7 +53,6 @@ async def on_liquidity_baking_token_to_xtz(
     liquidity_baking.token_address      = token_address
     liquidity_baking.lqt_address        = lqt_address
     liquidity_baking.share_price        = share_price
-    liquidity_baking.share_price_usd    = share_price * xtz_usd
     await liquidity_baking.save()
 
     trader                          = await models.mavryk_user_cache.get(address=trader_address)
@@ -71,7 +64,6 @@ async def on_liquidity_baking_token_to_xtz(
         liquidity_baking    = liquidity_baking,
         type                = models.DexType.TOKEN_TO_XTZ,
         token_price         = price,
-        token_price_usd     = price * xtz_usd,
         lqt_qty             = 0,
         xtz_qty             = xtz_quantity,
         token_qty           = token_quantity,
