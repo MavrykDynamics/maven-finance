@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { State } from 'reducers'
 import { Page } from 'styles'
-import { Loader } from 'app/App.components/Loader/Loader.view'
+import { Loader, SpinnerLoader } from 'app/App.components/Loader/Loader.view'
 import type {
   SatelliteProposalVotingHistory,
   SatelliteFinancialRequestVotingHistory,
@@ -89,7 +89,7 @@ export const SatelliteDetailsView = ({
       <PageHeader page={'satellites'} />
       <SatellitePagination />
       {loading || !isSameId ? (
-        <Loader />
+        <SpinnerLoader />
       ) : isSatellite ? (
         <SatelliteListItem
           satellite={satellite}
