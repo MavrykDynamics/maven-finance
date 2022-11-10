@@ -98,15 +98,16 @@ export const BreakGlassView = ({
   return (
     <BGStyled className={'breakGlassContainer'}>
       <BGTop>
-        <BGStatusIndicator>
-          <div className="status-indicator-wrapper">
-            Status: <span className={glassBroken ? 'color-red' : 'color-green'}>{breakGlassStatus}</span>
-          </div>
-          <div className="status-indicator-wrapper">
-            Pause All: <span className={pauseAllActive ? 'color-red' : 'color-green'}>{pauseAllStatus}</span>
-          </div>
-        </BGStatusIndicator>
         <BGInfo>
+          <BGStatusIndicator>
+            <div className="status-indicator-wrapper">
+              Status: <span className={glassBroken ? 'color-red' : 'color-green'}>{breakGlassStatus}</span>
+            </div>
+            <div className="status-indicator-wrapper">
+              Pause All: <span className={pauseAllActive ? 'color-red' : 'color-green'}>{pauseAllStatus}</span>
+            </div>
+          </BGStatusIndicator>
+
           <p>
             The breakglass protocol (BGP) allows MVK holders to shutdown the system without waiting for a central
             authority. The BGP is triggered through the Emergency governance vote.
@@ -121,13 +122,15 @@ export const BreakGlassView = ({
               Read documentation here
             </a>
           </FAQLink>
+
+          <BGWhitelist>
+            Whitelist Developers
+            <div className="adress-list">
+              <TzAddress tzAddress={whitelistDev} hasIcon />
+            </div>
+          </BGWhitelist>
+          <div className='line'></div>
         </BGInfo>
-        <BGWhitelist>
-          <BGSecondaryTitle>Whitelist Developers</BGSecondaryTitle>
-          <div className="adress-list">
-            <TzAddress tzAddress={whitelistDev} hasIcon />
-          </div>
-        </BGWhitelist>
       </BGTop>
 
       <BGMiddleWrapper>
