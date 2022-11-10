@@ -1,7 +1,8 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../styles/interfaces'
+import { downColor, upColor, headerColor } from '../../styles/colors'
 
-import { downColor, upColor, skyColor, headerColor, royalPurpleColor, cyanColor } from '../../styles/colors'
+import PaginationBase from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 export const BGStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -27,8 +28,6 @@ export const BGTop = styled.div<{ theme: MavrykTheme }>`
 
 const BGBlockBaseStyles = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  border: 1px solid ${royalPurpleColor};
-  border-radius: 10px;
 `
 
 export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
@@ -37,29 +36,29 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
   align-items: center;
   flex-direction: column;
   width: 100%;
-  padding: 15px 20px;
+
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid ${({ theme }) => theme.cardBorderColor};
 
   .status-indicator-wrapper {
     width: 100%;
     display: flex;
     justify-content: space-between;
+  }
+
+  .color-red, .color-green {
     font-weight: 600;
     font-size: 16px;
-    color: ${headerColor};
-    margin: 6px 0;
+    line-height: 22px;
+    text-transform: uppercase;
   }
 
   .color-red {
-    font-weight: 700;
-    font-size: 14px;
-    text-transform: uppercase;
     color: ${downColor};
   }
 
   .color-green {
-    font-weight: 700;
-    font-size: 14px;
-    text-transform: uppercase;
     color: ${upColor};
   }
 `
@@ -87,17 +86,31 @@ export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
   height: fit-content;
   flex-direction: column;
   justify-content: center;
-  padding: 20px 22px;
+  padding: 30px;
+
+  border: 1px solid ${({ theme }) => theme.cardBorderColor};
+  border-radius: 10px;
+
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 24px;
+
+  color: ${({ theme }) => theme.dashboardTextColor};
 
   p {
     margin: 0;
-    font-size: 14px;
-    line-height: 21px;
-    color: ${skyColor};
   }
 
   a {
-    text-decoration: none;
+    color: ${({ theme }) => theme.navLinkTextActive}
+  }
+  
+  .line {
+    margin: 0 auto;
+    width: 44px;
+    height: 3px;
+    background-color: ${({ theme }) => theme.dashboardTextColor};;
+    border-radius: 10px;
   }
 `
 
@@ -113,19 +126,27 @@ export const BGCardsWrapper = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const BGWhitelist = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
-  padding: 20px;
+  padding: 25px 0;
+  margin-top: 20px;
+  border-top: 1px solid ${({ theme }) => theme.cardBorderColor};
+
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 22px;
 
   .adress-list {
     margin-top: 10px;
 
     div {
-      color: ${cyanColor};
-      font-weight: 500;
-      font-size: 14px;
+      color: ${({ theme }) => theme.dataColor};
     }
 
     svg {
-      stroke: ${cyanColor};
+      position: relative;
+      top: 2px;
+      stroke: ${({ theme }) => theme.dataColor};
+      width: 17px;
+      height: 17px;
     }
   }
 `
@@ -147,4 +168,9 @@ export const BGSecondaryTitle = styled(BGPrimaryTitle)`
   &::after{
     display: none;
   }
+`
+
+export const Pagination = styled(PaginationBase)`
+  grid-column-start: 2;
+  grid-column-end: 3;
 `

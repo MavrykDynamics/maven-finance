@@ -27,6 +27,10 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
   flex-direction: column;
   row-gap: 13px;
 
+  .hidden {
+    visibility: hidden;
+  }
+
   .top-row {
     display: flex;
     justify-content: space-between;
