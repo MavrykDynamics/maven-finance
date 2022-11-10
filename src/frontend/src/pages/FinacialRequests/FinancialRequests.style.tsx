@@ -2,6 +2,7 @@ import styled from 'styled-components/macro'
 import { Card, cyanColor, skyColor, royalPurpleColor, headerColor } from 'styles'
 import { MavrykTheme } from '../../styles/interfaces'
 import { VotingArea as VotingAreaBase } from 'app/App.components/VotingArea/VotingArea.controller'
+import { GovRightContainerTitleArea as GovRightContainerTitleAreaBase } from 'pages/Governance/Governance.style'
 
 export const FinancialRequestsStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -32,7 +33,7 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
   }
 
   .voting_ending {
-    margin-top: 15px;
+    margin-top: 10px;
     font-weight: 600;
     font-size: 12px;
     line-height: 12px;
@@ -90,11 +91,17 @@ export const InfoBlockDescr = styled.div<{ theme: MavrykTheme }>`
   margin-top: 5px;
 `
 
-export const InfoBlockListValue = styled.div<{ fontColor: string; theme: MavrykTheme }>`
-  font-weight: 700;
+export const InfoBlockListName = styled.div<{ fontColor: string; theme: MavrykTheme }>`
+  font-weight: 500;
   font-size: 14px;
-  line-height: 14px;
+  line-height: 24px;
   color: ${({ fontColor }) => fontColor};
+`
+
+export const InfoBlockListValue = styled(InfoBlockListName)`
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 22px;
 `
 
 export const FinancialRequestsContainer = styled.div<{ theme: MavrykTheme }>`
@@ -105,4 +112,7 @@ export const FinancialRequestsContainer = styled.div<{ theme: MavrykTheme }>`
 export const VotingArea = styled(VotingAreaBase)`
   margin-top: 25px;
   margin-bottom: 20px;
+`
+export const GovRightContainerTitleArea = styled(GovRightContainerTitleAreaBase)`
+  margin-bottom: 10px;
 `

@@ -19,8 +19,11 @@ type Props = {
 
 export const CouncilMemberView = (props: Props) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { delegationStorage: { satelliteLedger } } = useSelector((state: State) => state.delegation)
+
   const { image, name, userId, openModal, showUpdateInfo = true } = props
   const href = `/satellites/satellite-details/${userId}`
+  const isSatellite = satelliteLedger.find(({ address }) => address === userId)
 
   const isMe = userId === accountPkh
   const content = (
@@ -49,6 +52,21 @@ export const CouncilMemberView = (props: Props) => {
 
   if (isMe) {
     return content
+  }
+
+  if (!isSatellite) {
+    return (
+      <a
+        className="icon-send"
+        target="_blank"
+        href={`https://${
+          process.env.NODE_ENV === 'development' ? process.env.REACT_APP_NETWORK + '.' : ''
+        }tzkt.io/${userId}/operations/`}
+        rel="noreferrer"
+      >
+        {content}
+      </a>
+    )
   }
 
   return <Link to={href}>{content}</Link>
