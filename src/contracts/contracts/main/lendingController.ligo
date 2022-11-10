@@ -95,8 +95,8 @@ type lendingControllerUnpackLambdaFunctionType is (lendingControllerLambdaAction
 
 const zeroAddress            : address  = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 const fixedPointAccuracy     : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27     - // for use in division
-// const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;           // 10^18    - // for use in division with tez
-const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000_000_000_000n;           // 10^27    - // for use in division with tez
+// const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;            // 10^18    - // for use in division with tez
+const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27    - // for use in division with tez
 
 // for use in division from oracle where price decimals may vary
 const fpa10e27 : nat = 1_000_000_000_000_000_000_000_000_000n;   // 10^27 
@@ -317,12 +317,13 @@ function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
 // ------------------------------------------------------------------------------
 
 
+
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
 // -----------------------------------------
-// Lending Controller Token Pool Entrypoints
+// Lending Controller Admin Entrypoints
 // -----------------------------------------
 
 // helper function to check that the %setLoanToken entrypoint is not paused
@@ -431,7 +432,6 @@ function checkVaultWithdrawStakedMvkIsNotPaused(var s : lendingControllerStorage
 
 
 
-
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
@@ -528,7 +528,7 @@ block {
 
 
 
-// helper function to get user staked mvk balance from Doorman contract
+// helper function to get user staked mvk balance from staking contract (e.g. Doorman)
 function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address; const s : lendingControllerStorageType) : nat is 
 block {
 
@@ -543,18 +543,18 @@ block {
 
 
 
-// helper function to get user balance from scaled token contract (e.g. mToken)
+// helper function to get target user balance from scaled token contract (e.g. mToken)
 function getBalanceFromScaledTokenContract(const userAddress : address; const tokenContractAddress : address) : nat is 
 block {
 
     // get balance of user from scaled token contract
     const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (userAddress, 0), tokenContractAddress);
-    const userScaledBalance : nat = case getBalanceView of [
+    const scaledBalance : nat = case getBalanceView of [
             Some (_balance) -> _balance
         |   None            -> 0n
     ];
 
-} with userScaledBalance
+} with scaledBalance
 
 
 
@@ -643,7 +643,12 @@ block {
     const tokenDecimals         : nat          = createCollateralTokenParams.tokenDecimals;
     const oracleAddress         : address      = createCollateralTokenParams.oracleAddress;
     const protected             : bool         = createCollateralTokenParams.protected;
+
     const isScaledToken         : bool         = createCollateralTokenParams.isScaledToken;
+
+    // To extend functionality beyond sMVK to other staked tokens in future
+    // const isStakedToken         : bool         = createCollateralTokenParams.isStakedToken;
+    // const stakingContractAddress   : option(address)         = createCollateralTokenParams.stakingContractAddress;
     
     const newCollateralTokenRecord : collateralTokenRecordType = record [
         tokenName            = tokenName;
@@ -702,6 +707,19 @@ block {
 
 
 
+// helper function to get collateral token record 
+function getCollateralTokenRecord(const collateralTokenName : string; const s : lendingControllerStorageType) : collateralTokenRecordType is
+block {
+
+    const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[collateralTokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+} with collateralTokenRecord
+
+
+
 // helper function to check collateral token exists
 function checkCollateralTokenExists(const collateralTokenName : string; const s : lendingControllerStorageType) : unit is 
 block {
@@ -713,19 +731,6 @@ block {
     ]
 
 } with collateralTokenExists
-
-
-
-// helper function to get collateral token record 
-function getCollateralTokenRecord(const collateralTokenName : string; const s : lendingControllerStorageType) : collateralTokenRecordType is
-block {
-
-    const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[collateralTokenName] of [
-            Some(_record) -> _record
-        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-    ];
-
-} with collateralTokenRecord
 
 
 
@@ -1116,7 +1121,7 @@ block {
 
     const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
 
-    // get loan token reference using on-chain views
+    // get loan token record reference using on-chain views
     const loanTokenRecord : loanTokenRecordType = getLoanTokenReference(loanTokenName, s);
 
     // get last completed round price of token from Oracle view
@@ -1145,7 +1150,7 @@ block {
 function calculateLoanTokenValue(const loanTokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
 block {
 
-    // get loan token reference using on-chain views
+    // get loan token record reference using on-chain views
     const loanTokenRecord : loanTokenRecordType = getLoanTokenReference(loanTokenName, s);
 
     // get last completed round price of token from Oracle view
@@ -1313,54 +1318,56 @@ block{
     var borrowIndex                 : nat := loanTokenRecord.borrowIndex;
     var currentInterestRate         : nat := loanTokenRecord.currentInterestRate;
 
-    // calculate utilisation rate - total debt borrowed / token pool total
-    const utilisationRate : nat = (totalBorrowed * fixedPointAccuracy) / tokenPoolTotal;  // utilisation rate, or ratio of debt to total amount -> (1e6 * 1e27 / 1e6) -> 1e27
+    if tokenPoolTotal > 0n then {
+        // calculate utilisation rate - total debt borrowed / token pool total
+        const utilisationRate : nat = (totalBorrowed * fixedPointAccuracy) / tokenPoolTotal;  // utilisation rate, or ratio of debt to total amount -> (1e6 * 1e27 / 1e6) -> 1e27
 
-    // if total borrowed is greater than 0
-    if totalBorrowed > 0n then {
+        // if total borrowed is greater than 0
+        if totalBorrowed > 0n then {
 
-        // Calculations based on AAVE's variable borrow rate calculation: https://github.com/aave/aave-protocol/blob/master/docs/Aave_Protocol_Whitepaper_v1_0.pdf
+            // Calculations based on AAVE's variable borrow rate calculation: https://github.com/aave/aave-protocol/blob/master/docs/Aave_Protocol_Whitepaper_v1_0.pdf
 
-        if utilisationRate > optimalUtilisationRate then {
+            if utilisationRate > optimalUtilisationRate then {
 
-            // utilisation rate is above optimal rate
+                // utilisation rate is above optimal rate
 
-            const firstTerm : nat = baseInterestRate;                       // 1e27
-            const secondTerm : nat = interestRateBelowOptimalUtilisation;   // 1e27
-            
-            const utilisationRateLessOptimalRate : nat = abs(utilisationRate - optimalUtilisationRate);       // 1e27 (from above)
-            const coefficientDenominator : nat = abs(fixedPointAccuracy - optimalUtilisationRate);            // 1e27 - 1e27 -> 1e27
-            const thirdTerm : nat = (((utilisationRateLessOptimalRate * fixedPointAccuracy) / coefficientDenominator) * interestRateAboveOptimalUtilisation) / fixedPointAccuracy; // ( ((1e27 * 1e27) / 1e27) * 1e27) / 1e27 -> 1e27
+                const firstTerm : nat = baseInterestRate;                       // 1e27
+                const secondTerm : nat = interestRateBelowOptimalUtilisation;   // 1e27
+                
+                const utilisationRateLessOptimalRate : nat = abs(utilisationRate - optimalUtilisationRate);       // 1e27 (from above)
+                const coefficientDenominator : nat = abs(fixedPointAccuracy - optimalUtilisationRate);            // 1e27 - 1e27 -> 1e27
+                const thirdTerm : nat = (((utilisationRateLessOptimalRate * fixedPointAccuracy) / coefficientDenominator) * interestRateAboveOptimalUtilisation) / fixedPointAccuracy; // ( ((1e27 * 1e27) / 1e27) * 1e27) / 1e27 -> 1e27
 
-            currentInterestRate := firstTerm + secondTerm + thirdTerm;
+                currentInterestRate := firstTerm + secondTerm + thirdTerm;
 
-        } else {
+            } else {
 
-            // utilisation rate is below optimal rate
+                // utilisation rate is below optimal rate
 
-            const firstTerm : nat = baseInterestRate; // 1e27
+                const firstTerm : nat = baseInterestRate; // 1e27
 
-            const secondTermCoefficient : nat = (utilisationRate * fixedPointAccuracy) / optimalUtilisationRate;            // 1e27 * 1e27 / 1e27 -> 1e27
-            const secondTerm : nat = (secondTermCoefficient * interestRateBelowOptimalUtilisation) / fixedPointAccuracy;    // 1e27 * 1e27 / 1e27 -> 1e27
+                const secondTermCoefficient : nat = (utilisationRate * fixedPointAccuracy) / optimalUtilisationRate;            // 1e27 * 1e27 / 1e27 -> 1e27
+                const secondTerm : nat = (secondTermCoefficient * interestRateBelowOptimalUtilisation) / fixedPointAccuracy;    // 1e27 * 1e27 / 1e27 -> 1e27
 
-            currentInterestRate := firstTerm + secondTerm; 
+                currentInterestRate := firstTerm + secondTerm; 
 
-        };
+            };
 
+        } else skip;
+        
+
+        if Tezos.get_level() > lastUpdatedBlockLevel then {
+
+            const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel); // 1e27 
+            borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1e27 x 1e27 / 1e27 -> 1e27
+
+        } else skip;
+
+        loanTokenRecord.lastUpdatedBlockLevel   := Tezos.get_level();
+        loanTokenRecord.borrowIndex             := borrowIndex;
+        loanTokenRecord.utilisationRate         := utilisationRate;
+        loanTokenRecord.currentInterestRate     := currentInterestRate;
     } else skip;
-    
-
-    if Tezos.get_level() > lastUpdatedBlockLevel then {
-
-        const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel); // 1e27 
-        borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1e27 x 1e27 / 1e27 -> 1e27
-
-    } else skip;
-
-    loanTokenRecord.lastUpdatedBlockLevel   := Tezos.get_level();
-    loanTokenRecord.borrowIndex             := borrowIndex;
-    loanTokenRecord.utilisationRate         := utilisationRate;
-    loanTokenRecord.currentInterestRate     := currentInterestRate;
 
 } with loanTokenRecord
 
@@ -1385,6 +1392,358 @@ block {
 
 // ------------------------------------------------------------------------------
 // Token Pool Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Liquidate Vault Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to check correct duration has passed after being marked for liquidation
+function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const s : lendingControllerStorageType) : unit is
+block {
+
+    // Init variables and get level when vault can be liquidated
+    const blocksPerMinute                : nat  = 60n / Tezos.get_min_block_time();
+    const liquidationDelayInMins         : nat  = s.config.liquidationDelayInMins;
+    const liquidationDelayInBlockLevel   : nat  = liquidationDelayInMins * blocksPerMinute; 
+    const levelWhenVaultCanBeLiquidated  : nat  = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
+
+    // Check if sufficient time has passed since vault was marked for liquidation
+    if Tezos.get_level() < levelWhenVaultCanBeLiquidated
+    then failwith(error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED)
+    else skip;
+
+} with (unit)
+
+
+
+// helper function to check that vault is still within window of opportunity for liquidation to occur
+function checkVaultInLiquidationWindow(const vault : vaultRecordType) : unit is
+block {
+
+    // Get level when vault can no longer be liquidated 
+    const vaultLiquidationEndLevel : nat = vault.liquidationEndLevel;
+
+    // Check if current block level has exceeded vault liquidation end level
+    if Tezos.get_level() > vaultLiquidationEndLevel
+    then failwith(error_VAULT_NEEDS_TO_BE_MARKED_FOR_LIQUIDATION_AGAIN)
+    else skip;
+
+} with (unit)
+
+
+
+// helper function to calculate the ratio used in the collateral token amount receive calculation
+function calculateCollateralPriceAdjustmentRatio(const loanToken : (nat*nat); const collateralToken : (nat*nat)) : nat is
+block {
+
+    // Init variables
+    const loanTokenDecimals                     : nat = loanToken.0;
+    const loanTokenPriceDecimals                : nat = loanToken.1;
+    const tokenDecimals                         : nat = collateralToken.0;
+    const priceDecimals                         : nat = collateralToken.1;
+
+    // calculate exponents
+    const tokenDecimalsMultiplyExponent         : nat = if tokenDecimals > loanTokenDecimals then abs(tokenDecimals - loanTokenDecimals) else 0n;
+    const tokenDecimalsDivideExponent           : nat = if tokenDecimals < loanTokenDecimals then abs(loanTokenDecimals - tokenDecimals) else 0n;
+    
+    const priceTokenDecimalsMultiplyExponent    : nat = if priceDecimals > loanTokenPriceDecimals then abs(priceDecimals - loanTokenPriceDecimals) else 0n;
+    const priceTokenDecimalsDivideExponent      : nat = if priceDecimals < loanTokenPriceDecimals then abs(loanTokenPriceDecimals - priceDecimals) else 0n;
+
+    // multiple exponents by 10^exp
+    // e.g. if tokenDecimalsMultiplyExponent is 3, then tokenDecimalsMultiplyDifference = 1 * 1000 = 1000;
+    const tokenDecimalsMultiplyDifference       : nat = rebaseTokenValue(1n, tokenDecimalsMultiplyExponent);
+    const tokenDecimalsDivideDifference         : nat = rebaseTokenValue(1n, tokenDecimalsDivideExponent);
+    
+    const priceTokenDecimalsMultiplyDifference  : nat = rebaseTokenValue(1n, priceTokenDecimalsMultiplyExponent);
+    const priceTokenDecimalsDivideDifference    : nat = rebaseTokenValue(1n, priceTokenDecimalsDivideExponent);
+    
+    // ratio used in liquidator and treasury token amount calculation
+    const collateralTokenPriceAdjustmentRatio   : nat = (tokenDecimalsMultiplyDifference * priceTokenDecimalsMultiplyDifference) / (tokenDecimalsDivideDifference * priceTokenDecimalsDivideDifference);
+
+} with (collateralTokenPriceAdjustmentRatio)
+
+
+
+// helper function to calculate the collateral token proportion received during a liquidation
+function calculateCollateralLiquidationTokenProportion(const collateralToken : collateralTokenRecordType; const collateralTokenLastCompletedData : lastCompletedDataReturnType; const collateralTokenBalance : nat; const vaultCollateralValueRebased : nat; const s : lendingControllerStorageType) : nat is
+block {
+
+    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
+    
+    const tokenDecimals             : nat  = collateralToken.tokenDecimals; 
+    const priceDecimals             : nat  = collateralTokenLastCompletedData.decimals;
+    const tokenPrice                : nat  = collateralTokenLastCompletedData.data;
+
+    // Calculate required number of decimals to rebase each token to the same unit for comparison                        
+    if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
+    const rebaseDecimals : nat  = abs(maxDecimalsForCalculation - (tokenDecimals + priceDecimals));
+
+    // Calculate raw value of collateral balance
+    const tokenValueRaw : nat = collateralTokenBalance * tokenPrice;
+
+    // rebase token value to 1e32 (or 10^32)
+    const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);
+
+    // get proportion of collateral token balance against total vault's collateral value
+    const tokenProportion : nat = (tokenValueRebased * fixedPointAccuracy) / vaultCollateralValueRebased;
+
+} with (tokenProportion)
+
+
+
+// helper function to calculate the collateral token amount received during a liquidation
+function calculateCollateralAmountReceived(const loanTokenPrice : nat; const tokenPrice : nat; const tokenProportion : nat; const collateralTokenPriceAdjustmentRatio : nat; const liquidationFeeAmount : nat) : nat is
+block {
+
+    // get value to be extracted and sent to liquidator (1e27 * token decimals e.g. 1e6 => 1e33)
+    const tokenProportionalAmount           : nat = tokenProportion * liquidationFeeAmount;
+
+    // multiply amount by loan token price - with on chain view to get loan token price from aggregator
+    const tokenProportionalValue            : nat = multiplyTokenAmountByPrice(tokenProportionalAmount, loanTokenPrice);
+
+    // adjust value by token decimals difference - no change if all decimals are the same (e.g. value * 1 * 1 / (1 * 1) )
+    const tokenProportionalValueAdjusted    : nat = tokenProportionalValue * collateralTokenPriceAdjustmentRatio;
+
+    // get quantity of tokens to be liquidated (final decimals should equal collateral token decimals)
+    const tokenQuantityTotal                : nat = (tokenProportionalValueAdjusted / tokenPrice) / fixedPointAccuracy;
+
+} with (tokenQuantityTotal)
+
+
+
+// helper function to process transfer operations for the one collateral token
+function processLiquidationCollateralTransferOperations(const collateralToken : collateralTokenRecordType; const vaultAddress : address; const liquidator : (address*nat); const treasury : (address*nat); var operations : list(operation); const s : lendingControllerStorageType) : list(operation) is
+block {
+
+    // Init variables
+    const collateralTokenName   : string      = collateralToken.tokenName;
+    const collateralTokenType   : tokenType   = collateralToken.tokenType;
+    const liquidatorAddress     : address     = liquidator.0;
+    const liquidatorTokenAmount : nat         = liquidator.1;
+    const treasuryAddress       : address     = treasury.0;
+    const treasuryTokenAmount   : nat         = treasury.1;
+
+    // Transfer operations
+    if collateralTokenName = "smvk" then {
+
+        // use %onVaultLiquidateStakedMvk entrypoint in Doorman Contract to transfer staked MVK balances
+
+        // send staked mvk from vault to liquidator
+        const sendStakedMvkFromVaultToLiquidatorOperation : operation = onLiquidateStakedMvkFromVaultOperation(
+            vaultAddress,                       // vault address
+            liquidatorAddress,                  // liquidator              
+            liquidatorTokenAmount,              // liquidated amount
+            s                                   // storage
+        );                
+
+        operations := sendStakedMvkFromVaultToLiquidatorOperation # operations;
+
+        // send staked mvk from vault to treasury
+        const sendStakedMvkFromVaultToTreasuryOperation : operation = onLiquidateStakedMvkFromVaultOperation(
+            vaultAddress,                       // vault address
+            treasuryAddress,                    // liquidator              
+            treasuryTokenAmount,                // liquidated amount
+            s                                   // storage
+        );                
+
+        operations := sendStakedMvkFromVaultToTreasuryOperation # operations;
+
+    } else {
+
+        // use standard token transfer operations
+
+        // send tokens from vault to liquidator
+        const sendTokensFromVaultToLiquidatorOperation : operation = liquidateFromVaultOperation(
+            liquidatorAddress,                  // receiver (i.e. to_)
+            collateralTokenName,                // token name
+            liquidatorTokenAmount,              // token amount to be withdrawn
+            collateralTokenType,                // token type (i.e. tez, fa12, fa2) 
+            vaultAddress                        // vault address
+        );
+        operations := sendTokensFromVaultToLiquidatorOperation # operations;
+
+        // send tokens from vault to treasury
+        const sendTokensFromVaultToTreasuryOperation : operation = liquidateFromVaultOperation(
+            treasuryAddress,                    // receiver (i.e. to_)
+            collateralTokenName,                // token name
+            treasuryTokenAmount,                // token amount to be withdrawn
+            collateralTokenType,                // token type (i.e. tez, fa12, fa2) 
+            vaultAddress                        // vault address
+        );
+        operations := sendTokensFromVaultToTreasuryOperation # operations;
+
+    };
+
+} with(operations)
+
+
+
+// helper function to calculate the ratio used in the collateral token amount receive calculation
+function processCollateralTokenLiquidation(const liquidatorAddress : address; const treasuryAddress : address; const loanTokenDecimals : nat; const loanTokenLastCompletedData : lastCompletedDataReturnType; const vaultAddress : address; const vaultCollateralValueRebased; const collateralTokenName : string; const collateralTokenBalance : nat; const liquidationAmount : nat; var operations : list(operation); const s : lendingControllerStorageType) : list(operation) * nat is
+block {
+
+    // get collateral token record through on-chain view
+    const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
+
+    // get last completed data of token from Aggregator view
+    const collateralTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(collateralTokenRecord.oracleAddress);
+
+    // init variables
+    const loanTokenPrice            : nat = loanTokenLastCompletedData.data;
+    const loanTokenPriceDecimals    : nat = loanTokenLastCompletedData.decimals;
+    const tokenDecimals             : nat = collateralTokenRecord.tokenDecimals;
+    const tokenPrice                : nat = collateralTokenLastCompletedData.data;
+    const priceDecimals             : nat = collateralTokenLastCompletedData.decimals;
+
+    // if token is sMVK, get latest balance from Doorman Contract through on-chain views
+    // - may differ from token balance if rewards have been claimed 
+    // - requires a call to %compound on doorman contract to compound rewards for the vault and get the latest balance
+    var   collateralTokenBalance    : nat := 
+        // get vault staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
+        // - for better accuracy, there should be a frontend call to compound rewards for the vault first
+        if collateralTokenName = "smvk" then getUserStakedMvkBalanceFromDoorman(vaultAddress, s)
+        // get updated scaled token balance (e.g. mToken)
+        else if collateralTokenRecord.isScaledToken then getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress)
+        else collateralTokenBalance;
+
+    // get proportion of collateral token balance against total vault's collateral value
+    const tokenProportion : nat = calculateCollateralLiquidationTokenProportion(collateralTokenRecord, collateralTokenLastCompletedData, collateralTokenBalance, vaultCollateralValueRebased, s);
+
+    // ------------------------------------------------------------------
+    // Rebase decimals for calculation
+    //  - account for exponent (decimal) differences between collateral and loan token decimals
+    //  - account for exponent (decimal) differences between collateral price and loan token price decimals from aggregators
+    // ------------------------------------------------------------------
+
+    // ratio used in liquidator and treasury token amount calculation
+    const collateralTokenPriceAdjustmentRatio   : nat = calculateCollateralPriceAdjustmentRatio(
+        (loanTokenDecimals, loanTokenPriceDecimals),
+        (tokenDecimals, priceDecimals)
+    );
+
+    // ------------------------------------------------------------------
+    // Calculate Liquidator's Amount 
+    // ------------------------------------------------------------------
+
+    const liquidationFeePercent         : nat   = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator 
+    const liquidationIncentive          : nat   = ((liquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+    const liquidatorAmountAndIncentive  : nat   = liquidationAmount + liquidationIncentive;
+    const liquidatorTokenQuantityTotal : nat    = calculateCollateralAmountReceived(
+        loanTokenPrice,
+        tokenPrice,
+        tokenProportion,
+        collateralTokenPriceAdjustmentRatio,
+        liquidatorAmountAndIncentive
+    ); 
+    
+    // Calculate new collateral balance
+    if liquidatorTokenQuantityTotal > collateralTokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
+    var newCollateralTokenBalance : nat := abs(collateralTokenBalance - liquidatorTokenQuantityTotal);
+
+    // ------------------------------------------------------------------
+    // Calculate Treasury's Amount 
+    // ------------------------------------------------------------------
+
+    // calculate final amounts to be liquidated
+    const adminLiquidationFeePercent    : nat   = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
+    const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+    const treasuryTokenQuantityTotal    : nat   = calculateCollateralAmountReceived(
+        loanTokenPrice,
+        tokenPrice,
+        tokenProportion,
+        collateralTokenPriceAdjustmentRatio,
+        adminLiquidationFee
+    ); 
+
+    // Calculate new collateral balance
+    if treasuryTokenQuantityTotal > newCollateralTokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
+    newCollateralTokenBalance := abs(newCollateralTokenBalance - treasuryTokenQuantityTotal);
+
+    // ------------------------------------------------------------------
+    // Process liquidation transfer of collateral token
+    // ------------------------------------------------------------------
+    
+    operations  := processLiquidationCollateralTransferOperations(
+        collateralTokenRecord,
+        vaultAddress,
+        (liquidatorAddress, liquidatorTokenQuantityTotal),
+        (treasuryAddress, treasuryTokenQuantityTotal),
+        operations,
+        s
+    );
+
+} with (operations, newCollateralTokenBalance)
+
+// ------------------------------------------------------------------------------
+// Liquidate Vault Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Vault Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function updateVaultState(const vaultHandle : vaultHandleType; var s : lendingControllerStorageType) : (vaultRecordType*loanTokenRecordType) is
+block {
+
+    // get vault
+    var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
+
+    // ------------------------------------------------------------------
+    // Update Loan Token state and get token borrow index
+    // ------------------------------------------------------------------
+
+    // Get current vault borrow index, and vault loan token name
+    var vaultBorrowIndex      : nat := vault.borrowIndex;
+    const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
+
+    // Get loan token record
+    var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
+                
+    // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
+    loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+    
+    // Get loan token parameters
+    const tokenBorrowIndex  : nat = loanTokenRecord.borrowIndex;
+
+    // ------------------------------------------------------------------
+    // Accrue interest to vault oustanding
+    // ------------------------------------------------------------------
+
+    // Get current user loan outstanding and init new total variables
+    const currentLoanOutstandingTotal  : nat = vault.loanOutstandingTotal;
+    const initialLoanPrincipalTotal    : nat = vault.loanPrincipalTotal;
+    var newLoanOutstandingTotal        : nat := currentLoanOutstandingTotal;
+    var newLoanInterestTotal           : nat := vault.loanInterestTotal;
+
+    // Calculate interest
+    newLoanOutstandingTotal := accrueInterestToVault(
+        currentLoanOutstandingTotal,
+        vaultBorrowIndex,
+        tokenBorrowIndex
+    );
+
+    if initialLoanPrincipalTotal > newLoanOutstandingTotal then failwith(error_INITIAL_LOAN_PRINCIPAL_TOTAL_CANNOT_BE_GREATER_THAN_LOAN_OUTSTANDING_TOTAL) else skip;
+    newLoanInterestTotal := abs(newLoanOutstandingTotal - initialLoanPrincipalTotal);
+
+    // ------------------------------------------------------------------
+    // Update storage
+    // ------------------------------------------------------------------
+
+    vault.loanOutstandingTotal                := newLoanOutstandingTotal;
+    vault.loanInterestTotal                   := newLoanInterestTotal;
+    vault.borrowIndex                         := tokenBorrowIndex;
+    vault.lastUpdatedBlockLevel               := Tezos.get_level();
+    vault.lastUpdatedTimestamp                := Tezos.get_now();
+
+} with(vault, loanTokenRecord)
+
+// ------------------------------------------------------------------------------
+// Vault Helper Functions Begin
 // ------------------------------------------------------------------------------
 
 
@@ -1741,7 +2100,7 @@ block {
 
 
 
-// (* registerDeposit entrypoint *)
+(* registerDeposit entrypoint *)
 function registerDeposit(const registerDepositParams : registerDepositActionType; var s : lendingControllerStorageType) : return is 
 block {
 
@@ -1761,7 +2120,7 @@ block {
 
 
 
-// (* registerWithdrawal entrypoint *)
+(* registerWithdrawal entrypoint *)
 function registerWithdrawal(const registerWithdrawalParams : registerWithdrawalActionType; var s : lendingControllerStorageType) : return is 
 block {
 
