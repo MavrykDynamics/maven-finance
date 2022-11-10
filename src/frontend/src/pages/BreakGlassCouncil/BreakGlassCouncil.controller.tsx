@@ -298,7 +298,6 @@ export function BreakGlassCouncil() {
                   image={item.image || item.name}
                   name={item.name}
                   userId={item.userId}
-                  website={item.website}
                   openModal={handleOpenleModal}
                   showUpdateInfo={isUserInBreakCouncilMember}
                 />
