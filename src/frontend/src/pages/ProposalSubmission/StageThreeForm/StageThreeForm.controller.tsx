@@ -18,7 +18,7 @@ import { Input } from 'app/App.components/Input/Input.controller'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpers'
+import { checkPaymentExists, getPaymentsDiff, getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpers'
 import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 // styles
@@ -37,10 +37,15 @@ import {
   DropDownList,
   DropDownListItem,
 } from '../../../app/App.components/DropDown/DropDown.style'
+import { updateProposalData } from '../ProposalSubmission.actions'
+import { INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 export const StageThreeForm = ({
   proposalId,
   currentProposal,
+  proposalHasChange,
+  currentOriginalProposal,
+  setProposalHasChange,
   updateLocalProposalData,
   handleDropProposal,
   handleLockProposal,
@@ -55,13 +60,7 @@ export const StageThreeForm = ({
     governancePhase,
   } = useSelector((state: State) => state.governance)
 
-  // TODO: generaing changes for back-end (remove it in case we don't need this)
-  // const currentPaymentsChanges = useMemo(
-  //   () => proposalChangesState?.[proposalId]?.proposalPaymentsChanges,
-  //   [proposalId, proposalChangesState],
-  // )
-
-  // TODO: clarify it with Sam
+  // TODO: make it dynamic from whitelist
   const PaymentMethods = [
     { symbol: 'XTZ', address: 'tez', id: 1 },
     { symbol: 'MVK', address: 'mvk', id: 0 },
@@ -73,6 +72,15 @@ export const StageThreeForm = ({
 
   const [validForm, setValidForm] = useState<SubmitProposalStageThreeValidation>([])
   const [openDrop, setOpenDrop] = useState('')
+
+  const isAllPaymentsValid = useMemo(
+    () =>
+      validForm.every(
+        ({ token_amount, title, to__id }) =>
+          token_amount === INPUT_STATUS_SUCCESS || title === INPUT_STATUS_SUCCESS || to__id === INPUT_STATUS_SUCCESS,
+      ),
+    [validForm],
+  )
 
   const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>, row: number) => {
     const { name, value } = e.target
@@ -95,7 +103,7 @@ export const StageThreeForm = ({
 
   // set up validity state for new proposal, on proposal change and add new row for proposal, if there are no rows in proposal
   useEffect(() => {
-    if (proposalPayments.length === 0) {
+    if (!proposalPayments.some(checkPaymentExists)) {
       handleAddRow()
     }
 
@@ -116,8 +124,12 @@ export const StageThreeForm = ({
     )
   }, [proposalId, proposalPayments])
 
-  const handleSubmitFinancialRequestData = () => {
-    // dispatch(updateProposalPayments([], proposalId))
+  const handleSubmitFinancialRequestData = async () => {
+    if (proposalId && isAllPaymentsValid && currentOriginalProposal) {
+      const paymentsDiff = getPaymentsDiff(currentOriginalProposal.proposalPayments, proposalPayments)
+      console.log('paymentsDiff', paymentsDiff)
+      await dispatch(updateProposalData(proposalId, undefined, paymentsDiff))
+    }
   }
 
   const handleChange = (
@@ -141,6 +153,7 @@ export const StageThreeForm = ({
     )
 
     setOpenDrop('')
+    setProposalHasChange(true)
   }
 
   const handleAddRow = () => {
@@ -164,6 +177,7 @@ export const StageThreeForm = ({
     )
 
     setOpenDrop('')
+    setProposalHasChange(true)
   }
 
   const handleDeleteRow = (rowNumber: number) => {
@@ -174,6 +188,7 @@ export const StageThreeForm = ({
       proposalId,
     )
     setOpenDrop('')
+    setProposalHasChange(true)
   }
 
   const handleToggleDrop = (i: number) => {
@@ -181,12 +196,7 @@ export const StageThreeForm = ({
   }
 
   const isDisabledSubmitTableBtn = useMemo(
-    () =>
-      (!isProposalRound &&
-        validForm.some(
-          ({ token_amount, title, to__id }) => token_amount === 'error' || title === 'error' || to__id === 'error',
-        )) ||
-      locked,
+    () => !isProposalRound || !proposalHasChange || (proposalHasChange && !isAllPaymentsValid) || locked,
     [validForm, isProposalRound],
   )
   const disabledInputs = useMemo(() => !isProposalRound || locked, [isProposalRound, locked])
@@ -234,7 +244,7 @@ export const StageThreeForm = ({
                 const { symbol: selectedSymbol = 'MVK' } =
                   PaymentMethods.find(({ address }) => address === rowItems.token_address) ?? {}
 
-                if (!rowItems || !rowItems.title || !rowItems.token_amount) return null
+                if (!rowItems || rowItems.title === null || rowItems.token_amount === null) return null
 
                 return (
                   <tr key={i}>
@@ -254,7 +264,7 @@ export const StageThreeForm = ({
                     <td key={`${i}-purpose`} className="input-cell">
                       <Input
                         onFocus={() => setOpenDrop('')}
-                        value={rowItems.title}
+                        value={rowItems.title ?? ''}
                         type={'text'}
                         name="title"
                         disabled={!isLocal || disabledInputs}
@@ -267,7 +277,7 @@ export const StageThreeForm = ({
                     <td key={`${i}-amount`} className="input-cell">
                       <Input
                         onFocus={() => setOpenDrop('')}
-                        value={rowItems.token_amount}
+                        value={rowItems.token_amount ?? ''}
                         type={'number'}
                         name="token_amount"
                         disabled={disabledInputs}

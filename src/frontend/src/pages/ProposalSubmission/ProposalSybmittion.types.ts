@@ -36,6 +36,9 @@ export type StageTwoFormProps = {
 export type StageThreeFormProps = {
   proposalId: number
   currentProposal: ProposalRecordType
+  currentOriginalProposal?: ProposalRecordType
+  proposalHasChange: boolean
+  setProposalHasChange: (arg: boolean) => void
   updateLocalProposalData: ChangeProposalFnType
   handleDropProposal: (proposalId: number) => void
   handleLockProposal: (proposalId: number) => void

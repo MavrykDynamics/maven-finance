@@ -163,6 +163,9 @@ export const ProposalSubmission = () => {
             updateLocalProposalData={updateLocalProposalData}
             handleDropProposal={handleDropProposal}
             handleLockProposal={handleLockProposal}
+            proposalHasChange={proposalHasChange}
+            setProposalHasChange={setProposalHasChange}
+            currentOriginalProposal={currentOriginalProposal}
           />
         )}
       </ProposalSubmissionForm>
