@@ -28,6 +28,7 @@ import {
   FinancialRequestsRightContainer,
   FinancialRequestsStyled,
   InfoBlockDescr,
+  InfoBlockListName,
   InfoBlockListValue,
   InfoBlockTitle,
   VotingArea,
@@ -162,7 +163,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
           <InfoBlockTitle>Token Info</InfoBlockTitle>
           <div className="list">
             <div className="list_item">
-              <InfoBlockListValue fontColor="#77A4F2">Amount Requested</InfoBlockListValue>
+              <InfoBlockListName fontColor="#77A4F2">Amount Requested</InfoBlockListName>
               <InfoBlockListValue fontColor="#86D4C9">
                 <CommaNumber
                   value={
@@ -176,14 +177,14 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
             </div>
 
             {/* TODO token_contract_address not in graphQl <div className="list_item">
-              <InfoBlockListValue fontColor="#77A4F2">Contract Address</InfoBlockListValue>
+              <InfoBlockListName fontColor="#77A4F2">Contract Address</InfoBlockListName>
               <InfoBlockListValue fontColor="#86D4C9">
                 <TzAddress tzAddress={rightSideContent.token_contract_address} hasIcon={false} />
               </InfoBlockListValue>
             </div> */}
 
             <div className="list_item">
-              <InfoBlockListValue fontColor="#77A4F2">Type</InfoBlockListValue>
+              <InfoBlockListName fontColor="#77A4F2">Type</InfoBlockListName>
               <InfoBlockListValue fontColor="#86D4C9">{tokenName}</InfoBlockListValue>
             </div>
           </div>
@@ -200,21 +201,21 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
           <InfoBlockTitle>Governance Info</InfoBlockTitle>
           <div className="list">
             <div className="list_item">
-              <InfoBlockListValue fontColor="#77A4F2">Governance Contract</InfoBlockListValue>
+              <InfoBlockListName fontColor="#77A4F2">Governance Contract</InfoBlockListName>
               <InfoBlockListValue fontColor="#86D4C9">
                 <TzAddress tzAddress={rightSideContent.governance_financial.governance.address} hasIcon={false} />
               </InfoBlockListValue>
             </div>
 
             <div className="list_item">
-              <InfoBlockListValue fontColor="#77A4F2">Governance Financial Contract</InfoBlockListValue>
+              <InfoBlockListName fontColor="#77A4F2">Governance Financial Contract</InfoBlockListName>
               <InfoBlockListValue fontColor="#86D4C9">
                 <TzAddress tzAddress={rightSideContent.governance_financial_id} hasIcon={false} />
               </InfoBlockListValue>
             </div>
 
             <div className="list_item">
-              <InfoBlockListValue fontColor="#77A4F2">Treasury Contract</InfoBlockListValue>
+              <InfoBlockListName fontColor="#77A4F2">Treasury Contract</InfoBlockListName>
               <InfoBlockListValue fontColor="#86D4C9">
                 <TzAddress tzAddress={rightSideContent.treasury_id} hasIcon={false} />
               </InfoBlockListValue>

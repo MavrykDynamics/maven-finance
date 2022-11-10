@@ -91,11 +91,17 @@ export const InfoBlockDescr = styled.div<{ theme: MavrykTheme }>`
   margin-top: 5px;
 `
 
-export const InfoBlockListValue = styled.div<{ fontColor: string; theme: MavrykTheme }>`
-  font-weight: 700;
+export const InfoBlockListName = styled.div<{ fontColor: string; theme: MavrykTheme }>`
+  font-weight: 500;
   font-size: 14px;
-  line-height: 14px;
+  line-height: 24px;
   color: ${({ fontColor }) => fontColor};
+`
+
+export const InfoBlockListValue = styled(InfoBlockListName)`
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 22px;
 `
 
 export const FinancialRequestsContainer = styled.div<{ theme: MavrykTheme }>`
