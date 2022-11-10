@@ -16,6 +16,7 @@ export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleEx
   const title = (contract.title as string).replace(/([a-z0-9])([A-Z])/g, '$1 $2')
   const address = contract.address as string
   const lastUpdated = (contract.lastUpdated || '') as string
+  console.log("🚀 ~ file: ContractCard.controller.tsx ~ line 19 ~ ContractCard ~ lastUpdated", lastUpdated)
   const admin = contract.admin as string
   const methods = contract.methods as Record<string, boolean>
   const isStatusPaused = methods ? Object.keys(methods).some((method) => methods[method]) : false
@@ -32,7 +33,7 @@ export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleEx
           />
         </div>
 
-        <div className="card-info-item">
+        <div className={`card-info-item ${lastUpdated ? '' : 'hidden'}`}>
           Last Update
           <div>{parseDate({ time: lastUpdated, timeFormat: 'MMM DD, YYYY' })}</div>
         </div>
