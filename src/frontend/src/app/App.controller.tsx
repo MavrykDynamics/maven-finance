@@ -60,8 +60,6 @@ const AppContainer = () => {
 
   useLockBodyScroll(Boolean(loading))
 
-  console.log(loading)
-
   const closeModalHandler = useCallback(() => dispatch(toggleRPCNodePopup(false)), [])
 
   return (
