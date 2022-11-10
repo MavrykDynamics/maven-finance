@@ -22,8 +22,8 @@ import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.co
 import FRList from './FRList/FRList.view'
 
 // styles
-import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import {
+  GovRightContainerTitleArea,
   FinancialRequestsContainer,
   FinancialRequestsRightContainer,
   FinancialRequestsStyled,
