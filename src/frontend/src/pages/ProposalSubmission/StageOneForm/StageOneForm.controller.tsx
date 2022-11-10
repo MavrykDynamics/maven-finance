@@ -77,6 +77,7 @@ export const StageOneForm = ({
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(currentProposal.sourceCode) &&
           isValidLength(currentProposal.sourceCode, 1, proposalSourceCodeMaxLength || defaultMaxLength)
+        setValidForm({ ...validForm, sourceCode: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, sourceCode: validityCheckResult ? 'success' : 'error' })
         break
       case 'IPFS':
@@ -193,7 +194,7 @@ export const StageOneForm = ({
         </div>
       ) : (
         <div className="source-code-input-wrap">
-          <label>5 - Please add a link to the source code changes (if you have)</label>
+          <label>5 - Please add a link to the source code changes</label>
           <Input
             type="text"
             value={currentProposal.sourceCode}
