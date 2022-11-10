@@ -13,7 +13,6 @@ import {
   calculateSlicePositions,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { updatePageInUrl } from 'pages/FinacialRequests/FinancialRequests.helpers' 
 
 // styles
@@ -26,6 +25,7 @@ import {
   BGPrimaryTitle,
   BGTop,
   BGWhitelist,
+  Pagination,
 } from './BreakGlass.style'
 import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
 
@@ -167,12 +167,12 @@ export const BreakGlassView = ({
             />
           )
         })}
-
-        <Pagination
-          itemsCount={filteredBreakGlassStatuses.length}
-          listName={BREAK_GLASS_LIST_NAME}
-        />
       </BGCardsWrapper>
+
+      <Pagination
+        itemsCount={filteredBreakGlassStatuses.length}
+        listName={BREAK_GLASS_LIST_NAME}
+      />
     </BGStyled>
   )
 }

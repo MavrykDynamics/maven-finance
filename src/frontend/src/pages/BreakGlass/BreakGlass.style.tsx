@@ -1,7 +1,8 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../styles/interfaces'
-
 import { downColor, upColor, headerColor } from '../../styles/colors'
+
+import PaginationBase from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 export const BGStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -167,4 +168,9 @@ export const BGSecondaryTitle = styled(BGPrimaryTitle)`
   &::after{
     display: none;
   }
+`
+
+export const Pagination = styled(PaginationBase)`
+  grid-column-start: 2;
+  grid-column-end: 3;
 `
