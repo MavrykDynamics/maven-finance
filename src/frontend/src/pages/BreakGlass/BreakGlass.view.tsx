@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useHistory } from 'react-router-dom'
+import qs from 'qs'
 
 // components
 import { ContractCard } from './ContractCard/ContractCard.controller'
@@ -13,6 +14,7 @@ import {
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import { updatePageInUrl } from 'pages/FinacialRequests/FinancialRequests.helpers' 
 
 // styles
 import {
@@ -22,7 +24,6 @@ import {
   BGStatusIndicator,
   BGStyled,
   BGPrimaryTitle,
-  BGSecondaryTitle,
   BGTop,
   BGWhitelist,
 } from './BreakGlass.style'
@@ -44,7 +45,9 @@ export const BreakGlassView = ({
   breakGlassStatuses,
   whitelistDev,
 }: BreakGlassViewProps) => {
-  const { search } = useLocation()
+  const { search, pathname } = useLocation()
+  const history = useHistory()
+  const { page = {}, ...rest } = qs.parse(search, { ignoreQueryPrefix: true })
 
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
@@ -93,6 +96,10 @@ export const BreakGlassView = ({
 
   const handleTabChange = (tabId?: number) => {
     setSelectedContract(tabId ? brakeGlassTabsList.find((item) => item.id === tabId)?.text || '' : '')
+  
+    // this is required to reset the page number when changing the tab
+    const generateNewUrl = updatePageInUrl({ page, newPage: 1, listName: BREAK_GLASS_LIST_NAME, pathname, restQP: rest })
+    history.push(generateNewUrl)
   }
 
   return (
