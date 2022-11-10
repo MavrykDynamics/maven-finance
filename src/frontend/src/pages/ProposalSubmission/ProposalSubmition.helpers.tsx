@@ -89,7 +89,7 @@ export const DEFAULT_VALIDITY: ValidSubmitProposalForm = {
   ipfs: true,
   successMVKReward: true,
   invoiceTable: true,
-  sourceCode: true,
+  sourceCode: false,
 }
 
 export const DEFAULT_INPUT_STATUSES: SubmitProposalFormInputStatus = {

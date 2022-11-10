@@ -1,4 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
+
+// components
+import { ContractCard } from './ContractCard/ContractCard.controller'
+import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+
+// helpers
+import {
+  BREAK_GLASS_LIST_NAME,
+  calculateSlicePositions,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+
+// styles
 import {
   BGCardsWrapper,
   BGInfo,
@@ -10,12 +26,7 @@ import {
   BGTop,
   BGWhitelist,
 } from './BreakGlass.style'
-import { ContractBreakGlass } from './mockContracts'
 import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
-import { ContractCard } from './ContractCard/ContractCard.controller'
-import { ToggleButton } from './ToggleButton/Toggle-button.view'
-import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 type BreakGlassViewProps = {
   glassBroken: boolean
@@ -33,6 +44,8 @@ export const BreakGlassView = ({
   breakGlassStatuses,
   whitelistDev,
 }: BreakGlassViewProps) => {
+  const { search } = useLocation()
+
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
   const [selectedContract, setSelectedContract] = useState<string>(ALL)
@@ -46,14 +59,25 @@ export const BreakGlassView = ({
     return [ALL, ...uniqueAllContracts.filter((item) => item !== GENERAL)]
   }, [breakGlassStatuses])
 
-  const filteredBreakGlassStatuses = breakGlassStatuses
+  const filteredBreakGlassStatuses = useMemo(() => {
+    return breakGlassStatuses
     ? selectedContract === ALL
       ? breakGlassStatuses
       : breakGlassStatuses?.filter((item) => {
           const type = item.type as string
           return selectedContract === type
         })
-    : []
+    : []}, [breakGlassStatuses, selectedContract])
+
+  const currentPage = getPageNumber(
+    search,
+    BREAK_GLASS_LIST_NAME,
+  )
+
+  const paginatedMyPastCouncilActions = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_LIST_NAME)
+    return filteredBreakGlassStatuses?.slice(from, to)
+  }, [currentPage, filteredBreakGlassStatuses])
 
   const brakeGlassTabsList = useMemo(
     () =>
@@ -112,7 +136,7 @@ export const BreakGlassView = ({
       </BGMiddleWrapper>
 
       <BGCardsWrapper>
-        {filteredBreakGlassStatuses.map((item: Record<string, unknown>) => {
+        {paginatedMyPastCouncilActions.map((item: Record<string, unknown>) => {
           const trimmedTitle = (item.title as string).trim()
           const address = (item.address as string).trim()
           const isCardActive = activeCard === address
@@ -133,6 +157,11 @@ export const BreakGlassView = ({
             />
           )
         })}
+
+        <Pagination
+          itemsCount={filteredBreakGlassStatuses.length}
+          listName={BREAK_GLASS_LIST_NAME}
+        />
       </BGCardsWrapper>
     </BGStyled>
   )

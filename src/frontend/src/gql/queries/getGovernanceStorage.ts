@@ -65,7 +65,7 @@ query GetGovernanceStorageQuery {
         }
       }
     }
-    governance_proposal {
+    governance_proposal(order_by: {start_datetime: desc}) {
       current_cycle_end_level
       current_cycle_start_level
       current_round_proposal
