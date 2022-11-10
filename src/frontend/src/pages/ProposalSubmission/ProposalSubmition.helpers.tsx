@@ -2,7 +2,7 @@ import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Inp
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 import { ValidSubmitProposalForm, SubmitProposalFormInputStatus } from 'utils/TypesAndInterfaces/Forms'
 import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
-import { ProposalDataChangesType, StageThreeValidityItem } from './ProposalSybmittion.types'
+import { PaymentsDataChangesType, ProposalDataChangesType, StageThreeValidityItem } from './ProposalSybmittion.types'
 
 export const checkWhetherBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
   return proposalData.every(({ encoded_code, title }) => Boolean(encoded_code) && Boolean(title))
@@ -38,6 +38,14 @@ export const checkBytesPairExists = (proposalDataItem: ProposalRecordType['propo
   return proposalDataItem.title !== null && proposalDataItem.encoded_code !== null
 }
 
+export const checkPaymentExists = (proposalPaymentMethod: ProposalRecordType['proposalPayments'][number]): boolean => {
+  return (
+    proposalPaymentMethod.title !== null &&
+    proposalPaymentMethod.to__id !== null &&
+    proposalPaymentMethod.to__id !== null
+  )
+}
+
 export const getBytesDiff = (
   originalData: ProposalRecordType['proposalData'],
   updatedData: ProposalRecordType['proposalData'],
@@ -48,7 +56,7 @@ export const getBytesDiff = (
 
   const changes = arrayToIterate
     .map((item1, idx) => {
-      const item2 = secondaryArr[idx]
+      const item2 = secondaryArr?.[idx]
 
       // if we have more items on client than on server, when we reach end of the items that stored on client array, just add everything to the end
       if (!item2 && originalData.length <= updatedData.length) {
@@ -82,6 +90,70 @@ export const getBytesDiff = (
       return null
     })
     .filter(Boolean) as ProposalDataChangesType
+
+  return changes
+}
+
+export const getPaymentsDiff = (
+  originalData: ProposalRecordType['proposalPayments'],
+  updatedData: ProposalRecordType['proposalPayments'],
+): PaymentsDataChangesType => {
+  // we need to irerate the arr, that has more elements, and secondaryArr is the array we will take elements to compare and give appropriate change el
+  const arrayToIterate = originalData.length <= updatedData.length ? updatedData : originalData
+  const secondaryArr = originalData.length <= updatedData.length ? originalData : updatedData
+
+  const changes = arrayToIterate
+    .map((item1, idx) => {
+      const item2 = secondaryArr?.[idx]
+
+      // if we have more items on client than on server, when we reach end of the items that stored on client array, just add everything to the end
+      if (!item2 && originalData.length <= updatedData.length) {
+        return {
+          addOrSetPaymentData: {
+            title: item1.title,
+            transaction: {
+              to_: item1.to__id ?? '',
+              token: {
+                mvk: {
+                  tokenContractAddress: item1.token_address,
+                  tokenId: item1.token_id,
+                },
+              },
+              amount: item1.token_amount,
+            },
+          },
+        }
+      }
+
+      // if we have more items on server than on client, when we reach end of the items that stored on client array, just add removing change to the end
+      if (!item2 && originalData.length > updatedData.length) {
+        return {
+          removeProposalData: String(idx),
+        }
+      }
+
+      if (item2.title !== item1.title || item2.to__id !== item1.to__id || item2.token_address !== item1.token_address) {
+        return {
+          addOrSetPaymentData: {
+            title: item1.title,
+            transaction: {
+              to_: item1.to__id ?? '',
+              token: {
+                mvk: {
+                  tokenContractAddress: item1.token_address,
+                  tokenId: item1.token_id,
+                },
+              },
+              amount: item1.token_amount,
+            },
+            index: idx,
+          },
+        }
+      }
+
+      return null
+    })
+    .filter(Boolean) as PaymentsDataChangesType
 
   return changes
 }

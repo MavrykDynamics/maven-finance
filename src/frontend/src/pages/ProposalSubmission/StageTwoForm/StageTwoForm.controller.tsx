@@ -3,12 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import {
-  StageTwoFormProps,
-  ValidationStateType,
-  ProposalBytesType,
-  ProposalDataChangesType,
-} from '../ProposalSybmittion.types'
+import { StageTwoFormProps, ValidationStateType, ProposalBytesType } from '../ProposalSybmittion.types'
 
 // components
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -21,7 +16,6 @@ import { TextArea } from '../../../app/App.components/TextArea/TextArea.controll
 // const
 import {
   checkBytesPairExists,
-  checkWhetherBytesIsValid,
   getBytesDiff,
   getBytesPairValidationStatus,
   PROPOSAL_BYTE,
@@ -29,7 +23,6 @@ import {
 import { updateProposalData } from '../ProposalSubmission.actions'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
-import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
 import { INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 // styles
@@ -114,12 +107,9 @@ export const StageTwoForm = ({
 
   const submitBytePairs = async () => {
     if (proposalId && isAllBytesValid && currentOriginalProposal) {
-      console.log('currentOriginalProposal', currentOriginalProposal, proposalData)
       const bytesDiff = getBytesDiff(currentOriginalProposal.proposalData, proposalData)
       console.log('bytesDiff', bytesDiff)
-
       await dispatch(updateProposalData(proposalId, bytesDiff))
-      setProposalHasChange(false)
     }
   }
 
