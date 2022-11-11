@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { doormanStorageType } from "../types/doormanStorageType";
 
-import doormanLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/doorman/doormanLambdaIndex.json';
 import doormanLambdas from "../../build/lambdas/doormanLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {BigNumber} from "bignumber.js";
@@ -56,24 +54,15 @@ export const setDoormanLambdas = async (tezosToolkit: TezosToolkit, contract: Do
     const batch = tezosToolkit.wallet
         .batch();
 
-    doormanLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, doormanLambdas[index]))
-    });
+    for (let lambdaName in doormanLambdas) {
+        let bytes   = doormanLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupDoormanLambdasOperation = await batch.send()
 
     await confirmOperation(tezosToolkit, setupDoormanLambdasOperation.opHash);
 };
-
-export const doormanLambdaIndexOf = (name: string) => {
-    const index = doormanLambdaIndex.find(x => x.name === name)?.index
-
-    if (index === undefined) {
-        throw new Error(`doormanLambdaIndexOf: ${name} not found`)
-    }
-
-    return index;
-}
 
 export class Doorman {
     contract: DoormanContractAbstraction;

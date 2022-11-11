@@ -1,6 +1,8 @@
-import { Utils } from "../helpers/Utils";
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from "bignumber.js";
+
+import { Utils } from "../helpers/Utils";
+
 const saveContractAddress = require("../../helpers/saveContractAddress")
 
 const chai = require('chai')
@@ -17,6 +19,7 @@ import { bob, eve, mallory, oracleMaintainer, oscar } from '../../scripts/sandbo
 import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 import governanceAddress from '../../deployments/governanceAddress.json';
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
+import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -62,7 +65,8 @@ describe('Lending Controller Supporting Contracts', async () => {
             // LP Token for Mock FA12 Token in Lending Controller Token Pool 
             mTokenStorage.governanceAddress = governanceAddress.address;
             mTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
-                "lendingController"     : lendingControllerAddress.address
+                "lendingController"     : lendingControllerAddress.address,
+                "lendingControllerMockTime"     : lendingControllerMockTimeAddress.address
             })
             mTokenStorage.loanToken = "mockFa12";  // should correspond to loan token record in lending controller
             lpTokenPoolMockFa12Token = await MToken.originate(

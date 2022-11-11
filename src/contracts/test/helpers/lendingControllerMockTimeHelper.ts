@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { lendingControllerMockTimeStorageType } from "../types/lendingControllerMockTimeStorageType";
 
-import lendingControllerMockTimeLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/lendingControllerMockTime/lendingControllerMockTimeLambdaIndex.json';
 import lendingControllerMockTimeLambdas from "../../build/lambdas/lendingControllerMockTimeLambdas.json";
 
 
@@ -55,20 +53,21 @@ export const setLendingControllerLambdas = async (tezosToolkit: TezosToolkit, co
 
     const lambdasPerBatch = 5;
 
-    const lambdasCount = lendingControllerMockTimeLambdas.length;
+    const lambdasCount = Object.keys(lendingControllerMockTimeLambdas).length;
     const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
 
     for(let i = 0; i < batchesCount; i++) {
     
         const batch = tezosToolkit.wallet.batch();
+        var index   = 0
 
-        lendingControllerMockTimeLambdaIndex.forEach(({index, name}: { index : number, name : string }) => {  
-
+        for (let lambdaName in lendingControllerMockTimeLambdas) {
+            let bytes   = lendingControllerMockTimeLambdas[lambdaName]
             if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-                batch.withContractCall(contract.methods.setLambda(name, lendingControllerMockTimeLambdas[index]))
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
             }
-
-        });
+            index++;
+        }
 
         const setupLendingControllerLambdasOperation = await batch.send()
         await confirmOperation(tezosToolkit, setupLendingControllerLambdasOperation.opHash);

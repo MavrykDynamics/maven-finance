@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { lendingControllerStorageType } from "../types/lendingControllerStorageType";
 
-import lendingControllerLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/lendingController/lendingControllerLambdaIndex.json';
 import lendingControllerLambdas from "../../build/lambdas/lendingControllerLambdas.json";
 
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
@@ -54,20 +52,21 @@ export const setLendingControllerLambdas = async (tezosToolkit: TezosToolkit, co
 
     const lambdasPerBatch = 4;
 
-    const lambdasCount = lendingControllerLambdas.length;
+    const lambdasCount = Object.keys(lendingControllerLambdas).length;
     const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
 
     for(let i = 0; i < batchesCount; i++) {
     
         const batch = tezosToolkit.wallet.batch();
+        var index   = 0
 
-        lendingControllerLambdaIndex.forEach(({index, name}: { index : number, name : string }) => {  
-
+        for (let lambdaName in lendingControllerLambdas) {
+            let bytes   = lendingControllerLambdas[lambdaName]
             if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-                batch.withContractCall(contract.methods.setLambda(name, lendingControllerLambdas[index]))
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
             }
-
-        });
+            index++;
+        }
 
         const setupLendingControllerLambdasOperation = await batch.send()
         await confirmOperation(tezosToolkit, setupLendingControllerLambdasOperation.opHash);
