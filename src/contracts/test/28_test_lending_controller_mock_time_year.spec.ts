@@ -176,29 +176,29 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
         tokenOracles.push({
             'name': 'mockFa12', 
-            'price': parseInt(mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data),
-            'priceDecimals': parseInt(mockUsdMockFa12TokenAggregatorStorage.config.decimals),
+            'price': mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data.toNumber(),
+            'priceDecimals': mockUsdMockFa12TokenAggregatorStorage.config.decimals.toNumber(),
             'tokenDecimals': 0
         })
 
         tokenOracles.push({
             'name': 'mockFa2', 
-            'price': parseInt(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data),
-            'priceDecimals': parseInt(mockUsdMockFa2TokenAggregatorStorage.config.decimals),
+            'price': mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data.toNumber(),
+            'priceDecimals': mockUsdMockFa2TokenAggregatorStorage.config.decimals.toNumber(),
             'tokenDecimals': 0
         })
 
         tokenOracles.push({
             'name': 'tez', 
-            'price': parseInt(mockUsdXtzAggregatorStorage.lastCompletedData.data),
-            'priceDecimals': parseInt(mockUsdXtzAggregatorStorage.config.decimals),
+            'price': mockUsdXtzAggregatorStorage.lastCompletedData.data.toNumber(),
+            'priceDecimals': mockUsdXtzAggregatorStorage.config.decimals.toNumber(),
             'tokenDecimals': 0
         })
 
         tokenOracles.push({
             'name': "smvk", 
-            'price': parseInt(mockUsdMvkAggregatorStorage.lastCompletedData.data),
-            'priceDecimals': parseInt(mockUsdMvkAggregatorStorage.config.decimals),
+            'price': mockUsdMvkAggregatorStorage.lastCompletedData.data.toNumber(),
+            'priceDecimals': mockUsdMvkAggregatorStorage.config.decimals.toNumber(),
             'tokenDecimals': 9
         })
 
@@ -1209,7 +1209,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
@@ -1314,7 +1314,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : treasuryMockFa12Ledger.balance.toNumber();
 
             // const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
+            // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : tokenPoolRewardMockFa12Ledger.balance.toNumber();
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -1339,7 +1339,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -1413,7 +1413,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedTreasuryMockFa12TokenBalance           = updatedTreasuryMockFa12Ledger == undefined ? 0 : updatedTreasuryMockFa12Ledger.balance.toNumber();
 
             // const updatedTokenPoolRewardMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(updatedTokenPoolRewardMockFa12Ledger.balance); 
+            // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa12Ledger.balance.toNumber(); 
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
@@ -1444,7 +1444,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -1482,7 +1482,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
             
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
@@ -1587,7 +1587,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : treasuryMockFa12Ledger.balance.toNumber();
 
             const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
+            const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : tokenPoolRewardMockFa12Ledger.balance.toNumber();
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -1612,7 +1612,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -1686,7 +1686,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedTreasuryMockFa12TokenBalance           = updatedTreasuryMockFa12Ledger == undefined ? 0 : updatedTreasuryMockFa12Ledger.balance.toNumber();
 
             // const updatedTokenPoolRewardMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(updatedTokenPoolRewardMockFa12Ledger.balance); 
+            // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa12Ledger.balance.toNumber(); 
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
@@ -1717,7 +1717,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -1754,7 +1754,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
@@ -1859,7 +1859,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : treasuryMockFa12Ledger.balance.toNumber();
 
             // const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
+            // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : tokenPoolRewardMockFa12Ledger.balance.toNumber();
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -1884,7 +1884,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -1958,7 +1958,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedTreasuryMockFa12TokenBalance           = updatedTreasuryMockFa12Ledger == undefined ? 0 : updatedTreasuryMockFa12Ledger.balance.toNumber();
 
             // const updatedTokenPoolRewardMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(updatedTokenPoolRewardMockFa12Ledger.balance); 
+            // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa12Ledger.balance.toNumber(); 
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
@@ -1989,7 +1989,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -2027,7 +2027,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
@@ -2130,7 +2130,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const treasuryInitialMockFa12TokenBalance   = treasuryMockFa12Ledger == undefined ? 0 : treasuryMockFa12Ledger.balance.toNumber();
 
             // const tokenPoolRewardMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa12Ledger.balance);
+            // const tokenPoolRewardInitialMockFa12TokenBalance   = tokenPoolRewardMockFa12Ledger == undefined ? 0 : tokenPoolRewardMockFa12Ledger.balance.toNumber();
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2155,7 +2155,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -2229,7 +2229,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedTreasuryMockFa12TokenBalance           = updatedTreasuryMockFa12Ledger == undefined ? 0 : updatedTreasuryMockFa12Ledger.balance.toNumber();
 
             // const updatedTokenPoolRewardMockFa12Ledger          = await updatedMockFa12TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : parseInt(updatedTokenPoolRewardMockFa12Ledger.balance); 
+            // const updatedTokenPoolRewardMockFa12TokenBalance    = updatedTokenPoolRewardMockFa12Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa12Ledger.balance.toNumber(); 
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
@@ -2260,7 +2260,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
@@ -2301,7 +2301,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
@@ -2403,10 +2403,10 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
             const treasuryMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-            const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : parseInt(treasuryMockFa2Ledger);
+            const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : treasuryMockFa2Ledger.toNumber();
 
             // const tokenPoolRewardMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa2Ledger);
+            // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : tokenPoolRewardMockFa2Ledger.toNumber();
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2431,7 +2431,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -2499,13 +2499,13 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             
             // get updated Mock FA2 Token balance for Eve, Treasury and Token Pool Reward Contract
             const updatedEveMockFa2Ledger                       = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-            const updatedEveMockFa2TokenBalance                 = updatedEveMockFa2Ledger == undefined ? 0 : parseInt(updatedEveMockFa2Ledger);
+            const updatedEveMockFa2TokenBalance                 = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
 
             const updatedTreasuryMockFa2Ledger                  = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-            const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : parseInt(updatedTreasuryMockFa2Ledger);
+            const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : updatedTreasuryMockFa2Ledger.toNumber();
 
             // const updatedTokenPoolRewardMockFa2Ledger           = await updatedMockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(updatedTokenPoolRewardMockFa2Ledger); 
+            // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa2Ledger.toNumber(); 
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
@@ -2536,7 +2536,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
 
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
@@ -2575,7 +2575,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
@@ -2677,10 +2677,10 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
             const treasuryMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-            const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : parseInt(treasuryMockFa2Ledger);
+            const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : treasuryMockFa2Ledger.toNumber();
 
             // const tokenPoolRewardMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa2Ledger);
+            // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : tokenPoolRewardMockFa2Ledger.toNumber();
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2705,7 +2705,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -2773,13 +2773,13 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             
             // get updated Mock FA2 Token balance for Eve, Treasury and Token Pool Reward Contract
             const updatedEveMockFa2Ledger                       = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-            const updatedEveMockFa2TokenBalance                 = updatedEveMockFa2Ledger == undefined ? 0 : parseInt(updatedEveMockFa2Ledger);
+            const updatedEveMockFa2TokenBalance                 = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
 
             const updatedTreasuryMockFa2Ledger                  = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-            const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : parseInt(updatedTreasuryMockFa2Ledger);
+            const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : updatedTreasuryMockFa2Ledger.toNumber();
 
             // const updatedTokenPoolRewardMockFa2Ledger           = await updatedMockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(updatedTokenPoolRewardMockFa2Ledger); 
+            // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa2Ledger.toNumber(); 
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
@@ -2810,7 +2810,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -2848,7 +2848,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
@@ -2950,10 +2950,10 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
             const treasuryMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-            const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : parseInt(treasuryMockFa2Ledger);
+            const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : treasuryMockFa2Ledger.toNumber();
 
             // const tokenPoolRewardMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa2Ledger);
+            // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : tokenPoolRewardMockFa2Ledger.toNumber();
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -2978,7 +2978,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -3046,13 +3046,13 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             
             // get updated Mock FA2 Token balance for Eve, Treasury and Token Pool Reward Contract
             const updatedEveMockFa2Ledger                       = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-            const updatedEveMockFa2TokenBalance                 = updatedEveMockFa2Ledger == undefined ? 0 : parseInt(updatedEveMockFa2Ledger);
+            const updatedEveMockFa2TokenBalance                 = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
 
             const updatedTreasuryMockFa2Ledger                  = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-            const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : parseInt(updatedTreasuryMockFa2Ledger);
+            const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : updatedTreasuryMockFa2Ledger.toNumber();
 
             // const updatedTokenPoolRewardMockFa2Ledger           = await updatedMockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(updatedTokenPoolRewardMockFa2Ledger); 
+            // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa2Ledger.toNumber(); 
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
@@ -3083,7 +3083,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -3120,7 +3120,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
@@ -3222,10 +3222,10 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
             const treasuryMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-            const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : parseInt(treasuryMockFa2Ledger);
+            const treasuryInitialMockFa2TokenBalance   = treasuryMockFa2Ledger == undefined ? 0 : treasuryMockFa2Ledger.toNumber();
 
             // const tokenPoolRewardMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(tokenPoolRewardMockFa2Ledger);
+            // const tokenPoolRewardInitialMockFa2TokenBalance   = tokenPoolRewardMockFa2Ledger == undefined ? 0 : tokenPoolRewardMockFa2Ledger.toNumber();
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
@@ -3250,7 +3250,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -3318,13 +3318,13 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             
             // get updated Mock FA2 Token balance for Eve, Treasury and Token Pool Reward Contract
             const updatedEveMockFa2Ledger                       = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
-            const updatedEveMockFa2TokenBalance                 = updatedEveMockFa2Ledger == undefined ? 0 : parseInt(updatedEveMockFa2Ledger);
+            const updatedEveMockFa2TokenBalance                 = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
 
             const updatedTreasuryMockFa2Ledger                  = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);            
-            const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : parseInt(updatedTreasuryMockFa2Ledger);
+            const updatedTreasuryMockFa2TokenBalance            = updatedTreasuryMockFa2Ledger == undefined ? 0 : updatedTreasuryMockFa2Ledger.toNumber();
 
             // const updatedTokenPoolRewardMockFa2Ledger           = await updatedMockFa2TokenStorage.ledger.get(tokenPoolRewardAddress.address);            
-            // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : parseInt(updatedTokenPoolRewardMockFa2Ledger); 
+            // const updatedTokenPoolRewardMockFa2TokenBalance     = updatedTokenPoolRewardMockFa2Ledger == undefined ? 0 : updatedTokenPoolRewardMockFa2Ledger.toNumber(); 
 
             // On-chain views to vault and loan token
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
@@ -3355,7 +3355,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             assert.equal(updatedEveMockFa2TokenBalance, eveInitialMockFa2TokenBalance - repayAmount);
@@ -3397,7 +3397,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "tez";
@@ -3528,7 +3528,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -3618,7 +3618,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             
@@ -3657,7 +3657,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "tez";
@@ -3788,7 +3788,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -3878,7 +3878,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
 
@@ -3918,7 +3918,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "tez";
@@ -4049,7 +4049,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -4139,7 +4139,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             
@@ -4178,7 +4178,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "tez";
@@ -4309,7 +4309,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneYearLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneYearLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -4399,7 +4399,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             console.log('   - interest stats >> total interest: ' + totalInterest + ' | interest paid: ' + totalInterestPaid +' | interest to treasury: ' + interestTreasuryShare + " | interest to reward pool: " + interestRewards);
 
             assert.equal(almostEqual(updatedLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
-            assert.equal(almostEqual(updatedLoanPrincipalTotal, parseInt(finalLoanPrincipalTotal), 0.0001), true);
+            assert.equal(almostEqual(updatedLoanPrincipalTotal, finalLoanPrincipalTotal), 0.0001), true.toNumber();
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             

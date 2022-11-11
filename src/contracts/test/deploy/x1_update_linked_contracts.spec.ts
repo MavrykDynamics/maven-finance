@@ -35,6 +35,7 @@ import farmAddress from '../../deployments/farmAddress.json'
 import farmFA2Address from '../../deployments/farmFA2Address.json'
 import tokenSaleAddress from '../../deployments/tokenSaleAddress.json'
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json'
+import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json'
 import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json'
 import tokenPoolRewardAddress from '../../deployments/tokenPoolRewardAddress.json'
 
@@ -62,23 +63,24 @@ describe('Linked contracts updates for Tests', async () => {
       // Retrieve all contracts
       //----------------------------
 
-      const delegationInstance: any            = await utils.tezos.contract.at(delegationAddress.address);
-      const mvkTokenInstance: any              = await utils.tezos.contract.at(mvkTokenAddress.address);
-      const governanceInstance: any            = await utils.tezos.contract.at(governanceAddress.address);
-      const governanceFinancialInstance: any   = await utils.tezos.contract.at(governanceFinancialAddress.address);
-      const governanceSatelliteInstance: any   = await utils.tezos.contract.at(governanceSatelliteAddress.address);
-      const breakGlassInstance: any            = await utils.tezos.contract.at(breakGlassAddress.address);
-      const vestingInstance: any               = await utils.tezos.contract.at(vestingAddress.address);
-      const treasuryInstance: any              = await utils.tezos.contract.at(treasuryAddress.address);
-      const farmFactoryInstance: any           = await utils.tezos.contract.at(farmFactoryAddress.address);
-      const treasuryFactoryInstance: any       = await utils.tezos.contract.at(treasuryFactoryAddress.address);
-      const farmInstance: any                  = await utils.tezos.contract.at(farmAddress.address);
-      const farmFA2Instance: any               = await utils.tezos.contract.at(farmFA2Address.address);
-      const aggregatorInstance: any            = await utils.tezos.contract.at(aggregatorAddress.address);
-      const aggregatorFactoryInstance: any     = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
-      const lendingControllerInstance: any     = await utils.tezos.contract.at(lendingControllerAddress.address);
-      const vaultFactoryInstance: any          = await utils.tezos.contract.at(vaultFactoryAddress.address);
-      const tokenPoolRewardInstance: any       = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
+      const delegationInstance: any                   = await utils.tezos.contract.at(delegationAddress.address);
+      const mvkTokenInstance: any                     = await utils.tezos.contract.at(mvkTokenAddress.address);
+      const governanceInstance: any                   = await utils.tezos.contract.at(governanceAddress.address);
+      const governanceFinancialInstance: any          = await utils.tezos.contract.at(governanceFinancialAddress.address);
+      const governanceSatelliteInstance: any          = await utils.tezos.contract.at(governanceSatelliteAddress.address);
+      const breakGlassInstance: any                   = await utils.tezos.contract.at(breakGlassAddress.address);
+      const vestingInstance: any                      = await utils.tezos.contract.at(vestingAddress.address);
+      const treasuryInstance: any                     = await utils.tezos.contract.at(treasuryAddress.address);
+      const farmFactoryInstance: any                  = await utils.tezos.contract.at(farmFactoryAddress.address);
+      const treasuryFactoryInstance: any              = await utils.tezos.contract.at(treasuryFactoryAddress.address);
+      const farmInstance: any                         = await utils.tezos.contract.at(farmAddress.address);
+      const farmFA2Instance: any                      = await utils.tezos.contract.at(farmFA2Address.address);
+      const aggregatorInstance: any                   = await utils.tezos.contract.at(aggregatorAddress.address);
+      const aggregatorFactoryInstance: any            = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+      const lendingControllerInstance: any            = await utils.tezos.contract.at(lendingControllerAddress.address);
+      const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
+      const vaultFactoryInstance: any                 = await utils.tezos.contract.at(vaultFactoryAddress.address);
+      const tokenPoolRewardInstance: any              = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
       
       //----------------------------
       // Set remaining contract addresses - post-deployment
@@ -234,7 +236,7 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('aggregatorFactory', aggregatorFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite', governanceSatelliteAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial', governanceFinancialAddress.address))
-      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolRewardAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory', vaultFactoryAddress.address))
   

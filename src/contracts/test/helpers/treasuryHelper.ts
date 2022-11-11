@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { treasuryStorageType } from "../types/treasuryStorageType";
 
-import treasuryLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/treasury/treasuryLambdaIndex.json';
 import treasuryLambdas from "../../build/lambdas/treasuryLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {BigNumber} from "bignumber.js";
@@ -70,9 +68,10 @@ export const setTreasuryLambdas = async (tezosToolkit: TezosToolkit, contract: T
     const batch = tezosToolkit.wallet
         .batch();
 
-    treasuryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, treasuryLambdas[index]))
-    });
+    for (let lambdaName in treasuryLambdas) {
+        let bytes   = treasuryLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupTreasuryLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupTreasuryLambdasOperation.opHash);

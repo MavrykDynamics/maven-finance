@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { vestingStorageType } from "../types/vestingStorageType";
 
-import vestingLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/vesting/vestingLambdaIndex.json';
 import vestingLambdas from "../../build/lambdas/vestingLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -52,9 +50,10 @@ export const setVestingLambdas = async (tezosToolkit: TezosToolkit, contract: Ve
     const batch = tezosToolkit.wallet
         .batch();
 
-    vestingLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, vestingLambdas[index]))
-    });
+    for (let lambdaName in vestingLambdas) {
+        let bytes   = vestingLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupVestingLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupVestingLambdasOperation.opHash);
