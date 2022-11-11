@@ -59,12 +59,19 @@ export const StageThreeForm = ({
     },
     governancePhase,
   } = useSelector((state: State) => state.governance)
+  const { whitelistTokens } = useSelector((state: State) => state.tokens)
 
-  // TODO: make it dynamic from whitelist
-  const PaymentMethods = [
-    { symbol: 'XTZ', address: 'tez', id: 1 },
-    { symbol: 'MVK', address: 'mvk', id: 0 },
-  ]
+  const PaymentMethods = useMemo(
+    () =>
+      whitelistTokens.map((tokenInfo) => ({
+        symbol: tokenInfo.contract_name,
+        address: tokenInfo.contract_address,
+        id: tokenInfo.id,
+      })),
+    [whitelistTokens],
+  )
+
+  console.log('proposalPayments', proposalPayments)
 
   // we can modify only when current period is 'proposal'
   const isProposalRound = governancePhase === 'PROPOSAL'
@@ -157,7 +164,7 @@ export const StageThreeForm = ({
   }
 
   const handleAddRow = () => {
-    const { symbol = 'MVK', address = 'mvk', id = 0 } = PaymentMethods[0]
+    const { address = '', id = 0 } = PaymentMethods[0]
     updateLocalProposalData(
       {
         proposalPayments: proposalPayments.concat({
