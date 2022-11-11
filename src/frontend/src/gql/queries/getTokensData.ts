@@ -12,7 +12,6 @@ export const DIPDUP_TOKENS_QUERY = `
     }
   }
 `
-
 export const DIPDUP_TOKENS_QUERY_NAME = 'GetDipDupTokens'
 export const DIPDUP_TOKENS_QUERY_VARIABLE = {}
 
@@ -25,7 +24,6 @@ export const GOVERNANCE_CONTRACT_ADDRESS_QUERY = `
     }
   }
 `
-
 export const GOVERNANCE_CONTRACT_ADDRESS_NAME = 'GetContractAddress'
 export const GOVERNANCE_CONTRACT_ADDRESS_VARIABLE = {}
 
@@ -40,7 +38,6 @@ export const WHITELIST_TOKENS_QUERY = `
     }
   }
 `
-
 export const WHITELIST_TOKENS_NAME = 'getWhiteListTokensForContract'
 export function WHITELIST_TOKENS_VARIABLE(address: string) {
   return { _contractAddress: address }
