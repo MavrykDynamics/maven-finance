@@ -50,10 +50,6 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
     let updateTokenRewardIndexOperation
 
-    // const oneDayLevelBlocks = 4320
-    // const oneMonthLevelBlocks = 129600
-    // const oneYearLevelBlocks = 1576800
-
     // 3 seconds blocks (docker sandbox)
     const oneDayLevelBlocks   = 28800
     const oneMonthLevelBlocks = 864000
@@ -379,7 +375,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
                     lendingControllerStorage  = await lendingControllerInstance.storage();
                     const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
-                    assert.equal(mockFa12LoanToken.tokenName              , tokenName);
+//                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
     
                     assert.equal(mockFa12LoanToken.lpTokensTotal          , 0);
                     assert.equal(mockFa12LoanToken.lpTokenContractAddress , lpTokenContractAddress);
@@ -904,9 +900,9 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
                     tokenContractAddress,
                     tokenDecimals,
 
-                    oracleAddress,
-                    tokenProtected,
-                    isScaledToken,
+//                     oracleAddress,
+//                     tokenProtected,
+//                     isScaledToken,
                     
                     // fa2 token type - token contract address + token id
                     tokenType,
@@ -1225,7 +1221,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
@@ -1352,7 +1348,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -1496,7 +1492,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
             
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
@@ -1623,7 +1619,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -1769,7 +1765,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
@@ -1896,7 +1892,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -2043,7 +2039,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa12";
@@ -2168,7 +2164,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -2318,7 +2314,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
@@ -2445,7 +2441,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -2592,7 +2588,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
@@ -2719,7 +2715,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -2866,7 +2862,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
@@ -2993,7 +2989,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -3139,7 +3135,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "mockFa2";
@@ -3266,7 +3262,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -3417,7 +3413,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "tez";
@@ -3545,7 +3541,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -3678,7 +3674,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "tez";
@@ -3806,7 +3802,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -3940,7 +3936,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "tez";
@@ -4068,7 +4064,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();
@@ -4201,7 +4197,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // ----------------------------------------------------------------------------------------------
 
             const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = parseInt(vaultCounter);
+            const vaultId       = vaultCounter.toNumber();
             const vaultOwner    = eve.pkh;
             const depositors    = "any";
             const loanTokenName = "tez";
@@ -4329,7 +4325,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const lastUpdatedBlockLevel             = updatedVault.lastUpdatedBlockLevel;
 
-            const newBlockLevel = parseInt(lastUpdatedBlockLevel) + oneMonthLevelBlocks;
+            const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
             const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
             await setMockLevelOperation.confirmation();

@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { breakGlassStorageType } from "../types/breakGlassStorageType";
 
-import breakGlassLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/breakGlass/breakGlassLambdaIndex.json';
 import breakGlassLambdas from "../../build/lambdas/breakGlassLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -52,9 +50,10 @@ export const setBreakGlassLambdas = async (tezosToolkit: TezosToolkit, contract:
     const batch = tezosToolkit.wallet
         .batch();
 
-    breakGlassLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, breakGlassLambdas[index]))
-    });
+    for (let lambdaName in breakGlassLambdas) {
+        let bytes   = breakGlassLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupBreakGlassLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupBreakGlassLambdasOperation.opHash);

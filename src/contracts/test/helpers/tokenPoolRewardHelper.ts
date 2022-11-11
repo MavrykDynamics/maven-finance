@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { tokenPoolRewardStorageType } from "../types/tokenPoolRewardStorageType";
 
-import tokenPoolRewardLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/tokenPoolReward/tokenPoolRewardLambdaIndex.json';
 import tokenPoolRewardLambdas from "../../build/lambdas/tokenPoolRewardLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 import {BigNumber} from "bignumber.js";
@@ -59,9 +57,10 @@ export const setTokenPoolRewardLambdas = async (tezosToolkit: TezosToolkit, cont
     const batch = tezosToolkit.wallet
         .batch();
 
-        tokenPoolRewardLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, tokenPoolRewardLambdas[index]))
-    });
+    for (let lambdaName in tokenPoolRewardLambdas) {
+        let bytes   = tokenPoolRewardLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
     const setupTokenPoolRewardLambdasOperation = await batch.send()
     await confirmOperation(tezosToolkit, setupTokenPoolRewardLambdasOperation.opHash);

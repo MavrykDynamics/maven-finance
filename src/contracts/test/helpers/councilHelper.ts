@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { councilStorageType } from "../types/councilStorageType";
 
-import councilLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/council/councilLambdaIndex.json';
 import councilLambdas from "../../build/lambdas/councilLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -52,12 +50,13 @@ export const setCouncilLambdas = async (tezosToolkit: TezosToolkit, contract: Co
     const batch = tezosToolkit.wallet
         .batch();
 
-  councilLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-    batch.withContractCall(contract.methods.setLambda(name, councilLambdas[index]))
-  });
+    for (let lambdaName in councilLambdas) {
+        let bytes   = councilLambdas[lambdaName]
+        batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
+    }
 
-  const setupCouncilLambdasOperation = await batch.send()
-  await confirmOperation(tezosToolkit, setupCouncilLambdasOperation.opHash);
+    const setupCouncilLambdasOperation = await batch.send()
+    await confirmOperation(tezosToolkit, setupCouncilLambdasOperation.opHash);
 };
 
 export class Council {

@@ -14,8 +14,6 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { governanceStorageType } from "../types/governanceStorageType";
 
-import governanceLambdaIndex
-    from '../../../contracts/contracts/partials/contractLambdas/governance/governanceLambdaIndex.json';
 import governanceLambdas from "../../build/lambdas/governanceLambdas.json";
 import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
 
@@ -53,18 +51,21 @@ export const setGovernanceLambdas = async (tezosToolkit: TezosToolkit, contract:
 
     const lambdasPerBatch = 10;
 
-    const lambdasCount = governanceLambdas.length;
-    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+    const lambdasCount  = Object.keys(governanceLambdas).length;
+    const batchesCount  = Math.ceil(lambdasCount / lambdasPerBatch);
     
     for(let i = 0; i < batchesCount; i++) {
       
         const batch = tezosToolkit.wallet.batch();
+        var index   = 0
 
-        governanceLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {  
+        for (let lambdaName in governanceLambdas) {
+            let bytes   = governanceLambdas[lambdaName]
             if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-                batch.withContractCall(contract.methods.setLambda(name, governanceLambdas[index]))
+                batch.withContractCall(contract.methods.setLambda(lambdaName, bytes))
             }
-        });
+            index++;
+        }
 
         const setupGovernanceLambdasOperation = await batch.send()
         await confirmOperation(tezosToolkit, setupGovernanceLambdasOperation.opHash);
