@@ -1,32 +1,21 @@
 import { ROCKET_LOADER, WERT_IO_LOADER } from 'utils/constants'
 import { LoaderShineTextAnimation, LoaderStyled, LoaderStyledWithBackdrop } from './Loader.style'
-import animationData from '../../ship-loop.json'
-import Lottie from 'react-lottie'
-
-const animation = JSON.parse(JSON.stringify(animationData))
-const shipLoopOptions = {
-  loop: true,
-  autoplay: true,
-  animationData: animation,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice',
-  },
-}
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 export const LoaderRocket = () => (
   <LoaderStyledWithBackdrop>
     <figure>
       <div>
-        <Lottie width={250} height={200} options={shipLoopOptions} isClickToPauseDisabled={true} />
+        <img src="icons/lottie_rocket.gif" />
       </div>
-      <figcaption>Loading...</figcaption>
     </figure>
   </LoaderStyledWithBackdrop>
 )
 
 export const LoaderWertIo = () => (
   <LoaderStyledWithBackdrop backdropAlpha={0.8}>
-    <LoaderShineTextAnimation>Initializating Wert Io widget...</LoaderShineTextAnimation>
+    <LoaderShineTextAnimation>Initializating Wert IO widget...</LoaderShineTextAnimation>
   </LoaderStyledWithBackdrop>
 )
 
@@ -44,11 +33,17 @@ export const SpinnerLoader = () => (
   </LoaderStyled>
 )
 
-export const Loader = ({ loaderType }: { loaderType?: typeof ROCKET_LOADER | typeof WERT_IO_LOADER }) => {
-  if (loaderType === ROCKET_LOADER) return <LoaderRocket />
-  if (loaderType === WERT_IO_LOADER) return <LoaderWertIo />
+export const Loader = () => {
+  const { loading: loaderType } = useSelector((state: State) => state)
 
-  return <SpinnerLoader />
+  switch (loaderType) {
+    case ROCKET_LOADER:
+      return <LoaderRocket />
+    case WERT_IO_LOADER:
+      return <LoaderWertIo />
+    default:
+      return null
+  }
 }
 
 export default Loader

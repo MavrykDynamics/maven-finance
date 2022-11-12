@@ -18,7 +18,7 @@ import { getGovernanceStorage } from '../../src/pages/Governance/Governance.acti
 import { PopupChangeNode } from './App.components/SettingsPopup/SettingsPopup.controller'
 import { toggleRPCNodePopup } from './App.components/SettingsPopup/SettingsPopup.actions'
 import { toggleSidebarCollapsing } from './App.components/Menu/Menu.actions'
-import { useMedia } from 'react-use'
+import { useLockBodyScroll, useMedia } from 'react-use'
 import CoinGecko from 'coingecko-api'
 import Loader from './App.components/Loader/Loader.view'
 
@@ -29,7 +29,7 @@ export const coinGeckoClient = new CoinGecko()
 
 const AppContainer = () => {
   const dispatch = useDispatch()
-  const loader = useSelector((state: State) => state.loading)
+  const { loading } = useSelector((state: State) => state)
   const { changeNodePopupOpen, sidebarOpened } = useSelector((state: State) => state.preferences)
   const showSidebarOpened = useMedia('(min-width: 1400px)')
 
@@ -58,13 +58,15 @@ const AppContainer = () => {
     dispatch(toggleSidebarCollapsing(showSidebarOpened))
   }, [showSidebarOpened])
 
+  useLockBodyScroll(Boolean(loading))
+
   const closeModalHandler = useCallback(() => dispatch(toggleRPCNodePopup(false)), [])
 
   return (
     <Router>
       <ProgressBar />
       <AppStyled isExpandedMenu={sidebarOpened}>
-        {loader ? <Loader loaderType={loader} /> : null}
+        <Loader />
         <Menu />
         <PopupChangeNode isModalOpened={changeNodePopupOpen} closeModal={closeModalHandler} />
         <AppRoutes />
