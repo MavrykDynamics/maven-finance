@@ -104,10 +104,6 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       color: ${({ theme }) => theme.dashboardTextColor};
       white-space: nowrap;
       margin-right: 10px;
-
-      &:hover {
-        color: ${cyanColor};
-      }
     }
 
     input {
@@ -191,6 +187,11 @@ export const PopupStyled = styled.div`
     color: ${({ theme }) => theme.dashboardTextColor};
     transform: rotate(45deg);
     cursor: pointer;
+    transition: color 300ms;
+
+    &:hover {
+      color: ${({ theme }) => theme.textColorHovered};
+    }
   }
 `
 
