@@ -248,6 +248,175 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 // ------------------------------------------------------------------------------
 
 
+
+// ------------------------------------------------------------------------------
+// Contract Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to create a onStakeChange operation on the delegation contract
+function delegationOnStakeChangeOperation(const userAddress : address; const s : doormanStorageType) : operation is 
+block {
+
+    // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
+    const delegationOnStakeChangeOperation : operation = Tezos.transaction(
+        (userAddress),
+        0tez,
+        delegationOnStakeChange(delegationAddress)
+    );
+
+} with delegationOnStakeChangeOperation
+
+
+
+// helper function to mint MVK and transfer from Treasury
+function mintMvkAndTransferOperation(const claimAmount : nat; const s : doormanStorageType) : operation is 
+block {
+
+    // Get Farm Treasury Contract Address from the General Contracts Map on the Governance Contract
+    const treasuryAddress : address = getContractAddressFromGovernanceContract("farmTreasury", s.governanceAddress, error_FARM_TREASURY_CONTRACT_NOT_FOUND);
+
+    const mintMvkAndTransferParams : mintMvkAndTransferType = record [
+        to_  = Tezos.get_self_address();
+        amt  = claimAmount;
+    ];
+
+    const mintMvkAndTransferOperation : operation = Tezos.transaction(
+        mintMvkAndTransferParams, 
+        0tez, 
+        sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+    );
+
+} with mintMvkAndTransferOperation
+
+
+
+// helper function to transfer from Treasury
+function transferFromTreasuryOperation(const transferAmount : nat; const s : doormanStorageType) : operation is 
+block {
+
+    // Get Farm Treasury Contract Address from the General Contracts Map on the Governance Contract
+    const treasuryAddress : address = getContractAddressFromGovernanceContract("farmTreasury", s.governanceAddress, error_FARM_TREASURY_CONTRACT_NOT_FOUND);
+
+    const transferFromTreasuryParams : transferActionType = list [
+        record [
+            to_   = Tezos.get_self_address();
+            token = (Fa2 (record [
+                tokenContractAddress  = s.mvkTokenAddress;
+                tokenId               = 0n;
+            ]) : tokenType);
+            amount = transferAmount;
+        ]
+    ];
+
+    const transferFromTreasuryOperation : operation = Tezos.transaction(
+        transferFromTreasuryParams,
+        0tez,
+        sendTransferOperationToTreasury(treasuryAddress)
+    );
+
+} with transferFromTreasuryOperation
+
+
+
+// helper function to get mvk total supply 
+function getMvkTotalSupply(const s : doormanStorageType) : nat is 
+block {
+
+    const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
+    const mvkTotalSupply: nat = case mvkTotalSupplyView of [
+            Some (value) -> value
+        |   None         -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+    ];
+
+} with mvkTotalSupply 
+
+
+
+// helper function to get staked mvk total supply (equivalent to balance of the Doorman contract on the MVK Token contract)
+function getStakedMvkTotalSupply(const s : doormanStorageType) : nat is 
+block {
+
+    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
+    const stakedMvkTotalSupply: nat = case getBalanceView of [
+            Some (value) -> value
+        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+    ];
+
+} with stakedMvkTotalSupply 
+
+
+
+// helper function to get mvk maximum total supply 
+function getMvkMaximumTotalSupply(const s : doormanStorageType) : nat is 
+block {
+
+    const getMaximumSupplyView : option (nat) = Tezos.call_view ("getMaximumSupply", unit, s.mvkTokenAddress);
+    const mvkMaximumSupply : (nat) = case getMaximumSupplyView of [
+            Some (_totalSupply) -> _totalSupply
+        |   None                -> (failwith (error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+    ];
+
+} with mvkMaximumSupply 
+
+
+
+// helper function to check farm exists
+function checkFarmExists(const farmAddress : address; const s : doormanStorageType) : bool is 
+block {
+
+    // Get Farm Factory Contract Address from the General Contracts Map on the Governance Contract
+    const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
+
+    // Check if farm address is known to the farmFactory
+    const checkFarmExistsView : option (bool) = Tezos.call_view ("checkFarmExists", farmAddress, farmFactoryAddress);
+    const checkFarmExists : bool = case checkFarmExistsView of [
+            Some (value) -> value
+        |   None         -> (failwith (error_CHECK_FARM_EXISTS_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : bool)
+    ];
+
+} with checkFarmExists
+
+
+
+// helper function to get or create userStakeBalanceRecord
+function getOrCreateUserStakeBalanceRecord(const userAddress : address; const s : doormanStorageType) : userStakeBalanceRecordType is 
+block {
+
+    const userStakeBalanceRecord : userStakeBalanceRecordType = case s.userStakeBalanceLedger[userAddress] of [
+            Some(_val) -> _val
+        |   None -> record[
+                balance                        = 0n;
+                totalExitFeeRewardsClaimed     = 0n;
+                totalSatelliteRewardsClaimed   = 0n;
+                totalFarmRewardsClaimed        = 0n;
+                participationFeesPerShare      = s.accumulatedFeesPerShare;
+            ]
+    ];
+
+} with userStakeBalanceRecord
+
+
+
+// helper function to get userStakeBalanceRecord
+function getUserStakeBalanceRecord(const userAddress : address; const s : doormanStorageType) : userStakeBalanceRecordType is 
+block {
+
+    const userStakeBalanceRecord: userStakeBalanceRecordType = case s.userStakeBalanceLedger[userAddress] of [
+            Some(_val) -> _val
+        |   None       -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
+    ];
+
+} with userStakeBalanceRecord
+
+// ------------------------------------------------------------------------------
+// Contract Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
 // ------------------------------------------------------------------------------
 // Compound Helper Functions Begin
 // ------------------------------------------------------------------------------
@@ -256,20 +425,11 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 function compoundUserRewards(const userAddress : address; var s : doormanStorageType) : doormanStorageType is 
 block{ 
     
-    // Get the user's record
-    var userRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
-            Some (_val) -> _val
-        |   None -> record[
-                balance                       = 0n;
-                participationFeesPerShare     = s.accumulatedFeesPerShare;
-                totalExitFeeRewardsClaimed    = 0n;
-                totalSatelliteRewardsClaimed  = 0n;
-                totalFarmRewardsClaimed       = 0n;
-            ]
-    ];
+    // Get the user's stake balance record
+    var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(userAddress, s);
 
     // Check if the user has more than 0 staked MVK. If he/she hasn't, he cannot earn rewards
-    if userRecord.balance > 0n then {
+    if userStakeBalanceRecord.balance > 0n then {
 
         // Get Delegation Contract address from the General Contracts Map on the Governance Contract
         const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
@@ -311,7 +471,7 @@ block{
                                 Some (_referenceRewards) -> block{
                                     
                                     const satelliteRewardsRatio  : nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
-                                    const satelliteRewards       : nat  = userRecord.balance * satelliteRewardsRatio;
+                                    const satelliteRewards       : nat  = userStakeBalanceRecord.balance * satelliteRewardsRatio;
 
                                 } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
                             |   None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
@@ -326,25 +486,25 @@ block{
 
         // -- Exit fee rewards -- //
         // Calculate what exit fees the user missed since his/her last claim
-        const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userRecord.participationFeesPerShare);
+        const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userStakeBalanceRecord.participationFeesPerShare);
 
         // Calculate the user reward based on his staked MVK balance
-        const exitFeeRewards : nat = (currentFeesPerShare * userRecord.balance) / fixedPointAccuracy;
+        const exitFeeRewards : nat = (currentFeesPerShare * userStakeBalanceRecord.balance) / fixedPointAccuracy;
 
         // Update the user balance
-        userRecord.totalExitFeeRewardsClaimed    := userRecord.totalExitFeeRewardsClaimed + exitFeeRewards;
-        userRecord.totalSatelliteRewardsClaimed  := userRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;
-        userRecord.balance                       := userRecord.balance + exitFeeRewards + satelliteUnpaidRewards;
+        userStakeBalanceRecord.totalExitFeeRewardsClaimed    := userStakeBalanceRecord.totalExitFeeRewardsClaimed + exitFeeRewards;
+        userStakeBalanceRecord.totalSatelliteRewardsClaimed  := userStakeBalanceRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;
+        userStakeBalanceRecord.balance                       := userStakeBalanceRecord.balance + exitFeeRewards + satelliteUnpaidRewards;
         s.unclaimedRewards                       := abs(s.unclaimedRewards - exitFeeRewards);
 
     }
     else skip;
 
     // Set the user's participationFeesPerShare to the current accumulatedFeesPerShare
-    userRecord.participationFeesPerShare   := s.accumulatedFeesPerShare;
+    userStakeBalanceRecord.participationFeesPerShare   := s.accumulatedFeesPerShare;
     
     // Update storage: user stake balance ledger
-    s.userStakeBalanceLedger[userAddress]  := userRecord;
+    s.userStakeBalanceLedger[userAddress]  := userStakeBalanceRecord;
 
 } with (s)
 
