@@ -1,4 +1,5 @@
 import { InputStatusType } from 'app/App.components/Input/Input.constants'
+import BigNumber from 'bignumber.js'
 import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 
 export type ValidationStateType = {
@@ -74,7 +75,7 @@ export type PaymentsDataChangesType = Array<{
           tokenId: number
         }
       >
-      amount: number
+      amount: BigNumber
     }
     index?: string
     localId?: number

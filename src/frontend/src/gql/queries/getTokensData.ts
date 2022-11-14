@@ -33,7 +33,7 @@ export const WHITELIST_TOKENS_QUERY = `
       whitelist_token_contracts {
         contract_address
         contract_name
-        id
+        token_contract_standard
       }
     }
   }
