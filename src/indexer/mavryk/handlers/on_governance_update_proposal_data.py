@@ -1,9 +1,9 @@
 
 from mavryk.utils.persisters import persist_token_metadata
-from mavryk.types.governance.storage import GovernanceStorage
+from mavryk.types.governance.storage import GovernanceStorage, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
-from mavryk.types.governance.parameter.update_proposal_data import UpdateProposalDataParameter, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
+from mavryk.types.governance.parameter.update_proposal_data import UpdateProposalDataParameter
 import mavryk.models as models
 
 async def on_governance_update_proposal_data(
