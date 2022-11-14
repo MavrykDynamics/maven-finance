@@ -837,28 +837,15 @@ block {
                 const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
-
+                
                 // ------------------------------------------------------------------
-                // Update Storage (Vault and Loan Token)
+                // Check if vault is liquidatable
                 // ------------------------------------------------------------------
-
-                // update loan token record storage                
-                s.loanTokenLedger[vault.loanToken]   := loanTokenRecord;
 
                 // s.tempMap["markForLiquidation - initialLoanPrincipalTotal"] := initialLoanPrincipalTotal;
                 // s.tempMap["markForLiquidation - newLoanInterestTotal"] := newLoanInterestTotal;
 
                 const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
-
-                // Update vault
-                s.vaults[vaultHandle] := vault;
-
-                s.tempMap["vaultIsLiquidatableBool"] := if vaultIsLiquidatable = True then 1n else 0n;
-                s.tempMap["markForLiquidation"] := 123n;
-                
-                // ------------------------------------------------------------------
-                // Check if vault is liquidatable
-                // ------------------------------------------------------------------
                 
                 // Check if vault is liquidatable
                 if vaultIsLiquidatable then block {
@@ -874,10 +861,20 @@ block {
                         vault.liquidationEndLevel        := liquidationEndLevel;
                     };
 
-                    // Update vault storage
-                    s.vaults[vaultHandle] := vault;
+                } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);    
 
-                } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);                
+                // ------------------------------------------------------------------
+                // Update Storage (Vault and Loan Token)
+                // ------------------------------------------------------------------
+
+                // update loan token record storage                
+                s.loanTokenLedger[vault.loanToken]   := loanTokenRecord;
+
+                // Update vault
+                s.vaults[vaultHandle] := vault;
+
+                s.tempMap["vaultIsLiquidatableBool"] := if vaultIsLiquidatable = True then 1n else 0n;
+                s.tempMap["markForLiquidation"] := 123n;            
 
             }
         |   _ -> skip
@@ -994,7 +991,7 @@ block {
                     if collateralTokenBalance = 0n then skip else block {
 
                         // process liquidation in a helper function
-                        const liquidationProcess : (list(operation)*nat)  = processCollateralTokenLiquidation(
+                        const liquidationProcess : (list(operation)*nat)    = processCollateralTokenLiquidation(
                             liquidator,
                             treasuryAddress,
                             loanTokenDecimals,
@@ -1007,19 +1004,21 @@ block {
                             operations,
                             s
                         );
+                        const updatedOperationList  : list(operation)       = liquidationProcess.0;
+                        const collateralBalance     : nat                   = liquidationProcess.1;
 
                         // ------------------------------------------------------------------
                         // Update operations
                         // ------------------------------------------------------------------
 
-                        operations  := liquidationProcess.0;
+                        operations  := updatedOperationList;
 
                         // ------------------------------------------------------------------
                         // Update collateral balance
                         // ------------------------------------------------------------------
 
                         // save and update new balance for collateral token
-                        vault.collateralBalanceLedger[collateralTokenName] := liquidationProcess.1;
+                        vault.collateralBalanceLedger[collateralTokenName] := collateralBalance;
 
                     };
 
@@ -1173,7 +1172,7 @@ block {
                 vault.lastUpdatedBlockLevel     := mockLevel;
 
                 // Update vault                
-                s.vaults[vaultHandle]           := vault;                
+                s.vaults[vaultHandle]           := vault;
 
             }
         |   _ -> skip
