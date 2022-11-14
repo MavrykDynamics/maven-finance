@@ -252,7 +252,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
         const mockFa2LoanToken  = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("mockFa2").executeView({ viewCaller : bob.pkh});
         const tezLoanToken      = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("tez").executeView({ viewCaller : bob.pkh});
         
-        if(mockFa12LoanToken !== null){
+        if(mockFa12LoanToken !== undefined || mockFa12LoanToken !== null){
             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
             {
                 from_: bob.pkh,
@@ -267,7 +267,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await updateTokenRewardIndexOperation.confirmation();
         }
 
-        if(mockFa2LoanToken !== null){
+        if(mockFa2LoanToken !== undefined || mockFa2LoanToken !== null){
             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
             {
                 from_: bob.pkh,
@@ -282,7 +282,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await updateTokenRewardIndexOperation.confirmation();
         }
 
-        if(tezLoanToken !== null){
+        if(tezLoanToken !== undefined || tezLoanToken !== null){
             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
             {
                 from_: bob.pkh,
