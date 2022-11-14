@@ -36,7 +36,7 @@ import {
   FormTitleEntry,
 } from '../ProposalSubmission.style'
 
-// valiv bytes text: 05050505080508050805050505050505080505050507070017050505050508030b
+// TODO: valid bytes text for testing: 05050505080508050805050505050505080505050507070017050505050508030b
 
 export const StageTwoForm = ({
   proposalId,
@@ -123,7 +123,6 @@ export const StageTwoForm = ({
   const submitBytePairs = async () => {
     if (proposalId && isAllBytesValid && currentOriginalProposal) {
       const bytesDiff = getBytesDiff(currentOriginalProposal.proposalData, proposalData)
-      console.log('bytesDiff', bytesDiff)
       await dispatch(updateProposalData(proposalId, bytesDiff))
     }
   }
