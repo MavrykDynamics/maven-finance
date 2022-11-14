@@ -28,7 +28,14 @@ const tabsList: TabItem[] = [
 ]
 
 export function DoormanChart({ className }: Props) {
-  const { mvkMintHistoryData, smvkHistoryData } = useSelector((state: State) => state.doorman)
+  const { mvkMintHistoryData: mvkMintHistoryDataBase, smvkHistoryData } = useSelector((state: State) => state.doorman)
+
+  const defaultMvkMintHistoryData = [{
+    xAxis: String(new Date()),
+    yAxis: 0,
+  }]
+
+  const mvkMintHistoryData = mvkMintHistoryDataBase.length ? mvkMintHistoryDataBase : defaultMvkMintHistoryData
 
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isStakingHistory = activeTab === tabsList[1].text
@@ -45,7 +52,13 @@ export function DoormanChart({ className }: Props) {
     <ChartCard className={className}>
       {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}
 
-      <Chart style={{ height: 290 }} tooltipValueFormatter={valueFormatter(' MVK')} tickFormater={valueFormatter('')} list={shownData} />
+      <Chart
+        style={{ height: 290 }}
+        tooltipValueFormatter={valueFormatter(' MVK')}
+        tickFormater={valueFormatter('')}
+        list={shownData}
+        numberOfItemsToDisplay={isStakingHistory ? undefined : 1}
+      />
     </ChartCard>
   )
 }

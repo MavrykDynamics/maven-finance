@@ -31,6 +31,7 @@ type Props = {
   nayVotesSmvkTotal: number
   passVoteSmvkTotal: number
   snapshotSmvkTotalSupply: number
+  accountPkh?: string
 }
 
 export const SatelliteGovernanceCard = ({
@@ -47,6 +48,7 @@ export const SatelliteGovernanceCard = ({
   nayVotesSmvkTotal,
   passVoteSmvkTotal,
   snapshotSmvkTotalSupply,
+  accountPkh,
 }: Props) => {
   const dispatch = useDispatch()
   const [expanded, setExpanded] = useState(false)
@@ -129,7 +131,7 @@ export const SatelliteGovernanceCard = ({
               View Satellite
             </Link>
           ) : null}
-          {statusFlag === ProposalStatus.ONGOING ? (
+          {(statusFlag === ProposalStatus.ONGOING && accountPkh === initiatorId) ? (
             <Button
               text="Drop Action"
               className="brop-btn"
