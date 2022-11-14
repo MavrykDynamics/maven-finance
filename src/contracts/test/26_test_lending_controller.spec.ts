@@ -165,9 +165,9 @@
 
 //         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("mockFa12"); 
 //         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("mockFa2"); 
-//         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
+//         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
         
-//         if(mockFa12LoanToken !== null){
+//         if(mockFa12LoanToken !== undefined || mockFa12LoanToken !== null){
 //             updateTokenRewardIndexOperation = await lpTokenPoolMockFa12TokenInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -182,7 +182,7 @@
 //             await updateTokenRewardIndexOperation.confirmation();
 //         }
 
-//         if(mockFa2LoanToken !== null){
+//         if(mockFa2LoanToken !== undefined || mockFa2LoanToken !== null){
 //             updateTokenRewardIndexOperation = await lpTokenPoolMockFa2TokenInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -197,7 +197,7 @@
 //             await updateTokenRewardIndexOperation.confirmation();
 //         }
 
-//         if(tezLoanToken !== null){
+//         if(tezLoanToken !== undefined || tezLoanToken !== null){
 //             updateTokenRewardIndexOperation = await lpTokenPoolXtzInstance.methods.transfer([
 //             {
 //                 from_: bob.pkh,
@@ -3371,7 +3371,7 @@
 
 //             // check Eve's LP Token Pool Mock FA12 Token balance
 //             const updatedEveLpTokenPoolMockFa12Ledger    = await lpTokenPoolMockFa12TokenInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
-//             assert.equal(updatedEveLpTokenPoolMockFa12Ledger, eveInitialLpTokenPoolMockFa12TokenBalance) + depositAmount.toNumber();                    
+//             assert.equal(updatedEveLpTokenPoolMockFa12Ledger, eveInitialLpTokenPoolMockFa12TokenBalance.toNumber() + depositAmount);
 
 //         })
 
