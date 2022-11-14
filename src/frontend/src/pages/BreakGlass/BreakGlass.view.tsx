@@ -1,4 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { useLocation, useHistory } from 'react-router-dom'
+import qs from 'qs'
+
+// components
+import { ContractCard } from './ContractCard/ContractCard.controller'
+import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+
+// helpers
+import {
+  BREAK_GLASS_LIST_NAME,
+  calculateSlicePositions,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { updatePageInUrl } from 'pages/FinacialRequests/FinancialRequests.helpers' 
+
+// styles
 import {
   BGCardsWrapper,
   BGInfo,
@@ -6,16 +23,11 @@ import {
   BGStatusIndicator,
   BGStyled,
   BGPrimaryTitle,
-  BGSecondaryTitle,
   BGTop,
   BGWhitelist,
+  Pagination,
 } from './BreakGlass.style'
-import { ContractBreakGlass } from './mockContracts'
 import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
-import { ContractCard } from './ContractCard/ContractCard.controller'
-import { ToggleButton } from './ToggleButton/Toggle-button.view'
-import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 type BreakGlassViewProps = {
   glassBroken: boolean
@@ -33,6 +45,10 @@ export const BreakGlassView = ({
   breakGlassStatuses,
   whitelistDev,
 }: BreakGlassViewProps) => {
+  const { search, pathname } = useLocation()
+  const history = useHistory()
+  const { page = {}, ...rest } = qs.parse(search, { ignoreQueryPrefix: true })
+
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
   const [selectedContract, setSelectedContract] = useState<string>(ALL)
@@ -46,14 +62,25 @@ export const BreakGlassView = ({
     return [ALL, ...uniqueAllContracts.filter((item) => item !== GENERAL)]
   }, [breakGlassStatuses])
 
-  const filteredBreakGlassStatuses = breakGlassStatuses
+  const filteredBreakGlassStatuses = useMemo(() => {
+    return breakGlassStatuses
     ? selectedContract === ALL
       ? breakGlassStatuses
       : breakGlassStatuses?.filter((item) => {
           const type = item.type as string
           return selectedContract === type
         })
-    : []
+    : []}, [breakGlassStatuses, selectedContract])
+
+  const currentPage = getPageNumber(
+    search,
+    BREAK_GLASS_LIST_NAME,
+  )
+
+  const paginatedMyPastCouncilActions = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_LIST_NAME)
+    return filteredBreakGlassStatuses?.slice(from, to)
+  }, [currentPage, filteredBreakGlassStatuses])
 
   const brakeGlassTabsList = useMemo(
     () =>
@@ -69,20 +96,25 @@ export const BreakGlassView = ({
 
   const handleTabChange = (tabId?: number) => {
     setSelectedContract(tabId ? brakeGlassTabsList.find((item) => item.id === tabId)?.text || '' : '')
+  
+    // this is required to reset the page number when changing the tab
+    const generateNewUrl = updatePageInUrl({ page, newPage: 1, listName: BREAK_GLASS_LIST_NAME, pathname, restQP: rest })
+    history.push(generateNewUrl)
   }
 
   return (
     <BGStyled className={'breakGlassContainer'}>
       <BGTop>
-        <BGStatusIndicator>
-          <div className="status-indicator-wrapper">
-            Status: <span className={glassBroken ? 'color-red' : 'color-green'}>{breakGlassStatus}</span>
-          </div>
-          <div className="status-indicator-wrapper">
-            Pause All: <span className={pauseAllActive ? 'color-red' : 'color-green'}>{pauseAllStatus}</span>
-          </div>
-        </BGStatusIndicator>
         <BGInfo>
+          <BGStatusIndicator>
+            <div className="status-indicator-wrapper">
+              Status: <span className={glassBroken ? 'color-red' : 'color-green'}>{breakGlassStatus}</span>
+            </div>
+            <div className="status-indicator-wrapper">
+              Pause All: <span className={pauseAllActive ? 'color-red' : 'color-green'}>{pauseAllStatus}</span>
+            </div>
+          </BGStatusIndicator>
+
           <p>
             The breakglass protocol (BGP) allows MVK holders to shutdown the system without waiting for a central
             authority. The BGP is triggered through the Emergency governance vote.
@@ -97,13 +129,15 @@ export const BreakGlassView = ({
               Read documentation here
             </a>
           </FAQLink>
+
+          <BGWhitelist>
+            Whitelist Developers
+            <div className="adress-list">
+              <TzAddress tzAddress={whitelistDev} hasIcon />
+            </div>
+          </BGWhitelist>
+          <div className='line'></div>
         </BGInfo>
-        <BGWhitelist>
-          <BGSecondaryTitle>Whitelist Developers</BGSecondaryTitle>
-          <div className="adress-list">
-            <TzAddress tzAddress={whitelistDev} hasIcon />
-          </div>
-        </BGWhitelist>
       </BGTop>
 
       <BGMiddleWrapper>
@@ -112,7 +146,7 @@ export const BreakGlassView = ({
       </BGMiddleWrapper>
 
       <BGCardsWrapper>
-        {filteredBreakGlassStatuses.map((item: Record<string, unknown>) => {
+        {paginatedMyPastCouncilActions.map((item: Record<string, unknown>) => {
           const trimmedTitle = (item.title as string).trim()
           const address = (item.address as string).trim()
           const isCardActive = activeCard === address
@@ -134,6 +168,11 @@ export const BreakGlassView = ({
           )
         })}
       </BGCardsWrapper>
+
+      <Pagination
+        itemsCount={filteredBreakGlassStatuses.length}
+        listName={BREAK_GLASS_LIST_NAME}
+      />
     </BGStyled>
   )
 }

@@ -3,6 +3,10 @@ import { useDispatch } from 'react-redux'
 
 // type
 import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
+import { RequestTokenNameMaxLength, RequestPurposeMaxLength  } from 'utils/TypesAndInterfaces/Council'
+
+// helpers
+import { validateFormField } from 'utils/validatorFunctions' 
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -41,8 +45,9 @@ const itemsForDropDown = [
   },
 ]
 
+type Props = RequestTokenNameMaxLength & RequestPurposeMaxLength
 
-export const CouncilFormRequestTokens = () => {
+export const CouncilFormRequestTokens = ({ requestTokenNameMaxLength, requestPurposeMaxLength }: Props) => {
   const dispatch = useDispatch()
   const [form, setForm] = useState(INIT_FORM)
 
@@ -91,11 +96,7 @@ export const CouncilFormRequestTokens = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateFormField(setFormInputStatus)
 
   const handleClickDropdown = useCallback(() => {
     setDdIsOpen(!ddIsOpen)
@@ -156,9 +157,9 @@ export const CouncilFormRequestTokens = () => {
             name="tokenName"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, requestTokenNameMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, requestTokenNameMaxLength)}
             inputStatus={formInputStatus.tokenName}
           />
         </div>
@@ -216,9 +217,9 @@ export const CouncilFormRequestTokens = () => {
           name="purpose"
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
             handleChange(e)
-            handleBlur(e)
+            handleBlur(e, requestPurposeMaxLength)
           }}
-          onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e)}
+          onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleBlur(e, requestPurposeMaxLength)}
           inputStatus={formInputStatus.purpose}
         />
       </div>

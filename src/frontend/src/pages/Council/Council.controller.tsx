@@ -55,11 +55,17 @@ export const Council = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const { search, pathname } = useLocation()
+
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
+
+  const councilMemberMaxLength = {
+    councilMemberNameMaxLength: councilStorage?.councilMemberNameMaxLength,
+    councilMemberWebsiteMaxLength: councilStorage?.councilMemberWebsiteMaxLength,
+  }
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
@@ -204,15 +210,15 @@ export const Council = () => {
                   />
                 </DropdownWrap>
                 {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
-                {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember /> : null}
+                {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember {...councilMemberMaxLength} /> : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
                 {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee /> : null}
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
-                {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember /> : null}
+                {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember {...councilMemberMaxLength} /> : null}
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
-                {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
-                {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens /> : null}
-                {chosenDdItem?.value === 'requestTokenMint' ? <CouncilFormRequestTokenMint /> : null}
+                {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
+                {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens requestTokenNameMaxLength={councilStorage.requestTokenNameMaxLength} requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
+                {chosenDdItem?.value === 'requestTokenMint' ? <CouncilFormRequestTokenMint requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
                 {chosenDdItem?.value === 'dropFinancialRequest' ? <CouncilFormDropFinancialRequest /> : null}
                 {chosenDdItem?.value === 'setBaker' ? <CouncilFormSetBaker /> : null}
                 {chosenDdItem?.value === 'setContractBaker' ? <CouncilFormSetContractBaker /> : null}
@@ -255,7 +261,6 @@ export const Council = () => {
                     image={item.image}
                     name={item.name}
                     userId={item.userId}
-                    website={item.website}
                     openModal={handleOpenleModal}
                   />
                 ))}
@@ -266,7 +271,7 @@ export const Council = () => {
       </CouncilStyled>
       {isUpdateCouncilMemberInfo ? (
         <ModalPopup width={750} onClose={() => setIsUpdateCouncilMemberInfo(false)}>
-          <CouncilFormUpdateCouncilMemberInfo />
+          <CouncilFormUpdateCouncilMemberInfo {...councilMemberMaxLength} />
         </ModalPopup>
       ) : null}
     </Page>

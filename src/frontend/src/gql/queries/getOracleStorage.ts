@@ -23,6 +23,7 @@ export const ORACLE_STORAGE_QUERY = `
       governance_id
       track_aggregator_paused
       untrack_aggregator_paused
+      aggregator_name_max_length
     }
   }
 `
@@ -33,15 +34,7 @@ export const ORACLE_STORAGE_QUERY_VARIABLE = {}
 export const DATA_FEEDS_HISTORY_QUERY = `
   query GetDataFeedHistory {
     aggregator_history_data {
-      aggregator_id
       data
-      epoch
-      id
-      lambda_bytes
-      lambda_name
-      last_updated_at
-      pct_oracle_resp
-      round
       timestamp
       aggregator {
         decimals

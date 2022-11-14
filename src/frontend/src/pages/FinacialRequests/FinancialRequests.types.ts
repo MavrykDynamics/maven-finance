@@ -30,4 +30,5 @@ export type PaginationProps = {
   itemsCount: number
   side?: PaginationPlacementVariants
   listName: string
+  className?: string
 }

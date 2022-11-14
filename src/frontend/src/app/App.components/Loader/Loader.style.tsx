@@ -159,6 +159,11 @@ export const LoaderStyledWithBackdrop = styled.div<{ theme: MavrykTheme; backdro
   figcaption {
     margin-top: -30px;
   }
+
+  img {
+    width: 250px;
+    height: 200px;
+  }
 `
 
 const shine = keyframes`
