@@ -28,7 +28,7 @@ export type FeedFactory = {
   aggregator_name_max_length: number
 }
 
-export type FeedGQL = Omit<Aggregator, '__typename'>
+export type FeedGQL = Omit<Aggregator, '__typename'> & { category: string | null }
 
 export type InitialOracleStorageType = {
   feeds: Array<FeedGQL>
