@@ -38,7 +38,11 @@ import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/Emerg
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
 import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
-import { getDipDupTokensStorage, getTokensPrices } from 'reducers/actions/dipDupActions.actions'
+import {
+  getDipDupTokensStorage,
+  getTokensPrices,
+  getWhitelistTokensStorage,
+} from 'reducers/actions/dipDupActions.actions'
 import { AppDispatch } from './App.controller'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
@@ -61,6 +65,7 @@ export const onStart = () => async (dispatch: AppDispatch) => {
   const delegationStorage = normalizeDelegationStorage(res[3]?.delegation[0])
 
   await dispatch(getDipDupTokensStorage())
+  await dispatch(getWhitelistTokensStorage())
   await dispatch(getTokensPrices())
 
   const emergencyGovernanceStorage: EmergencyGovernanceStorage = normalizeEmergencyGovernance(

@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { getEmergencyGovernanceStorage, submitEmergencyGovernanceProposal } from '../EmergencyGovernance.actions'
-import { getBreakGlassStorage } from '../../BreakGlass/BreakGlass.actions'
+import { submitEmergencyGovernanceProposal } from '../EmergencyGovernance.actions'
 import { hideExitFeeModal } from './EmergencyGovProposalModal.actions'
 import { EmergencyGovProposalModalView } from './EmergencyGovProposalModal.view'
 import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
-import { updateProposal } from '../../ProposalSubmission/ProposalSubmission.actions'
 import {
   EmergencyGovernanceProposalForm,
   EmergencyGovernanceProposalFormInputStatus,

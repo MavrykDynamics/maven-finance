@@ -208,7 +208,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: 'submit-proposal',
         routeSubPath: '/submit-proposal',
         protectedRoute: true,
-        disabled: true,
         requires: {
           isSatellite: true,
         },
