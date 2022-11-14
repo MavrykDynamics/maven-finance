@@ -12,6 +12,7 @@ const oraclesDefaultState: OraclesState = {
   oraclesStorage: {
     feeds: [],
     feedsFactory: [],
+    feedCategories: [],
   },
   dataFeedsHistory: [],
   dataFeedsVolatility: [],
