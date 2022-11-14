@@ -25,7 +25,6 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   const maximumTotalSupply = mvkTokenStorage?.maximumTotalSupply ?? 0
 
   const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
-  const maxSupplyCapValue = exchangeRate ? exchangeRate * maximumTotalSupply : 0
 
   return (
     <DoormanStatsStyled>
@@ -114,7 +113,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
         <div>
           <h4>Max Supply</h4>
           <var>
-            <CommaNumber value={maxSupplyCapValue} loading={loading} endingText={'USD'} />
+            <CommaNumber value={maximumTotalSupply} loading={loading} endingText={'MVK'} />
           </var>
         </div>
 

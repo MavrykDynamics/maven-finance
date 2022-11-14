@@ -25,6 +25,15 @@ export const ORACLE_STORAGE_QUERY = `
       untrack_aggregator_paused
       aggregator_name_max_length
     }
+    dipdup_contract_metadata {
+      contract
+      created_at
+      id
+      metadata
+      update_id
+      updated_at
+      network
+    }
   }
 `
 

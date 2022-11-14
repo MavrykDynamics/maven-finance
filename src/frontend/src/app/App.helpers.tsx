@@ -6,6 +6,7 @@ import type {
   AggregatorGraphQL,
   AggregatorFactoryGraphQL,
   AggregatorOracleGraphQL,
+  DipdupContractMetadataGraphQL
 } from '../utils/TypesAndInterfaces/Aggregator'
 import { Dipdup_Token_Metadata } from 'utils/generated/graphqlTypes'
 
@@ -57,10 +58,32 @@ export function normalizeOracle(storage: {
   aggregator: AggregatorGraphQL[]
   aggregator_factory: AggregatorFactoryGraphQL[]
   aggregator_oracle: AggregatorOracleGraphQL[]
+  dipdup_contract_metadata: DipdupContractMetadataGraphQL[]
 }) {
+  const dataFeedUniqueCategories = new Set()
+
+  const getFeedCategory = (address: string) => {
+    const findedItem= storage?.dipdup_contract_metadata
+      .find((element) => element.contract === address)?.metadata as { category?: string } | undefined
+    const category = findedItem?.category
+
+    if (!category) return null
+
+    dataFeedUniqueCategories.add(category)
+    return findedItem.category || null
+  }
+
+  const feeds = storage?.aggregator.map((item) => {
+    return {
+      ...item,
+      category: getFeedCategory(item.address),
+    }
+  })
+
   return {
-    feeds: storage?.aggregator,
+    feeds,
     feedsFactory: storage?.aggregator_factory,
+    feedCategories: [...dataFeedUniqueCategories]
   }
 }
 
