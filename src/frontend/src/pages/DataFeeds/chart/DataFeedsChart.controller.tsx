@@ -44,9 +44,6 @@ export function DataFeedsChart({ className, dataFeedsHistory, dataFeedsVolatilit
 
   const shownData = isHistory ? dataFeedsHistory : dataFeedsVolatility
 
-  // TODO: decide what to show it no enought data
-  // if (!shownData.length) return null
-
   return (
     <ChartCard className={className}>
       {tabsList?.length ? <ChartSlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} /> : null}

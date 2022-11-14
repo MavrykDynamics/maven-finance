@@ -4,8 +4,11 @@ import { State } from 'reducers'
 
 // type
 import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
+import type { CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
 
-import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
+// helpers
+import { validateFormField } from 'utils/validatorFunctions' 
+
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -18,10 +21,13 @@ import { updateCouncilMemberInfo } from '../Council.actions'
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
-export const CouncilFormUpdateCouncilMemberInfo = () => {
+export const CouncilFormUpdateCouncilMemberInfo = ({
+  councilMemberNameMaxLength,
+  councilMemberWebsiteMaxLength
+ }: CouncilMemberMaxLength) => {
   const dispatch = useDispatch()
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { councilStorage } = useSelector((state: State) => state.council)
   const { councilMembers } = councilStorage
   const myInfo = councilMembers.find((item) => item.userId === accountPkh)
 
@@ -63,16 +69,6 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
     e.preventDefault()
     try {
       await dispatch(updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage))
-      // setForm({
-      //   newMemberName: '',
-      //   newMemberWebsite: '',
-      //   newMemberImage: '',
-      // })
-      // setFormInputStatus({
-      //   newMemberName: '',
-      //   newMemberWebsite: '',
-      //   newMemberImage: '',
-      // })
       setUploadKey(uploadKey + 1)
     } catch (error) {
       console.error(error)
@@ -86,11 +82,7 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateFormField(setFormInputStatus)
 
   return (
     <CouncilFormStyled className="update-council-member-info" onSubmit={handleSubmit}>
@@ -116,9 +108,9 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
             name="newMemberName"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberNameMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberNameMaxLength)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -132,9 +124,9 @@ export const CouncilFormUpdateCouncilMemberInfo = () => {
             name="newMemberWebsite"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlur(e, councilMemberWebsiteMaxLength)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, councilMemberWebsiteMaxLength)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>

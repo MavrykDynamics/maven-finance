@@ -30,7 +30,7 @@ export interface PreferencesState {
 }
 
 export const preferencesDefaultState: PreferencesState = {
-  themeSelected: getItemFromStorage('theme') || 'dark',
+  themeSelected: getItemFromStorage('theme') || 'space',
   changeNodePopupOpen: false,
   sidebarOpened: false,
   RPC_NODES: [

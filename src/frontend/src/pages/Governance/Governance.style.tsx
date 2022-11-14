@@ -194,8 +194,19 @@ export const GovernanceRightContainer = styled(Card)<{ isAuthorized?: boolean; t
     padding-top: 20px;
     padding-bottom: 20px;
 
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 16px;
+
     button {
       width: 194px;
+    }
+
+    svg {
+      position: relative;
+      top: 3px;
+      width: 18px;
+      height: 18px;
     }
   }
 ` //GovernanceRightContainer
@@ -248,6 +259,7 @@ export const RightSideSubHeader = styled.div<{ theme: MavrykTheme }>`
   color: ${({ theme }) => theme.headerColor};
 `
 export const RightSideSubContent = styled.div<{ theme: MavrykTheme }>`
+  margin-top: 10px;
   font-weight: 400;
   font-size: 14px;
   line-height: 21px;

@@ -32,7 +32,7 @@ export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleEx
           />
         </div>
 
-        <div className="card-info-item">
+        <div className={`card-info-item ${lastUpdated ? '' : 'hidden'}`}>
           Last Update
           <div>{parseDate({ time: lastUpdated, timeFormat: 'MMM DD, YYYY' })}</div>
         </div>

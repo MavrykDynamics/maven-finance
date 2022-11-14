@@ -16,7 +16,7 @@ export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: AppD
   // }
   const contract = accountPkh
     ? await state.wallet.tezos?.wallet.at(councilAddress.address)
-    : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/').contract.at(
+    : await new TezosToolkit(state.preferences.REACT_APP_RPC_PROVIDER || 'https://hangzhounet.api.tez.ie/').contract.at(
         councilAddress.address,
       )
 

@@ -11,7 +11,7 @@ import { LIST_NAMES_MAPPER, PAGINATION_SIDE_RIGHT } from './pagination.consts'
 
 import { PaginationProps } from '../FinancialRequests.types'
 
-const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: PaginationProps) => {
+const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName, className }: PaginationProps) => {
   const { pathname, search } = useLocation()
   const { page = {}, ...rest } = qs.parse(search, { ignoreQueryPrefix: true })
 
@@ -29,7 +29,7 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
   }, [currentPage])
 
   return pagesCount > 1 ? (
-    <PaginationWrapper side={side}>
+    <PaginationWrapper className={className} side={side}>
       Page
       <div className="input_wrapper">
         <Input

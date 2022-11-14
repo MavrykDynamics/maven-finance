@@ -22,7 +22,7 @@ import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { StageOneFormProps } from '../ProposalSybmittion.types'
 
 // helpers, constants
-import { isNotAllWhitespace, isValidHttpUrl, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import { isValidLength, isValidHttpUrl, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { submitProposal } from '../ProposalSubmission.actions'
 import { DEFAULT_VALIDITY, DEFAULT_INPUT_STATUSES } from '../ProposalSubmition.helpers'
 import { ACTION_SECONDARY, SUBMIT } from 'app/App.components/Button/Button.constants'
@@ -39,7 +39,7 @@ export const StageOneForm = ({
   const {
     fee,
     currentRound,
-    config: { successReward },
+    config: { successReward, proposalTitleMaxLength, proposalDescriptionMaxLength, proposalSourceCodeMaxLength },
   } = useSelector((state: State) => state.governance.governanceStorage)
 
   const [validForm, setValidForm] = useState<ValidSubmitProposalForm>(DEFAULT_VALIDITY)
@@ -54,14 +54,16 @@ export const StageOneForm = ({
     formField: string,
   ) => {
     let validityCheckResult
+    const defaultMaxLength = 100
+    
     switch (formField) {
       case 'TITLE':
-        validityCheckResult = isNotAllWhitespace(currentProposal.title)
+        validityCheckResult = isValidLength(currentProposal.title, 1, proposalTitleMaxLength || defaultMaxLength)
         setValidForm({ ...validForm, title: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, title: validityCheckResult ? 'success' : 'error' })
         break
       case 'DESCRIPTION':
-        validityCheckResult = isNotAllWhitespace(currentProposal.description)
+        validityCheckResult = isValidLength(currentProposal.description, 1, proposalDescriptionMaxLength || defaultMaxLength)
         setValidForm({ ...validForm, description: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, description: validityCheckResult ? 'success' : 'error' })
         break
@@ -73,7 +75,9 @@ export const StageOneForm = ({
         })
         break
       case 'SOURCE_CODE_LINK':
-        validityCheckResult = isValidHttpUrl(currentProposal.sourceCode)
+        validityCheckResult = isValidHttpUrl(currentProposal.sourceCode) &&
+          isValidLength(currentProposal.sourceCode, 1, proposalSourceCodeMaxLength || defaultMaxLength)
+        setValidForm({ ...validForm, sourceCode: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, sourceCode: validityCheckResult ? 'success' : 'error' })
         break
       case 'IPFS':
@@ -191,7 +195,7 @@ export const StageOneForm = ({
         </div>
       ) : (
         <div className="source-code-input-wrap">
-          <label>5 - Please add a link to the source code changes (if you have)</label>
+          <label>5 - Please add a link to the source code changes</label>
           <Input
             type="text"
             value={currentProposal.sourceCode}

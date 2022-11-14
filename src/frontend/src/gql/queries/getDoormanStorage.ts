@@ -23,26 +23,26 @@ export const DOORMAN_STORAGE_QUERY = `
 export const DOORMAN_STORAGE_QUERY_NAME = 'DoormanStorageQuery'
 export const DOORMAN_STORAGE_QUERY_VARIABLE = {}
 
-export const STAKE_HISTORY_DATA_QUERY = `
-  query GetStakingHistoryData {
-    stake_history_data(where: {type: {_eq: "0"}}) {
-      type
-      timestamp
-      final_amount
-    }
-  }
-`
-
-export const STAKE_HISTORY_DATA_QUERY_NAME = 'GetStakingHistoryData'
-export const STAKE_HISTORY_DATA_QUERY_VARIABLE = {}
-
 export const SMVK_HISTORY_DATA_QUERY = `
-  query GetStakingHistoryData {
+  query GetSmvkHistoryData {
     smvk_history_data {
       smvk_total_supply
       timestamp
     }
   }
 `
-export const SMVK_HISTORY_DATA_QUERY_NAME = 'GetStakingHistoryData'
+
+export const SMVK_HISTORY_DATA_QUERY_NAME = 'GetSmvkHistoryData'
 export const SMVK_HISTORY_DATA_QUERY_VARIABLE = {}
+
+export const MVK_MINT_HISTORY_DATA_QUERY = `
+  query GetMvkMintData {
+    mvk_mint_history_data {
+      mvk_total_supply
+      minted_amount
+      timestamp
+    }
+  }
+`
+export const MVK_MINT_HISTORY_DATA_QUERY_NAME = 'GetMvkMintData'
+export const MVK_MINT_HISTORY_DATA_QUERY_VARIABLE = {}

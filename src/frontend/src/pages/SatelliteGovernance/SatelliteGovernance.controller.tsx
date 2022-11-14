@@ -52,6 +52,8 @@ const itemsForDropDown = [
   { text: 'Fix Mistaken Transfer', value: 'fixMistakenTransfer' },
 ]
 
+const defaultMaxLength = 100
+
 const getOngoingActionsList = (list: GovernanceSatelliteActionGraphQL[]): GovernanceSatelliteActionGraphQL[] => {
   return list?.filter((item) => {
     const timeNow = Date.now()
@@ -94,6 +96,9 @@ export const SatelliteGovernance = () => {
   const [separateRecord, setSeparateRecord] = useState<GovernanceSatelliteActionGraphQL[]>([])
 
   const [tabsList, setTabsList] = useState<TabItem[]>([])
+  const maxLength = {
+    purposeMaxLength: governanceSatelliteStorage.governance_satellite[0]?.gov_purpose_max_length || defaultMaxLength
+  }
 
   useEffect(() => {
     const filterOngoing = getOngoingActionsList(governanceSatelliteActionRecord)
@@ -249,7 +254,7 @@ export const SatelliteGovernance = () => {
             ) : chosenDdItem?.value === 'fixMistakenTransfer' ? (
               <FixMistakenTransferForm />
             ) : (
-              <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
+              <SatelliteGovernanceForm maxLength={maxLength} variant={chosenDdItem?.value || ''} />
             )}
           </DropdownCard>
         ) : null}
