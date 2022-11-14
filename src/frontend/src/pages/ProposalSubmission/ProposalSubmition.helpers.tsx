@@ -146,7 +146,7 @@ export const getPaymentsDiff = (
             transaction: {
               to_: item1.to__id ?? '',
               token,
-              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(10 ^ Number(decimals)),
+              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(Math.pow(10, Number(decimals))),
             },
           },
         }
@@ -166,7 +166,7 @@ export const getPaymentsDiff = (
             transaction: {
               to_: item1.to__id ?? '',
               token,
-              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(10 ^ Number(decimals)),
+              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(Math.pow(10, Number(decimals))),
             },
             index: idx,
           },
