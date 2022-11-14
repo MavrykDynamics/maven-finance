@@ -59,19 +59,19 @@ export const StageThreeForm = ({
     },
     governancePhase,
   } = useSelector((state: State) => state.governance)
-  const { whitelistTokens } = useSelector((state: State) => state.tokens)
+  const { whitelistTokens, dipDupTokens } = useSelector((state: State) => state.tokens)
 
   const PaymentMethods = useMemo(
     () =>
       whitelistTokens.map((tokenInfo) => ({
         symbol: tokenInfo.contract_name,
         address: tokenInfo.contract_address,
-        id: tokenInfo.id,
+        id: 0,
       })),
     [whitelistTokens],
   )
 
-  console.log('proposalPayments', proposalPayments)
+  console.log('proposalPayments', proposalPayments, PaymentMethods)
 
   // we can modify only when current period is 'proposal'
   const isProposalRound = governancePhase === 'PROPOSAL'
@@ -133,9 +133,14 @@ export const StageThreeForm = ({
 
   const handleSubmitFinancialRequestData = async () => {
     if (proposalId && isAllPaymentsValid && currentOriginalProposal) {
-      const paymentsDiff = getPaymentsDiff(currentOriginalProposal.proposalPayments, proposalPayments)
+      const paymentsDiff = getPaymentsDiff(
+        currentOriginalProposal.proposalPayments,
+        proposalPayments,
+        PaymentMethods,
+        dipDupTokens,
+      )
       console.log('paymentsDiff', paymentsDiff)
-      await dispatch(updateProposalData(proposalId, undefined, paymentsDiff))
+      await dispatch(updateProposalData(proposalId, null, paymentsDiff))
     }
   }
 
