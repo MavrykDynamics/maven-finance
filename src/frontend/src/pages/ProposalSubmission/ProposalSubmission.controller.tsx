@@ -127,9 +127,6 @@ export const ProposalSubmission = () => {
     [proposalState, selectedUserProposalId],
   )
 
-  // TODO: for testing purposes, remove after
-  console.log('proposalState:', proposalState)
-
   return (
     <Page>
       <PageHeader page={'proposal submission'} />

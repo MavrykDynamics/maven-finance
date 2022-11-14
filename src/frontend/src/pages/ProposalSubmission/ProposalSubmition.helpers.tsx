@@ -53,45 +53,48 @@ export const getBytesDiff = (
   originalData: ProposalRecordType['proposalData'],
   updatedData: ProposalRecordType['proposalData'],
 ): ProposalDataChangesType => {
-  // we need to irerate the arr, that has more elements, and secondaryArr is the array we will take elements to compare and give appropriate change el
-  const arrayToIterate = originalData.length <= updatedData.length ? updatedData : originalData
-  const secondaryArr = originalData.length <= updatedData.length ? originalData : updatedData
-
-  const changes = arrayToIterate
-    .map((item1, idx) => {
-      const item2 = secondaryArr?.[idx]
+  let originalIdx = 0
+  const changes = updatedData
+    .map<ProposalDataChangesType[number] | null>((item1) => {
+      const item2 = originalData?.[originalIdx]
 
       // if we have more items on client than on server, when we reach end of the items that stored on client array, just add everything to the end
-      if (!item2 && originalData.length <= updatedData.length) {
+      if (!item2) {
         return {
           addOrSetProposalData: {
-            title: item1.title,
-            encodedCode: item1.encoded_code,
+            title: item1.title ?? '',
+            encodedCode: item1.encoded_code ?? '',
             codeDescription: '',
           },
         }
       }
 
-      // if we have more items on server than on client, when we reach end of the items that stored on client array, just add removing change to the end
-      if (!item2 && originalData.length > updatedData.length) {
-        return {
-          removeProposalData: String(idx),
-        }
+      if (!checkBytesPairExists(item1)) {
+        return null
       }
 
-      if (item2.title !== item1.title || item2.encoded_code !== item1.encoded_code) {
+      if (
+        (item2.title !== item1.title && item1.title !== null) ||
+        (item2.encoded_code !== item1.encoded_code && item1.title !== null)
+      ) {
         return {
           addOrSetProposalData: {
-            title: item1.title,
-            encodedCode: item1.encoded_code,
+            title: item1.title ?? '',
+            encodedCode: item1.encoded_code ?? '',
             codeDescription: '',
-            index: idx,
+            index: String(originalIdx++),
           },
         }
       }
 
+      originalIdx++
       return null
     })
+    .concat(
+      Array.from({ length: originalData.length - updatedData.length }, (_, idx) => ({
+        removeProposalData: String(Number(updatedData.length) + Number(idx)),
+      })),
+    )
     .filter(Boolean) as ProposalDataChangesType
 
   return changes
