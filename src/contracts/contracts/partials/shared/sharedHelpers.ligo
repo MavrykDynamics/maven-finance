@@ -25,7 +25,7 @@ block {
 
 (* UpdateGeneralContracts Entrypoint *)
 function updateGeneralContractsMap(const updateGeneralContractsParams : updateGeneralContractsType; const generalContracts : generalContractsType) : generalContractsType is 
-block{
+block {
 
     const contractName     : string  = updateGeneralContractsParams.generalContractName;
     const contractAddress  : address = updateGeneralContractsParams.generalContractAddress; 
@@ -71,7 +71,7 @@ block {
 
 (* UpdateWhitelistContracts Function *)
 function updateWhitelistContractsMap(const updateWhitelistContractsParams : updateWhitelistContractsType; const whitelistContracts : whitelistContractsType) : whitelistContractsType is 
-block{
+block {
     
     const contractName     : string  = updateWhitelistContractsParams.whitelistContractName;
     const contractAddress  : address = updateWhitelistContractsParams.whitelistContractAddress;
@@ -107,7 +107,7 @@ block {
 
 (* UpdateWhitelistTokenContracts Entrypoint *)
 function updateWhitelistTokenContractsMap(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; const whitelistTokenContracts : whitelistTokenContractsType) : whitelistTokenContractsType is 
-block{
+block {
     
     const contractName     : string  = updateWhitelistTokenContractsParams.tokenContractName;
     const contractAddress  : address = updateWhitelistTokenContractsParams.tokenContractAddress;
@@ -123,3 +123,15 @@ block{
         );
 
 } with (updatedWhitelistTokenContracts)
+
+
+// ------------------------------------------------------------------------------
+// General Helpers
+// ------------------------------------------------------------------------------
+
+function validateStringLength(const inputString : string; const maxLength : nat; const errorCode : nat) : unit is 
+block {
+
+    if String.length(inputString) > maxLength then failwith(errorCode) else skip;
+
+} with unit 
