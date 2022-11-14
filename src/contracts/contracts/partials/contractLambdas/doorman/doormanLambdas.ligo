@@ -337,12 +337,8 @@ block {
     // 1. Check that %stake entrypoint is not paused (e.g. glass broken)
     // 2. Compound user rewards
     // 3. Check that user is staking at least the min amount of MVK tokens required 
-    // 4. Update MVK balances for user and Doorman Contract
-    //      -   Get MVK Token Contract
-    //      -   Transfer MVK from user to the Doorman Contract
-    // 5. Update Delegation contract since user staked MVK balance has changed
-    //      -   Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-    //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
+    // 4. Transfer MVK from user to the Doorman Contract
+    // 5. Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     // 6. Update user's staked MVK balance in storage
     
 
@@ -365,65 +361,33 @@ block {
                 else skip;
 
                 // -------------------------------------------
-                // Update MVK balances for user and Doorman Contract
+                // Transfer MVK from user to the Doorman Contract
                 // -------------------------------------------
 
-                // Get MVK Token Contract
-                const mvkTokenAddress : address = s.mvkTokenAddress;
-
-                // Transfer MVK from user to the Doorman Contract
-                const transferParameters : fa2TransferType = list[
-                    record [
-                        from_  = userAddress;
-                        txs    = list [
-                            record [
-                                to_      = Tezos.get_self_address();
-                                token_id = 0n;
-                                amount   = stakeAmount;
-                            ]
-                        ]
-                    ]
-                ];
-
-                const transferOperation : operation = Tezos.transaction(
-                    transferParameters,
-                    0tez,
-                    getTransferEntrypointFromTokenAddress(mvkTokenAddress)
+                const transferOperation : operation = transferFa2Token(
+                    userAddress,                // from_
+                    Tezos.get_self_address(),   // to_
+                    stakeAmount,                // amount
+                    0n,                         // tokenId
+                    s.mvkTokenAddress           // tokenContractAddress
                 );
 
                 // -------------------------------------------
                 // Update Delegation contract since user staked MVK balance has changed
                 // -------------------------------------------
 
-                // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = Tezos.transaction(
-                    (userAddress),
-                    0tez,
-                    delegationOnStakeChange(delegationAddress)
-                );
-                                
-                operations  := list [transferOperation; delegationOnStakeChangeOperation];
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);                                
+                operations := list [transferOperation; delegationOnStakeChangeOperation];
 
                 // -------------------------------------------
                 // Update Storage
                 // -------------------------------------------
 
-                // Update user's staked MVK balance in storage
-                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
-                        Some(_val) -> _val
-                    |   None -> record[
-                            balance                        = 0n;
-                            totalExitFeeRewardsClaimed     = 0n;
-                            totalSatelliteRewardsClaimed   = 0n;
-                            totalFarmRewardsClaimed        = 0n;
-                            participationFeesPerShare      = s.accumulatedFeesPerShare;
-                        ]
-                ];
-                userBalanceInStakeBalanceLedger.balance  := userBalanceInStakeBalanceLedger.balance + stakeAmount; 
-                s.userStakeBalanceLedger[userAddress]    := userBalanceInStakeBalanceLedger;
+                var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(userAddress, s);
+                userStakeBalanceRecord.balance  := userStakeBalanceRecord.balance + stakeAmount; 
+
+                s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
                 
             }
         |   _ -> skip
@@ -485,19 +449,9 @@ block {
                 // Compute MLI (MVK Loyalty Index) and Exit Fee 
                 // -------------------------------------------
 
-                // Get MVK Total Supply
-                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
-                const mvkTotalSupply : nat = case mvkTotalSupplyView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Get Staked MVK Total Supply
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
-                const stakedMvkTotalSupply : nat = case balanceView of [
-                        Some (value) -> value
-                    |   None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
+                // get MVK and staked MVK total supply
+                const mvkTotalSupply        : nat = getMvkTotalSupply(s);
+                const stakedMvkTotalSupply  : nat = getStakedMvkTotalSupply(s);
 
                 // Calculate MVK Loyalty Index
                 const mvkLoyaltyIndex : nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
@@ -523,47 +477,25 @@ block {
                 else skip;
 
                 // Get user's stake balance record
-                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
-                        Some(_val) -> _val
-                    |   None       -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
-                ];
+                var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
                 
                 // Check that unstake amount is not greater than user's staked MVK balance
-                if unstakeAmount > userBalanceInStakeBalanceLedger.balance then failwith(error_NOT_ENOUGH_SMVK_BALANCE)
-                else skip;
-
-                // Check that final unstakeAmount is not greater than staked MVK total supply
-                if stakedMvkTotalSupply < finalUnstakeAmount then failwith(error_UNSTAKE_AMOUNT_ERROR)
+                if unstakeAmount > userStakeBalanceRecord.balance then failwith(error_NOT_ENOUGH_SMVK_BALANCE)
                 else skip;
 
                 // Update user's stake balance record
-                userBalanceInStakeBalanceLedger.balance := abs(userBalanceInStakeBalanceLedger.balance - unstakeAmount); 
+                userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
 
                 // -------------------------------------------
                 // Transfer MVK Operation
                 // -------------------------------------------
 
-                // Get MVK Token Contract
-                const mvkTokenAddress : address = s.mvkTokenAddress;
-
-                // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const transferParameters: fa2TransferType = list[
-                    record[
-                        from_ = Tezos.get_self_address();
-                        txs   = list [
-                            record[
-                                to_      = userAddress;
-                                token_id = 0n;
-                                amount   = finalUnstakeAmount;
-                            ]
-                        ]
-                    ]
-                ];
-
-                const transferOperation: operation = Tezos.transaction(
-                    transferParameters,
-                    0tez,
-                    getTransferEntrypointFromTokenAddress(mvkTokenAddress)
+                const transferOperation : operation = transferFa2Token(
+                    Tezos.get_self_address(),   // from_
+                    userAddress,                // to_
+                    finalUnstakeAmount,         // amount
+                    0n,                         // tokenId
+                    s.mvkTokenAddress           // tokenContractAddress
                 );
 
                 // -------------------------------------------
@@ -572,16 +504,16 @@ block {
 
                 // Compound only the exit fee rewards
                 // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
-                if userBalanceInStakeBalanceLedger.balance > 0n then {
+                if userStakeBalanceRecord.balance > 0n then {
                     
                     // Calculate what fees the user missed since his/her last claim
-                    const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userBalanceInStakeBalanceLedger.participationFeesPerShare);
+                    const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userStakeBalanceRecord.participationFeesPerShare);
 
                     // Calculate the user reward based on his current staked MVK
-                    const exitFeeRewards : nat = (currentFeesPerShare * userBalanceInStakeBalanceLedger.balance) / fixedPointAccuracy;
+                    const exitFeeRewards : nat = (currentFeesPerShare * userStakeBalanceRecord.balance) / fixedPointAccuracy;
 
                     // Increase the user balance with exit fee rewards
-                    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + exitFeeRewards;
+                    userStakeBalanceRecord.balance := userStakeBalanceRecord.balance + exitFeeRewards;
 
                     // Update storage unclaimed rewards (decrement by exit fee rewards given to user)
                     s.unclaimedRewards := abs(s.unclaimedRewards - exitFeeRewards);
@@ -590,24 +522,17 @@ block {
                 else skip;
                 
                 // Set the user's new participationFeesPerShare to storage's accumulatedFeesPerShare
-                userBalanceInStakeBalanceLedger.participationFeesPerShare := s.accumulatedFeesPerShare;
+                userStakeBalanceRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
 
                 // Update user's stake balance record in storage
-                s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
+                s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
 
                 // -------------------------------------------
                 // Update Delegation contract since user staked MVK balance has changed
                 // -------------------------------------------
 
-                // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = Tezos.transaction(
-                    (userAddress),
-                    0tez,
-                    delegationOnStakeChange(delegationAddress)
-                );
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
 
                 // Execute operations list
                 operations := list[transferOperation; delegationOnStakeChangeOperation]
@@ -644,18 +569,9 @@ block {
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
-                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
-                const mvkTotalSupply: nat = case mvkTotalSupplyView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Get SMVK Total Supply
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
-                const stakedMvkTotalSupply: nat = case balanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
+                // get MVK and staked MVK total supply
+                const mvkTotalSupply        : nat = getMvkTotalSupply(s);
+                const stakedMvkTotalSupply  : nat = getStakedMvkTotalSupply(s);
 
                 // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
                 const mvkLoyaltyIndex: nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
@@ -671,78 +587,51 @@ block {
                 // Updated shares by users
                 if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
                 else skip;
+
                 const stakedTotalWithoutUnstake: nat = abs(stakedMvkTotalSupply - unstakeAmount);
                 
                 if stakedTotalWithoutUnstake > 0n then s.accumulatedFeesPerShare := s.accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstake)
                 else skip;
 
                 // update user's staked balance in staked balance ledger
-                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
-                        Some(_val) -> _val
-                    |   None       -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
-                ];
+                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
                 
                 // check if user has enough staked mvk to withdraw
-                if unstakeAmount > userBalanceInStakeBalanceLedger.balance then failwith(error_NOT_ENOUGH_SMVK_BALANCE)
+                if unstakeAmount > userStakeBalanceRecord.balance then failwith(error_NOT_ENOUGH_SMVK_BALANCE)
                 else skip;
 
-                // update staked MVK total supply
-                if stakedMvkTotalSupply < finalUnstakeAmount then failwith(error_UNSTAKE_AMOUNT_ERROR)
-                else skip;
+                userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
 
-                userBalanceInStakeBalanceLedger.balance := abs(userBalanceInStakeBalanceLedger.balance - unstakeAmount); 
-
-                const mvkTokenAddress : address = s.mvkTokenAddress;
-
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-                // update user's MVK balance (unstake) -> increase user balance in mvk ledger
-                const transferParameters : fa2TransferType = list[
-                    record [
-                        from_  =  Tezos.get_self_address();
-                        txs    = list [
-                            record[
-                                to_       = userAddress;
-                                token_id  = 0n;
-                                amount    = finalUnstakeAmount;
-                            ]
-                        ]
-                    ]
-                ];
-
-                const transferOperation: operation = Tezos.transaction(
-                    transferParameters,
-                    0tez,
-                    getTransferEntrypointFromTokenAddress(mvkTokenAddress)
+                const transferOperation : operation = transferFa2Token(
+                    Tezos.get_self_address(),   // from_
+                    userAddress,                // to_
+                    finalUnstakeAmount,         // amount
+                    0n,                         // tokenId
+                    s.mvkTokenAddress           // tokenContractAddress
                 );
 
                 // Compound only the exit fee rewards
                 // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
-                if userBalanceInStakeBalanceLedger.balance > 0n then {
+                if userStakeBalanceRecord.balance > 0n then {
                     
                     // Calculate what fees the user missed since his/her last claim
-                    const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userBalanceInStakeBalanceLedger.participationFeesPerShare);
+                    const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userStakeBalanceRecord.participationFeesPerShare);
                     // Calculate the user reward based on his sMVK
-                    const exitFeeRewards : nat = (currentFeesPerShare * userBalanceInStakeBalanceLedger.balance) / fixedPointAccuracy;
+                    const exitFeeRewards : nat = (currentFeesPerShare * userStakeBalanceRecord.balance) / fixedPointAccuracy;
                     // Increase the user balance
-                    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + exitFeeRewards;
+                    userStakeBalanceRecord.balance := userStakeBalanceRecord.balance + exitFeeRewards;
                     s.unclaimedRewards := abs(s.unclaimedRewards - exitFeeRewards);
 
                 }
                 else skip;
 
                 // Set the user's participationFeesPerShare 
-                userBalanceInStakeBalanceLedger.participationFeesPerShare := s.accumulatedFeesPerShare;
+                userStakeBalanceRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
                 // Update the doormanStorageType
-                s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
-
+                s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
 
                 // update satellite balance if user is delegated to a satellite
-                const delegationOnStakeChangeOperation : operation = Tezos.transaction(
-                    (userAddress),
-                    0tez,
-                    delegationOnStakeChange(delegationAddress)
-                );
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
 
                 // fill a list of operations
                 operations := list[transferOperation; delegationOnStakeChangeOperation]
@@ -775,14 +664,10 @@ block{
                 
                 // Compound rewards
                 s := compoundUserRewards(userAddress, s);
-                
-                // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const onStakeChangeOperation : operation = Tezos.transaction((userAddress), 0tez, delegationOnStakeChange(delegationAddress));
-
-                operations  := list [onStakeChangeOperation]
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
+                operations := list [delegationOnStakeChangeOperation]
             }
         |   _ -> skip
     ];
@@ -824,38 +709,18 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Init parameter values from input
                 const delegator      : address   = farmClaim.0;
                 var claimAmount      : nat      := farmClaim.1;
-                var transferedToken  : nat      := 0n;
+                var transferAmount   : nat      := 0n;
                 const forceTransfer  : bool      = farmClaim.2;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
 
                 // Get farm address
                 const farmAddress : address = Tezos.get_sender();
 
-                // Get MVK Token address
-                const mvkTokenAddress : address = s.mvkTokenAddress;
-
-                // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-                // Get Farm Factory Contract Address from the General Contracts Map on the Governance Contract
-                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
-
-                // Get Farm Treasury Contract Address from the General Contracts Map on the Governance Contract
-                const treasuryAddress : address = getContractAddressFromGovernanceContract("farmTreasury", s.governanceAddress, error_FARM_TREASURY_CONTRACT_NOT_FOUND);
-
                 // ------------------------------------------------------------------
                 // Validation Checks
                 // ------------------------------------------------------------------
-
+            
                 // Check if farm address is known to the farmFactory
-                const checkFarmExistsView : option (bool) = Tezos.call_view ("checkFarmExists", farmAddress, farmFactoryAddress);
-                const checkFarmExists : bool = case checkFarmExistsView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_CHECK_FARM_EXISTS_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : bool)
-                ];
+                const checkFarmExists : bool = checkFarmExists(farmAddress, s);
                 if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
 
                 // ------------------------------------------------------------------
@@ -866,21 +731,12 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 s := compoundUserRewards(delegator, s);
 
                 // Get user's staked balance record
-                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[delegator] of [
-                        Some (_val) -> _val
-                    |   None  -> record[
-                            balance                        = 0n;
-                            totalExitFeeRewardsClaimed     = 0n;
-                            totalSatelliteRewardsClaimed   = 0n;
-                            totalFarmRewardsClaimed        = 0n;
-                            participationFeesPerShare      = s.accumulatedFeesPerShare;
-                    ]
-                ];
+                var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(delegator, s);
 
                 // Update user's stake balance record
-                userBalanceInStakeBalanceLedger.balance                 := userBalanceInStakeBalanceLedger.balance + claimAmount; 
-                userBalanceInStakeBalanceLedger.totalFarmRewardsClaimed := userBalanceInStakeBalanceLedger.totalFarmRewardsClaimed + claimAmount;
-                s.userStakeBalanceLedger[delegator] := userBalanceInStakeBalanceLedger;
+                userStakeBalanceRecord.balance                 := userStakeBalanceRecord.balance + claimAmount; 
+                userStakeBalanceRecord.totalFarmRewardsClaimed := userStakeBalanceRecord.totalFarmRewardsClaimed + claimAmount;
+                s.userStakeBalanceLedger[delegator] := userStakeBalanceRecord;
 
                 // ------------------------------------------------------------------
                 // Check if MVK Tokens should be minted or transferred from Treasury
@@ -889,32 +745,22 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Check if MVK Force Transfer is enabled (no minting new MVK Tokens)
                 if forceTransfer then {
 
-                    transferedToken  := claimAmount;
+                    transferAmount   := claimAmount;
                     claimAmount      := 0n;
 
                 }
                 else {
 
-                    // Get MVK Total Supply
-                    const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
-                    const mvkTotalSupply : (nat) = case mvkTotalSupplyView of [
-                            Some (_totalSupply) -> _totalSupply
-                        |   None                -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                    ];
-
-                    // Get MVK Maximum Total Supply
-                    const mvkMaximumSupplyView : option (nat) = Tezos.call_view ("getMaximumSupply", unit, s.mvkTokenAddress);
-                    const mvkMaximumSupply : (nat) = case mvkMaximumSupplyView of [
-                            Some (_totalSupply) -> _totalSupply
-                        |   None                -> (failwith (error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                    ];
+                    // get MVK Total Supply, and MVK Maximum Total Supply
+                    const mvkTotalSupply    : nat = getMvkTotalSupply(s);
+                    const mvkMaximumSupply  : nat = getMvkMaximumTotalSupply(s);
 
                     // Check if the desired minted amount will surpass the maximum total supply
                     const tempTotalSupply : nat = mvkTotalSupply + claimAmount;
                     if tempTotalSupply > mvkMaximumSupply then {
                         
-                        transferedToken  := abs(tempTotalSupply - mvkMaximumSupply);
-                        claimAmount      := abs(claimAmount - transferedToken);
+                        transferAmount   := abs(tempTotalSupply - mvkMaximumSupply);
+                        claimAmount      := abs(claimAmount - transferAmount);
 
                     } else skip;
 
@@ -923,41 +769,16 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Mint MVK Tokens if claimAmount is greater than 0
                 if claimAmount > 0n then {
 
-                    const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
-                        to_  = Tezos.get_self_address();
-                        amt  = claimAmount;
-                    ];
-
-                  const mintOperation : operation = Tezos.transaction(
-                        mintMvkAndTransferTokenParams, 
-                        0tez, 
-                        sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
-                  );
-
-                  operations := mintOperation # operations;
+                  const mintMvkAndTransferOperation : operation = mintMvkAndTransferOperation(claimAmount, s);
+                  operations := mintMvkAndTransferOperation # operations;
 
                 } else skip;
 
                 // Transfer MVK Tokens from treasury if transferredToken is greater than 0
-                if transferedToken > 0n then {
+                if transferAmount > 0n then {
                     
-                    const transferParam : transferActionType = list [
-                        record [
-                            to_   = Tezos.get_self_address();
-                            token = (Fa2 (record[
-                                tokenContractAddress  = mvkTokenAddress;
-                                tokenId               = 0n;
-                            ]) : tokenType);
-                            amount = transferedToken;
-                        ]
-                    ];
-
-                    const transferOperation : operation = Tezos.transaction(
-                        transferParam,
-                        0tez,
-                        sendTransferOperationToTreasury(treasuryAddress)
-                    );
-                    operations := transferOperation # operations;
+                    const transferFromTreasuryOperation : operation = transferFromTreasuryOperation(transferAmount, s);
+                    operations := transferFromTreasuryOperation # operations;
 
                 } else skip;
 
@@ -966,13 +787,8 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // -------------------------------------------
                 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-                const delegationOnStakeChangeOperation : operation = Tezos.transaction(
-                    (delegator),
-                    0tez,
-                    delegationOnStakeChange(delegationAddress)
-                );
-
-                operations  := delegationOnStakeChangeOperation # operations;
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(delegator, s);
+                operations := delegationOnStakeChangeOperation # operations;
 
             }
         |   _ -> skip
