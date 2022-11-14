@@ -35,6 +35,7 @@ type Props = {
   style?: ChartStyle
   tickFormater?: (value: any, index: number) => string
   tooltipValueFormatter?: (value: number) => string
+  numberOfItemsToDisplay?: number
   className?: string
 }
 
@@ -80,7 +81,7 @@ const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
 const dateFormat = 'MMM DD, HH:mm Z'
 const getParsedDate = (time: string) => parseDate({ time, timeFormat: dateFormat }) || ''
 
-export default function Chart({ list, style, tickFormater, tooltipValueFormatter, className }: Props) {
+export default function Chart({ list, style, tickFormater, tooltipValueFormatter, numberOfItemsToDisplay = 15, className }: Props) {
   const { themeSelected } = useSelector((state: State) => state.preferences)
   const [chartStyle, setChartStyle] = useState(initialChartStyle)
 
@@ -110,7 +111,7 @@ export default function Chart({ list, style, tickFormater, tooltipValueFormatter
     }
   }, [style])
 
-  if (list.length <= 15) {
+  if (list.length < numberOfItemsToDisplay) {
     return (
       <Plug>
         <div>
