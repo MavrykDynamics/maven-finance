@@ -832,23 +832,12 @@ block {
                 const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
-
-                // ------------------------------------------------------------------
-                // Update Storage (Vault and Loan Token)
-                // ------------------------------------------------------------------
-
-                // update loan token record storage                
-                s.loanTokenLedger[vault.loanToken]   := loanTokenRecord;
-
-
-                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
-
-                // Update vault
-                s.vaults[vaultHandle] := vault;
                 
                 // ------------------------------------------------------------------
                 // Check if vault is liquidatable
                 // ------------------------------------------------------------------
+
+                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
                 
                 // Check if vault is liquidatable
                 if vaultIsLiquidatable then block {
@@ -867,7 +856,17 @@ block {
                     // Update vault storage
                     s.vaults[vaultHandle] := vault;
 
-                } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);                
+                } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
+
+                // ------------------------------------------------------------------
+                // Update Storage (Vault and Loan Token)
+                // ------------------------------------------------------------------
+
+                // update loan token record storage                
+                s.loanTokenLedger[vault.loanToken]   := loanTokenRecord;
+
+                // Update vault
+                s.vaults[vaultHandle] := vault;             
 
             }
         |   _ -> skip
@@ -996,19 +995,21 @@ block {
                             operations,
                             s
                         );
+                        const updatedOperationList  : list(operation)       = liquidationProcess.0;
+                        const collateralBalance     : nat                   = liquidationProcess.1;
 
                         // ------------------------------------------------------------------
                         // Update operations
                         // ------------------------------------------------------------------
 
-                        operations  := liquidationProcess.0;
+                        operations  := updatedOperationList;
 
                         // ------------------------------------------------------------------
                         // Update collateral balance
                         // ------------------------------------------------------------------
 
                         // save and update new balance for collateral token
-                        vault.collateralBalanceLedger[collateralTokenName] := liquidationProcess.1;
+                        vault.collateralBalanceLedger[collateralTokenName] := collateralBalance;
 
                     };
 
