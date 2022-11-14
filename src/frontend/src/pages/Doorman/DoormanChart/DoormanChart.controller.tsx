@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -29,13 +29,18 @@ const tabsList: TabItem[] = [
 
 export function DoormanChart({ className }: Props) {
   const { mvkMintHistoryData: mvkMintHistoryDataBase, smvkHistoryData } = useSelector((state: State) => state.doorman)
+  
+  const getDefaultMvkMintHistoryData = useMemo(() => {
+    var date = new Date();
+    date.setDate(date.getDate() - 7);
+    
+    return [{
+      xAxis: String(date),
+      yAxis: 0,
+    }]
+  }, [])
 
-  const defaultMvkMintHistoryData = [{
-    xAxis: String(new Date()),
-    yAxis: 0,
-  }]
-
-  const mvkMintHistoryData = mvkMintHistoryDataBase.length ? mvkMintHistoryDataBase : defaultMvkMintHistoryData
+  const mvkMintHistoryData = mvkMintHistoryDataBase.length ? mvkMintHistoryDataBase : getDefaultMvkMintHistoryData
 
   const [activeTab, setActiveTab] = useState(tabsList[0].text)
   const isStakingHistory = activeTab === tabsList[1].text
