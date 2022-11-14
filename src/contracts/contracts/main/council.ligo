@@ -135,8 +135,6 @@ function checkNoAmount(const _p : unit) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-
-
 // helper function to %addVestee entrypoint to add a new vestee on the Vesting contract
 function sendAddVesteeParams(const contractAddress : address) : contract(addVesteeType) is
     case (Tezos.get_entrypoint_opt(
@@ -238,7 +236,7 @@ function validateAction(const actionRecord : councilActionRecordType) : unit is
 block {
 
     // Check if governance satellite action has been flushed
-    if actionRecord.status    = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)  else skip;
+    if actionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)  else skip;
 
     // Check if governance satellite action has already been executed
     if actionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED) else skip;
@@ -254,7 +252,7 @@ block {
 function createCouncilAction(const actionType : string; const dataMap : dataMapType; var s : councilStorageType) : councilStorageType is 
 block {
 
-    var councilActionRecord : councilActionRecordType := record[
+    const councilActionRecord : councilActionRecordType = record[
         initiator             = Tezos.get_sender();
         actionType            = actionType;
         signers               = set[Tezos.get_sender()];
@@ -278,16 +276,136 @@ block {
 
 } with(s)
 
-// ------------------------------------------------------------------------------
-// General Helper Functions End
-// ------------------------------------------------------------------------------
 
-// helper function to trigger the add council member action during the sign
-function triggerAddCouncilMemberAction(const actionRecord : councilActionRecordType; var s : councilStorageType) : councilStorageType is 
+
+// helper function to verify that council member is in the council
+function verifyCouncilMemberExists(const councilMemberAddress : address; const  s : councilStorageType) : unit is 
 block {
 
-    // fetch params begin ---
-    const councilMemberAddress : address = case actionRecord.dataMap["councilMemberAddress"] of [
+    if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+    else skip;
+
+} with unit
+
+
+
+// helper function to verify that council member is not in the council
+function verifyCouncilMemberDoesNotExist(const councilMemberAddress : address; const  s : councilStorageType) : unit is 
+block {
+
+    if Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
+    else skip;
+
+} with unit
+
+
+
+// helper function to verify that council action exists
+function verifyCouncilActionExists(const councilActionId : nat; const s : councilStorageType) : unit is 
+block {
+
+    const _councilActionRecord : councilActionRecordType = case Big_map.find_opt(actionId, s.councilActionsLedger) of [
+            Some (_action) -> _action
+        |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+    ];
+
+} with unit
+
+
+
+// helper function to verify that financial governance request exists
+function verifyFinancialRequestExists(const requestId : nat; const s : councilStorageType) : unit is 
+block {
+
+    // Get Governance Financial Address from the General Contracts Map on the Governance Contract
+    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
+
+    case (Tezos.call_view ("getFinancialRequestOpt", requestId, governanceFinancialAddress) : option(option(financialRequestRecordType))) of [
+            Some (_requestOpt)  -> case _requestOpt of [
+                    Some (_request) -> skip
+                |   None            -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
+            ]
+        |   None -> failwith(error_GET_FINANCIAL_REQUEST_OPT_VIEW_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+    ];
+    
+} with unit
+
+
+
+// helper function to verify vestee exists
+function verifyVesteeExists(const vesteeAddress : address; const s : councilStorageType) : unit is 
+block {
+
+    // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+    case vesteeOptView of [
+            Some (_value) -> case _value of [
+                    Some (_vestee) -> skip
+                |   None           -> failwith (error_VESTEE_NOT_FOUND)
+            ]
+        |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+    ];
+
+} with unit 
+
+
+
+// helper function to verify vestee does not exist
+function verifyVesteeDoesNotExist(const vesteeAddress : address; const s : councilStorageType) : unit is 
+block {
+
+    // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+    case vesteeOptView of [
+            Some (_value) -> case _value of [
+                    Some (_vestee) -> failwith (error_VESTEE_ALREADY_EXISTS)
+                |   None           -> skip
+            ]
+        |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+    ];
+
+} with unit 
+
+
+
+// helper function to verify token type is correct
+function verifyCorrectTokenType(const tokenType : string) : unit is 
+block {
+
+    if  tokenType = "FA12" or
+        tokenType = "FA2"  or
+        tokenType = "TEZ" then skip
+    else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
+
+} with unit
+
+
+
+// helper function to unpack strings from dataMap
+function unpackString(const actionRecord : councilActionRecordType; const key : string) : string is 
+block {
+
+    const unpackedString : string = case actionRecord.dataMap[key] of [
+            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
+        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+} with unpackedString
+
+
+
+// helper function to unpack address from dataMap
+function unpackAddress(const actionRecord : councilActionRecordType; const key : string) : address is 
+block {
+
+    const unpackedAddress : address = case actionRecord.dataMap[key] of [
             Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
                     Some (_v)   -> _v
                 |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
@@ -295,35 +413,255 @@ block {
         |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberName : string = case actionRecord.dataMap["councilMemberName"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+} with unpackedAddress
+
+
+
+// helper function to unpack nat from dataMap
+function unpackNat(const actionRecord : councilActionRecordType; const key : string) : nat is 
+block {
+
+    const unpackedNat : nat = case actionRecord.dataMap[key] of [
+            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
                     Some (_v)   -> _v
                 |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
             ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberImage : string = case actionRecord.dataMap["councilMemberImage"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
+} with unpackedNat
+
+
+
+// helper function to unpack option(key_hash) from dataMap
+function unpackKeyHash(const actionRecord : councilActionRecordType; const key : string) : option(key_hash) is 
+block {
+
+    const unpackedKeyhash : option(key_hash) = case actionRecord.dataMap[key] of [
+            Some(_keyHash) -> case (Bytes.unpack(_keyHash) : option(option(key_hash))) of [
                     Some (_v)   -> _v
                 |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
             ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
     ];
 
-    const councilMemberWebsite : string = case actionRecord.dataMap["councilMemberWebsite"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+} with unpackedKeyhash
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Create Operations Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function for addVestee
+function addVesteeOperation(const vesteeAddress : address; const totalAllocatedAmount : nat; const cliffInMonths : nat; const vestingInMonths : nat; const s : councilStorageType) : operation is 
+block {
+
+    // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    const addVesteeParams : addVesteeType = record [
+        vesteeAddress           = vesteeAddress;
+        totalAllocatedAmount    = totalAllocatedAmount;
+        cliffInMonths           = cliffInMonths;
+        vestingInMonths         = vestingInMonths;
     ];
+
+    const addVesteeOperation : operation = Tezos.transaction(
+        addVesteeParams,
+        0tez, 
+        sendAddVesteeParams(vestingAddress)
+    );
+
+} with addVesteeOperation
+
+
+
+// helper function for removeVestee
+function removeVesteeOperation(const vesteeAddress : address; const s : councilStorageType) : operation is 
+block {
+
+    // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    const removeVesteeOperation : operation = Tezos.transaction(
+        vesteeAddress,
+        0tez, 
+        sendRemoveVesteeParams(vestingAddress)
+    );
+
+} with removeVesteeOperation
+
+
+
+// helper function for updateVestee
+function updateVesteeOperation(const vesteeAddress : address; const newTotalAllocatedAmount : nat; const newCliffInMonths : nat; const newVestingInMonths : nat; const s : councilStorageType) : operation is 
+block {
+
+    // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    const updateVesteeParams : updateVesteeType = record [
+        vesteeAddress               = vesteeAddress;
+        newTotalAllocatedAmount     = newTotalAllocatedAmount;
+        newCliffInMonths            = newCliffInMonths;
+        newVestingInMonths          = newVestingInMonths;
+    ];
+
+    const updateVesteeOperation : operation = Tezos.transaction(
+        updateVesteeParams,
+        0tez, 
+        sendUpdateVesteeParams(vestingAddress)
+    );
+
+} with updateVesteeOperation
+
+
+
+// helper function for toggleVesteeLock
+function toggleVesteeLockOperation(const vesteeAddress : address; const s : councilStorageType) : operation is 
+block {
+
+    // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+
+    const toggleVesteeLockOperation : operation = Tezos.transaction(
+        vesteeAddress,
+        0tez, 
+        sendToggleVesteeLockParams(vestingAddress)
+    );
+
+} with toggleVesteeLockOperation
+
+
+
+// helper function for requestTokens
+function requestTokensOperation(const treasuryAddress : address; const tokenContractAddress : address; const tokenName : string; const tokenAmount : nat; const tokenType : string; const tokenId : nat; const purpose : string; const s : councilStorageType) : operation is 
+block {
+
+    // Get Governance Financial Address from the General Contracts Map on the Governance Contract
+    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
+
+    // Validate inputs
+    validateStringLength(purpose       , s.config.requestPurposeMaxLength       , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(tokenName     , s.config.requestTokenNameMaxLength     , error_WRONG_INPUT_PROVIDED);
+
+    const requestTokensParams : councilActionRequestTokensType = record[
+        treasuryAddress       = treasuryAddress;
+        tokenContractAddress  = tokenContractAddress;
+        tokenName             = tokenName;
+        tokenAmount           = tokenAmount;
+        tokenType             = tokenType;
+        tokenId               = tokenId;
+        purpose               = purpose;
+    ];
+
+    const requestTokensOperation : operation = Tezos.transaction(
+        requestTokensParams,
+        0tez, 
+        sendRequestTokensParams(governanceFinancialAddress)
+    );
+
+} with requestTokensOperation
+
+
+
+// helper function for requestMint
+function requestMintOperation(const treasuryAddress : address; const tokenAmount : nat; const purpose : string; const s : councilStorageType) : operation is 
+block {
+
+    // Get Governance Financial Address from the General Contracts Map on the Governance Contract
+    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
+
+    // Validate inputs
+    validateStringLength(purpose, s.config.requestPurposeMaxLength, error_WRONG_INPUT_PROVIDED);
+
+    const requestMintParams : councilActionRequestMintType = record[
+        tokenAmount      = tokenAmount;
+        treasuryAddress  = treasuryAddress;
+        purpose          = purpose;
+    ];
+
+    const requestMintOperation : operation = Tezos.transaction(
+        requestMintParams,
+        0tez, 
+        sendRequestMintParams(governanceFinancialAddress)
+    );
+
+} with requestMintOperation
+
+
+
+// helper function for setContractBaker
+function setContractBakerOperation(const targetContractAddress : address; const keyHash : option(key_hash); const s : councilStorageType) : operation is 
+block {
+
+    // Get Governance Financial Address from the General Contracts Map on the Governance Contract
+    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
+
+    const setContractBakerParams : councilActionSetContractBakerType = record[
+        targetContractAddress   = targetContractAddress;
+        keyHash                 = keyHash;
+    ];
+
+    const setContractBakerOperation : operation = Tezos.transaction(
+        setContractBakerParams,
+        0tez, 
+        sendSetContractBakerParams(governanceFinancialAddress)
+    );
+
+} with setContractBakerOperation
+ 
+
+ // helper function for dropFinancialRequest
+function dropFinancialRequestOperation(const requestId : nat; const s : councilStorageType) : operation is 
+block {
+
+    // Get Governance Financial Address from the General Contracts Map on the Governance Contract
+    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
+
+    // Verify that financial request exists
+    verifyFinancialRequestExists(requestId, s);
+
+    const dropFinancialRequestOperation : operation = Tezos.transaction(
+        requestId,
+        0tez, 
+        sendDropFinancialRequestParams(governanceFinancialAddress)
+    );
+
+} with dropFinancialRequestOperation
+
+
+
+// ------------------------------------------------------------------------------
+// Create Operations Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Sign Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to trigger the add council member action during the signing
+function triggerAddCouncilMemberAction(const actionRecord : councilActionRecordType; var s : councilStorageType) : councilStorageType is 
+block {
+
+    // fetch params begin ---
+    const councilMemberAddress  : address = unpackAddress(actionRecord, "councilMemberAddress");
+    const councilMemberName     : string  = unpackString(actionRecord, "councilMemberName");
+    const councilMemberImage    : string  = unpackString(actionRecord, "councilMemberImage");
+    const councilMemberWebsite  : string  = unpackString(actionRecord, "councilMemberWebsite");
     // fetch params end ---
 
     // Validate inputs
-    if String.length(councilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-    if String.length(councilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-    if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+    validateStringLength(councilMemberName      , s.config.councilMemberNameMaxLength       , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(councilMemberImage     , s.config.councilMemberImageMaxLength      , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(councilMemberWebsite   , s.config.councilMemberWebsiteMaxLength    , error_WRONG_INPUT_PROVIDED);
 
     // Check if new council member is already in the council
     const councilMemberInfo: councilMemberInfoType  = record[
@@ -344,13 +682,7 @@ function triggerRemoveCouncilMemberAction(const actionRecord : councilActionReco
 block {
 
     // fetch params begin ---
-    const councilMemberAddress : address = case actionRecord.dataMap["councilMemberAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const councilMemberAddress : address = unpackAddress(actionRecord, "councilMemberAddress");
     // fetch params end ---
 
     // Check if council member is in the council
@@ -372,59 +704,23 @@ function triggerChangeCouncilMemberAction(const actionRecord : councilActionReco
 block {
 
     // fetch params begin ---
-    const oldCouncilMemberAddress : address = case actionRecord.dataMap["oldCouncilMemberAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const newCouncilMemberAddress : address = case actionRecord.dataMap["newCouncilMemberAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const newCouncilMemberName : string = case actionRecord.dataMap["newCouncilMemberName"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const newCouncilMemberImage : string = case actionRecord.dataMap["newCouncilMemberImage"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |    None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const newCouncilMemberWebsite : string = case actionRecord.dataMap["newCouncilMemberWebsite"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const oldCouncilMemberAddress   : address = unpackAddress(actionRecord, "oldCouncilMemberAddress");
+    const newCouncilMemberAddress   : address = unpackAddress(actionRecord, "newCouncilMemberAddress");
+    const newCouncilMemberName      : string  = unpackString(actionRecord, "newCouncilMemberName");
+    const newCouncilMemberImage     : string  = unpackString(actionRecord, "newCouncilMemberImage");
+    const newCouncilMemberWebsite   : string  = unpackString(actionRecord, "newCouncilMemberWebsite");
     // fetch params end ---
 
     // Validate inputs
-    if String.length(newCouncilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-    if String.length(newCouncilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-    if String.length(newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+    validateStringLength(newCouncilMemberName       , s.config.councilMemberNameMaxLength       , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(newCouncilMemberImage      , s.config.councilMemberImageMaxLength      , error_WRONG_INPUT_PROVIDED);
+    validateStringLength(newCouncilMemberWebsite    , s.config.councilMemberWebsiteMaxLength    , error_WRONG_INPUT_PROVIDED);
+    
+    // Verify that new council member is not already in the council
+    verifyCouncilMemberDoesNotExist(newCouncilMemberAddress, s);
 
-    // Check if new council member is already in the council
-    if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
-    else skip;
-
-    // Check if old council member is in the council
-    if not Map.mem(oldCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
-    else skip;
+    // Verify that old council member is in the council
+    verifyCouncilMemberExists(oldCouncilMemberAddress, s);
 
     const councilMemberInfo: councilMemberInfoType  = record[
         name    = newCouncilMemberName;
@@ -443,13 +739,9 @@ block {
 function triggerSetBakerAction(const actionRecord : councilActionRecordType; var operations : list(operation)) : list(operation) is
 block {
 
-    const keyHash : option(key_hash) = case actionRecord.dataMap["keyHash"] of [
-            Some(_keyHash) -> case (Bytes.unpack(_keyHash) : option(option(key_hash))) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const keyHash : option(key_hash) = unpackKeyHash(actionRecord, "keyHash");
+
+    // create setBakerOperation
     const setBakerOperation  : operation        = Tezos.set_delegate(keyHash);
 
     operations := setBakerOperation # operations;
@@ -463,52 +755,19 @@ function triggerAddVesteeAction(const actionRecord : councilActionRecordType; va
 block {
 
     // fetch params begin ---
-    const vesteeAddress : address = case actionRecord.dataMap["vesteeAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const totalAllocatedAmount : nat = case actionRecord.dataMap["totalAllocatedAmount"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const cliffInMonths : nat = case actionRecord.dataMap["cliffInMonths"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const vestingInMonths : nat = case actionRecord.dataMap["vestingInMonths"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const vesteeAddress         : address   = unpackAddress(actionRecord, "vesteeAddress");
+    const totalAllocatedAmount  : nat       = unpackNat(actionRecord, "totalAllocatedAmount");
+    const cliffInMonths         : nat       = unpackNat(actionRecord, "cliffInMonths");
+    const vestingInMonths       : nat       = unpackNat(actionRecord, "vestingInMonths");
     // fetch params end ---
 
-    const addVesteeParams : addVesteeType = record [
-        vesteeAddress           = vesteeAddress;
-        totalAllocatedAmount    = totalAllocatedAmount;
-        cliffInMonths           = cliffInMonths;
-        vestingInMonths         = vestingInMonths;
-    ];
-
-    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
-
-    const addVesteeOperation : operation = Tezos.transaction(
-        addVesteeParams,
-        0tez, 
-        sendAddVesteeParams(vestingAddress)
+    // create addVesteeOperation
+    const addVesteeOperation : operation = addVesteeOperation(
+        vesteeAddress,
+        totalAllocatedAmount,
+        cliffInMonths,
+        vestingInMonths,
+        s
     );
     
     operations := addVesteeOperation # operations;
@@ -522,23 +781,12 @@ function triggerRemoveVesteeAction(const actionRecord : councilActionRecordType;
 block {
     
     // fetch params begin ---
-    const vesteeAddress : address = case actionRecord.dataMap["vesteeAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const vesteeAddress : address = unpackAddress(actionRecord, "vesteeAddress");
     // fetch params end ---
 
-    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
+    // create removeVesteeOperation
+    const removeVesteeOperation : operation = removeVesteeOperation(vesteeAddress, s);    
 
-    const removeVesteeOperation : operation = Tezos.transaction(
-        vesteeAddress,
-        0tez, 
-        sendRemoveVesteeParams(vestingAddress)
-    );
-    
     operations := removeVesteeOperation # operations;
 
 } with (operations)
@@ -550,52 +798,19 @@ function triggerUpdateVesteeAction(const actionRecord : councilActionRecordType;
 block {
     
     // fetch params begin ---
-    const vesteeAddress : address = case actionRecord.dataMap["vesteeAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const newTotalAllocatedAmount : nat = case actionRecord.dataMap["newTotalAllocatedAmount"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const newCliffInMonths : nat = case actionRecord.dataMap["newCliffInMonths"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const newVestingInMonths : nat = case actionRecord.dataMap["newVestingInMonths"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const vesteeAddress             : address   = unpackAddress(actionRecord, "vesteeAddress");
+    const newTotalAllocatedAmount   : nat       = unpackNat(actionRecord, "newTotalAllocatedAmount");
+    const newCliffInMonths          : nat       = unpackNat(actionRecord, "newCliffInMonths");
+    const newVestingInMonths        : nat       = unpackNat(actionRecord, "newVestingInMonths");
     // fetch params end ---
 
-    const updateVesteeParams : updateVesteeType = record [
-        vesteeAddress               = vesteeAddress;
-        newTotalAllocatedAmount     = newTotalAllocatedAmount;
-        newCliffInMonths            = newCliffInMonths;
-        newVestingInMonths          = newVestingInMonths;
-    ];
-
-    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
-
-    const updateVesteeOperation : operation = Tezos.transaction(
-        updateVesteeParams,
-        0tez, 
-        sendUpdateVesteeParams(vestingAddress)
+    // create updateVesteeOperation
+    const updateVesteeOperation : operation = updateVesteeOperation(
+        vesteeAddress,
+        newTotalAllocatedAmount, 
+        newCliffInMonths,
+        newVestingInMonths,
+        s
     );
 
     operations := updateVesteeOperation # operations;
@@ -609,22 +824,11 @@ function triggerToggleVesteeLockAction(const actionRecord : councilActionRecordT
 block {
 
     // fetch params begin ---
-    const vesteeAddress : address = case actionRecord.dataMap["vesteeAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const vesteeAddress : address = unpackAddress(actionRecord, "vesteeAddress");
     // fetch end begin ---
 
-    const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
-
-    const toggleVesteeLockOperation : operation = Tezos.transaction(
-        vesteeAddress,
-        0tez, 
-        sendToggleVesteeLockParams(vestingAddress)
-    );
+    // create toggleVesteeLockOperation
+    const toggleVesteeLockOperation : operation = toggleVesteeLockOperation(vesteeAddress, s);
 
     operations := toggleVesteeLockOperation # operations;
 
@@ -637,45 +841,11 @@ function triggerTransferAction(const actionRecord : councilActionRecordType; var
 block {
 
     // fetch params begin ---
-    const receiverAddress : address = case actionRecord.dataMap["receiverAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const tokenContractAddress : address = case actionRecord.dataMap["tokenContractAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const tokenType : string = case actionRecord.dataMap["tokenType"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const tokenAmount : nat = case actionRecord.dataMap["tokenAmount"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const tokenId : nat = case actionRecord.dataMap["tokenId"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const receiverAddress       : address   = unpackAddress(actionRecord, "receiverAddress");
+    const tokenContractAddress  : address   = unpackAddress(actionRecord, "tokenContractAddress");
+    const tokenType             : string    = unpackString(actionRecord, "tokenType");
+    const tokenAmount           : nat       = unpackNat(actionRecord, "tokenAmount");
+    const tokenId               : nat       = unpackNat(actionRecord, "tokenId");
     // fetch params end ---
 
     const from_  : address   = Tezos.get_self_address();
@@ -703,6 +873,7 @@ block {
     } else skip;
     // --- --- ---
 
+    // create transferTokenOperation
     const transferTokenOperation : operation = case _tokenTransferType of [ 
         |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mutez)
         |   Fa12(token) -> transferFa12Token(from_, to_, amt, token)
@@ -720,83 +891,27 @@ function triggerRequestTokenAction(const actionRecord : councilActionRecordType;
 block {
 
     // fetch params begin ---
-    const treasuryAddress : address = case actionRecord.dataMap["treasuryAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const treasuryAddress       : address   = unpackAddress(actionRecord, "treasuryAddress");
+    const tokenContractAddress  : address   = unpackAddress(actionRecord, "tokenContractAddress");
 
-    const tokenContractAddress : address = case actionRecord.dataMap["tokenContractAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const tokenType             : string    = unpackString(actionRecord, "tokenType");
+    const tokenName             : string    = unpackString(actionRecord, "tokenName");
+    const purpose               : string    = unpackString(actionRecord, "purpose");
 
-    const tokenType : string = case actionRecord.dataMap["tokenType"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const tokenName : string = case actionRecord.dataMap["tokenName"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const purpose : string = case actionRecord.dataMap["purpose"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const tokenAmount : nat = case actionRecord.dataMap["tokenAmount"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const tokenId : nat = case actionRecord.dataMap["tokenId"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const tokenAmount           : nat       = unpackNat(actionRecord, "tokenAmount");
+    const tokenId               : nat       = unpackNat(actionRecord, "tokenId");
     // fetch params end ---
 
-    // Validate inputs
-    if String.length(purpose)   > s.config.requestPurposeMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-    if String.length(tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-    const requestTokensParams : councilActionRequestTokensType = record[
-        treasuryAddress       = treasuryAddress;
-        tokenContractAddress  = tokenContractAddress;
-        tokenName             = tokenName;
-        tokenAmount           = tokenAmount;
-        tokenType             = tokenType;
-        tokenId               = tokenId;
-        purpose               = purpose;
-    ];
-
-    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
-
-    const requestTokensOperation : operation = Tezos.transaction(
-        requestTokensParams,
-        0tez, 
-        sendRequestTokensParams(governanceFinancialAddress)
+    // create requestTokensOperation
+    const requestTokensOperation : operation = requestTokensOperation(
+        treasuryAddress,
+        tokenContractAddress,
+        tokenName,
+        tokenAmount, 
+        tokenType,
+        tokenId,
+        purpose,
+        s 
     );
 
     operations := requestTokensOperation # operations;
@@ -810,46 +925,17 @@ function triggerRequestMintAction(const actionRecord : councilActionRecordType; 
 block {
 
     // fetch params begin ---
-    const treasuryAddress : address = case actionRecord.dataMap["treasuryAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const purpose : string = case actionRecord.dataMap["purpose"] of [
-            Some(_string) -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-
-    const tokenAmount : nat = case actionRecord.dataMap["tokenAmount"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const treasuryAddress       : address   = unpackAddress(actionRecord, "treasuryAddress");
+    const purpose               : string    = unpackString(actionRecord, "purpose");
+    const tokenAmount           : nat       = unpackNat(actionRecord, "tokenAmount");
     // fetch params end ---
 
-    // Validate inputs
-    if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
-
-    const requestMintParams : councilActionRequestMintType = record[
-        tokenAmount      = tokenAmount;
-        treasuryAddress  = treasuryAddress;
-        purpose          = purpose;
-    ];
-
-    const requestMintOperation : operation = Tezos.transaction(
-        requestMintParams,
-        0tez, 
-        sendRequestMintParams(governanceFinancialAddress)
+    // create requestMintOperation
+    const requestMintOperation : operation = requestMintOperation(
+        treasuryAddress,
+        tokenAmount,
+        purpose,
+        s 
     );
 
     operations := requestMintOperation # operations;
@@ -863,33 +949,15 @@ function triggerSetContractBakerAction(const actionRecord : councilActionRecordT
 block {
     
     // fetch params begin ---
-    const targetContractAddress : address = case actionRecord.dataMap["targetContractAddress"] of [
-            Some(_address) -> case (Bytes.unpack(_address) : option(address)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
-    const keyHash : option(key_hash)       = case actionRecord.dataMap["keyHash"] of [
-            Some(_keyHash) -> case (Bytes.unpack(_keyHash) : option(option(key_hash))) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const targetContractAddress  : address          = unpackAddress(actionRecord, "targetContractAddress");
+    const keyHash                : option(key_hash) = unpackKeyHash(actionRecord, "keyHash");
     // fetch params end ---
 
-    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
-
-    const setContractBakerParams : councilActionSetContractBakerType = record[
-        targetContractAddress   = targetContractAddress;
-        keyHash                 = keyHash;
-    ];
-
-    const setContractBakerOperation : operation = Tezos.transaction(
-        setContractBakerParams,
-        0tez, 
-        sendSetContractBakerParams(governanceFinancialAddress)
+    // create setContractBakerOperation
+    const setContractBakerOperation : operation = setContractBakerOperation(
+        targetContractAddress,
+        keyHash,
+        s 
     );
 
     operations := setContractBakerOperation # operations;
@@ -903,31 +971,11 @@ function triggerDropFinancialRequestAction(const actionRecord : councilActionRec
 block {
                         
     // fetch params begin ---
-    const requestId : nat = case actionRecord.dataMap["requestId"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const requestId : nat = unpackNat(actionRecord, "requestId");
     // fetch params end ---
 
-    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
-
-    // check if request exists
-    case (Tezos.call_view ("getFinancialRequestOpt", requestId, governanceFinancialAddress) : option(option(financialRequestRecordType))) of [
-            Some (_requestOpt)  -> case _requestOpt of [
-                    Some (_request) -> skip
-                |   None            -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
-            ]
-        |   None                -> failwith(error_GET_FINANCIAL_REQUEST_OPT_VIEW_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
-    ];
-
-    const dropFinancialRequestOperation : operation = Tezos.transaction(
-        requestId,
-        0tez, 
-        sendDropFinancialRequestParams(governanceFinancialAddress)
-    );
+    // create dropFinancialRequestOperation
+    const dropFinancialRequestOperation : operation =  dropFinancialRequestOperation(requestId, s);
 
     operations := dropFinancialRequestOperation # operations;
 
@@ -940,13 +988,7 @@ function triggerFlushActionAction(const actionRecord : councilActionRecordType; 
 block {
 
     // fetch params begin ---
-    const flushedCouncilActionId : nat = case actionRecord.dataMap["actionId"] of [
-            Some(_nat) -> case (Bytes.unpack(_nat) : option(nat)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-    ];
+    const flushedCouncilActionId : nat = unpackNat(actionRecord, "actionId");
     // fetch params end ---
 
     var flushedCouncilActionRecord : councilActionRecordType := case s.councilActionsLedger[flushedCouncilActionId] of [      
@@ -964,7 +1006,7 @@ block {
 
 
 
-// helper function to a council action during the sign
+// helper function to a council action during the signing
 function executeCouncilAction(var actionRecord : councilActionRecordType; const actionId : actionIdType; var operations : list(operation); var s : councilStorageType) : return is
 block {
 
@@ -988,7 +1030,7 @@ block {
     if actionType = "changeCouncilMember" then s                := triggerChangeCouncilMemberAction(actionRecord, s);
 
     // setBaker action type
-    if actionType = "setBaker" then operations               := triggerSetBakerAction(actionRecord, operations);
+    if actionType = "setBaker" then operations                  := triggerSetBakerAction(actionRecord, operations);
 
     // ------------------------------------------------------------------------------
     // Council Actions for Internal Control End
@@ -1068,12 +1110,6 @@ block {
     s.councilActionsLedger[actionId]         := actionRecord;
 
 } with (operations, s)
-
-// ------------------------------------------------------------------------------
-// Sign Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-
 
 // ------------------------------------------------------------------------------
 // Sign Helper Functions End
