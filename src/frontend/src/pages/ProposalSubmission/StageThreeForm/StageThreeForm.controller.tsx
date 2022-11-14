@@ -63,11 +63,17 @@ export const StageThreeForm = ({
 
   const PaymentMethods = useMemo(
     () =>
-      whitelistTokens.map((tokenInfo) => ({
-        symbol: tokenInfo.contract_name,
-        address: tokenInfo.contract_address,
-        id: 0,
-      })),
+      whitelistTokens
+        .map((tokenInfo) => ({
+          symbol: tokenInfo.contract_name,
+          address: tokenInfo.contract_address,
+          id: 0,
+        }))
+        .filter(({ address }) =>
+          ['fa2', 'fa12', 'tez'].includes(
+            dipDupTokens.find(({ contract }) => contract === address)?.metadata?.symbol?.toLowerCase() ?? '',
+          ),
+        ),
     [whitelistTokens],
   )
 
@@ -110,9 +116,9 @@ export const StageThreeForm = ({
 
   // set up validity state for new proposal, on proposal change and add new row for proposal, if there are no rows in proposal
   useEffect(() => {
-    if (!proposalPayments.some(checkPaymentExists)) {
-      handleAddRow()
-    }
+    // if (!proposalPayments.some(checkPaymentExists)) {
+    //   handleAddRow()
+    // }
 
     setValidForm(
       proposalPayments.map(({ token_amount, title, to__id }) =>
@@ -246,10 +252,9 @@ export const StageThreeForm = ({
                 <td key="row-names-asset">Payment Type (XTZ/MVK)</td>
               </tr>
               {proposalPayments.map((rowItems, i) => {
-                const isLocal = rowItems.id < 0
                 const validationObj = validForm[i]
                 const { symbol: selectedSymbol = 'MVK' } =
-                  PaymentMethods.find(({ address }) => address === rowItems.token_address) ?? {}
+                  PaymentMethods.find(({ address }) => address === rowItems.token_address) ?? PaymentMethods?.[0]
 
                 if (!rowItems || rowItems.title === null || rowItems.token_amount === null) return null
 
@@ -274,7 +279,7 @@ export const StageThreeForm = ({
                         value={rowItems.title ?? ''}
                         type={'text'}
                         name="title"
-                        disabled={!isLocal || disabledInputs}
+                        disabled={disabledInputs}
                         inputStatus={validationObj?.title}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
                         onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
@@ -326,19 +331,17 @@ export const StageThreeForm = ({
                         )}
                       </div>
 
-                      {proposalPayments.length > 2 ? (
-                        <div className="delete-button-wrap">
-                          <StyledTooltip placement="top" title="Delete row">
-                            <button
-                              onClick={() => handleDeleteRow(i)}
-                              disabled={locked || !isProposalRound}
-                              className="delete-button"
-                            >
-                              <Icon id="delete" />
-                            </button>
-                          </StyledTooltip>
-                        </div>
-                      ) : null}
+                      <div className="delete-button-wrap">
+                        <StyledTooltip placement="top" title="Delete row">
+                          <button
+                            onClick={() => handleDeleteRow(i)}
+                            disabled={locked || !isProposalRound}
+                            className="delete-button"
+                          >
+                            <Icon id="delete" />
+                          </button>
+                        </StyledTooltip>
+                      </div>
                     </td>
                   </tr>
                 )
