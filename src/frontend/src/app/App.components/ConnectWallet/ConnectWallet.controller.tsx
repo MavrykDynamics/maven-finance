@@ -28,7 +28,8 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   const [showWertIoPopup, setShowWertIoPopup] = useState(false)
   const { ready, accountPkh } = useSelector((state: State) => state.wallet)
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
-  const { myMvkTokenBalance = 0, mySMvkTokenBalance = 0 } = useSelector((state: State) => state.user)
+  const { tokensPrices } = useSelector((state: State) => state.tokens)
+  const { myMvkTokenBalance = 0, mySMvkTokenBalance = 0, myXTZTokenBalance } = useSelector((state: State) => state.user)
   const isMobileView = useMedia('(max-width: 870px)')
 
   const handleConnect = async () => {
@@ -68,9 +69,9 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   const coinsInfo: CoinsInfoType = {
     MVKExchangeRate: exchangeRate,
     userMVKBalance: myMvkTokenBalance,
-    userXTZBalance: 0,
+    userXTZBalance: myXTZTokenBalance,
     userMVKStaked: mySMvkTokenBalance,
-    XTZExchnageRate: 0,
+    XTZExchnageRate: tokensPrices?.tezos?.usd ?? 1,
   }
 
   const detailsHandlers = {

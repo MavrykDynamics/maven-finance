@@ -27,6 +27,7 @@ import {
   calcUsersDoormanRewards,
   calcUsersFarmRewards,
   calcUsersSatelliteRewards,
+  calcWithoutMu,
   calcWithoutPrecision,
 } from '../../utils/calcFunctions'
 import { PRECISION_NUMBER } from '../../utils/constants'
@@ -371,6 +372,10 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       USER_REWARDS_QUERY_VARIABLES(accountPkh),
     )
 
+    const xtzBalance = await (
+      await fetch(`https://api.${process.env.REACT_APP_API_NETWORK}.tzkt.io/v1/accounts/${accountPkh}/balance`)
+    ).json()
+
     const userDoormanRewardsData: UserDoormanRewardsData = {
       generalAccumulatedFeesPerShare: userRewardsData.doorman[0]?.accumulated_fees_per_share ?? 0,
       generalUnclaimedRewards: userRewardsData.doorman[0]?.unclaimed_rewards ?? 0,
@@ -415,6 +420,7 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       myAddress: userInfoData?.address,
       myMvkTokenBalance: calcWithoutPrecision(userInfoData?.mvk_balance),
       mySMvkTokenBalance: calcWithoutPrecision(userInfoData?.smvk_balance),
+      myXTZTokenBalance: calcWithoutMu(Number(xtzBalance)),
       participationFeesPerShare: calcWithoutPrecision(userInfoData?.participation_fees_per_share),
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite ? userInfoData?.delegations[0].satellite?.user_id : '',
       isSatellite: Boolean(
