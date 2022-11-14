@@ -65,7 +65,7 @@ export const ProposalSubmission = () => {
   const [proposalHasChange, setProposalHasChange] = useState(false)
   const currentOriginalProposal = useMemo(
     () => currentRoundProposals.find(({ id }) => selectedUserProposalId === id),
-    [selectedUserProposalId],
+    [selectedUserProposalId, currentRoundProposals],
   )
 
   const handleChangeTab = useCallback((tabId?: number) => {

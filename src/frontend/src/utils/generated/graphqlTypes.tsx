@@ -20839,6 +20839,7 @@ export type Governance_Financial_Whitelist_Token_Contract = {
   contract_id: Scalars['String'];
   contract_name: Scalars['String'];
   id: Scalars['bigint'];
+  token_contract_standard: Scalars['String'];
 };
 
 /** aggregated selection of "governance_financial_whitelist_token_contract" */
@@ -20907,6 +20908,7 @@ export type Governance_Financial_Whitelist_Token_Contract_Bool_Exp = {
   contract_id?: InputMaybe<String_Comparison_Exp>;
   contract_name?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
+  token_contract_standard?: InputMaybe<String_Comparison_Exp>;
 };
 
 /** aggregate max on columns */
@@ -20916,6 +20918,7 @@ export type Governance_Financial_Whitelist_Token_Contract_Max_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "governance_financial_whitelist_token_contract" */
@@ -20924,6 +20927,7 @@ export type Governance_Financial_Whitelist_Token_Contract_Max_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
@@ -20933,6 +20937,7 @@ export type Governance_Financial_Whitelist_Token_Contract_Min_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "governance_financial_whitelist_token_contract" */
@@ -20941,6 +20946,7 @@ export type Governance_Financial_Whitelist_Token_Contract_Min_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** Ordering options when selecting data from "governance_financial_whitelist_token_contract". */
@@ -20950,6 +20956,7 @@ export type Governance_Financial_Whitelist_Token_Contract_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** select columns of table "governance_financial_whitelist_token_contract" */
@@ -20961,7 +20968,9 @@ export enum Governance_Financial_Whitelist_Token_Contract_Select_Column {
   /** column name */
   ContractName = 'contract_name',
   /** column name */
-  Id = 'id'
+  Id = 'id',
+  /** column name */
+  TokenContractStandard = 'token_contract_standard'
 }
 
 /** aggregate stddev on columns */
@@ -21011,6 +21020,7 @@ export type Governance_Financial_Whitelist_Token_Contract_Stream_Cursor_Value_In
   contract_id?: InputMaybe<Scalars['String']>;
   contract_name?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['bigint']>;
+  token_contract_standard?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -24802,6 +24812,7 @@ export type Governance_Proxy_Whitelist_Token_Contract = {
   contract_id: Scalars['String'];
   contract_name: Scalars['String'];
   id: Scalars['bigint'];
+  token_contract_standard: Scalars['String'];
 };
 
 /** aggregated selection of "governance_proxy_whitelist_token_contract" */
@@ -24870,6 +24881,7 @@ export type Governance_Proxy_Whitelist_Token_Contract_Bool_Exp = {
   contract_id?: InputMaybe<String_Comparison_Exp>;
   contract_name?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
+  token_contract_standard?: InputMaybe<String_Comparison_Exp>;
 };
 
 /** aggregate max on columns */
@@ -24879,6 +24891,7 @@ export type Governance_Proxy_Whitelist_Token_Contract_Max_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "governance_proxy_whitelist_token_contract" */
@@ -24887,6 +24900,7 @@ export type Governance_Proxy_Whitelist_Token_Contract_Max_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
@@ -24896,6 +24910,7 @@ export type Governance_Proxy_Whitelist_Token_Contract_Min_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "governance_proxy_whitelist_token_contract" */
@@ -24904,6 +24919,7 @@ export type Governance_Proxy_Whitelist_Token_Contract_Min_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** Ordering options when selecting data from "governance_proxy_whitelist_token_contract". */
@@ -24913,6 +24929,7 @@ export type Governance_Proxy_Whitelist_Token_Contract_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** select columns of table "governance_proxy_whitelist_token_contract" */
@@ -24924,7 +24941,9 @@ export enum Governance_Proxy_Whitelist_Token_Contract_Select_Column {
   /** column name */
   ContractName = 'contract_name',
   /** column name */
-  Id = 'id'
+  Id = 'id',
+  /** column name */
+  TokenContractStandard = 'token_contract_standard'
 }
 
 /** aggregate stddev on columns */
@@ -24974,6 +24993,7 @@ export type Governance_Proxy_Whitelist_Token_Contract_Stream_Cursor_Value_Input 
   contract_id?: InputMaybe<Scalars['String']>;
   contract_name?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['bigint']>;
+  token_contract_standard?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -32058,6 +32078,7 @@ export type Lending_Controller_Whitelist_Token_Contract = {
   contract_id: Scalars['String'];
   contract_name: Scalars['String'];
   id: Scalars['bigint'];
+  token_contract_standard: Scalars['String'];
 };
 
 /** aggregated selection of "lending_controller_whitelist_token_contract" */
@@ -32126,6 +32147,7 @@ export type Lending_Controller_Whitelist_Token_Contract_Bool_Exp = {
   contract_id?: InputMaybe<String_Comparison_Exp>;
   contract_name?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
+  token_contract_standard?: InputMaybe<String_Comparison_Exp>;
 };
 
 /** aggregate max on columns */
@@ -32135,6 +32157,7 @@ export type Lending_Controller_Whitelist_Token_Contract_Max_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "lending_controller_whitelist_token_contract" */
@@ -32143,6 +32166,7 @@ export type Lending_Controller_Whitelist_Token_Contract_Max_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
@@ -32152,6 +32176,7 @@ export type Lending_Controller_Whitelist_Token_Contract_Min_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "lending_controller_whitelist_token_contract" */
@@ -32160,6 +32185,7 @@ export type Lending_Controller_Whitelist_Token_Contract_Min_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** Ordering options when selecting data from "lending_controller_whitelist_token_contract". */
@@ -32169,6 +32195,7 @@ export type Lending_Controller_Whitelist_Token_Contract_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** select columns of table "lending_controller_whitelist_token_contract" */
@@ -32180,7 +32207,9 @@ export enum Lending_Controller_Whitelist_Token_Contract_Select_Column {
   /** column name */
   ContractName = 'contract_name',
   /** column name */
-  Id = 'id'
+  Id = 'id',
+  /** column name */
+  TokenContractStandard = 'token_contract_standard'
 }
 
 /** aggregate stddev on columns */
@@ -32230,6 +32259,7 @@ export type Lending_Controller_Whitelist_Token_Contract_Stream_Cursor_Value_Inpu
   contract_id?: InputMaybe<Scalars['String']>;
   contract_name?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['bigint']>;
+  token_contract_standard?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -32293,7 +32323,6 @@ export type Liquidity_Baking = {
   /** An aggregate relationship */
   positions_aggregate: Liquidity_Baking_Position_Aggregate;
   share_price: Scalars['float8'];
-  share_price_usd: Scalars['float8'];
   token_address: Scalars['String'];
   token_decimals: Scalars['smallint'];
   token_pool: Scalars['bigint'];
@@ -32376,7 +32405,6 @@ export type Liquidity_Baking_Avg_Fields = {
   __typename?: 'liquidity_baking_avg_fields';
   lqt_total?: Maybe<Scalars['Float']>;
   share_price?: Maybe<Scalars['Float']>;
-  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -32396,7 +32424,6 @@ export type Liquidity_Baking_Bool_Exp = {
   lqt_total?: InputMaybe<Bigint_Comparison_Exp>;
   positions?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
   share_price?: InputMaybe<Float8_Comparison_Exp>;
-  share_price_usd?: InputMaybe<Float8_Comparison_Exp>;
   token_address?: InputMaybe<String_Comparison_Exp>;
   token_decimals?: InputMaybe<Smallint_Comparison_Exp>;
   token_pool?: InputMaybe<Bigint_Comparison_Exp>;
@@ -32418,7 +32445,7 @@ export type Liquidity_Baking_History_Data = {
   timestamp: Scalars['timestamptz'];
   token_pool: Scalars['bigint'];
   token_price: Scalars['float8'];
-  token_price_usd: Scalars['float8'];
+  token_price_usd?: Maybe<Scalars['float8']>;
   token_qty: Scalars['float8'];
   /** An object relationship */
   trader: Mavryk_User;
@@ -32952,7 +32979,6 @@ export type Liquidity_Baking_Max_Fields = {
   lqt_address?: Maybe<Scalars['String']>;
   lqt_total?: Maybe<Scalars['bigint']>;
   share_price?: Maybe<Scalars['float8']>;
-  share_price_usd?: Maybe<Scalars['float8']>;
   token_address?: Maybe<Scalars['String']>;
   token_decimals?: Maybe<Scalars['smallint']>;
   token_pool?: Maybe<Scalars['bigint']>;
@@ -32969,7 +32995,6 @@ export type Liquidity_Baking_Min_Fields = {
   lqt_address?: Maybe<Scalars['String']>;
   lqt_total?: Maybe<Scalars['bigint']>;
   share_price?: Maybe<Scalars['float8']>;
-  share_price_usd?: Maybe<Scalars['float8']>;
   token_address?: Maybe<Scalars['String']>;
   token_decimals?: Maybe<Scalars['smallint']>;
   token_pool?: Maybe<Scalars['bigint']>;
@@ -32987,7 +33012,6 @@ export type Liquidity_Baking_Order_By = {
   lqt_total?: InputMaybe<Order_By>;
   positions_aggregate?: InputMaybe<Liquidity_Baking_Position_Aggregate_Order_By>;
   share_price?: InputMaybe<Order_By>;
-  share_price_usd?: InputMaybe<Order_By>;
   token_address?: InputMaybe<Order_By>;
   token_decimals?: InputMaybe<Order_By>;
   token_pool?: InputMaybe<Order_By>;
@@ -32999,7 +33023,6 @@ export type Liquidity_Baking_Order_By = {
 export type Liquidity_Baking_Position = {
   __typename?: 'liquidity_baking_position';
   avg_share_price: Scalars['float8'];
-  avg_share_price_usd: Scalars['float8'];
   id: Scalars['bigint'];
   /** An object relationship */
   liquidity_baking: Liquidity_Baking;
@@ -33060,7 +33083,6 @@ export type Liquidity_Baking_Position_Aggregate_Order_By = {
 export type Liquidity_Baking_Position_Avg_Fields = {
   __typename?: 'liquidity_baking_position_avg_fields';
   avg_share_price?: Maybe<Scalars['Float']>;
-  avg_share_price_usd?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   realized_pl?: Maybe<Scalars['Float']>;
   shares_qty?: Maybe<Scalars['Float']>;
@@ -33069,7 +33091,6 @@ export type Liquidity_Baking_Position_Avg_Fields = {
 /** order by avg() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Avg_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
   shares_qty?: InputMaybe<Order_By>;
@@ -33081,7 +33102,6 @@ export type Liquidity_Baking_Position_Bool_Exp = {
   _not?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
   _or?: InputMaybe<Array<Liquidity_Baking_Position_Bool_Exp>>;
   avg_share_price?: InputMaybe<Float8_Comparison_Exp>;
-  avg_share_price_usd?: InputMaybe<Float8_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
   liquidity_baking?: InputMaybe<Liquidity_Baking_Bool_Exp>;
   liquidity_baking_id?: InputMaybe<String_Comparison_Exp>;
@@ -33095,7 +33115,6 @@ export type Liquidity_Baking_Position_Bool_Exp = {
 export type Liquidity_Baking_Position_Max_Fields = {
   __typename?: 'liquidity_baking_position_max_fields';
   avg_share_price?: Maybe<Scalars['float8']>;
-  avg_share_price_usd?: Maybe<Scalars['float8']>;
   id?: Maybe<Scalars['bigint']>;
   liquidity_baking_id?: Maybe<Scalars['String']>;
   realized_pl?: Maybe<Scalars['float8']>;
@@ -33106,7 +33125,6 @@ export type Liquidity_Baking_Position_Max_Fields = {
 /** order by max() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Max_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   liquidity_baking_id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
@@ -33118,7 +33136,6 @@ export type Liquidity_Baking_Position_Max_Order_By = {
 export type Liquidity_Baking_Position_Min_Fields = {
   __typename?: 'liquidity_baking_position_min_fields';
   avg_share_price?: Maybe<Scalars['float8']>;
-  avg_share_price_usd?: Maybe<Scalars['float8']>;
   id?: Maybe<Scalars['bigint']>;
   liquidity_baking_id?: Maybe<Scalars['String']>;
   realized_pl?: Maybe<Scalars['float8']>;
@@ -33129,7 +33146,6 @@ export type Liquidity_Baking_Position_Min_Fields = {
 /** order by min() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Min_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   liquidity_baking_id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
@@ -33140,7 +33156,6 @@ export type Liquidity_Baking_Position_Min_Order_By = {
 /** Ordering options when selecting data from "liquidity_baking_position". */
 export type Liquidity_Baking_Position_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   liquidity_baking?: InputMaybe<Liquidity_Baking_Order_By>;
   liquidity_baking_id?: InputMaybe<Order_By>;
@@ -33154,8 +33169,6 @@ export type Liquidity_Baking_Position_Order_By = {
 export enum Liquidity_Baking_Position_Select_Column {
   /** column name */
   AvgSharePrice = 'avg_share_price',
-  /** column name */
-  AvgSharePriceUsd = 'avg_share_price_usd',
   /** column name */
   Id = 'id',
   /** column name */
@@ -33172,7 +33185,6 @@ export enum Liquidity_Baking_Position_Select_Column {
 export type Liquidity_Baking_Position_Stddev_Fields = {
   __typename?: 'liquidity_baking_position_stddev_fields';
   avg_share_price?: Maybe<Scalars['Float']>;
-  avg_share_price_usd?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   realized_pl?: Maybe<Scalars['Float']>;
   shares_qty?: Maybe<Scalars['Float']>;
@@ -33181,7 +33193,6 @@ export type Liquidity_Baking_Position_Stddev_Fields = {
 /** order by stddev() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Stddev_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
   shares_qty?: InputMaybe<Order_By>;
@@ -33191,7 +33202,6 @@ export type Liquidity_Baking_Position_Stddev_Order_By = {
 export type Liquidity_Baking_Position_Stddev_Pop_Fields = {
   __typename?: 'liquidity_baking_position_stddev_pop_fields';
   avg_share_price?: Maybe<Scalars['Float']>;
-  avg_share_price_usd?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   realized_pl?: Maybe<Scalars['Float']>;
   shares_qty?: Maybe<Scalars['Float']>;
@@ -33200,7 +33210,6 @@ export type Liquidity_Baking_Position_Stddev_Pop_Fields = {
 /** order by stddev_pop() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Stddev_Pop_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
   shares_qty?: InputMaybe<Order_By>;
@@ -33210,7 +33219,6 @@ export type Liquidity_Baking_Position_Stddev_Pop_Order_By = {
 export type Liquidity_Baking_Position_Stddev_Samp_Fields = {
   __typename?: 'liquidity_baking_position_stddev_samp_fields';
   avg_share_price?: Maybe<Scalars['Float']>;
-  avg_share_price_usd?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   realized_pl?: Maybe<Scalars['Float']>;
   shares_qty?: Maybe<Scalars['Float']>;
@@ -33219,7 +33227,6 @@ export type Liquidity_Baking_Position_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Stddev_Samp_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
   shares_qty?: InputMaybe<Order_By>;
@@ -33236,7 +33243,6 @@ export type Liquidity_Baking_Position_Stream_Cursor_Input = {
 /** Initial value of the column from where the streaming should start */
 export type Liquidity_Baking_Position_Stream_Cursor_Value_Input = {
   avg_share_price?: InputMaybe<Scalars['float8']>;
-  avg_share_price_usd?: InputMaybe<Scalars['float8']>;
   id?: InputMaybe<Scalars['bigint']>;
   liquidity_baking_id?: InputMaybe<Scalars['String']>;
   realized_pl?: InputMaybe<Scalars['float8']>;
@@ -33248,7 +33254,6 @@ export type Liquidity_Baking_Position_Stream_Cursor_Value_Input = {
 export type Liquidity_Baking_Position_Sum_Fields = {
   __typename?: 'liquidity_baking_position_sum_fields';
   avg_share_price?: Maybe<Scalars['float8']>;
-  avg_share_price_usd?: Maybe<Scalars['float8']>;
   id?: Maybe<Scalars['bigint']>;
   realized_pl?: Maybe<Scalars['float8']>;
   shares_qty?: Maybe<Scalars['float8']>;
@@ -33257,7 +33262,6 @@ export type Liquidity_Baking_Position_Sum_Fields = {
 /** order by sum() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Sum_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
   shares_qty?: InputMaybe<Order_By>;
@@ -33267,7 +33271,6 @@ export type Liquidity_Baking_Position_Sum_Order_By = {
 export type Liquidity_Baking_Position_Var_Pop_Fields = {
   __typename?: 'liquidity_baking_position_var_pop_fields';
   avg_share_price?: Maybe<Scalars['Float']>;
-  avg_share_price_usd?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   realized_pl?: Maybe<Scalars['Float']>;
   shares_qty?: Maybe<Scalars['Float']>;
@@ -33276,7 +33279,6 @@ export type Liquidity_Baking_Position_Var_Pop_Fields = {
 /** order by var_pop() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Var_Pop_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
   shares_qty?: InputMaybe<Order_By>;
@@ -33286,7 +33288,6 @@ export type Liquidity_Baking_Position_Var_Pop_Order_By = {
 export type Liquidity_Baking_Position_Var_Samp_Fields = {
   __typename?: 'liquidity_baking_position_var_samp_fields';
   avg_share_price?: Maybe<Scalars['Float']>;
-  avg_share_price_usd?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   realized_pl?: Maybe<Scalars['Float']>;
   shares_qty?: Maybe<Scalars['Float']>;
@@ -33295,7 +33296,6 @@ export type Liquidity_Baking_Position_Var_Samp_Fields = {
 /** order by var_samp() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Var_Samp_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
   shares_qty?: InputMaybe<Order_By>;
@@ -33305,7 +33305,6 @@ export type Liquidity_Baking_Position_Var_Samp_Order_By = {
 export type Liquidity_Baking_Position_Variance_Fields = {
   __typename?: 'liquidity_baking_position_variance_fields';
   avg_share_price?: Maybe<Scalars['Float']>;
-  avg_share_price_usd?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['Float']>;
   realized_pl?: Maybe<Scalars['Float']>;
   shares_qty?: Maybe<Scalars['Float']>;
@@ -33314,7 +33313,6 @@ export type Liquidity_Baking_Position_Variance_Fields = {
 /** order by variance() on columns of table "liquidity_baking_position" */
 export type Liquidity_Baking_Position_Variance_Order_By = {
   avg_share_price?: InputMaybe<Order_By>;
-  avg_share_price_usd?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   realized_pl?: InputMaybe<Order_By>;
   shares_qty?: InputMaybe<Order_By>;
@@ -33335,8 +33333,6 @@ export enum Liquidity_Baking_Select_Column {
   /** column name */
   SharePrice = 'share_price',
   /** column name */
-  SharePriceUsd = 'share_price_usd',
-  /** column name */
   TokenAddress = 'token_address',
   /** column name */
   TokenDecimals = 'token_decimals',
@@ -33353,7 +33349,6 @@ export type Liquidity_Baking_Stddev_Fields = {
   __typename?: 'liquidity_baking_stddev_fields';
   lqt_total?: Maybe<Scalars['Float']>;
   share_price?: Maybe<Scalars['Float']>;
-  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -33365,7 +33360,6 @@ export type Liquidity_Baking_Stddev_Pop_Fields = {
   __typename?: 'liquidity_baking_stddev_pop_fields';
   lqt_total?: Maybe<Scalars['Float']>;
   share_price?: Maybe<Scalars['Float']>;
-  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -33377,7 +33371,6 @@ export type Liquidity_Baking_Stddev_Samp_Fields = {
   __typename?: 'liquidity_baking_stddev_samp_fields';
   lqt_total?: Maybe<Scalars['Float']>;
   share_price?: Maybe<Scalars['Float']>;
-  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -33400,7 +33393,6 @@ export type Liquidity_Baking_Stream_Cursor_Value_Input = {
   lqt_address?: InputMaybe<Scalars['String']>;
   lqt_total?: InputMaybe<Scalars['bigint']>;
   share_price?: InputMaybe<Scalars['float8']>;
-  share_price_usd?: InputMaybe<Scalars['float8']>;
   token_address?: InputMaybe<Scalars['String']>;
   token_decimals?: InputMaybe<Scalars['smallint']>;
   token_pool?: InputMaybe<Scalars['bigint']>;
@@ -33413,7 +33405,6 @@ export type Liquidity_Baking_Sum_Fields = {
   __typename?: 'liquidity_baking_sum_fields';
   lqt_total?: Maybe<Scalars['bigint']>;
   share_price?: Maybe<Scalars['float8']>;
-  share_price_usd?: Maybe<Scalars['float8']>;
   token_decimals?: Maybe<Scalars['smallint']>;
   token_pool?: Maybe<Scalars['bigint']>;
   xtz_decimals?: Maybe<Scalars['smallint']>;
@@ -33425,7 +33416,6 @@ export type Liquidity_Baking_Var_Pop_Fields = {
   __typename?: 'liquidity_baking_var_pop_fields';
   lqt_total?: Maybe<Scalars['Float']>;
   share_price?: Maybe<Scalars['Float']>;
-  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -33437,7 +33427,6 @@ export type Liquidity_Baking_Var_Samp_Fields = {
   __typename?: 'liquidity_baking_var_samp_fields';
   lqt_total?: Maybe<Scalars['Float']>;
   share_price?: Maybe<Scalars['Float']>;
-  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -33449,7 +33438,6 @@ export type Liquidity_Baking_Variance_Fields = {
   __typename?: 'liquidity_baking_variance_fields';
   lqt_total?: Maybe<Scalars['Float']>;
   share_price?: Maybe<Scalars['Float']>;
-  share_price_usd?: Maybe<Scalars['Float']>;
   token_decimals?: Maybe<Scalars['Float']>;
   token_pool?: Maybe<Scalars['Float']>;
   xtz_decimals?: Maybe<Scalars['Float']>;
@@ -50812,6 +50800,7 @@ export type Treasury_Factory_Whitelist_Token_Contract = {
   contract_id: Scalars['String'];
   contract_name: Scalars['String'];
   id: Scalars['bigint'];
+  token_contract_standard: Scalars['String'];
 };
 
 /** aggregated selection of "treasury_factory_whitelist_token_contract" */
@@ -50880,6 +50869,7 @@ export type Treasury_Factory_Whitelist_Token_Contract_Bool_Exp = {
   contract_id?: InputMaybe<String_Comparison_Exp>;
   contract_name?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
+  token_contract_standard?: InputMaybe<String_Comparison_Exp>;
 };
 
 /** aggregate max on columns */
@@ -50889,6 +50879,7 @@ export type Treasury_Factory_Whitelist_Token_Contract_Max_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "treasury_factory_whitelist_token_contract" */
@@ -50897,6 +50888,7 @@ export type Treasury_Factory_Whitelist_Token_Contract_Max_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
@@ -50906,6 +50898,7 @@ export type Treasury_Factory_Whitelist_Token_Contract_Min_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "treasury_factory_whitelist_token_contract" */
@@ -50914,6 +50907,7 @@ export type Treasury_Factory_Whitelist_Token_Contract_Min_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** Ordering options when selecting data from "treasury_factory_whitelist_token_contract". */
@@ -50923,6 +50917,7 @@ export type Treasury_Factory_Whitelist_Token_Contract_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** select columns of table "treasury_factory_whitelist_token_contract" */
@@ -50934,7 +50929,9 @@ export enum Treasury_Factory_Whitelist_Token_Contract_Select_Column {
   /** column name */
   ContractName = 'contract_name',
   /** column name */
-  Id = 'id'
+  Id = 'id',
+  /** column name */
+  TokenContractStandard = 'token_contract_standard'
 }
 
 /** aggregate stddev on columns */
@@ -50984,6 +50981,7 @@ export type Treasury_Factory_Whitelist_Token_Contract_Stream_Cursor_Value_Input 
   contract_id?: InputMaybe<Scalars['String']>;
   contract_name?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['bigint']>;
+  token_contract_standard?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */
@@ -52115,6 +52113,7 @@ export type Treasury_Whitelist_Token_Contract = {
   contract_id: Scalars['String'];
   contract_name: Scalars['String'];
   id: Scalars['bigint'];
+  token_contract_standard: Scalars['String'];
 };
 
 /** aggregated selection of "treasury_whitelist_token_contract" */
@@ -52183,6 +52182,7 @@ export type Treasury_Whitelist_Token_Contract_Bool_Exp = {
   contract_id?: InputMaybe<String_Comparison_Exp>;
   contract_name?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
+  token_contract_standard?: InputMaybe<String_Comparison_Exp>;
 };
 
 /** aggregate max on columns */
@@ -52192,6 +52192,7 @@ export type Treasury_Whitelist_Token_Contract_Max_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "treasury_whitelist_token_contract" */
@@ -52200,6 +52201,7 @@ export type Treasury_Whitelist_Token_Contract_Max_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
@@ -52209,6 +52211,7 @@ export type Treasury_Whitelist_Token_Contract_Min_Fields = {
   contract_id?: Maybe<Scalars['String']>;
   contract_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['bigint']>;
+  token_contract_standard?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "treasury_whitelist_token_contract" */
@@ -52217,6 +52220,7 @@ export type Treasury_Whitelist_Token_Contract_Min_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** Ordering options when selecting data from "treasury_whitelist_token_contract". */
@@ -52226,6 +52230,7 @@ export type Treasury_Whitelist_Token_Contract_Order_By = {
   contract_id?: InputMaybe<Order_By>;
   contract_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  token_contract_standard?: InputMaybe<Order_By>;
 };
 
 /** select columns of table "treasury_whitelist_token_contract" */
@@ -52237,7 +52242,9 @@ export enum Treasury_Whitelist_Token_Contract_Select_Column {
   /** column name */
   ContractName = 'contract_name',
   /** column name */
-  Id = 'id'
+  Id = 'id',
+  /** column name */
+  TokenContractStandard = 'token_contract_standard'
 }
 
 /** aggregate stddev on columns */
@@ -52287,6 +52294,7 @@ export type Treasury_Whitelist_Token_Contract_Stream_Cursor_Value_Input = {
   contract_id?: InputMaybe<Scalars['String']>;
   contract_name?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['bigint']>;
+  token_contract_standard?: InputMaybe<Scalars['String']>;
 };
 
 /** aggregate sum on columns */

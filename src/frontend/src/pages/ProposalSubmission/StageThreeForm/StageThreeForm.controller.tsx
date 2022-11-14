@@ -67,17 +67,12 @@ export const StageThreeForm = ({
         .map((tokenInfo) => ({
           symbol: tokenInfo.contract_name,
           address: tokenInfo.contract_address,
+          shortSymbol: tokenInfo.token_contract_standard,
           id: 0,
         }))
-        .filter(({ address }) =>
-          ['fa2', 'fa12', 'tez'].includes(
-            dipDupTokens.find(({ contract }) => contract === address)?.metadata?.symbol?.toLowerCase() ?? '',
-          ),
-        ),
+        .filter(({ shortSymbol }) => ['fa2', 'fa12', 'tez'].includes(shortSymbol)),
     [whitelistTokens],
   )
-
-  console.log('proposalPayments', proposalPayments, PaymentMethods)
 
   // we can modify only when current period is 'proposal'
   const isProposalRound = governancePhase === 'PROPOSAL'
@@ -116,10 +111,6 @@ export const StageThreeForm = ({
 
   // set up validity state for new proposal, on proposal change and add new row for proposal, if there are no rows in proposal
   useEffect(() => {
-    // if (!proposalPayments.some(checkPaymentExists)) {
-    //   handleAddRow()
-    // }
-
     setValidForm(
       proposalPayments.map(({ token_amount, title, to__id }) =>
         token_amount && title && to__id
@@ -139,7 +130,12 @@ export const StageThreeForm = ({
 
   const handleSubmitFinancialRequestData = async () => {
     if (proposalId && isAllPaymentsValid && currentOriginalProposal) {
-      const paymentsDiff = getPaymentsDiff(currentOriginalProposal.proposalPayments, proposalPayments, dipDupTokens)
+      const paymentsDiff = getPaymentsDiff(
+        currentOriginalProposal.proposalPayments,
+        proposalPayments,
+        PaymentMethods,
+        dipDupTokens,
+      )
       console.log('paymentsDiff', paymentsDiff)
       await dispatch(updateProposalData(proposalId, null, paymentsDiff))
     }

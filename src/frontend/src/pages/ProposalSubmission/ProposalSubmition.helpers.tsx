@@ -100,19 +100,17 @@ export const getBytesDiff = (
 export const getPaymentsDiff = (
   originalData: ProposalRecordType['proposalPayments'],
   updatedData: ProposalRecordType['proposalPayments'],
+  paymentMethods: Array<{ symbol: string; address: string; shortSymbol: string; id: number }>,
   dipDupTokens: State['tokens']['dipDupTokens'],
 ): PaymentsDataChangesType => {
-  // we need to irerate the arr, that has more elements, and secondaryArr is the array we will take elements to compare and give appropriate change el
-  const arrayToIterate = originalData.length <= updatedData.length ? updatedData : originalData
-  const secondaryArr = originalData.length <= updatedData.length ? originalData : updatedData
+  let originalIdx = 0
 
-  const changes = arrayToIterate
-    .map((item1, idx) => {
-      const item2 = secondaryArr?.[idx]
+  const changes = updatedData
+    .map<PaymentsDataChangesType[number] | null>((item1) => {
+      const item2 = originalData?.[originalIdx]
 
-      const { decimals, symbol = 'FA2' } =
-        dipDupTokens.find(({ contract }) => contract === item1.token_address)?.metadata ??
-        ({} as { decimals: number; symbol: string })
+      const decimals = dipDupTokens.find(({ contract }) => contract === item1.token_address)?.metadata?.decimals ?? 1
+      const symbol = paymentMethods.find(({ address }) => address === item1.token_address)?.shortSymbol ?? 'fa2'
 
       let token = {}
 
@@ -126,7 +124,7 @@ export const getPaymentsDiff = (
           token = {
             fa2: {
               tokenContractAddress: item1.token_address,
-              tokenId: item1.token_id,
+              tokenId: item1.token_id ?? 0,
             },
           }
           break
@@ -139,10 +137,10 @@ export const getPaymentsDiff = (
       }
 
       // if we have more items on client than on server, when we reach end of the items that stored on client array, just add everything to the end
-      if (!item2 && originalData.length <= updatedData.length) {
+      if (!item2) {
         return {
           addOrSetPaymentData: {
-            title: item1.title,
+            title: item1.title ?? '',
             transaction: {
               to_: item1.to__id ?? '',
               token,
@@ -152,29 +150,36 @@ export const getPaymentsDiff = (
         }
       }
 
-      // if we have more items on server than on client, when we reach end of the items that stored on client array, just add removing change to the end
-      if (!item2 && originalData.length > updatedData.length) {
-        return {
-          removePaymentData: String(idx),
-        }
+      if (!checkPaymentExists(item1)) {
+        return null
       }
 
-      if (item2.title !== item1.title || item2.to__id !== item1.to__id || item2.token_address !== item1.token_address) {
+      // if local is different frin back one, we update this element
+      if (
+        (item2.title !== item1.title && item1.title !== null) ||
+        (item2.to__id !== item1.to__id && item1.to__id !== null) ||
+        (item2.token_address !== item1.token_address && item1.token_address !== null)
+      ) {
         return {
           addOrSetPaymentData: {
-            title: item1.title,
+            title: item1.title ?? '',
             transaction: {
               to_: item1.to__id ?? '',
               token,
               amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(Math.pow(10, Number(decimals))),
             },
-            index: idx,
+            index: String(originalIdx++),
           },
         }
       }
-
+      originalIdx++
       return null
     })
+    .concat(
+      Array.from({ length: originalData.length - updatedData.length }, (_, idx) => ({
+        removePaymentData: String(Number(updatedData.length) + Number(idx)),
+      })),
+    )
     .filter(Boolean) as PaymentsDataChangesType
 
   return changes
