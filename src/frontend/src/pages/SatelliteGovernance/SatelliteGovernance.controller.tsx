@@ -281,6 +281,7 @@ export const SatelliteGovernance = () => {
                 snapshotSmvkTotalSupply={item.snapshot_smvk_total_supply}
                 passVoteSmvkTotal={item.pass_vote_smvk_total}
                 smvkPercentageForApproval={item.smvk_percentage_for_approval}
+                accountPkh={accountPkh}
               />
             )
           })
