@@ -1,6 +1,3 @@
-import { validateAddress } from '@taquito/utils'
-import { OpKind, WalletParamsWithKind } from '@taquito/taquito'
-
 // helpres
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
@@ -11,12 +8,9 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import type { AppDispatch, GetState } from '../../app/App.controller'
 import { SubmitProposalForm } from '../../utils/TypesAndInterfaces/Forms'
 import { State } from 'reducers'
-import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 import { ROCKET_LOADER } from 'utils/constants'
 import { PaymentsDataChangesType, ProposalDataChangesType } from './ProposalSybmittion.types'
-import { checkIfWalletIsConnected, WalletOptions } from 'app/App.components/ConnectWallet/ConnectWallet.actions'
-import { BeaconWallet } from '@taquito/beacon-wallet'
 
 export const submitProposal =
   (form: SubmitProposalForm, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
@@ -33,15 +27,6 @@ export const submitProposal =
     }
 
     try {
-      const rpcNetwork = state.preferences.REACT_APP_RPC_PROVIDER || 'https://mainnet.smartpy.io'
-      // @ts-ignore
-      // const wallet = new BeaconWallet(WalletOptions)
-      // const walletResponse = await checkIfWalletIsConnected(wallet)
-
-      // if (walletResponse.success) {
-      //   const tzs = state.wallet.tezos
-      //   await tzs.setRpcProvider(rpcNetwork)
-      //   await tzs.setWalletProvider(wallet)
       const { title, description, ipfs, sourceCode } = form
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       const query = await contract?.methods.propose(title, description, ipfs, sourceCode).send({ amount })
@@ -57,7 +42,6 @@ export const submitProposal =
       await dispatch(getGovernanceStorage())
       await dispatch(getDelegationStorage())
       await dispatch(getCurrentRoundProposals())
-      // }
     } catch (error) {
       console.error('submitProposal error:', error)
       if (error instanceof Error) {
@@ -139,9 +123,14 @@ export const lockProposal = (proposalId: number) => async (dispatch: AppDispatch
   }
 }
 
+// TODO: add estimation for batching
 // method for update proposal data (bytes and payment)
 export const updateProposalData =
-  (proposalId: number, bytesChanges?: ProposalDataChangesType, paymentChanges?: PaymentsDataChangesType) =>
+  (
+    proposalId: number,
+    bytesChanges?: ProposalDataChangesType | null,
+    paymentChanges?: PaymentsDataChangesType | null,
+  ) =>
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
@@ -162,14 +151,6 @@ export const updateProposalData =
 
     try {
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-
-      // TODO: use it when need to add an estimation for the operation
-      // const listTransactions = proposalDataChanges.map((change) => {
-      //   return {
-      //     kind: OpKind.TRANSACTION,
-      //     ...contract?.methods.updateProposalData(proposalId, [change]).toTransferParams(),
-      //   }
-      // }) as WalletParamsWithKind[]
 
       if (!contract) {
         throw new Error(`No contract provided`)

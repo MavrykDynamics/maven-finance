@@ -1,8 +1,11 @@
+import BigNumber from 'bignumber.js'
+
 import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 import { ValidSubmitProposalForm, SubmitProposalFormInputStatus } from 'utils/TypesAndInterfaces/Forms'
 import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 import { PaymentsDataChangesType, ProposalDataChangesType, StageThreeValidityItem } from './ProposalSybmittion.types'
+import { State } from 'reducers'
 
 export const checkWhetherBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
   return proposalData.every(({ encoded_code, title }) => Boolean(encoded_code) && Boolean(title))
@@ -97,6 +100,8 @@ export const getBytesDiff = (
 export const getPaymentsDiff = (
   originalData: ProposalRecordType['proposalPayments'],
   updatedData: ProposalRecordType['proposalPayments'],
+  paymentMethods: Array<{ symbol: string; address: string; id: number }>,
+  dipDupTokens: State['tokens']['dipDupTokens'],
 ): PaymentsDataChangesType => {
   // we need to irerate the arr, that has more elements, and secondaryArr is the array we will take elements to compare and give appropriate change el
   const arrayToIterate = originalData.length <= updatedData.length ? updatedData : originalData
@@ -108,18 +113,22 @@ export const getPaymentsDiff = (
 
       // if we have more items on client than on server, when we reach end of the items that stored on client array, just add everything to the end
       if (!item2 && originalData.length <= updatedData.length) {
+        const paymentSymbol = paymentMethods.find(({ address }) => address === item1.token_address)?.symbol ?? 'MVK'
+        const decimals = Number(
+          dipDupTokens.find(({ contract }) => contract === item1.token_address)?.metadata?.decimals,
+        )
         return {
           addOrSetPaymentData: {
             title: item1.title,
             transaction: {
               to_: item1.to__id ?? '',
               token: {
-                mvk: {
+                [paymentSymbol]: {
                   tokenContractAddress: item1.token_address,
                   tokenId: item1.token_id,
                 },
               },
-              amount: item1.token_amount,
+              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(10 ^ decimals),
             },
           },
         }
@@ -133,18 +142,22 @@ export const getPaymentsDiff = (
       }
 
       if (item2.title !== item1.title || item2.to__id !== item1.to__id || item2.token_address !== item1.token_address) {
+        const paymentSymbol = paymentMethods.find(({ address }) => address === item1.token_address)?.symbol ?? 'MVK'
+        const decimals = Number(
+          dipDupTokens.find(({ contract }) => contract === item1.token_address)?.metadata?.decimals,
+        )
         return {
           addOrSetPaymentData: {
             title: item1.title,
             transaction: {
               to_: item1.to__id ?? '',
               token: {
-                mvk: {
+                [paymentSymbol]: {
                   tokenContractAddress: item1.token_address,
                   tokenId: item1.token_id,
                 },
               },
-              amount: item1.token_amount,
+              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(10 ^ decimals),
             },
             index: idx,
           },
