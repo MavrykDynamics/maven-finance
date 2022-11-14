@@ -100,7 +100,6 @@ export const getBytesDiff = (
 export const getPaymentsDiff = (
   originalData: ProposalRecordType['proposalPayments'],
   updatedData: ProposalRecordType['proposalPayments'],
-  paymentMethods: Array<{ symbol: string; address: string; id: number }>,
   dipDupTokens: State['tokens']['dipDupTokens'],
 ): PaymentsDataChangesType => {
   // we need to irerate the arr, that has more elements, and secondaryArr is the array we will take elements to compare and give appropriate change el
@@ -113,22 +112,21 @@ export const getPaymentsDiff = (
 
       // if we have more items on client than on server, when we reach end of the items that stored on client array, just add everything to the end
       if (!item2 && originalData.length <= updatedData.length) {
-        const paymentSymbol = paymentMethods.find(({ address }) => address === item1.token_address)?.symbol ?? 'MVK'
-        const decimals = Number(
-          dipDupTokens.find(({ contract }) => contract === item1.token_address)?.metadata?.decimals,
-        )
+        const { decimals, symbol = 'FA2' } =
+          dipDupTokens.find(({ contract }) => contract === item1.token_address)?.metadata ??
+          ({} as { decimals: number; symbol: string })
         return {
           addOrSetPaymentData: {
             title: item1.title,
             transaction: {
               to_: item1.to__id ?? '',
               token: {
-                [paymentSymbol]: {
+                [symbol.toLowerCase()]: {
                   tokenContractAddress: item1.token_address,
                   tokenId: item1.token_id,
                 },
               },
-              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(10 ^ decimals),
+              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(10 ^ Number(decimals)),
             },
           },
         }
@@ -142,22 +140,21 @@ export const getPaymentsDiff = (
       }
 
       if (item2.title !== item1.title || item2.to__id !== item1.to__id || item2.token_address !== item1.token_address) {
-        const paymentSymbol = paymentMethods.find(({ address }) => address === item1.token_address)?.symbol ?? 'MVK'
-        const decimals = Number(
-          dipDupTokens.find(({ contract }) => contract === item1.token_address)?.metadata?.decimals,
-        )
+        const { decimals, symbol = 'FA2' } =
+          dipDupTokens.find(({ contract }) => contract === item1.token_address)?.metadata ??
+          ({} as { decimals: number; symbol: string })
         return {
           addOrSetPaymentData: {
             title: item1.title,
             transaction: {
               to_: item1.to__id ?? '',
               token: {
-                [paymentSymbol]: {
+                [symbol.toLowerCase()]: {
                   tokenContractAddress: item1.token_address,
                   tokenId: item1.token_id,
                 },
               },
-              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(10 ^ decimals),
+              amount: new BigNumber(item1.token_amount ?? 0).multipliedBy(10 ^ Number(decimals)),
             },
             index: idx,
           },

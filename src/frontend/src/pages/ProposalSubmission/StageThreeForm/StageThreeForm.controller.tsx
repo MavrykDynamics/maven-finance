@@ -133,12 +133,7 @@ export const StageThreeForm = ({
 
   const handleSubmitFinancialRequestData = async () => {
     if (proposalId && isAllPaymentsValid && currentOriginalProposal) {
-      const paymentsDiff = getPaymentsDiff(
-        currentOriginalProposal.proposalPayments,
-        proposalPayments,
-        PaymentMethods,
-        dipDupTokens,
-      )
+      const paymentsDiff = getPaymentsDiff(currentOriginalProposal.proposalPayments, proposalPayments, dipDupTokens)
       console.log('paymentsDiff', paymentsDiff)
       await dispatch(updateProposalData(proposalId, null, paymentsDiff))
     }
