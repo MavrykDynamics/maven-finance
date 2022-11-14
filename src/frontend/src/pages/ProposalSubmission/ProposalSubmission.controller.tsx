@@ -14,7 +14,7 @@ import { Page } from 'styles'
 // types
 import { State } from 'reducers'
 import { CurrentRoundProposalsStorageType } from 'utils/TypesAndInterfaces/Governance'
-import { SubmittedProposalsMapper } from './ProposalSybmittion.types'
+import { ProposalChangesStateType, SubmittedProposalsMapper } from './ProposalSybmittion.types'
 
 // helpers
 import { DEFAULT_PROPOSAL } from './ProposalSubmition.helpers'
@@ -62,6 +62,11 @@ export const ProposalSubmission = () => {
   )
 
   const [proposalState, setProposalsState] = useState(mappedProposals)
+  const [proposalHasChange, setProposalHasChange] = useState(false)
+  const currentOriginalProposal = useMemo(
+    () => currentRoundProposals.find(({ id }) => selectedUserProposalId === id),
+    [selectedUserProposalId, currentRoundProposals],
+  )
 
   const handleChangeTab = useCallback((tabId?: number) => {
     setActiveTab(tabId ?? 0)
@@ -114,11 +119,8 @@ export const ProposalSubmission = () => {
             [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL,
           },
     )
-    setSeletedUserProposalId(DEFAULT_PROPOSAL.id)
+    setSeletedUserProposalId(proposalKeys?.[0] ?? DEFAULT_PROPOSAL.id)
   }, [mappedProposals, proposalKeys])
-
-  // TODO: remove log, need it while Tristan won't update backEnd side of saving proposals
-  console.log('proposalState parent el:', proposalState, selectedUserProposalId)
 
   const currentProposal = useMemo(
     () => proposalState[selectedUserProposalId] ?? {},
@@ -146,6 +148,9 @@ export const ProposalSubmission = () => {
             currentProposal={currentProposal}
             updateLocalProposalData={updateLocalProposalData}
             handleDropProposal={handleDropProposal}
+            proposalHasChange={proposalHasChange}
+            setProposalHasChange={setProposalHasChange}
+            currentOriginalProposal={currentOriginalProposal}
           />
         )}
         {activeTab === 3 && (
@@ -155,6 +160,9 @@ export const ProposalSubmission = () => {
             updateLocalProposalData={updateLocalProposalData}
             handleDropProposal={handleDropProposal}
             handleLockProposal={handleLockProposal}
+            proposalHasChange={proposalHasChange}
+            setProposalHasChange={setProposalHasChange}
+            currentOriginalProposal={currentOriginalProposal}
           />
         )}
       </ProposalSubmissionForm>

@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import { StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmittion.types'
+import { PaymentsDataChangesType, StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmittion.types'
 import { SubmitProposalStageThreeValidation } from '../../../utils/TypesAndInterfaces/Forms'
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
+
+// helpers
 
 // components
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
@@ -16,7 +18,7 @@ import { Input } from 'app/App.components/Input/Input.controller'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { getValidityStageThreeTable, MAX_ROWS, PAYMENTS_TYPES } from '../ProposalSubmition.helpers'
+import { checkPaymentExists, getPaymentsDiff, getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpers'
 import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 // styles
@@ -35,10 +37,15 @@ import {
   DropDownList,
   DropDownListItem,
 } from '../../../app/App.components/DropDown/DropDown.style'
+import { updateProposalData } from '../ProposalSubmission.actions'
+import { INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 export const StageThreeForm = ({
   proposalId,
   currentProposal,
+  proposalHasChange,
+  currentOriginalProposal,
+  setProposalHasChange,
   updateLocalProposalData,
   handleDropProposal,
   handleLockProposal,
@@ -52,7 +59,20 @@ export const StageThreeForm = ({
     },
     governancePhase,
   } = useSelector((state: State) => state.governance)
-  const { dipDupTokens } = useSelector((state: State) => state.tokens)
+  const { whitelistTokens, dipDupTokens } = useSelector((state: State) => state.tokens)
+
+  const PaymentMethods = useMemo(
+    () =>
+      whitelistTokens
+        .map((tokenInfo) => ({
+          symbol: tokenInfo.contract_name,
+          address: tokenInfo.contract_address,
+          shortSymbol: tokenInfo.token_contract_standard,
+          id: 0,
+        }))
+        .filter(({ shortSymbol }) => ['fa2', 'fa12', 'tez'].includes(shortSymbol)),
+    [whitelistTokens],
+  )
 
   // we can modify only when current period is 'proposal'
   const isProposalRound = governancePhase === 'PROPOSAL'
@@ -60,6 +80,15 @@ export const StageThreeForm = ({
 
   const [validForm, setValidForm] = useState<SubmitProposalStageThreeValidation>([])
   const [openDrop, setOpenDrop] = useState('')
+
+  const isAllPaymentsValid = useMemo(
+    () =>
+      validForm.every(
+        ({ token_amount, title, to__id }) =>
+          token_amount === INPUT_STATUS_SUCCESS || title === INPUT_STATUS_SUCCESS || to__id === INPUT_STATUS_SUCCESS,
+      ),
+    [validForm],
+  )
 
   const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>, row: number) => {
     const { name, value } = e.target
@@ -82,10 +111,6 @@ export const StageThreeForm = ({
 
   // set up validity state for new proposal, on proposal change and add new row for proposal, if there are no rows in proposal
   useEffect(() => {
-    if (proposalPayments.length === 0) {
-      handleAddRow()
-    }
-
     setValidForm(
       proposalPayments.map(({ token_amount, title, to__id }) =>
         token_amount && title && to__id
@@ -103,8 +128,17 @@ export const StageThreeForm = ({
     )
   }, [proposalId, proposalPayments])
 
-  const handleSubmitFinancialRequestData = () => {
-    // dispatch(submitFinancialRequestData(proposalId, proposalPayments))
+  const handleSubmitFinancialRequestData = async () => {
+    if (proposalId && isAllPaymentsValid && currentOriginalProposal) {
+      const paymentsDiff = getPaymentsDiff(
+        currentOriginalProposal.proposalPayments,
+        proposalPayments,
+        PaymentMethods,
+        dipDupTokens,
+      )
+      console.log('paymentsDiff', paymentsDiff)
+      await dispatch(updateProposalData(proposalId, null, paymentsDiff))
+    }
   }
 
   const handleChange = (
@@ -128,44 +162,42 @@ export const StageThreeForm = ({
     )
 
     setOpenDrop('')
+    setProposalHasChange(true)
   }
 
   const handleAddRow = () => {
+    const { address = '', id = 0 } = PaymentMethods[0]
     updateLocalProposalData(
       {
         proposalPayments: proposalPayments.concat({
           // TODO: check how to remove it
           governance_proposal: currentProposal as unknown as Governance_Proposal,
           governance_proposal_id: 0,
-          id: -proposalPayments.length,
+          id: -(proposalPayments.length + 1),
           internal_id: 0,
           title: '',
           to__id: '',
           token_amount: 0,
-          token_id: 0,
-          token_address: 'mvk',
+          token_id: id,
+          token_address: address,
         }),
       },
       proposalId,
     )
+
     setOpenDrop('')
+    setProposalHasChange(true)
   }
 
   const handleDeleteRow = (rowNumber: number) => {
-    const row = proposalPayments[rowNumber]
-    const existInServer = row.id >= 0
-    if (existInServer) {
-      // TODO: implement this after Tristan updates
-      // dispatch(deletePaymentData(proposalId, row.id))
-    } else {
-      updateLocalProposalData(
-        {
-          proposalPayments: proposalPayments.filter((_, idx) => idx !== rowNumber),
-        },
-        proposalId,
-      )
-    }
+    updateLocalProposalData(
+      {
+        proposalPayments: proposalPayments.filter((_, idx) => idx !== rowNumber),
+      },
+      proposalId,
+    )
     setOpenDrop('')
+    setProposalHasChange(true)
   }
 
   const handleToggleDrop = (i: number) => {
@@ -173,12 +205,7 @@ export const StageThreeForm = ({
   }
 
   const isDisabledSubmitTableBtn = useMemo(
-    () =>
-      (!isProposalRound &&
-        validForm.some(
-          ({ token_amount, title, to__id }) => token_amount === 'error' || title === 'error' || to__id === 'error',
-        )) ||
-      locked,
+    () => !isProposalRound || !proposalHasChange || (proposalHasChange && !isAllPaymentsValid) || locked,
     [validForm, isProposalRound],
   )
   const disabledInputs = useMemo(() => !isProposalRound || locked, [isProposalRound, locked])
@@ -221,14 +248,11 @@ export const StageThreeForm = ({
                 <td key="row-names-asset">Payment Type (XTZ/MVK)</td>
               </tr>
               {proposalPayments.map((rowItems, i) => {
-                const isLocal = rowItems.id < 0,
-                  validationObj = validForm[i],
-                  paymentTypeSymbol =
-                    // TODO: temp slution cuz of saved wrong elements on back, also ask sam, cuz i can't find here xtz address
-                    dipDupTokens.find(({ contract }) => contract === rowItems.token_address)?.metadata.symbol ?? 'MVK',
-                  paymentType = paymentTypeSymbol === 'FA2' ? 'MVK' : paymentTypeSymbol
+                const validationObj = validForm[i]
+                const { symbol: selectedSymbol = 'MVK' } =
+                  PaymentMethods.find(({ address }) => address === rowItems.token_address) ?? PaymentMethods?.[0]
 
-                if (!rowItems || !rowItems.title || !rowItems.token_amount) return null
+                if (!rowItems || rowItems.title === null || rowItems.token_amount === null) return null
 
                 return (
                   <tr key={i}>
@@ -248,10 +272,10 @@ export const StageThreeForm = ({
                     <td key={`${i}-purpose`} className="input-cell">
                       <Input
                         onFocus={() => setOpenDrop('')}
-                        value={rowItems.title}
+                        value={rowItems.title ?? ''}
                         type={'text'}
                         name="title"
-                        disabled={!isLocal || disabledInputs}
+                        disabled={disabledInputs}
                         inputStatus={validationObj?.title}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
                         onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
@@ -261,7 +285,7 @@ export const StageThreeForm = ({
                     <td key={`${i}-amount`} className="input-cell">
                       <Input
                         onFocus={() => setOpenDrop('')}
-                        value={rowItems.token_amount}
+                        value={rowItems.token_amount ?? ''}
                         type={'number'}
                         name="token_amount"
                         disabled={disabledInputs}
@@ -278,24 +302,24 @@ export const StageThreeForm = ({
                           disabled={locked || !isProposalRound}
                           className="table-drop-btn-cur"
                         >
-                          {paymentType === 'FA2' ? 'MVK' : paymentType}
+                          {selectedSymbol}
                         </button>
                         {openDrop === `${i}-asset` && (
                           <DropDownListContainer>
                             <DropDownList>
-                              {PAYMENTS_TYPES.map((symbol) => (
+                              {PaymentMethods.map(({ symbol, address }) => (
                                 <DropDownListItem
                                   onClick={() =>
                                     handleChange(
                                       {
-                                        target: { name: 'token_address', value: symbol },
+                                        target: { name: 'token_address', value: address },
                                       },
                                       i,
                                     )
                                   }
                                   key={symbol}
                                 >
-                                  {symbol} {paymentType === symbol ? <Icon id="check-stroke" /> : null}
+                                  {symbol} {selectedSymbol === symbol ? <Icon id="check-stroke" /> : null}
                                 </DropDownListItem>
                               ))}
                             </DropDownList>
@@ -303,19 +327,17 @@ export const StageThreeForm = ({
                         )}
                       </div>
 
-                      {proposalPayments.length > 2 ? (
-                        <div className="delete-button-wrap">
-                          <StyledTooltip placement="top" title="Delete row">
-                            <button
-                              onClick={() => handleDeleteRow(i)}
-                              disabled={locked || !isProposalRound}
-                              className="delete-button"
-                            >
-                              <Icon id="delete" />
-                            </button>
-                          </StyledTooltip>
-                        </div>
-                      ) : null}
+                      <div className="delete-button-wrap">
+                        <StyledTooltip placement="top" title="Delete row">
+                          <button
+                            onClick={() => handleDeleteRow(i)}
+                            disabled={locked || !isProposalRound}
+                            className="delete-button"
+                          >
+                            <Icon id="delete" />
+                          </button>
+                        </StyledTooltip>
+                      </div>
                     </td>
                   </tr>
                 )

@@ -109,7 +109,7 @@ export const StageOneForm = ({
   const handleSubmitProposal = async (e: React.FormEvent) => {
     e.preventDefault()
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (formIsValid)
+    if (formIsValid) {
       await dispatch(
         submitProposal(
           {
@@ -119,9 +119,10 @@ export const StageOneForm = ({
             ipfs: '',
           },
           fee,
-          clearState,
         ),
       )
+      clearState()
+    }
   }
 
   return (

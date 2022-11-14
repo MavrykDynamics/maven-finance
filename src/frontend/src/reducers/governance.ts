@@ -17,7 +17,6 @@ import {
   GET_CURRENT_ROUND_PROPOSALS,
 } from 'pages/Governance/Governance.actions'
 import { GovernanceStorage, CurrentRoundProposalsStorageType } from '../utils/TypesAndInterfaces/Governance'
-import { PROPOSAL_UPDATE_ERROR, PROPOSAL_UPDATE_RESULT } from '../pages/ProposalSubmission/ProposalSubmission.actions'
 import { GET_GOVERNANCE_SATELLITE_STORAGE } from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import type {
@@ -134,15 +133,6 @@ export function governance(state = governanceDefaultState, action: Action) {
         ...state,
       }
     case START_VOTING_ROUND_ERROR:
-      return {
-        ...state,
-        error: action.error,
-      }
-    case PROPOSAL_UPDATE_RESULT:
-      return {
-        ...state,
-      }
-    case PROPOSAL_UPDATE_ERROR:
       return {
         ...state,
         error: action.error,

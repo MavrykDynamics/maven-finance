@@ -30,7 +30,7 @@
     "@types/react-lottie": "^1.2.6",
     "@wert-io/widget-initializer": "^2.0.0",
     "axios": "^0.21.4",
-    "bignumber.js": "^9.0.2",
+    "bignumber.js": "^9.1.0",
     "coingecko-api": "^1.0.10",
     "constate": "^3.3.0",
     "dayjs": "^1.11.5",
