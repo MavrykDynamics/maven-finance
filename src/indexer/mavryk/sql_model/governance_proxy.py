@@ -1,5 +1,5 @@
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
 
 ###
 # Governance Proxy Tables
@@ -35,7 +35,7 @@ class GovernanceProxyWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'governance_proxy_whitelist_contract'
 
-class GovernanceProxyWhitelistTokenContract(LinkedContract, Model):
+class GovernanceProxyWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
     contract                                 = fields.ForeignKeyField('models.GovernanceProxy', related_name='whitelist_token_contracts')
 
     class Meta:

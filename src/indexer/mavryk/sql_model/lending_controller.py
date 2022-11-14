@@ -1,6 +1,6 @@
 from .enums import OracleType
 from dipdup.models import Model, fields
-from mavryk.sql_model.parents import LinkedContract, ContractLambda, MavrykContract
+from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
 
 ###
 # Lending Controller Tables
@@ -60,7 +60,7 @@ class LendingControllerWhitelistContract(LinkedContract, Model):
     class Meta:
         table = 'lending_controller_whitelist_contract'
 
-class LendingControllerWhitelistTokenContract(LinkedContract, Model):
+class LendingControllerWhitelistTokenContract(LinkedContract, TokenContractStandard, Model):
     contract                                = fields.ForeignKeyField('models.LendingController', related_name='whitelist_token_contracts')
 
     class Meta:
