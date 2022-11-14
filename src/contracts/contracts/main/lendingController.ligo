@@ -1468,7 +1468,7 @@ block {
 
 
 // helper function to calculate the collateral token proportion received during a liquidation
-function calculateCollateralLiquidationTokenProportion(const collateralToken : collateralTokenRecordType; const collateralTokenLastCompletedData : lastCompletedDataReturnType; const collateralTokenBalance : nat; const vaultCollateralValueRebased : nat; const s : lendingControllerStorageType) : nat is
+function calculateCollateralTokenProportion(const collateralToken : collateralTokenRecordType; const collateralTokenLastCompletedData : lastCompletedDataReturnType; const collateralTokenBalance : nat; const vaultCollateralValueRebased : nat; const s : lendingControllerStorageType) : nat is
 block {
 
     const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
@@ -1610,7 +1610,7 @@ block {
         else collateralTokenBalance;
 
     // get proportion of collateral token balance against total vault's collateral value
-    const tokenProportion : nat = calculateCollateralLiquidationTokenProportion(collateralTokenRecord, collateralTokenLastCompletedData, collateralTokenBalance, vaultCollateralValueRebased, s);
+    const tokenProportion : nat = calculateCollateralTokenProportion(collateralTokenRecord, collateralTokenLastCompletedData, collateralTokenBalance, vaultCollateralValueRebased, s);
 
     // ------------------------------------------------------------------
     // Rebase decimals for calculation
