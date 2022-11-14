@@ -1,17 +1,25 @@
 import { DipDupTokensGraphQl } from 'utils/TypesAndInterfaces/DipDupTokens'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
-import { GET_DIP_DUP_TOKENS } from './actions/dipDupActions.actions'
+import { GET_DIP_DUP_TOKENS, GET_TOKENS_PRICES } from './actions/dipDupActions.actions'
 
-export interface ContractAddressesState {
-  [key: string]: { address: string }
+export type TokensType = {
+  dipDupTokens: Array<DipDupTokensGraphQl>
+  tokensPrices: Record<string, { usd: number; eur: number }>
 }
-export type TokensType = { dipDupTokens: Array<DipDupTokensGraphQl> }
-const dipDupTokensDefaultState: Array<DipDupTokensGraphQl> = []
+const dipDupTokensDefaultState: TokensType = {
+  dipDupTokens: [],
+  tokensPrices: {},
+}
 
 export function tokens(state = dipDupTokensDefaultState, action: Action) {
   switch (action.type) {
     case GET_DIP_DUP_TOKENS:
       return { ...state, dipDupTokens: action.dipDupTokens }
+    case GET_TOKENS_PRICES:
+      return {
+        ...state,
+        tokensPrices: action.tokensPrices,
+      }
     default:
       return state
   }

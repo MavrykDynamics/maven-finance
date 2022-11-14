@@ -6,6 +6,7 @@ export interface UserState {
   myAddress: string
   myMvkTokenBalance: number
   mySMvkTokenBalance: number
+  myXTZTokenBalance: number
   participationFeesPerShare: number
   satelliteMvkIsDelegatedTo: string
   isSatellite: boolean
@@ -18,6 +19,7 @@ const defaultUser: UserState = {
   myAddress: '',
   myMvkTokenBalance: 0,
   mySMvkTokenBalance: 0,
+  myXTZTokenBalance: 0,
   participationFeesPerShare: 0,
   satelliteMvkIsDelegatedTo: '',
   isSatellite: false,

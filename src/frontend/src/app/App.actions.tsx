@@ -38,7 +38,7 @@ import { normalizeEmergencyGovernance } from '../pages/EmergencyGovernance/Emerg
 import { normalizeBreakGlass } from '../pages/BreakGlass/BreakGlass.helpers'
 import { noralizeCouncilStorage } from '../pages/Council/Council.helpers'
 import { normalizeGovernanceStorage } from '../pages/Governance/Governance.helpers'
-import { getDipDupTokensStorage } from 'reducers/actions/dipDupActions.actions'
+import { getDipDupTokensStorage, getTokensPrices } from 'reducers/actions/dipDupActions.actions'
 import { AppDispatch } from './App.controller'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
@@ -61,6 +61,7 @@ export const onStart = () => async (dispatch: AppDispatch) => {
   const delegationStorage = normalizeDelegationStorage(res[3]?.delegation[0])
 
   await dispatch(getDipDupTokensStorage())
+  await dispatch(getTokensPrices())
 
   const emergencyGovernanceStorage: EmergencyGovernanceStorage = normalizeEmergencyGovernance(
     res[5]?.emergency_governance[0],
@@ -72,7 +73,6 @@ export const onStart = () => async (dispatch: AppDispatch) => {
   const oraclesStorage = normalizeOracle(res[10])
   const smvkHistoryData = normalizeSmvkHistoryData(res[11])
   const mvkMintHistoryData = normalizeMvkMintHistoryData(res[12])
-
 
   const emergencyGovActive = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId !== 0
 
