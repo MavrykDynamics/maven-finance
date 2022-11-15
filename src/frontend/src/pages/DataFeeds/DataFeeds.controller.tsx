@@ -12,6 +12,7 @@ import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 // const
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { FEEDS_ALL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { sortByCategory } from 'utils/sortByCategory'
 
 // types
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
@@ -41,43 +42,15 @@ export const DataFeeds = () => {
   const [searchInputValue, setSearchInput] = useState('')
   const [chosenDdItem, setChosenDdItem] = useState<string | undefined>()
   const [allSatellites, setAllSatellites] = useState<FeedGQL[]>(oraclesStorage.feeds)
-  const [filteredSatelliteList, setFilteredSatelliteList] = useState<FeedGQL[]>(oraclesStorage.feeds)
+  const [sortedFeeds, setSortedFeeds] = useState<FeedGQL[]>(oraclesStorage.feeds)
 
   const handleSelect = (selectedOption: string) => {
     setDdIsOpen(!ddIsOpen)
     setChosenDdItem(selectedOption)
 
     if (selectedOption !== '' && selectedOption !== chosenDdItem) {
-      setFilteredSatelliteList((data: FeedGQL[]) => {
-        const dataToSort = data ? [...data] : []
-
-        dataToSort.sort((a, b) => {
-          // sort by category
-          if (!a.category) return 1
-
-          if (a.category === selectedOption && b.category === selectedOption) {
-            return 0
-          }
-
-          if (a.category === selectedOption) {
-            return -1
-          }
-
-          // sort by alfabet
-          if (!b.category) return -1
-
-          if (a.category < b.category) {
-            return -1
-          }
-
-          if (a.category > b.category) {
-            return 1
-          }
-
-          return 1
-        })
-
-        return dataToSort
+      setSortedFeeds((data: FeedGQL[]) => {
+        return sortByCategory(data, selectedOption)
       })
     }
   }
@@ -96,12 +69,12 @@ export const DataFeeds = () => {
     }
 
     setSearchInput(e.target.value)
-    setFilteredSatelliteList(searchResult)
+    setSortedFeeds(searchResult)
   }
 
   useEffect(() => {
     setAllSatellites(oraclesStorage.feeds)
-    setFilteredSatelliteList(oraclesStorage.feeds)
+    setSortedFeeds(oraclesStorage.feeds)
   }, [oraclesStorage.feeds])
 
   useEffect(() => {
@@ -145,11 +118,11 @@ export const DataFeeds = () => {
         />
       </SatelliteSearchFilter>
       <DataFeedsStyled>
-        {filteredSatelliteList.length ? (
+        {sortedFeeds.length ? (
           <SatelliteList
             listTitle={'Data feeds'}
             loading={loading}
-            items={filteredSatelliteList}
+            items={sortedFeeds}
             listType={'feeds'}
             name={FEEDS_ALL_LIST_NAME}
           />
