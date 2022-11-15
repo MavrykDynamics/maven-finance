@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
+
 /* @ts-ignore */
 import Pluralize from 'react-pluralize'
 
