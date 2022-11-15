@@ -5,12 +5,15 @@ import { useParams } from 'react-router-dom'
 // types
 import { State } from 'reducers'
 import { UserType } from '../../../utils/TypesAndInterfaces/User'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 // view
 import UserDetailsView from './UsersDetails.view'
 
+// helpers
+import { sortByCategory } from 'utils/sortByCategory'
 import { usersData } from '../users.const'
-import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
+
 
 const UserDetails = () => {
   const dispatch = useDispatch()
@@ -30,35 +33,7 @@ const UserDetails = () => {
   const handleSelect = (selectedOption: string) => {
     if (selectedOption !== '') {
       setSortedFeeds((data: FeedGQL[]) => {
-        const dataToSort = data ? [...data] : []
-
-        dataToSort.sort((a, b) => {
-          // sort by category
-          if (!a.category) return 1
-
-          if (a.category === selectedOption && b.category === selectedOption) {
-            return 0
-          }
-
-          if (a.category === selectedOption) {
-            return -1
-          }
-
-          // sort by alfabet
-          if (!b.category) return -1
-
-          if (a.category < b.category) {
-            return -1
-          }
-
-          if (a.category > b.category) {
-            return 1
-          }
-
-          return 1
-        })
-
-        return dataToSort
+        return sortByCategory(data, selectedOption)
       })
     }
   }

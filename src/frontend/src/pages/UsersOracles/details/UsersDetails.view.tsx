@@ -1,5 +1,8 @@
+import { useState } from 'react'
+
 // consts, helpers
 import { USER_DATA_FEEDS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { parseDate } from 'utils/time'
 
 // types
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
@@ -20,8 +23,6 @@ import { UserDetailsStyled } from './UsersDetails.style'
 import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
-import { useState } from 'react'
-import { parseDate } from 'utils/time'
 
 const emptyContainer = (
   <EmptyContainer>
