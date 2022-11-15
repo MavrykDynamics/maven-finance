@@ -32,7 +32,7 @@ type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (address: string) => void
-  undelegateCallback: () => void
+  undelegateCallback: (address: string) => void
   claimRewardsCallback: () => void
   userStakedBalanceInSatellite: number
   userSatelliteReward: UserSatelliteRewardsData
