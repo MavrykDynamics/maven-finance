@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { State } from 'reducers'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
@@ -16,12 +16,14 @@ import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Page, PageContent } from 'styles'
 import { EmptyContainer } from 'app/App.style'
 import SatellitesSideBar from 'pages/Satellites/SatellitesSideBar/SatellitesSideBar.controller'
-import { delegate, undelegate } from 'pages/Satellites/Satellites.actions'
+
 
 type OracleSatellitesViewProps = {
   handleSelect: (item: { text: string; value: string }) => void
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void
   satellitesList: Array<SatelliteRecord>
+  delegateCallback: (address: string) => void
+  undelegateCallback: (address: string) => void
 }
 
 const itemsForDropDown = [
@@ -38,8 +40,7 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: OracleSatellitesViewProps) => {
-  const dispatch = useDispatch()
+const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList, delegateCallback, undelegateCallback }: OracleSatellitesViewProps) => {
   const loading = useSelector((state: State) => Boolean(state.loading))
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -56,14 +57,6 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
     handleSelect(chosenItem)
-  }
-
-  const delegateCallback = (satelliteAddress: string) => {
-    dispatch(delegate(satelliteAddress))
-  }
-
-  const undelegateCallback = (delegateAddress: string) => {
-    dispatch(undelegate(delegateAddress))
   }
 
   return (
