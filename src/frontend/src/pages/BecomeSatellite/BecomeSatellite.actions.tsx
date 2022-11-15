@@ -129,7 +129,7 @@ export const unregisterAsSatellite = () => async (dispatch: AppDispatch, getStat
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
 
-    const transaction = await contract?.methods.unregisterAsSatellite().send()
+    const transaction = await contract?.methods.unregisterAsSatellite(state.wallet.accountPkh).send()
     console.log('transaction', transaction)
 
     dispatch({
