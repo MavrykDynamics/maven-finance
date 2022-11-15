@@ -209,7 +209,7 @@ sealed-secrets:
     ingressClassName: ''
     ## @param ingress.hostname Default host for the ingress record
     ##
-    hostname: sealed-secrets.network.mavryk.io
+    hostname: sealed-secrets-network.mavryk.io
     ## @param ingress.path Default path for the ingress record
     ##
     path: /v1/cert.pem
@@ -261,7 +261,7 @@ sealed-secrets:
     ##
     extraTls:
       - hosts:
-          - sealed-secrets.network.mavryk.io
+          - sealed-secrets-network.mavryk.io
         secretName: sealed-secrets-mavryk-tls
     ## @param ingress.secrets [array] Custom TLS certificates as secrets
     ## NOTE: 'key' and 'certificate' are expected in PEM format
