@@ -52,8 +52,6 @@ const itemsForDropDown = [
   { text: 'Fix Mistaken Transfer', value: 'fixMistakenTransfer' },
 ]
 
-const defaultMaxLength = 100
-
 const getOngoingActionsList = (list: GovernanceSatelliteActionGraphQL[]): GovernanceSatelliteActionGraphQL[] => {
   return list?.filter((item) => {
     const timeNow = Date.now()
@@ -97,7 +95,7 @@ export const SatelliteGovernance = () => {
 
   const [tabsList, setTabsList] = useState<TabItem[]>([])
   const maxLength = {
-    purposeMaxLength: governanceSatelliteStorage.governance_satellite[0]?.gov_purpose_max_length || defaultMaxLength
+    purposeMaxLength: governanceSatelliteStorage.governance_satellite[0]?.gov_purpose_max_length
   }
 
   useEffect(() => {
