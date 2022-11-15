@@ -1,5 +1,8 @@
+import { useState } from 'react'
+
 // consts, helpers
 import { USER_DATA_FEEDS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { parseDate } from 'utils/time'
 
 // types
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
@@ -17,11 +20,9 @@ import { Page } from 'styles'
 import { EmptyContainer } from 'app/App.style'
 import { DataFeedsTitle, DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
 import { UserDetailsStyled } from './UsersDetails.style'
-import { DropDown, DropdownItemType } from 'app/App.components/DropDown/DropDown.controller'
+import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
-import { useState } from 'react'
-import { parseDate } from 'utils/time'
 
 const emptyContainer = (
   <EmptyContainer>
@@ -30,43 +31,30 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-const itemsForDropDown = [
-  { text: 'Cryptocurrencies (USD pairs)', value: 'cryptocurUDS' },
-  { text: 'Stablecoins', value: 'stableCoins' },
-  { text: 'Cryptocurrencies (BNB pairs)', value: 'cryptocurBNB' },
-  { text: 'Proof of Reserve', value: 'proofReserve' },
-  { text: 'Indexes', value: 'indexes' },
-  { text: 'Cryptocurrencies (ETH pairs)', value: 'cryptocurETH' },
-  { text: 'Foreign Exchange', value: 'forExchange' },
-  { text: 'Commodities', value: 'commodities' },
-  { text: 'Cryptocurrencies (Other)', value: 'cryptocurOther' },
-  { text: 'Ethereum Gas', value: 'ethGas' },
-]
-
 const UserDetailsView = ({
   user,
   isLoading,
   feeds,
   handleSelect,
+  categories,
 }: {
   user: UserType | null
   isLoading: boolean
   feeds: FeedGQL[]
-  handleSelect: (e: DropdownItemType) => void
+  handleSelect: (e: string) => void
+  categories: string[]
 }) => {
-  const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
+  const [chosenDdItem, setChosenDdItem] = useState<string | undefined>()
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleOnClickDropdownItem = (e: string) => {
-    const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
-    setChosenDdItem(chosenItem)
+  const handleOnClickDropdownItem = (selectedItem: string) => {
     setDdIsOpen(!ddIsOpen)
-    handleSelect(chosenItem)
+    setChosenDdItem(selectedItem)
+    handleSelect(selectedItem)
   }
 
   return user ? (
@@ -129,9 +117,9 @@ const UserDetailsView = ({
             placeholder='Choose category'
             isOpen={ddIsOpen}
             setIsOpen={setDdIsOpen}
-            itemSelected={chosenDdItem?.text}
-            items={ddItems}
-            clickOnItem={(e) => handleOnClickDropdownItem(e)}
+            itemSelected={chosenDdItem}
+            items={categories}
+            clickOnItem={handleOnClickDropdownItem}
           />
         </DropdownContainer>
       </SatelliteSearchFilter>

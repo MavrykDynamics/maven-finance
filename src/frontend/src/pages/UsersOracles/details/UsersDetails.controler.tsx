@@ -4,19 +4,21 @@ import { useParams } from 'react-router-dom'
 
 // types
 import { State } from 'reducers'
-import { DropDown, DropdownItemType } from '../../../app/App.components/DropDown/DropDown.controller'
 import { UserType } from '../../../utils/TypesAndInterfaces/User'
+import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
 
 // view
 import UserDetailsView from './UsersDetails.view'
 
+// helpers
+import { sortByCategory } from 'utils/sortByCategory'
 import { usersData } from '../users.const'
-import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
+
 
 const UserDetails = () => {
   const dispatch = useDispatch()
   const isLoading = useSelector((state: State) => Boolean(state.loading))
-
+  const { oraclesStorage: { feedCategories } } = useSelector((state: State) => state.oracles)
   let { userId } = useParams<{ userId: string }>()
 
   let [selectedUser, setSelectedUser] = useState<null | UserType>(null)
@@ -26,39 +28,12 @@ const UserDetails = () => {
     () => feeds.filter(({ address }) => !selectedUser?.feeds.contains(address)),
     [selectedUser, feeds],
   )
+  const [sortedFeeds, setSortedFeeds] = useState<FeedGQL[]>(feedsForUser)
 
-  const [filteredFeedsList, setFilteredFeedsList] = useState<FeedGQL[]>(feedsForUser)
-
-  useEffect(() => {
-    setFilteredFeedsList(feeds)
-  }, [feeds])
-
-  const handleSelect = (selectedOption: DropdownItemType) => {
-    const sortLabel = selectedOption.text,
-      sortValue = selectedOption.value
-
-    if (sortValue !== '') {
-      setFilteredFeedsList((data: FeedGQL[]) => {
-        const dataToSort = data ? [...data] : []
-
-        dataToSort.sort((a, b) => {
-          let res = 0
-          switch (sortLabel) {
-            case 'Lowest Fee':
-              //@ts-ignore
-              res = Number(a[sortValue]) - Number(b[sortValue])
-              break
-            case 'Highest Fee':
-            case 'Delegated MVK':
-            case 'Participation':
-            default:
-              //@ts-ignore
-              res = Number(b[sortValue]) - Number(a[sortValue])
-              break
-          }
-          return res
-        })
-        return dataToSort
+  const handleSelect = (selectedOption: string) => {
+    if (selectedOption !== '') {
+      setSortedFeeds((data: FeedGQL[]) => {
+        return sortByCategory(data, selectedOption)
       })
     }
   }
@@ -68,7 +43,7 @@ const UserDetails = () => {
   }, [dispatch, userId])
 
   return (
-    <UserDetailsView user={selectedUser} isLoading={isLoading} feeds={filteredFeedsList} handleSelect={handleSelect} />
+    <UserDetailsView user={selectedUser} isLoading={isLoading} feeds={sortedFeeds} handleSelect={handleSelect} categories={feedCategories} />
   )
 }
 

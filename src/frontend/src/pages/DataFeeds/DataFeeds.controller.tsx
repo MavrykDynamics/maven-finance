@@ -7,11 +7,12 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
-import { DropDown, DropdownItemType } from 'app/App.components/DropDown/DropDown.controller'
+import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 
 // const
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { FEEDS_ALL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { sortByCategory } from 'utils/sortByCategory'
 
 // types
 import { FeedGQL } from 'pages/Satellites/helpers/Satellites.types'
@@ -24,19 +25,6 @@ import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
 import { getOracleStorage } from 'pages/Satellites/Satellites.actions'
 
-const itemsForDropDown = [
-  { text: 'Cryptocurrencies (USD pairs)', value: 'cryptocurUDS' },
-  { text: 'Stablecoins', value: 'stableCoins' },
-  { text: 'Cryptocurrencies (BNB pairs)', value: 'cryptocurBNB' },
-  { text: 'Proof of Reserve', value: 'proofReserve' },
-  { text: 'Indexes', value: 'indexes' },
-  { text: 'Cryptocurrencies (ETH pairs)', value: 'cryptocurETH' },
-  { text: 'Foreign Exchange', value: 'forExchange' },
-  { text: 'Commodities', value: 'commodities' },
-  { text: 'Cryptocurrencies (Other)', value: 'cryptocurOther' },
-  { text: 'Ethereum Gas', value: 'ethGas' },
-]
-
 const emptyContainer = (
   <EmptyContainer>
     <img src="/images/not-found.svg" alt=" No proposals to show" />
@@ -47,41 +35,22 @@ const emptyContainer = (
 export const DataFeeds = () => {
   const dispatch = useDispatch()
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
+  const { feedCategories } = oraclesStorage
   const loading = useSelector((state: State) => Boolean(state.loading))
 
-  const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [searchInputValue, setSearchInput] = useState('')
-  const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
+  const [chosenDdItem, setChosenDdItem] = useState<string | undefined>()
   const [allSatellites, setAllSatellites] = useState<FeedGQL[]>(oraclesStorage.feeds)
-  const [filteredSatelliteList, setFilteredSatelliteList] = useState<FeedGQL[]>(oraclesStorage.feeds)
+  const [sortedFeeds, setSortedFeeds] = useState<FeedGQL[]>(oraclesStorage.feeds)
 
-  const handleSelect = (selectedOption: DropdownItemType) => {
-    const sortLabel = selectedOption.text,
-      sortValue = selectedOption.value
+  const handleSelect = (selectedOption: string) => {
+    setDdIsOpen(!ddIsOpen)
+    setChosenDdItem(selectedOption)
 
-    if (sortValue !== '') {
-      setFilteredSatelliteList((data: FeedGQL[]) => {
-        const dataToSort = data ? [...data] : []
-
-        dataToSort.sort((a, b) => {
-          let res = 0
-          switch (sortLabel) {
-            case 'Cryptocurrencies (USD pairs)':
-            case 'Stablecoins':
-            case 'Cryptocurrencies (BNB pairs)':
-            case 'Proof of Reserve':
-            case 'Indexes':
-            case 'Cryptocurrencies (ETH pairs)':
-            case 'Foreign Exchange':
-            case 'Commodities':
-            case 'Cryptocurrencies (Other)':
-            case 'Ethereum Gas':
-            default:
-              return res
-          }
-        })
-        return dataToSort
+    if (selectedOption !== '' && selectedOption !== chosenDdItem) {
+      setSortedFeeds((data: FeedGQL[]) => {
+        return sortByCategory(data, selectedOption)
       })
     }
   }
@@ -100,12 +69,12 @@ export const DataFeeds = () => {
     }
 
     setSearchInput(e.target.value)
-    setFilteredSatelliteList(searchResult)
+    setSortedFeeds(searchResult)
   }
 
   useEffect(() => {
     setAllSatellites(oraclesStorage.feeds)
-    setFilteredSatelliteList(oraclesStorage.feeds)
+    setSortedFeeds(oraclesStorage.feeds)
   }, [oraclesStorage.feeds])
 
   useEffect(() => {
@@ -117,23 +86,18 @@ export const DataFeeds = () => {
       <PageHeader page={'data-feeds'} />
       <SatelliteSearchFilter dataFeeds>
         {
-          //TODO: to fix it later [MAV-390]
-          /* <DropdownContainer className="dropDown">
-          <h4>Category:</h4>
-          <DropDown
-            clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
-            placeholder='Choose category'
-            isOpen={ddIsOpen}
-            itemSelected={chosenDdItem?.text}
-            items={ddItems}
-            clickOnItem={(e) => {
-              const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
-              setChosenDdItem(chosenItem)
-              setDdIsOpen(!ddIsOpen)
-              handleSelect(chosenItem)
-            }}
-          />
-        </DropdownContainer> */
+          <DropdownContainer className="dropDown">
+            <h4>Category:</h4>
+            <DropDown
+              clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
+              placeholder='Choose category'
+              isOpen={ddIsOpen}
+              setIsOpen={setDdIsOpen}
+              itemSelected={chosenDdItem}
+              items={feedCategories}
+              clickOnItem={handleSelect}
+            />
+          </DropdownContainer>
         }
         <Input
           type="text"
@@ -154,11 +118,11 @@ export const DataFeeds = () => {
         />
       </SatelliteSearchFilter>
       <DataFeedsStyled>
-        {filteredSatelliteList.length ? (
+        {sortedFeeds.length ? (
           <SatelliteList
             listTitle={'Data feeds'}
             loading={loading}
-            items={filteredSatelliteList}
+            items={sortedFeeds}
             listType={'feeds'}
             name={FEEDS_ALL_LIST_NAME}
           />
