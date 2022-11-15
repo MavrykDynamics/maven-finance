@@ -257,6 +257,7 @@ const DataFeedDetailsView = ({
                   <TzAddress tzAddress={feed.address} hasIcon={false} />
                 </DataFeedValueText>
               </div>
+              {/* // TODO: [MAV-673]
               <div className="info-wrapper">
                 <DataFeedsTitle fontSize={14} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   ENS address
@@ -270,7 +271,7 @@ const DataFeedDetailsView = ({
                 <DataFeedValueText fontSize={13} fontWeidth={600} style={{ lineHeight: '100%' }}>
                   eth-usd.data.eth
                 </DataFeedValueText>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
