@@ -28,11 +28,70 @@ inputs = {
   ]
   default_node_pool_name      = "basenet"
   default_node_pool_size      = "s-4vcpu-8gb"
-  default_node_pool_min_nodes = 3
-  default_node_pool_max_nodes = 3
+  default_node_pool_min_nodes = 1
+  default_node_pool_max_nodes = 1
   default_node_pool_tags      = [
     "mavryk",
     "k8s",
     "default"
+  ]
+  additional_node_pools       = [
+    {
+      name        = "node-0",
+      size        = "s-4vcpu-8gb",
+      node_count  = 1,
+      tags        = [
+        "mavryk",
+        "k8s",
+        "basenet",
+        "mavryk-node"
+      ],
+      labels      = {
+        "type"  = "mavryk-node"
+      },
+      taint       = {
+        key     = "mavryk-node",
+        value   = "0",
+        effect  = "NoSchedule"
+      }
+    },
+    {
+      name        = "node-1",
+      size        = "s-4vcpu-8gb",
+      node_count  = 1,
+      tags        = [
+        "mavryk",
+        "k8s",
+        "basenet",
+        "mavryk-node"
+      ],
+      labels      = {
+        "type"  = "mavryk-node"
+      },
+      taint       = {
+        key     = "mavryk-node",
+        value   = "1",
+        effect  = "NoSchedule"
+      }
+    },
+    {
+      name        = "node-2",
+      size        = "s-4vcpu-8gb",
+      node_count  = 1,
+      tags        = [
+        "mavryk",
+        "k8s",
+        "basenet",
+        "mavryk-node"
+      ],
+      labels      = {
+        "type"  = "mavryk-node"
+      },
+      taint       = {
+        key     = "mavryk-node",
+        value   = "2",
+        effect  = "NoSchedule"
+      }
+    }
   ]
 }

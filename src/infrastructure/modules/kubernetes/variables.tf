@@ -62,3 +62,16 @@ variable "default_node_pool_labels" {
     description = "Map of labels to be added to the default node pool"
     default     = {}
 }
+
+variable "additional_node_pools" {
+    type        = list(object({
+        name        = string,
+        size        = string,
+        node_count  = number,
+        tags        = list(string),
+        labels      = map(string),
+        taint       = map(string)
+    }))
+    description = "List of additional node pools to add to the cluster"
+    default     = []
+}
