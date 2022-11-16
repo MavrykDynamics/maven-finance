@@ -3,8 +3,8 @@
 // ------------------------------------------------------------------------------
 
 type oracleInformationType is [@layout:comb] record [
-       oraclePublicKey: key;
-       oraclePeerId: string;
+    oraclePublicKey  : key;
+    oraclePeerId     : string;
 ];
 type oracleAddressesType         is map (address, oracleInformationType);
 type oracleRewardStakedMvkType   is map (address, nat);
@@ -70,7 +70,7 @@ type withdrawRewardStakedMvkType      is address;
 
 type addOracleType is   [@layout:comb] record [
         oracleAddress       : address;
-        oracleInformation   : oracleInformationType;
+        // oracleInformation   : oracleInformationType;
 ];
 
 type removeOracleType                 is address;
