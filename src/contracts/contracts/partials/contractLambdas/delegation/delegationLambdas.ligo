@@ -512,6 +512,9 @@ block {
                     website               = "";
 
                     registeredDateTime    = Tezos.get_now();
+
+                    oraclePublicKey       = ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key); // random default public key
+                    oraclePeerId          = "peerId";
                 ];
 
                 // Get satellite record
@@ -612,6 +615,9 @@ block {
                 const image         : string  = registerAsSatelliteParams.image;
                 const website       : string  = registerAsSatelliteParams.website;
                 const satelliteFee  : nat     = registerAsSatelliteParams.satelliteFee;
+                
+                const oraclePublicKey  : key     = registerAsSatelliteParams.oraclePublicKey;
+                const oraclePeerId  : string     = registerAsSatelliteParams.oraclePeerId;
 
                 // Validate inputs (max length not exceeded)
                 if String.length(name)        > s.config.satelliteNameMaxLength         then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -637,6 +643,9 @@ block {
                             website               = website;
                             
                             registeredDateTime    = Tezos.get_now();
+                            
+                            oraclePublicKey       = oraclePublicKey;
+                            oraclePeerId          = oraclePeerId;
                         ]
                 ];
 

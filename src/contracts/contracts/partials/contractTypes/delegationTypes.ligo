@@ -30,7 +30,10 @@ type satelliteRecordType is [@layout:comb] record [
     image                 : string;     // ipfs hash
     website               : string;     // satellite website if it has one
     
-    registeredDateTime          : timestamp;  
+    registeredDateTime    : timestamp;  
+
+    oraclePublicKey       : key;        // oracle public key
+    oraclePeerId          : string;     // oracle peer id
 ]
 type satelliteLedgerType is big_map (address, satelliteRecordType)
 
@@ -107,6 +110,9 @@ type registerAsSatelliteParamsType is [@layout:comb] record [
     image                   : string;
     website                 : string;
     satelliteFee            : nat;
+
+    oraclePublicKey         : key;
+    oraclePeerId            : string;
 ]
 
 
@@ -116,6 +122,9 @@ type updateSatelliteRecordType is [@layout:comb] record [
     image                   : string;
     website                 : string;
     satelliteFee            : nat;
+
+    oraclePublicKey         : key;        
+    oraclePeerId            : string;     
 ]
 
 type delegationPausableEntrypointType is

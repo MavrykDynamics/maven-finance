@@ -240,8 +240,48 @@ block {
                 
                 if isOracleAddress(addOracleParams.oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR)
                 else block{
-                    s.oracleAddresses := Map.update(addOracleParams.oracleAddress, Some( addOracleParams.oracleInformation), s.oracleAddresses);
+                    
+                    const oracleAddress : address = addOracleParams.oracleAddress;
+                    const satelliteRecord : satelliteRecordType = getSatelliteRecord(oracleAddress, s);
+
+                    const oracleInformation : oracleInformationType = record [
+                        oraclePublicKey  = satelliteRecord.oraclePublicKey;
+                        oraclePeerId     = satelliteRecord.oraclePeerId;
+                    ];
+                    
+                    s.oracleAddresses[oracleAddress] := oracleInformation;
                 }   
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  updateOracle entrypoint  *)
+function lambdaUpdateOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
+block {
+    
+    checkSenderIsAdminOrGovernanceSatellite(s);  
+
+    case aggregatorLambdaAction of [
+        |   LambdaUpdateOracle(unit) -> {
+                
+                if isOracleAddress(Tezos.get_sender(), s.oracleAddresses) then block{
+                    
+                    const oracleAddress : address = Tezos.get_sender();
+                    const satelliteRecord : satelliteRecordType = getSatelliteRecord(oracleAddress, s);
+
+                    const oracleInformation : oracleInformationType = record [
+                        oraclePublicKey  = satelliteRecord.oraclePublicKey;
+                        oraclePeerId     = satelliteRecord.oraclePeerId;
+                    ];
+                    
+                    s.oracleAddresses[oracleAddress] := oracleInformation;
+                
+                }  else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR) 
 
             }
         |   _ -> skip
