@@ -20,6 +20,7 @@ export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
 export const SET_PAST_PROPOSALS = 'SET_PAST_PROPOSALS'
 export const getGovernanceStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const { dipDupTokens } = getState().tokens
   try {
     const storage = await fetchFromIndexer(
       GOVERNANCE_STORAGE_QUERY,
@@ -27,7 +28,7 @@ export const getGovernanceStorage = () => async (dispatch: AppDispatch, getState
       GOVERNANCE_STORAGE_QUERY_VARIABLE,
     )
 
-    const convertedStorage = normalizeGovernanceStorage(storage)
+    const convertedStorage = normalizeGovernanceStorage(storage, dipDupTokens)
 
     dispatch({
       type: GET_GOVERNANCE_STORAGE,
