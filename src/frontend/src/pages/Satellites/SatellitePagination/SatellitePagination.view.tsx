@@ -10,16 +10,15 @@ import { SatellitePaginationStyled } from './SatellitePagination.style'
 
 const SatellitePagination = () => {
   const params: { satelliteId: string } = useParams()
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const satelliteLedger = delegationStorage?.satelliteLedger
+  const { activeSatellites } = useSelector((state: State) => state.delegation.delegationStorage)
   const satelliteId = params?.satelliteId || ''
 
   const prevIndex = useMemo(() => {
-    return satelliteLedger?.length ? satelliteLedger.findIndex((item) => item.address === satelliteId) : 0
-  }, [satelliteLedger, satelliteId])
+    return activeSatellites?.length ? activeSatellites.findIndex((item) => item.address === satelliteId) : 0
+  }, [activeSatellites, satelliteId])
 
-  const prevSatellite = satelliteLedger?.[prevIndex - 1]
-  const nextSatellite = satelliteLedger?.[prevIndex + 1]
+  const prevSatellite = activeSatellites?.[prevIndex - 1]
+  const nextSatellite = activeSatellites?.[prevIndex + 1]
 
   return (
     <SatellitePaginationStyled>

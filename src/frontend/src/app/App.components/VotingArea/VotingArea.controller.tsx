@@ -28,15 +28,10 @@ export const VotingArea = ({
   className,
 }: VotingType) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { activeSatellites } = useSelector((state: State) => state.delegation.delegationStorage)
-
-  const isUserSatellite = useMemo(
-    () => Boolean(activeSatellites.find(({ address }) => address === accountPkh)),
-    [accountPkh, activeSatellites],
-  )
+  const { isSatellite } = useSelector((state: State) => state.user)
 
   const votingButtons = accountPkh ? (
-    isUserSatellite && handleVote ? (
+    isSatellite && handleVote ? (
       <VotingButtonsContainer>
         <Button text={'Vote YES'} onClick={() => handleVote('yay')} type={SUBMIT} kind={'votingFor'} />
         <Button text={'Vote PASS'} onClick={() => handleVote('nay')} type={SUBMIT} kind={'votingAbstain'} />
@@ -67,13 +62,8 @@ export const VotingProposalsArea = ({
   votingPhaseHandler,
   className,
 }: VotingProposalsType) => {
-  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
   const { accountPkh } = useSelector((state: State) => state.wallet)
-
-  const isUserSatellite = useMemo(
-    () => Boolean(satelliteLedger.find(({ address }) => address === accountPkh)),
-    [accountPkh, satelliteLedger],
-  )
+  const { isSatellite } = useSelector((state: State) => state.user)
 
   if (isPastProposals) {
     return <VotingBar voteStatistics={voteStatistics} />
@@ -90,7 +80,7 @@ export const VotingProposalsArea = ({
     )
   }
 
-  if (isTimeLock && !isUserSatellite && accountPkh) {
+  if (isTimeLock && !isSatellite && accountPkh) {
     return (
       <VotingAreaStyled className={className}>
         <div className="voted-block">
