@@ -13,7 +13,7 @@ import { InputStatusType } from 'app/App.components/Input/Input.constants'
 import { CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
 
 // helpers 
-import { validateFormField } from 'utils/validatorFunctions' 
+import { validateFormAddress, validateFormField } from 'utils/validatorFunctions' 
 
 // styles
 import { FormStyled } from './BreakGlassCouncilForm.style'
@@ -74,6 +74,7 @@ export function FormAddCouncilMemberView({ councilMemberMaxLength }: Props) {
   }
 
   const handleBlur = validateFormField(setFormInputStatus)
+  const handleBlurAddress = validateFormAddress(setFormInputStatus)
 
   return (
     <FormStyled>
@@ -95,9 +96,9 @@ export function FormAddCouncilMemberView({ councilMemberMaxLength }: Props) {
               name="memberAddress"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
-                handleBlur(e)
+                handleBlurAddress(e)
               }}
-              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+              onBlur={handleBlurAddress}
               inputStatus={formInputStatus.memberAddress}
             />
           </div>
