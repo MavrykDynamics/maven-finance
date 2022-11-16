@@ -8,7 +8,7 @@ import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploa
 import { CouncilMemberMaxLength } from 'utils/TypesAndInterfaces/Council'
 
 // helpers
-import { validateFormField } from 'utils/validatorFunctions' 
+import { validateFormAddress, validateFormField } from 'utils/validatorFunctions' 
 
 // action
 import { addCouncilMember } from '../Council.actions'
@@ -72,6 +72,7 @@ export const CouncilFormAddCouncilMember = ({
   }
 
   const handleBlur = validateFormField(setFormInputStatus)
+  const handleBlurAddress = validateFormAddress(setFormInputStatus)
 
   return (
     <CouncilFormStyled onSubmit={handleSubmit}>
@@ -90,9 +91,9 @@ export const CouncilFormAddCouncilMember = ({
             name="newMemberAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlurAddress(e)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={handleBlurAddress}
             inputStatus={formInputStatus.newMemberAddress}
           />
         </div>
