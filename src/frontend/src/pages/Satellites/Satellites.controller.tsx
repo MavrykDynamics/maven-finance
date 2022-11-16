@@ -17,7 +17,7 @@ import { getEmergencyGovernanceStorage } from 'pages/EmergencyGovernance/Emergen
 
 const Satellites = () => {
   const {
-    delegationStorage: { satelliteLedger = [] },
+    delegationStorage: { activeSatellites = [] },
   } = useSelector((state: State) => state.delegation)
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const loading = useSelector((state: State) => Boolean(state.loading))
@@ -37,16 +37,16 @@ const Satellites = () => {
     dispatch(getEmergencyGovernanceStorage())
   }, [dispatch, accountPkh])
 
-  const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
+  const totalDelegatedMVK = getTotalDelegatedMVK(activeSatellites)
 
   const tabsInfo = useMemo(
     () => ({
       totalDelegetedMVK: <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />,
-      totalSatelliteOracles: satelliteLedger.length,
+      totalSatelliteOracles: activeSatellites.length,
       numberOfDataFeeds:
         oraclesStorage.feeds.length > 50 ? oraclesStorage.feeds.length + '+' : oraclesStorage.feeds.length,
     }),
-    [satelliteLedger, oraclesStorage.feeds, totalDelegatedMVK],
+    [activeSatellites, oraclesStorage.feeds, totalDelegatedMVK],
   )
 
   const delegateCallback = (satelliteAddress: string) => {
@@ -65,7 +65,7 @@ const Satellites = () => {
       oracleSatellitesData={{
         userStakedBalance: mySMvkTokenBalance,
         satelliteUserIsDelegatedTo: satelliteMvkIsDelegatedTo,
-        items: satelliteLedger.slice(0, 3),
+        items: activeSatellites.slice(0, 3),
         delegateCallback,
         undelegateCallback,
       }}

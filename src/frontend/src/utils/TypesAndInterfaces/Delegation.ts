@@ -43,7 +43,8 @@ export interface SatelliteRecord {
   mvkBalance: number
   sMvkBalance: number
   totalDelegatedAmount: number
-  unregisteredDateTime: Date | null
+  isSatelliteReady: boolean
+  currentlyRegistered: boolean
   proposalVotingHistory?: SatelliteProposalVotingHistory[]
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
   emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
