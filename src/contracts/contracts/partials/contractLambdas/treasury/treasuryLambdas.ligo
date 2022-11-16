@@ -294,9 +294,8 @@ block {
     // 3. Check that tokens to be transferred are in the Whitelisted Token Contracts map
     // 4. Create and excecute transfer operations 
 
-    // check if sender is whitelisted
-    if not checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-    else skip;
+    // Verify that sender is whitelisted
+    verifySenderIsWhitelisted(s);
 
     checkTransferIsNotPaused(s); // check that %transfer entrypoint is not paused (e.g. if glass broken)
 
@@ -349,9 +348,8 @@ block {
     // 2. Check that %mintMvkAndTransfer entrypoint is not paused (e.g. if glass broken)
     // 3. Create and execute mint operation to MVK Token Contract
 
-    // check if sender is whitelisted
-    if not checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-    else skip;
+    // Verify that sender is whitelisted
+    verifySenderIsWhitelisted(s);
 
     checkMintMvkAndTransferIsNotPaused(s); // check that %mintMvkAndTransfer entrypoint is not paused (e.g. if glass broken)
 
@@ -363,12 +361,10 @@ block {
                 const to_    : address   = mintMvkAndTransferParams.to_;
                 const amt    : nat       = mintMvkAndTransferParams.amt;
 
-                const mvkTokenAddress : address = s.mvkTokenAddress;
-
                 const mintMvkTokensOperation : operation = mintTokens(
                     to_,                // to address
                     amt,                // amount of mvk Tokens to be minted
-                    mvkTokenAddress     // mvkTokenAddress
+                    s                   // mvkTokenAddress
                 );
 
                 operations := mintMvkTokensOperation # operations;
@@ -397,21 +393,9 @@ block {
     case treasuryLambdaAction of [
         |   LambdaUpdateMvkOperators(updateOperatorsParams) -> {
                 
-                // Get %update_operators entrypoint in MVK Token Contract
-                const updateEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "%update_operators",
-                    s.mvkTokenAddress) : option(contract(updateOperatorsType))) of [
-                            Some (contr)    -> contr
-                        |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
-                    ];
-
-                const updateOperation : operation = Tezos.transaction(
-                    (updateOperatorsParams),
-                    0tez, 
-                    updateEntrypoint
-                );
-
-                operations := updateOperation # operations;
+                // Create and send update operators operation
+                const updateMvkOperatorsOperation : operation = updateMvkOperatorsOperation(updateOperatorsParams, s);
+                operations := updateMvkOperatorsOperation # operations;
 
             }
         |   _ -> skip
@@ -442,25 +426,9 @@ block {
     case treasuryLambdaAction of [
         |   LambdaStakeMvk(stakeAmount) -> {
                 
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-                // Get stake entrypoint in the Doorman Contract
-                const stakeEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "%stake",
-                    doormanAddress) : option(contract(nat))) of [
-                            Some (contr)    -> contr
-                        |   None            -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
-                    ];
-
                 // Create and send stake operation
-                const stakeOperation : operation = Tezos.transaction(
-                    (stakeAmount),
-                    0tez, 
-                    stakeEntrypoint
-                );
-
-                operations := stakeOperation # operations;
+                const stakeMvkOperation : operation = stakeMvkOperation(stakeAmount, s);
+                operations := stakeMvkOperation # operations;
 
             }
         |   _ -> skip
@@ -489,25 +457,9 @@ block {
     case treasuryLambdaAction of [
         |   LambdaUnstakeMvk(unstakeAmount) -> {
                 
-                // Get doorman address
-                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-                // Get stake entrypoint in doorman
-                const unstakeEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "%unstake",
-                    doormanAddress) : option(contract(nat))) of [
-                            Some (contr)    -> contr
-                        |   None            -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
-                    ];
-
                 // Create and send unstake operation
-                const unstakeOperation : operation = Tezos.transaction(
-                    (unstakeAmount),
-                    0tez, 
-                    unstakeEntrypoint
-                );
-
-                operations := unstakeOperation # operations;
+                const unstakeMvkOperation : operation = unstakeMvkOperation(unstakeAmount, s);
+                operations := unstakeMvkOperation # operations;
 
             }
         |   _ -> skip
