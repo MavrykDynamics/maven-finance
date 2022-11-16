@@ -4,7 +4,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
+import {
+  ProposalRecordType,
+  ProposalStatus,
+  CurrentRoundProposalsStorageType,
+} from '../../utils/TypesAndInterfaces/Governance'
 import type { Governance_Proposal_Payment, Maybe } from '../../utils/generated/graphqlTypes'
 import { VoteStatistics } from 'app/App.components/VotingArea/helpers/voting'
 
@@ -98,10 +102,6 @@ export const GovernanceView = ({
     quorum: 0,
   })
 
-  const findUserCurrentRoundProposal = useMemo(
-    () => (accountPkh ? currentRoundProposals.find((item) => item.proposerId === accountPkh) : null),
-    [accountPkh, currentRoundProposals],
-  )
   const onProposalHistoryPage = useMemo(() => pathname === '/proposal-history', [pathname])
 
   useEffect(() => {
@@ -174,6 +174,12 @@ export const GovernanceView = ({
   const isVisibleWating = !onProposalHistoryPage && Boolean(watingProposals?.length)
   const isVisibleWatingPayment = !onProposalHistoryPage && Boolean(waitingForPaymentToBeProcessed?.length)
   const isAbleToMakeProposalRoundVote = satelliteAbleToMakeProposalRoundVote
+  const canDropPhase = [
+    ProposalStatus.ACTIVE,
+    ProposalStatus.LOCKED,
+    ProposalStatus.ONGOING,
+    ProposalStatus.UNLOCKED,
+  ].includes(statusFlag)
 
   const someVisible = Object.values(visibleLists).some((item) => item)
 
@@ -249,7 +255,8 @@ export const GovernanceView = ({
   }
 
   const handleDeleteProposal = async () => {
-    if (findUserCurrentRoundProposal?.id) await dispatch(dropProposal(findUserCurrentRoundProposal?.id))
+    if (rightSideContent?.proposerId === accountPkh && rightSideContent)
+      await dispatch(dropProposal(rightSideContent?.id))
   }
 
   return (
@@ -505,14 +512,12 @@ export const GovernanceView = ({
               </div>
             </article>
           ) : null}
-          {userIsSatellite && findUserCurrentRoundProposal && !isVisibleHistoryProposal ? (
+          {userIsSatellite &&
+          !isVisibleHistoryProposal &&
+          canDropPhase &&
+          rightSideContent.proposerId === accountPkh ? (
             <div className="drop-proposal">
-              <Button
-                icon="close-stroke"
-                text="Drop Proposal"
-                kind="actionSecondary"
-                onClick={handleDeleteProposal}
-              />
+              <Button icon="close-stroke" text="Drop Proposal" kind="actionSecondary" onClick={handleDeleteProposal} />
             </div>
           ) : null}
         </GovernanceRightContainer>

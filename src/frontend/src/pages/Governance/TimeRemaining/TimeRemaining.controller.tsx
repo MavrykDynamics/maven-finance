@@ -1,65 +1,67 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { State } from "reducers";
+import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 /* @ts-ignore */
-import Pluralize from "react-pluralize";
+import Pluralize from 'react-pluralize'
 
 // components
-import MoveToNextRound from "../MoveNextRound/MoveNextRound.controller";
+import MoveToNextRound from '../MoveNextRound/MoveNextRound.controller'
 
 // actions
-import { getTimestampByLevel } from "../../Governance/Governance.actions";
+import { getTimestampByLevel } from '../../Governance/Governance.actions'
 
 // styles
-import { TimeLeftAreaWrap, TimeLeftArea } from "./TimeRemaining.style";
+import { TimeLeftAreaWrap, TimeLeftArea } from './TimeRemaining.style'
 
 export default function TimeRemaining() {
-  const { governanceStorage } = useSelector((state: State) => state.governance);
-  const endLevel = governanceStorage?.currentRoundEndLevel;
-  const [votingEnding, setVotingEnding] = useState<string>("");
-
-  const timeNow = Date.now();
-  const votingTime = new Date(votingEnding).getTime();
-
-  const deltaTime = votingTime - timeNow;
-  const deltaHours = deltaTime / 1000 / 60 / 60;
-  const deltaMinutes = deltaHours * 60;
-  const deltaDays = deltaHours / 24;
-  const isEndedVotingTime = votingTime < timeNow;
-  const floorDeltaHours = Math.floor(deltaHours);
-  const outputMinutes = Math.floor(deltaMinutes - floorDeltaHours * 60);
-
-  const handleGetTimestampByLevel = async (level: number) => {
-    const res = await getTimestampByLevel(level);
-    setVotingEnding(res);
-    // setVotingEnding('2022-08-03T18:44Z')
-  };
+  const { currentRoundEndLevel = 0 } = useSelector((state: State) => state.governance.governanceStorage)
+  const [timerData, setTimerData] = useState({
+    days: 0,
+    time: 0,
+    hours: 0,
+    minutes: 0,
+  })
 
   useEffect(() => {
-    handleGetTimestampByLevel(endLevel ?? 0);
-  }, [endLevel]);
+    let timerId: NodeJS.Timer
+    ;(async () => {
+      const duration = await getTimestampByLevel(currentRoundEndLevel)
 
-  if (!endLevel) return null;
+      timerId = setInterval(() => {
+        const deltaTime = new Date(duration).getTime() - Date.now()
+        const deltaHours = deltaTime / 1000 / 60 / 60
+
+        setTimerData({
+          time: deltaTime,
+          days: Math.round(deltaHours / 24),
+          hours: Math.floor(deltaHours),
+          minutes: Math.floor(deltaHours * 60 - Math.floor(deltaHours) * 60),
+        })
+      }, 1000)
+    })()
+
+    return () => clearInterval(timerId)
+  }, [currentRoundEndLevel])
 
   return (
     <>
-      {!votingEnding || isEndedVotingTime ? (
+      {!currentRoundEndLevel || timerData.time <= 0 ? (
         <MoveToNextRound />
       ) : (
         <TimeLeftAreaWrap>
-          {deltaDays >= 1 ? (
+          {timerData.days >= 1 ? (
             <TimeLeftArea>
-              <Pluralize singular={"day"} count={Math.round(deltaDays)} />{" "}
-              remaining
+              <Pluralize singular={'day'} count={timerData.days} /> remaining
             </TimeLeftArea>
           ) : (
             <TimeLeftArea>
-              <Pluralize singular={"hour"} count={floorDeltaHours} />{" "}
-              <Pluralize singular={"minute"} count={outputMinutes} /> remaining
+              <Pluralize singular={'hour'} count={timerData.hours} />{' '}
+              <Pluralize singular={'minute'} count={timerData.minutes} /> remaining
             </TimeLeftArea>
           )}
         </TimeLeftAreaWrap>
       )}
     </>
-  );
+  )
 }
