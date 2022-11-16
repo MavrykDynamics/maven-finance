@@ -242,11 +242,10 @@ block {
         |   LambdaCouncilRemoveMember(councilMemberAddress) -> {
 
                 // Verify that council member is in the council
-                verifyCouncilMemberExists(councilMemberAddress, s)
+                verifyCouncilMemberExists(councilMemberAddress, s);
 
-                // Check if removing the council member won't impact the threshold
-                if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
-                else skip;
+                // Verify that removing the council member won't impact the threshold
+                verifyValidCouncilThreshold(s);
 
                 const dataMap : dataMapType = map [
                     ("councilMemberAddress" : string) -> Bytes.pack(councilMemberAddress)
@@ -294,7 +293,7 @@ block {
                 verifyCouncilMemberDoesNotExist(councilActionChangeMemberParams.newCouncilMemberAddress, s);
 
                 // Verify that old council member is in the council
-                verifyCouncilMemberExists(councilActionChangeMemberParams.oldCouncilMemberAddress, s)
+                verifyCouncilMemberExists(councilActionChangeMemberParams.oldCouncilMemberAddress, s);
 
                 const dataMap : dataMapType = map [
                     ("oldCouncilMemberAddress"  : string) -> Bytes.pack(councilActionChangeMemberParams.oldCouncilMemberAddress);
@@ -377,8 +376,8 @@ block {
     case councilLambdaAction of [
         |   LambdaCouncilAddVestee(addVesteeParams) -> {
                 
-                // Check if addVestee entrypoint exists on the Vesting Contract
-                const _checkEntrypoint: contract(addVesteeType)    = sendAddVesteeParams(vestingAddress);
+                // Verify that toggleVesteeLock entrypoint exists on the Vesting Contract
+                verifyVestingContractEntrypoint("addVestee", s);
 
                 // init parameters
                 const vesteeAddress          : address  = addVesteeParams.vesteeAddress;
@@ -428,9 +427,9 @@ block {
 
     case councilLambdaAction of [
         |   LambdaCouncilRemoveVestee(vesteeAddress) -> {
-                
-                // Check if removeVestee entrypoint exists on the Vesting Contract
-                const _checkEntrypoint: contract(address) = sendRemoveVesteeParams(vestingAddress);
+
+                // Verify that toggleVesteeLock entrypoint exists on the Vesting Contract
+                verifyVestingContractEntrypoint("removeVestee", s);
 
                 // Verify that the vestee exists
                 verifyVesteeExists(vesteeAddress, s);
@@ -471,9 +470,9 @@ block {
 
     case councilLambdaAction of [
         |   LambdaCouncilUpdateVestee(updateVesteeParams) -> {
-                
-                // Check if updateVestee entrypoint exists on the Vesting Contract
-                const _checkEntrypoint: contract(updateVesteeType)  = sendUpdateVesteeParams(vestingAddress);
+
+                // Verify that updateVestee entrypoint exists on the Vesting Contract
+                verifyVestingContractEntrypoint("updateVestee", s);
 
                 // init parameters
                 const vesteeAddress             : address  = updateVesteeParams.vesteeAddress;
@@ -524,8 +523,8 @@ block {
     case councilLambdaAction of [
         |   LambdaCouncilToggleVesteeLock(vesteeAddress) -> {
 
-                // Check if toggleVesteeLock entrypoint exists on the Vesting Contract
-                const _checkEntrypoint: contract(address) = sendToggleVesteeLockParams(vestingAddress);
+                // Verify that toggleVesteeLock entrypoint exists on the Vesting Contract
+                verifyVestingContractEntrypoint("toggleVesteeLock", s);
 
                 // Verify that the vestee exists
                 verifyVesteeExists(vesteeAddress, s);
@@ -626,11 +625,8 @@ block {
                 validateStringLength(councilActionRequestTokensParams.purpose     , s.config.requestPurposeMaxLength    , error_WRONG_INPUT_PROVIDED);
                 validateStringLength(councilActionRequestTokensParams.tokenName   , s.config.requestTokenNameMaxLength  , error_WRONG_INPUT_PROVIDED);
 
-                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
-                const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
-
-                // Check if requestTokens entrypoint exists on the Governance Financial Contract 
-                const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(governanceFinancialAddress);
+                // Verify that requestTokens entrypoint exists on the Governance Financial Contract 
+                verifyGovernanceFinancialContractEntrypoint("requestTokens", s);
 
                 // Verify that token type is correct
                 verifyCorrectTokenType(councilActionRequestTokensParams.tokenType);
@@ -681,11 +677,8 @@ block {
                 // Validate inputs
                 validateStringLength(councilActionRequestMintParams.purpose, s.config.requestPurposeMaxLength, error_WRONG_INPUT_PROVIDED);
 
-                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
-                const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
-
-                // Check if requestTokens entrypoint exists on the Governance Financial Contract 
-                const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(governanceFinancialAddress);
+                // Verify that requestMint entrypoint exists on the Governance Financial Contract 
+                verifyGovernanceFinancialContractEntrypoint("requestMint", s);
 
                 const dataMap : dataMapType = map [
                     ("treasuryAddress"       : string) -> Bytes.pack(councilActionRequestMintParams.treasuryAddress);
@@ -725,11 +718,8 @@ block {
     case councilLambdaAction of [
         |   LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
 
-                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
-                const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
-
-                // Check if setContractBaker entrypoint exists on the Governance Financial Contract 
-                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendSetContractBakerParams(governanceFinancialAddress);
+                // Verify that setContractBaker entrypoint exists on the Governance Financial Contract 
+                verifyGovernanceFinancialContractEntrypoint("setContractBaker", s);
 
                 const dataMap : dataMapType = map [
                     ("targetContractAddress"    : string) -> Bytes.pack(councilActionSetContractBakerParams.targetContractAddress);
@@ -815,7 +805,7 @@ block {
                 verifyCouncilActionExists(actionId, s);
 
                 // check if council can sign the action
-                validateAction(_request);
+                validateActionById(actionId, s);
 
                 const dataMap : dataMapType = map [
                     ("actionId" : string) -> Bytes.pack(actionId);
@@ -860,21 +850,23 @@ block {
                 verifyCouncilActionExists(actionId, s);
 
                 // check if council can sign the action
-                validateAction(_councilActionRecord);
+                validateActionById(actionId, s);
+
+                var councilActionRecord : councilActionRecordType := getCouncilActionRecord(actionId, s);
 
                 // check if council member has already signed for this action
-                if Set.mem(Tezos.get_sender(), _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Set.mem(Tezos.get_sender(), councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
-                var signersCount : nat             := _councilActionRecord.signersCount + 1n;
-                _councilActionRecord.signersCount  := signersCount;
-                _councilActionRecord.signers       := Set.add(Tezos.get_sender(), _councilActionRecord.signers);
-                s.councilActionsLedger[actionId]   := _councilActionRecord;
+                var signersCount : nat             := councilActionRecord.signersCount + 1n;
+                councilActionRecord.signersCount   := signersCount;
+                councilActionRecord.signers        := Set.add(Tezos.get_sender(), councilActionRecord.signers);
+                s.councilActionsLedger[actionId]   := councilActionRecord;
 
                 // check if threshold has been reached
-                if signersCount >= s.config.threshold and not _councilActionRecord.executed then block {
+                if signersCount >= s.config.threshold and not councilActionRecord.executed then block {
                     
-                    const executeCouncilActionReturn : return   = executeCouncilAction(_councilActionRecord, actionId, operations, s);
+                    const executeCouncilActionReturn : return = executeCouncilAction(councilActionRecord, actionId, operations, s);
                     
                     s           := executeCouncilActionReturn.1;
                     operations  := executeCouncilActionReturn.0;
