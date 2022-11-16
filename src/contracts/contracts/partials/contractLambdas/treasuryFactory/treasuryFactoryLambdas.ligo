@@ -332,62 +332,14 @@ block{
         |   LambdaCreateTreasury(createTreasuryParams) -> {
                 
                 // Check treasury name length
-                if String.length(createTreasuryParams.name) > s.config.treasuryNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                validateStringLength(createTreasuryParams.name, s.config.treasuryNameMaxLength, error_WRONG_INPUT_PROVIDED);
 
-                // Get Governance Proxy Contract Address from the Governance Contract
-                const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress : address = case governanceProxyAddressView of [
-                        Some (value) -> value
-                    |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Add TreasuryFactory Address and Governance Proxy Address to whitelistContracts of created treasury
-                const treasuryWhitelistContracts : whitelistContractsType = map[
-                    ("treasuryFactory") -> (Tezos.get_self_address() : address);
-                    ("governanceProxy") -> (governanceProxyAddress);
-                ];
-
-                // Add whitelisted tokens (on Treasury Factory) to created treasury 
-                const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
-
-                // Init empty General Contracts map (local contract scope, to be used if necessary)
-                const treasuryGeneralContracts : generalContractsType = map[];
-
-                // Init break glass config
-                const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
-                    transferIsPaused           = False;
-                    mintMvkAndTransferIsPaused = False;
-                    stakeMvkIsPaused           = False;
-                    unstakeMvkIsPaused         = False;
-                ];
-
-                // Prepare Treasury Metadata
-                const treasuryMetadata: metadataType = Big_map.literal (list [
-                    ("", ("74657a6f732d73746f726167653a64617461": bytes));
-                    ("data", createTreasuryParams.metadata)
-                ]);
-
-                // Init Treasury lambdas (stored on Treasury Factory)
-                const treasuryLambdaLedger : lambdaLedgerType = s.treasuryLambdaLedger;
-
-                // Prepare Treasury storage
-                const originatedTreasuryStorage : treasuryStorageType = record [
-                    
-                    admin                     = s.admin;                         // admin will be the Treasury Factory admin (i.e. Governance Proxy contract)
-                    metadata                  = treasuryMetadata;
-                    name                      = createTreasuryParams.name;
-
-                    mvkTokenAddress           = s.mvkTokenAddress;
-                    governanceAddress         = s.governanceAddress;
-
-                    whitelistContracts        = treasuryWhitelistContracts;      
-                    whitelistTokenContracts   = treasuryWhitelistTokenContracts;      
-                    generalContracts          = treasuryGeneralContracts;
-
-                    breakGlassConfig          = treasuryBreakGlassConfig;
-
-                    lambdaLedger              = treasuryLambdaLedger;
-                ];
+                // Prepare new Treasury storage
+                const originatedTreasuryStorage : treasuryStorageType = prepareTreasuryStorage(
+                    createTreasuryParams.name, 
+                    createTreasuryParams.metadata,
+                    s
+                );
 
                 // Create operation to originate Treasury
                 const treasuryOrigination: (operation * address) = createTreasuryFunc(
@@ -397,29 +349,18 @@ block{
                 );
 
                 // Add newly created Treasury to tracked Treasuries
-                s.trackedTreasuries := Set.add(treasuryOrigination.1, s.trackedTreasuries);
+                s.trackedTreasuries := trackTreasury(treasuryOrigination.1, s);
 
                 // Add the treasury to the Governance Contract - General Contracts map
                 if createTreasuryParams.addToGeneralContracts then {
                     
-                    const updateGeneralMapRecord : updateGeneralContractsType = record [
-                        generalContractName    = createTreasuryParams.name;
-                        generalContractAddress = treasuryOrigination.1;
-                    ];
-
-                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsType) = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress) : option(contract(updateGeneralContractsType))) of [
-                            Some (contr) -> contr
-                        |   None         -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
-                    ];
-
-                    // updateContractGeneralMap operation
-                    const updateContractGeneralMapOperation : operation = Tezos.transaction(
-                        updateGeneralMapRecord,
-                        0tez, 
-                        updateContractGeneralMapEntrypoint
+                    // Create and send updateGeneralContractsMap operation to the Governance Contract
+                    const updateGeneralContractsOperation : operation = updateGeneralContractsOperation(
+                        createTreasuryParams.name,  // treasury name
+                        treasuryOrigination.1,      // treasury contract address
+                        s                           // storage
                     );
-
-                    operations := updateContractGeneralMapOperation # operations;
+                    operations := updateGeneralContractsOperation # operations;
 
                 }
                 else skip;
@@ -449,10 +390,7 @@ block{
     case treasuryFactoryLambdaAction of [
         |   LambdaTrackTreasury(treasuryContract) -> {
                 
-                s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-                        True  -> (failwith(error_TREASURY_ALREADY_TRACKED) : set(address))
-                    |   False -> Set.add(treasuryContract, s.trackedTreasuries)
-                ];
+                s.trackedTreasuries := trackTreasury(treasuryContract, s);
 
             }
         |   _ -> skip
@@ -477,10 +415,7 @@ block{
     case treasuryFactoryLambdaAction of [
         |   LambdaUntrackTreasury(treasuryContract) -> {
                 
-                s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-                        True  -> Set.remove(treasuryContract, s.trackedTreasuries)
-                    |   False -> (failwith(error_TREASURY_NOT_TRACKED) : set(address))
-                ];
+                s.trackedTreasuries := untrackTreasury(treasuryContract, s);
                 
             }
         |   _ -> skip

@@ -1,0 +1,270 @@
+// ------------------------------------------------------------------------------
+//
+// Helper Functions Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// Allowed Senders : Admin, Governance Contract
+function checkSenderIsAllowed(var s : treasuryFactoryStorageType) : unit is
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+// Allowed Senders : Admin
+function checkSenderIsAdmin(const s : treasuryFactoryStorageType) : unit is
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    else unit
+
+
+
+// Allowed Senders : Admin, Governance Satellite Contract
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : treasuryFactoryStorageType) : unit is
+block{
+  
+    if Tezos.get_sender() = s.admin then skip
+    else {
+
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+
+    }
+
+} with unit
+
+
+
+// Check that no Tezos is sent to the entrypoint
+function checkNoAmount(const _p: unit) : unit is
+    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+    else unit
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to check that the %createTreasury entrypoint is not paused
+function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
+    if s.breakGlassConfig.createTreasuryIsPaused then failwith(error_CREATE_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %trackTreasury entrypoint is not paused
+function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
+    if s.breakGlassConfig.trackTreasuryIsPaused then failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %untrackTreasury entrypoint is not paused
+function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
+    if s.breakGlassConfig.untrackTreasuryIsPaused then failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to %stake entrypoint on the Doorman contract
+function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsType) is
+    case (Tezos.get_entrypoint_opt(
+        "%updateGeneralContracts",
+        contractAddress) : option(contract(updateGeneralContractsType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
+        ];
+
+
+
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper funtion to get governance proxy address directly from the Governance Contract
+function getGovernanceProxyAddress(const s : treasuryFactoryStorageType) : address is
+block {
+
+    const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddress : address = case governanceProxyAddressView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+} with governanceProxyAddress
+
+
+
+// helper funtion to prepare new treasury storage
+function prepareTreasuryStorage(const treasuryName : string; const metadata : bytes; const s : treasuryFactoryStorageType) : treasuryStorageType is 
+block {
+
+    // Get Governance Proxy Contract address directly from the Governance Contract
+    const governanceProxyAddress : address = getGovernanceProxyAddress(s);
+
+    // Add TreasuryFactory Address and Governance Proxy Address to whitelistContracts of created treasury
+    const treasuryWhitelistContracts : whitelistContractsType = map[
+        ("treasuryFactory") -> (Tezos.get_self_address() : address);
+        ("governanceProxy") -> (governanceProxyAddress);
+    ];
+
+    // Add whitelisted tokens (on Treasury Factory) to created treasury 
+    const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
+
+    // Init empty General Contracts map (local contract scope, to be used if necessary)
+    const treasuryGeneralContracts : generalContractsType = map[];
+
+    // Init break glass config
+    const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
+        transferIsPaused           = False;
+        mintMvkAndTransferIsPaused = False;
+        stakeMvkIsPaused           = False;
+        unstakeMvkIsPaused         = False;
+    ];
+
+    // Prepare Treasury Metadata
+    const treasuryMetadata: metadataType = Big_map.literal (list [
+        ("", ("74657a6f732d73746f726167653a64617461": bytes));
+        ("data", metadata)
+    ]);
+
+    // Init Treasury lambdas (stored on Treasury Factory)
+    const treasuryLambdaLedger : lambdaLedgerType = s.treasuryLambdaLedger;
+
+    // Prepare Treasury storage
+    const newTreasuryStorage : treasuryStorageType = record [
+        
+        admin                     = s.admin;                         // admin will be the Treasury Factory admin (i.e. Governance Proxy contract)
+        metadata                  = treasuryMetadata;
+        name                      = treasuryName;
+
+        mvkTokenAddress           = s.mvkTokenAddress;
+        governanceAddress         = s.governanceAddress;
+
+        whitelistContracts        = treasuryWhitelistContracts;      
+        whitelistTokenContracts   = treasuryWhitelistTokenContracts;      
+        generalContracts          = treasuryGeneralContracts;
+
+        breakGlassConfig          = treasuryBreakGlassConfig;
+
+        lambdaLedger              = treasuryLambdaLedger;
+    ];
+
+} with newTreasuryStorage
+
+
+
+// helper function to update general contracts on the Governance contract
+function updateGeneralContractsOperation(const contractName : string; const contractAddress : address; const s : treasuryFactoryStorageType) : operation is 
+block {
+
+    const updateGeneralMapRecord : updateGeneralContractsType = record [
+        generalContractName    = contractName;
+        generalContractAddress = contractAddress;
+    ];
+
+    // Create and send updateGeneralContractsMap operation to the Governance Contract
+    const updateGeneralContractsOperation : operation = Tezos.transaction(
+        updateGeneralMapRecord,
+        0tez, 
+        getUpdateGeneralContractsEntrypoint(s.governanceAddress)
+    );
+
+} with updateGeneralContractsOperation
+
+
+
+// helper function to track treasury 
+function trackTreasury(const treasuryAddress : address; const s : treasuryFactoryStorageType) : set(address) is 
+block {
+
+    var trackedTreasuries : set(address) := case Set.mem(treasuryAddress, s.trackedTreasuries) of [
+            True  -> (failwith(error_TREASURY_ALREADY_TRACKED) : set(address))
+        |   False -> Set.add(treasuryAddress, s.trackedTreasuries)
+    ];
+
+} with trackedTreasuries
+
+
+
+// helper function to untrack treasury 
+function untrackTreasury(const treasuryAddress : address; const s : treasuryFactoryStorageType) : set(address) is 
+block {
+
+    var trackedTreasuries : set(address) := case Set.mem(treasuryAddress, s.trackedTreasuries) of [
+            True  -> Set.remove(treasuryAddress, s.trackedTreasuries)
+        |   False -> (failwith(error_TREASURY_NOT_TRACKED) : set(address))
+    ];
+
+} with trackedTreasuries
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get lambda bytes
+function getLambdaBytes(const lambdaKey : string; const s : treasuryFactoryStorageType) : bytes is 
+block {
+    
+    // get lambda bytes from lambda ledger
+    const lambdaBytes : bytes = case s.lambdaLedger[lambdaKey] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+} with lambdaBytes
+
+
+
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
+function unpackLambda(const lambdaBytes : bytes; const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(treasuryFactoryUnpackLambdaFunctionType)) of [
+            Some(f) -> f(treasuryFactoryLambdaAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions End
+//
+// ------------------------------------------------------------------------------
