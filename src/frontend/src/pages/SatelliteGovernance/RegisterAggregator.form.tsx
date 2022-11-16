@@ -5,18 +5,18 @@ import { useDispatch } from 'react-redux'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import { Input } from '../../app/App.components/Input/Input.controller'
 import { Button } from '../../app/App.components/Button/Button.controller'
-import TableGridFix from '../../app/App.components/TableGrid/TableGridFix.view'
 
 // type
 import type { InputStatusType } from '../../app/App.components/Input/Input.constants'
-import type { TableListType } from '../../app/App.components/TableGrid/TableGrid.types'
-import { SatelliteGovernanceTransfer } from '../../utils/TypesAndInterfaces/Delegation'
 
 // actions
 import { registerAggregator } from './SatelliteGovernance.actions'
 
 // style
 import { AvailableActionsStyle } from './SatelliteGovernance.style'
+
+// helpers
+import { validateFormField, validateFormAddress } from 'utils/validatorFunctions' 
 
 export const RegisterAggregatorForm = () => {
   const dispatch = useDispatch()
@@ -55,11 +55,8 @@ export const RegisterAggregatorForm = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateFormField(setFormInputStatus)
+  const handleBlurAddress = validateFormAddress(setFormInputStatus)
 
   return (
     <AvailableActionsStyle>
@@ -98,9 +95,9 @@ export const RegisterAggregatorForm = () => {
                 required
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   handleChange(e)
-                  handleBlur(e)
+                  handleBlurAddress(e)
                 }}
-                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+                onBlur={handleBlurAddress}
                 inputStatus={formInputStatus.aggregatorAddress}
               />
             </div>
