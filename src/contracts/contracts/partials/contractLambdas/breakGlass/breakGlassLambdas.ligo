@@ -209,9 +209,9 @@ block {
                 ];
 
                 // Validate inputs
-                if String.length(councilMemberInfo.name)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilMemberInfo.image)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilMemberInfo.website) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                validateStringLength(councilMemberInfo.name       , s.config.councilMemberNameMaxLength       , error_WRONG_INPUT_PROVIDED);
+                validateStringLength(councilMemberInfo.image      , s.config.councilMemberImageMaxLength      , error_WRONG_INPUT_PROVIDED);
+                validateStringLength(councilMemberInfo.website    , s.config.councilMemberWebsiteMaxLength    , error_WRONG_INPUT_PROVIDED);
                 
                 // Update member info
                 councilMember.name      := councilMemberInfo.name;
@@ -255,13 +255,12 @@ block {
         |   LambdaAddCouncilMember(newCouncilMember) -> {
                 
                 // Validate inputs
-                if String.length(newCouncilMember.memberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(newCouncilMember.memberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // Check if new council member is already in the council
-                if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
-                else skip;
+                validateStringLength(newCouncilMember.memberName       , s.config.councilMemberNameMaxLength       , error_WRONG_INPUT_PROVIDED);
+                validateStringLength(newCouncilMember.memberImage      , s.config.councilMemberImageMaxLength      , error_WRONG_INPUT_PROVIDED);
+                validateStringLength(newCouncilMember.memberWebsite    , s.config.councilMemberWebsiteMaxLength    , error_WRONG_INPUT_PROVIDED);
+                
+                // Verify that new council member does not exist in the council
+                verifyCouncilMemberDoesNotExist(newCouncilMember.memberAddress, s);
 
                 const dataMap : dataMapType     = map [
                     ("councilMemberAddress"  : string) -> Bytes.pack(newCouncilMember.memberAddress);
@@ -302,20 +301,18 @@ block {
     case breakGlassLambdaAction of [
         |   LambdaRemoveCouncilMember(councilMemberAddress) -> {
                 
-                // Check if council member is in the council
-                if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
-                else skip;
+                // Verify that council member is in the council
+                verifyCouncilMemberExists(councilMemberAddress, s);
 
-                // Check if removing the council member won't impact the threshold
-                if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
-                else skip;
+                // Verify that removing the council member won't impact the threshold
+                verifyValidCouncilThreshold(s);
 
-                const dataMap : dataMapType     = map [
-                    ("councilMemberAddress"         : string) -> Bytes.pack(councilMemberAddress);
+                const dataMap : dataMapType = map [
+                    ("councilMemberAddress" : string) -> Bytes.pack(councilMemberAddress);
                 ];
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "removeCouncilMember",
                     dataMap,
                     s
@@ -348,19 +345,17 @@ block {
         |   LambdaChangeCouncilMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionChangeMemberParams.newCouncilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                validateStringLength(councilActionChangeMemberParams.newCouncilMemberName       , s.config.councilMemberNameMaxLength       , error_WRONG_INPUT_PROVIDED);
+                validateStringLength(councilActionChangeMemberParams.newCouncilMemberImage      , s.config.councilMemberImageMaxLength      , error_WRONG_INPUT_PROVIDED);
+                validateStringLength(councilActionChangeMemberParams.newCouncilMemberWebsite    , s.config.councilMemberWebsiteMaxLength    , error_WRONG_INPUT_PROVIDED);
 
-                // Check if new council member is already in the council
-                if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
-                else skip;
+                // Verify that new council member is not in the council
+                verifyCouncilMemberDoesNotExist(councilActionChangeMemberParams.newCouncilMemberAddress, s);
                 
-                // Check if old council member is in the council
-                if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
-                else skip;
+                // Verify that old council member is in the council
+                verifyCouncilMemberExists(councilActionChangeMemberParams.oldCouncilMemberAddress, s);
 
-                const dataMap : dataMapType     = map [
+                const dataMap : dataMapType = map [
                     ("oldCouncilMemberAddress"  : string)  -> Bytes.pack(councilActionChangeMemberParams.oldCouncilMemberAddress);
                     ("newCouncilMemberAddress"  : string)  -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberAddress);
                     ("newCouncilMemberName"     : string)  -> Bytes.pack(councilActionChangeMemberParams.newCouncilMemberName);
@@ -369,7 +364,7 @@ block {
                 ];
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "changeCouncilMember",
                     dataMap,
                     s
@@ -409,7 +404,7 @@ block {
         |   LambdaPauseAllEntrypoints(_parameters) -> {
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "pauseAllEntrypoints",
                     emptyDataMap,
                     s
@@ -441,7 +436,7 @@ block {
         |   LambdaUnpauseAllEntrypoints(_parameters) -> {
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "unpauseAllEntrypoints",
                     emptyDataMap,
                     s
@@ -473,7 +468,7 @@ block {
         |   LambdaPropagateBreakGlass(_parameters) -> {
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "propagateBreakGlass",
                     emptyDataMap,
                     s
@@ -513,33 +508,24 @@ block {
                 const targetContractAddress  : address = setSingleContractParams.targetContractAddress;
 
                 // Check if the provided contract has a setAdmin entrypoint
-                const _checkEntrypoint: contract(address)    = setAdminInContract(targetContractAddress);
+                const _checkEntrypoint: contract(address) = setAdminInContract(targetContractAddress);
 
-                // Get whitelist developers map from the Governance Contract
-                const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
-                        Some (value) -> value
-                    |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                // Get Whitelist Developers map from the Governance Contract
+                const whitelistDevelopers : whitelistDevelopersType = getWhitelistDevelopersMap(s);
 
-                // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
-                const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress : address = case governanceProxyAddressView of [
-                        Some (value) -> value
-                    |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];  
-                
+                // Get Governance Proxy Contract address directly from the Governance Contract
+                const governanceProxyAddress : address = getGovernanceProxyAddress(s);
+
                 // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
-                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
-                else failwith(error_DEVELOPER_NOT_WHITELISTED);
+                verifyValidAdminAddress(newAdminAddress, whitelistDevelopers, governanceProxyAddress);
 
-                const dataMap   : dataMapType      = map [
+                const dataMap : dataMapType = map [
                     ("newAdminAddress"       : string) -> Bytes.pack(newAdminAddress);
                     ("targetContractAddress" : string) -> Bytes.pack(targetContractAddress);
                 ];
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "setSingleContractAdmin",
                     dataMap,
                     s
@@ -574,30 +560,21 @@ block {
     case breakGlassLambdaAction of [
         |   LambdaSetAllContractsAdmin(newAdminAddress) -> {
 
-                // Get whitelist developers map from the Governance Contract
-                const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
-                        Some (value) -> value
-                    |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                // Get Whitelist Developers map from the Governance Contract
+                const whitelistDevelopers : whitelistDevelopersType = getWhitelistDevelopersMap(s);
 
-                // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
-                const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress : address = case governanceProxyAddressView of [
-                        Some (value) -> value
-                    |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                // Get Governance Proxy Contract address directly from the Governance Contract
+                const governanceProxyAddress : address = getGovernanceProxyAddress(s);
 
                 // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
-                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
-                else failwith(error_DEVELOPER_NOT_WHITELISTED);
+                verifyValidAdminAddress(newAdminAddress, whitelistDevelopers, governanceProxyAddress);
                 
-                const dataMap   : dataMapType      = map [
+                const dataMap : dataMapType = map [
                     ("newAdminAddress" : string) -> Bytes.pack(newAdminAddress);
                 ];
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "setAllContractsAdmin",
                     dataMap,
                     s
@@ -629,7 +606,7 @@ block {
         |   LambdaRemoveBreakGlassControl(_parameters) -> {
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "removeBreakGlassControl",
                     emptyDataMap,
                     s
@@ -669,20 +646,17 @@ block {
         |   LambdaFlushAction(actionId) -> {
                 
                 // Check if action to be flushed exists
-                const actionToFlush: councilActionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
-                        Some (_action) -> _action
-                    |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
-                ];
+                const actionToFlush : councilActionRecordType = getCouncilActionRecord(actionId, s);
 
                 // Check if action has already been flushed or executed
                 validateAction(actionToFlush);
 
-                const dataMap           : dataMapType          = map [
+                const dataMap : dataMapType = map [
                     ("actionId" : string) -> Bytes.pack(actionId);
                 ];
 
                 // create break glass action
-                s   := createBreakGlassAction(
+                s := createBreakGlassAction(
                     "flushAction",
                     dataMap,
                     s
@@ -717,26 +691,23 @@ block {
         |   LambdaSignAction(actionId) -> {
                 
                 // check if action exists
-                var _actionRecord : councilActionRecordType := case s.actionsLedger[actionId] of [
-                    |   Some(_record) -> _record
-                    |   None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
-                ];
+                var actionRecord : councilActionRecordType := getCouncilActionRecord(actionId, s);
 
                 // check if council can sign the action
-                validateAction(_actionRecord);
+                validateAction(actionRecord);
 
                 // check if council member has already signed for this action
-                if Set.mem(Tezos.get_sender(), _actionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Set.mem(Tezos.get_sender(), actionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for Break Glass Council Action  record
-                var signersCount : nat             := _actionRecord.signersCount + 1n;
-                _actionRecord.signersCount         := signersCount;
-                _actionRecord.signers              := Set.add(Tezos.get_sender(), _actionRecord.signers);
-                s.actionsLedger[actionId]          := _actionRecord;
+                var signersCount : nat             := actionRecord.signersCount + 1n;
+                actionRecord.signersCount          := signersCount;
+                actionRecord.signers               := Set.add(Tezos.get_sender(), actionRecord.signers);
+                s.actionsLedger[actionId]          := actionRecord;
 
                 // check if threshold has been reached
-                if signersCount >= s.config.threshold and not _actionRecord.executed then block {
-                    const executeBreakGlassActionReturn : return   = executeBreakGlassAction(_actionRecord, actionId, operations, s);
+                if signersCount >= s.config.threshold and not actionRecord.executed then block {
+                    const executeBreakGlassActionReturn : return   = executeBreakGlassAction(actionRecord, actionId, operations, s);
                     s           := executeBreakGlassActionReturn.1;
                     operations  := executeBreakGlassActionReturn.0;
                 } else skip;
