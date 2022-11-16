@@ -12,6 +12,8 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { getMvkTokenStorage, getDoormanStorage } from 'pages/Doorman/Doorman.actions'
 import { getTotalDelegatedMVK } from './helpers/Satellites.consts'
 import { delegate, getDelegationStorage, getOracleStorage, undelegate } from 'pages/Satellites/Satellites.actions'
+import { getGovernanceStorage } from 'pages/Governance/Governance.actions'
+import { getEmergencyGovernanceStorage } from 'pages/EmergencyGovernance/EmergencyGovernance.actions'
 
 const Satellites = () => {
   const {
@@ -26,11 +28,13 @@ const Satellites = () => {
 
   useEffect(() => {
     if (accountPkh) {
-      dispatch(getMvkTokenStorage(accountPkh))
       dispatch(getDoormanStorage())
     }
+    dispatch(getMvkTokenStorage())
     dispatch(getDelegationStorage())
     dispatch(getOracleStorage())
+    dispatch(getGovernanceStorage())
+    dispatch(getEmergencyGovernanceStorage())
   }, [dispatch, accountPkh])
 
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)

@@ -39,13 +39,10 @@ export const BecomeSatellite = () => {
           oracleRecords: [],
         }
   useEffect(() => {
-    if (accountPkh) {
-      dispatch(getMvkTokenStorage(accountPkh))
-      dispatch(getDoormanStorage())
-    }
-
+    dispatch(getDoormanStorage())
+    dispatch(getMvkTokenStorage())
     dispatch(getDelegationStorage())
-  }, [dispatch, accountPkh])
+  }, [accountPkh])
 
   const registerCallback = (form: RegisterAsSatelliteForm) => {
     dispatch(registerAsSatellite(form))

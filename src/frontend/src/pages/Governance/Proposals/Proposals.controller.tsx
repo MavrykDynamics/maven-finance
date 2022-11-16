@@ -23,8 +23,7 @@ export const Proposals = ({
   const location = useLocation()
 
   const { governancePhase } = useSelector((state: State) => state.governance)
-  let proposalListTitle = '',
-    isProposalPhase = false
+  let proposalListTitle = ''
   switch (governancePhase) {
     case 'VOTING':
       proposalListTitle = 'Ongoing Proposal'
@@ -34,7 +33,6 @@ export const Proposals = ({
       break
     case 'PROPOSAL':
       proposalListTitle = 'Poll for next proposal'
-      isProposalPhase = true
       break
     default:
       proposalListTitle = 'Past Proposals'
@@ -43,7 +41,6 @@ export const Proposals = ({
 
   if (type === 'history') {
     proposalListTitle = 'Past Proposals'
-    isProposalPhase = false
   }
 
   const onProposalHistoryPage = location.pathname === '/proposal-history'

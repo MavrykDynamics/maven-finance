@@ -9,7 +9,7 @@ import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 import type { CouncilPastAction } from '../../reducers/council'
 
 // actions, consts
-import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from './Council.actions'
+import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage, getCouncilStorage } from './Council.actions'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { memberIsFirstOfList } from './Council.helpers'
@@ -124,6 +124,7 @@ export const Council = () => {
 
   useEffect(() => {
     dispatch(getCouncilPastActionsStorage())
+    dispatch(getCouncilStorage())
   }, [dispatch])
 
   useEffect(() => {
@@ -144,7 +145,9 @@ export const Council = () => {
 
   useEffect(() => {
     // redirect to review or main page when member changes
-    history.replace(isUserInCouncilMembers ? queryParameters.pathname : `${queryParameters.pathname}${queryParameters.review}`)
+    history.replace(
+      isUserInCouncilMembers ? queryParameters.pathname : `${queryParameters.pathname}${queryParameters.review}`,
+    )
   }, [history, isUserInCouncilMembers])
 
   useEffect(() => {
@@ -210,15 +213,28 @@ export const Council = () => {
                   />
                 </DropdownWrap>
                 {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
-                {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember {...councilMemberMaxLength} /> : null}
+                {chosenDdItem?.value === 'addCouncilMember' ? (
+                  <CouncilFormAddCouncilMember {...councilMemberMaxLength} />
+                ) : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
                 {chosenDdItem?.value === 'removeVestee' ? <CouncilFormRemoveVestee /> : null}
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
-                {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember {...councilMemberMaxLength} /> : null}
+                {chosenDdItem?.value === 'changeCouncilMember' ? (
+                  <CouncilFormChangeCouncilMember {...councilMemberMaxLength} />
+                ) : null}
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
-                {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
-                {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens requestTokenNameMaxLength={councilStorage.requestTokenNameMaxLength} requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
-                {chosenDdItem?.value === 'requestTokenMint' ? <CouncilFormRequestTokenMint requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} /> : null}
+                {chosenDdItem?.value === 'transferTokens' ? (
+                  <CouncilFormTransferTokens requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} />
+                ) : null}
+                {chosenDdItem?.value === 'requestTokens' ? (
+                  <CouncilFormRequestTokens
+                    requestTokenNameMaxLength={councilStorage.requestTokenNameMaxLength}
+                    requestPurposeMaxLength={councilStorage.requestPurposeMaxLength}
+                  />
+                ) : null}
+                {chosenDdItem?.value === 'requestTokenMint' ? (
+                  <CouncilFormRequestTokenMint requestPurposeMaxLength={councilStorage.requestPurposeMaxLength} />
+                ) : null}
                 {chosenDdItem?.value === 'dropFinancialRequest' ? <CouncilFormDropFinancialRequest /> : null}
                 {chosenDdItem?.value === 'setBaker' ? <CouncilFormSetBaker /> : null}
                 {chosenDdItem?.value === 'setContractBaker' ? <CouncilFormSetContractBaker /> : null}

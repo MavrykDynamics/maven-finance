@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Page, ModalStyled } from 'styles'
+import { Page } from 'styles'
 import { State } from 'reducers'
 
 // actions
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
-import { getCurrentRoundProposals, executeProposal } from './Governance.actions'
+import { getCurrentRoundProposals, executeProposal, getGovernanceStorage } from './Governance.actions'
 import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
 
 // view
@@ -49,6 +49,7 @@ export const Governance = () => {
     dispatch(getCurrentRoundProposals())
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getDelegationStorage())
+    dispatch(getGovernanceStorage())
   }, [])
 
   const isVotingRound = governancePhase === 'VOTING'

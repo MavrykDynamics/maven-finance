@@ -7,11 +7,7 @@ import { Page } from 'styles'
 
 export const Vaults = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { treasuryStorage } = useSelector((state: State) => state.treasury)
-  const { councilStorage } = useSelector((state: State) => state.council)
-  const { vestingStorage } = useSelector((state: State) => state.vesting)
 
   return (
     <Page>

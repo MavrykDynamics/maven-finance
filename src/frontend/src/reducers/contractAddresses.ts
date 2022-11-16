@@ -1,5 +1,5 @@
-import { GET_CONTRACT_ADDRESSES } from '../app/App.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
+import { GET_CONTRACT_ADDRESSES } from './actions/contractAddresses.actions'
 
 export interface ContractAddressesState {
   [key: string]: { address: string }
