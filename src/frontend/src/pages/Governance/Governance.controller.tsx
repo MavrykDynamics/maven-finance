@@ -37,13 +37,6 @@ export const Governance = () => {
   )
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
-  // Period end time calculation
-  const { headData } = useSelector((state: State) => state.preferences)
-
-  const daysLeftOfPeriod =
-    headData?.knownLevel && governanceStorage?.currentRoundEndLevel
-      ? calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)
-      : 0
 
   useEffect(() => {
     dispatch(getCurrentRoundProposals())
@@ -80,7 +73,6 @@ export const Governance = () => {
         waitingForPaymentToBeProcessed={waitingForPaymentToBeProcessed}
         pastProposals={pastProposals}
         governancePhase={governancePhase}
-        timeLeftInPhase={daysLeftOfPeriod}
       />
     </Page>
   )

@@ -124,7 +124,7 @@ export const SatelliteDetailsView = ({
                   <p>
                     <CommaNumber value={satelliteMetrics.votingPartisipation} endingText="%" showDecimal={false} />
                   </p>
-                  <h5>Oracle efficiency</h5>
+                  <h5>Oracle Participation</h5>
                   <p>
                     <CommaNumber value={satelliteMetrics.oracleEfficiency} endingText="%" showDecimal={false} />
                   </p>
