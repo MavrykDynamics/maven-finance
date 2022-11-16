@@ -2008,7 +2008,7 @@ hasura:
       cpu: 1500m
   ingress:
     service:
-      name: hasura-prod2
+      name: hasura-prod
     enabled: true
     host: api.mavryk.finance
     secretName: api-mavryk-tls
