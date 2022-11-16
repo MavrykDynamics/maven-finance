@@ -72,16 +72,12 @@ export const SatelliteGovernance = () => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
-    delegationStorage: { satelliteLedger, oraclesAmount },
+    delegationStorage: { satelliteLedger, activeSatellites, oraclesAmount },
   } = useSelector((state: State) => state.delegation)
   const { governanceSatelliteStorage } = useSelector((state: State) => state.governance)
-  const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
-  const satelliteLedgerActive = useMemo(
-    () => satelliteLedger.filter((item) => item.status === SatelliteStatus.ACTIVE),
-    [satelliteLedger],
-  )
 
-  const userIsSatellite = checkIfUserIsSatellite(accountPkh, satelliteLedger)
+  const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
+  const userIsSatellite = checkIfUserIsSatellite(accountPkh, activeSatellites)
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
@@ -95,7 +91,7 @@ export const SatelliteGovernance = () => {
 
   const [tabsList, setTabsList] = useState<TabItem[]>([])
   const maxLength = {
-    purposeMaxLength: governanceSatelliteStorage.governance_satellite[0]?.gov_purpose_max_length
+    purposeMaxLength: governanceSatelliteStorage.governance_satellite[0]?.gov_purpose_max_length,
   }
 
   useEffect(() => {
@@ -179,7 +175,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Total Active Satellites</h3>
             <p className="info-content">
-              {satelliteLedgerActive?.length}{' '}
+              {activeSatellites?.length}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -239,7 +235,7 @@ export const SatelliteGovernance = () => {
               <h2>Available Actions</h2>
               <DropDown
                 clickOnDropDown={handleClickDropdown}
-                placeholder='Choose action'
+                placeholder="Choose action"
                 isOpen={ddIsOpen}
                 setIsOpen={setDdIsOpen}
                 itemSelected={chosenDdItem?.text}
@@ -262,7 +258,7 @@ export const SatelliteGovernance = () => {
       </SatelliteGovernanceStyled>
 
       {paginatedItemsList?.length
-        ? paginatedItemsList.map((item: GovernanceSatelliteActionGraphQL) => {          
+        ? paginatedItemsList.map((item: GovernanceSatelliteActionGraphQL) => {
             return (
               <SatelliteGovernanceCard
                 key={item.id}

@@ -130,20 +130,28 @@ export function normalizeSatelliteRecord(
     delegationRatio: satelliteRecord?.delegation?.delegation_ratio / 10 ?? 0,
     delegatorCount: satelliteRecord?.delegations.length,
     totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
-    unregisteredDateTime: new Date(0),
     proposalVotingHistory,
     financialRequestsVotes,
     emergencyGovernanceVotes,
     satelliteActionVotes,
+    currentlyRegistered: satelliteRecord.currently_registered,
+    isSatelliteReady: satelliteRecord.currently_registered && satelliteRecord.status === 0,
   }
 
   return newSatelliteRecord
 }
 
-function convertToSatelliteRecords(satelliteRecordList: DelegationGraphQl['satellites']): SatelliteRecord[] {
-  return satelliteRecordList?.length
+function convertToSatelliteRecords(satelliteRecordList: DelegationGraphQl['satellites']): {
+  ledger: SatelliteRecord[]
+  activeSatellites: SatelliteRecord[]
+} {
+  const ledger = satelliteRecordList?.length
     ? satelliteRecordList.map((item) => normalizeSatelliteRecord(item, item?.user))
     : []
+  return {
+    ledger,
+    activeSatellites: ledger.filter(({ currentlyRegistered, status }) => currentlyRegistered && status === 0),
+  }
 }
 
 function getOraclesAmount(satellites: SatelliteRecord[]) {
@@ -156,7 +164,8 @@ function getOraclesAmount(satellites: SatelliteRecord[]) {
 }
 
 export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl) {
-  const convertedSatellties = convertToSatelliteRecords(delegationStorage?.satellites)
+  const { ledger, activeSatellites } = convertToSatelliteRecords(delegationStorage?.satellites)
+
   return {
     breakGlassConfig: {
       delegateToSatelliteIsPaused: delegationStorage?.delegate_to_satellite_paused,
@@ -176,8 +185,9 @@ export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl)
       satelliteWebsiteMaxLength: delegationStorage?.satellite_website_max_length || 400,
     },
     delegateLedger: new MichelsonMap<string, DelegateRecord>(),
-    satelliteLedger: convertedSatellties,
-    oraclesAmount: getOraclesAmount(convertedSatellties),
+    satelliteLedger: ledger,
+    activeSatellites,
+    oraclesAmount: getOraclesAmount(ledger),
     numberActiveSatellites: delegationStorage?.max_satellites,
     totalDelegatedMVK: delegationStorage?.max_satellites,
   }
