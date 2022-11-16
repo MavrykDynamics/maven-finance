@@ -30,7 +30,7 @@ type OraclesViewProps = {
     satelliteUserIsDelegatedTo: string
     items: SatelliteRecord[]
     delegateCallback: (address: string) => void
-    undelegateCallback: () => void
+    undelegateCallback: (address: string) => void
   }
   dataFeedsData: {
     items: Array<FeedGQL>

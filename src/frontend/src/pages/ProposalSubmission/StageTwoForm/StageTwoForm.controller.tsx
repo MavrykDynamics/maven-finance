@@ -90,9 +90,8 @@ export const StageTwoForm = ({
     let validationStatus: 'success' | 'error'
 
     if (type === 'validTitle') {
-      const defaultMaxLength = 100
       validationStatus =
-        isValidLength(text, 1, proposalMetadataTitleMaxLength || defaultMaxLength) &&
+        isValidLength(text, 1, proposalMetadataTitleMaxLength) &&
         getBytesPairValidationStatus(text, type) === 'success'
           ? 'success'
           : 'error'

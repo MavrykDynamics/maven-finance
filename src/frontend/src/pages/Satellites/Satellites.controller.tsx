@@ -49,8 +49,8 @@ const Satellites = () => {
     dispatch(delegate(satelliteAddress))
   }
 
-  const undelegateCallback = () => {
-    dispatch(undelegate())
+  const undelegateCallback = (delegateAddress: string) => {
+    dispatch(undelegate(delegateAddress))
   }
 
   return (

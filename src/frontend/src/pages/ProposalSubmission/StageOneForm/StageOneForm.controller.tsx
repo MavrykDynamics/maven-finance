@@ -54,16 +54,14 @@ export const StageOneForm = ({
     formField: string,
   ) => {
     let validityCheckResult
-    const defaultMaxLength = 100
-    
     switch (formField) {
       case 'TITLE':
-        validityCheckResult = isValidLength(currentProposal.title, 1, proposalTitleMaxLength || defaultMaxLength)
+        validityCheckResult = isValidLength(currentProposal.title, 1, proposalTitleMaxLength)
         setValidForm({ ...validForm, title: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, title: validityCheckResult ? 'success' : 'error' })
         break
       case 'DESCRIPTION':
-        validityCheckResult = isValidLength(currentProposal.description, 1, proposalDescriptionMaxLength || defaultMaxLength)
+        validityCheckResult = isValidLength(currentProposal.description, 1, proposalDescriptionMaxLength)
         setValidForm({ ...validForm, description: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, description: validityCheckResult ? 'success' : 'error' })
         break
@@ -76,7 +74,7 @@ export const StageOneForm = ({
         break
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(currentProposal.sourceCode) &&
-          isValidLength(currentProposal.sourceCode, 1, proposalSourceCodeMaxLength || defaultMaxLength)
+          isValidLength(currentProposal.sourceCode, 1, proposalSourceCodeMaxLength)
         setValidForm({ ...validForm, sourceCode: validityCheckResult })
         setFormInputStatus({ ...formInputStatus, sourceCode: validityCheckResult ? 'success' : 'error' })
         break

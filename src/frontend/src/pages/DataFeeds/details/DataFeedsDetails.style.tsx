@@ -119,6 +119,7 @@ export const DataFeedsStyled = styled.div`
       .adresses-info {
         position: relative;
         height: 110px;
+        padding-top: 15px;
         &.registered {
           height: 100%;
           &::before {
