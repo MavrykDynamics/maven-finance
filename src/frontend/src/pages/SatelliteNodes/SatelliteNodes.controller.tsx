@@ -7,7 +7,7 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { DropdownItemType } from '../../app/App.components/DropDown/DropDown.controller'
 
 import { State } from 'reducers'
-import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
+import { getDelegationStorage, delegate, undelegate } from 'pages/Satellites/Satellites.actions'
 
 const SatelliteNodes = () => {
   const {
@@ -75,10 +75,20 @@ const SatelliteNodes = () => {
     }
   }
 
+  const delegateCallback = (satelliteAddress: string) => {
+    dispatch(delegate(satelliteAddress))
+  }
+
+  const undelegateCallback = (delegateAddress: string) => {
+    dispatch(undelegate(delegateAddress))
+  }
+
   return (
     <OracleSatellitesView
       handleSelect={handleSelect}
       handleSearch={handleSearch}
+      delegateCallback={delegateCallback}
+      undelegateCallback={undelegateCallback}
       satellitesList={filteredSatelliteList}
     />
   )

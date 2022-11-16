@@ -109,7 +109,7 @@ export const SatelliteListItem = ({
         text="Undelegate"
         icon="man-close"
         kind={ACTION_SECONDARY}
-        onClick={() => undelegateCallback()}
+        onClick={() => undelegateCallback(satellite.address)}
         disabled={!ready}
       />
       {isDetailsPage && claimRewardsCallback && userHasSatelliteRewards ? (

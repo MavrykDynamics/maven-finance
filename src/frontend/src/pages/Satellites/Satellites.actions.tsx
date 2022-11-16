@@ -76,7 +76,9 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    const transaction = await contract?.methods.delegateToSatellite(state.wallet.accountPkh, satelliteAddress).send()
+    console.log(contract, 'contract');
+    const transaction = await contract?.methods.delegateToSatellite(satelliteAddress).send()
+    console.log(transaction, 'transaction');
     dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Delegating...', 'Please wait 30s'))
     await transaction?.confirmation()
@@ -97,7 +99,7 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
   }
 }
 
-export const undelegate = () => async (dispatch: AppDispatch, getState: GetState) => {
+export const undelegate = (delegateAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -112,8 +114,9 @@ export const undelegate = () => async (dispatch: AppDispatch, getState: GetState
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    const transaction = await contract?.methods.undelegateFromSatellite(state.wallet.accountPkh).send()
-
+    console.log(contract, 'contract');
+    const transaction = await contract?.methods.undelegateFromSatellite(delegateAddress).send()
+    console.log(transaction, 'transaction');
     dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Undelegating...', 'Please wait 30s'))
     await transaction?.confirmation()

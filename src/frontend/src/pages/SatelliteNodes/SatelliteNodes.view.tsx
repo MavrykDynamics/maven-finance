@@ -17,10 +17,13 @@ import { Page, PageContent } from 'styles'
 import { EmptyContainer } from 'app/App.style'
 import SatellitesSideBar from 'pages/Satellites/SatellitesSideBar/SatellitesSideBar.controller'
 
+
 type OracleSatellitesViewProps = {
   handleSelect: (item: { text: string; value: string }) => void
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void
   satellitesList: Array<SatelliteRecord>
+  delegateCallback: (address: string) => void
+  undelegateCallback: (address: string) => void
 }
 
 const itemsForDropDown = [
@@ -37,7 +40,7 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: OracleSatellitesViewProps) => {
+const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList, delegateCallback, undelegateCallback }: OracleSatellitesViewProps) => {
   const loading = useSelector((state: State) => Boolean(state.loading))
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -97,6 +100,8 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
               additionaldata={{
                 isAllOracles: true,
                 fullUtemsCount: satellitesList.length,
+                delegateCallback,
+                undelegateCallback,
               }}
             />
           ) : (

@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { submitEmergencyGovernanceProposal } from '../EmergencyGovernance.actions'
 import { hideExitFeeModal } from './EmergencyGovProposalModal.actions'
 import { EmergencyGovProposalModalView } from './EmergencyGovProposalModal.view'
-import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import { isValidLength, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import {
   EmergencyGovernanceProposalForm,
   EmergencyGovernanceProposalFormInputStatus,
@@ -15,6 +15,7 @@ export const EmergencyGovProposalModal = () => {
   const dispatch = useDispatch()
   const { showing } = useSelector((state: State) => state.exitFeeModal)
   const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { emergencyGovernanceStorage: { config: { proposalTitleMaxLength, proposalDescMaxLength } } } = useSelector((state: State) => state.emergencyGovernance)
   const { fee } = governanceStorage
 
   const [form, setForm] = useState<EmergencyGovernanceProposalForm>({
@@ -40,13 +41,13 @@ export const EmergencyGovProposalModal = () => {
     let updatedState, validityCheckResult
     switch (formField) {
       case 'TITLE':
-        validityCheckResult = isNotAllWhitespace(form.title)
+        validityCheckResult = isValidLength(form.title, 1, proposalTitleMaxLength)
         setValidForm({ ...validForm, title: validityCheckResult })
         updatedState = { ...validForm, title: validityCheckResult }
         setFormInputStatus({ ...formInputStatus, title: updatedState.title ? 'success' : 'error' })
         break
       case 'DESCRIPTION':
-        validityCheckResult = isNotAllWhitespace(form.description)
+        validityCheckResult = isValidLength(form.description, 1, proposalDescMaxLength)
         setValidForm({ ...validForm, description: validityCheckResult })
         updatedState = { ...validForm, description: validityCheckResult }
         setFormInputStatus({ ...formInputStatus, description: updatedState.description ? 'success' : 'error' })

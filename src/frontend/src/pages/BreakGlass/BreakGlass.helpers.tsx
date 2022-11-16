@@ -40,9 +40,9 @@ export const normalizeBreakGlass = (storage: BreakGlassGraphQL) => {
     config: {
       threshold: storage?.threshold,
       actionExpiryDays: storage?.action_expiry_days,
-      councilMemberNameMaxLength: storage?.council_member_name_max_length,
-      councilMemberImageMaxLength: storage?.council_member_image_max_length,
-      councilMemberWebsiteMaxLength: storage?.council_member_website_max_length,
+      councilMemberNameMaxLength: storage?.council_member_name_max_length || 400,
+      councilMemberImageMaxLength: storage?.council_member_image_max_length || 500,
+      councilMemberWebsiteMaxLength: storage?.council_member_website_max_length || 400,
     },
     actionCounter: storage?.action_counter,
     glassBroken: storage?.glass_broken,
