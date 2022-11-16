@@ -1375,10 +1375,6 @@ block {
                 if proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
                 else skip;
 
-                // Check that there is at least one proposal metadata to execute
-                if Map.size(proposal.proposalData) = 0n then failwith(error_PROPOSAL_HAS_NO_DATA_TO_EXECUTE)
-                else skip;
-
                 // Check if any data in the proposal has already been executed
                 if proposal.proposalDataExecutionCounter > 0n then failwith(error_PROPOSAL_EXECUTION_ALREADY_STARTED)
                 else skip;
@@ -1388,8 +1384,8 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update proposal and set "executed" boolean to True
-                proposal.executed                      := True;
-                s.proposalLedger[proposalId] := proposal;
+                proposal.executed               := True;
+                s.proposalLedger[proposalId]    := proposal;
 
                 // ------------------------------------------------------------------
                 // Process Metadata Loop
