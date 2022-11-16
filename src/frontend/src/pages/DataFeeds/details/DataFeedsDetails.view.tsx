@@ -99,7 +99,7 @@ const DataFeedDetailsView = ({
             <div className="top">
               <div className="name-part">
                 <div className="img-wrapper">
-                  <CoinsLogo imageLink={imageLink} />
+                  <CoinsLogo imageLink={imageLink} assetName={feed.name.split('/')?.[1]} />
                 </div>
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
                   {feed.name}
