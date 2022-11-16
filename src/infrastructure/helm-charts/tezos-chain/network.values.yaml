@@ -1,5 +1,57 @@
 namespace: basenet
 
+tezos-faucet:
+  images:
+    tezos_faucet: ghcr.io/oxheadalpha/tezos-faucet:latest
+    tezos_faucet_backend: ghcr.io/oxheadalpha/tezos-faucet-backend:latest
+  authorizedHost: "'*'"
+
+  # if your balance is over the max, the faucet won't give you more tokens
+  maxBalance: 61000
+
+  config:
+    application:
+      name: 'Mavryk Basenet faucet'
+      googleCaptchaSiteKey: 6LcFChAjAAAAAGMoznoHqZ-C8GhzDJu-V-X2BeAg #6LeiK14fAAAAAPptX4v49I4wSrHjOrU2cb_y5oII
+      backendUrl: 'https://faucet-basenet.mavryk.io'
+      githubRepo: 'https://github.com/oxheadalpha/tezos-faucet'
+      profiles:
+        user:
+          profile: USER
+          amount: 1
+        baker:
+          profile: BAKER
+          amount: 6001
+    network:
+      name: Basenet #Jakartanet
+      rpcUrl: https://basenet-baking-full-node.mavryk.network/ #https://jakartanet.tezos.marigold.dev/
+      faucetAddress: tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
+      viewer: https://kathmandu.tzstats.com
+      allowSendButton: true
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: true
+    className: ''
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    host: 'faucet-basenet.mavryk.io' # fill in the faucet hostname
+    tls:
+      - secretName: faucet-basenet-tls
+        hosts:
+          - faucet-basenet.mavryk.io
+
+  # Secrets
+  googleCaptchaSecretKey: secret_key_goes_here
+  faucetPrivateKey: edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz
+
+###
+# tezos-chain values
+###
+
 # Is the values file an invitation for a private chain
 is_invitation: false
 # A chain using Zerotier would be a private chain
