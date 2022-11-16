@@ -357,7 +357,7 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       participationFeesPerShare: calcWithoutPrecision(userInfoData?.participation_fees_per_share),
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite ? userInfoData?.delegations[0].satellite?.user_id : '',
       isSatellite: Boolean(
-        state.delegation.delegationStorage.satelliteLedger.find(
+        state.delegation.delegationStorage.activeSatellites.find(
           ({ address: satelliteAddress }) =>
             satelliteAddress === userInfoData?.address || satelliteAddress === state.wallet?.accountPkh,
         ),

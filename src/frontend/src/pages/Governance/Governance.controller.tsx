@@ -32,11 +32,10 @@ export const Governance = () => {
   const { watingProposals, waitingForPaymentToBeProcessed } = useGovernence()
 
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { isSatellite } = useSelector((state: State) => state.user)
   const { governanceStorage, governancePhase, currentRoundProposals, pastProposals } = useSelector(
     (state: State) => state.governance,
   )
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
 
   useEffect(() => {
     dispatch(getCurrentRoundProposals())
@@ -66,7 +65,7 @@ export const Governance = () => {
       <GovernanceView
         handleExecuteProposal={handleExecuteProposal}
         accountPkh={accountPkh}
-        userIsSatellite={userIsSatellite}
+        userIsSatellite={isSatellite}
         ongoingProposals={ongoingProposals}
         nextProposals={currentRoundProposals}
         watingProposals={watingProposals}

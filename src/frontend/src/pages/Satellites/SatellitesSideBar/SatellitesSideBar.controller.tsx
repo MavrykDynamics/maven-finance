@@ -10,12 +10,13 @@ import SatellitesSideBarView from './SatellitesSideBar.view'
 const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { isSatellite } = useSelector((state: State) => state.user)
   const {
-    delegationStorage: { oraclesAmount, satelliteLedger },
+    delegationStorage: { oraclesAmount, satelliteLedger, activeSatellites },
   } = useSelector((state: State) => state.delegation)
   const { feedsFactory, feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const { delegationAddress } = useSelector((state: State) => state.contractAddresses)
-  const numSatellites = satelliteLedger?.length || 0
+  const numSatellites = activeSatellites?.length || 0
   const dataPointsCount = useMemo(
     () =>
       feeds?.filter((feed) => dayjs(Date.now()).diff(dayjs(feed?.last_completed_data_last_updated_at), 'minutes') <= 60)
@@ -23,7 +24,6 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
     [feeds],
   )
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
-  const userIsSatellite = checkIfUserIsSatellite(accountPkh, satelliteLedger)
   const averageRevard = feeds?.length
     ? calcWithoutPrecision(
         (
@@ -42,7 +42,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   return (
     <SatellitesSideBarView
       accountPkh={accountPkh}
-      userIsSatellite={userIsSatellite}
+      userIsSatellite={isSatellite}
       numberOfSatellites={numSatellites}
       totalDelegatedMVK={totalDelegatedMVK}
       isButton={isButton}
