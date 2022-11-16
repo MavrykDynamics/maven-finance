@@ -64,7 +64,7 @@ const getPastActionsList = (list: GovernanceSatelliteActionGraphQL[]): Governanc
   return list?.filter((item) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
-    return expirationDatetime < timeNow || item.status === 0
+    return expirationDatetime < timeNow
   })
 }
 
