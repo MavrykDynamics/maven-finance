@@ -75,6 +75,7 @@ export const SatelliteGovernance = () => {
     delegationStorage: { satelliteLedger, oraclesAmount },
   } = useSelector((state: State) => state.delegation)
   const { governanceSatelliteStorage } = useSelector((state: State) => state.governance)
+  const { oraclesStorage: { feedsFactory } } = useSelector((state: State) => state.oracles)
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const satelliteLedgerActive = useMemo(
     () => satelliteLedger.filter((item) => item.status === SatelliteStatus.ACTIVE),
@@ -95,7 +96,8 @@ export const SatelliteGovernance = () => {
 
   const [tabsList, setTabsList] = useState<TabItem[]>([])
   const maxLength = {
-    purposeMaxLength: governanceSatelliteStorage.governance_satellite[0]?.gov_purpose_max_length
+    purposeMaxLength: governanceSatelliteStorage.governance_satellite[0]?.gov_purpose_max_length,
+    aggregatorNameMaxLength: feedsFactory[0]?.aggregator_name_max_length,
   }
 
   useEffect(() => {
@@ -248,7 +250,7 @@ export const SatelliteGovernance = () => {
               />
             </DropdownWrap>
             {chosenDdItem?.value === 'registerAggregator' ? (
-              <RegisterAggregatorForm />
+              <RegisterAggregatorForm maxLength={maxLength} />
             ) : chosenDdItem?.value === 'fixMistakenTransfer' ? (
               <FixMistakenTransferForm maxLength={maxLength} />
             ) : (

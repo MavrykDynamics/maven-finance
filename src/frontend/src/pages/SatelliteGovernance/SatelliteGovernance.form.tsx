@@ -30,9 +30,14 @@ import { AvailableActionsStyle } from './SatelliteGovernance.style'
 // helpers
 import { validateFormField, validateFormAddress } from 'utils/validatorFunctions' 
 
+type MaxLength = {
+  purposeMaxLength: number
+  aggregatorNameMaxLength: number
+}
+
 type Props = {
   variant: string
-  maxLength: { purposeMaxLength: number }
+  maxLength: MaxLength
 }
 
 const CONTENT_FORM = new Map<string, Record<string, string>>([
