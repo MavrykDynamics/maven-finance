@@ -164,46 +164,19 @@ block {
                 const cliffInMonths          : nat      = addVesteeParams.cliffInMonths;
                 const vestingInMonths        : nat      = addVesteeParams.vestingInMonths;
 
-                // check that vestingInMonths is not zero (div by 0 error)
-                if vestingInMonths = 0n then failwith(error_VESTING_IN_MONTHS_TOO_SHORT)
-                else skip;
+                // Verify that vestingInMonths is not zero (div by 0 error)
+                verifyGreaterThanZero(vestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
 
-                // Check that cliffInMonths cannot be greater than vestingInMonths (duration error)
-                if cliffInMonths > vestingInMonths then failwith(error_CLIFF_PERIOD_TOO_LONG)
-                else skip;
+                // Verify that cliffInMonths cannot be greater than vestingInMonths (duration error)
+                verifyLessThan(cliffInMonths, vestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
 
-                var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [
-                        Some(_record) -> failwith(error_VESTEE_ALREADY_EXISTS)
-                    |   None -> record [
-                        
-                        // static variables initiated at start ----
-
-                        totalAllocatedAmount = totalAllocatedAmount;                          // totalAllocatedAmount should be in (10^9) - MVK Token decimals
-                        claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;        // totalAllocatedAmount should be in (10^9) - MVK Token decimals
-                        
-                        startTimestamp       = Tezos.get_now();                                     // date/time start of when 
-
-                        vestingMonths        = vestingInMonths;                               // number of months of vesting for total allocaed amount
-                        cliffMonths          = cliffInMonths;                                 // number of months for cliff before vestee can claim
-
-                        endCliffDateTime     = Tezos.get_now() + (cliffInMonths * thirty_days);     // calculate end of cliff duration in timestamp based on dateTimeStart
-                        
-                        endVestingDateTime   = Tezos.get_now() + (vestingInMonths * thirty_days);   // calculate end of vesting duration in timestamp based on dateTimeStart
-
-                        // updateable variables on claim ----------
-
-                        status                   = "ACTIVE";
-
-                        totalRemainder           = totalAllocatedAmount;                      // total amount that is left to be claimed
-                        totalClaimed             = 0n;                                        // total amount that has been claimed
-
-                        monthsClaimed            = 0n;                                        // claimed number of months   
-                        monthsRemaining          = vestingInMonths;                           // remaining number of months   
-                        
-                        nextRedemptionTimestamp  = Tezos.get_now();                                 // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
-                        lastClaimedTimestamp     = Tezos.get_now();                                 // timestamp of when vestee last claimed
-                    ]
-                ];    
+                var newVestee : vesteeRecordType := createVesteeRecord(
+                    vesteeAddress,
+                    totalAllocatedAmount,
+                    vestingInMonths,
+                    cliffInMonths,
+                    s
+                );
 
                 s.vesteeLedger[vesteeAddress] := newVestee;
 
@@ -229,10 +202,7 @@ block {
                 
                 checkSenderIsCouncilOrAdmin(s);
 
-                var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                    |   Some(_record) -> _record
-                    |   None          -> failwith(error_VESTEE_NOT_FOUND)
-                ];    
+                var _vestee : vesteeRecordType := getVesteeRecord(vesteeAddress, s);
 
                 remove vesteeAddress from map s.vesteeLedger;
             }
@@ -266,21 +236,16 @@ block {
                 const newCliffInMonths          : nat      = updateVesteeParams.newCliffInMonths;
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
-                // check that new vestingInMonths is not zero (div by 0 error)
-                if newVestingInMonths = 0n then failwith(error_VESTING_IN_MONTHS_TOO_SHORT)
-                else skip;
+                // Verify that new vestingInMonths is not zero (div by 0 error)
+                verifyGreaterThanZero(newVestingInMonths, error_VESTING_IN_MONTHS_TOO_SHORT);
 
-                // Check that new cliffInMonths cannot be greater than new vestingInMonths (duration error)
-                if newCliffInMonths > newVestingInMonths then failwith(error_CLIFF_PERIOD_TOO_LONG)
-                else skip;
+                // Verify that new cliffInMonths cannot be greater than new vestingInMonths (duration error)
+                verifyLessThan(newCliffInMonths, newVestingInMonths, error_CLIFF_PERIOD_TOO_LONG);
 
                 // Get vestee record from ledger
-                var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                    |   Some(_record) -> _record
-                    |   None          -> failwith(error_VESTEE_NOT_FOUND)
-                ];
+                var vestee : vesteeRecordType := getVesteeRecord(vesteeAddress, s);
 
-                vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
+                vestee.totalAllocatedAmount := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
 
                 // factor any amount that vestee has claimed so far and update new claim amount per month accordingly
                 var newMonthsRemaining      : nat  := abs(newVestingInMonths - vestee.monthsClaimed);
@@ -337,15 +302,10 @@ block {
                 checkSenderIsCouncilOrAdmin(s);
 
                 // Get vestee record from ledger
-                var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                    |   Some(_record) -> _record
-                    |   None          -> failwith(error_VESTEE_NOT_FOUND)
-                ];    
+                var vestee : vesteeRecordType := getVesteeRecord(vesteeAddress, s);
 
                 // Toggle vestee status
-                var newStatus : string := "newStatus";
-                if vestee.status = "LOCKED" then newStatus := "ACTIVE"
-                else newStatus := "LOCKED";
+                const newStatus : string = toggleVesteeStatus(vestee);
 
                 // Update vestee record
                 vestee.status := newStatus;
@@ -388,21 +348,17 @@ block {
         |   LambdaClaim(_parameters) -> {
                 
                 // Get sender's vestee record from ledger
-                var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.get_sender()] of [ 
-                    |   Some(_record) -> _record
-                    |   None          -> failwith(error_VESTEE_NOT_FOUND)
-                ];
+                var _vestee : vesteeRecordType := getVesteeRecord(Tezos.get_sender(), s);
 
                 // check that vestee's status is not locked
                 if _vestee.status = "LOCKED" then failwith(error_VESTEE_LOCKED)
                 else skip;
 
-                // check that vestee's total remainder is greater than zero
-                if _vestee.totalRemainder = 0n then failwith(error_NO_VESTING_REWARDS_TO_CLAIM)
-                else skip;
+                // Verify that vestee's total remainder is greater than zero
+                verifyGreaterThanZero(_vestee.totalRemainder, error_NO_VESTING_REWARDS_TO_CLAIM);
 
                 // check that current timestamp is greater than vestee's next redemption timestamp
-                const timestampCheck   : bool = Tezos.get_now() > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
+                const timestampCheck : bool = Tezos.get_now() > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
 
                 if timestampCheck then block {
 
@@ -420,12 +376,10 @@ block {
                     // ---------------------------------------------
 
                     // mint MVK Tokens based on total claim amount
-                    const mvkTokenAddress : address = s.mvkTokenAddress;
-
                     const mintMvkTokensOperation : operation = mintTokens(
                         Tezos.get_sender(),           // to address
-                        totalClaimAmount,       // amount of mvk Tokens to be minted
-                        mvkTokenAddress         // mvkTokenAddress
+                        totalClaimAmount,             // amount of mvk Tokens to be minted
+                        s                             // storage
                     ); 
 
                     operations := mintMvkTokensOperation # operations;
