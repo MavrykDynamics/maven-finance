@@ -18,7 +18,16 @@ import { AvailableActionsStyle } from './SatelliteGovernance.style'
 // helpers
 import { validateFormField, validateFormAddress } from 'utils/validatorFunctions' 
 
-export const RegisterAggregatorForm = () => {
+type MaxLength = {
+  purposeMaxLength: number
+  aggregatorNameMaxLength: number
+}
+
+type Props = {
+  maxLength: MaxLength
+}
+
+export const RegisterAggregatorForm = ({ maxLength }: Props) => {
   const dispatch = useDispatch()
 
   const [form, setForm] = useState({
@@ -81,9 +90,9 @@ export const RegisterAggregatorForm = () => {
                 required
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   handleChange(e)
-                  handleBlur(e)
+                  handleBlur(e, maxLength.aggregatorNameMaxLength)
                 }}
-                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, maxLength.aggregatorNameMaxLength)}
                 inputStatus={formInputStatus.aggregatorPair}
               />
             </div>
