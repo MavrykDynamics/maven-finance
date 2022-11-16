@@ -12,11 +12,12 @@ import {
   CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE,
 } from '../../gql/queries/getGovernanceStorage'
 import { State } from '../../reducers'
+import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 
 export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
 export const SET_PAST_PROPOSALS = 'SET_PAST_PROPOSALS'
-export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
+export const getGovernanceStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     const storage = await fetchFromIndexer(
       GOVERNANCE_STORAGE_QUERY,
@@ -35,7 +36,15 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: Ap
       type: SET_GOVERNANCE_PHASE,
       phase: convertedStorage.currentRound,
     })
-    dispatch({ type: SET_PAST_PROPOSALS, pastProposals: convertedStorage.proposalLedger })
+
+    const pastProposals = convertedStorage.proposalLedger.reduce<Array<ProposalRecordType>>((acc, proposal) => {
+      if (proposal.status === 1 || proposal.executed || !proposal.currentRoundProposal) {
+        acc.push(proposal)
+      }
+      return acc
+    }, [])
+
+    dispatch({ type: SET_PAST_PROPOSALS, pastProposals })
   } catch (e) {
     console.error('getGovernanceStorage error: ', e)
   }

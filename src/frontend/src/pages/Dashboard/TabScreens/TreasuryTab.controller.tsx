@@ -3,9 +3,10 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { SimpleTable } from 'app/App.components/SimpleTable/SimpleTable.controller'
 import { BGPrimaryTitle } from 'pages/BreakGlass/BreakGlass.style'
+import { getVestingStorage } from 'pages/Treasury/Treasury.actions'
 import { reduceTreasuryAssets } from 'pages/Treasury/Treasury.helpers'
-import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { TreasuryBalanceType } from 'utils/TypesAndInterfaces/Treasury'
@@ -37,10 +38,15 @@ export const fieldsMapper = [
 ]
 
 export const TreasuryTab = () => {
+  const dispatch = useDispatch()
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
   const {
     vestingStorage: { totalVestedAmount, totalClaimedAmount },
   } = useSelector((state: State) => state.vesting)
+
+  useEffect(() => {
+    dispatch(getVestingStorage())
+  }, [])
 
   const amountOfTokens = totalVestedAmount + totalClaimedAmount
 

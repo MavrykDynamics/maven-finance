@@ -19,27 +19,29 @@ import {
 import { noralizeCouncilStorage } from './Council.helpers'
 
 export const GET_COUNCIL_STORAGE = 'GET_COUNCIL_STORAGE'
-export const getCouncilStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
+export const getCouncilStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
+  try {
+    const storage = await fetchFromIndexerWithPromise(
+      COUNCIL_STORAGE_QUERY,
+      COUNCIL_STORAGE_QUERY_NAME,
+      COUNCIL_STORAGE_QUERY_VARIABLE,
+    )
 
-  const storage = await fetchFromIndexerWithPromise(
-    COUNCIL_STORAGE_QUERY,
-    COUNCIL_STORAGE_QUERY_NAME,
-    COUNCIL_STORAGE_QUERY_VARIABLE,
-  )
+    const convertedStorage = noralizeCouncilStorage(storage?.council[0])
 
-  const convertedStorage = noralizeCouncilStorage(storage?.council[0])
-
-  dispatch({
-    type: GET_COUNCIL_STORAGE,
-    councilStorage: convertedStorage,
-  })
+    dispatch({
+      type: GET_COUNCIL_STORAGE,
+      councilStorage: convertedStorage,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+  }
 }
 
 export const GET_COUNCIL_PAST_ACTIONS_STORAGE = 'GET_COUNCIL_PAST_ACTIONS_STORAGE'
-export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
-
+export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch) => {
   try {
     const storage = await fetchFromIndexerWithPromise(
       COUNCIL_PAST_ACTIONS_QUERY,
@@ -55,10 +57,6 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, 
     if (error instanceof Error) {
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
-      error,
-    })
   }
 }
 

@@ -1,18 +1,22 @@
-import { State } from '../../reducers'
-
 // types
+import { State } from '../../reducers'
 import { FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+import type { AppDispatch, GetState } from '../../app/App.controller'
+
+// queries
+import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
+
+// consts
+import { PRECISION_NUMBER, ROCKET_LOADER } from '../../utils/constants'
+import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 
 //helpers
 import { getEndsInTimestampForFarmCards, getLPTokensInfo, normalizeFarmStorage } from './Farms.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
-import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from '../Doorman/Doorman.actions'
-import { PRECISION_NUMBER } from '../../utils/constants'
 import { hideModal } from '../../app/App.components/Modal/Modal.actions'
-import type { AppDispatch, GetState } from '../../app/App.controller'
+import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 
 export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
@@ -83,9 +87,6 @@ export const getFarmStorage = () => async (dispatch: AppDispatch, getState: GetS
   }
 }
 
-export const HARVEST_REQUEST = 'HARVEST_REQUEST'
-export const HARVEST_RESULT = 'HARVEST_RESULT'
-export const HARVEST_ERROR = 'HARVEST_ERROR'
 export const harvest = (farmAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -100,44 +101,30 @@ export const harvest = (farmAddress: string) => async (dispatch: AppDispatch, ge
   }
 
   try {
-    await dispatch({
-      type: HARVEST_REQUEST,
-    })
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
-    console.log('contract', contract)
     const transaction = await contract?.methods.claim(farmAddress).send()
-    console.log('transaction', transaction)
 
+    await dispatch(toggleLoader(ROCKET_LOADER))
     await dispatch(showToaster(INFO, 'Harvesting...', 'Please wait 30s'))
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Harvesting done', 'All good :)'))
+    await transaction?.confirmation()
 
-    await dispatch({
-      type: HARVEST_RESULT,
-    })
+    await dispatch(showToaster(SUCCESS, 'Harvesting done', 'All good :)'))
+    await dispatch(toggleLoader())
 
     if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
-
     await dispatch(getFarmStorage())
-    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getMvkTokenStorage())
     await dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       await dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    await dispatch({
-      type: HARVEST_ERROR,
-      error,
-    })
+    await dispatch(toggleLoader())
   }
 }
 
-export const DEPOSIT_REQUEST = 'DEPOSIT_REQUEST'
-export const DEPOSIT_RESULT = 'DEPOSIT_RESULT'
-export const DEPOSIT_ERROR = 'DEPOSIT_ERROR'
 export const deposit = (farmAddress: string, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -155,44 +142,30 @@ export const deposit = (farmAddress: string, amount: number) => async (dispatch:
   }
 
   try {
-    await dispatch({
-      type: DEPOSIT_REQUEST,
-    })
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
-    console.log('contract', contract)
     const transaction = await contract?.methods.deposit(amount * PRECISION_NUMBER).send()
-    console.log('transaction', transaction)
 
+    await dispatch(toggleLoader(ROCKET_LOADER))
     await dispatch(showToaster(INFO, 'Depositing...', 'Please wait 30s'))
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    await dispatch(showToaster(SUCCESS, 'Depositing done', 'All good :)'))
+    await transaction?.confirmation()
 
-    await dispatch({
-      type: DEPOSIT_RESULT,
-    })
+    await dispatch(showToaster(SUCCESS, 'Depositing done', 'All good :)'))
+    await dispatch(toggleLoader())
 
     if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
-
     await dispatch(getFarmStorage())
-    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getMvkTokenStorage())
     await dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       await dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    await dispatch({
-      type: DEPOSIT_ERROR,
-      error,
-    })
+    await dispatch(toggleLoader())
   }
 }
 
-export const WITHDRAW_REQUEST = 'WITHDRAW_REQUEST'
-export const WITHDRAW_RESULT = 'WITHDRAW_RESULT'
-export const WITHDRAW_ERROR = 'WITHDRAW_ERROR'
 export const withdraw = (farmAddress: string, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -210,34 +183,27 @@ export const withdraw = (farmAddress: string, amount: number) => async (dispatch
   }
 
   try {
-    await dispatch({
-      type: WITHDRAW_REQUEST,
-    })
-
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
-    console.log('contract', contract)
     const transaction = await contract?.methods.withdraw(amount * PRECISION_NUMBER).send()
-    console.log('transaction', transaction)
+
+    await dispatch(toggleLoader(ROCKET_LOADER))
     await dispatch(showToaster(INFO, 'Withdrawing...', 'Please wait 30s'))
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+
+    await transaction?.confirmation()
+
     await dispatch(showToaster(SUCCESS, 'Withdrawing done', 'All good :)'))
-    await dispatch({
-      type: WITHDRAW_RESULT,
-    })
+    await dispatch(toggleLoader())
     await dispatch(hideModal())
+
     if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
     await dispatch(getFarmStorage())
-    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getMvkTokenStorage())
     await dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: WITHDRAW_ERROR,
-      error,
-    })
+    dispatch(toggleLoader())
   }
 }

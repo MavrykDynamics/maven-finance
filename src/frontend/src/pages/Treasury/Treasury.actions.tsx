@@ -1,4 +1,4 @@
-import { fetchFromIndexer } from '../../gql/fetchGraphQL'
+import { fetchFromIndexer, fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import {
   GET_TREASURY_DATA,
   TREASURY_SMVK_QUERY,
@@ -12,6 +12,8 @@ import { FetchedTreasuryBalanceType, TreasuryBalanceType, TreasuryGQLType } from
 
 import { normalizeTreasury } from './Treasury.helpers'
 import { AppDispatch, coinGeckoClient, GetState } from '../../app/App.controller'
+import { normalizeVestingStorage } from 'app/App.helpers'
+import { VESTING_STORAGE_QUERY, VESTING_STORAGE_QUERY_NAME, VESTING_STORAGE_QUERY_VARIABLE } from 'gql/queries'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
@@ -165,9 +167,20 @@ export const fillTreasuryStorage = () => async (dispatch: AppDispatch, getState:
 }
 
 export const GET_VESTING_STORAGE = 'GET_VESTING_STORAGE'
-export const getVestingStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
+export const getVestingStorage = () => async (dispatch: AppDispatch) => {
   try {
-    // TODO: implement it after clarification
+    const storage = await fetchFromIndexerWithPromise(
+      VESTING_STORAGE_QUERY,
+      VESTING_STORAGE_QUERY_NAME,
+      VESTING_STORAGE_QUERY_VARIABLE,
+    )
+
+    const vestingStorage = normalizeVestingStorage(storage)
+
+    dispatch({
+      type: GET_VESTING_STORAGE,
+      vestingStorage: vestingStorage,
+    })
   } catch (error) {
     console.log('%c ----- error getVestingStorage', 'color:red', error)
   }
