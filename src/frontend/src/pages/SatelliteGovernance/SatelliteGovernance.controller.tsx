@@ -250,7 +250,7 @@ export const SatelliteGovernance = () => {
             {chosenDdItem?.value === 'registerAggregator' ? (
               <RegisterAggregatorForm />
             ) : chosenDdItem?.value === 'fixMistakenTransfer' ? (
-              <FixMistakenTransferForm />
+              <FixMistakenTransferForm maxLength={maxLength} />
             ) : (
               <SatelliteGovernanceForm maxLength={maxLength} variant={chosenDdItem?.value || ''} />
             )}

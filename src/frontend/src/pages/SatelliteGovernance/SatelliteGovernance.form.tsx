@@ -28,11 +28,11 @@ import {
 import { AvailableActionsStyle } from './SatelliteGovernance.style'
 
 // helpers
-import { validateFormField } from 'utils/validatorFunctions' 
+import { validateFormField, validateFormAddress } from 'utils/validatorFunctions' 
 
 type Props = {
   variant: string
-  maxLength: {[k:string]: number }
+  maxLength: { purposeMaxLength: number }
 }
 
 const CONTENT_FORM = new Map<string, Record<string, string>>([
@@ -181,6 +181,7 @@ export const SatelliteGovernanceForm = ({ variant, maxLength }: Props) => {
   }
 
   const handleBlur = validateFormField(setFormInputStatus)
+  const handleBlurAddress = validateFormAddress(setFormInputStatus)
 
   if (!variant) return null
 
@@ -213,9 +214,9 @@ export const SatelliteGovernanceForm = ({ variant, maxLength }: Props) => {
                 required
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   handleChange(e)
-                  handleBlur(e)
+                  handleBlurAddress(e)
                 }}
-                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+                onBlur={handleBlurAddress}
                 inputStatus={formInputStatus.satelliteAddress}
               />
             </div>
@@ -232,9 +233,9 @@ export const SatelliteGovernanceForm = ({ variant, maxLength }: Props) => {
                   required
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     handleChange(e)
-                    handleBlur(e)
+                    handleBlurAddress(e)
                   }}
-                  onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+                  onBlur={handleBlurAddress}
                   inputStatus={formInputStatus.oracleAddress}
                 />
               </div>
