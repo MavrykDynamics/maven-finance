@@ -12,7 +12,7 @@ import { StatBlock } from '../Dashboard.style'
 import { SatellitesContentStyled, TabWrapperStyled } from './DashboardTabs.style'
 
 export const SatellitesTab = () => {
-  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+  const { activeSatellites } = useSelector((state: State) => state.delegation.delegationStorage)
   const {
     governanceStorage: { financialRequestLedger, proposalLedger },
     pastProposals,
@@ -21,7 +21,7 @@ export const SatellitesTab = () => {
     emergencyGovernanceStorage: { emergencyGovernanceLedger },
   } = useSelector((state: State) => state.emergencyGovernance)
 
-  const satellitesInfo = satelliteLedger.reduce(
+  const satellitesInfo = activeSatellites.reduce(
     (acc, satellite: SatelliteRecord) => {
       if (satellite.status !== 0) return acc
       const metrics = getSatelliteMetrics(

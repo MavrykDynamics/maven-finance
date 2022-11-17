@@ -27,12 +27,9 @@ export const Doorman = () => {
   useEffect(() => {
     if (accountPkh) {
       dispatch(getUserData(accountPkh))
-      dispatch(getMvkTokenStorage(accountPkh))
-      dispatch(getDoormanStorage(accountPkh))
-    } else {
-      dispatch(getMvkTokenStorage())
-      dispatch(getDoormanStorage())
     }
+    dispatch(getMvkTokenStorage())
+    dispatch(getDoormanStorage())
   }, [dispatch, accountPkh])
 
   const stakeCallback = (amount: number) => {

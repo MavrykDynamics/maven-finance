@@ -1,19 +1,7 @@
 import {
   GET_GOVERNANCE_STORAGE,
-  PROPOSAL_ROUND_VOTING_ERROR,
-  PROPOSAL_ROUND_VOTING_REQUEST,
-  PROPOSAL_ROUND_VOTING_RESULT,
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
-  START_PROPOSAL_ROUND_ERROR,
-  START_PROPOSAL_ROUND_REQUEST,
-  START_PROPOSAL_ROUND_RESULT,
-  START_VOTING_ROUND_ERROR,
-  START_VOTING_ROUND_REQUEST,
-  START_VOTING_ROUND_RESULT,
-  VOTING_ROUND_VOTING_ERROR,
-  VOTING_ROUND_VOTING_REQUEST,
-  VOTING_ROUND_VOTING_RESULT,
   GET_CURRENT_ROUND_PROPOSALS,
 } from 'pages/Governance/Governance.actions'
 import { GovernanceStorage, CurrentRoundProposalsStorageType } from '../utils/TypesAndInterfaces/Governance'
@@ -82,60 +70,6 @@ export function governance(state = governanceDefaultState, action: Action) {
       return {
         ...state,
         pastProposals: action.pastProposals,
-      }
-    case PROPOSAL_ROUND_VOTING_REQUEST:
-      return {
-        ...state,
-        proposalId: action.proposalId,
-      }
-    case PROPOSAL_ROUND_VOTING_RESULT:
-      return {
-        ...state,
-      }
-    case PROPOSAL_ROUND_VOTING_ERROR:
-      return {
-        ...state,
-        error: action.error,
-      }
-    case VOTING_ROUND_VOTING_REQUEST:
-      return {
-        ...state,
-        proposalId: action.proposalId,
-      }
-    case VOTING_ROUND_VOTING_RESULT:
-      return {
-        ...state,
-      }
-    case VOTING_ROUND_VOTING_ERROR:
-      return {
-        ...state,
-        error: action.error,
-      }
-    case START_PROPOSAL_ROUND_REQUEST:
-      return {
-        ...state,
-      }
-    case START_PROPOSAL_ROUND_RESULT:
-      return {
-        ...state,
-      }
-    case START_PROPOSAL_ROUND_ERROR:
-      return {
-        ...state,
-        error: action.error,
-      }
-    case START_VOTING_ROUND_REQUEST:
-      return {
-        ...state,
-      }
-    case START_VOTING_ROUND_RESULT:
-      return {
-        ...state,
-      }
-    case START_VOTING_ROUND_ERROR:
-      return {
-        ...state,
-        error: action.error,
       }
     default:
       return state

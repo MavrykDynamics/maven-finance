@@ -11,6 +11,7 @@ import { EmergencyGovProposalModal } from './EmergencyGovProposalModal/Emergency
 import { showExitFeeModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.actions'
 import { proposalRoundVote, votingRoundVote } from '../Governance/Governance.actions'
 import { dropProposal } from 'pages/ProposalSubmission/ProposalSubmission.actions'
+import { getDoormanStorage } from 'pages/Doorman/Doorman.actions'
 
 // TODO: add voting when I will be able to create proposals here, and get sam clarification for it
 export const EmergencyGovernance = () => {
@@ -23,6 +24,7 @@ export const EmergencyGovernance = () => {
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getBreakGlassStorage())
+    dispatch(getDoormanStorage())
   }, [dispatch])
 
   const handleTriggerEmergencyProposal = useCallback(() => {

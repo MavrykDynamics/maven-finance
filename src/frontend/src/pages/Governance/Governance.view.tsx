@@ -13,7 +13,7 @@ import type { Governance_Proposal_Payment, Maybe } from '../../utils/generated/g
 import { VoteStatistics } from 'app/App.components/VotingArea/helpers/voting'
 
 // actions
-import { proposalRoundVote, getTimestampByLevel, processProposalPayment } from './Governance.actions'
+import { proposalRoundVote, getTimestampByLevel, processProposalPayment, votingRoundVote } from './Governance.actions'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { VotingProposalsArea } from '../../app/App.components/VotingArea/VotingArea.controller'
 
@@ -63,7 +63,6 @@ type GovernanceViewProps = {
   governancePhase: GovernancePhase
   userIsSatellite: boolean
   handleExecuteProposal: (arg: number) => void
-  timeLeftInPhase: Date | number
 }
 
 const emptyContainer = (
@@ -81,7 +80,6 @@ export const GovernanceView = ({
   governancePhase,
   userIsSatellite,
   watingProposals,
-  timeLeftInPhase,
   handleExecuteProposal,
   waitingForPaymentToBeProcessed,
 }: GovernanceViewProps) => {
@@ -109,7 +107,7 @@ export const GovernanceView = ({
       setVoteStatistics({
         abstainVotesMVKTotal: Number(rightSideContent.abstainMvkTotal),
         againstVotesMVKTotal: Number(rightSideContent.downvoteMvkTotal),
-        forVotesMVKTotal: Number(rightSideContent.passVoteMvkTotal),
+        forVotesMVKTotal: Number(rightSideContent.upvoteMvkTotal),
         unusedVotesMVKTotal: Math.round(
           rightSideContent.quorumMvkTotal / PRECISION_NUMBER -
             rightSideContent.abstainMvkTotal -
@@ -119,16 +117,50 @@ export const GovernanceView = ({
         quorum: rightSideContent.minQuorumPercentage,
       })
     }
-  }, [rightSideContent])
+  }, [rightSideContent, currentRoundProposals])
 
   const handleProposalRoundVote = (proposalId: number) => {
-    //TODO: Adjust for the number of votes / voting power each satellite has
+    //TODO: Adjust for the number of votes * voting power each satellite has
     setVoteStatistics({
       ...voteStatistics,
       unusedVotesMVKTotal: voteStatistics.unusedVotesMVKTotal - 1,
       forVotesMVKTotal: voteStatistics.forVotesMVKTotal + 1,
     })
     dispatch(proposalRoundVote(proposalId))
+  }
+
+  const handleVotingRoundVote = (vote: string) => {
+    let voteType
+    switch (vote) {
+      case 'yay':
+        voteType = 'yay'
+        setVoteStatistics({
+          ...voteStatistics,
+          forVotesMVKTotal: +voteStatistics.forVotesMVKTotal + 1,
+          unusedVotesMVKTotal: Math.max(+voteStatistics.unusedVotesMVKTotal - 1, 0),
+        })
+        break
+      case 'nay':
+        voteType = 'nay'
+        setVoteStatistics({
+          ...voteStatistics,
+          againstVotesMVKTotal: Number(voteStatistics.againstVotesMVKTotal) + 1,
+          unusedVotesMVKTotal: Math.max(+voteStatistics.unusedVotesMVKTotal - 1, 0),
+        })
+        break
+      case 'pass':
+        voteType = 'abstain'
+        setVoteStatistics({
+          ...voteStatistics,
+          abstainVotesMVKTotal: Number(voteStatistics.abstainVotesMVKTotal) + 1,
+          unusedVotesMVKTotal: Math.max(+voteStatistics.unusedVotesMVKTotal - 1, 0),
+        })
+        break
+      default:
+        return
+    }
+
+    dispatch(votingRoundVote(voteType))
   }
 
   const handleClickProcessPayment = () => {
@@ -360,7 +392,9 @@ export const GovernanceView = ({
                 isPastProposals: isVisibleHistoryProposal,
                 isTimeLock: isVisibleOngoingTimeLock,
                 isAbleToMakeProposalRoundVote,
+                isVotingPeriod: isVisibleOngoingVoting,
               }}
+              votingPhaseHandler={handleVotingRoundVote}
               handleProposalVote={handleProposalRoundVote}
               selectedProposal={rightSideContent}
             />
