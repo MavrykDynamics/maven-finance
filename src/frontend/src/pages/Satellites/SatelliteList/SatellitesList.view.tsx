@@ -14,7 +14,7 @@ import { OracleCard } from './ListCards/DataFeedOracleCard.view'
 import { UserDataFeedCard } from './ListCards/UsersFeedCard.view'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
-function SatteliteListView({ listTitle, items, name, listType, additionaldata, className }: SatellitesListProps) {
+function SatteliteListView({ listTitle, items, name, listType, additionaldata, pagination, className }: SatellitesListProps) {
   return items.length ? (
     <FRListWrapper className={`${className} oracle`}>
       {listTitle ? (
@@ -48,11 +48,12 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, c
         }
       })}
 
-      <Pagination
-        itemsCount={(additionaldata?.fullItemsCount as number) || 0}
-        side={PAGINATION_SIDE_RIGHT}
-        listName={name}
-      />
+      {pagination && 
+        <Pagination
+          itemsCount={(additionaldata?.fullItemsCount as number) || 0}
+          side={PAGINATION_SIDE_RIGHT}
+          listName={name}
+        />}
     </FRListWrapper>
   ) : null
 }

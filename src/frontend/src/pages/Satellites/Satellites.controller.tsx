@@ -61,11 +61,11 @@ const Satellites = () => {
       oracleSatellitesData={{
         userStakedBalance: mySMvkTokenBalance,
         satelliteUserIsDelegatedTo: satelliteMvkIsDelegatedTo,
-        items: satelliteLedger.slice(0, 3),
+        items: satelliteLedger,
         delegateCallback,
         undelegateCallback,
       }}
-      dataFeedsData={{ items: oraclesStorage.feeds.slice(0, 5) }}
+      dataFeedsData={{ items: oraclesStorage.feeds }}
     />
   )
 }
