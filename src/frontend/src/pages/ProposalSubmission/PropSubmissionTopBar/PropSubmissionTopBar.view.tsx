@@ -33,9 +33,9 @@ export const PropSubmissionTopBarView = ({
   isInEmergencyGovernance,
   handleTabChange,
 }: PropSubmissionTopBarViewProps) => {
-  const { watingProposals } = useGovernence()
-  const isInExecution = governancePhase === 'PROPOSAL' && Boolean(watingProposals?.length)
-  const currentGovernancePhase = isInExecution ? 'Execution' : governancePhase
+  // const { watingProposals } = useGovernence()
+  // const isInExecution = governancePhase === 'PROPOSAL' && Boolean(watingProposals?.length)
+  // const currentGovernancePhase = isInExecution ? 'Execution' : governancePhase
 
   return (
     <PropSubmissionTopBarStyled>
@@ -51,7 +51,7 @@ export const PropSubmissionTopBarView = ({
           <PropSubTopBarTimeContainer>
             <CurrentPhaseContainer>
               <PropSubTopBarPhaseText>Current Period: </PropSubTopBarPhaseText>
-              <PropSubTopBarValueText>{getSeparateSnakeCase(currentGovernancePhase)}</PropSubTopBarValueText>
+              <PropSubTopBarValueText>{getSeparateSnakeCase(governancePhase)}</PropSubTopBarValueText>
             </CurrentPhaseContainer>
             <TimeRemaining />
           </PropSubTopBarTimeContainer>
