@@ -20,6 +20,7 @@ export const EmergencyGovernance = () => {
   const { emergencyGovernanceLedger } = useSelector(
     (state: State) => state.emergencyGovernance.emergencyGovernanceStorage,
   )
+  const { glassBroken } = useSelector((state: State) => state.breakGlass)
 
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
@@ -44,6 +45,7 @@ export const EmergencyGovernance = () => {
         accountPkh={accountPkh}
         emergencyGovernanceLedger={emergencyGovernanceLedger}
         dropProposalHandler={dropProposalHandler}
+        isGlassBroken={glassBroken}
       />
     </Page>
   )
