@@ -12,8 +12,8 @@ export const PropSubmissionTopBarStyled = styled(Card)<{ theme: MavrykTheme }>`
   height: 75px;
   margin-top: 30px;
   margin-bottom: 0px;
-  padding-left: 40px;
-  padding-right: 54px;
+  padding-left: 35px;
+  padding-right: 35px;
 `
 
 export const PropSubTopBarTabsContainer = styled.div<{ theme: MavrykTheme }>`
