@@ -25,7 +25,7 @@ import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 import { ROCKET_LOADER } from 'utils/constants'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
-export const getDelegationStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
+export const getDelegationStorage = () => async (dispatch: AppDispatch) => {
   try {
     const delegationStorageFromIndexer = await fetchFromIndexerWithPromise(
       DELEGATION_STORAGE_QUERY,
@@ -43,10 +43,6 @@ export const getDelegationStorage = () => async (dispatch: AppDispatch, getState
     console.error('getDelegationStorage error: ', error)
     if (error instanceof Error) {
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch({
-        type: GET_DELEGATION_STORAGE,
-        error,
-      })
     }
   }
 }
@@ -76,26 +72,26 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    console.log(contract, 'contract');
     const transaction = await contract?.methods.delegateToSatellite(satelliteAddress).send()
-    console.log(transaction, 'transaction');
+
     dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Delegating...', 'Please wait 30s'))
+
     await transaction?.confirmation()
+
     dispatch(showToaster(SUCCESS, 'Delegation done', 'All good :)'))
     dispatch(toggleLoader())
 
     if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
-
-    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getMvkTokenStorage())
     await dispatch(getDelegationStorage())
     await dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch(toggleLoader())
     }
+    dispatch(toggleLoader())
   }
 }
 
@@ -114,26 +110,26 @@ export const undelegate = (delegateAddress: string) => async (dispatch: AppDispa
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    console.log(contract, 'contract');
     const transaction = await contract?.methods.undelegateFromSatellite(delegateAddress).send()
-    console.log(transaction, 'transaction');
+
     dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Undelegating...', 'Please wait 30s'))
+
     await transaction?.confirmation()
+
     dispatch(showToaster(SUCCESS, 'Undelegating done', 'All good :)'))
     dispatch(toggleLoader())
 
     if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
-
-    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getMvkTokenStorage())
     await dispatch(getDelegationStorage())
     await dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
-      dispatch(toggleLoader())
     }
+    dispatch(toggleLoader())
   }
 }
 

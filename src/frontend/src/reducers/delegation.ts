@@ -57,6 +57,7 @@ const defaultDelegationStorage: DelegationStorage = {
   numberActiveSatellites: 0,
   oraclesAmount: 0,
   totalDelegatedMVK: 0,
+  activeSatellites: [],
 }
 const delegationDefaultState: DelegationState = {
   delegationStorage: defaultDelegationStorage,
@@ -76,8 +77,9 @@ const delegationDefaultState: DelegationState = {
     delegatorCount: 0,
     satelliteFee: 0,
     totalDelegatedAmount: 0,
-    unregisteredDateTime: new Date(),
     oracleRecords: [],
+    isSatelliteReady: false,
+    currentlyRegistered: false,
   },
   participationMetrics: {
     pollParticipation: 0,

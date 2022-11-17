@@ -12,10 +12,12 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { getMvkTokenStorage, getDoormanStorage } from 'pages/Doorman/Doorman.actions'
 import { getTotalDelegatedMVK } from './helpers/Satellites.consts'
 import { delegate, getDelegationStorage, getOracleStorage, undelegate } from 'pages/Satellites/Satellites.actions'
+import { getGovernanceStorage } from 'pages/Governance/Governance.actions'
+import { getEmergencyGovernanceStorage } from 'pages/EmergencyGovernance/EmergencyGovernance.actions'
 
 const Satellites = () => {
   const {
-    delegationStorage: { satelliteLedger = [] },
+    delegationStorage: { activeSatellites = [] },
   } = useSelector((state: State) => state.delegation)
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const loading = useSelector((state: State) => Boolean(state.loading))
@@ -26,23 +28,25 @@ const Satellites = () => {
 
   useEffect(() => {
     if (accountPkh) {
-      dispatch(getMvkTokenStorage(accountPkh))
       dispatch(getDoormanStorage())
     }
+    dispatch(getMvkTokenStorage())
     dispatch(getDelegationStorage())
     dispatch(getOracleStorage())
+    dispatch(getGovernanceStorage())
+    dispatch(getEmergencyGovernanceStorage())
   }, [dispatch, accountPkh])
 
-  const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
+  const totalDelegatedMVK = getTotalDelegatedMVK(activeSatellites)
 
   const tabsInfo = useMemo(
     () => ({
       totalDelegetedMVK: <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />,
-      totalSatelliteOracles: satelliteLedger.length,
+      totalSatelliteOracles: activeSatellites.length,
       numberOfDataFeeds:
         oraclesStorage.feeds.length > 50 ? oraclesStorage.feeds.length + '+' : oraclesStorage.feeds.length,
     }),
-    [satelliteLedger, oraclesStorage.feeds, totalDelegatedMVK],
+    [activeSatellites, oraclesStorage.feeds, totalDelegatedMVK],
   )
 
   const delegateCallback = (satelliteAddress: string) => {
@@ -61,7 +65,7 @@ const Satellites = () => {
       oracleSatellitesData={{
         userStakedBalance: mySMvkTokenBalance,
         satelliteUserIsDelegatedTo: satelliteMvkIsDelegatedTo,
-        items: satelliteLedger,
+        items: activeSatellites.slice(0, 3),
         delegateCallback,
         undelegateCallback,
       }}

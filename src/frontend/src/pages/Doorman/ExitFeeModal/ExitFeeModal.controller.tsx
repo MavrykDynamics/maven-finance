@@ -10,14 +10,12 @@ export const ExitFeeModal = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => Boolean(state.loading))
   const { showing, amount } = useSelector((state: State) => state.exitFeeModal)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { doormanStorage, totalStakedMvk } = useSelector((state: State) => state.doorman)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+  const { totalStakedMvk } = useSelector((state: State) => state.doorman)
 
   useEffect(() => {
-    if (accountPkh && showing) {
-      dispatch(getMvkTokenStorage(accountPkh))
-    }
+    dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
   }, [dispatch, accountPkh, showing])
 

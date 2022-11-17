@@ -59,7 +59,7 @@ export const NavigationLink = ({
 }: NavigationLinkProps) => {
   const { pathname } = useLocation()
   const {
-    delegationStorage: { satelliteLedger },
+    delegationStorage: { activeSatellites },
   } = useSelector((state: State) => state.delegation)
   const [showSubPages, setShowSubPages] = useState<boolean>(false)
 
@@ -70,7 +70,7 @@ export const NavigationLink = ({
 
   useEffect(() => {
     const newStatusToShowSubPages = isMobMenuExpanded ? id === selectedMainLink : false
-    
+
     if (showSubPages !== newStatusToShowSubPages) {
       setShowSubPages(newStatusToShowSubPages)
     }
@@ -116,7 +116,7 @@ export const NavigationLink = ({
             <NavigationSubLinks className="content">
               {subPages.map((subNavLink: SubNavigationRoute) => {
                 const selectedSubLink = checkIfLinkSelected(pathname, subNavLink.routeSubPath)
-                const showSublink = isSubLinkShown(subNavLink, satelliteLedger, accountPkh)
+                const showSublink = isSubLinkShown(subNavLink, activeSatellites, accountPkh)
 
                 return showSublink ? (
                   <Sublink key={subNavLink.id} subNavLink={subNavLink} isSelected={selectedSubLink} />
@@ -131,7 +131,12 @@ export const NavigationLink = ({
 
   return (
     <NavigationLinkContainer key={id} selected={selectedMainLink === id} isMobMenuExpanded={isMobMenuExpanded}>
-      <NavigationLinkItem onClick={navLinkClickHandler} selected={selectedMainLink === id} isMobMenuExpanded={isMobMenuExpanded} disabled={disabled}>
+      <NavigationLinkItem
+        onClick={navLinkClickHandler}
+        selected={selectedMainLink === id}
+        isMobMenuExpanded={isMobMenuExpanded}
+        disabled={disabled}
+      >
         {mainLink}
       </NavigationLinkItem>
     </NavigationLinkContainer>

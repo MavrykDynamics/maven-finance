@@ -34,11 +34,10 @@ import ProtectedRoute from './ProtectedRoute'
 export const AppRoutes = () => {
   const { pathname } = useLocation()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const satelliteLedger = delegationStorage?.satelliteLedger
+  const { activeSatellites } = useSelector((state: State) => state.delegation.delegationStorage)
   // get origin pathname
   const [, path] = pathname.split('/')
-  
+
   // Scroll to the top of the page when moving to others page
   useEffect(() => {
     scrollUpPage()
@@ -107,7 +106,7 @@ export const AppRoutes = () => {
         path="/submit-proposal"
         component={ProposalSubmission}
         accountPkh={accountPkh}
-        arrayToFilterThrough={satelliteLedger}
+        arrayToFilterThrough={activeSatellites}
         authenticationPath={'/'}
         redirectPath={'/submit-proposal'}
       />

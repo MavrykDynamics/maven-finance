@@ -16,29 +16,26 @@ import { EmergencyGovernanceProposalForm } from '../../utils/TypesAndInterfaces/
 export const GET_EMERGENCY_GOVERNANCE_STORAGE = 'GET_EMERGENCY_GOVERNANCE_STORAGE'
 export const SET_EMERGENCY_GOVERNANCE_ACTIVE = 'SET_EMERGENCY_GOVERNANCE_ACTIVE'
 export const SET_HAS_ACKNOWLEDGED_EMERGENCY_GOV = 'SET_HAS_ACKNOWLEDGED_EMERGENCY_GOV'
-export const getEmergencyGovernanceStorage =
-  (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
-    const state: State = getState()
+export const getEmergencyGovernanceStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const storage = await fetchFromIndexer(
+    EMERGENCY_GOVERNANCE_STORAGE_QUERY,
+    EMERGENCY_GOVERNANCE_STORAGE_QUERY_NAME,
+    EMERGENCY_GOVERNANCE_STORAGE_QUERY_VARIABLE,
+  )
 
-    const storage = await fetchFromIndexer(
-      EMERGENCY_GOVERNANCE_STORAGE_QUERY,
-      EMERGENCY_GOVERNANCE_STORAGE_QUERY_NAME,
-      EMERGENCY_GOVERNANCE_STORAGE_QUERY_VARIABLE,
-    )
+  const emergencyGovernanceStorage = normalizeEmergencyGovernance(storage?.emergency_governance[0])
 
-    const emergencyGovernanceStorage = normalizeEmergencyGovernance(storage?.emergency_governance[0])
+  const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
 
-    const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceRecordId
-
-    dispatch({
-      type: SET_EMERGENCY_GOVERNANCE_ACTIVE,
-      emergencyGovActive: currentEmergencyGovernanceId !== 0,
-    })
-    dispatch({
-      type: GET_EMERGENCY_GOVERNANCE_STORAGE,
-      emergencyGovernanceStorage: emergencyGovernanceStorage,
-    })
-  }
+  dispatch({
+    type: SET_EMERGENCY_GOVERNANCE_ACTIVE,
+    emergencyGovActive: currentEmergencyGovernanceId !== 0,
+  })
+  dispatch({
+    type: GET_EMERGENCY_GOVERNANCE_STORAGE,
+    emergencyGovernanceStorage: emergencyGovernanceStorage,
+  })
+}
 
 export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST'
 export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT'
@@ -84,7 +81,7 @@ export const submitEmergencyGovernanceProposal =
         type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT,
       })
 
-      dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+      dispatch(getMvkTokenStorage())
       dispatch(getDoormanStorage())
     } catch (error) {
       if (error instanceof Error) {

@@ -1,17 +1,4 @@
-import {
-  COMPOUND_ERROR,
-  COMPOUND_REQUEST,
-  COMPOUND_RESULT,
-  GET_DOORMAN_STORAGE,
-  STAKE_ERROR,
-  STAKE_REQUEST,
-  STAKE_RESULT,
-  UNSTAKE_ERROR,
-  UNSTAKE_REQUEST,
-  UNSTAKE_RESULT,
-  GET_SMVK_HISTORY_DATA,
-  GET_MVK_MINT_HISTORY_DATA,
-} from 'pages/Doorman/Doorman.actions'
+import { GET_DOORMAN_STORAGE, GET_SMVK_HISTORY_DATA, GET_MVK_MINT_HISTORY_DATA } from 'pages/Doorman/Doorman.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { DoormanStorage, MvkMintHistoryData, SmvkHistoryData } from '../utils/TypesAndInterfaces/Doorman'
 
@@ -54,66 +41,6 @@ const doormanDefaultState: DoormanState = {
 
 export function doorman(state = doormanDefaultState, action: Action) {
   switch (action.type) {
-    case STAKE_REQUEST:
-      return {
-        ...state,
-        type: STAKE,
-        amount: action.amount,
-        error: undefined,
-      }
-    case STAKE_RESULT:
-      return {
-        ...state,
-        type: STAKE,
-        amount: state.amount,
-        error: undefined,
-      }
-    case STAKE_ERROR:
-      return {
-        ...state,
-        type: STAKE,
-        amount: 0,
-        error: action.error,
-      }
-    case UNSTAKE_REQUEST:
-      return {
-        ...state,
-        type: UNSTAKE,
-        amount: action.amount,
-        error: undefined,
-      }
-    case UNSTAKE_RESULT:
-      return {
-        ...state,
-        type: UNSTAKE,
-        amount: state.amount,
-        error: undefined,
-      }
-    case UNSTAKE_ERROR:
-      return {
-        ...state,
-        type: UNSTAKE,
-        amount: 0,
-        error: action.error,
-      }
-    case COMPOUND_REQUEST:
-      return {
-        ...state,
-        type: COMPOUND,
-        error: undefined,
-      }
-    case COMPOUND_RESULT:
-      return {
-        ...state,
-        type: UNSTAKE,
-        error: undefined,
-      }
-    case COMPOUND_ERROR:
-      return {
-        ...state,
-        type: COMPOUND,
-        error: action.error,
-      }
     case GET_DOORMAN_STORAGE:
       return {
         ...state,

@@ -11,19 +11,17 @@ import { getDelegationStorage, delegate, undelegate } from 'pages/Satellites/Sat
 
 const SatelliteNodes = () => {
   const {
-    delegationStorage: { satelliteLedger = [] },
+    delegationStorage: { activeSatellites = [] },
   } = useSelector((state: State) => state.delegation)
   const dispatch = useDispatch()
 
-  const [allSatellites, setAllSatellites] = useState<SatelliteRecord[]>(satelliteLedger)
-  const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(satelliteLedger)
+  const [allSatellites, setAllSatellites] = useState<SatelliteRecord[]>(activeSatellites)
+  const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(activeSatellites)
 
   useEffect(() => {
-    const updatedSatellites = satelliteLedger.filter((item) => item.currentlyRegistered)
-
     dispatch(getDelegationStorage())
-    setAllSatellites(updatedSatellites)
-    setFilteredSatelliteList(updatedSatellites)
+    setAllSatellites(activeSatellites)
+    setFilteredSatelliteList(activeSatellites)
   }, [])
 
   const handleSearch = (e: {

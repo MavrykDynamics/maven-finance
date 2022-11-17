@@ -23,7 +23,9 @@ export type VotingProposalsProps = {
     isPastProposals: boolean,
     isTimeLock: boolean
     isAbleToMakeProposalRoundVote: boolean
+    isVotingPeriod: boolean
   }
+  votingPhaseHandler?: (vote: string) => void
   isAbleToMakeProposalRoundVote?: boolean
   handleProposalVote: (vote: number) => void
 }

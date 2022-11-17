@@ -28,6 +28,7 @@ export const DELEGATION_STORAGE_QUERY = `
         status
         website
         user_id
+        currently_registered
         delegations {
           user {
             smvk_balance

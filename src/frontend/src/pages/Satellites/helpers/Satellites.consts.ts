@@ -7,8 +7,8 @@ export const ORACLE_STATUSES_MAPPER = {
   awaiting: 'Awaiting',
 }
 
-export function checkIfUserIsSatellite(accountPkh?: string, satelliteLedger?: SatelliteRecord[]): boolean {
-  return accountPkh && satelliteLedger ? satelliteLedger.some((record) => record.address === accountPkh) : false
+export function checkIfUserIsSatellite(accountPkh?: string, activeSatellites?: SatelliteRecord[]): boolean {
+  return accountPkh && activeSatellites ? activeSatellites.some((record) => record.address === accountPkh) : false
 }
 
 export function getTotalDelegatedMVK(satelliteLedger: SatelliteRecord[]): number {
