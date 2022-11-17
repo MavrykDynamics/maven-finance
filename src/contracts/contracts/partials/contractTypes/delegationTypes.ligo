@@ -111,8 +111,8 @@ type registerAsSatelliteParamsType is [@layout:comb] record [
     website                 : string;
     satelliteFee            : nat;
 
-    oraclePublicKey         : key;
-    oraclePeerId            : string;
+    oraclePublicKey         : option(key);        
+    oraclePeerId            : option(string);     
 ]
 
 
@@ -123,8 +123,8 @@ type updateSatelliteRecordType is [@layout:comb] record [
     website                 : string;
     satelliteFee            : nat;
 
-    oraclePublicKey         : key;        
-    oraclePeerId            : string;     
+    oraclePublicKey         : option(key);        
+    oraclePeerId            : option(string);     
 ]
 
 type delegationPausableEntrypointType is
