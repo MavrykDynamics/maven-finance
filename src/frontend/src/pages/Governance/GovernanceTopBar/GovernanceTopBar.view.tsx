@@ -11,12 +11,13 @@ export type GovernanceTopBarViewProps = {
   governancePhase: GovernancePhase
 }
 export const GovernanceTopBarView = ({ governancePhase }: GovernanceTopBarViewProps) => {
-  const { watingProposals } = useGovernence()
-  const isInExecution = governancePhase === 'PROPOSAL' && Boolean(watingProposals?.length)
+  // TODO: removed execution status temporarly
+  // const { watingProposals } = useGovernence()
+  // const isInExecution = governancePhase === 'PROPOSAL' && Boolean(watingProposals?.length)
 
   return (
     <GovernanceTopBarStyled id="governanceTopBar">
-      <GovTopBarPhaseText className="first" isCorrectPhase={!isInExecution && governancePhase === 'PROPOSAL'}>
+      <GovTopBarPhaseText className="first" isCorrectPhase={governancePhase === 'PROPOSAL'}>
         Proposal
       </GovTopBarPhaseText>
       <GovTopBarSidewaysArrowIcon>
@@ -27,10 +28,10 @@ export const GovernanceTopBarView = ({ governancePhase }: GovernanceTopBarViewPr
         <use xlinkHref="/icons/sprites.svg#greater-than" />
       </GovTopBarSidewaysArrowIcon>
       <GovTopBarPhaseText isCorrectPhase={governancePhase === 'TIME_LOCK'}>Time Lock</GovTopBarPhaseText>
-      <GovTopBarSidewaysArrowIcon>
+      {/* <GovTopBarSidewaysArrowIcon>
         <use xlinkHref="/icons/sprites.svg#greater-than" />
-      </GovTopBarSidewaysArrowIcon>
-      <GovTopBarPhaseText isCorrectPhase={isInExecution}>Execution</GovTopBarPhaseText>
+      </GovTopBarSidewaysArrowIcon> */}
+      {/* <GovTopBarPhaseText isCorrectPhase={isInExecution}>Execution</GovTopBarPhaseText> */}
       <TimeRemaining />
     </GovernanceTopBarStyled>
   )
