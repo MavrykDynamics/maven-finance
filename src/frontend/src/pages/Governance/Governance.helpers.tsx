@@ -7,6 +7,7 @@ import {
   GovernanceProposalGraphQL,
 } from '../../utils/TypesAndInterfaces/Governance'
 import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
+import { DipDupTokensGraphQl } from 'utils/TypesAndInterfaces/DipDupTokens'
 
 export const getProposalStatusInfo = (
   governancePhase: GovernancePhase,
@@ -202,7 +203,7 @@ function convertGovernanceRound(round: number) {
   return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : round === 2 ? 'TIME_LOCK' : ''
 }
 
-export const normalizeProposal = (item: GovernanceProposalGraphQL) => {
+export const normalizeProposal = (item: GovernanceProposalGraphQL, dipDupTokens?: Array<DipDupTokensGraphQl>) => {
   return {
     id: item.id,
     proposerId: item.proposer_id,
@@ -234,19 +235,32 @@ export const normalizeProposal = (item: GovernanceProposalGraphQL) => {
       isUnderTheDrop: false,
       isLocalBytes: false,
     })),
-    proposalPayments: item.payments,
+    proposalPayments: item.payments.map((paymentData) => {
+      const decimals = dipDupTokens?.find(({ contract }) => contract === paymentData.token_address)?.metadata?.decimals
+      return {
+        ...paymentData,
+        // we're getting amount * by 10 in decimals grage, need to parse it to initial user input
+        token_amount: Number(paymentData.token_amount) / Math.pow(10, Number(decimals)),
+      }
+    }),
     governanceId: item.governance_id,
     paymentProcessed: item.payment_processed,
   }
 }
 
-export const normalizeProposals = (proposalsList?: GovernanceProposalGraphQL[]) => {
-  return proposalsList?.length ? proposalsList.map((item) => normalizeProposal(item)) : []
+export const normalizeProposals = (
+  proposalsList?: GovernanceProposalGraphQL[],
+  dipDupTokens?: Array<DipDupTokensGraphQl>,
+) => {
+  return proposalsList?.length ? proposalsList.map((item) => normalizeProposal(item, dipDupTokens)) : []
 }
 
-export const normalizeGovernanceStorage = (storage: GovernanceStorageGraphQL | null) => {
+export const normalizeGovernanceStorage = (
+  storage: GovernanceStorageGraphQL | null,
+  dipDupTokens?: Array<DipDupTokensGraphQl>,
+) => {
   const currentGovernance = storage?.governance?.[0]
-  const proposalLedger = normalizeProposals(storage?.governance_proposal)
+  const proposalLedger = normalizeProposals(storage?.governance_proposal, dipDupTokens)
 
   return {
     address: currentGovernance?.address || '',

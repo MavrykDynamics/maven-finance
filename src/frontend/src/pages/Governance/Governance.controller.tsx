@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Page, ModalStyled } from 'styles'
+import { Page } from 'styles'
 import { State } from 'reducers'
 
 // actions
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
-import { getCurrentRoundProposals, executeProposal } from './Governance.actions'
+import { getCurrentRoundProposals, executeProposal, getGovernanceStorage } from './Governance.actions'
 import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
 
 // view
@@ -32,23 +32,16 @@ export const Governance = () => {
   const { watingProposals, waitingForPaymentToBeProcessed } = useGovernence()
 
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { isSatellite } = useSelector((state: State) => state.user)
   const { governanceStorage, governancePhase, currentRoundProposals, pastProposals } = useSelector(
     (state: State) => state.governance,
   )
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
-  // Period end time calculation
-  const { headData } = useSelector((state: State) => state.preferences)
-
-  const daysLeftOfPeriod =
-    headData?.knownLevel && governanceStorage?.currentRoundEndLevel
-      ? calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)
-      : 0
 
   useEffect(() => {
     dispatch(getCurrentRoundProposals())
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getDelegationStorage())
+    dispatch(getGovernanceStorage())
   }, [])
 
   const isVotingRound = governancePhase === 'VOTING'
@@ -72,14 +65,13 @@ export const Governance = () => {
       <GovernanceView
         handleExecuteProposal={handleExecuteProposal}
         accountPkh={accountPkh}
-        userIsSatellite={userIsSatellite}
+        userIsSatellite={isSatellite}
         ongoingProposals={ongoingProposals}
         nextProposals={currentRoundProposals}
         watingProposals={watingProposals}
         waitingForPaymentToBeProcessed={waitingForPaymentToBeProcessed}
         pastProposals={pastProposals}
         governancePhase={governancePhase}
-        timeLeftInPhase={daysLeftOfPeriod}
       />
     </Page>
   )
