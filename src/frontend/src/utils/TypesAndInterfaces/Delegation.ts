@@ -39,6 +39,7 @@ export interface SatelliteRecord {
   satelliteFee: number
   delegatorCount: number
   status: SatelliteStatus
+  currentlyRegistered: boolean | null
   delegationRatio: number
   mvkBalance: number
   sMvkBalance: number

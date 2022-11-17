@@ -37,6 +37,7 @@ export const BecomeSatellite = () => {
           delegationRatio: 0,
           delegatorCount: 0,
           oracleRecords: [],
+          currentlyRegistered: null,
         }
   useEffect(() => {
     if (accountPkh) {

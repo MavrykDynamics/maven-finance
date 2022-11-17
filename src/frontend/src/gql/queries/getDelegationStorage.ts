@@ -18,6 +18,7 @@ export const DELEGATION_STORAGE_QUERY = `
       satellite_name_max_length
       satellite_website_max_length
       satellites {
+        currently_registered
         delegation_id
         description
         fee
