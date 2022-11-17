@@ -54,10 +54,10 @@ type lastCompletedDataReturnType is  [@layout:comb] record [
 ];
 
 type oracleObservationType is [@layout:comb] record [
-       data                 : nat;
-       epoch                : nat;
-       round                : nat;
-       aggregatorAddress    : address;
+    data                 : nat;
+    epoch                : nat;
+    round                : nat;
+    aggregatorAddress    : address;
 ];
 
 type updateDataType is   [@layout:comb] record [
@@ -69,8 +69,7 @@ type withdrawRewardXtzType            is address;
 type withdrawRewardStakedMvkType      is address;
 
 type addOracleType is   [@layout:comb] record [
-        oracleAddress       : address;
-        // oracleInformation   : oracleInformationType;
+    oracleAddress       : address;
 ];
 
 type removeOracleType                 is address;
@@ -122,6 +121,7 @@ type aggregatorLambdaActionType is
 
         // Oracle Admin Entrypoints
     |   LambdaAddOracle                     of addOracleType
+    |   LambdaUpdateOracle                  of (unit)
     |   LambdaRemoveOracle                  of removeOracleType
 
         // Pause / Break Glass Entrypoints

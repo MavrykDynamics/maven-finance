@@ -616,8 +616,18 @@ block {
                 const website       : string  = registerAsSatelliteParams.website;
                 const satelliteFee  : nat     = registerAsSatelliteParams.satelliteFee;
                 
-                const oraclePublicKey  : key     = registerAsSatelliteParams.oraclePublicKey;
-                const oraclePeerId  : string     = registerAsSatelliteParams.oraclePeerId;
+                // const oraclePublicKey   : key     = registerAsSatelliteParams.oraclePublicKey;
+                // const oraclePeerId      : string  = registerAsSatelliteParams.oraclePeerId;
+
+                const oraclePublicKey : key  = case registerAsSatelliteParams.oraclePublicKey of [
+                        Some(_key) -> _key
+                    |   None       -> ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key)
+                ];
+
+                const oraclePeerId : string  = case registerAsSatelliteParams.oraclePeerId of [
+                        Some(_peerId) -> _peerId
+                    |   None          -> "peerId"
+                ];
 
                 // Validate inputs (max length not exceeded)
                 if String.length(name)        > s.config.satelliteNameMaxLength         then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -771,6 +781,16 @@ block {
                 const website       : string  = updateSatelliteRecordParams.website;
                 const satelliteFee  : nat     = updateSatelliteRecordParams.satelliteFee;
 
+                const oraclePublicKey : key  = case updateSatelliteRecordParams.oraclePublicKey of [
+                        Some(_key) -> _key
+                    |   None       -> ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key)
+                ];
+
+                const oraclePeerId : string  = case updateSatelliteRecordParams.oraclePeerId of [
+                        Some(_peerId) -> _peerId
+                    |   None          -> "peerId"
+                ];
+
                 // Validate inputs (max length not exceeded)
                 if String.length(name)        > s.config.satelliteNameMaxLength         then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(description) > s.config.satelliteDescriptionMaxLength  then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -786,6 +806,9 @@ block {
                 satelliteRecord.image          := image;
                 satelliteRecord.website        := website;
                 satelliteRecord.satelliteFee   := satelliteFee;        
+
+                satelliteRecord.oraclePublicKey   := oraclePublicKey;        
+                satelliteRecord.oraclePeerId      := oraclePeerId;        
                 
                 // Update satellite record in storage
                 s.satelliteLedger[userAddress] := satelliteRecord;

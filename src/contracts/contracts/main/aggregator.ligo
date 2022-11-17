@@ -929,7 +929,7 @@ block{
     ];
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdaOteracle(unit);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateOracle(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -1150,7 +1150,7 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
 
                 // Admin Oracle Entrypoints
             |   AddOracle (parameters)                          -> addOracle(parameters, s)
-            |   UpdateOracle (parameters)                       -> updateOracle(parameters, s)
+            |   UpdateOracle (_parameters)                      -> updateOracle(s)
             |   RemoveOracle (parameters)                       -> removeOracle(parameters, s)
 
                 // Pause / Break Glass Entrypoints

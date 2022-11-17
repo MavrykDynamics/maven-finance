@@ -267,7 +267,7 @@ block {
     checkSenderIsAdminOrGovernanceSatellite(s);  
 
     case aggregatorLambdaAction of [
-        |   LambdaUpdateOracle(unit) -> {
+        |   LambdaUpdateOracle(_parameters) -> {
                 
                 if isOracleAddress(Tezos.get_sender(), s.oracleAddresses) then block{
                     
