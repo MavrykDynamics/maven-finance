@@ -39,6 +39,7 @@ type Props = {
   handleTriggerEmergencyProposal: () => void
   emergencyGovernanceLedger: EmergencyGovernanceStorage['emergencyGovernanceLedger']
   dropProposalHandler: (proposalId: number) => void
+  isGlassBroken: boolean
 }
 
 export const EmergencyGovernanceView = ({
@@ -46,6 +47,7 @@ export const EmergencyGovernanceView = ({
   handleTriggerEmergencyProposal,
   emergencyGovernanceLedger,
   dropProposalHandler,
+  isGlassBroken,
 }: Props) => {
   const { historyItems, activeItems } = useMemo(
     () =>
@@ -121,6 +123,7 @@ export const EmergencyGovernanceView = ({
                 kind={ACTION_PRIMARY}
                 icon={'auction'}
                 onClick={handleTriggerEmergencyProposal}
+                disabled={isGlassBroken}
               />
             ) : (
               <ConnectWallet className="connect-wallet" />

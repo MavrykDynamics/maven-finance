@@ -11,6 +11,7 @@ export const SATELLITE_RECORDS_QUERY = `
       user_id
       status
       website
+      currently_registered
       delegations {
         user {
           smvk_balance

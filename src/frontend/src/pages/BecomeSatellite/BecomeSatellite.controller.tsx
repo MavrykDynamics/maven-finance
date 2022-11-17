@@ -14,13 +14,14 @@ export const BecomeSatellite = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => Boolean(state.loading))
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const satelliteLedger = delegationStorage?.satelliteLedger
+  const { satelliteLedger, config } = useSelector((state: State) => state.delegation.delegationStorage)
   const { mySMvkTokenBalance } = useSelector((state: State) => state.user)
 
+  const usersSatelliteProfile = satelliteLedger.find((satellite: SatelliteRecord) => satellite.address === accountPkh)
+
   const usersSatellite: SatelliteRecord =
-    accountPkh && satelliteLedger
-      ? getUsersSatelliteIfExists(accountPkh, satelliteLedger)
+    accountPkh && usersSatelliteProfile
+      ? usersSatelliteProfile
       : {
           address: '',
           name: '',
@@ -33,20 +34,18 @@ export const BecomeSatellite = () => {
           mvkBalance: 0,
           sMvkBalance: 0,
           totalDelegatedAmount: 0,
-          unregisteredDateTime: null,
           delegationRatio: 0,
           delegatorCount: 0,
           oracleRecords: [],
-          currentlyRegistered: null,
+          isSatelliteReady: false,
+          currentlyRegistered: false,
         }
-  useEffect(() => {
-    if (accountPkh) {
-      dispatch(getMvkTokenStorage(accountPkh))
-      dispatch(getDoormanStorage())
-    }
 
+  useEffect(() => {
+    dispatch(getDoormanStorage())
+    dispatch(getMvkTokenStorage())
     dispatch(getDelegationStorage())
-  }, [dispatch, accountPkh])
+  }, [accountPkh])
 
   const registerCallback = (form: RegisterAsSatelliteForm) => {
     dispatch(registerAsSatellite(form))
@@ -62,12 +61,8 @@ export const BecomeSatellite = () => {
       updateSatelliteCallback={updateSatelliteCallback}
       accountPkh={accountPkh}
       myTotalStakeBalance={mySMvkTokenBalance}
-      satelliteConfig={delegationStorage.config}
+      satelliteConfig={config}
       usersSatellite={usersSatellite}
     />
   )
-}
-
-function getUsersSatelliteIfExists(accountPkh: string, satelliteLedger: SatelliteRecord[]): SatelliteRecord {
-  return satelliteLedger.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0]
 }

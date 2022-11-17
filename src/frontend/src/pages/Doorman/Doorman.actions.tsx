@@ -30,7 +30,7 @@ import {
   calcWithoutMu,
   calcWithoutPrecision,
 } from '../../utils/calcFunctions'
-import { PRECISION_NUMBER } from '../../utils/constants'
+import { PRECISION_NUMBER, ROCKET_LOADER } from '../../utils/constants'
 import {
   UserDoormanRewardsData,
   UserFarmRewardsData,
@@ -43,51 +43,34 @@ import {
   normalizeSmvkHistoryData,
   normalizeMvkMintHistoryData,
 } from './Doorman.converter'
-import { FarmContractType } from 'utils/TypesAndInterfaces/Farm'
 import { Farm } from 'utils/generated/graphqlTypes'
 import { UserState } from 'reducers/user'
-
-export const GET_MVK_MINT_HISTORY_DATA = 'GET_MVK_MINT_HISTORY_DATA'
-export const getMvkMintHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
-
-  try {
-    const storage = await fetchFromIndexer(
-      MVK_MINT_HISTORY_DATA_QUERY,
-      MVK_MINT_HISTORY_DATA_QUERY_NAME,
-      MVK_MINT_HISTORY_DATA_QUERY_VARIABLE,
-    )
-
-    const mvkMintHistoryData = normalizeMvkMintHistoryData(storage)
-
-    dispatch({
-      type: GET_MVK_MINT_HISTORY_DATA,
-      mvkMintHistoryData,
-    })
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('mvkMintHistoryData', error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-    }
-    dispatch({
-      type: GET_MVK_MINT_HISTORY_DATA,
-      error,
-    })
-  }
-}
+import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 
 export const GET_SMVK_HISTORY_DATA = 'GET_SMVK_HISTORY_DATA'
-export const getSmvkHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
-
+export const GET_MVK_MINT_HISTORY_DATA = 'GET_MVK_MINT_HISTORY_DATA'
+export const getDormanHistoryData = () => async (dispatch: AppDispatch, getState: GetState) => {
   try {
-    const storage = await fetchFromIndexer(
+    const smvkStorage = await fetchFromIndexer(
       SMVK_HISTORY_DATA_QUERY,
       SMVK_HISTORY_DATA_QUERY_NAME,
       SMVK_HISTORY_DATA_QUERY_VARIABLE,
     )
 
-    const smvkHistoryData = normalizeSmvkHistoryData(storage)
+    const smvkHistoryData = normalizeSmvkHistoryData(smvkStorage)
+
+    const mvkStorage = await fetchFromIndexer(
+      MVK_MINT_HISTORY_DATA_QUERY,
+      MVK_MINT_HISTORY_DATA_QUERY_NAME,
+      MVK_MINT_HISTORY_DATA_QUERY_VARIABLE,
+    )
+
+    const mvkMintHistoryData = normalizeMvkMintHistoryData(mvkStorage)
+
+    dispatch({
+      type: GET_MVK_MINT_HISTORY_DATA,
+      mvkMintHistoryData,
+    })
 
     dispatch({
       type: GET_SMVK_HISTORY_DATA,
@@ -106,8 +89,7 @@ export const getSmvkHistoryData = () => async (dispatch: AppDispatch, getState: 
 }
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
-export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
+export const getMvkTokenStorage = () => async (dispatch: AppDispatch) => {
   const storage = await fetchFromIndexer(
     MVK_TOKEN_STORAGE_QUERY,
     MVK_TOKEN_STORAGE_QUERY_NAME,
@@ -119,13 +101,9 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: AppD
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,
     mvkTokenStorage: convertedStorage,
-    myMvkTokenBalance: 0,
   })
 }
 
-export const STAKE_REQUEST = 'STAKE_REQUEST'
-export const STAKE_RESULT = 'STAKE_RESULT'
-export const STAKE_ERROR = 'STAKE_ERROR'
 export const stake = (amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -179,39 +157,26 @@ export const stake = (amount: number) => async (dispatch: AppDispatch, getState:
         .withContractCall(mvkTokenContract.methods.update_operators(removeOperators)))
     const batchOp = await batch?.send()
 
-    dispatch({
-      type: STAKE_REQUEST,
-      amount,
-    })
+    dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Staking...', 'Please wait 30s'))
 
-    const done = await batchOp?.confirmation()
-    console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
+    await batchOp?.confirmation()
 
-    dispatch({
-      type: STAKE_RESULT,
-    })
+    dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
+    dispatch(toggleLoader())
 
     if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
-
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: STAKE_ERROR,
-      error,
-    })
+    dispatch(toggleLoader())
   }
 }
 
-export const UNSTAKE_REQUEST = 'UNSTAKE_REQUEST'
-export const UNSTAKE_RESULT = 'UNSTAKE_RESULT'
-export const UNSTAKE_ERROR = 'UNSTAKE_ERROR'
 export const unstake = (amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -232,46 +197,31 @@ export const unstake = (amount: number) => async (dispatch: AppDispatch, getStat
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.doormanAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.unstake(amount * PRECISION_NUMBER).send()
-    console.log('transaction', transaction)
 
-    dispatch({
-      type: UNSTAKE_REQUEST,
-      amount,
-    })
+    dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Unstaking...', 'Please wait 30s'))
     dispatch({
       type: HIDE_EXIT_FEE_MODAL,
     })
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
+    await transaction?.confirmation()
 
-    dispatch({
-      type: UNSTAKE_RESULT,
-    })
+    dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
+    dispatch(toggleLoader())
 
     if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
-
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: UNSTAKE_ERROR,
-      error,
-    })
+    dispatch(toggleLoader())
   }
 }
 
-export const COMPOUND_REQUEST = 'COMPOUND_REQUEST'
-export const COMPOUND_RESULT = 'COMPOUND_RESULT'
-export const COMPOUND_ERROR = 'COMPOUND_ERROR'
 export const rewardsCompound = (address: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -284,47 +234,33 @@ export const rewardsCompound = (address: string) => async (dispatch: AppDispatch
     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
+
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.doormanAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.compound(address).send()
-    console.log('transaction', transaction)
 
-    dispatch({
-      type: COMPOUND_REQUEST,
-    })
+    dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Compounding rewards...', 'Please wait 30s'))
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Compounding done', 'All good :)'))
+    await transaction?.confirmation()
 
-    dispatch({
-      type: COMPOUND_RESULT,
-    })
+    dispatch(showToaster(SUCCESS, 'Compounding done', 'All good :)'))
+    dispatch(toggleLoader())
 
     if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
-
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: COMPOUND_ERROR,
-      error,
-    })
+    dispatch(toggleLoader())
   }
-
-  dispatch(showToaster(INFO, 'Compound', 'Coming Soon', 3000))
 }
 
 export const GET_DOORMAN_STORAGE = 'GET_DOORMAN_STORAGE'
-export const getDoormanStorage = (accountPkh?: string) => async (dispatch: AppDispatch, getState: GetState) => {
-  const state: State = getState()
-
+export const getDoormanStorage = () => async (dispatch: AppDispatch) => {
   try {
     const storage = await fetchFromIndexer(
       DOORMAN_STORAGE_QUERY,
@@ -339,22 +275,19 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: AppDi
       storage: convertedStorage,
       totalStakedMvkSupply: convertedStorage.totalStakedMvk,
     })
+
+    await dispatch(getDormanHistoryData())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: GET_DOORMAN_STORAGE,
-      error,
-    })
   }
 }
 
 export const GET_USER_DATA = 'GET_USER_DATA'
 export const CLEAN_USER_DATA = 'CLEAN_USER_DATA'
 export const GET_USER_DATA_ERROR = 'GET_USER_DATA'
-export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
 export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   const currentBlockLevel = state.preferences.headData?.level ?? 0
@@ -424,7 +357,7 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       participationFeesPerShare: calcWithoutPrecision(userInfoData?.participation_fees_per_share),
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite ? userInfoData?.delegations[0].satellite?.user_id : '',
       isSatellite: Boolean(
-        state.delegation.delegationStorage.satelliteLedger.find(
+        state.delegation.delegationStorage.activeSatellites.find(
           ({ address: satelliteAddress }) =>
             satelliteAddress === userInfoData?.address || satelliteAddress === state.wallet?.accountPkh,
         ),
@@ -456,21 +389,5 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       type: GET_USER_DATA_ERROR,
       error,
     })
-  }
-}
-
-export const updateUserData = (field: string, value: string) => async (dispatch: AppDispatch, getState: GetState) => {
-  try {
-    dispatch({
-      type: UPDATE_USER_DATA,
-      updatedUserValues: {
-        [field]: value,
-      },
-    })
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(error)
-      dispatch(showToaster(ERROR, 'Error', error.message))
-    }
   }
 }

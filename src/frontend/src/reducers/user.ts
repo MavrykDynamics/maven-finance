@@ -1,5 +1,5 @@
 import { UserDoormanRewardsData, UserFarmRewardsData, UserSatelliteRewardsData } from 'utils/TypesAndInterfaces/User'
-import { CLEAN_USER_DATA, GET_USER_DATA, UPDATE_USER_DATA } from '../pages/Doorman/Doorman.actions'
+import { CLEAN_USER_DATA, GET_USER_DATA } from '../pages/Doorman/Doorman.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface UserState {
@@ -43,11 +43,6 @@ export function user(state = defaultUser, action: Action) {
   switch (action.type) {
     case GET_USER_DATA:
       return { ...state, ...action.userData }
-    case UPDATE_USER_DATA:
-      return {
-        ...state,
-        ...action.updatedUserValues,
-      }
     case CLEAN_USER_DATA:
       return { ...state, ...defaultUser }
     default:
