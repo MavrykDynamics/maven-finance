@@ -135,6 +135,7 @@ export function normalizeSatelliteRecord(
     financialRequestsVotes,
     emergencyGovernanceVotes,
     satelliteActionVotes,
+    currentlyRegistered: satelliteRecord?.currently_registered || null,
   }
 
   return newSatelliteRecord
@@ -156,6 +157,7 @@ function getOraclesAmount(satellites: SatelliteRecord[]) {
 }
 
 export function normalizeDelegationStorage(delegationStorage: DelegationGraphQl) {
+  console.log("🚀 ~ file: Satellites.helpers.tsx ~ line 159 ~ normalizeDelegationStorage ~ delegationStorage", delegationStorage)
   const convertedSatellties = convertToSatelliteRecords(delegationStorage?.satellites)
   return {
     breakGlassConfig: {

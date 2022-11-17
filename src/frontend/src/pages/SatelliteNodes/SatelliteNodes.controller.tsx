@@ -19,9 +19,11 @@ const SatelliteNodes = () => {
   const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(satelliteLedger)
 
   useEffect(() => {
+    const updatedSatellites = satelliteLedger.filter((item) => item.currentlyRegistered)
+
     dispatch(getDelegationStorage())
-    setAllSatellites(satelliteLedger)
-    setFilteredSatelliteList(satelliteLedger)
+    setAllSatellites(updatedSatellites)
+    setFilteredSatelliteList(updatedSatellites)
   }, [])
 
   const handleSearch = (e: {
