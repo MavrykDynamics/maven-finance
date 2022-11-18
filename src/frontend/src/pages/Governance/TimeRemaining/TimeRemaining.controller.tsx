@@ -11,6 +11,7 @@ import { getTimestampByLevel } from '../../Governance/Governance.actions'
 // styles
 import { Timer } from 'app/App.components/Timer/Timer.controller'
 import { TimeLeftAreaWrap } from './TimeRemaining.style'
+import { COLON_VIEW } from 'app/App.components/Timer/Timer.view'
 
 export default function TimeRemaining() {
   const { currentRoundEndLevel = 0 } = useSelector((state: State) => state.governance.governanceStorage)
@@ -27,7 +28,23 @@ export default function TimeRemaining() {
 
   return (
     <TimeLeftAreaWrap showBorder={timerActive}>
-      {!timerActive ? <MoveToNextRound /> : <Timer timestamp={timerDeadline} options={{ showZeros: true }} />}
+      {!timerActive ? (
+        <MoveToNextRound />
+      ) : (
+        <>
+          <Timer
+            timestamp={timerDeadline}
+            options={{
+              showZeros: true,
+              shownParts: ['h', 'm', 's'],
+              timerView: COLON_VIEW,
+              showFullDay: true,
+              endText: 'remaining',
+              defaultColor: '#77A4F2',
+            }}
+          />
+        </>
+      )}
     </TimeLeftAreaWrap>
   )
 }

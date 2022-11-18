@@ -397,6 +397,7 @@ export const GovernanceView = ({
               votingPhaseHandler={handleVotingRoundVote}
               handleProposalVote={handleProposalRoundVote}
               selectedProposal={rightSideContent}
+              vote={rightSideContent.votes.find(({ voter_id }) => voter_id === accountPkh)}
             />
 
             {isExecuteProposal ? (

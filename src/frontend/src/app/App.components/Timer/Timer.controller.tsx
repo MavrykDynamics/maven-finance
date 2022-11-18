@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { TimerView } from './Timer.view'
+import { COLON_VIEW, LETTER_VIEW, TimerView } from './Timer.view'
 import { ShortTimer } from './Timer.style'
 
 type TimerProps = {
@@ -7,9 +7,13 @@ type TimerProps = {
   timestamp?: number
   options?: {
     short?: boolean
+    showFullDay?: boolean
+    endText?: string
     showZeros?: boolean
     negativeColor?: string
     defaultColor?: string
+    timerView?: typeof LETTER_VIEW | typeof COLON_VIEW
+    shownParts?: ('d' | 'h' | 'm' | 's')[]
   }
 }
 
@@ -31,7 +35,7 @@ export const Timer = ({ deadline, timestamp, options }: TimerProps) => {
   const toShowShortVariant = useMemo(() => {
     return options?.short && Math.abs(strings.days) > 1
   }, [options?.short, strings.days])
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date().getTime()
@@ -49,16 +53,17 @@ export const Timer = ({ deadline, timestamp, options }: TimerProps) => {
 
   return (
     <>
-      {toShowShortVariant
-        ? <ShortTimer>{'> 1d'}</ShortTimer>
-        : <TimerView
-            seconds={strings.seconds}
-            minutes={strings.minutes}
-            hours={strings.hours}
-            days={strings.days}
-            options={options || {}}
-          />}
+      {toShowShortVariant ? (
+        <ShortTimer>{'> 1d'}</ShortTimer>
+      ) : (
+        <TimerView
+          seconds={strings.seconds}
+          minutes={strings.minutes}
+          hours={strings.hours}
+          days={strings.days}
+          options={options || {}}
+        />
+      )}
     </>
-
   )
 }
