@@ -192,7 +192,7 @@ export const BecomeSatelliteView = ({
 
   return (
     <Page>
-      <PageHeader page={'satellites'} />
+      <PageHeader page={updateSatellite && !isSutelliteRegistered ? 'my satellite profile' : 'satellites'} />
       <PageContent>
         <div>
           {!accountPkh || !balanceOk ? (
@@ -336,7 +336,7 @@ export const BecomeSatelliteView = ({
               )}
               <Button
                 icon="satellite-stroke"
-                text={updateSatellite ? isSutelliteRegistered ? 'Update Satellite Info' : 'Register Satellite' : 'Become a satellite'}
+                text={updateSatellite ? isSutelliteRegistered ? 'Update Satellite Info' : 'Register Satellite' : 'Become a Satellite'}
                 loading={loading}
                 disabled={disabled}
                 kind={ACTION_PRIMARY}
