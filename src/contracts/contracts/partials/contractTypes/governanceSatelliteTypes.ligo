@@ -83,8 +83,6 @@ type banSatelliteActionType is [@layout:comb] record [
 
 type restoreSatelliteActionType is [@layout:comb] record [
     satelliteToBeRestored       : address;
-    oraclePublicKey             : key;
-    oraclePeerId                : string;
     purpose                     : string;
 ]
 
@@ -95,8 +93,6 @@ type removeAllSatelliteOraclesActionType is [@layout:comb] record [
 
 type addOracleToAggregatorActionType is [@layout:comb] record [
     oracleAddress               : address;
-    oraclePublicKey             : key;
-    oraclePeerId                : string;
     aggregatorAddress           : address;
     purpose                     : string;
 ]
