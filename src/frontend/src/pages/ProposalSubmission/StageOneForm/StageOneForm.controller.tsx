@@ -1,9 +1,8 @@
-import { useDispatch, useSelector } from 'react-redux'
-import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import React, { useEffect, useMemo } from 'react'
 import { State } from 'reducers'
 
 // view
-import { SubmitProposalFormInputStatus, ValidSubmitProposalForm } from '../../../utils/TypesAndInterfaces/Forms'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 import { TextArea } from 'app/App.components/TextArea/TextArea.controller'
 import {
@@ -19,67 +18,94 @@ import { Button } from 'app/App.components/Button/Button.controller'
 
 // types
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
-import { StageOneFormProps } from '../ProposalSybmittion.types'
+import { StageOneFormProps, ValidationResult } from '../ProposalSybmittion.types'
 
 // helpers, constants
-import { isValidLength, isValidHttpUrl, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
-import { submitProposal } from '../ProposalSubmission.actions'
-import { DEFAULT_VALIDITY, DEFAULT_INPUT_STATUSES } from '../ProposalSubmition.helpers'
-import { ACTION_SECONDARY, SUBMIT } from 'app/App.components/Button/Button.constants'
+import { isValidLength, isValidHttpUrl } from '../../../utils/validatorFunctions'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
+import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import '@silevis/reactgrid/styles.css'
 
 export const StageOneForm = ({
   proposalId,
-  updateLocalProposalData,
+  proposalHasChange,
   currentProposal,
+  currentProposalValidation,
+  updateLocalProposalValidation,
   handleDropProposal,
+  updateLocalProposalData,
+  handleLockProposal,
+  handleUpdateData,
+  handleSubmitProposal,
 }: StageOneFormProps) => {
-  const dispatch = useDispatch()
   const {
     fee,
     currentRound,
     config: { successReward, proposalTitleMaxLength, proposalDescriptionMaxLength, proposalSourceCodeMaxLength },
   } = useSelector((state: State) => state.governance.governanceStorage)
 
-  const [validForm, setValidForm] = useState<ValidSubmitProposalForm>(DEFAULT_VALIDITY)
-  const [formInputStatus, setFormInputStatus] = useState<SubmitProposalFormInputStatus>(DEFAULT_INPUT_STATUSES)
-
   const isProposalRound = currentRound === 'PROPOSAL'
   const isProposalSubmitted = proposalId >= 0
   const disabled = !isProposalRound || isProposalSubmitted
+  const disabledSubmitBtn = useMemo(
+    () =>
+      currentProposalValidation.description !== INPUT_STATUS_SUCCESS ||
+      currentProposalValidation.title !== INPUT_STATUS_SUCCESS ||
+      currentProposalValidation.sourceCode !== INPUT_STATUS_SUCCESS,
+    [currentProposalValidation],
+  )
 
   const handleOnBlur = (
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
     formField: string,
   ) => {
-    let validityCheckResult
+    let validityCheckResult: ValidationResult
     switch (formField) {
       case 'TITLE':
         validityCheckResult = isValidLength(currentProposal.title, 1, proposalTitleMaxLength)
-        setValidForm({ ...validForm, title: validityCheckResult })
-        setFormInputStatus({ ...formInputStatus, title: validityCheckResult ? 'success' : 'error' })
+          ? INPUT_STATUS_SUCCESS
+          : INPUT_STATUS_ERROR
+        updateLocalProposalValidation(
+          {
+            title: validityCheckResult,
+          },
+          proposalId,
+        )
         break
       case 'DESCRIPTION':
         validityCheckResult = isValidLength(currentProposal.description, 1, proposalDescriptionMaxLength)
-        setValidForm({ ...validForm, description: validityCheckResult })
-        setFormInputStatus({ ...formInputStatus, description: validityCheckResult ? 'success' : 'error' })
+          ? INPUT_STATUS_SUCCESS
+          : INPUT_STATUS_ERROR
         break
       case 'SUCCESS_MVK_REWARD':
-        setValidForm({ ...validForm, successMVKReward: currentProposal.successReward >= 0 })
-        setFormInputStatus({
-          ...formInputStatus,
-          successMVKReward: currentProposal.successReward >= 0 ? 'success' : 'error',
-        })
+        updateLocalProposalValidation(
+          {
+            successMVKReward: currentProposal.successReward >= 0 ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR,
+          },
+          proposalId,
+        )
         break
       case 'SOURCE_CODE_LINK':
-        validityCheckResult = isValidHttpUrl(currentProposal.sourceCode) &&
+        validityCheckResult =
+          isValidHttpUrl(currentProposal.sourceCode) &&
           isValidLength(currentProposal.sourceCode, 1, proposalSourceCodeMaxLength)
-        setValidForm({ ...validForm, sourceCode: validityCheckResult })
-        setFormInputStatus({ ...formInputStatus, sourceCode: validityCheckResult ? 'success' : 'error' })
+            ? INPUT_STATUS_SUCCESS
+            : INPUT_STATUS_ERROR
+        updateLocalProposalValidation(
+          {
+            sourceCode: validityCheckResult,
+          },
+          proposalId,
+        )
         break
       case 'IPFS':
-        setValidForm({ ...validForm, ipfs: Boolean(e) })
+        updateLocalProposalValidation(
+          {
+            ipfs: Boolean(e) ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR,
+          },
+          proposalId,
+        )
         break
     }
   }
@@ -96,35 +122,21 @@ export const StageOneForm = ({
   }
 
   const clearState = (): void => {
-    setValidForm(DEFAULT_VALIDITY)
-    setFormInputStatus(DEFAULT_INPUT_STATUSES)
+    // setValidForm(DEFAULT_VALIDITY)
+    // setFormInputStatus(DEFAULT_INPUT_STATUSES)
   }
 
   useEffect(() => {
     if (!isProposalRound) clearState()
   }, [isProposalRound])
 
-  const handleSubmitProposal = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (formIsValid) {
-      await dispatch(
-        submitProposal(
-          {
-            title: currentProposal.title,
-            description: currentProposal.description,
-            sourceCode: currentProposal.sourceCode,
-            ipfs: '',
-          },
-          fee,
-        ),
-      )
-      clearState()
-    }
+  const submitProposal = async () => {
+    await handleSubmitProposal()
+    clearState()
   }
 
   return (
-    <form onSubmit={handleSubmitProposal}>
+    <form>
       <FormHeaderGroup>
         <h1>Stage 1 </h1>
         <StatusFlag
@@ -151,7 +163,7 @@ export const StageOneForm = ({
                 value={currentProposal.title}
                 onChange={inputHandler}
                 onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'TITLE')}
-                inputStatus={formInputStatus.title}
+                inputStatus={currentProposalValidation.title}
                 disabled={disabled}
               />
             </>
@@ -180,7 +192,7 @@ export const StageOneForm = ({
             value={currentProposal.description}
             onChange={inputHandler}
             onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleOnBlur(e, 'DESCRIPTION')}
-            inputStatus={formInputStatus.description}
+            inputStatus={currentProposalValidation.description}
             disabled={disabled}
           />
         </>
@@ -200,23 +212,46 @@ export const StageOneForm = ({
             name="sourceCode"
             onChange={inputHandler}
             onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
-            inputStatus={formInputStatus.sourceCode}
+            inputStatus={currentProposalValidation.sourceCode}
             disabled={disabled}
           />
         </div>
       )}
 
       <FormButtonContainer>
+        <Button
+          icon="close-stroke"
+          className="close delete-pair"
+          text="Drop Proposal"
+          kind={ACTION_SECONDARY}
+          disabled={!isProposalSubmitted || !isProposalRound}
+          onClick={() => handleDropProposal(proposalId)}
+        />
+        <Button
+          icon="lock"
+          className="lock"
+          text={'Lock Proposal'}
+          disabled={!isProposalSubmitted || !isProposalRound || currentProposal.locked}
+          onClick={() => handleLockProposal(proposalId)}
+          kind={ACTION_SECONDARY}
+        />
         {isProposalSubmitted ? (
           <Button
-            icon="close-stroke"
-            className="close delete-pair"
-            text="Drop Proposal"
-            kind={ACTION_SECONDARY}
-            onClick={() => handleDropProposal(proposalId)}
+            icon="bytes"
+            className="bytes"
+            text="Save Changes"
+            kind={ACTION_PRIMARY}
+            disabled={proposalHasChange || currentProposal.locked}
+            onClick={() => handleUpdateData(proposalId)}
           />
         ) : (
-          <Button icon="auction" kind="actionPrimary" disabled={disabled} text={'Submit Proposal'} type={SUBMIT} />
+          <Button
+            icon="auction"
+            kind={ACTION_PRIMARY}
+            text={'Submit Proposal'}
+            disabled={disabledSubmitBtn}
+            onClick={submitProposal}
+          />
         )}
       </FormButtonContainer>
     </form>

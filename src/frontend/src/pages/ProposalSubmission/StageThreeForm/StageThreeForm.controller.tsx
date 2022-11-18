@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import { PaymentsDataChangesType, StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmittion.types'
-import { SubmitProposalStageThreeValidation } from '../../../utils/TypesAndInterfaces/Forms'
+import { StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmittion.types'
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 
 // helpers
+import { getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpers'
 
 // components
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
@@ -18,8 +18,8 @@ import { Input } from 'app/App.components/Input/Input.controller'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { checkPaymentExists, getPaymentsDiff, getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpers'
-import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 // styles
 import {
@@ -37,21 +37,22 @@ import {
   DropDownList,
   DropDownListItem,
 } from '../../../app/App.components/DropDown/DropDown.style'
-import { updateProposalData } from '../ProposalSubmission.actions'
-import { INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 export const StageThreeForm = ({
   proposalId,
   currentProposal,
   proposalHasChange,
-  currentOriginalProposal,
+  paymentMethods,
+  currentProposalValidation,
+  updateLocalProposalValidation,
   setProposalHasChange,
   updateLocalProposalData,
   handleDropProposal,
+  handleUpdateData,
   handleLockProposal,
+  handleSubmitProposal,
 }: StageThreeFormProps) => {
   const { proposalPayments, locked, title } = currentProposal
-  const dispatch = useDispatch()
   const {
     governanceStorage: {
       fee,
@@ -59,86 +60,38 @@ export const StageThreeForm = ({
     },
     governancePhase,
   } = useSelector((state: State) => state.governance)
-  const { whitelistTokens, dipDupTokens } = useSelector((state: State) => state.tokens)
-
-  const PaymentMethods = useMemo(
-    () =>
-      whitelistTokens
-        .map((tokenInfo) => ({
-          symbol: tokenInfo.contract_name,
-          address: tokenInfo.contract_address,
-          shortSymbol: tokenInfo.token_contract_standard,
-          id: 0,
-        }))
-        .filter(({ shortSymbol }) => ['fa2', 'fa12', 'tez'].includes(shortSymbol)),
-    [whitelistTokens],
-  )
 
   // we can modify only when current period is 'proposal'
   const isProposalRound = governancePhase === 'PROPOSAL'
+  const isProposalSubmitted = proposalId >= 0
   const isMaxRows = MAX_ROWS <= proposalPayments.length
 
-  const [validForm, setValidForm] = useState<SubmitProposalStageThreeValidation>([])
   const [openDrop, setOpenDrop] = useState('')
 
-  const isAllPaymentsValid = useMemo(
-    () =>
-      validForm.every(
-        ({ token_amount, title, to__id }) =>
-          token_amount === INPUT_STATUS_SUCCESS || title === INPUT_STATUS_SUCCESS || to__id === INPUT_STATUS_SUCCESS,
-      ),
-    [validForm],
-  )
+  // const isAllPaymentsValid = useMemo(
+  //   () =>
+  //     currentProposalValidation.paymentsValidation.every(
+  //       ({ token_amount, title, to__id }) =>
+  //         token_amount === INPUT_STATUS_SUCCESS || title === INPUT_STATUS_SUCCESS || to__id === INPUT_STATUS_SUCCESS,
+  //     ),
+  //   [currentProposalValidation.paymentsValidation],
+  // )
 
-  const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>, row: number) => {
+  const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>, itemId: number) => {
     const { name, value } = e.target
-    const isValidValue = getValidityStageThreeTable(name as StageThreeValidityItem, value)
-    setValidForm(
-      validForm.map((obj, idx) => {
-        return idx === row
-          ? {
-              ...obj,
-              [name]: isValidValue ? 'success' : 'error',
-            }
-          : obj
-      }),
+    const validationResult = getValidityStageThreeTable(name as StageThreeValidityItem, value)
+      ? INPUT_STATUS_SUCCESS
+      : INPUT_STATUS_ERROR
+    updateLocalProposalValidation(
+      {
+        paymentsValidation: currentProposalValidation.paymentsValidation.map((paymentValidation) =>
+          paymentValidation.paymentId === itemId
+            ? { ...paymentValidation, [name]: validationResult }
+            : paymentValidation,
+        ),
+      },
+      proposalId,
     )
-  }
-
-  useEffect(() => {
-    if (!isProposalRound) setValidForm([])
-  }, [isProposalRound])
-
-  // set up validity state for new proposal, on proposal change and add new row for proposal, if there are no rows in proposal
-  useEffect(() => {
-    setValidForm(
-      proposalPayments.map(({ token_amount, title, to__id }) =>
-        token_amount && title && to__id
-          ? {
-              token_amount: getValidityStageThreeTable('token_amount', token_amount) ? 'success' : 'error',
-              to__id: getValidityStageThreeTable('to__id', to__id ?? '') ? 'success' : 'error',
-              title: getValidityStageThreeTable('title', title) ? 'success' : 'error',
-            }
-          : {
-              token_amount: 'success',
-              to__id: 'success',
-              title: 'success',
-            },
-      ),
-    )
-  }, [proposalId, proposalPayments])
-
-  const handleSubmitFinancialRequestData = async () => {
-    if (proposalId && isAllPaymentsValid && currentOriginalProposal) {
-      const paymentsDiff = getPaymentsDiff(
-        currentOriginalProposal.proposalPayments,
-        proposalPayments,
-        PaymentMethods,
-        dipDupTokens,
-      )
-      console.log('paymentsDiff', paymentsDiff)
-      await dispatch(updateProposalData(proposalId, null, paymentsDiff))
-    }
   }
 
   const handleChange = (
@@ -166,7 +119,7 @@ export const StageThreeForm = ({
   }
 
   const handleAddRow = () => {
-    const { address = '', id = 0 } = PaymentMethods[0]
+    const { address = '', id = 0 } = paymentMethods[0]
     updateLocalProposalData(
       {
         proposalPayments: proposalPayments.concat({
@@ -204,10 +157,10 @@ export const StageThreeForm = ({
     setOpenDrop(openDrop ? '' : `${i}-asset`)
   }
 
-  const isDisabledSubmitTableBtn = useMemo(
-    () => !isProposalRound || !proposalHasChange || (proposalHasChange && !isAllPaymentsValid) || locked,
-    [validForm, isProposalRound],
-  )
+  // const isDisabledSubmitTableBtn = useMemo(
+  //   () => !isProposalRound || !proposalHasChange || (proposalHasChange && !isAllPaymentsValid) || locked,
+  //   [validForm, isProposalRound],
+  // )
   const disabledInputs = useMemo(() => !isProposalRound || locked, [isProposalRound, locked])
 
   return (
@@ -248,9 +201,11 @@ export const StageThreeForm = ({
                 <td key="row-names-asset">Payment Type (XTZ/MVK)</td>
               </tr>
               {proposalPayments.map((rowItems, i) => {
-                const validationObj = validForm[i]
+                const validationObj = currentProposalValidation.paymentsValidation.find(
+                  ({ paymentId }) => paymentId === rowItems.id,
+                )
                 const { symbol: selectedSymbol = 'MVK' } =
-                  PaymentMethods.find(({ address }) => address === rowItems.token_address) ?? PaymentMethods?.[0]
+                  paymentMethods.find(({ address }) => address === rowItems.token_address) ?? paymentMethods?.[0]
 
                 if (!rowItems || rowItems.title === null || rowItems.token_amount === null) return null
 
@@ -265,7 +220,7 @@ export const StageThreeForm = ({
                         disabled={disabledInputs}
                         inputStatus={validationObj?.to__id}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
-                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, rowItems.id)}
                         className="submit-proposal-stage-3"
                       />
                     </td>
@@ -278,7 +233,7 @@ export const StageThreeForm = ({
                         disabled={disabledInputs}
                         inputStatus={validationObj?.title}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
-                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, rowItems.id)}
                         className="submit-proposal-stage-3"
                       />
                     </td>
@@ -291,7 +246,7 @@ export const StageThreeForm = ({
                         disabled={disabledInputs}
                         inputStatus={validationObj?.token_amount}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, i)}
-                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, i)}
+                        onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleOnBlur(e, rowItems.id)}
                         className="submit-proposal-stage-3"
                       />
                     </td>
@@ -307,7 +262,7 @@ export const StageThreeForm = ({
                         {openDrop === `${i}-asset` && (
                           <DropDownListContainer>
                             <DropDownList>
-                              {PaymentMethods.map(({ symbol, address }) => (
+                              {paymentMethods.map(({ symbol, address }) => (
                                 <DropDownListItem
                                   onClick={() =>
                                     handleChange(
@@ -359,28 +314,36 @@ export const StageThreeForm = ({
           className="close delete-pair"
           text="Drop Proposal"
           kind={ACTION_SECONDARY}
+          disabled={!isProposalSubmitted || !isProposalRound}
           onClick={() => handleDropProposal(proposalId)}
         />
-
-        {!locked ? (
-          <Button
-            icon="lock"
-            className="lock"
-            text={'Lock Proposal'}
-            disabled={!isProposalRound}
-            onClick={() => handleLockProposal(proposalId)}
-            kind="actionSecondary"
-          />
-        ) : null}
-
         <Button
-          icon="financial"
-          disabled={isDisabledSubmitTableBtn}
-          className="financial"
-          kind="actionPrimary"
-          text={'Submit Financial Request'}
-          onClick={handleSubmitFinancialRequestData}
+          icon="lock"
+          className="lock"
+          text={'Lock Proposal'}
+          disabled={!isProposalSubmitted || !isProposalRound || locked}
+          onClick={() => handleLockProposal(proposalId)}
+          kind={ACTION_SECONDARY}
         />
+        {isProposalSubmitted ? (
+          <Button
+            icon="bytes"
+            className="bytes"
+            text="Save Changes"
+            kind={ACTION_PRIMARY}
+            disabled={!proposalHasChange || locked}
+            onClick={() => handleUpdateData(proposalId)}
+          />
+        ) : (
+          <Button
+            icon="auction"
+            kind={ACTION_PRIMARY}
+            text={'Submit Proposal'}
+            // TODO: add disabling when stage 1 data incorrect
+            // disabled={disabledSubmitBtn}
+            onClick={handleSubmitProposal}
+          />
+        )}
       </FormButtonContainer>
     </SubmissionStyled>
   )
