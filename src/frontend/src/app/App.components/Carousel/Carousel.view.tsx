@@ -28,7 +28,7 @@ const Carousel = (props: Props) => {
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false)
 
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const showArrows = useMemo(() => compareValues(containerRef.current), [
+  const showGradient = useMemo(() => compareValues(containerRef.current), [
     containerRef.current?.offsetHeight,
     containerRef.current?.scrollWidth
   ])
@@ -67,19 +67,20 @@ const Carousel = (props: Props) => {
       <CarouselViewport ref={viewportRef}>
         <CarouselContainer ref={containerRef}>{children}</CarouselContainer>
       </CarouselViewport>
-      {showArrows ? (
-        <>
-          <CarouselButton className="button--prev" onClick={scrollPrev} disabled={!prevBtnEnabled}>
-            {arrowIcon}
-          </CarouselButton>
-          <CarouselButton className="button--next" onClick={scrollNext} disabled={!nextBtnEnabled}>
-            {arrowIcon}
-          </CarouselButton>
-        </>
-      ) : null}
 
-      <div className='gradient-left'></div>
-      <div className='gradient-right'></div>
+      <CarouselButton className="button--prev" onClick={scrollPrev} disabled={!prevBtnEnabled}>
+        {arrowIcon}
+      </CarouselButton>
+      <CarouselButton className="button--next" onClick={scrollNext} disabled={!nextBtnEnabled}>
+        {arrowIcon}
+      </CarouselButton>
+
+
+      {showGradient &&
+        <>
+          <div className='gradient-left'></div>
+          <div className='gradient-right'></div>
+        </>}
     </CarouselStyle>
   )
 }
