@@ -21,6 +21,7 @@ type VotingType = VotingProps & {
 
 export const VotingArea = ({
   showVotingButtons = true,
+  disableVotingButtons = false,
   handleVote,
   isVotingActive,
   quorumText,
@@ -33,9 +34,27 @@ export const VotingArea = ({
   const votingButtons = accountPkh ? (
     isSatellite && handleVote ? (
       <VotingButtonsContainer>
-        <Button text={'Vote YES'} onClick={() => handleVote('yay')} type={SUBMIT} kind={'votingFor'} />
-        <Button text={'Vote PASS'} onClick={() => handleVote('nay')} type={SUBMIT} kind={'votingAbstain'} />
-        <Button text={'Vote NO'} onClick={() => handleVote('pass')} type={SUBMIT} kind={'votingAgainst'} />
+        <Button
+          text={'Vote YES'}
+          onClick={() => handleVote('yay')}
+          type={SUBMIT}
+          kind={'votingFor'}
+          disabled={disableVotingButtons}
+        />
+        <Button
+          text={'Vote PASS'}
+          onClick={() => handleVote('nay')}
+          type={SUBMIT}
+          kind={'votingAbstain'}
+          disabled={disableVotingButtons}
+        />
+        <Button
+          text={'Vote NO'}
+          onClick={() => handleVote('pass')}
+          type={SUBMIT}
+          kind={'votingAgainst'}
+          disabled={disableVotingButtons}
+        />
       </VotingButtonsContainer>
     ) : null
   ) : (
@@ -56,6 +75,7 @@ type VotingProposalsType = VotingProposalsProps & {
 
 export const VotingProposalsArea = ({
   selectedProposal,
+  vote,
   handleProposalVote,
   voteStatistics,
   currentProposalStage: { isPastProposals, isTimeLock, isAbleToMakeProposalRoundVote, isVotingPeriod },
@@ -64,6 +84,7 @@ export const VotingProposalsArea = ({
 }: VotingProposalsType) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { isSatellite } = useSelector((state: State) => state.user)
+  console.log('vote', vote)
 
   if (isPastProposals) {
     return <VotingBar voteStatistics={voteStatistics} />
@@ -91,7 +112,14 @@ export const VotingProposalsArea = ({
   }
 
   if (isVotingPeriod && votingPhaseHandler) {
-    return <VotingArea voteStatistics={voteStatistics} isVotingActive={true} handleVote={votingPhaseHandler} />
+    return (
+      <VotingArea
+        voteStatistics={voteStatistics}
+        isVotingActive={true}
+        handleVote={votingPhaseHandler}
+        disableVotingButtons={vote?.round === 1}
+      />
+    )
   }
 
   if (isAbleToMakeProposalRoundVote) {
@@ -104,6 +132,7 @@ export const VotingProposalsArea = ({
             onClick={() => handleProposalVote(Number(selectedProposal.id))}
             type={SUBMIT}
             kind="actionPrimary"
+            disabled={vote?.round === 0}
           />
         </div>
       </VotingAreaStyled>
