@@ -615,9 +615,6 @@ block {
                 const image         : string  = registerAsSatelliteParams.image;
                 const website       : string  = registerAsSatelliteParams.website;
                 const satelliteFee  : nat     = registerAsSatelliteParams.satelliteFee;
-                
-                // const oraclePublicKey   : key     = registerAsSatelliteParams.oraclePublicKey;
-                // const oraclePeerId      : string  = registerAsSatelliteParams.oraclePeerId;
 
                 const oraclePublicKey : key  = case registerAsSatelliteParams.oraclePublicKey of [
                         Some(_key) -> _key
