@@ -21,7 +21,7 @@ export const CarouselStyle = styled.div`
     position: absolute;
     bottom: -20px;
     height: 240px;
-    width: 30px;
+    width: 10px;
     z-index: 1;
   }
 
@@ -74,8 +74,7 @@ export const CarouselButton = styled.button`
   }
 
   &:disabled {
-    cursor: default;
-    opacity: 0.3;
+    display: none;
   }
 
   &.button--prev {
