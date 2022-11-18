@@ -6,7 +6,7 @@ import type { InputStatusType } from '../../../app/App.components/Input/Input.co
 import { RequestPurposeMaxLength } from 'utils/TypesAndInterfaces/Council'
 
 // helpers
-import { validateFormField } from 'utils/validatorFunctions' 
+import { validateFormAddress, validateFormField } from 'utils/validatorFunctions' 
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -90,6 +90,7 @@ export const CouncilFormTransferTokens = ({ requestPurposeMaxLength }: RequestPu
   }
 
   const handleBlur = validateFormField(setFormInputStatus)
+  const handleBlurAddress = validateFormAddress(setFormInputStatus)
 
   const handleClickDropdown = useCallback(() => {
     setDdIsOpen(!ddIsOpen)
@@ -118,9 +119,9 @@ export const CouncilFormTransferTokens = ({ requestPurposeMaxLength }: RequestPu
             name="receiverAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlurAddress(e)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={handleBlurAddress}
             inputStatus={formInputStatus.receiverAddress}
           />
         </div>
@@ -136,9 +137,9 @@ export const CouncilFormTransferTokens = ({ requestPurposeMaxLength }: RequestPu
             name="tokenContractAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlurAddress(e)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={handleBlurAddress}
             inputStatus={formInputStatus.tokenContractAddress}
           />
         </div>

@@ -2,6 +2,7 @@ export type RequiresProperties = {
   isSatellite?: boolean
   isNotSatellite?: boolean
   isVestee?: boolean
+  isUnregisteredSatellite?: boolean
 }
 
 export interface SubNavigationRoute {

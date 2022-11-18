@@ -25,13 +25,13 @@ export const UserDataFeedCard = ({ feed }: { feed: FeedGQL }) => {
         </div>
 
         <div className="item">
-          <h5>Network (fix)</h5>
-          <var>{'network'}</var>
+          <h5>Network</h5>
+          <var>{feed.network || 'no network'}</var>
         </div>
 
         <div className="item">
-          <h5>Category (fix)</h5>
-          <var>{'category'}</var>
+          <h5>Category</h5>
+          <var>{feed.category || 'no category'}</var>
         </div>
 
         <div className="item">

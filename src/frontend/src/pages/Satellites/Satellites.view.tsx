@@ -37,12 +37,29 @@ type OraclesViewProps = {
   }
 }
 
-const EmptyContainer = () => (
-  <EmptyList>
-    <img src="/images/not-found.svg" alt="No Satellites & Data feeeds" />
-    <figcaption> No Satellites & Data feeeds to show</figcaption>
-  </EmptyList>
-)
+type EmptyContainerType = {
+  showSatellite: boolean
+  showFeeds: boolean
+}
+
+const EmptyContainer = ({ showSatellite, showFeeds }: EmptyContainerType) => {
+  const feedsMessage = 'No Data Feeds found'
+  const satelliteMessage = 'No Satellites found'
+  const generalMessage = 'No Satellites & Data Feeds found'
+
+  const showMessage = !showSatellite && !showFeeds
+    ? generalMessage
+    : !showSatellite 
+      ? satelliteMessage
+      : feedsMessage
+
+  return (
+    <EmptyList>
+      <img src="/images/not-found.svg" alt={`${showMessage}`} />
+      <figcaption>{showMessage}</figcaption>
+    </EmptyList>
+  )
+}
 
 const SatellitesView = ({
   isLoading,
@@ -51,6 +68,11 @@ const SatellitesView = ({
   dataFeedsData,
   delegateCallback,
 }: OraclesViewProps) => {
+  const isShowSatellites = Boolean(oracleSatellitesData.items.length)
+  const isShowFeeds = Boolean(dataFeedsData.items.length)
+
+  const satellites = oracleSatellitesData.items.slice(0, isShowFeeds ? 3 : 5)
+  const feeds = dataFeedsData.items.slice(0, isShowSatellites ? 5 : 10)
   return (
     <Page>
       <PageHeader page={'satellites'} />
@@ -73,50 +95,49 @@ const SatellitesView = ({
               tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
             />
           </InfoBlockWrapper>
+            {isShowSatellites ? (
+              <div className="oracle-list-wrapper">
+                <Link to="/satellite-nodes">
+                  <div className="see-all-link">
+                    See all Satellites
+                    <Icon id="arrow-left-stroke" />
+                  </div>
+                </Link>
+                <SatelliteList
+                  listTitle={'Top Satellites'}
+                  loading={isLoading}
+                  items={satellites}
+                  listType={'satellites'}
+                  name={SATELITES_TOP_LIST_NAME}
+                  additionaldata={oracleSatellitesData}
+                  pagination={false}
+                />
+              </div>
+            ) : null}
 
-          {oracleSatellitesData.items.length || dataFeedsData.items.length ? (
-            <>
-              {oracleSatellitesData.items.length ? (
-                <div className="oracle-list-wrapper">
-                  <Link to="/satellite-nodes">
-                    <div className="see-all-link">
-                      See all Satellites
-                      <Icon id="arrow-left-stroke" />
-                    </div>
-                  </Link>
-                  <SatelliteList
-                    listTitle={'Top Satellites'}
-                    loading={isLoading}
-                    items={oracleSatellitesData.items}
-                    listType={'satellites'}
-                    name={SATELITES_TOP_LIST_NAME}
-                    additionaldata={oracleSatellitesData}
-                  />
-                </div>
-              ) : null}
+            {isShowFeeds ? (
+              <div className="oracle-list-wrapper">
+                <Link to="/data-feeds">
+                  <div className="see-all-link">
+                    See all Data Feeds
+                    <Icon id="arrow-left-stroke" />
+                  </div>
+                </Link>
+                <SatelliteListStyled
+                  listTitle={'Popular Feeds'}
+                  loading={isLoading}
+                  items={feeds}
+                  listType={'feeds'}
+                  name={FEEDS_TOP_LIST_NAME}
+                  onClickHandler={delegateCallback}
+                  pagination={false}
+                />
+              </div>
+            ) : null}
 
-              {dataFeedsData.items.length ? (
-                <div className="oracle-list-wrapper">
-                  <Link to="/data-feeds">
-                    <div className="see-all-link">
-                      See all Data Feeds
-                      <Icon id="arrow-left-stroke" />
-                    </div>
-                  </Link>
-                  <SatelliteListStyled
-                    listTitle={'Popular Feeds'}
-                    loading={isLoading}
-                    items={dataFeedsData.items}
-                    listType={'feeds'}
-                    name={FEEDS_TOP_LIST_NAME}
-                    onClickHandler={delegateCallback}
-                  />
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <EmptyContainer />
-          )}
+            {(!isShowSatellites || !isShowFeeds) && (
+              <EmptyContainer showSatellite={isShowSatellites} showFeeds={isShowFeeds} />
+            )}
         </div>
         <SatellitesSideBar />
       </PageContent>
