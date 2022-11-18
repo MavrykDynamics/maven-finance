@@ -502,7 +502,7 @@ export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState:
     })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
     console.log('contract', contract)
-    const transaction = await contract?.methods.pauseAllEntrypoints().send()
+    const transaction = await contract?.methods.propagateBreakGlass().send()
     console.log('transaction', transaction)
 
     dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
