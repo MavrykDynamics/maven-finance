@@ -264,8 +264,6 @@ block {
 function lambdaUpdateOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
-    checkSenderIsAdminOrGovernanceSatellite(s);  
-
     case aggregatorLambdaAction of [
         |   LambdaUpdateOracle(_parameters) -> {
                 
