@@ -78,7 +78,7 @@ const Carousel = (props: Props) => {
 
       {showGradient &&
         <>
-          <div className='gradient-left'></div>
+          {prevBtnEnabled && <div className='gradient-left'></div>}
           <div className='gradient-right'></div>
         </>}
     </CarouselStyle>
