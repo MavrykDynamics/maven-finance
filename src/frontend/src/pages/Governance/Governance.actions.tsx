@@ -97,6 +97,7 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: AppDis
 
     await dispatch(showToaster(SUCCESS, 'Voting done', 'All good :)'))
     await dispatch(getGovernanceStorage())
+    await dispatch(getCurrentRoundProposals())
     await dispatch(toggleLoader())
   } catch (error) {
     console.error('proposalRoundVote error: ', error)
@@ -131,6 +132,7 @@ export const votingRoundVote = (vote: string) => async (dispatch: AppDispatch, g
 
     await dispatch(showToaster(SUCCESS, 'Voting done', 'All good :)'))
     await dispatch(getGovernanceStorage())
+    await dispatch(getCurrentRoundProposals())
     await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
@@ -165,6 +167,7 @@ export const startProposalRound = () => async (dispatch: AppDispatch, getState: 
 
     await dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
     await dispatch(getGovernanceStorage())
+    await dispatch(getCurrentRoundProposals())
     await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
@@ -199,6 +202,7 @@ export const startVotingRound = () => async (dispatch: AppDispatch, getState: Ge
 
     await dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
     await dispatch(getGovernanceStorage())
+    await dispatch(getCurrentRoundProposals())
     await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {

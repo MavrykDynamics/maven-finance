@@ -84,7 +84,6 @@ export const VotingProposalsArea = ({
 }: VotingProposalsType) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { isSatellite } = useSelector((state: State) => state.user)
-  console.log('vote', vote)
 
   if (isPastProposals) {
     return <VotingBar voteStatistics={voteStatistics} />
