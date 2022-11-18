@@ -85,29 +85,8 @@ export const VotingProposalsArea = ({
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { isSatellite } = useSelector((state: State) => state.user)
 
-  if (isPastProposals) {
+  if (isPastProposals || isTimeLock) {
     return <VotingBar voteStatistics={voteStatistics} />
-  }
-
-  if (!accountPkh) {
-    return (
-      <VotingAreaStyled className={className}>
-        <div className="voted-block">
-          <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
-          <ConnectWallet />
-        </div>
-      </VotingAreaStyled>
-    )
-  }
-
-  if (isTimeLock && !isSatellite && accountPkh) {
-    return (
-      <VotingAreaStyled className={className}>
-        <div className="voted-block">
-          <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
-        </div>
-      </VotingAreaStyled>
-    )
   }
 
   if (isVotingPeriod && votingPhaseHandler) {
@@ -126,13 +105,17 @@ export const VotingProposalsArea = ({
       <VotingAreaStyled className={className}>
         <div className="voted-block">
           <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
-          <Button
-            text={'Vote for this Proposal'}
-            onClick={() => handleProposalVote(Number(selectedProposal.id))}
-            type={SUBMIT}
-            kind="actionPrimary"
-            disabled={vote?.round === 0}
-          />
+          {accountPkh ? (
+            <Button
+              text={'Vote for this Proposal'}
+              onClick={() => handleProposalVote(Number(selectedProposal.id))}
+              type={SUBMIT}
+              kind="actionPrimary"
+              disabled={vote?.round === 0 || !isSatellite}
+            />
+          ) : (
+            <ConnectWallet />
+          )}
         </div>
       </VotingAreaStyled>
     )
