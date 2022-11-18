@@ -213,7 +213,7 @@ block {
                         |   Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
                         |   Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
-                  } with(transferTokenOperation # operationList);
+                  } with (transferTokenOperation # operationList);
                 
                 operations  := List.fold_right(transferOperationFold, destinationParams, operations)
                 
@@ -252,24 +252,16 @@ block{
     case farmLambdaAction of [
         |   LambdaInitFarm(initFarmParams) -> {
                 
-                // Check if farm is already open
-                if s.open or s.init then failwith(error_FARM_ALREADY_OPEN) else skip;
+                // Verify that farm is not open
+                verifyFarmIsNotOpen(s);
 
-                // Check whether the farm is infinite or if its total blocks has been set
-                if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
+                // Verify that farm reward blocks has been set (or is an infinite farm)
+                verifyFarmRewardBlocks(initFarmParams);
                 
                 // Update Farm Storage and init Farm
-                s                                               := updateFarm(s);
-                s.initBlock                                     := Tezos.get_level();
-                s.config.infinite                               := initFarmParams.infinite;
-                s.config.forceRewardFromTransfer                := initFarmParams.forceRewardFromTransfer;
-                s.config.plannedRewards.currentRewardPerBlock   := initFarmParams.currentRewardPerBlock;
-                s.config.plannedRewards.totalBlocks             := initFarmParams.totalBlocks;
-                s.config.plannedRewards.totalRewards            := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
-                s.minBlockTimeSnapshot                          := 15n;
-                s.open                                          := True ;
-                s.init                                          := True ;
-
+                s := updateFarm(s);
+                s := _initFarm(initFarmParams, s);
+                
             }
         |   _ -> skip
     ];
@@ -453,15 +445,10 @@ block{
                 const depositor : depositorType = Tezos.get_sender();
 
                 // Check if sender is an existing depositor
-                const existingDepositor : bool = Big_map.mem(depositor, s.depositorLedger);
+                const existingDepositor : bool = checkDepositorExists(depositor, s);
 
                 // Prepare new depositor record
-                var depositorRecord : depositorRecordType := record[
-                    balance                     =0n;
-                    participationRewardsPerShare    =s.accumulatedRewardsPerShare;
-                    unclaimedRewards            =0n;
-                    claimedRewards              =0n;
-                ];
+                var depositorRecord : depositorRecordType := createDepositorRecord(s);
 
                 // Get depositor deposit and perform a claim
                 if existingDepositor then {
@@ -470,10 +457,7 @@ block{
                     s := updateUnclaimedRewards(depositor, s);
 
                     // Refresh depositor deposit with updated unclaimed rewards
-                    depositorRecord :=  case getDepositorDeposit(depositor, s) of [
-                            Some (_depositor)   -> _depositor
-                        |   None                -> failwith(error_DEPOSITOR_NOT_FOUND)
-                    ];
+                    depositorRecord := getDepositorRecord(depositor, s);
                     
                 }
                 else skip;
@@ -483,19 +467,17 @@ block{
 
                 // Update depositor ledger and farmTokenBalance
                 s.config.lpToken.tokenBalance := s.config.lpToken.tokenBalance + tokenAmount;
-                s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
+                s.depositorLedger[depositor] := depositorRecord;
 
                 // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-                const transferOperation : operation = transferLP(
+                const transferFarmLpTokenOperation : operation = transferFarmLpTokenOperation(
                     depositor,                      // from_
                     Tezos.get_self_address(),       // to_
                     tokenAmount,                    // tokenAmount
-                    s.config.lpToken.tokenId,       // tokenId
-                    s.config.lpToken.tokenStandard, // tokenStandard (i.e. FA2 or FA12)
-                    s.config.lpToken.tokenAddress   // tokenContractAddress
+                    s                               // storage
                 );
 
-                operations := transferOperation # operations;
+                operations := transferFarmLpTokenOperation # operations;
 
             }
         |   _ -> skip
@@ -540,31 +522,30 @@ block{
                 s := updateUnclaimedRewards(depositor, s);
 
                 // Get depositor record
-                var depositorRecord : depositorRecordType := case getDepositorDeposit(depositor, s) of [
-                        Some (d)    -> d
-                    |   None        -> failwith(error_DEPOSITOR_NOT_FOUND)
-                ];
+                var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
-                // Check if the depositor has enough tokens to withdraw
-                if tokenAmount > depositorRecord.balance then failwith(error_WITHDRAWN_AMOUNT_TOO_HIGH) else skip;
+                // Verify that depositor has sufficient balance to withdraw tokens
+                verifySufficientBalance(tokenAmount, depositorRecord.balance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
+
+                // Update depositor record with new balance
                 depositorRecord.balance := abs(depositorRecord.balance - tokenAmount);
-                s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
+                s.depositorLedger[depositor] := depositorRecord;
 
-                // Check if the farm has enough tokens for withdrawal
-                if tokenAmount > s.config.lpToken.tokenBalance then failwith(error_WITHDRAWN_AMOUNT_TOO_HIGH) else skip;
+                // Verify that the farm has enough tokens for withdrawal
+                verifySufficientBalance(tokenAmount, s.config.lpToken.tokenBalance, error_WITHDRAWN_AMOUNT_TOO_HIGH);
+
+                // Update farm token balance
                 s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - tokenAmount);
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
-                const transferOperation : operation = transferLP(
+                const transferFarmLpTokenOperation : operation = transferFarmLpTokenOperation(
                     Tezos.get_self_address(),       // from_
                     depositor,                      // to_
                     tokenAmount,                    // tokenAmount
-                    s.config.lpToken.tokenId,       // tokenId
-                    s.config.lpToken.tokenStandard, // tokenStandard (i.e. FA2 or FA12)
-                    s.config.lpToken.tokenAddress   // tokenContractAddress
+                    s                               // storage
                 );
 
-                operations := transferOperation # operations;
+                operations := transferFarmLpTokenOperation # operations;
 
             }
         |   _ -> skip
@@ -608,23 +589,20 @@ block{
                 s := updateUnclaimedRewards(depositor, s);
 
                 // Check if sender is an existing depositor
-                var depositorRecord : depositorRecordType := case getDepositorDeposit(depositor, s) of [
-                        Some (r)        -> r
-                    |   None            -> (failwith(error_DEPOSITOR_NOT_FOUND) : depositorRecordType)
-                ];
+                var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
                 // Get depositor's unclaimed rewards
                 const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
 
-                // Check that user has more than 0 rewards to claim
-                if unclaimedRewards = 0n then failwith(error_NO_FARM_REWARDS_TO_CLAIM) else skip;
+                // Verify that user has more than 0 rewards to claim
+                verifyUnclaimedRewardsExist(unclaimedRewards);
 
                 // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
                 depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
                 depositorRecord.unclaimedRewards    := 0n;
 
                 // Update storage with new depositor record
-                s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
+                s.depositorLedger[depositor] := depositorRecord;
 
                 // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
                 const transferRewardOperation : operation = transferReward(depositor, unclaimedRewards, s);
