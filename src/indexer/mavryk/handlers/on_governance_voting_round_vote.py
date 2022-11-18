@@ -17,8 +17,6 @@ async def on_governance_voting_round_vote(
     voter_address               = voting_round_vote.data.sender_address
     current_round               = models.GovernanceRoundType.VOTING
     vote_type                   = voting_round_vote.parameter.vote
-    proposal_vote_count         = int(storage_proposal.passVoteCount)
-    proposal_vote_smvk_total    = float(storage_proposal.passVoteStakedMvkTotal)
     yay_vote_count              = int(storage_proposal.yayVoteCount)
     yay_vote_smvk_total         = float(storage_proposal.yayVoteStakedMvkTotal)
     nay_vote_count              = int(storage_proposal.nayVoteCount)
@@ -65,8 +63,6 @@ async def on_governance_voting_round_vote(
         id          = proposal_id,
         governance  = governance
     )
-    proposal.proposal_vote_count            = proposal_vote_count
-    proposal.proposal_vote_smvk_total       = proposal_vote_smvk_total
     proposal.yay_vote_count                 = yay_vote_count
     proposal.yay_vote_smvk_total            = yay_vote_smvk_total
     proposal.nay_vote_count                 = nay_vote_count
