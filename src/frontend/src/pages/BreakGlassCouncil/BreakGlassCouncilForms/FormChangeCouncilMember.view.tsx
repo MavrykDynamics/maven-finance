@@ -22,7 +22,7 @@ import { changeCouncilMember } from '../BreakGlassCouncil.actions'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
-import { validateFormField } from 'utils/validatorFunctions' 
+import { validateFormAddress, validateFormField } from 'utils/validatorFunctions' 
 
 type Props = {
   councilMemberMaxLength: CouncilMemberMaxLength
@@ -100,6 +100,7 @@ export function FormChangeCouncilMemberView({ councilMemberMaxLength }: Props) {
   }
 
   const handleBlur = validateFormField(setFormInputStatus)
+  const handleBlurAddress = validateFormAddress(setFormInputStatus)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -144,9 +145,9 @@ export function FormChangeCouncilMemberView({ councilMemberMaxLength }: Props) {
               name="newCouncilMemberAddress"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleChange(e)
-                handleBlur(e)
+                handleBlurAddress(e)
               }}
-              onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+              onBlur={handleBlurAddress}
               inputStatus={formInputStatus.newCouncilMemberAddress}
             />
           </div>

@@ -69,7 +69,7 @@ const Satellites = () => {
         delegateCallback,
         undelegateCallback,
       }}
-      dataFeedsData={{ items: oraclesStorage.feeds.slice(0, 5) }}
+      dataFeedsData={{ items: oraclesStorage.feeds }}
     />
   )
 }

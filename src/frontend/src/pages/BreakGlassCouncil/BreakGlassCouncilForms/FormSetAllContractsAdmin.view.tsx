@@ -15,6 +15,9 @@ import { FormStyled } from './BreakGlassCouncilForm.style'
 // actions
 import { setAllContractsAdmin } from '../BreakGlassCouncil.actions'
 
+// helpers
+import { validateFormAddress } from 'utils/validatorFunctions' 
+
 const INIT_FORM = {
   newAdminAddress: '',
 }
@@ -49,11 +52,7 @@ export function FormSetAllContractsAdminView() {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlurAddress = validateFormAddress(setFormInputStatus)
 
   return (
     <FormStyled>
@@ -71,9 +70,9 @@ export function FormSetAllContractsAdminView() {
             name="newAdminAddress"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(e)
-              handleBlur(e)
+              handleBlurAddress(e)
             }}
-            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+            onBlur={handleBlurAddress}
             inputStatus={formInputStatus.newAdminAddress}
           />
         </div>

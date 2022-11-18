@@ -64,7 +64,7 @@ const getPastActionsList = (list: GovernanceSatelliteActionGraphQL[]): Governanc
   return list?.filter((item) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
-    return expirationDatetime < timeNow || item.status === 0
+    return expirationDatetime < timeNow
   })
 }
 
@@ -75,6 +75,7 @@ export const SatelliteGovernance = () => {
     delegationStorage: { satelliteLedger, activeSatellites, oraclesAmount },
   } = useSelector((state: State) => state.delegation)
   const { governanceSatelliteStorage } = useSelector((state: State) => state.governance)
+  const { oraclesStorage: { feedsFactory } } = useSelector((state: State) => state.oracles)
 
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, activeSatellites)
@@ -92,6 +93,7 @@ export const SatelliteGovernance = () => {
   const [tabsList, setTabsList] = useState<TabItem[]>([])
   const maxLength = {
     purposeMaxLength: governanceSatelliteStorage.governance_satellite[0]?.gov_purpose_max_length,
+    aggregatorNameMaxLength: feedsFactory[0]?.aggregator_name_max_length,
   }
 
   useEffect(() => {
@@ -244,9 +246,9 @@ export const SatelliteGovernance = () => {
               />
             </DropdownWrap>
             {chosenDdItem?.value === 'registerAggregator' ? (
-              <RegisterAggregatorForm />
+              <RegisterAggregatorForm maxLength={maxLength} />
             ) : chosenDdItem?.value === 'fixMistakenTransfer' ? (
-              <FixMistakenTransferForm />
+              <FixMistakenTransferForm maxLength={maxLength} />
             ) : (
               <SatelliteGovernanceForm maxLength={maxLength} variant={chosenDdItem?.value || ''} />
             )}

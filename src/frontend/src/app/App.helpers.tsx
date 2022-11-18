@@ -62,21 +62,33 @@ export function normalizeOracle(storage: {
 }) {
   const dataFeedUniqueCategories = new Set()
 
-  const getFeedCategory = (address: string) => {
+  const getCategoryAndNetwork = (address: string) => {
     const findedItem= storage?.dipdup_contract_metadata
-      .find((element) => element.contract === address)?.metadata as { category?: string } | undefined
-    const category = findedItem?.category
+      .find((element) => element.contract === address) as
+        { metadata?: { category?: string }, network?: string } | undefined
 
-    if (!category) return null
+    const category = findedItem?.metadata?.category
+    const network = findedItem?.network || null
+
+    if (!category) {
+      return {
+        category: null,
+        network,
+      }
+    }
 
     dataFeedUniqueCategories.add(category)
-    return findedItem.category || null
+
+    return {
+      category,
+      network,
+    }
   }
 
   const feeds = storage?.aggregator.map((item) => {
     return {
       ...item,
-      category: getFeedCategory(item.address),
+      ...getCategoryAndNetwork(item.address),
     }
   })
 

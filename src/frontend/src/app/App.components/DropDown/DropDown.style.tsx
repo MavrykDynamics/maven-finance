@@ -58,6 +58,7 @@ export const DropDownListContainer = styled.div`
   width: 100%;
   top: 36px;
   left: 0;
+  z-index: 11;
 `
 
 export const DropDownList = styled.ul<{ theme: MavrykTheme }>`
