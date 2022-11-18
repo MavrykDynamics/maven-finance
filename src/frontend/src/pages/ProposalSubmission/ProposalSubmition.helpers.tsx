@@ -227,6 +227,7 @@ export const DEFAULT_PROPOSAL: CurrentRoundProposalsStorageType[number] = {
   currentCycleEndLevel: 0,
   cycle: 0,
   proposalData: [],
+  votes: [],
   proposalPayments: [],
   governanceId: '',
   paymentProcessed: false,

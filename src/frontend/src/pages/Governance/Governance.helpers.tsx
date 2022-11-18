@@ -229,6 +229,7 @@ export const normalizeProposal = (item: GovernanceProposalGraphQL, dipDupTokens?
     currentCycleStartLevel: item.current_cycle_start_level,
     currentCycleEndLevel: item.current_cycle_end_level,
     cycle: item.cycle,
+    votes: item.votes,
     proposalData: item.data.map((byte, idx) => ({
       ...byte,
       order: idx,

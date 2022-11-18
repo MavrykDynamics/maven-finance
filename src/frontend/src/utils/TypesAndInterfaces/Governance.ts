@@ -39,6 +39,12 @@ export enum ProposalStatus {
   TIMELOCK = 'TIMELOCK',
 }
 
+export enum GovPhases {
+  PROPOSAL = 'PROPOSAL',
+  VOTING = 'VOTING',
+  TIMELOCK = 'TIMELOCK',
+}
+
 export interface GovernanceConfig {
   successReward: number
   minQuorumPercentage: number

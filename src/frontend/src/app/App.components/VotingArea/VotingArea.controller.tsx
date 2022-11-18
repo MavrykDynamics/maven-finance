@@ -21,6 +21,7 @@ type VotingType = VotingProps & {
 
 export const VotingArea = ({
   showVotingButtons = true,
+  disableVotingButtons = false,
   handleVote,
   isVotingActive,
   quorumText,
@@ -33,9 +34,27 @@ export const VotingArea = ({
   const votingButtons = accountPkh ? (
     isSatellite && handleVote ? (
       <VotingButtonsContainer>
-        <Button text={'Vote YES'} onClick={() => handleVote('yay')} type={SUBMIT} kind={'votingFor'} />
-        <Button text={'Vote PASS'} onClick={() => handleVote('nay')} type={SUBMIT} kind={'votingAbstain'} />
-        <Button text={'Vote NO'} onClick={() => handleVote('pass')} type={SUBMIT} kind={'votingAgainst'} />
+        <Button
+          text={'Vote YES'}
+          onClick={() => handleVote('yay')}
+          type={SUBMIT}
+          kind={'votingFor'}
+          disabled={disableVotingButtons}
+        />
+        <Button
+          text={'Vote PASS'}
+          onClick={() => handleVote('nay')}
+          type={SUBMIT}
+          kind={'votingAbstain'}
+          disabled={disableVotingButtons}
+        />
+        <Button
+          text={'Vote NO'}
+          onClick={() => handleVote('pass')}
+          type={SUBMIT}
+          kind={'votingAgainst'}
+          disabled={disableVotingButtons}
+        />
       </VotingButtonsContainer>
     ) : null
   ) : (
@@ -56,6 +75,7 @@ type VotingProposalsType = VotingProposalsProps & {
 
 export const VotingProposalsArea = ({
   selectedProposal,
+  vote,
   handleProposalVote,
   voteStatistics,
   currentProposalStage: { isPastProposals, isTimeLock, isAbleToMakeProposalRoundVote, isVotingPeriod },
@@ -65,33 +85,19 @@ export const VotingProposalsArea = ({
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { isSatellite } = useSelector((state: State) => state.user)
 
-  if (isPastProposals) {
+  if (isPastProposals || isTimeLock) {
     return <VotingBar voteStatistics={voteStatistics} />
   }
 
-  if (!accountPkh) {
-    return (
-      <VotingAreaStyled className={className}>
-        <div className="voted-block">
-          <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
-          <ConnectWallet />
-        </div>
-      </VotingAreaStyled>
-    )
-  }
-
-  if (isTimeLock && !isSatellite && accountPkh) {
-    return (
-      <VotingAreaStyled className={className}>
-        <div className="voted-block">
-          <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
-        </div>
-      </VotingAreaStyled>
-    )
-  }
-
   if (isVotingPeriod && votingPhaseHandler) {
-    return <VotingArea voteStatistics={voteStatistics} isVotingActive={true} handleVote={votingPhaseHandler} />
+    return (
+      <VotingArea
+        voteStatistics={voteStatistics}
+        isVotingActive={true}
+        handleVote={votingPhaseHandler}
+        disableVotingButtons={vote?.round === 1}
+      />
+    )
   }
 
   if (isAbleToMakeProposalRoundVote) {
@@ -99,12 +105,17 @@ export const VotingProposalsArea = ({
       <VotingAreaStyled className={className}>
         <div className="voted-block">
           <CommaNumber className="voted-label" value={voteStatistics.forVotesMVKTotal} endingText={'voted MVK'} />
-          <Button
-            text={'Vote for this Proposal'}
-            onClick={() => handleProposalVote(Number(selectedProposal.id))}
-            type={SUBMIT}
-            kind="actionPrimary"
-          />
+          {accountPkh ? (
+            <Button
+              text={'Vote for this Proposal'}
+              onClick={() => handleProposalVote(Number(selectedProposal.id))}
+              type={SUBMIT}
+              kind="actionPrimary"
+              disabled={vote?.round === 0 || !isSatellite}
+            />
+          ) : (
+            <ConnectWallet />
+          )}
         </div>
       </VotingAreaStyled>
     )
