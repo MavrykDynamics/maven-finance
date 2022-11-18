@@ -8,6 +8,7 @@ import {
   ProposalRecordType,
   ProposalStatus,
   CurrentRoundProposalsStorageType,
+  GovPhases,
 } from '../../utils/TypesAndInterfaces/Governance'
 import type { Governance_Proposal_Payment, Maybe } from '../../utils/generated/graphqlTypes'
 import { VoteStatistics } from 'app/App.components/VotingArea/helpers/voting'
@@ -397,7 +398,10 @@ export const GovernanceView = ({
               votingPhaseHandler={handleVotingRoundVote}
               handleProposalVote={handleProposalRoundVote}
               selectedProposal={rightSideContent}
-              vote={rightSideContent.votes.find(({ voter_id }) => voter_id === accountPkh)}
+              vote={rightSideContent.votes.find(
+                ({ voter_id, round }) =>
+                  voter_id === accountPkh && round === (governancePhase === GovPhases.PROPOSAL ? 0 : 1),
+              )}
             />
 
             {isExecuteProposal ? (
