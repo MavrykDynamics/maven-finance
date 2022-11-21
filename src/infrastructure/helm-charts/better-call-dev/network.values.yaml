@@ -1,0 +1,22 @@
+bcdHub:
+  image:
+    registry: docker.io
+    pullPolicy: Always
+    pullSecret: docker-pull-credentials
+    db:
+      repository: postgres
+      tag: '14'
+    api:
+      repository: tezosdynamics/bcdhub-api
+      tag: v4.3.0
+    indexer:
+      repository: tezosdynamics/bcdhub-indexer
+      tag: v4.3.0
+
+bcd:
+  image:
+    registry: docker.io
+    pullPolicy: Always
+    pullSecret: docker-pull-credentials
+    repository: tezosdynamics/bcd
+    tag: 'v4.3.2'
