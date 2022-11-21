@@ -122,8 +122,8 @@ block {
 
 
 
-// Verify that farm has proper reward block settings
-function verifyFarmRewardBlocks(const initFarmParams : initFarmParamsType) : unit is
+// Validate that farm has proper reward block settings (reward blocks is non-zero or farm is infinite)
+function validateFarmRewardBlocks(const initFarmParams : initFarmParamsType) : unit is
 block {
     
     if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;

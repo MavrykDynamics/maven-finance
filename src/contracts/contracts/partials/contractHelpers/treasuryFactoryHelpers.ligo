@@ -93,10 +93,6 @@ function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : 
             |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
         ];
 
-
-
-
-
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
