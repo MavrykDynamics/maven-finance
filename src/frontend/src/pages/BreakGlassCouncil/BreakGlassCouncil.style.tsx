@@ -1,7 +1,11 @@
 import styled from 'styled-components/macro'
 import { Page as PageBase, Card, textsColor, headerColor, skyColor } from 'styles'
-import ModalPopupBase from '../../app/App.components/Modal/ModalPopup.view'
 
+// components
+import ModalPopupBase from '../../app/App.components/Modal/ModalPopup.view'
+import { TabSwitcher as TabSwitcherBase } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
+
+// types
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const Page = styled(PageBase)`
@@ -139,4 +143,9 @@ export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
 
 export const ModalPopup = styled(ModalPopupBase)`
   padding: 0;
+`
+
+export const TabSwitcher = styled(TabSwitcherBase)`
+  margin: 30px 0;
+  width: 300px;
 `
