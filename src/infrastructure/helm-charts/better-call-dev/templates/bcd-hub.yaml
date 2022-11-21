@@ -1,0 +1,151 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bcd-hub-headless
+  namespace: '{{ .Release.Namespace }}'
+spec:
+  clusterIP: None
+  selector:
+    app: bcd-hub
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+      name: db
+    - protocol: TCP
+      port: 80
+      targetPort: 14000
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bcd-hub
+  namespace: '{{ .Release.Namespace }}'
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+spec:
+  tls:
+    - hosts:
+        - api-better-call.mavryk.io
+      secretName: api-better-call-tls
+  rules:
+    - host: api-better-call.mavryk.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bcd-hub-headless
+                port:
+                  name: http
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bcd-hub
+  namespace: '{{ .Release.Namespace }}'
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bcd-hub
+  serviceName: 'bcd-hub-headless'
+  template:
+    metadata:
+      labels:
+        app: bcd-hub
+    spec:
+      imagePullSecrets:
+        - name: '{{ .Values.bcdHub.image.pullSecret }}'
+      containers:
+        - name: db
+          image: '{{ .Values.bcdHub.image.registry }}/{{ .Values.bcdHub.image.db.repository }}:{{ .Values.bcdHub.image.db.tag }}'
+          env:
+            - name: POSTGRES_USER
+              value: root
+            - name: POSTGRES_PASSWORD
+              value: root
+            - name: POSTGRES_DB
+              value: bcd
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: bcd-hub-db
+              mountPath: /var/lib/postgresql/data
+              subPath: data
+        - name: api
+          image: '{{ .Values.bcdHub.image.registry }}/{{ .Values.bcdHub.image.api.repository }}:{{ .Values.bcdHub.image.api.tag }}'
+          env:
+            - name: BCD_ENV
+              value: sandbox
+            - name: GIN_MODE
+              value: debug
+            - name: POSTGRES_USER
+              value: root
+            - name: POSTGRES_PASSWORD
+              value: root
+            - name: POSTGRES_DB
+              value: bcd
+            - name: DB_HOSTNAME
+              value: localhost
+            - name: SANDBOX_NODE_URI
+              value: https://basenet-baking-archive-node.mavryk.network
+            - name: SANDBOX_IPFS_GATEWAY
+              value: https://cloudflare-ipfs.com
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 14000
+          volumeMounts:
+            - name: bcd-shared
+              mountPath: /etc/bcd
+              subPath: bcd
+        - name: indexer
+          image: '{{ .Values.bcdHub.image.registry }}/{{ .Values.bcdHub.image.indexer.repository }}:{{ .Values.bcdHub.image.indexer.tag }}'
+          env:
+            - name: BCD_ENV
+              value: sandbox
+            - name: GIN_MODE
+              value: debug
+            - name: POSTGRES_USER
+              value: root
+            - name: POSTGRES_PASSWORD
+              value: root
+            - name: POSTGRES_DB
+              value: bcd
+            - name: DB_HOSTNAME
+              value: localhost
+            - name: SANDBOX_NODE_URI
+              value: https://basenet-baking-archive-node.mavryk.network
+            - name: SANDBOX_IPFS_GATEWAY
+              value: https://cloudflare-ipfs.com
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: bcd-shared
+              mountPath: /etc/bcd
+              subPath: bcd
+      volumes:
+        - emptyDir: {}
+          name: bcd-shared
+  volumeClaimTemplates:
+    - metadata:
+        name: bcd-hub-db
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
