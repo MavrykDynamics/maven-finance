@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bcd
+  namespace: '{{ .Release.Namespace }}'
+spec:
+  clusterIP: None
+  selector:
+    app: bcd
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bcd
+  namespace: '{{ .Release.Namespace }}'
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+spec:
+  tls:
+    - hosts:
+        - better-call.mavryk.io
+      secretName: better-call-tls
+  rules:
+    - host: better-call.mavryk.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bcd
+                port:
+                  name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bcd
+  namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: bcd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bcd
+  template:
+    metadata:
+      labels:
+        app: bcd
+    spec:
+      imagePullSecrets:
+        - name: '{{ .Values.bcdHub.image.pullSecret }}'
+      containers:
+        - name: frontend
+          env:
+            - name: NODE_ENV
+              value: sandbox
+            - name: BASE_URL
+              value: https://better-call.mavryk.io/
+            - name: VUE_APP_API_URI
+              value: https://api-better-call.mavryk.io/v1
+            - name: VUE_APP_SEARCH_SERVICE_URI
+              value: https://search.dipdup.net
+            - name: VUE_APP_TOKEN_METADATA_API
+              value: https://metadata.dipdup.net
+            - name: VUE_APP_METADATA_API_URI
+              value: https://metadata.dipdup.net
+            - name: VUE_APP_MAINNET_STATS_API_URI
+              value: https://stats.dipdup.net
+            - name: VUE_APP_GHOSTNET_STATS_API_URI
+              value: https://stats-ghostnet.dipdup.net
+            - name: VUE_APP_TESTNET_STATS_API_URI
+              value: https://stats-jakartanet.dipdup.net
+            - name: VUE_APP_KATHMANDU_STATS_API_URI
+              value: https://stats-kathmandu.dipdup.net
+            - name: VUE_APP_IPFS_NODE
+              value: https://ipfs.io
+          image: '{{ .Values.bcd.image.registry }}/{{ .Values.bcd.image.repository }}:{{ .Values.bcd.image.tag }}'
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080

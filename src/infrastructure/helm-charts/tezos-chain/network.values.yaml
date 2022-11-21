@@ -23,7 +23,7 @@ tezos-faucet:
           profile: BAKER
           amount: 6001
     network:
-      name: Basenet #Jakartanet
+      name: Kathmandunet #Jakartanet
       rpcUrl: https://basenet-baking-full-node.mavryk.network/ #https://jakartanet.tezos.marigold.dev/
       faucetAddress: tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
       viewer: https://kathmandu.tzstats.com
