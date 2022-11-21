@@ -71,6 +71,7 @@ export const dark = {
   topBarLinkColor: cyanColor,
   topBarLinkColorActive: '#8D86EB',
   lPurple_dPurple_lPuprple:'#8D86EB',
+  dPurple_container_dPurple: darkPurpleColor
 }
 
 export const light = {
@@ -88,6 +89,7 @@ export const light = {
   connectInfoColor: whiteColor,
   actionPrimaryBtnColor: royalPurpleColor,
   stakedColor: darkColor,
+  dashboardTextColor: textColor,
 
   borderColor: '#4F457C',
   textColor: '#29264C',
@@ -114,6 +116,7 @@ export const light = {
   topBarLinkColor: '#27007A',
   topBarLinkColorActive: '#77A4F2',
   lPurple_dPurple_lPuprple:'#27007A',
+  dPurple_container_dPurple: containerColor
 }
 
 export const space = dark
