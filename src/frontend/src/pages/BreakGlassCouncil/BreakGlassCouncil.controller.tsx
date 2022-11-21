@@ -16,6 +16,7 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
 import { BreakGlassCouncilPanding } from './BreakGlassCouncilPanding/BreakGlassCouncilPanding.controller'
+import { TabItem, TabSwitcher } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
@@ -54,6 +55,19 @@ const queryParameters = {
   pathname: '/break-glass-council',
   review: '/review',
 }
+
+const tabsList: TabItem[] = [
+  {
+    text: 'My Ongoing Actions',
+    id: 1,
+    active: true,
+  },
+  {
+    text: 'My Past Actions',
+    id: 2,
+    active: false,
+  },
+]
 
 export function BreakGlassCouncil() {
   const dispatch = useDispatch()
@@ -141,6 +155,10 @@ export function BreakGlassCouncil() {
 
   const handleClickPropagateBreakGlass = () => {
     dispatch(propagateBreakGlass())
+  }
+
+  const handleChangeTabs = (tabId?: number) => {
+    // setActiveTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
   }
 
   useEffect(() => {
@@ -262,6 +280,7 @@ export function BreakGlassCouncil() {
               {Boolean(myPastBreakGlassCouncilAction.length) && (
                 <>
                   <h1>My Past Council Actions</h1>
+                  <TabSwitcher tabItems={tabsList} onClick={handleChangeTabs} />
                   {paginatedMyPastCouncilActions.map((item) => (
                     <CouncilPastActionView
                       execution_datetime={String(item.executionDatetime)}
