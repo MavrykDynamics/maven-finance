@@ -54,7 +54,7 @@ block {
                 const metadataKey   : string = updateMetadataParams.metadataKey;
                 const metadataHash  : bytes  = updateMetadataParams.metadataHash;
                 
-                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+                s.metadata[metadataKey] := metadataHash;
             }
         |   _ -> skip
     ];
@@ -185,38 +185,12 @@ block {
     case doormanLambdaAction of [
         |   LambdaMigrateFunds(destinationAddress) -> {
                 
-                // Check that all entrypoints are paused
-                if s.breakGlassConfig.stakeIsPaused and s.breakGlassConfig.unstakeIsPaused and s.breakGlassConfig.compoundIsPaused and s.breakGlassConfig.farmClaimIsPaused then skip
-                else failwith(error_ALL_DOORMAN_CONTRACT_ENTRYPOINTS_SHOULD_BE_PAUSED_TO_MIGRATE_FUNDS);
+                // Verify that all entrypoints are paused
+                verifyAllEntrypointsPaused(s);
 
-                // Get Doorman MVK balance from MVK Token Contract - equivalent to total staked MVK supply
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
-                const doormanBalance: nat = case balanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Create a transfer to transfer all funds to an upgraded Doorman Contract
-                const transferParameters: fa2TransferType = list[
-                    record [
-                        from_= Tezos.get_self_address();
-                        txs  = list [
-                            record [
-                                to_        = destinationAddress;
-                                token_id   = 0n;
-                                amount     = doormanBalance;
-                            ]
-                        ]
-                    ]
-                ];
-
-                const transferOperation: operation = Tezos.transaction(
-                    transferParameters,
-                    0tez,
-                    getTransferEntrypointFromTokenAddress(s.mvkTokenAddress)
-                );
-
-                operations  := transferOperation # operations;
+                // Migrate funds operation to transfer all funds to an upgraded Doorman Contract
+                const migrateFundsOperation : operation = migrateFundsOperation(destinationAddress, s);
+                operations := migrateFundsOperation # operations;
 
             }
         |   _ -> skip
@@ -351,14 +325,13 @@ block {
         |   LambdaStake(stakeAmount) -> {
 
                 // Get params - userAddress
-                const userAddress : address  = Tezos.get_sender();
+                const userAddress : address = Tezos.get_sender();
                     
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
-                // Check that user is staking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
-                if stakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
-                else skip;
+                // Verify that user is staking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
+                verifyMinMvkAmountReached(stakeAmount, s);
 
                 // -------------------------------------------
                 // Transfer MVK from user to the Doorman Contract
@@ -436,11 +409,10 @@ block {
         |   LambdaUnstake(unstakeAmount) -> {
 
                 // Get params - userAddress
-                const userAddress   : address   = Tezos.get_sender();
+                const userAddress : address = Tezos.get_sender();
                 
-                // Check that user is unstaking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
-                if unstakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
-                else skip;
+                // Verify that user is unstaking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
+                verifyMinMvkAmountReached(unstakeAmount, s);
 
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
@@ -449,39 +421,31 @@ block {
                 // Compute MLI (MVK Loyalty Index) and Exit Fee 
                 // -------------------------------------------
 
-                // get MVK and staked MVK total supply
-                const mvkTotalSupply        : nat = getMvkTotalSupply(s);
-                const stakedMvkTotalSupply  : nat = getStakedMvkTotalSupply(s);
-
-                // Calculate MVK Loyalty Index
-                const mvkLoyaltyIndex : nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
-                
                 // Calculate Exit Fee
-                const exitFeeWithoutFloatingPoint : nat = abs(300_000n * fixedPointAccuracy - 5_250n * mvkLoyaltyIndex)*fixedPointAccuracy + (25n * mvkLoyaltyIndex * mvkLoyaltyIndex);
-                const exitFee                     : nat = exitFeeWithoutFloatingPoint / (10_000n * fixedPointAccuracy);
+                const exitFee : nat = calculateExitFee(s);        
 
                 // Calculate final unstake amount and increment unclaimed rewards
-                const paidFee             : nat     = unstakeAmount * (exitFee / 100n);
-                const finalUnstakeAmount  : nat     = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
-                s.unclaimedRewards                  := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
+                const paidFee             : nat  = unstakeAmount * (exitFee / 100n);
+                const finalUnstakeAmount  : nat  = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
+                s.unclaimedRewards               := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
 
-                // Check that unstakeAmount is not greater than staked MVK total supply
-                if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
-                else skip;
+                // Verify unstake amount is less than staked total supply
+                const stakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
+                verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvkTotalSupply);
 
-                // Update staked MVK total supply
-                const stakedTotalWithoutUnstake : nat = abs(stakedMvkTotalSupply - unstakeAmount);
-                
                 // Update accumulated fees per share 
-                if stakedTotalWithoutUnstake > 0n then s.accumulatedFeesPerShare := s.accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstake)
-                else skip;
+                s := incrementAccumulatedFeesPerShare(
+                    paidFee,
+                    unstakeAmount,
+                    stakedMvkTotalSupply,
+                    s 
+                );
 
                 // Get user's stake balance record
                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
                 
-                // Check that unstake amount is not greater than user's staked MVK balance
-                if unstakeAmount > userStakeBalanceRecord.balance then failwith(error_NOT_ENOUGH_SMVK_BALANCE)
-                else skip;
+                // Verify that unstake amount is not greater than user's staked MVK balance
+                verifySufficientWithdrawalBalance(unstakeAmount, userStakeBalanceRecord);
 
                 // Update user's stake balance record
                 userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
@@ -505,12 +469,9 @@ block {
                 // Compound only the exit fee rewards
                 // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
                 if userStakeBalanceRecord.balance > 0n then {
-                    
-                    // Calculate what fees the user missed since his/her last claim
-                    const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userStakeBalanceRecord.participationFeesPerShare);
 
-                    // Calculate the user reward based on his current staked MVK
-                    const exitFeeRewards : nat = (currentFeesPerShare * userStakeBalanceRecord.balance) / fixedPointAccuracy;
+                    // Calculate user rewards
+                    const exitFeeRewards : nat = calculateExitFeeRewards(userStakeBalanceRecord, s);
 
                     // Increase the user balance with exit fee rewards
                     userStakeBalanceRecord.balance := userStakeBalanceRecord.balance + exitFeeRewards;
@@ -537,104 +498,6 @@ block {
                 // Execute operations list
                 operations := list[transferOperation; delegationOnStakeChangeOperation]
 
-            }
-        |   _ -> skip
-    ];
-
-} with (operations, s)
-
-
-
-(*  new unstake lambda - only for testing upgrading of entrypoints *)
-function lambdaNewUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
-block {
-
-    // New unstake lambda for upgradability testing
-
-    // break glass check
-    checkUnstakeIsNotPaused(s);
-
-    var operations : list(operation) := nil;
-
-    case doormanLambdaAction of [
-        |   LambdaUnstake(unstakeAmount) -> {
-                
-                // Get params
-                const userAddress   : address   = Tezos.get_sender();
-                
-                // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
-                if unstakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
-                else skip;
-
-                // Compound user rewards
-                s := compoundUserRewards(userAddress, s);
-
-                // get MVK and staked MVK total supply
-                const mvkTotalSupply        : nat = getMvkTotalSupply(s);
-                const stakedMvkTotalSupply  : nat = getStakedMvkTotalSupply(s);
-
-                // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
-                const mvkLoyaltyIndex: nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
-                
-                // Fee calculation
-                const exitFee: nat = (200n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (2n * fixedPointAccuracy));
-
-                //const finalAmountPercent: nat = abs(percentageFactor - exitFee);
-                const paidFee             : nat  = unstakeAmount * (exitFee / 100n);
-                const finalUnstakeAmount  : nat  = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
-                s.unclaimedRewards := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
-
-                // Updated shares by users
-                if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
-                else skip;
-
-                const stakedTotalWithoutUnstake: nat = abs(stakedMvkTotalSupply - unstakeAmount);
-                
-                if stakedTotalWithoutUnstake > 0n then s.accumulatedFeesPerShare := s.accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstake)
-                else skip;
-
-                // update user's staked balance in staked balance ledger
-                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
-                
-                // check if user has enough staked mvk to withdraw
-                if unstakeAmount > userStakeBalanceRecord.balance then failwith(error_NOT_ENOUGH_SMVK_BALANCE)
-                else skip;
-
-                userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
-
-                const transferOperation : operation = transferFa2Token(
-                    Tezos.get_self_address(),   // from_
-                    userAddress,                // to_
-                    finalUnstakeAmount,         // amount
-                    0n,                         // tokenId
-                    s.mvkTokenAddress           // tokenContractAddress
-                );
-
-                // Compound only the exit fee rewards
-                // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
-                if userStakeBalanceRecord.balance > 0n then {
-                    
-                    // Calculate what fees the user missed since his/her last claim
-                    const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userStakeBalanceRecord.participationFeesPerShare);
-                    // Calculate the user reward based on his sMVK
-                    const exitFeeRewards : nat = (currentFeesPerShare * userStakeBalanceRecord.balance) / fixedPointAccuracy;
-                    // Increase the user balance
-                    userStakeBalanceRecord.balance := userStakeBalanceRecord.balance + exitFeeRewards;
-                    s.unclaimedRewards := abs(s.unclaimedRewards - exitFeeRewards);
-
-                }
-                else skip;
-
-                // Set the user's participationFeesPerShare 
-                userStakeBalanceRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
-                // Update the doormanStorageType
-                s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
-
-                // update satellite balance if user is delegated to a satellite
-                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
-
-                // fill a list of operations
-                operations := list[transferOperation; delegationOnStakeChangeOperation]
             }
         |   _ -> skip
     ];
@@ -719,9 +582,8 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Validation Checks
                 // ------------------------------------------------------------------
             
-                // Check if farm address is known to the farmFactory
-                const checkFarmExists : bool = checkFarmExists(farmAddress, s);
-                if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
+                // Verify farm exists (i.e. farm address is known to the farmFactory)
+                verifyFarmExists(farmAddress, s);
 
                 // ------------------------------------------------------------------
                 // Compound and update user's staked balance record
@@ -805,3 +667,109 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 // Doorman Lambdas End
 //
 // ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Doorman Test Upgrade Lambda
+//
+// ------------------------------------------------------------------------------
+
+(*  new unstake lambda - only for testing upgrading of entrypoints *)
+function lambdaNewUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
+block {
+
+    // New unstake lambda for upgradability testing
+    // - different exit fee calculation
+
+    // break glass check
+    checkUnstakeIsNotPaused(s);
+
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        |   LambdaUnstake(unstakeAmount) -> {
+                
+                // Get params
+                const userAddress : address = Tezos.get_sender();
+                
+                // Verify that user is unstaking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
+                verifyMinMvkAmountReached(unstakeAmount, s);
+
+                // Compound user rewards
+                s := compoundUserRewards(userAddress, s);
+
+                // get MVK and staked MVK total supply
+                const mvkTotalSupply        : nat = getMvkTotalSupply(s);
+                const stakedMvkTotalSupply  : nat = getStakedMvkTotalSupply(s);
+
+                // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
+                const mvkLoyaltyIndex: nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
+                
+                // Fee calculation
+                const exitFee: nat = (200n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (2n * fixedPointAccuracy));
+
+                //const finalAmountPercent: nat = abs(percentageFactor - exitFee);
+                const paidFee             : nat  = unstakeAmount * (exitFee / 100n);
+                const finalUnstakeAmount  : nat  = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
+                s.unclaimedRewards := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
+
+                // Verify unstake amount is less than staked total supply
+                verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvkTotalSupply);
+
+                // Update accumulated fees per share 
+                s := incrementAccumulatedFeesPerShare(
+                    paidFee,
+                    unstakeAmount,
+                    stakedMvkTotalSupply,
+                    s 
+                );
+
+                // update user's staked balance in staked balance ledger
+                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
+                
+                // Verify that unstake amount is not greater than user's staked MVK balance
+                verifySufficientWithdrawalBalance(unstakeAmount, userStakeBalanceRecord);
+
+                userStakeBalanceRecord.balance := abs(userStakeBalanceRecord.balance - unstakeAmount); 
+
+                const transferOperation : operation = transferFa2Token(
+                    Tezos.get_self_address(),   // from_
+                    userAddress,                // to_
+                    finalUnstakeAmount,         // amount
+                    0n,                         // tokenId
+                    s.mvkTokenAddress           // tokenContractAddress
+                );
+
+                // Compound only the exit fee rewards
+                // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
+                if userStakeBalanceRecord.balance > 0n then {
+                    
+                    // Calculate user rewards
+                    const exitFeeRewards : nat = calculateExitFeeRewards(userStakeBalanceRecord, s);
+
+                    // Increase the user balance
+                    userStakeBalanceRecord.balance := userStakeBalanceRecord.balance + exitFeeRewards;
+
+                    s.unclaimedRewards := abs(s.unclaimedRewards - exitFeeRewards);
+
+                }
+                else skip;
+
+                // Set the user's participationFeesPerShare 
+                userStakeBalanceRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
+
+                // Update the doormanStorageType
+                s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
+
+                // update satellite balance if user is delegated to a satellite
+                const delegationOnStakeChangeOperation : operation = delegationOnStakeChangeOperation(userAddress, s);
+
+                // fill a list of operations
+                operations := list[transferOperation; delegationOnStakeChangeOperation]
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
