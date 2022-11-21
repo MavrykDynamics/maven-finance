@@ -1,0 +1,310 @@
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+    
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : doormanStorageType) : return is
+block {
+    
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetGovernance", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);
+
+} with response
+
+
+
+(*  updateMetadata entrypoint: update the metadata at a given key *)
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : doormanStorageType) : return is
+block {
+    
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateMetadata", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(* updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : doormanUpdateConfigParamsType; var s : doormanStorageType) : return is 
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateConfig", s);
+
+    // init delegation lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);
+
+} with response
+
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateWhitelistContracts", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUpdateGeneralContracts", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams : transferActionType; var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMistakenTransfer", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  migrateFunds entrypoint *)
+function migrateFunds(const destinationAddress : address; var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMigrateFunds", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaMigrateFunds(destinationAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  pauseAll entrypoint *)
+function pauseAll(var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaPauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+    
+} with response
+
+
+
+(*  unpauseAll entrypoint *)
+function unpauseAll(var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUnpauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint : doormanTogglePauseEntrypointType; const s : doormanStorageType) : return is
+block{
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaTogglePauseEntrypoint", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Doorman Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  stake entrypoint *)
+function stake(const stakeAmount : nat; var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaStake", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaStake(stakeAmount);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  unstake entrypoint *)
+function unstake(const unstakeAmount : nat; var s : doormanStorageType) : return is
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstake", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUnstake(unstakeAmount);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  compound entrypoint *)
+function compound(const userAddress : address; var s : doormanStorageType) : return is
+block{
+    
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaCompound", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(userAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(* farmClaim entrypoint *)
+function farmClaim(const farmClaim : farmClaimType; var s : doormanStorageType) : return is
+block{
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaFarmClaim", s);
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaFarmClaim(farmClaim);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Doorman Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams : setLambdaType; var s : doormanStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints End
+//
+// ------------------------------------------------------------------------------
