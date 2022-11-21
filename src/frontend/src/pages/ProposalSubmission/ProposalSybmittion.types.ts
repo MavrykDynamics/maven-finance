@@ -1,4 +1,4 @@
-import { InputStatusType } from 'app/App.components/Input/Input.constants'
+import { InputStatusType, INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import BigNumber from 'bignumber.js'
 import { ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
 
@@ -13,36 +13,62 @@ export type ProposalBytesType = ProposalRecordType['proposalData'][number]
 export type SubmittedProposalsMapper = {
   keys: number[]
   mapper: Record<number, ProposalRecordType>
+  validityObj: Record<number, ProposalValidityObj>
 }
 
 export type ChangeProposalFnType = (newProposalData: Partial<ProposalRecordType>, proposalId: number) => void
+export type ChangeProposalValidationFnType = (
+  newProposalValidation: Partial<ProposalValidityObj>,
+  proposalId: number,
+) => void
+
+export type ValidationResult = typeof INPUT_STATUS_ERROR | typeof INPUT_STATUS_SUCCESS | ''
+
+export type ProposalValidityObj = {
+  title: ValidationResult
+  description: ValidationResult
+  ipfs: ValidationResult
+  successMVKReward: ValidationResult
+  invoiceTable: ValidationResult
+  sourceCode: ValidationResult
+  bytesValidation: Array<{
+    validBytes: ValidationResult
+    validTitle: ValidationResult
+    byteId: number
+  }>
+  paymentsValidation: Array<{
+    token_amount: ValidationResult
+    title: ValidationResult
+    to__id: ValidationResult
+    paymentId: number
+  }>
+}
 
 export type StageOneFormProps = {
   proposalId: number
   currentProposal: ProposalRecordType
+  currentProposalValidation: ProposalValidityObj
+  updateLocalProposalValidation: ChangeProposalValidationFnType
   updateLocalProposalData: ChangeProposalFnType
-  handleDropProposal: (proposalId: number) => void
 }
 
 export type StageTwoFormProps = {
   proposalId: number
   currentProposal: ProposalRecordType
-  currentOriginalProposal?: ProposalRecordType
-  proposalHasChange: boolean
+  currentProposalValidation: ProposalValidityObj
+  updateLocalProposalValidation: ChangeProposalValidationFnType
   setProposalHasChange: (arg: boolean) => void
   updateLocalProposalData: ChangeProposalFnType
-  handleDropProposal: (proposalId: number) => void
 }
 
 export type StageThreeFormProps = {
   proposalId: number
   currentProposal: ProposalRecordType
-  currentOriginalProposal?: ProposalRecordType
-  proposalHasChange: boolean
+  paymentMethods: Array<{ symbol: string; address: string; shortSymbol: string; id: number }>
+  currentProposalValidation: ProposalValidityObj
+  updateLocalProposalValidation: ChangeProposalValidationFnType
   setProposalHasChange: (arg: boolean) => void
   updateLocalProposalData: ChangeProposalFnType
-  handleDropProposal: (proposalId: number) => void
-  handleLockProposal: (proposalId: number) => void
 }
 
 export type StageThreeValidityItem = 'token_amount' | 'to__id' | 'title'

@@ -37,11 +37,10 @@ export const submitProposal =
       await query?.confirmation()
 
       await dispatch(showToaster(SUCCESS, 'Proposal Submitted.', 'All good :)'))
-      await dispatch(toggleLoader())
-
       await dispatch(getGovernanceStorage())
       await dispatch(getDelegationStorage())
       await dispatch(getCurrentRoundProposals())
+      await dispatch(toggleLoader())
     } catch (error) {
       console.error('submitProposal error:', error)
       if (error instanceof Error) {

@@ -4,7 +4,12 @@ import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Inp
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 import { ValidSubmitProposalForm, SubmitProposalFormInputStatus } from 'utils/TypesAndInterfaces/Forms'
 import { CurrentRoundProposalsStorageType, ProposalRecordType } from 'utils/TypesAndInterfaces/Governance'
-import { PaymentsDataChangesType, ProposalDataChangesType, StageThreeValidityItem } from './ProposalSybmittion.types'
+import {
+  PaymentsDataChangesType,
+  ProposalDataChangesType,
+  ProposalValidityObj,
+  StageThreeValidityItem,
+} from './ProposalSybmittion.types'
 import { State } from 'reducers'
 
 export const checkWhetherBytesIsValid = (proposalData: ProposalRecordType['proposalData']): boolean => {
@@ -231,6 +236,17 @@ export const DEFAULT_PROPOSAL: CurrentRoundProposalsStorageType[number] = {
   proposalPayments: [],
   governanceId: '',
   paymentProcessed: false,
+}
+
+export const DEFAULT_PROPOSAL_VALIDATION: ProposalValidityObj = {
+  title: '',
+  description: '',
+  ipfs: '',
+  successMVKReward: '',
+  invoiceTable: '',
+  sourceCode: '',
+  bytesValidation: [],
+  paymentsValidation: [],
 }
 
 // stage 1 default values
