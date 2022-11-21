@@ -70,17 +70,21 @@ export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppD
   const { accountPkh } = state?.wallet
 
   try {
-    const breakGlassActionPendingMySignature = accountPkh
+    const storage = accountPkh
       ? await fetchFromIndexerWithPromise(
           BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
           BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
-          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz, userAddress: accountPkh }),
+          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz }),
         )
       : { break_glass_action: [] }
 
+    const breakGlassActionPendingMySignature = normalizeBreakGlassAction(storage, { filterByAddress: accountPkh })
+    const breakGlassActionPendingSignature = normalizeBreakGlassAction(storage, { filterWithoutAddress: accountPkh })
+
     await dispatch({
       type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
-      breakGlassActionPendingMySignature: normalizeBreakGlassAction(breakGlassActionPendingMySignature),
+      breakGlassActionPendingMySignature,
+      breakGlassActionPendingSignature,
     })
   } catch (error) {
     if (error instanceof Error) {
