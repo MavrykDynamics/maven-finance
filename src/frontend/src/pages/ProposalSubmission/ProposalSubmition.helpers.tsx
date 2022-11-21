@@ -239,12 +239,12 @@ export const DEFAULT_PROPOSAL: CurrentRoundProposalsStorageType[number] = {
 }
 
 export const DEFAULT_PROPOSAL_VALIDATION: ProposalValidityObj = {
-  title: INPUT_STATUS_ERROR,
-  description: INPUT_STATUS_ERROR,
-  ipfs: INPUT_STATUS_SUCCESS,
-  successMVKReward: INPUT_STATUS_SUCCESS,
-  invoiceTable: INPUT_STATUS_SUCCESS,
-  sourceCode: INPUT_STATUS_ERROR,
+  title: '',
+  description: '',
+  ipfs: '',
+  successMVKReward: '',
+  invoiceTable: '',
+  sourceCode: '',
   bytesValidation: [],
   paymentsValidation: [],
 }
