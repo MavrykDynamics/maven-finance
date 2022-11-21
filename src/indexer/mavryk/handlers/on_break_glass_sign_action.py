@@ -65,26 +65,26 @@ async def on_break_glass_sign_action(
             single_action_record.status            = status_type
             await single_action_record.save()
 
-    # Update council members
+    # Delete previous members
     council_members_records         = await models.BreakGlassCouncilMember.all()
-    for council_member_record in council_members_records:
-        # Get user from council member
-        member_user     = await council_member_record.user.first()
-        
-        # Check if remove
-        if not member_user.address in council_members:
-            await council_member_record.delete()
-        else:
-            # Change or update records
-            member_info             = council_members[member_user.address]
-            updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
-                break_glass = break_glass,
-                user        = member_user
-            )
-            updated_member.name     = member_info.name
-            updated_member.website  = member_info.website 
-            updated_member.image    = member_info.image
-            await updated_member.save() 
+    for council_members_record in council_members_records:
+        await council_members_record.delete()
+
+    for council_member_address in council_members:
+        # Change or update records
+        member_info             = council_members[council_member_address]
+        member_user, _          = await models.MavrykUser.get_or_create(
+            address     = council_member_address
+        )
+        await member_user.save()
+        updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
+            break_glass = break_glass,
+            user        = member_user
+        )
+        updated_member.name     = member_info.name
+        updated_member.website  = member_info.website 
+        updated_member.image    = member_info.image
+        await updated_member.save() 
     
     # Create signature record
     user                    = await models.mavryk_user_cache.get(address=signer_address)
