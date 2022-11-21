@@ -17,6 +17,8 @@ import {
   COUNCIL_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries/getCouncilStorage'
 import { noralizeCouncilStorage } from './Council.helpers'
+import { toggleLoader } from 'app/App.components/Loader/Loader.action'
+import { ROCKET_LOADER } from 'utils/constants'
 
 export const GET_COUNCIL_STORAGE = 'GET_COUNCIL_STORAGE'
 export const getCouncilStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -90,17 +92,10 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
     if (error instanceof Error) {
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
-      error,
-    })
   }
 }
 
 // Sign
-export const SIGN_REQUEST = 'SIGN_REQUEST'
-export const SIGN_RESULT = 'SIGN_RESULT'
-export const SIGN_ERROR = 'SIGN_ERROR'
 export const sign = (actionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -115,40 +110,26 @@ export const sign = (actionID: number) => async (dispatch: AppDispatch, getState
   }
 
   try {
-    dispatch({
-      type: SIGN_REQUEST,
-    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.signAction(actionID).send()
-    console.log('transaction', transaction)
+    await dispatch(toggleLoader(ROCKET_LOADER))
 
     dispatch(showToaster(INFO, 'Sign...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Sign done', 'All good :)'))
 
-    dispatch({
-      type: SIGN_RESULT,
-    })
-    dispatch(getCouncilPastActionsStorage())
-    dispatch(getCouncilPendingActionsStorage())
+    await dispatch(getCouncilPastActionsStorage())
+    await dispatch(getCouncilPendingActionsStorage())
+    await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: SIGN_ERROR,
-      error,
-    })
+    await dispatch(toggleLoader())
   }
 }
 
 // Add Vestee
-export const ADD_VESTEE_REQUEST = 'ADD_VESTEE_REQUEST'
-export const ADD_VESTEE_RESULT = 'ADD_VESTEE_RESULT'
-export const ADD_VESTEE_ERROR = 'ADD_VESTEE_ERROR'
 export const addVestee =
   (vesteeAddress: string, totalAllocated: number, cliffInMonths: number, vestingInMonths: number) =>
   async (dispatch: AppDispatch, getState: GetState) => {
@@ -165,42 +146,28 @@ export const addVestee =
     }
 
     try {
-      dispatch({
-        type: ADD_VESTEE_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths)
         .send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       dispatch(showToaster(INFO, 'Add Vestee...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Add Vestee done', 'All good :)'))
 
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch({
-        type: ADD_VESTEE_RESULT,
-      })
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: ADD_VESTEE_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
 
 // Add member
-export const ADD_MEMBER_REQUEST = 'ADD_MEMBER_REQUEST'
-export const ADD_MEMBER_RESULT = 'ADD_MEMBER_RESULT'
-export const ADD_MEMBER_ERROR = 'ADD_MEMBER_ERROR'
 export const addCouncilMember =
   (newMemberAddress: string, newMemberName: string, newMemberWebsite: string, newMemberImage: string) =>
   async (dispatch: AppDispatch, getState: GetState) => {
@@ -217,43 +184,29 @@ export const addCouncilMember =
     }
 
     try {
-      dispatch({
-        type: ADD_MEMBER_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .councilActionAddMember(newMemberAddress, newMemberName, newMemberWebsite, newMemberImage)
         .send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       dispatch(showToaster(INFO, 'Add Council Member...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Add Council Member done', 'All good :)'))
 
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch(getCouncilStorage())
-      dispatch({
-        type: ADD_MEMBER_RESULT,
-      })
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch(getCouncilStorage())
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: ADD_MEMBER_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
 
 // Update Vestee
-export const UPDATE_VESTEE_REQUEST = 'UPDATE_VESTEE_REQUEST'
-export const UPDATE_VESTEE_RESULT = 'UPDATE_VESTEE_RESULT'
-export const UPDATE_VESTEE_ERROR = 'UPDATE_VESTEE_ERROR'
 export const updateVestee =
   (vesteeAddress: string, totalAllocated: number, cliffInMonths: number, vestingInMonths: number) =>
   async (dispatch: AppDispatch, getState: GetState) => {
@@ -270,43 +223,29 @@ export const updateVestee =
     }
 
     try {
-      dispatch({
-        type: UPDATE_VESTEE_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths)
         .send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       dispatch(showToaster(INFO, 'Update Vestee...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Update Vestee done', 'All good :)'))
 
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch({
-        type: UPDATE_VESTEE_RESULT,
-      })
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: UPDATE_VESTEE_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
 
 // Toggle Vestee Lock
-export const TOGGLE_VESTEE_LOCK_REQUEST = 'TOGGLE_VESTEE_LOCK_REQUEST'
-export const TOGGLE_VESTEE_LOCK_RESULT = 'TOGGLE_VESTEE_LOCK_RESULT'
-export const TOGGLE_VESTEE_LOCK_ERROR = 'TOGGLE_VESTEE_LOCK_ERROR'
 export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -321,41 +260,27 @@ export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: AppD
   }
 
   try {
-    dispatch({
-      type: TOGGLE_VESTEE_LOCK_REQUEST,
-    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.councilActionToggleVesteeLock(vesteeAddress).send()
-    console.log('transaction', transaction)
+    await dispatch(toggleLoader(ROCKET_LOADER))
 
     dispatch(showToaster(INFO, 'Toggle Vestee Lock...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Toggle Vestee Lock done', 'All good :)'))
 
-    dispatch(getCouncilPastActionsStorage())
-    dispatch(getCouncilPendingActionsStorage())
-    dispatch({
-      type: TOGGLE_VESTEE_LOCK_RESULT,
-    })
+    await dispatch(getCouncilPastActionsStorage())
+    await dispatch(getCouncilPendingActionsStorage())
+    await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: TOGGLE_VESTEE_LOCK_ERROR,
-      error,
-    })
+    await dispatch(toggleLoader())
   }
 }
 
 // Change Council Member
-export const CHANGE_MEMBER_REQUEST = 'CHANGE_MEMBER_REQUEST'
-export const CHANGE_MEMBER_RESULT = 'CHANGE_MEMBER_RESULT'
-export const CHANGE_MEMBER_ERROR = 'CHANGE_MEMBER_ERROR'
 export const changeCouncilMember =
   (
     oldCouncilMemberAddress: string,
@@ -378,11 +303,7 @@ export const changeCouncilMember =
     }
 
     try {
-      dispatch({
-        type: CHANGE_MEMBER_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .councilActionChangeMember(
           oldCouncilMemberAddress,
@@ -392,36 +313,26 @@ export const changeCouncilMember =
           newMemberImage,
         )
         .send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       dispatch(showToaster(INFO, 'Change Council Member...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Change Council Member done', 'All good :)'))
 
-      dispatch(getCouncilStorage())
-      dispatch(getCouncilPastActionsStorage())
-      dispatch(getCouncilPendingActionsStorage())
-      dispatch({
-        type: CHANGE_MEMBER_RESULT,
-      })
+      await dispatch(getCouncilStorage())
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: CHANGE_MEMBER_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
 
 // Remove Council Member
-export const REMOVE_MEMBER_REQUEST = 'REMOVE_MEMBER_REQUEST'
-export const REMOVE_MEMBER_RESULT = 'REMOVE_MEMBER_RESULT'
-export const REMOVE_MEMBER_ERROR = 'REMOVE_MEMBER_ERROR'
 export const removeCouncilMember = (memberAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -436,42 +347,28 @@ export const removeCouncilMember = (memberAddress: string) => async (dispatch: A
   }
 
   try {
-    dispatch({
-      type: REMOVE_MEMBER_REQUEST,
-    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.councilActionRemoveMember(memberAddress).send()
-    console.log('transaction', transaction)
+    await dispatch(toggleLoader(ROCKET_LOADER))
 
     dispatch(showToaster(INFO, 'Remove Council Member...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Remove Council Member done', 'All good :)'))
 
-    dispatch(getCouncilStorage())
-    dispatch(getCouncilPastActionsStorage())
-    dispatch(getCouncilPendingActionsStorage())
-    dispatch({
-      type: REMOVE_MEMBER_RESULT,
-    })
+    await dispatch(getCouncilStorage())
+    await dispatch(getCouncilPastActionsStorage())
+    await dispatch(getCouncilPendingActionsStorage())
+    await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: REMOVE_MEMBER_ERROR,
-      error,
-    })
+    await dispatch(toggleLoader())
   }
 }
 
 // Update Council Member Info
-export const UPDATE_INFO_MEMBER_REQUEST = 'UPDATE_INFO_MEMBER_REQUEST'
-export const UPDATE_INFO_MEMBER_RESULT = 'UPDATE_INFO_MEMBER_RESULT'
-export const UPDATE_INFO_MEMBER_ERROR = 'UPDATE_INFO_MEMBER_ERROR'
 export const updateCouncilMemberInfo =
   (newMemberName: string, newMemberWebsite: string, newMemberImage: string) =>
   async (dispatch: AppDispatch, getState: GetState) => {
@@ -488,44 +385,30 @@ export const updateCouncilMemberInfo =
     }
 
     try {
-      dispatch({
-        type: UPDATE_INFO_MEMBER_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage)
         .send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       await dispatch(showToaster(INFO, 'Update Council Member Info...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       await dispatch(showToaster(SUCCESS, 'Update Council Member Info done', 'All good :)'))
 
       await dispatch(getCouncilStorage())
       await dispatch(getCouncilPastActionsStorage())
       await dispatch(getCouncilPendingActionsStorage())
-      await dispatch({
-        type: UPDATE_INFO_MEMBER_RESULT,
-      })
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: UPDATE_INFO_MEMBER_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
 
 // Transfer Tokens
-export const TRANSFER_TOKENS_REQUEST = 'TRANSFER_TOKENS_REQUEST'
-export const TRANSFER_TOKENS_RESULT = 'TRANSFER_TOKENS_RESULT'
-export const TRANSFER_TOKENS_ERROR = 'TRANSFER_TOKENS_ERROR'
 export const transferTokens =
   (
     receiverAddress: string,
@@ -549,44 +432,30 @@ export const transferTokens =
     }
 
     try {
-      dispatch({
-        type: TRANSFER_TOKENS_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .councilActionTransfer(receiverAddress, tokenContractAddress, tokenAmount, tokenType, tokenId, purpose)
         .send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       dispatch(showToaster(INFO, 'Transfer Tokens...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Transfer Tokens done', 'All good :)'))
 
       await dispatch(getCouncilStorage())
       await dispatch(getCouncilPastActionsStorage())
       await dispatch(getCouncilPendingActionsStorage())
-      await dispatch({
-        type: TRANSFER_TOKENS_RESULT,
-      })
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
-        dispatch(showToaster(ERROR, 'Error', error.message))
+        await dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: TRANSFER_TOKENS_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
 
 // Request Tokens
-export const REQUEST_TOKENS_REQUEST = 'REQUEST_TOKENS_REQUEST'
-export const REQUEST_TOKENS_RESULT = 'REQUEST_TOKENS_RESULT'
-export const REQUEST_TOKENS_ERROR = 'REQUEST_TOKENS_ERROR'
 export const requestTokens =
   (
     treasuryAddress: string,
@@ -611,11 +480,7 @@ export const requestTokens =
     }
 
     try {
-      dispatch({
-        type: REQUEST_TOKENS_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .councilActionRequestTokens(
           treasuryAddress,
@@ -627,36 +492,26 @@ export const requestTokens =
           purpose,
         )
         .send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       dispatch(showToaster(INFO, 'Request Tokens...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Request Tokens done', 'All good :)'))
 
       await dispatch(getCouncilStorage())
       await dispatch(getCouncilPastActionsStorage())
       await dispatch(getCouncilPendingActionsStorage())
-      await dispatch({
-        type: REQUEST_TOKENS_RESULT,
-      })
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
-        dispatch(showToaster(ERROR, 'Error', error.message))
+        await dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: REQUEST_TOKENS_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
 
 // Request Token Mint
-export const REQUEST_TOKEN_MINT_REQUEST = 'REQUEST_TOKEN_MINT_REQUEST'
-export const REQUEST_TOKEN_MINT_RESULT = 'REQUEST_TOKEN_MINT_RESULT'
-export const REQUEST_TOKEN_MINT_ERROR = 'REQUEST_TOKEN_MINT_ERROR'
 export const requestTokenMint =
   (treasuryAddress: string, tokenAmount: number, purpose: string) =>
   async (dispatch: AppDispatch, getState: GetState) => {
@@ -673,42 +528,28 @@ export const requestTokenMint =
     }
 
     try {
-      dispatch({
-        type: REQUEST_TOKEN_MINT_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods.councilActionRequestMint(treasuryAddress, tokenAmount, purpose).send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       dispatch(showToaster(INFO, 'Request Tokens...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Request Tokens done', 'All good :)'))
 
       await dispatch(getCouncilStorage())
       await dispatch(getCouncilPastActionsStorage())
       await dispatch(getCouncilPendingActionsStorage())
-      await dispatch({
-        type: REQUEST_TOKEN_MINT_RESULT,
-      })
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: REQUEST_TOKEN_MINT_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
 
 // Drop Financial Request
-export const DROP_FINANCICAL_REQUEST = 'DROP_FINANCICAL_REQUEST'
-export const DROP_FINANCICAL_RESULT = 'DROP_FINANCICAL_RESULT'
-export const DROP_FINANCICAL_ERROR = 'DROP_FINANCICAL_ERROR'
 export const dropFinancialRequest = (financialReqID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -723,42 +564,28 @@ export const dropFinancialRequest = (financialReqID: number) => async (dispatch:
   }
 
   try {
-    dispatch({
-      type: DROP_FINANCICAL_REQUEST,
-    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.councilActionDropFinancialReq(financialReqID).send()
-    console.log('transaction', transaction)
+    await dispatch(toggleLoader(ROCKET_LOADER))
 
     dispatch(showToaster(INFO, 'Drop Financial Request...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Drop Financial Request done', 'All good :)'))
 
     await dispatch(getCouncilStorage())
     await dispatch(getCouncilPastActionsStorage())
     await dispatch(getCouncilPendingActionsStorage())
-    await dispatch({
-      type: DROP_FINANCICAL_RESULT,
-    })
+    await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: DROP_FINANCICAL_ERROR,
-      error,
-    })
+    await dispatch(toggleLoader())
   }
 }
 
 // Remove Vestee Request
-export const REMOVE_VESTEE_REQUEST = 'REMOVE_VESTEE_REQUEST'
-export const REMOVE_VESTEE_RESULT = 'REMOVE_VESTEE_RESULT'
-export const REMOVE_VESTEE_ERROR = 'REMOVE_VESTEE_ERROR'
 export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -773,42 +600,28 @@ export const removeVesteeRequest = (vesteeAddress: string) => async (dispatch: A
   }
 
   try {
-    dispatch({
-      type: REMOVE_VESTEE_REQUEST,
-    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.councilActionRemoveVestee(vesteeAddress).send()
-    console.log('transaction', transaction)
+    await dispatch(toggleLoader(ROCKET_LOADER))
 
     dispatch(showToaster(INFO, 'Remove Vestee Request...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Remove Vestee Request done', 'All good :)'))
 
     await dispatch(getCouncilStorage())
     await dispatch(getCouncilPastActionsStorage())
     await dispatch(getCouncilPendingActionsStorage())
-    await dispatch({
-      type: REMOVE_VESTEE_RESULT,
-    })
+    await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: REMOVE_VESTEE_ERROR,
-      error,
-    })
+    await dispatch(toggleLoader())
   }
 }
 
 // Set Baker Request
-export const SET_BAKER_REQUEST = 'SET_BAKER_REQUEST'
-export const SET_BAKER_RESULT = 'SET_BAKER_RESULT'
-export const SET_BAKER_ERROR = 'SET_BAKER_ERROR'
 export const setBakerRequest = (bakerHash: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -823,42 +636,28 @@ export const setBakerRequest = (bakerHash: string) => async (dispatch: AppDispat
   }
 
   try {
-    dispatch({
-      type: SET_BAKER_REQUEST,
-    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.councilActionSetBaker(bakerHash).send()
-    console.log('transaction', transaction)
+    await dispatch(toggleLoader(ROCKET_LOADER))
 
     dispatch(showToaster(INFO, 'Set Baker Request...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Set Baker Request done', 'All good :)'))
 
     await dispatch(getCouncilStorage())
     await dispatch(getCouncilPastActionsStorage())
     await dispatch(getCouncilPendingActionsStorage())
-    await dispatch({
-      type: SET_BAKER_RESULT,
-    })
+    await dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: SET_BAKER_ERROR,
-      error,
-    })
+    await dispatch(toggleLoader())
   }
 }
 
 // Set Contract Baker Request
-export const SET_CONTRACT_BAKER_REQUEST = 'SET_CONTRACT_BAKER_REQUEST'
-export const SET_CONTRACT_BAKER_RESULT = 'SET_CONTRACT_BAKER_RESULT'
-export const SET_CONTRACT_BAKER_ERROR = 'SET_CONTRACT_BAKER_ERROR'
 export const setContractBakerRequest =
   (targetContractAddress: string, keyHash: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
@@ -874,34 +673,23 @@ export const setContractBakerRequest =
     }
 
     try {
-      dispatch({
-        type: SET_CONTRACT_BAKER_REQUEST,
-      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods.councilActionSetContractBaker(targetContractAddress, keyHash).send()
-      console.log('transaction', transaction)
+      await dispatch(toggleLoader(ROCKET_LOADER))
 
       dispatch(showToaster(INFO, 'Set Contract Baker Request...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Set Contract Baker Request done', 'All good :)'))
 
       await dispatch(getCouncilStorage())
       await dispatch(getCouncilPastActionsStorage())
       await dispatch(getCouncilPendingActionsStorage())
-      await dispatch({
-        type: SET_CONTRACT_BAKER_RESULT,
-      })
+      await dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: SET_CONTRACT_BAKER_ERROR,
-        error,
-      })
+      await dispatch(toggleLoader())
     }
   }
