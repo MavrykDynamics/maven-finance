@@ -344,3 +344,23 @@ export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
     }
   }
 `
+
+export const BytesWarning = styled.div<{ theme: MavrykTheme }>`
+  width: 100%;
+  padding: 10px 20px;
+  border: 1px solid ${({ theme }) => theme.infoColor};
+  background: ${({ theme }) => theme.dPurple_container_dPurple};
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.dashboardTextColor};
+  border-radius: 10px;
+  font-weight: 500;
+
+  svg {
+    fill: ${({ theme }) => theme.infoColor};
+    width: 16px;
+    height: 16px;
+    margin-right: 20px;
+  }
+`

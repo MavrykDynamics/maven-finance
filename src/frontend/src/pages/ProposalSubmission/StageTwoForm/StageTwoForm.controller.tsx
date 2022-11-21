@@ -21,6 +21,7 @@ import { isHexadecimal } from 'utils/validatorFunctions'
 
 // styles
 import {
+  BytesWarning,
   FormHeaderGroup,
   FormTitleAndFeeContainer,
   FormTitleContainer,
@@ -244,6 +245,11 @@ export const StageTwoForm = ({
           <FormTitleEntry>{fee} XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
+      <BytesWarning>
+        <Icon id="info" />
+        Bytes are executed in FILO. If you want to change the order of execution of the bytes, drag the pair to the
+        desired position.
+      </BytesWarning>
       <div className="step-bytes">
         {dndBytes.map((item, i) => {
           if (!checkBytesPairExists(item)) return null
