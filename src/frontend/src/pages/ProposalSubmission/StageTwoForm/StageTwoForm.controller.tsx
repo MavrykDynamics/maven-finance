@@ -6,7 +6,6 @@ import { State } from 'reducers'
 import { StageTwoFormProps, ProposalBytesType, ValidationResult } from '../ProposalSybmittion.types'
 
 // components
-import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -16,14 +15,12 @@ import { TextArea } from '../../../app/App.components/TextArea/TextArea.controll
 // const
 import { checkBytesPairExists, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import { isValidLength } from 'utils/validatorFunctions'
 import { isHexadecimal } from 'utils/validatorFunctions'
 
 // styles
 import {
-  FormButtonContainer,
   FormHeaderGroup,
   FormTitleAndFeeContainer,
   FormTitleContainer,
@@ -35,15 +32,10 @@ import {
 export const StageTwoForm = ({
   proposalId,
   currentProposal: { proposalData = [], title, locked },
-  proposalHasChange,
   currentProposalValidation,
   updateLocalProposalValidation,
   updateLocalProposalData,
-  handleDropProposal,
-  handleLockProposal,
-  handleUpdateData,
   setProposalHasChange,
-  handleSubmitProposal,
 }: StageTwoFormProps) => {
   const {
     governancePhase,
@@ -53,34 +45,12 @@ export const StageTwoForm = ({
     },
   } = useSelector((state: State) => state.governance)
   const isProposalPeriod = governancePhase === 'PROPOSAL'
-  const isProposalSubmitted = proposalId >= 0
-  // const isAllBytesValid = useMemo(
-  //   () =>
-  //     currentProposalValidation.bytesValidation.every(
-  //       ({ validBytes, validTitle }) => validBytes === INPUT_STATUS_SUCCESS && validTitle === INPUT_STATUS_SUCCESS,
-  //     ),
-  //   [proposalHasChange, currentProposalValidation.bytesValidation],
-  // )
 
   // effect to track change of proposal, by tab clicking, and default validate it
   useEffect(() => {
     if (!proposalData.some(checkBytesPairExists)) {
       handleCreateNewByte()
     }
-
-    // setBytesValidation(
-    //   proposalData.reduce<ValidationStateType>((acc, { id, title, encoded_code }) => {
-    //     if (title && encoded_code) {
-    //       acc.push({
-    //         validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle') : '',
-    //         validBytes: proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes') : '',
-    //         pairId: id,
-    //       })
-    //     }
-
-    //     return acc
-    //   }, []),
-    // )
   }, [proposalId, proposalData])
 
   const handleOnBlur = (byte: ProposalBytesType, text: string, type: 'validTitle' | 'validBytes') => {
@@ -166,12 +136,6 @@ export const StageTwoForm = ({
       setProposalHasChange(true)
     }
   }
-
-  // submit btn is disabled if no changes in bytes or if something is changed, but it doesn't pass the validation
-  // const submitBytesButtonDisabled = useMemo(
-  //   () => !proposalHasChange || (!proposalHasChange && !isAllBytesValid) || locked,
-  //   [locked, proposalHasChange, isAllBytesValid],
-  // )
 
   // Drag & drop variables and event handlers
   const [dndBytes, setdndBytes] = useState<Array<ProposalBytesType>>([])
@@ -325,44 +289,6 @@ export const StageTwoForm = ({
           </button>
         </StyledTooltip>
       </div>
-
-      <FormButtonContainer>
-        <Button
-          icon="close-stroke"
-          className="close delete-pair"
-          text="Drop Proposal"
-          kind={ACTION_SECONDARY}
-          disabled={!isProposalSubmitted || !isProposalPeriod}
-          onClick={() => handleDropProposal(proposalId)}
-        />
-        <Button
-          icon="lock"
-          className="lock"
-          text={'Lock Proposal'}
-          disabled={!isProposalSubmitted || !isProposalPeriod || locked}
-          onClick={() => handleLockProposal(proposalId)}
-          kind={ACTION_SECONDARY}
-        />
-        {isProposalSubmitted ? (
-          <Button
-            icon="bytes"
-            className="bytes"
-            text="Save Changes"
-            kind={ACTION_PRIMARY}
-            disabled={!proposalHasChange || locked}
-            onClick={() => handleUpdateData(proposalId)}
-          />
-        ) : (
-          <Button
-            icon="auction"
-            kind={ACTION_PRIMARY}
-            text={'Submit Proposal'}
-            // TODO: add disabling when stage 1 data incorrect
-            // disabled={disabledSubmitBtn}
-            onClick={handleSubmitProposal}
-          />
-        )}
-      </FormButtonContainer>
     </>
   )
 }

@@ -10,11 +10,9 @@ import {
   FormTitleAndFeeContainer,
   FormTitleContainer,
   FormTitleEntry,
-  FormButtonContainer,
 } from '../ProposalSubmission.style'
 import { Input } from 'app/App.components/Input/Input.controller'
 import Icon from 'app/App.components/Icon/Icon.view'
-import { Button } from 'app/App.components/Button/Button.controller'
 
 // types
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
@@ -22,22 +20,16 @@ import { StageOneFormProps, ValidationResult } from '../ProposalSybmittion.types
 
 // helpers, constants
 import { isValidLength, isValidHttpUrl } from '../../../utils/validatorFunctions'
-import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import '@silevis/reactgrid/styles.css'
 
 export const StageOneForm = ({
   proposalId,
-  proposalHasChange,
   currentProposal,
   currentProposalValidation,
   updateLocalProposalValidation,
-  handleDropProposal,
   updateLocalProposalData,
-  handleLockProposal,
-  handleUpdateData,
-  handleSubmitProposal,
 }: StageOneFormProps) => {
   const {
     fee,
@@ -48,13 +40,6 @@ export const StageOneForm = ({
   const isProposalRound = currentRound === 'PROPOSAL'
   const isProposalSubmitted = proposalId >= 0
   const disabled = !isProposalRound || isProposalSubmitted
-  const disabledSubmitBtn = useMemo(
-    () =>
-      currentProposalValidation.description !== INPUT_STATUS_SUCCESS ||
-      currentProposalValidation.title !== INPUT_STATUS_SUCCESS ||
-      currentProposalValidation.sourceCode !== INPUT_STATUS_SUCCESS,
-    [currentProposalValidation],
-  )
 
   const handleOnBlur = (
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
@@ -119,20 +104,6 @@ export const StageOneForm = ({
       },
       proposalId,
     )
-  }
-
-  const clearState = (): void => {
-    // setValidForm(DEFAULT_VALIDITY)
-    // setFormInputStatus(DEFAULT_INPUT_STATUSES)
-  }
-
-  useEffect(() => {
-    if (!isProposalRound) clearState()
-  }, [isProposalRound])
-
-  const submitProposal = async () => {
-    await handleSubmitProposal()
-    clearState()
   }
 
   return (
@@ -217,43 +188,6 @@ export const StageOneForm = ({
           />
         </div>
       )}
-
-      <FormButtonContainer>
-        <Button
-          icon="close-stroke"
-          className="close delete-pair"
-          text="Drop Proposal"
-          kind={ACTION_SECONDARY}
-          disabled={!isProposalSubmitted || !isProposalRound}
-          onClick={() => handleDropProposal(proposalId)}
-        />
-        <Button
-          icon="lock"
-          className="lock"
-          text={'Lock Proposal'}
-          disabled={!isProposalSubmitted || !isProposalRound || currentProposal.locked}
-          onClick={() => handleLockProposal(proposalId)}
-          kind={ACTION_SECONDARY}
-        />
-        {isProposalSubmitted ? (
-          <Button
-            icon="bytes"
-            className="bytes"
-            text="Save Changes"
-            kind={ACTION_PRIMARY}
-            disabled={proposalHasChange || currentProposal.locked}
-            onClick={() => handleUpdateData(proposalId)}
-          />
-        ) : (
-          <Button
-            icon="auction"
-            kind={ACTION_PRIMARY}
-            text={'Submit Proposal'}
-            disabled={disabledSubmitBtn}
-            onClick={submitProposal}
-          />
-        )}
-      </FormButtonContainer>
     </form>
   )
 }
