@@ -255,8 +255,8 @@ block{
                 // Verify that farm is not open
                 verifyFarmIsNotOpen(s);
 
-                // Verify that farm reward blocks has been set (or is an infinite farm)
-                verifyFarmRewardBlocks(initFarmParams);
+                // Validate that farm reward blocks has been set (or is an infinite farm)
+                validateFarmRewardBlocks(initFarmParams);
                 
                 // Update Farm Storage and init Farm
                 s := updateFarm(s);
