@@ -8,7 +8,7 @@ import { StageOneForm } from './StageOneForm/StageOneForm.controller'
 import { StageThreeForm } from './StageThreeForm/StageThreeForm.controller'
 import { StageTwoForm } from './StageTwoForm/StageTwoForm.controller'
 import { MultyProposalItem, MultyProposals } from './MultyProposals/MultyProposals.controller'
-import { ProposalSubmissionForm } from './ProposalSubmission.style'
+import { FormButtonContainer, ProposalSubmissionForm } from './ProposalSubmission.style'
 import { Page } from 'styles'
 
 // types
@@ -26,6 +26,8 @@ import {
 import { dropProposal, lockProposal, submitProposal, updateProposalData } from './ProposalSubmission.actions'
 import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import { isValidLength } from 'utils/validatorFunctions'
+import { Button } from 'app/App.components/Button/Button.controller'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 export const ProposalSubmission = () => {
   const dispatch = useDispatch()
@@ -33,6 +35,7 @@ export const ProposalSubmission = () => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const {
     currentRoundProposals,
+    governancePhase,
     governanceStorage: {
       fee,
       config: { proposalTitleMaxLength, proposalDescriptionMaxLength },
@@ -223,6 +226,35 @@ export const ProposalSubmission = () => {
     [proposalState, proposalsValidation, selectedUserProposalId],
   )
 
+  // action buttons stuff for disabling
+  const isProposalSubmitted = selectedUserProposalId >= 0
+  const isProposalPeriod = governancePhase === 'PROPOSAL'
+
+  const isBytesValid = useMemo(
+    () =>
+      currentProposalValidation.bytesValidation.some(
+        ({ validBytes, validTitle }) => validBytes !== INPUT_STATUS_ERROR && validTitle !== INPUT_STATUS_ERROR,
+      ),
+    [currentProposalValidation.bytesValidation],
+  )
+
+  const isPaymentsValid = useMemo(
+    () =>
+      currentProposalValidation.paymentsValidation.some(
+        ({ to__id, title, token_amount }) =>
+          to__id !== INPUT_STATUS_ERROR || (title !== INPUT_STATUS_ERROR && token_amount !== INPUT_STATUS_ERROR),
+      ),
+    [currentProposalValidation.paymentsValidation],
+  )
+
+  const isStageOneDataValid = useMemo(
+    () =>
+      currentProposalValidation.description !== INPUT_STATUS_SUCCESS ||
+      currentProposalValidation.title !== INPUT_STATUS_SUCCESS ||
+      currentProposalValidation.sourceCode !== INPUT_STATUS_SUCCESS,
+    [currentProposalValidation.description, currentProposalValidation.title, currentProposalValidation.sourceCode],
+  )
+
   return (
     <Page>
       <PageHeader page={'proposal submission'} />
@@ -233,49 +265,71 @@ export const ProposalSubmission = () => {
         {activeTab === 1 && (
           <StageOneForm
             proposalId={selectedUserProposalId}
-            proposalHasChange={proposalHasChange}
             currentProposal={currentProposal}
             currentProposalValidation={currentProposalValidation}
             updateLocalProposalValidation={updateLocalProposalValidation}
             updateLocalProposalData={updateLocalProposalData}
-            handleDropProposal={handleDropProposal}
-            handleLockProposal={handleLockProposal}
-            handleUpdateData={handleUpdateData}
-            handleSubmitProposal={handleSubmitProposal}
           />
         )}
         {activeTab === 2 && (
           <StageTwoForm
             proposalId={selectedUserProposalId}
             currentProposal={currentProposal}
-            proposalHasChange={proposalHasChange}
             currentProposalValidation={currentProposalValidation}
             updateLocalProposalValidation={updateLocalProposalValidation}
             updateLocalProposalData={updateLocalProposalData}
-            handleDropProposal={handleDropProposal}
-            handleLockProposal={handleLockProposal}
-            handleUpdateData={handleUpdateData}
             setProposalHasChange={setProposalHasChange}
-            handleSubmitProposal={handleSubmitProposal}
           />
         )}
         {activeTab === 3 && (
           <StageThreeForm
             proposalId={selectedUserProposalId}
             currentProposal={currentProposal}
-            proposalHasChange={proposalHasChange}
             paymentMethods={paymentMethods}
             currentProposalValidation={currentProposalValidation}
             updateLocalProposalValidation={updateLocalProposalValidation}
             updateLocalProposalData={updateLocalProposalData}
-            handleDropProposal={handleDropProposal}
-            handleLockProposal={handleLockProposal}
-            handleUpdateData={handleUpdateData}
             setProposalHasChange={setProposalHasChange}
-            handleSubmitProposal={handleSubmitProposal}
           />
         )}
       </ProposalSubmissionForm>
+
+      <FormButtonContainer>
+        <Button
+          icon="close-stroke"
+          className="close delete-pair"
+          text="Drop Proposal"
+          kind={ACTION_SECONDARY}
+          disabled={!isProposalSubmitted || !isProposalPeriod}
+          onClick={() => handleDropProposal(selectedUserProposalId)}
+        />
+        <Button
+          icon="lock"
+          className="lock"
+          text={'Lock Proposal'}
+          disabled={!isProposalSubmitted || !isProposalPeriod || currentProposal.locked || proposalHasChange}
+          onClick={() => handleLockProposal(selectedUserProposalId)}
+          kind={ACTION_SECONDARY}
+        />
+        {isProposalSubmitted ? (
+          <Button
+            icon="bytes"
+            className="bytes"
+            text="Save Changes"
+            kind={ACTION_PRIMARY}
+            disabled={!proposalHasChange || currentProposal.locked || !isBytesValid || !isPaymentsValid}
+            onClick={() => handleUpdateData(selectedUserProposalId)}
+          />
+        ) : (
+          <Button
+            icon="auction"
+            kind={ACTION_PRIMARY}
+            text={'Submit Proposal'}
+            disabled={!isStageOneDataValid || !isBytesValid || !isPaymentsValid}
+            onClick={handleSubmitProposal}
+          />
+        )}
+      </FormButtonContainer>
     </Page>
   )
 }

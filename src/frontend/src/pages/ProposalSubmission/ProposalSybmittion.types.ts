@@ -47,43 +47,28 @@ export type ProposalValidityObj = {
 export type StageOneFormProps = {
   proposalId: number
   currentProposal: ProposalRecordType
-  proposalHasChange: boolean
   currentProposalValidation: ProposalValidityObj
   updateLocalProposalValidation: ChangeProposalValidationFnType
   updateLocalProposalData: ChangeProposalFnType
-  handleDropProposal: (proposalId: number) => void
-  handleLockProposal: (proposalId: number) => void
-  handleUpdateData: (proposalId: number) => void
-  handleSubmitProposal: () => void
 }
 
 export type StageTwoFormProps = {
   proposalId: number
   currentProposal: ProposalRecordType
-  proposalHasChange: boolean
   currentProposalValidation: ProposalValidityObj
   updateLocalProposalValidation: ChangeProposalValidationFnType
   setProposalHasChange: (arg: boolean) => void
   updateLocalProposalData: ChangeProposalFnType
-  handleDropProposal: (proposalId: number) => void
-  handleUpdateData: (proposalId: number) => void
-  handleLockProposal: (proposalId: number) => void
-  handleSubmitProposal: () => void
 }
 
 export type StageThreeFormProps = {
   proposalId: number
   currentProposal: ProposalRecordType
-  proposalHasChange: boolean
   paymentMethods: Array<{ symbol: string; address: string; shortSymbol: string; id: number }>
   currentProposalValidation: ProposalValidityObj
   updateLocalProposalValidation: ChangeProposalValidationFnType
   setProposalHasChange: (arg: boolean) => void
   updateLocalProposalData: ChangeProposalFnType
-  handleDropProposal: (proposalId: number) => void
-  handleUpdateData: (proposalId: number) => void
-  handleLockProposal: (proposalId: number) => void
-  handleSubmitProposal: () => void
 }
 
 export type StageThreeValidityItem = 'token_amount' | 'to__id' | 'title'

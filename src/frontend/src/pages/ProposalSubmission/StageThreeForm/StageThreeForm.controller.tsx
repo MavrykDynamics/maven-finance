@@ -41,16 +41,11 @@ import {
 export const StageThreeForm = ({
   proposalId,
   currentProposal,
-  proposalHasChange,
   paymentMethods,
   currentProposalValidation,
   updateLocalProposalValidation,
   setProposalHasChange,
   updateLocalProposalData,
-  handleDropProposal,
-  handleUpdateData,
-  handleLockProposal,
-  handleSubmitProposal,
 }: StageThreeFormProps) => {
   const { proposalPayments, locked, title } = currentProposal
   const {
@@ -63,19 +58,9 @@ export const StageThreeForm = ({
 
   // we can modify only when current period is 'proposal'
   const isProposalRound = governancePhase === 'PROPOSAL'
-  const isProposalSubmitted = proposalId >= 0
   const isMaxRows = MAX_ROWS <= proposalPayments.length
 
   const [openDrop, setOpenDrop] = useState('')
-
-  // const isAllPaymentsValid = useMemo(
-  //   () =>
-  //     currentProposalValidation.paymentsValidation.every(
-  //       ({ token_amount, title, to__id }) =>
-  //         token_amount === INPUT_STATUS_SUCCESS || title === INPUT_STATUS_SUCCESS || to__id === INPUT_STATUS_SUCCESS,
-  //     ),
-  //   [currentProposalValidation.paymentsValidation],
-  // )
 
   const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>, itemId: number) => {
     const { name, value } = e.target
@@ -157,10 +142,6 @@ export const StageThreeForm = ({
     setOpenDrop(openDrop ? '' : `${i}-asset`)
   }
 
-  // const isDisabledSubmitTableBtn = useMemo(
-  //   () => !isProposalRound || !proposalHasChange || (proposalHasChange && !isAllPaymentsValid) || locked,
-  //   [validForm, isProposalRound],
-  // )
   const disabledInputs = useMemo(() => !isProposalRound || locked, [isProposalRound, locked])
 
   return (
@@ -308,43 +289,6 @@ export const StageThreeForm = ({
           ) : null}
         </TableGridWrap>
       </FormTableGrid>
-      <FormButtonContainer>
-        <Button
-          icon="close-stroke"
-          className="close delete-pair"
-          text="Drop Proposal"
-          kind={ACTION_SECONDARY}
-          disabled={!isProposalSubmitted || !isProposalRound}
-          onClick={() => handleDropProposal(proposalId)}
-        />
-        <Button
-          icon="lock"
-          className="lock"
-          text={'Lock Proposal'}
-          disabled={!isProposalSubmitted || !isProposalRound || locked}
-          onClick={() => handleLockProposal(proposalId)}
-          kind={ACTION_SECONDARY}
-        />
-        {isProposalSubmitted ? (
-          <Button
-            icon="bytes"
-            className="bytes"
-            text="Save Changes"
-            kind={ACTION_PRIMARY}
-            disabled={!proposalHasChange || locked}
-            onClick={() => handleUpdateData(proposalId)}
-          />
-        ) : (
-          <Button
-            icon="auction"
-            kind={ACTION_PRIMARY}
-            text={'Submit Proposal'}
-            // TODO: add disabling when stage 1 data incorrect
-            // disabled={disabledSubmitBtn}
-            onClick={handleSubmitProposal}
-          />
-        )}
-      </FormButtonContainer>
     </SubmissionStyled>
   )
 }
