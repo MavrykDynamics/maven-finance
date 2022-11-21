@@ -230,9 +230,12 @@ export const ProposalSubmission = () => {
 
   const isBytesValid = useMemo(
     () =>
-      currentProposalValidation.bytesValidation?.every(
-        ({ validBytes, validTitle }) => validBytes === INPUT_STATUS_SUCCESS && validTitle === INPUT_STATUS_SUCCESS,
-      ) ?? true,
+      currentProposalValidation.bytesValidation?.every(({ validBytes, validTitle, byteId }) => {
+        const isSavedBytes = currentOriginalProposal?.proposalData?.find(({ id }) => id === byteId)
+        return isSavedBytes
+          ? validBytes !== INPUT_STATUS_ERROR
+          : validBytes === INPUT_STATUS_SUCCESS && validTitle === INPUT_STATUS_SUCCESS
+      }) ?? true,
     [currentProposalValidation.bytesValidation],
   )
 
