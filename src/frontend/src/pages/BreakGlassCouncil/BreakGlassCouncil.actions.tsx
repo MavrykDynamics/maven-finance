@@ -38,7 +38,7 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
   const { accountPkh } = state?.wallet
 
   try {
-    const myPastBreakGlassCouncilAction = accountPkh
+    const storage = accountPkh
       ? await fetchFromIndexerWithPromise(
           MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
           MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
@@ -46,37 +46,33 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
         )
       : { break_glass_action: [] }
 
+    const myPastBreakGlassCouncilAction = normalizeBreakGlassAction(storage)
+
     await dispatch({
       type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
-      myPastBreakGlassCouncilAction: normalizeBreakGlassAction(myPastBreakGlassCouncilAction),
+      myPastBreakGlassCouncilAction,
     })
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-
-    dispatch({
-      type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
-      error,
-    })
   }
 }
 
-// getBreakGlassActionPendingMySignature
+// getBreakGlassActionPendingSignature
 export const GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE = 'GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE'
 export const getBreakGlassActionPendingSignature = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   const { accountPkh } = state?.wallet
 
   try {
-    const storage = accountPkh
-      ? await fetchFromIndexerWithPromise(
-          BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY,
-          BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_NAME,
-          BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz }),
-        )
-      : { break_glass_action: [] }
+    const storage = await fetchFromIndexerWithPromise(
+      BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY,
+      BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_NAME,
+      BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz }),
+    )
+
 
     const breakGlassActionPendingMySignature = normalizeBreakGlassAction(storage, { filterByAddress: accountPkh })
     const breakGlassActionPendingSignature = normalizeBreakGlassAction(storage, { filterWithoutAddress: accountPkh })
@@ -91,11 +87,6 @@ export const getBreakGlassActionPendingSignature = () => async (dispatch: AppDis
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-
-    dispatch({
-      type: GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE,
-      error,
-    })
   }
 }
 
@@ -120,11 +111,6 @@ export const getPastBreakGlassCouncilAction = () => async (dispatch: AppDispatch
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-
-    dispatch({
-      type: GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
-      error,
-    })
   }
 }
 
@@ -149,11 +135,6 @@ export const getBreakGlassCouncilMember = () => async (dispatch: AppDispatch, ge
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-
-    dispatch({
-      type: GET_BREAK_GLASS_COUNCIL_MEMBER,
-      error,
-    })
   }
 }
 

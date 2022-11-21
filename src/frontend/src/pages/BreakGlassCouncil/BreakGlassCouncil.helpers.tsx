@@ -20,7 +20,7 @@ export function normalizeBreakGlassAction(storage: BreakGlassActionProps, option
   } else if (filterWithoutAddress) {
     list = break_glass_action?.filter((item) => item.initiator_id !== filterWithoutAddress)
   } else {
-    list = break_glass_action
+    list = break_glass_action || []
   }
 
   return list.map((item) => {
