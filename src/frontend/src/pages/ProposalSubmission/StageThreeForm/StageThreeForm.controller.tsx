@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -7,7 +7,7 @@ import { StageThreeFormProps, StageThreeValidityItem } from '../ProposalSybmitti
 import { Governance_Proposal } from 'utils/generated/graphqlTypes'
 
 // helpers
-import { getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpers'
+import { checkPaymentExists, getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpers'
 
 // components
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
@@ -52,6 +52,12 @@ export const StageThreeForm = ({
     },
     governancePhase,
   } = useSelector((state: State) => state.governance)
+
+  useEffect(() => {
+    if (!proposalPayments.some(checkPaymentExists)) {
+      handleAddRow()
+    }
+  }, [proposalId, proposalPayments])
 
   const isProposalRound = governancePhase === 'PROPOSAL'
   const isMaxRows = MAX_ROWS <= proposalPayments.length
@@ -195,7 +201,7 @@ export const StageThreeForm = ({
                 <td key="row-names-asset">Payment Type (XTZ/MVK)</td>
               </tr>
               {proposalPayments.map((rowItems, i) => {
-                const validationObj = currentProposalValidation.paymentsValidation.find(
+                const validationObj = currentProposalValidation.paymentsValidation?.find(
                   ({ paymentId }) => paymentId === rowItems.id,
                 )
                 const { symbol: selectedSymbol = 'MVK' } =
