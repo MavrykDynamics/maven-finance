@@ -101,6 +101,8 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 // Treasury Factory Entrypoints:
 #include "../partials/contractEntrypoints/treasuryFactoryEntrypoints.ligo"
 
+// ------------------------------------------------------------------------------
+
 
 (* main entrypoint *)
 function main (const action : treasuryFactoryAction; var s : treasuryFactoryStorageType) : return is

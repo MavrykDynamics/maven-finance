@@ -99,6 +99,8 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 // Farm Factory Entrypoints:
 #include "../partials/contractEntrypoints/farmFactoryEntrypoints.ligo"
 
+// ------------------------------------------------------------------------------
+
 
 (* main entrypoint *)
 function main (const action : farmFactoryAction; var s : farmFactoryStorageType) : return is

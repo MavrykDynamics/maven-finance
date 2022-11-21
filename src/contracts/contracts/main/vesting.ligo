@@ -92,6 +92,8 @@ const thirty_days    : int  = one_day * 30;
 // Vesting Entrypoints:
 #include "../partials/contractEntrypoints/vestingEntrypoints.ligo"
 
+// ------------------------------------------------------------------------------
+
 
 (* main entrypoint *)
 function main (const action : vestingAction; const s : vestingStorageType) : return is

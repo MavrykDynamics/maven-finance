@@ -101,6 +101,7 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 // BreakGlass Entrypoints:
 #include "../partials/contractEntrypoints/breakGlassEntrypoints.ligo"
 
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
