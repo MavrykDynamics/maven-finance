@@ -53,8 +53,8 @@ block {
                 
                 const metadataKey : string = updateMetadataParams.metadataKey;
                 const metadataHash : bytes = updateMetadataParams.metadataHash;
-                
-                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+
+                s.metadata[metadataKey] := metadataHash;
             }
         |   _ -> skip
     ];
@@ -322,26 +322,19 @@ block {
                 const satelliteAddress  : address = delegateToSatelliteParams.satelliteAddress;
 
                 // Check if the sender is the user specified in parameters, or the Delegation Contract
-                if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() then skip
-                else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
+                verifySenderIsSelfOrUser(userAddress);
 
                 // Check that user is not a satellite
                 checkUserIsNotSatellite(userAddress, s);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations  := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
 
                 // Update user's unclaimed satellite rewards (in the event user is already delegated to another satellite)
                 s := updateRewards(userAddress, s);
                 
                 // Verify that satellite exists
-                var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
-                        Some(_val) -> _val
-                    |   None       -> failwith(error_SATELLITE_NOT_FOUND)
-                ];
-
-                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+                var _checkSatelliteExists : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
                 // --------------------------------------------------------------
                 //
@@ -357,34 +350,20 @@ block {
                     // ------------------------------------------------
                 
                     // Get user's delegate record
-                    var delegateRecord : delegateRecordType := case s.delegateLedger[userAddress] of [
-                            Some(_delegateRecord) -> _delegateRecord
-                        |   None                  -> failwith(error_DELEGATE_NOT_FOUND) // failwith should not be reached as conditional check has already cleared
-                    ];
+                    var delegateRecord : delegateRecordType := getDelegateRecord(userAddress, s);
 
                     // Temp variable for current satellite to be replaced
                     const previousSatellite : address = delegateRecord.satelliteAddress; 
 
-                    // Check that new satellite is not the same as previously delegated satellite
-                    if previousSatellite = satelliteAddress then failwith(error_ALREADY_DELEGATED_SATELLITE)
-                    else skip;
+                    // Verify that new satellite is not the same as previously delegated satellite
+                    verifyDifferentAddress(previousSatellite, satelliteAddress, error_ALREADY_DELEGATED_SATELLITE);
 
                     // Create operation to delegate to new satellite
-                    const delegateToSatelliteOperation : operation = Tezos.transaction(
-                        (delegateToSatelliteParams),
-                        0tez, 
-                        getDelegateToSatelliteEntrypoint(Tezos.get_self_address())
-                    );
-
+                    const delegateToSatelliteOperation : operation = delegateToSatelliteOperation(delegateToSatelliteParams);
                     operations  := delegateToSatelliteOperation # operations;
 
                     // Create operation to undelegate from previous satellite
-                    const undelegateFromSatelliteOperation : operation = Tezos.transaction(
-                        (userAddress),
-                        0tez, 
-                        getUndelegateFromSatelliteEntrypoint(Tezos.get_self_address())
-                    );
-
+                    const undelegateFromSatelliteOperation : operation = undelegateFromSatelliteOperation(userAddress);
                     operations  := undelegateFromSatelliteOperation # operations;
 
                 } else block {
@@ -394,44 +373,28 @@ block {
                     // ------------------------------------------------
 
                     // Get user's staked MVK balance from the Doorman Contract
-                    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-                    const stakedMvkBalance : nat = case stakedMvkBalanceView of [
-                            Some (value) -> value
-                        |   None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-                    ];
+                    const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
                     // Get satellite record
                     var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
                     
                     // Create and save new delegate record for user
-                    var delegateRecord : delegateRecordType := record [
-                        satelliteAddress              = satelliteAddress;
-                        delegatedDateTime             = Tezos.get_now();
-                        delegatedStakedMvkBalance     = stakedMvkBalance;
-                    ];
-
-                    s.delegateLedger[userAddress] := delegateRecord;
+                    s.delegateLedger[userAddress] := createDelegateRecord(satelliteAddress, stakedMvkBalance);
 
                     // Get satellite's rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
-                            Some (_record) -> _record
-                        |   None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
-                    ];
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
 
                     // Update or create new rewards record for user (delegate)
-                    var delegateRewardsRecord: satelliteRewardsType := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-                            Some(_record) -> _record
-                        |   None -> record [
-                                unpaid                                  = 0n;
-                                paid                                    = 0n;
-                                participationRewardsPerShare            = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                                satelliteAccumulatedRewardsPerShare     = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                                satelliteReferenceAddress               = satelliteAddress;
-                            ]
-                    ];
-                    delegateRewardsRecord.participationRewardsPerShare              := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                    delegateRewardsRecord.satelliteReferenceAddress                 := satelliteAddress;
-                    s.satelliteRewardsLedger[userAddress]                           := delegateRewardsRecord;
+                    var delegateRewardsRecord : satelliteRewardsType := getOrCreateDelegateRewardsRecord(
+                        userAddress,                                                        // user address (delegate)
+                        satelliteAddress,                                                   // satellite address
+                        satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare,         // satellites's accumulate rewards per share
+                        s                                                                   // storage
+                    );
+
+                    delegateRewardsRecord.participationRewardsPerShare   := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                    delegateRewardsRecord.satelliteReferenceAddress      := satelliteAddress;
+                    s.satelliteRewardsLedger[userAddress]                := delegateRewardsRecord;
 
                     // Update satellite's total delegated amount (increment by user's staked MVK balance)
                     satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
@@ -473,69 +436,39 @@ block {
     case delegationLambdaAction of [
         |   LambdaUndelegateFromSatellite(userAddress) -> {
 
-                // Check if sender is self (Delegation Contract) or userAddress -> Needed now because a user can compound for another user, so onStakeChange needs to reference a userAddress
-                if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() then skip 
-                else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
+                // Verify that sender is self (Delegation Contract) or userAddress -> Needed now because a user can compound for another user, so onStakeChange needs to reference a userAddress
+                verifySenderIsSelfOrUser(userAddress);
 
                 // Get user's delegate record
-                var _delegateRecord : delegateRecordType := case s.delegateLedger[userAddress] of [
-                        Some(_val) -> _val
-                    |   None -> failwith(error_DELEGATE_NOT_FOUND)
-                ];
+                var delegateRecord : delegateRecordType := getDelegateRecord(userAddress, s);
+
+                // get satellite address from user's delegate record
+                const satelliteAddress : address = delegateRecord.satelliteAddress;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations  := updateGovernanceSnapshot(_delegateRecord.satelliteAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
 
                 // Update unclaimed rewards for user
                 s := updateRewards(userAddress, s);
 
-                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
                 // Get user's staked MVK balance from the Doorman Contract
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-                const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
-                ];
-                
-                // Init empty satellite record - for type checking 
-                var emptySatelliteRecord : satelliteRecordType := record [
-                    status                = "INACTIVE";        
-                    stakedMvkBalance      = 0n;
-                    satelliteFee          = 0n;
-                    totalDelegatedAmount  = 0n;
-                    
-                    name                  = "Empty Satellite";
-                    description           = "Empty Satellite";
-                    image                 = "";
-                    website               = "";
-
-                    registeredDateTime    = Tezos.get_now();
-
-                    oraclePublicKey       = ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key); // random default public key
-                    oraclePeerId          = "peerId";
-                ];
+                const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
                 // Get satellite record
-                var _satelliteRecord : satelliteRecordType := case s.satelliteLedger[_delegateRecord.satelliteAddress] of [
-                        None          -> emptySatelliteRecord
-                    |   Some(_record) -> _record
-                ];
+                var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
                 // Check if satellite exists and is not inactive (if satellite does not exist, it will return "INACTIVE" from the empty satellite record above)
                 // - if satellite is suspended or banned, users should be able to undelegate from satellite 
-                if _satelliteRecord.status =/= "INACTIVE" then block {
+                if satelliteRecord.status =/= "INACTIVE" then block {
                 
-                    // Check that user's staked MVK balance does not exceed satellite's total delegated amount
-                    if stakedMvkBalance > _satelliteRecord.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
-                    else skip;
+                    // Verify that user's staked MVK balance does not exceed satellite's total delegated amount
+                    verifyLessThan(stakedMvkBalance, satelliteRecord.totalDelegatedAmount, error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT);
                     
                     // Update satellite total delegated amount (decrement by user's staked MVK balance)
-                    _satelliteRecord.totalDelegatedAmount := abs(_satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 
+                    satelliteRecord.totalDelegatedAmount := abs(satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 
                     
                     // Update satellite record in storage
-                    s.satelliteLedger[_delegateRecord.satelliteAddress] := _satelliteRecord;
+                    s.satelliteLedger[satelliteAddress] := satelliteRecord;
 
                 } else skip;
 
@@ -592,88 +525,22 @@ block {
                 // Update user's unclaimed rewards
                 s := updateRewards(userAddress, s);
 
-                // Check if max number of satellites limit has been reached
-                if s.satelliteCounter >= s.config.maxSatellites then failwith(error_MAXIMUM_AMOUNT_OF_SATELLITES_REACHED) else skip;
+                // Verify that max number of satellites limit has not been reached
+                verifyMaxSatellitesAllowed(s);
 
-                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-                // Get user's staked MVK balance from the Doorman Contract
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-                const stakedMvkBalance : nat = case stakedMvkBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Check if user's staked MVK balance has reached the minimum staked MVK amount required to be a satellite
-                if stakedMvkBalance < s.config.minimumStakedMvkBalance then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
-                else skip;
-                
-                // Init new satellite record params
-                const name          : string  = registerAsSatelliteParams.name;
-                const description   : string  = registerAsSatelliteParams.description;
-                const image         : string  = registerAsSatelliteParams.image;
-                const website       : string  = registerAsSatelliteParams.website;
-                const satelliteFee  : nat     = registerAsSatelliteParams.satelliteFee;
-
-                const oraclePublicKey : key  = case registerAsSatelliteParams.oraclePublicKey of [
-                        Some(_key) -> _key
-                    |   None       -> ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key)
-                ];
-
-                const oraclePeerId : string  = case registerAsSatelliteParams.oraclePeerId of [
-                        Some(_peerId) -> _peerId
-                    |   None          -> "peerId"
-                ];
-
-                // Validate inputs (max length not exceeded)
-                if String.length(name)        > s.config.satelliteNameMaxLength         then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(description) > s.config.satelliteDescriptionMaxLength  then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(image)       > s.config.satelliteImageMaxLength        then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(website)     > s.config.satelliteWebsiteMaxLength      then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                
-                // Validate satellite fee input not exceeding 100%
-                if satelliteFee > 10000n then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // Create new satellite record
-                const satelliteRecord: satelliteRecordType = case Big_map.find_opt(userAddress, s.satelliteLedger) of [
-                        Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
-                    |   None -> record [            
-                            status                = "ACTIVE";
-                            stakedMvkBalance      = stakedMvkBalance;
-                            satelliteFee          = satelliteFee;
-                            totalDelegatedAmount  = 0n;
-
-                            name                  = name;
-                            description           = description;
-                            image                 = image;
-                            website               = website;
-                            
-                            registeredDateTime    = Tezos.get_now();
-                            
-                            oraclePublicKey       = oraclePublicKey;
-                            oraclePeerId          = oraclePeerId;
-                        ]
-                ];
+                // create new satellite record
+                const satelliteRecord : satelliteRecordType = createSatelliteRecord(registerAsSatelliteParams, s);
 
                 // Save new satellite record
                 s.satelliteLedger[userAddress]  := satelliteRecord;
                 s.satelliteCounter              := s.satelliteCounter + 1n;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations  := updateGovernanceSnapshot(userAddress, False, operations, s);
+                operations := updateGovernanceSnapshot(userAddress, False, operations, s);
 
-                // Update or create a satellite rewards record
-                var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-                        Some (_rewards) -> _rewards
-                    |   None -> record [
-                            unpaid                                      = 0n;
-                            paid                                        = 0n;
-                            participationRewardsPerShare                = 0n;
-                            satelliteAccumulatedRewardsPerShare         = 0n;
-                            satelliteReferenceAddress                   = userAddress
-                        ]
-                ];
+                // Get or create satellite rewards record
+                var satelliteRewardsRecord : satelliteRewardsType := getOrCreateSatelliteRewardsRecord(userAddress, s);
+
                 satelliteRewardsRecord.participationRewardsPerShare        := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
                 s.satelliteRewardsLedger[userAddress]                      := satelliteRewardsRecord;
                 
@@ -705,8 +572,7 @@ block {
         |   LambdaUnregisterAsSatellite(userAddress) -> {
 
                 // Check if sender is self (Delegation Contract) or userAddress
-                if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() then skip 
-                else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
+                verifySenderIsSelfOrUser(userAddress);
 
                 // Check that sender is a satellite
                 checkUserIsSatellite(userAddress, s);
@@ -716,7 +582,7 @@ block {
                 checkSatelliteStatus(userAddress, delegationAddress, True, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations  := updateGovernanceSnapshot(userAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(userAddress, True, operations, s);
 
                 // Update user's unclaimed rewards
                 s := updateRewards(userAddress, s);
@@ -753,62 +619,23 @@ block {
         |   LambdaUpdateSatelliteRecord(updateSatelliteRecordParams) -> {
 
                 // Init user address
-                const userAddress : address  = Tezos.get_sender();
+                const satelliteAddress : address  = Tezos.get_sender();
 
                 // check satellite is not banned
                 const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(userAddress, delegationAddress, False, True);
+                checkSatelliteStatus(satelliteAddress, delegationAddress, False, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations  := updateGovernanceSnapshot(userAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
                 
                 // Update user's unclaimed rewards
-                s := updateRewards(userAddress, s);
-                
-                // Get satellite record
-                var satelliteRecord : satelliteRecordType := case s.satelliteLedger[userAddress] of [
-                        Some(_val) -> _val
-                    |   None       -> failwith(error_SATELLITE_NOT_FOUND)
-                ];
+                s := updateRewards(satelliteAddress, s);
 
-                // Init updated satellite record params
-                const name          : string  = updateSatelliteRecordParams.name;
-                const description   : string  = updateSatelliteRecordParams.description;
-                const image         : string  = updateSatelliteRecordParams.image;
-                const website       : string  = updateSatelliteRecordParams.website;
-                const satelliteFee  : nat     = updateSatelliteRecordParams.satelliteFee;
+                // Update satellite record
+                const satelliteRecord : satelliteRecordType = updateSatelliteRecord(satelliteAddress, updateSatelliteRecordParams, s);
 
-                const oraclePublicKey : key  = case updateSatelliteRecordParams.oraclePublicKey of [
-                        Some(_key) -> _key
-                    |   None       -> ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key)
-                ];
-
-                const oraclePeerId : string  = case updateSatelliteRecordParams.oraclePeerId of [
-                        Some(_peerId) -> _peerId
-                    |   None          -> "peerId"
-                ];
-
-                // Validate inputs (max length not exceeded)
-                if String.length(name)        > s.config.satelliteNameMaxLength         then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(description) > s.config.satelliteDescriptionMaxLength  then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(image)       > s.config.satelliteImageMaxLength        then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(website)     > s.config.satelliteWebsiteMaxLength      then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                
-                // Validate satellite fee input not exceeding 100%
-                if satelliteFee > 10000n then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // Update satellite record 
-                satelliteRecord.name           := name;         
-                satelliteRecord.description    := description;  
-                satelliteRecord.image          := image;
-                satelliteRecord.website        := website;
-                satelliteRecord.satelliteFee   := satelliteFee;        
-
-                satelliteRecord.oraclePublicKey   := oraclePublicKey;        
-                satelliteRecord.oraclePeerId      := oraclePeerId;        
-                
                 // Update satellite record in storage
-                s.satelliteLedger[userAddress] := satelliteRecord;
+                s.satelliteLedger[satelliteAddress] := satelliteRecord;
                 
             }
         |   _ -> skip
@@ -855,52 +682,23 @@ block {
             const eligibleSatellites : set(address) = distributeRewardParams.eligibleSatellites;
             const totalReward : nat = distributeRewardParams.totalStakedMvkReward;
 
-            // Get Satellite Treasury Address from the General Contracts Map on the Governance Contract
-            const treasuryAddress : address = getContractAddressFromGovernanceContract("satelliteTreasury", s.governanceAddress, error_SATELLITE_TREASURY_CONTRACT_NOT_FOUND);
-
-            // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-            const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-            // Send the rewards from the Satellite Treasury Contract to the Doorman Contract
-            const transferParam : transferActionType = list[
-                record [
-                    to_   = doormanAddress;
-                    amount = totalReward;
-                    token = (Fa2 (record [
-                            tokenContractAddress = s.mvkTokenAddress;
-                            tokenId              = 0n;
-                        ]) : tokenType
-                    );                
-                ]
-            ];
-
-            const transferOperation: operation = Tezos.transaction(
-                transferParam,
-                0tez,
-                sendTransferOperationToTreasury(treasuryAddress)
-            );
-
-            operations := transferOperation # operations;
+            // Distribute satellite rewards (transfers MVK token from Satellite Treasury contract to the doorman contract i.e. increases staked MVK supply)
+            const distributeSatelliteRewardsOperation : operation = distributeSatelliteRewardsOperation(totalReward, s);
+            operations := distributeSatelliteRewardsOperation # operations;
 
             // Calculate reward per satellite (equal split among satellites)
-            const eligibleSatellitesCount : nat = Set.cardinal(eligibleSatellites);
-            const rewardPerSatellite : nat = totalReward * fixedPointAccuracy / eligibleSatellitesCount ;
+            const eligibleSatellitesCount   : nat = Set.cardinal(eligibleSatellites);
+            const rewardPerSatellite        : nat = totalReward * fixedPointAccuracy / eligibleSatellitesCount ;
 
             // Update rewards for each satellite in the eligible satellites set
             for satelliteAddress in set eligibleSatellites 
                 block {
                     
                     // Get satellite record
-                    var satelliteRecord : satelliteRecordType  := case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
-                            Some (_record) -> _record
-                        |   None           -> failwith(error_SATELLITE_NOT_FOUND)
-                    ];
+                    var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
                     // Get satellite rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
-                            Some (_record) -> _record
-                        |   None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
-                    ];
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
 
                     // Calculate satellite fee portion of reward
                     const satelliteFee : nat         = satelliteRecord.satelliteFee * rewardPerSatellite / 10000n;
@@ -913,10 +711,10 @@ block {
                     const totalDistributionAmountForDelegates : nat  = abs(rewardPerSatellite - satelliteFee);
 
                     // Calculate satellite's total staked MVK (total delegated amount from delegates + satellite's staked MVK amount)
-                    const satelliteTotalStakedMvk : nat              = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
+                    const satelliteTotalStakedMvk : nat  = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
 
                     // Calculate increment to satellite accumulated rewards per share
-                    const incrementRewardsPerShare : nat             = totalDistributionAmountForDelegates / satelliteTotalStakedMvk;
+                    const incrementRewardsPerShare : nat = totalDistributionAmountForDelegates / satelliteTotalStakedMvk;
 
                     // Update satellite's rewards record (satelliteAccumulatedRewardsPerShare, unpaid amount)
                     satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + incrementRewardsPerShare;
@@ -978,14 +776,11 @@ block {
     case delegationLambdaAction of [
         |   LambdaOnStakeChange(userAddress) -> {
 
-                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
                 // Update the satellite snapshot before rewards are updated
-                operations  := updateGovernanceSnapshot(userAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(userAddress, True, operations, s);
 
-                // Check that sender is the Doorman Contract
-                if doormanAddress = Tezos.get_sender() then skip else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
+                // Verify that sender is the Doorman Contract
+                checkSenderIsDoormanContract(s);
 
                 // Update user's rewards
                 s := updateRewards(userAddress, s);
@@ -994,16 +789,10 @@ block {
                 if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
 
                     // Get user's satellite rewards record
-                    var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-                            Some (_record) -> _record
-                        |   None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
-                    ];
+                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, error_SATELLITE_REWARDS_NOT_FOUND, s);
 
                     // Get satellite's rewards record (that user is delegated to)
-                    var _satelliteReferenceRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
-                            Some (_record) -> _record
-                        |   None           -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
-                    ];
+                    var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteRewardsRecord.satelliteReferenceAddress, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND, s);
 
                     // Update user's satellite rewards record - empty pending rewards
                     // - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare
@@ -1027,17 +816,10 @@ block {
                 if userIsSatellite then block {
 
                     // Get user's staked MVK balance from the Doorman Contract
-                    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-                    const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                            Some (value) -> value
-                        |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
-                    ];
+                    const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
                     // Get user's satellite record
-                    var satelliteRecord: satelliteRecordType := case Big_map.find_opt(userAddress, s.satelliteLedger) of [
-                            Some (_satellite) -> _satellite
-                        |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                    ];
+                    var satelliteRecord: satelliteRecordType := getSatelliteRecord(userAddress, s);
 
                     // Update user's satellite record staked MVK balance and storage in satelliteLedger
                     satelliteRecord.stakedMvkBalance  := stakedMvkBalance;
@@ -1052,57 +834,49 @@ block {
                     if userIsDelegator then block {
                     
                         // Get user's delegate record
-                        var _delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
-                                Some (_delegate) -> _delegate
-                            |   None             -> failwith(error_DELEGATE_NOT_FOUND)
-                        ];
+                        var delegatorRecord : delegateRecordType := getDelegateRecord(userAddress, s);
+
+                        // Get satellite address
+                        const satelliteAddress : address = delegatorRecord.satelliteAddress;
 
                         // Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
-                        const userHasActiveSatellite: bool = Big_map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
+                        const userHasActiveSatellite: bool = Big_map.mem(satelliteAddress, s.satelliteLedger);
 
                         if userHasActiveSatellite then block {
 
                             // Get user's staked MVK balance from the Doorman Contract
-                            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-                            const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                                    Some (value) -> value
-                                |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
-                            ];
+                            const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
                             // Get satellite record of satellite that user is delegated to
-                            var userSatellite: satelliteRecordType := case Big_map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
-                                    Some (_delegatedSatellite) -> _delegatedSatellite
-                                |   None                       -> failwith(error_SATELLITE_NOT_FOUND)
-                            ];
+                            var userSatellite: satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
                             // Calculate difference between user's staked MVK balance in delegate record and his current staked MVK balance
-                            const stakeAmount: nat = abs(_delegatorRecord.delegatedStakedMvkBalance - stakedMvkBalance);
+                            const stakeAmount: nat = abs(delegatorRecord.delegatedStakedMvkBalance - stakedMvkBalance);
 
                             // Check if there has been a positive or negative change in user's staked MVK balance and adjust satellite's total delegated amount correspondingly
                             // - If there is a positive change in user's staked MVK balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
                             // - Else If stakeAmount is greater than userSatellite's total delegated amount then fail with error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT
                             // - Else, there is a negative change in user's staked MVK balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
-                            if stakedMvkBalance > _delegatorRecord.delegatedStakedMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
+                            if stakedMvkBalance > delegatorRecord.delegatedStakedMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
                             else if stakeAmount > userSatellite.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
                             else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
 
                             // Update the satellite snapshot on the governance contract before updating its record
-                            operations  := updateGovernanceSnapshot(_delegatorRecord.satelliteAddress, True, operations, s);
+                            operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
 
                             // Update storage (user's delegate record and his delegated satellite record)
-                            _delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
-                            s.delegateLedger   := Big_map.update(userAddress, Some(_delegatorRecord), s.delegateLedger);
-                            s.satelliteLedger  := Big_map.update(_delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
+                            delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
+
+                            s.delegateLedger[userAddress]        := delegatorRecord;
+                            s.satelliteLedger[satelliteAddress]  := userSatellite;
+                        
                         } 
 
                         // Force User to undelegate if he does not have an active satellite anymore
-                        else operations := Tezos.transaction(
-                            (userAddress), 
-                            0tez, 
-                            getUndelegateFromSatelliteEntrypoint(Tezos.get_self_address())
-                            ) # operations;
-                        }
-
+                        else operations := undelegateFromSatelliteOperation(userAddress) # operations;
+                    
+                    } 
+                    
                     else skip
                 }
 
@@ -1137,13 +911,10 @@ block {
                 const newStatus         : string  = updateSatelliteStatusParams.newStatus;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations  := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
 
                 // Get satellite record 
-                var satelliteRecord : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
-                        Some(_record) -> _record 
-                    |   None          -> failwith(error_SATELLITE_NOT_FOUND)
-                ];
+                var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
             
                 // Update satellite with new status
                 satelliteRecord.status := newStatus;
