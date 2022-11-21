@@ -72,8 +72,9 @@ export const delegate = (satelliteAddress: string) => async (dispatch: AppDispat
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    const transaction = await contract?.methods.delegateToSatellite(satelliteAddress).send()
-
+    console.log(contract, 'contract');
+    const transaction = await contract?.methods.delegateToSatellite(state.wallet.accountPkh, satelliteAddress).send()
+    console.log(transaction, 'transaction');
     dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Delegating...', 'Please wait 30s'))
 
@@ -110,7 +111,7 @@ export const undelegate = (delegateAddress: string) => async (dispatch: AppDispa
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
-    const transaction = await contract?.methods.undelegateFromSatellite(delegateAddress).send()
+    const transaction = await contract?.methods.undelegateFromSatellite(state.wallet.accountPkh, delegateAddress).send()
 
     dispatch(toggleLoader(ROCKET_LOADER))
     dispatch(showToaster(INFO, 'Undelegating...', 'Please wait 30s'))
