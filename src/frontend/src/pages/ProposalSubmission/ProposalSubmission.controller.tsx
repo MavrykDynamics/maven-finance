@@ -54,23 +54,21 @@ export const ProposalSubmission = () => {
         (acc, proposal) => {
           acc.mapper[proposal.id] = proposal
           acc.validityObj[proposal.id] = {
-            title: isValidLength(proposal.title, 1, proposalTitleMaxLength) ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR,
-            description: isValidLength(proposal.description, 1, proposalDescriptionMaxLength)
-              ? INPUT_STATUS_SUCCESS
-              : INPUT_STATUS_ERROR,
-            sourceCode: proposal.successReward >= 0 ? INPUT_STATUS_SUCCESS : INPUT_STATUS_ERROR,
-            ipfs: INPUT_STATUS_SUCCESS,
-            successMVKReward: INPUT_STATUS_SUCCESS,
-            invoiceTable: INPUT_STATUS_SUCCESS,
+            title: '',
+            description: '',
+            sourceCode: '',
+            ipfs: '',
+            successMVKReward: '',
+            invoiceTable: '',
             bytesValidation: proposal.proposalData.map((bytesPair) => ({
-              validBytes: INPUT_STATUS_SUCCESS,
-              validTitle: INPUT_STATUS_SUCCESS,
+              validBytes: '',
+              validTitle: '',
               byteId: bytesPair.id,
             })),
             paymentsValidation: proposal.proposalPayments.map((payment) => ({
-              token_amount: INPUT_STATUS_SUCCESS,
-              title: INPUT_STATUS_SUCCESS,
-              to__id: INPUT_STATUS_SUCCESS,
+              token_amount: '',
+              title: '',
+              to__id: '',
               paymentId: payment.id,
             })),
           }
@@ -232,26 +230,26 @@ export const ProposalSubmission = () => {
 
   const isBytesValid = useMemo(
     () =>
-      currentProposalValidation.bytesValidation.some(
-        ({ validBytes, validTitle }) => validBytes !== INPUT_STATUS_ERROR && validTitle !== INPUT_STATUS_ERROR,
-      ),
+      currentProposalValidation.bytesValidation?.every(
+        ({ validBytes, validTitle }) => validBytes === INPUT_STATUS_SUCCESS && validTitle === INPUT_STATUS_SUCCESS,
+      ) ?? true,
     [currentProposalValidation.bytesValidation],
   )
 
   const isPaymentsValid = useMemo(
     () =>
-      currentProposalValidation.paymentsValidation.some(
+      currentProposalValidation.paymentsValidation?.every(
         ({ to__id, title, token_amount }) =>
-          to__id !== INPUT_STATUS_ERROR || (title !== INPUT_STATUS_ERROR && token_amount !== INPUT_STATUS_ERROR),
-      ),
+          to__id === INPUT_STATUS_SUCCESS || (title === INPUT_STATUS_SUCCESS && token_amount === INPUT_STATUS_SUCCESS),
+      ) ?? true,
     [currentProposalValidation.paymentsValidation],
   )
 
   const isStageOneDataValid = useMemo(
     () =>
-      currentProposalValidation.description !== INPUT_STATUS_SUCCESS ||
-      currentProposalValidation.title !== INPUT_STATUS_SUCCESS ||
-      currentProposalValidation.sourceCode !== INPUT_STATUS_SUCCESS,
+      currentProposalValidation.description === INPUT_STATUS_SUCCESS &&
+      currentProposalValidation.title === INPUT_STATUS_SUCCESS &&
+      currentProposalValidation.sourceCode === INPUT_STATUS_SUCCESS,
     [currentProposalValidation.description, currentProposalValidation.title, currentProposalValidation.sourceCode],
   )
 
@@ -292,44 +290,44 @@ export const ProposalSubmission = () => {
             setProposalHasChange={setProposalHasChange}
           />
         )}
-      </ProposalSubmissionForm>
 
-      <FormButtonContainer>
-        <Button
-          icon="close-stroke"
-          className="close delete-pair"
-          text="Drop Proposal"
-          kind={ACTION_SECONDARY}
-          disabled={!isProposalSubmitted || !isProposalPeriod}
-          onClick={() => handleDropProposal(selectedUserProposalId)}
-        />
-        <Button
-          icon="lock"
-          className="lock"
-          text={'Lock Proposal'}
-          disabled={!isProposalSubmitted || !isProposalPeriod || currentProposal.locked || proposalHasChange}
-          onClick={() => handleLockProposal(selectedUserProposalId)}
-          kind={ACTION_SECONDARY}
-        />
-        {isProposalSubmitted ? (
+        <FormButtonContainer>
           <Button
-            icon="bytes"
-            className="bytes"
-            text="Save Changes"
-            kind={ACTION_PRIMARY}
-            disabled={!proposalHasChange || currentProposal.locked || !isBytesValid || !isPaymentsValid}
-            onClick={() => handleUpdateData(selectedUserProposalId)}
+            icon="close-stroke"
+            className="close delete-pair"
+            text="Drop Proposal"
+            kind={ACTION_SECONDARY}
+            disabled={!isProposalSubmitted || !isProposalPeriod}
+            onClick={() => handleDropProposal(selectedUserProposalId)}
           />
-        ) : (
           <Button
-            icon="auction"
-            kind={ACTION_PRIMARY}
-            text={'Submit Proposal'}
-            disabled={!isStageOneDataValid || !isBytesValid || !isPaymentsValid}
-            onClick={handleSubmitProposal}
+            icon="lock"
+            className="lock"
+            text={'Lock Proposal'}
+            disabled={!isProposalSubmitted || !isProposalPeriod || currentProposal.locked || proposalHasChange}
+            onClick={() => handleLockProposal(selectedUserProposalId)}
+            kind={ACTION_SECONDARY}
           />
-        )}
-      </FormButtonContainer>
+          {isProposalSubmitted ? (
+            <Button
+              icon="bytes"
+              className="bytes"
+              text="Save Changes"
+              kind={ACTION_PRIMARY}
+              disabled={!proposalHasChange || currentProposal.locked || !isBytesValid || !isPaymentsValid}
+              onClick={() => handleUpdateData(selectedUserProposalId)}
+            />
+          ) : (
+            <Button
+              icon="auction"
+              kind={ACTION_PRIMARY}
+              text={'Submit Proposal'}
+              disabled={!isStageOneDataValid || !isBytesValid || !isPaymentsValid}
+              onClick={handleSubmitProposal}
+            />
+          )}
+        </FormButtonContainer>
+      </ProposalSubmissionForm>
     </Page>
   )
 }

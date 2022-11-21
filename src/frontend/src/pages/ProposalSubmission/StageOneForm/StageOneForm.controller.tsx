@@ -62,6 +62,12 @@ export const StageOneForm = ({
         validityCheckResult = isValidLength(currentProposal.description, 1, proposalDescriptionMaxLength)
           ? INPUT_STATUS_SUCCESS
           : INPUT_STATUS_ERROR
+        updateLocalProposalValidation(
+          {
+            description: validityCheckResult,
+          },
+          proposalId,
+        )
         break
       case 'SUCCESS_MVK_REWARD':
         updateLocalProposalValidation(

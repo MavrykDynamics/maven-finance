@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -11,19 +11,16 @@ import { getValidityStageThreeTable, MAX_ROWS } from '../ProposalSubmition.helpe
 
 // components
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
-import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 
 // styles
 import {
-  FormButtonContainer,
   FormHeaderGroup,
   FormTitleAndFeeContainer,
   FormTitleContainer,
@@ -56,7 +53,6 @@ export const StageThreeForm = ({
     governancePhase,
   } = useSelector((state: State) => state.governance)
 
-  // we can modify only when current period is 'proposal'
   const isProposalRound = governancePhase === 'PROPOSAL'
   const isMaxRows = MAX_ROWS <= proposalPayments.length
 
@@ -105,6 +101,7 @@ export const StageThreeForm = ({
 
   const handleAddRow = () => {
     const { address = '', id = 0 } = paymentMethods[0]
+    const newId = -(proposalPayments.length + 1)
     updateLocalProposalData(
       {
         proposalPayments: proposalPayments.concat({
@@ -122,15 +119,31 @@ export const StageThreeForm = ({
       },
       proposalId,
     )
-
+    updateLocalProposalValidation(
+      {
+        paymentsValidation: currentProposalValidation.paymentsValidation.concat({
+          token_amount: '',
+          title: '',
+          to__id: '',
+          paymentId: newId,
+        }),
+      },
+      proposalId,
+    )
     setOpenDrop('')
     setProposalHasChange(true)
   }
 
-  const handleDeleteRow = (rowNumber: number) => {
+  const handleDeleteRow = (rowId: number) => {
     updateLocalProposalData(
       {
-        proposalPayments: proposalPayments.filter((_, idx) => idx !== rowNumber),
+        proposalPayments: proposalPayments.filter(({ id }) => id !== rowId),
+      },
+      proposalId,
+    )
+    updateLocalProposalValidation(
+      {
+        paymentsValidation: currentProposalValidation.paymentsValidation.filter(({ paymentId }) => paymentId !== rowId),
       },
       proposalId,
     )
@@ -266,7 +279,7 @@ export const StageThreeForm = ({
                       <div className="delete-button-wrap">
                         <StyledTooltip placement="top" title="Delete row">
                           <button
-                            onClick={() => handleDeleteRow(i)}
+                            onClick={() => handleDeleteRow(rowItems.id)}
                             disabled={locked || !isProposalRound}
                             className="delete-button"
                           >

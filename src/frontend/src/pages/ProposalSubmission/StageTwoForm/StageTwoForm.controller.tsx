@@ -28,7 +28,6 @@ import {
 } from '../ProposalSubmission.style'
 
 // TODO: valid bytes text for testing: 05050505080508050805050505050505080505050507070017050505050508030b
-
 export const StageTwoForm = ({
   proposalId,
   currentProposal: { proposalData = [], title, locked },
@@ -46,12 +45,12 @@ export const StageTwoForm = ({
   } = useSelector((state: State) => state.governance)
   const isProposalPeriod = governancePhase === 'PROPOSAL'
 
-  // effect to track change of proposal, by tab clicking, and default validate it
-  useEffect(() => {
-    if (!proposalData.some(checkBytesPairExists)) {
-      handleCreateNewByte()
-    }
-  }, [proposalId, proposalData])
+  // effect to track change of proposal, by tab clicking, and default validate it // TODO: if need uncomment it
+  // useEffect(() => {
+  //   if (!proposalData.some(checkBytesPairExists)) {
+  //     handleCreateNewByte()
+  //   }
+  // }, [proposalId, proposalData])
 
   const handleOnBlur = (byte: ProposalBytesType, text: string, type: 'validTitle' | 'validBytes') => {
     let validationStatus: ValidationResult
@@ -98,6 +97,7 @@ export const StageTwoForm = ({
       },
       proposalId,
     )
+
     setProposalHasChange(true)
   }
 
@@ -119,6 +119,16 @@ export const StageTwoForm = ({
       },
       proposalId,
     )
+    updateLocalProposalValidation(
+      {
+        bytesValidation: currentProposalValidation.bytesValidation.concat({
+          validBytes: '',
+          validTitle: '',
+          byteId: newId,
+        }),
+      },
+      proposalId,
+    )
     setProposalHasChange(true)
   }
 
@@ -130,6 +140,12 @@ export const StageTwoForm = ({
       updateLocalProposalData(
         {
           proposalData: proposalData.filter(({ id }) => id !== removeId),
+        },
+        proposalId,
+      )
+      updateLocalProposalValidation(
+        {
+          bytesValidation: currentProposalValidation.bytesValidation.filter(({ byteId }) => byteId !== removeId),
         },
         proposalId,
       )
@@ -271,9 +287,7 @@ export const StageTwoForm = ({
                 disabled={!isProposalPeriod || locked}
               />
 
-              <div
-                className={`remove-byte ${proposalData.length === 1 || !isProposalPeriod || locked ? 'disabled' : ''}`}
-              >
+              <div className={`remove-byte ${!isProposalPeriod || locked ? 'disabled' : ''}`}>
                 <StyledTooltip placement="top" title="Delete bytes pair">
                   <button onClick={() => handleDeletePair(item.id)} className="delete-button">
                     <Icon id="delete" />

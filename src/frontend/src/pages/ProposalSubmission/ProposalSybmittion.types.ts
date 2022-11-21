@@ -22,7 +22,7 @@ export type ChangeProposalValidationFnType = (
   proposalId: number,
 ) => void
 
-export type ValidationResult = typeof INPUT_STATUS_ERROR | typeof INPUT_STATUS_SUCCESS
+export type ValidationResult = typeof INPUT_STATUS_ERROR | typeof INPUT_STATUS_SUCCESS | ''
 
 export type ProposalValidityObj = {
   title: ValidationResult
