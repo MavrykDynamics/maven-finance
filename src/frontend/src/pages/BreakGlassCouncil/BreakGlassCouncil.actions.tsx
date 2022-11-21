@@ -545,10 +545,6 @@ export const dropBreakGlass = (breakGlassActionID: number) => async (dispatch: A
       console.error('dropBreakGlass - ERROR ', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: PROPOGATE_BREAK_GLASS_ERROR,
-      error,
-    })
   }
 }
 

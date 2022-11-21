@@ -49,7 +49,6 @@ import {
   getMyPastBreakGlassCouncilAction,
   getPastBreakGlassCouncilAction,
   getBreakGlassCouncilMember,
-  dropBreakGlass
 } from './BreakGlassCouncil.actions'
 
 const queryParameters = {
@@ -146,8 +145,6 @@ export function BreakGlassCouncil() {
   }
 
   useEffect(() => {
-    dispatch(dropBreakGlass(234))
-    
     dispatch(getMyPastBreakGlassCouncilAction())
     dispatch(getPastBreakGlassCouncilAction())
     dispatch(getBreakGlassCouncilMember())
