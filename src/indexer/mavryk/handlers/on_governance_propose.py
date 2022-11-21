@@ -15,7 +15,8 @@ async def on_governance_propose(
     governance              = await models.Governance.get(
         address = governance_address
     )
-    current_id              = str(int(governance.next_proposal_id))
+    next_proposal_id        = int(propose.storage.nextProposalId)
+    current_id              = str(next_proposal_id - 1)
     storage_record          = propose.storage.proposalLedger[current_id]
     proposer_address        = storage_record.proposerAddress
     execution_counter       = int(storage_record.proposalDataExecutionCounter)
@@ -56,7 +57,7 @@ async def on_governance_propose(
     user                    = await models.mavryk_user_cache.get(address=proposer_address)
 
     proposalRecord              = models.GovernanceProposal(
-        id                              = int(governance.next_proposal_id),
+        id                              = int(current_id),
         governance                      = governance,
         proposer                        = user,
         status                          = status,
