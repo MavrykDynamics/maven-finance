@@ -16,7 +16,6 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
 import { BreakGlassCouncilPanding } from './BreakGlassCouncilPanding/BreakGlassCouncilPanding.controller'
-import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 import { BreakGlassCouncilMyActions } from './BreakGlassCouncilMyActions.view'
 
 // helpers
@@ -67,11 +66,11 @@ export function BreakGlassCouncil() {
     breakGlassStorage,
     breakGlassCouncilMember,
     breakGlassActionPendingMySignature,
+    breakGlassActionPendingSignature,
     pastBreakGlassCouncilAction,
     myPastBreakGlassCouncilAction,
     glassBroken,
   } = useSelector((state: State) => state.breakGlass)
-
   const itemsForDropDown = useMemo(
     () =>
       Object.values(actions).map((item) => {
@@ -95,7 +94,7 @@ export function BreakGlassCouncil() {
 
   const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
   const displayPendingSignature = Boolean(
-    !isReviewPage && isUserInBreakCouncilMember && breakGlassActionPendingMySignature?.length,
+    !isReviewPage && isUserInBreakCouncilMember && breakGlassActionPendingSignature?.length,
   )
 
   const councilMemberMaxLength = {
@@ -202,13 +201,13 @@ export function BreakGlassCouncil() {
           {displayPendingSignature && (
             <article className="pending">
               <div className="pending-items">
-                <Carousel itemLength={breakGlassActionPendingMySignature.length} key={sliderKey}>
-                  {breakGlassActionPendingMySignature.map((item) => (
+                <Carousel itemLength={breakGlassActionPendingSignature.length} key={sliderKey}>
+                  {breakGlassActionPendingSignature.map((item) => (
                     <BreakGlassCouncilPanding
                       {...item}
                       key={item.id}
                       numCouncilMembers={breakGlassCouncilMember.length}
-                      councilPendingActionsLength={breakGlassActionPendingMySignature.length}
+                      councilPendingActionsLength={breakGlassActionPendingSignature.length}
                     />
                   ))}
                 </Carousel>

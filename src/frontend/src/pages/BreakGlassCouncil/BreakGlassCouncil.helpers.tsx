@@ -4,44 +4,58 @@ type BreakGlassActionProps = {
   break_glass_action: BreakGlassActionGraphQL[]
 }
 
-export function normalizeBreakGlassAction(storage: BreakGlassActionProps) {
+type Options = {
+  filterByAddress?: string
+  filterWithoutAddress?: string
+}
+
+export function normalizeBreakGlassAction(storage: BreakGlassActionProps, options?: Options) {
   const { break_glass_action } = storage
+  const filterByAddress = options?.filterByAddress
+  const filterWithoutAddress = options?.filterWithoutAddress
+  let list: BreakGlassActionGraphQL[] = []
 
-  return break_glass_action?.length
-    ? break_glass_action?.map((item) => {
-        const signers = item?.signers?.length
-          ? item.signers.map((signer) => {
-              return {
-                breakGlassAction: signer.break_glass_action,
-                breakGlassActionId: signer.break_glass_action_id,
-                id: signer.id,
-                signer: signer.signer,
-                signerId: signer.signer_id,
-              }
-            })
-          : []
+  if (filterByAddress) {
+    list = break_glass_action?.filter((item) => item.initiator_id === filterByAddress)
+  } else if (filterWithoutAddress) {
+    list = break_glass_action?.filter((item) => item.initiator_id !== filterWithoutAddress)
+  } else {
+    list = break_glass_action
+  }
 
-        return {
-          actionType: item.action_type,
-          breakGlass: item.break_glass,
-          breakGlassId: item.break_glass_id,
-          executed: item.executed,
-          executionDatetime: item.execution_datetime,
-          executionLevel: item.execution_level,
-          expirationDatetime: item.expiration_datetime,
-          id: item.id,
-          initiator: item.initiator,
-          initiatorId: item.initiator_id,
-          parameters: item.parameters,
-          parametersAggregate: item.parameters_aggregate,
-          signers,
-          signersAggregate: item.signers_aggregate,
-          signersCount: item.signers_count,
-          startDatetime: item.start_datetime,
-          status: item.status,
-        }
-      })
-    : []
+  return list.map((item) => {
+    const signers = item?.signers?.length
+      ? item.signers.map((signer) => {
+          return {
+            breakGlassAction: signer.break_glass_action,
+            breakGlassActionId: signer.break_glass_action_id,
+            id: signer.id,
+            signer: signer.signer,
+            signerId: signer.signer_id,
+          }
+        })
+      : []
+
+    return {
+      actionType: item.action_type,
+      breakGlass: item.break_glass,
+      breakGlassId: item.break_glass_id,
+      executed: item.executed,
+      executionDatetime: item.execution_datetime,
+      executionLevel: item.execution_level,
+      expirationDatetime: item.expiration_datetime,
+      id: item.id,
+      initiator: item.initiator,
+      initiatorId: item.initiator_id,
+      parameters: item.parameters,
+      parametersAggregate: item.parameters_aggregate,
+      signers,
+      signersAggregate: item.signers_aggregate,
+      signersCount: item.signers_count,
+      startDatetime: item.start_datetime,
+      status: item.status,
+    }
+  })
 }
 
 type BreakGlassCouncilMemberProps = {
