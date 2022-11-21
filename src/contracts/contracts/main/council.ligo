@@ -116,6 +116,8 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 // Council Entrypoints:
 #include "../partials/contractEntrypoints/councilEntrypoints.ligo"
 
+// ------------------------------------------------------------------------------
+
 
 (* main entrypoint *)
 function main (const action : councilAction; const s : councilStorageType) : return is 
