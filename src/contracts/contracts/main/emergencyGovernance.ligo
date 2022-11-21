@@ -85,6 +85,8 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 // EmergencyGovernance Entrypoints:
 #include "../partials/contractEntrypoints/emergencyGovernanceEntrypoints.ligo"
 
+// ------------------------------------------------------------------------------
+
 
 function main (const action : emergencyGovernanceAction; const s : emergencyGovernanceStorageType) : return is 
 

@@ -57,7 +57,7 @@ block {
                 const metadataKey   : string = updateMetadataParams.metadataKey;
                 const metadataHash  : bytes = updateMetadataParams.metadataHash;
                 
-                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+                s.metadata[metadataKey] := metadataHash;
             }
         |   _ -> skip
     ];

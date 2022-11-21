@@ -97,6 +97,8 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // Treasury Entrypoints:
 #include "../partials/contractEntrypoints/treasuryEntrypoints.ligo"
 
+// ------------------------------------------------------------------------------
+
 
 (* main entrypoint *)
 function main (const action : treasuryAction; const s : treasuryStorageType) : return is 

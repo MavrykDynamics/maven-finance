@@ -101,6 +101,7 @@ const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // Farm Entrypoints:
 #include "../partials/contractEntrypoints/farmEntrypoints.ligo"
 
+// ------------------------------------------------------------------------------
 
 
 (* main entrypoint *)
