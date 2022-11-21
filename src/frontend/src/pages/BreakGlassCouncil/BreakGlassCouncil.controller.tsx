@@ -45,7 +45,7 @@ import {
 // actions
 import {
   propagateBreakGlass,
-  getBreakGlassActionPendingMySignature,
+  getBreakGlassActionPendingSignature,
   getMyPastBreakGlassCouncilAction,
   getPastBreakGlassCouncilAction,
   getBreakGlassCouncilMember,
@@ -151,7 +151,7 @@ export function BreakGlassCouncil() {
   }, [dispatch])
 
   useEffect(() => {
-    if (accountPkh) dispatch(getBreakGlassActionPendingMySignature())
+    if (accountPkh) dispatch(getBreakGlassActionPendingSignature())
     setSliderKey(sliderKey + 1)
   }, [dispatch, accountPkh])
 

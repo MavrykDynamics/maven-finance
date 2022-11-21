@@ -12,9 +12,9 @@ import {
   PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
   PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
   PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
-  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
-  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
-  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE,
+  BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY,
+  BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_NAME,
+  BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE,
   MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
   MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
   MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
@@ -64,17 +64,17 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
 }
 
 // getBreakGlassActionPendingMySignature
-export const GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE = 'GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE'
-export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppDispatch, getState: GetState) => {
+export const GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE = 'GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE'
+export const getBreakGlassActionPendingSignature = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   const { accountPkh } = state?.wallet
 
   try {
     const storage = accountPkh
       ? await fetchFromIndexerWithPromise(
-          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
-          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
-          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz }),
+          BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY,
+          BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_NAME,
+          BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz }),
         )
       : { break_glass_action: [] }
 
@@ -82,7 +82,7 @@ export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppD
     const breakGlassActionPendingSignature = normalizeBreakGlassAction(storage, { filterWithoutAddress: accountPkh })
 
     await dispatch({
-      type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
+      type: GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE,
       breakGlassActionPendingMySignature,
       breakGlassActionPendingSignature,
     })
@@ -93,7 +93,7 @@ export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppD
     }
 
     dispatch({
-      type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
+      type: GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE,
       error,
     })
   }

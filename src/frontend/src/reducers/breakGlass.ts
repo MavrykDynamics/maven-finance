@@ -6,7 +6,7 @@ import {
 } from '../pages/BreakGlass/BreakGlass.actions'
 import {
   GET_BREAK_GLASS_COUNCIL_MEMBER,
-  GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
+  GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE,
   GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
   GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
 } from 'pages/BreakGlassCouncil/BreakGlassCouncil.actions'
@@ -85,7 +85,7 @@ export function breakGlass(state = breakGlassDefaultState, action: Action) {
         ...state,
         breakGlassCouncilMember: action.breakGlassCouncilMember,
       }
-    case GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE:
+    case GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE:
       return {
         ...state,
         breakGlassActionPendingMySignature: action.breakGlassActionPendingMySignature,
