@@ -1,12 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import { StageTwoFormProps, ValidationStateType, ProposalBytesType } from '../ProposalSybmittion.types'
+import { StageTwoFormProps, ProposalBytesType, ValidationResult } from '../ProposalSybmittion.types'
 
 // components
-import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -14,22 +13,14 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 
 // const
-import {
-  checkBytesPairExists,
-  getBytesDiff,
-  getBytesPairValidationStatus,
-  PROPOSAL_BYTE,
-} from '../ProposalSubmition.helpers'
-import { updateProposalData } from '../ProposalSubmission.actions'
+import { checkBytesPairExists, getBytesPairValidationStatus, PROPOSAL_BYTE } from '../ProposalSubmition.helpers'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
-import { INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
+import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
 import { isValidLength } from 'utils/validatorFunctions'
 import { isHexadecimal } from 'utils/validatorFunctions'
 
 // styles
 import {
-  FormButtonContainer,
   FormHeaderGroup,
   FormTitleAndFeeContainer,
   FormTitleContainer,
@@ -37,17 +28,14 @@ import {
 } from '../ProposalSubmission.style'
 
 // TODO: valid bytes text for testing: 05050505080508050805050505050505080505050507070017050505050508030b
-
 export const StageTwoForm = ({
   proposalId,
   currentProposal: { proposalData = [], title, locked },
+  currentProposalValidation,
+  updateLocalProposalValidation,
   updateLocalProposalData,
-  handleDropProposal,
-  currentOriginalProposal,
   setProposalHasChange,
-  proposalHasChange,
 }: StageTwoFormProps) => {
-  const dispatch = useDispatch()
   const {
     governancePhase,
     governanceStorage: {
@@ -56,55 +44,48 @@ export const StageTwoForm = ({
     },
   } = useSelector((state: State) => state.governance)
   const isProposalPeriod = governancePhase === 'PROPOSAL'
-  const [bytesValidation, setBytesValidation] = useState<ValidationStateType>([])
-  const isAllBytesValid = useMemo(
-    () =>
-      bytesValidation.every(
-        ({ validBytes, validTitle }) => validBytes === INPUT_STATUS_SUCCESS && validTitle === INPUT_STATUS_SUCCESS,
-      ),
-    [proposalHasChange, bytesValidation],
-  )
 
-  // effect to track change of proposal, by tab clicking, and default validate it
-  useEffect(() => {
-    if (!proposalData.some(checkBytesPairExists)) {
-      handleCreateNewByte()
-    }
-
-    setBytesValidation(
-      proposalData.reduce<ValidationStateType>((acc, { id, title, encoded_code }) => {
-        if (title && encoded_code) {
-          acc.push({
-            validTitle: proposalId >= 0 ? getBytesPairValidationStatus(title, 'validTitle') : '',
-            validBytes: proposalId >= 0 ? getBytesPairValidationStatus(encoded_code, 'validBytes') : '',
-            pairId: id,
-          })
-        }
-
-        return acc
-      }, []),
-    )
-  }, [proposalId, proposalData])
+  // effect to track change of proposal, by tab clicking, and default validate it // TODO: if need uncomment it
+  // useEffect(() => {
+  //   if (!proposalData.some(checkBytesPairExists)) {
+  //     handleCreateNewByte()
+  //   }
+  // }, [proposalId, proposalData])
 
   const handleOnBlur = (byte: ProposalBytesType, text: string, type: 'validTitle' | 'validBytes') => {
-    let validationStatus: 'success' | 'error'
+    let validationStatus: ValidationResult
 
-    if (type === 'validTitle') {
-      validationStatus =
-        isValidLength(text, 1, proposalMetadataTitleMaxLength) &&
-        getBytesPairValidationStatus(text, type) === 'success'
-          ? 'success'
-          : 'error'
-    } else {
-      validationStatus =
-        isHexadecimal(text) && getBytesPairValidationStatus(text, type) === 'success' ? 'success' : 'error'
+    switch (type) {
+      case 'validTitle':
+        validationStatus =
+          isValidLength(text, 1, proposalMetadataTitleMaxLength) &&
+          getBytesPairValidationStatus(text, type) === INPUT_STATUS_SUCCESS
+            ? INPUT_STATUS_SUCCESS
+            : INPUT_STATUS_ERROR
+        updateLocalProposalValidation(
+          {
+            bytesValidation: currentProposalValidation.bytesValidation.map((byteValidity) =>
+              byteValidity.byteId === byte.id ? { ...byteValidity, validTitle: validationStatus } : byteValidity,
+            ),
+          },
+          proposalId,
+        )
+        break
+      case 'validBytes':
+        validationStatus =
+          isHexadecimal(text) && getBytesPairValidationStatus(text, type) === INPUT_STATUS_SUCCESS
+            ? INPUT_STATUS_SUCCESS
+            : INPUT_STATUS_ERROR
+        updateLocalProposalValidation(
+          {
+            bytesValidation: currentProposalValidation.bytesValidation.map((byteValidity) =>
+              byteValidity.byteId === byte.id ? { ...byteValidity, validBytes: validationStatus } : byteValidity,
+            ),
+          },
+          proposalId,
+        )
+        break
     }
-
-    setBytesValidation(
-      bytesValidation.map((validationObj) =>
-        validationObj.pairId === byte.id ? { ...validationObj, [type]: validationStatus } : validationObj,
-      ),
-    )
   }
 
   const handleOnChange = (byte: ProposalBytesType, text: string, type: 'title' | 'encoded_code') => {
@@ -116,14 +97,8 @@ export const StageTwoForm = ({
       },
       proposalId,
     )
-    setProposalHasChange(true)
-  }
 
-  const submitBytePairs = async () => {
-    if (proposalId && isAllBytesValid && currentOriginalProposal) {
-      const bytesDiff = getBytesDiff(currentOriginalProposal.proposalData, proposalData)
-      await dispatch(updateProposalData(proposalId, bytesDiff))
-    }
+    setProposalHasChange(true)
   }
 
   // adding new empty bytes pair
@@ -144,6 +119,16 @@ export const StageTwoForm = ({
       },
       proposalId,
     )
+    updateLocalProposalValidation(
+      {
+        bytesValidation: currentProposalValidation.bytesValidation.concat({
+          validBytes: '',
+          validTitle: '',
+          byteId: newId,
+        }),
+      },
+      proposalId,
+    )
     setProposalHasChange(true)
   }
 
@@ -158,15 +143,15 @@ export const StageTwoForm = ({
         },
         proposalId,
       )
+      updateLocalProposalValidation(
+        {
+          bytesValidation: currentProposalValidation.bytesValidation.filter(({ byteId }) => byteId !== removeId),
+        },
+        proposalId,
+      )
       setProposalHasChange(true)
     }
   }
-
-  // submit btn is disabled if no changes in bytes or if something is changed, but it doesn't pass the validation
-  const submitBytesButtonDisabled = useMemo(
-    () => !proposalHasChange || (!proposalHasChange && !isAllBytesValid) || locked,
-    [locked, proposalHasChange, isAllBytesValid],
-  )
 
   // Drag & drop variables and event handlers
   const [dndBytes, setdndBytes] = useState<Array<ProposalBytesType>>([])
@@ -262,9 +247,8 @@ export const StageTwoForm = ({
       <div className="step-bytes">
         {dndBytes.map((item, i) => {
           if (!checkBytesPairExists(item)) return null
-
           const existInServer = Boolean(proposalData?.find(({ id }) => item.id === id && !item.isLocalBytes))
-          const validityObject = bytesValidation.find(({ pairId }) => pairId === item.id)
+          const validityObject = currentProposalValidation.bytesValidation.find(({ byteId }) => byteId === item.id)
 
           return (
             <article
@@ -303,9 +287,7 @@ export const StageTwoForm = ({
                 disabled={!isProposalPeriod || locked}
               />
 
-              <div
-                className={`remove-byte ${proposalData.length === 1 || !isProposalPeriod || locked ? 'disabled' : ''}`}
-              >
+              <div className={`remove-byte ${!isProposalPeriod || locked ? 'disabled' : ''}`}>
                 <StyledTooltip placement="top" title="Delete bytes pair">
                   <button onClick={() => handleDeletePair(item.id)} className="delete-button">
                     <Icon id="delete" />
@@ -321,25 +303,6 @@ export const StageTwoForm = ({
           </button>
         </StyledTooltip>
       </div>
-
-      <FormButtonContainer>
-        <Button
-          icon="close-stroke"
-          className="close delete-pair"
-          text="Drop Proposal"
-          kind={ACTION_SECONDARY}
-          onClick={() => handleDropProposal(proposalId)}
-        />
-
-        <Button
-          icon="bytes"
-          className="bytes"
-          text="Submit Bytes"
-          kind={ACTION_PRIMARY}
-          disabled={submitBytesButtonDisabled}
-          onClick={submitBytePairs}
-        />
-      </FormButtonContainer>
     </>
   )
 }

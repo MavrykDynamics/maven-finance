@@ -320,8 +320,7 @@ export const FormTableGrid = styled.div`
 `
 
 export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
-  margin-top: 45px;
-  padding-bottom: 24px;
+  margin-top: 50px;
   display: flex;
   justify-content: flex-end;
 
