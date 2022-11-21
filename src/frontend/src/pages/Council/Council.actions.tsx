@@ -905,3 +905,49 @@ export const setContractBakerRequest =
       })
     }
   }
+
+// Drop Request
+export const DROP_REQUEST = 'DROP_REQUEST'
+export const DROP_RESULT = 'DROP_RESULT'
+export const DROP_ERROR = 'DROP_ERROR'
+export const dropRequest = (actionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: DROP_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.flushAction(actionID).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Set Contract Baker Request...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Set Contract Baker Request done', 'All good :)'))
+
+    await dispatch(getCouncilStorage())
+    await dispatch(getCouncilPastActionsStorage())
+    await dispatch(getCouncilPendingActionsStorage())
+    await dispatch({
+      type: DROP_RESULT,
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+  }
+}
