@@ -11,15 +11,17 @@ import { getSeparateCamelCase } from '../../utils/parse'
 
 // styles
 import { BreakGlassCouncilMyOngoingActionCardStyled } from './BreakGlassCouncil.style'
-import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
 
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
 
-type Props = BreakGlassAction[0] & { numCouncilMembers: number }
+type Props = BreakGlassAction[0] & {
+  numCouncilMembers: number
+  handleDropAction: (arg: number) => void
+}
 
 export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
-  const { executionDatetime, actionType, signersCount, numCouncilMembers, id, parameters } = props
+  const { executionDatetime, actionType, signersCount, numCouncilMembers, id, parameters, handleDropAction } = props
   const [isOpen, setIsOpen] = useState(false)
 
   if (isOpen) {
@@ -53,7 +55,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
             icon="close-stroke"
             text="Drop Action"
             kind={ACTION_SECONDARY}
-            onClick={() => {}}
+            onClick={() => handleDropAction(id)}
           />
         </div>
       </div>
@@ -112,7 +114,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
               icon="close-stroke"
               text="Drop Action"
               kind={ACTION_SECONDARY}
-              onClick={() => {}}
+              onClick={() => handleDropAction(id)}
             />
           </div>
         </div>
@@ -137,7 +139,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
               icon="close-stroke"
               text="Drop Action"
               kind={ACTION_SECONDARY}
-              onClick={() => {}}
+              onClick={() => handleDropAction(id)}
             />
           </div>
         </div>
