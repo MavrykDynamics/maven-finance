@@ -92,18 +92,18 @@ const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000_000_000_0
 #include "../partials/contractHelpers/delegationHelpers.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// Delegation Lambdas:
-#include "../partials/contractLambdas/delegation/delegationLambdas.ligo"
-
-// ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
 // Delegation Views:
 #include "../partials/contractViews/delegationViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Delegation Lambdas:
+#include "../partials/contractLambdas/delegation/delegationLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

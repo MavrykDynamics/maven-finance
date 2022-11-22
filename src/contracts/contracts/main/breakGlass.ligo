@@ -81,18 +81,18 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 #include "../partials/contractHelpers/breakGlassHelpers.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// BreakGlass Lambdas:
-#include "../partials/contractLambdas/breakGlass/breakGlassLambdas.ligo"
-
-// ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
 // BreakGlass Views:
 #include "../partials/contractViews/breakGlassViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// BreakGlass Lambdas:
+#include "../partials/contractLambdas/breakGlass/breakGlassLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

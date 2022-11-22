@@ -503,6 +503,9 @@ block {
                 // Get current round variables
                 const currentRoundHighestVotedProposal: option(proposalRecordType) = Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger);
 
+                // calculate difference in block levels that have passed - how many cycles have passed
+
+
                 // Evaluate conditions to start next round given the current round
                 case s.currentCycleInfo.round of [
 

@@ -195,12 +195,12 @@ block {
                 const purpose                 : string  = suspendSatelliteParams.purpose;
 
                 // init maps
-                const dataMap        : dataMapType      = map [
+                const dataMap : dataMapType = map [
                     ("satelliteToBeSuspended" : string) -> Bytes.pack(satelliteToBeSuspended)
                 ];
 
                 // create action
-                s   := createGovernanceSatelliteAction(
+                s := createGovernanceSatelliteAction(
                     "SUSPEND",
                     dataMap,
                     purpose,
@@ -239,16 +239,16 @@ block {
         |   LambdaBanSatellite(banSatelliteParams) -> {
 
                 // init params
-                const satelliteToBeBanned      : address = banSatelliteParams.satelliteToBeBanned;
-                const purpose                  : string  = banSatelliteParams.purpose;
+                const satelliteToBeBanned  : address = banSatelliteParams.satelliteToBeBanned;
+                const purpose              : string  = banSatelliteParams.purpose;
 
                 // init maps
-                const dataMap        : dataMapType      = map [
+                const dataMap : dataMapType = map [
                     ("satelliteToBeBanned" : string) -> Bytes.pack(satelliteToBeBanned)
                 ];
 
                 // create action
-                s   := createGovernanceSatelliteAction(
+                s := createGovernanceSatelliteAction(
                     "BAN",
                     dataMap,
                     purpose,
@@ -287,11 +287,11 @@ block {
         |   LambdaRestoreSatellite(restoreSatelliteParams) -> {
 
                 // init params
-                const satelliteToBeRestored    : address    = restoreSatelliteParams.satelliteToBeRestored;
-                const purpose                  : string     = restoreSatelliteParams.purpose;
+                const satelliteToBeRestored    : address = restoreSatelliteParams.satelliteToBeRestored;
+                const purpose                  : string  = restoreSatelliteParams.purpose;
 
                 // init maps
-                const dataMap        : dataMapType          = map [
+                const dataMap : dataMapType = map [
                     ("satelliteToBeRestored" : string) -> Bytes.pack(satelliteToBeRestored);
                 ];
 
@@ -343,16 +343,16 @@ block {
         |   LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams) -> {
 
                 // init params
-                const satelliteAddress    : address     = removeAllSatelliteOraclesParams.satelliteAddress;
-                const purpose             : string      = removeAllSatelliteOraclesParams.purpose;
+                const satelliteAddress    : address  = removeAllSatelliteOraclesParams.satelliteAddress;
+                const purpose             : string   = removeAllSatelliteOraclesParams.purpose;
 
                 // init maps
-                const dataMap        : dataMapType      = map [
+                const dataMap : dataMapType = map [
                     ("satelliteAddress" : string) -> Bytes.pack(satelliteAddress)
                 ];
 
                 // create action
-                s   := createGovernanceSatelliteAction(
+                s := createGovernanceSatelliteAction(
                     "REMOVE_ALL_SATELLITE_ORACLES",
                     dataMap,
                     purpose,
@@ -396,9 +396,9 @@ block {
                 const purpose            : string   = addOracleToAggregatorParams.purpose;
 
                 // init maps
-                const dataMap        : dataMapType  = map [
-                    ("oracleAddress"     : string)   -> Bytes.pack(oracleAddress);
-                    ("aggregatorAddress" : string)   -> Bytes.pack(aggregatorAddress);
+                const dataMap : dataMapType = map [
+                    ("oracleAddress"     : string) -> Bytes.pack(oracleAddress);
+                    ("aggregatorAddress" : string) -> Bytes.pack(aggregatorAddress);
                 ];
 
                 // create action
@@ -446,13 +446,13 @@ block {
                 const purpose              : string  = removeOracleInAggregatorParams.purpose;
 
                 // init maps
-                const dataMap        : dataMapType   = map [
-                    ("oracleAddress"     : string)   -> Bytes.pack(oracleAddress);
-                    ("aggregatorAddress" : string)   -> Bytes.pack(aggregatorAddress);
+                const dataMap : dataMapType = map [
+                    ("oracleAddress"     : string) -> Bytes.pack(oracleAddress);
+                    ("aggregatorAddress" : string) -> Bytes.pack(aggregatorAddress);
                 ];
 
                 // create action
-                s   := createGovernanceSatelliteAction(
+                s := createGovernanceSatelliteAction(
                     "REMOVE_ORACLE_IN_AGGREGATOR",
                     dataMap,
                     purpose,
@@ -505,7 +505,7 @@ block {
                 ];
 
                 // Update storage
-                s.aggregatorLedger[newName]         := case s.aggregatorLedger[oldName] of [
+                s.aggregatorLedger[newName] := case s.aggregatorLedger[oldName] of [
                         Some(_a) -> if _a = aggregatorAddress then aggregatorAddress else failwith(error_WRONG_AGGREGATOR_ADDRESS_PROVIDED)
                     |   None     -> if oldName = newName then aggregatorAddress else failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
                 ];
@@ -550,13 +550,13 @@ block {
                 const purpose              : string                             = togglePauseAggregatorParams.purpose;
 
                 // init maps
-                const dataMap        : dataMapType   = map [
-                    ("aggregatorAddress" : string)      -> Bytes.pack(aggregatorAddress);
-                    ("status" : string)                 -> Bytes.pack(status)
+                const dataMap : dataMapType = map [
+                    ("aggregatorAddress" : string)  -> Bytes.pack(aggregatorAddress);
+                    ("status" : string)             -> Bytes.pack(status)
                 ];
 
                 // create action
-                s   := createGovernanceSatelliteAction(
+                s := createGovernanceSatelliteAction(
                     "TOGGLE_PAUSE_AGGREGATOR",
                     dataMap,
                     purpose,
@@ -603,17 +603,17 @@ block {
         | LambdaFixMistakenTransfer(fixMistakenTransferParams) -> {
                 
                 // init params
-                const targetContractAddress    : address                = fixMistakenTransferParams.targetContractAddress;
-                const transferList             : transferActionType     = fixMistakenTransferParams.transferList;
-                const purpose                  : string                 = fixMistakenTransferParams.purpose;
+                const targetContractAddress    : address             = fixMistakenTransferParams.targetContractAddress;
+                const transferList             : transferActionType  = fixMistakenTransferParams.transferList;
+                const purpose                  : string              = fixMistakenTransferParams.purpose;
 
-                const dataMap      : dataMapType                        = map [
-                    ("targetContractAddress" : string)   -> Bytes.pack(targetContractAddress);
-                    ("transfer" : string)                -> Bytes.pack(transferList);
+                const dataMap : dataMapType = map [
+                    ("targetContractAddress" : string) -> Bytes.pack(targetContractAddress);
+                    ("transfer" : string)              -> Bytes.pack(transferList);
                 ];
 
                 // create action
-                s   := createGovernanceSatelliteAction(
+                s := createGovernanceSatelliteAction(
                     "MISTAKEN_TRANSFER_FIX",
                     dataMap,
                     purpose,
@@ -662,7 +662,7 @@ block {
         |   LambdaDropAction(dropActionParams) -> {
                 
                 // init params
-                const dropActionId     : nat     = dropActionParams.dropActionId;
+                const dropActionId : nat = dropActionParams.dropActionId;
 
                 // Get Delegation Contract address from the General Contracts Map on the Governance Contract
                 const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
@@ -678,14 +678,10 @@ block {
                 ];
 
                 // Get governance satellite action record 
-                var governanceSatelliteActionRecord : governanceSatelliteActionRecordType := case s.governanceSatelliteActionLedger[dropActionId] of [
-                        Some(_request) -> _request
-                    |   None           -> failwith(error_GOVERNANCE_SATELLITE_ACTION_NOT_FOUND)
-                ];
+                var governanceSatelliteActionRecord : governanceSatelliteActionRecordType := getGovernanceSatelliteActionRecord(dropActionId, s);
 
-                // Check that sender is the initiator of the governance satellite action
-                const initiator : address   = governanceSatelliteActionRecord.initiator;
-                if Tezos.get_sender() =/= initiator then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
+                // Verify that sender is the initiator of the governance satellite action
+                verifySenderIsInitiator(governanceSatelliteActionRecord.initiator);
 
                 // Check if the action can still be interacted with
                 validateAction(governanceSatelliteActionRecord);
@@ -749,10 +745,7 @@ block {
                 checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
 
                 // Get governance satellite action record
-                var _governanceSatelliteActionRecord : governanceSatelliteActionRecordType := case s.governanceSatelliteActionLedger[actionId] of [
-                        Some(_request) -> _request
-                    |   None           -> failwith(error_GOVERNANCE_SATELLITE_ACTION_NOT_FOUND)
-                ];
+                var _governanceSatelliteActionRecord : governanceSatelliteActionRecordType := getGovernanceSatelliteActionRecord(actionId, s);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
