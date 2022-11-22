@@ -52,10 +52,26 @@ import {
   getBreakGlassCouncilMember,
 } from './BreakGlassCouncil.actions'
 
+// types
+import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
+
 const queryParameters = {
   pathname: '/break-glass-council',
   review: '/review',
 }
+
+const tabsList: TabItem[] = [
+  {
+    text: 'My Ongoing Actions',
+    id: 1,
+    active: true,
+  },
+  {
+    text: 'My Past Actions',
+    id: 2,
+    active: false,
+  },
+]
 
 export function BreakGlassCouncil() {
   const dispatch = useDispatch()
@@ -89,6 +105,7 @@ export function BreakGlassCouncil() {
 
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
+  const [activeActionTab, setActiveActionTab] = useState(tabsList[0].text)
 
   const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
   const { review: isReviewPage } = useParams<{ review: string }>()
@@ -128,7 +145,11 @@ export function BreakGlassCouncil() {
 
   const currentPage = getPageNumber(
     search,
-    isReviewPage ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
+    isReviewPage 
+      ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME 
+      : tabsList[0].text === activeActionTab
+        ? BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME
+        : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
 
   const paginatedBreakGlassActionPendingMySignature = useMemo(() => {
@@ -273,6 +294,9 @@ export function BreakGlassCouncil() {
                 breakGlassActionPendingMySignature={paginatedBreakGlassActionPendingMySignature}
                 breakGlassActionPendingMySignatureLength={breakGlassActionPendingMySignature.length}
                 numCouncilMembers={breakGlassCouncilMember.length}
+                activeActionTab={activeActionTab}
+                setActiveActionTab={setActiveActionTab}
+                tabsList={tabsList}
               />
             </>
           )}

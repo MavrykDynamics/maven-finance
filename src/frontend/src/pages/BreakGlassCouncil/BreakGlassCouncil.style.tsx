@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Page as PageBase, Card, textsColor, headerColor, skyColor } from 'styles'
+import { Page as PageBase, Card, CardHover, textsColor, headerColor, skyColor } from 'styles'
 
 // components
 import ModalPopupBase from '../../app/App.components/Modal/ModalPopup.view'
@@ -141,7 +141,7 @@ export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
   }
 `
 
-export const BreakGlassCouncilMyOngoingActionCardStyled = styled(Card)<{ theme: MavrykTheme }>`
+export const BreakGlassCouncilMyOngoingActionCardStyled = styled(CardHover)<{ theme: MavrykTheme }>`
   padding: 0;
   margin-top: 0;
   margin-bottom: 10px;
