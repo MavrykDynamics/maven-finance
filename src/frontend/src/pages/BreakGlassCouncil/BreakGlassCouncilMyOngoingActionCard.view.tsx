@@ -24,10 +24,6 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
   const { executionDatetime, actionType, signersCount, numCouncilMembers, id, parameters, handleDropAction } = props
   const [isOpen, setIsOpen] = useState(false)
 
-  if (isOpen) {
-    console.log("🚀 ~ file: BreakGlassCouncilMyOngoingActionCard.view.tsx ~ line 20 ~ BreakGlassCouncilMyOngoingActionCard ~ props", props)
-  }
-
   const handleClickCard = () => {
     setIsOpen(!isOpen)
   }
