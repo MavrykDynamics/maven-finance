@@ -16,15 +16,15 @@ import { COLON_VIEW } from 'app/App.components/Timer/Timer.view'
 export default function TimeRemaining() {
   const { currentRoundEndLevel = 0 } = useSelector((state: State) => state.governance.governanceStorage)
   const [timerDeadline, setTimerDeadline] = useState(0)
+  const [timerActive, setTimerActive] = useState(false)
 
   useEffect(() => {
     ;(async () => {
       const duration = await getTimestampByLevel(currentRoundEndLevel)
       setTimerDeadline(new Date(duration).getTime())
+      setTimerActive(Boolean(currentRoundEndLevel) && timerDeadline > Date.now())
     })()
   }, [currentRoundEndLevel])
-
-  const timerActive = Boolean(currentRoundEndLevel) && timerDeadline > Date.now()
 
   return (
     <TimeLeftAreaWrap showBorder={timerActive}>

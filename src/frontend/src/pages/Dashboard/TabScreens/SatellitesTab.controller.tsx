@@ -13,6 +13,7 @@ import { SatellitesContentStyled, TabWrapperStyled } from './DashboardTabs.style
 
 export const SatellitesTab = () => {
   const { activeSatellites } = useSelector((state: State) => state.delegation.delegationStorage)
+  const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const {
     governanceStorage: { financialRequestLedger, proposalLedger },
     pastProposals,
@@ -29,6 +30,7 @@ export const SatellitesTab = () => {
         proposalLedger,
         emergencyGovernanceLedger,
         satellite,
+        feeds,
         financialRequestLedger,
       )
 
