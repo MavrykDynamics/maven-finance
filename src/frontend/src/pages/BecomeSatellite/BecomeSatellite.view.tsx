@@ -40,6 +40,7 @@ type BecomeSatelliteViewProps = {
   registerCallback: (form: RegisterAsSatelliteForm) => void
   updateSatelliteCallback: (form: RegisterAsSatelliteForm) => void
   usersSatellite: SatelliteRecord
+  isSutelliteRegistered: boolean
 }
 
 const FORM_DEFAULT = {
@@ -65,6 +66,7 @@ export const BecomeSatelliteView = ({
   registerCallback,
   updateSatelliteCallback,
   usersSatellite,
+  isSutelliteRegistered,
 }: BecomeSatelliteViewProps) => {
   const dispatch = useDispatch()
   const [balanceOk, setBalanceOk] = useState(false)
@@ -176,7 +178,7 @@ export const BecomeSatelliteView = ({
   const handleSubmit = () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) {
-      if (updateSatellite) {
+      if (updateSatellite && isSutelliteRegistered) {
         updateSatelliteCallback(form)
       } else {
         registerCallback(form)
@@ -190,7 +192,7 @@ export const BecomeSatelliteView = ({
 
   return (
     <Page>
-      <PageHeader page={'satellites'} />
+      <PageHeader page={updateSatellite && !isSutelliteRegistered ? 'my satellite profile' : 'satellites'} />
       <PageContent>
         <div>
           {!accountPkh || !balanceOk ? (
@@ -322,7 +324,7 @@ export const BecomeSatelliteView = ({
               listNumber={6}
             />
             <BecomeSatelliteButttons>
-              {updateSatellite && (
+              {(updateSatellite && isSutelliteRegistered) && (
                 <Button
                   icon="close-stroke"
                   kind={ACTION_SECONDARY}
@@ -334,7 +336,7 @@ export const BecomeSatelliteView = ({
               )}
               <Button
                 icon="satellite-stroke"
-                text={updateSatellite ? 'Update Satellite Info' : 'Become a satellite'}
+                text={updateSatellite ? isSutelliteRegistered ? 'Update Satellite Info' : 'Register Satellite' : 'Become a Satellite'}
                 loading={loading}
                 disabled={disabled}
                 kind={ACTION_PRIMARY}

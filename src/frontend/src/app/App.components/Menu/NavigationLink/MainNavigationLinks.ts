@@ -116,7 +116,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
       },
       {
         id: 55622,
-        subTitle: 'Become A Satellite',
+        subTitle: 'Become a Satellite',
         subPath: 'become-satellite',
         routeSubPath: '/become-satellite',
         protectedRoute: true,
@@ -126,12 +126,22 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
       },
       {
         id: 55614,
-        subTitle: 'Edit satellite',
+        subTitle: 'Edit Profile',
         subPath: 'become-satellite',
         routeSubPath: '/become-satellite',
         protectedRoute: true,
         requires: {
           isSatellite: true,
+        },
+      },
+      {
+        id: 55619,
+        subTitle: 'Edit My Profile',
+        subPath: 'become-satellite',
+        routeSubPath: '/become-satellite',
+        protectedRoute: true,
+        requires: {
+          isUnregisteredSatellite: true,
         },
       },
       {

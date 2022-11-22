@@ -1,4 +1,5 @@
 import { TezosToolkit } from '@taquito/taquito'
+import { validateAddress } from '@taquito/utils';
 import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
@@ -114,7 +115,29 @@ export const validateFormField = (setFormInputStatus: (value: React.SetStateActi
   })
 }
 
+export const validateFormAddress = (setFormInputStatus: (value: React.SetStateAction<Record<string, InputStatusType>>) => void) => (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
+  setFormInputStatus((prev) => {
+    const { value, name } = e.target
+
+    const isValidAddress = validateTzAddress(value) ? 'success' : 'error'
+    return { ...prev, [name]: isValidAddress }
+  })
+}
+
 export const isHexadecimal = (value: string) => {
   const regex = /[0-9A-Fa-f]{6}/g;
   return value.match(regex) ? true : false
+}
+
+export const addressErrors = {
+  0: 'NO_PREFIX_MATCHED',
+  1: 'INVALID_CHECKSUM',
+  2: 'INVALID_LENGTH',
+  3: 'VALID',
+}
+
+export const validateTzAddress = (address: string) => {
+  const resultNumber = validateAddress(address)
+
+  return addressErrors[resultNumber] === addressErrors[3] ? true : false
 }

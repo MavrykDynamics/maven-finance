@@ -67,6 +67,7 @@ export function BreakGlassCouncil() {
     breakGlassActionPendingMySignature,
     pastBreakGlassCouncilAction,
     myPastBreakGlassCouncilAction,
+    glassBroken,
   } = useSelector((state: State) => state.breakGlass)
 
   const itemsForDropDown = useMemo(
@@ -155,7 +156,9 @@ export function BreakGlassCouncil() {
 
   useEffect(() => {
     // redirect to review or main page when member changes
-    history.replace(isUserInBreakCouncilMember ? queryParameters.pathname : `${queryParameters.pathname}${queryParameters.review}`)
+    history.replace(
+      isUserInBreakCouncilMember ? queryParameters.pathname : `${queryParameters.pathname}${queryParameters.review}`,
+    )
   }, [history, isUserInBreakCouncilMember])
 
   useEffect(() => {
@@ -185,6 +188,7 @@ export function BreakGlassCouncil() {
             kind={ACTION_PRIMARY}
             icon={'plus'}
             onClick={handleClickPropagateBreakGlass}
+            disabled={glassBroken}
           />
         </PropagateBreakGlassCouncilCard>
       )}
@@ -242,7 +246,7 @@ export function BreakGlassCouncil() {
                   <div className="dropdown-size">
                     <DropDown
                       clickOnDropDown={handleClickDropdown}
-                      placeholder='Choose action'
+                      placeholder="Choose action"
                       isOpen={ddIsOpen}
                       setIsOpen={setDdIsOpen}
                       itemSelected={chosenDdItem?.text}
