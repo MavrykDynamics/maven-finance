@@ -17,11 +17,81 @@ import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
 type Props = BreakGlassAction[0] & { numCouncilMembers: number }
 
 export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
-  const { executionDatetime, actionType, signersCount, numCouncilMembers } = props
+  const { executionDatetime, actionType, signersCount, numCouncilMembers, id } = props
   const [isOpen, setIsOpen] = useState(false)
+
+  if (isOpen) {
+    console.log("🚀 ~ file: BreakGlassCouncilMyOngoingActionCard.view.tsx ~ line 20 ~ BreakGlassCouncilMyOngoingActionCard ~ props", props)
+  }
 
   const handleClickCard = () => {
     setIsOpen(!isOpen)
+  }
+
+  let bottomSection = (
+    <>
+      <div className='row two-columns'>
+        <div className='column'>
+          <div className='column-name'>Break Glass Action ID</div>
+          <div className='column-value'>{id}</div>
+        </div>
+
+        <div className='column'>
+          <Button
+            className='drop-btn'
+            icon="close-stroke"
+            text="Drop Action"
+            kind={ACTION_SECONDARY}
+            onClick={() => {}}
+          />
+        </div>
+      </div>
+    </>
+  )
+
+  if (actionType === 'changeCouncilMember') {
+    bottomSection = (
+      <>
+        <div className='row'>
+          <div className='column'>
+            <div className='column-name'>Council Member to change</div>
+            <div className='column-value'>T1jk4...723h</div>
+          </div>
+  
+          <div className='column'>
+            <div className='column-name'>Council Member to change</div>
+            <div className='column-value'>T1jk4...723h</div>
+          </div>
+  
+          <div className='column'>
+            <div className='column-name'>Council Member to change</div>
+            <div className='column-value'>T1jk4...723h</div>
+          </div>
+        </div>
+  
+        <div className='row'>
+          <div className='column'>
+            <div className='column-name'>New Council Member Address</div>
+            <div className='column-value'>T1jk4...723h</div>
+          </div>
+  
+          <div className='column'>
+            <div className='column-name'>New Council Member Address</div>
+            <div className='column-value'>T1jk4...723h</div>
+          </div>
+  
+          <div className='column'>
+            <Button
+              className='drop-btn'
+              icon="close-stroke"
+              text="Drop Action"
+              kind={ACTION_SECONDARY}
+              onClick={() => {}}
+            />
+          </div>
+        </div>
+      </>
+    )
   }
 
   return (
@@ -46,44 +116,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
       </div>
 
       {isOpen && <div className='bottom'>
-        <div className='row'>
-          <div className='column'>
-            <div className='column-name'>Council Member to change</div>
-            <div className='column-value'>T1jk4...723h</div>
-          </div>
-
-          <div className='column'>
-            <div className='column-name'>Council Member to change</div>
-            <div className='column-value'>T1jk4...723h</div>
-          </div>
-
-          <div className='column'>
-            <div className='column-name'>Council Member to change</div>
-            <div className='column-value'>T1jk4...723h</div>
-          </div>
-        </div>
-
-        <div className='row'>
-          <div className='column'>
-            <div className='column-name'>New Council Member Address</div>
-            <div className='column-value'>T1jk4...723h</div>
-          </div>
-
-          <div className='column'>
-            <div className='column-name'>New Council Member Address</div>
-            <div className='column-value'>T1jk4...723h</div>
-          </div>
-
-          <div className='column'>
-            <Button
-              className='drop-btn'
-              icon="close-stroke"
-              text="Drop Action"
-              kind={ACTION_SECONDARY}
-              onClick={() => {}}
-            />
-          </div>
-        </div>
+        {bottomSection}
       </div>}
     </BreakGlassCouncilMyOngoingActionCardStyled>
   )
