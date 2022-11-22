@@ -169,6 +169,7 @@ export const setAllContractsAdmin = (newAdminAddress: string) => async (dispatch
     const done = await transaction?.confirmation()
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+    dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error('propagateBreakGlass - ERROR ', error)
@@ -213,6 +214,7 @@ export const setSingleContractAdmin =
       const done = await transaction?.confirmation()
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+      dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error('propagateBreakGlass - ERROR ', error)
@@ -256,6 +258,7 @@ export const signAction = (breakGlassActionID: number) => async (dispatch: AppDi
     const done = await transaction?.confirmation()
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+    dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error('propagateBreakGlass - ERROR ', error)
@@ -303,6 +306,7 @@ export const addCouncilMember =
       const done = await transaction?.confirmation()
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+      dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error('propagateBreakGlass - ERROR ', error)
@@ -350,6 +354,7 @@ export const updateCouncilMember =
       const done = await transaction?.confirmation()
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+      dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error('propagateBreakGlass - ERROR ', error)
@@ -409,6 +414,7 @@ export const changeCouncilMember =
       const done = await transaction?.confirmation()
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+      dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error('propagateBreakGlass - ERROR ', error)
@@ -452,6 +458,7 @@ export const removeCouncilMember = (memberAddress: string) => async (dispatch: A
     const done = await transaction?.confirmation()
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+    dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error('propagateBreakGlass - ERROR ', error)

@@ -196,6 +196,16 @@ export const BreakGlassCouncilMyOngoingActionCardStyled = styled(CardHover)<{ th
 
       color: ${({ theme }) => theme.dataColor};
       text-transform: capitalize;
+      text-overflow: ellipsis;
+      max-width: inherit;
+      overflow: hidden;
+    }
+
+    .column-image {
+      height: 50px;
+      width: 50px;
+      object-fit: cover;
+      border-radius: 50%;
     }
 
     .drop-btn {
