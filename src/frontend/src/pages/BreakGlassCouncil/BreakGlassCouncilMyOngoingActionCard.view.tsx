@@ -74,6 +74,11 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
             <div className='column-name'>Council Member to change</div>
             <TzAddress className='column-value' tzAddress={oldAddress} hasIcon={true} />
           </div>}
+
+          {isAddCouncilMember && <div className='column'>
+            <div className='column-name'>Council Member Address</div>
+            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
+          </div>}
   
           <div className='column'>
             <div className='column-name'>Council Member Name</div>
@@ -82,19 +87,18 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
   
           <div className='column'>
             <div className='column-name'>Council Member Website</div>
-            <div className='column-value'>{website}</div>
+            <div className='column-link'>
+              <a className="column-link" href={website} target="_blank" rel="noreferrer">
+                {website}
+              </a>
+            </div>
           </div>
-
-          {isAddCouncilMember && <div className='column'>
-            <div className='column-name'>New Council Member Address</div>
-            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
-          </div>}
         </div>
   
         <div className='row'>
           {isChangeCouncilMember ? <div className='column'>
             <div className='column-name'>New Council Member Address</div>
-            <div className='column-value'>T1jk4...723h</div>
+            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
           </div> : <div className='column-value'></div>}
   
           {image ? <div className='column'>
