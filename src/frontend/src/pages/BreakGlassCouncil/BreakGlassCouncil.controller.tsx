@@ -23,6 +23,7 @@ import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constan
 import {
   BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME,
   BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
+  BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME,
   calculateSlicePositions,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
@@ -129,6 +130,11 @@ export function BreakGlassCouncil() {
     search,
     isReviewPage ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
+
+  const paginatedBreakGlassActionPendingMySignature = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME)
+    return breakGlassActionPendingMySignature?.slice(from, to)
+  }, [currentPage, breakGlassActionPendingMySignature])
 
   const paginatedMyPastCouncilActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME)
@@ -261,10 +267,11 @@ export function BreakGlassCouncil() {
               </AvaliableActions>
 
               <BreakGlassCouncilMyActions
-                paginatedMyPastCouncilActions={paginatedMyPastCouncilActions}
+                myPastBreakGlassCouncilAction={paginatedMyPastCouncilActions}
                 breakGlassCouncilMemberLength={breakGlassCouncilMember.length}
                 myPastBreakGlassCouncilActionLength={myPastBreakGlassCouncilAction.length}
-                breakGlassActionPendingMySignature={breakGlassActionPendingMySignature}
+                breakGlassActionPendingMySignature={paginatedBreakGlassActionPendingMySignature}
+                breakGlassActionPendingMySignatureLength={breakGlassActionPendingMySignature.length}
               />
             </>
           )}
