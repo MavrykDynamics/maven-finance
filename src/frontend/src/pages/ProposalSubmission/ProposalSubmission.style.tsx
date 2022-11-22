@@ -320,8 +320,7 @@ export const FormTableGrid = styled.div`
 `
 
 export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
-  margin-top: 45px;
-  padding-bottom: 24px;
+  margin-top: 50px;
   display: flex;
   justify-content: flex-end;
 
@@ -343,5 +342,25 @@ export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
         stroke: transparent;
       }
     }
+  }
+`
+
+export const BytesWarning = styled.div<{ theme: MavrykTheme }>`
+  width: 100%;
+  padding: 10px 20px;
+  border: 1px solid ${({ theme }) => theme.infoColor};
+  background: ${({ theme }) => theme.dPurple_container_dPurple};
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.dashboardTextColor};
+  border-radius: 10px;
+  font-weight: 500;
+
+  svg {
+    fill: ${({ theme }) => theme.infoColor};
+    width: 16px;
+    height: 16px;
+    margin-right: 20px;
   }
 `

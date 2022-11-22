@@ -11,6 +11,7 @@ import { State } from 'reducers'
 import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 import { ROCKET_LOADER } from 'utils/constants'
 import { PaymentsDataChangesType, ProposalDataChangesType } from './ProposalSybmittion.types'
+import { ContractAbstraction, Wallet } from '@taquito/taquito'
 
 export const submitProposal =
   (form: SubmitProposalForm, amount: number) => async (dispatch: AppDispatch, getState: GetState) => {
@@ -37,11 +38,10 @@ export const submitProposal =
       await query?.confirmation()
 
       await dispatch(showToaster(SUCCESS, 'Proposal Submitted.', 'All good :)'))
-      await dispatch(toggleLoader())
-
       await dispatch(getGovernanceStorage())
       await dispatch(getDelegationStorage())
       await dispatch(getCurrentRoundProposals())
+      await dispatch(toggleLoader())
     } catch (error) {
       console.error('submitProposal error:', error)
       if (error instanceof Error) {
@@ -123,7 +123,6 @@ export const lockProposal = (proposalId: number) => async (dispatch: AppDispatch
   }
 }
 
-// TODO: add estimation for batching
 // method for update proposal data (bytes and payment)
 export const updateProposalData =
   (
@@ -154,6 +153,18 @@ export const updateProposalData =
 
       if (!contract) {
         throw new Error(`No contract provided`)
+      }
+
+      try {
+        console.log('bytesChanges: ', bytesChanges, 'paymentChanges: ', paymentChanges)
+
+        const operationEstimate = await state.wallet.tezos?.estimate.transfer(
+          contract.methods.updateProposalData(proposalId, bytesChanges, paymentChanges).toTransferParams(),
+        )
+
+        console.log('operationEstimate', operationEstimate)
+      } catch (e) {
+        console.log('estimate error', e)
       }
 
       await dispatch(showToaster(INFO, 'Updating proposal...', 'Please wait 30s'))
