@@ -1,0 +1,7 @@
+spec:
+  environment: prod
+  valueFiles: prod.values.yaml
+  clusterName: in-cluster
+
+argoCD:
+  enabled: true
