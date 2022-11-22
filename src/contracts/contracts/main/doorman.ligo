@@ -82,18 +82,18 @@ const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000_000_000_0
 #include "../partials/contractHelpers/doormanHelpers.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// Doorman Lambdas:
-#include "../partials/contractLambdas/doorman/doormanLambdas.ligo"
-
-// ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
 // Doorman Views:
 #include "../partials/contractViews/doormanViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Doorman Lambdas:
+#include "../partials/contractLambdas/doorman/doormanLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

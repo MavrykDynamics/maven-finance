@@ -47,8 +47,8 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
 type governanceSatelliteActionLedgerType is big_map (actionIdType, governanceSatelliteActionRecordType);
 
 
-type aggregatorsMapType is map(address, timestamp)
-type satelliteOracleLedgerType is big_map(address, aggregatorsMapType) // map of aggregators that satellite oracle is providing service for
+type subscribedAggregatorsType is map(address, timestamp)
+type satelliteAggregatorLedgerType is big_map(address, subscribedAggregatorsType) // map of aggregators that satellite oracle is providing service for
 
 
 type actionsInitiatorsType is big_map(address, set(actionIdType));
@@ -204,8 +204,8 @@ type governanceSatelliteStorageType is record [
     // spam check
     actionsInitiators                       : actionsInitiatorsType;
 
-    // satellite oracles and aggregators
-    satelliteOracleLedger                   : satelliteOracleLedgerType;
+    // satellites (oracles) and aggregators
+    satelliteAggregatorLedger               : satelliteAggregatorLedgerType;
     aggregatorLedger                        : big_map(string, address);
 
     // lambda storage
