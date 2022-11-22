@@ -13,6 +13,7 @@ const SatelliteList = ({
   listType,
   additionaldata,
   loading,
+  pagination = true,
   className,
 }: SatellitesListProps) => {
   const { pathname, search } = useLocation()
@@ -26,12 +27,13 @@ const SatelliteList = ({
   return (
     <SatteliteListView
       additionaldata={{ ...additionaldata, fullItemsCount: items.length }}
-      items={paginatedItemsList}
+      items={pagination ? paginatedItemsList : items}
       listType={listType}
       name={name}
       listTitle={listTitle}
       onClickHandler={onClickHandler}
       loading={loading}
+      pagination={pagination}
       className={className}
     />
   )

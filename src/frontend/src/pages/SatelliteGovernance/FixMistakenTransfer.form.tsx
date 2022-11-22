@@ -10,7 +10,10 @@ import TableGridFix from '../../app/App.components/TableGrid/TableGridFix.view'
 // type
 import type { InputStatusType } from '../../app/App.components/Input/Input.constants'
 import type { TableListType } from '../../app/App.components/TableGrid/TableGrid.types'
+
+// helpers
 import { SatelliteGovernanceTransfer } from '../../utils/TypesAndInterfaces/Delegation'
+import { validateFormField, validateFormAddress } from 'utils/validatorFunctions' 
 
 // actions
 import { fixMistakenTransfer } from './SatelliteGovernance.actions'
@@ -22,7 +25,11 @@ const TOKEN_TYPES = ['FA12', 'FA2', 'TEZ']
 const INIT_TABLE_HEADERS = ['Address', 'Amount', `Token Type (${TOKEN_TYPES.join('/')})`]
 const INIT_TABLE_DATA = [INIT_TABLE_HEADERS, ['', '', TOKEN_TYPES[0]]]
 
-export const FixMistakenTransferForm = () => {
+type Props = {
+  maxLength: { purposeMaxLength: number },
+}
+
+export const FixMistakenTransferForm = ({ maxLength }: Props) => {
   const dispatch = useDispatch()
   const [tableData, setTableData] = useState<TableListType>(INIT_TABLE_DATA)
   const [form, setForm] = useState({
@@ -70,11 +77,8 @@ export const FixMistakenTransferForm = () => {
     })
   }
 
-  const handleBlur = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInputStatus((prev) => {
-      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
-    })
-  }
+  const handleBlur = validateFormField(setFormInputStatus)
+  const handleBlurAddress = validateFormAddress(setFormInputStatus)
 
   const handleSetTableData = (data: TableListType) => {
     console.log('%c ||||| data', 'color:yellowgreen', data)
@@ -104,9 +108,9 @@ export const FixMistakenTransferForm = () => {
                 required
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   handleChange(e)
-                  handleBlur(e)
+                  handleBlurAddress(e)
                 }}
-                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+                onBlur={handleBlurAddress}
                 inputStatus={formInputStatus.targetContractAddress}
               />
             </div>
@@ -118,9 +122,9 @@ export const FixMistakenTransferForm = () => {
                 required
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   handleChange(e)
-                  handleBlur(e)
+                  handleBlur(e, maxLength.purposeMaxLength)
                 }}
-                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e)}
+                onBlur={(e: React.ChangeEvent<HTMLInputElement>) => handleBlur(e, maxLength.purposeMaxLength)}
                 inputStatus={formInputStatus.purpose}
               />
             </div>

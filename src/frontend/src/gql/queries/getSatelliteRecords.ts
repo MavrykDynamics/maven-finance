@@ -1,6 +1,7 @@
 export const SATELLITE_RECORDS_QUERY = `
   query GetSatelliteRecord($_eq: String = "") {
     satellite(where: {user_id: {_eq: $_eq}}) {
+      currently_registered
       delegation_id
       description
       fee

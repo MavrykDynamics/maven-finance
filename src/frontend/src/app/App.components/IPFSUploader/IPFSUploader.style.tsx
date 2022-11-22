@@ -48,10 +48,6 @@ export const UploaderFileSelector = styled.div<{ isUploaded: boolean; theme: Mav
     figcaption {
       color: ${({ theme }) => theme.secondaryColor};
     }
-
-    svg {
-      stroke: ${({ theme }) => theme.secondaryColor};
-    }
   }
 
   .delete-icon {
