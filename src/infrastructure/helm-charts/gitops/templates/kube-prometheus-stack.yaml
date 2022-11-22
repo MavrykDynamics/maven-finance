@@ -10,7 +10,7 @@ metadata:
 spec:
   destination:
     namespace: kube-prometheus-stack
-    name: {{ .Values.spec.name }}
+    name: {{ .Values.spec.clusterName }}
   project: default
   source:
     path: src/infrastructure/helm-charts/kube-prometheus-stack
