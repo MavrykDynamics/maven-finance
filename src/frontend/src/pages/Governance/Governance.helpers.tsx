@@ -229,6 +229,7 @@ export const normalizeProposal = (item: GovernanceProposalGraphQL, dipDupTokens?
     currentCycleStartLevel: item.current_cycle_start_level,
     currentCycleEndLevel: item.current_cycle_end_level,
     cycle: item.cycle,
+    votes: item.votes,
     proposalData: item.data.map((byte, idx) => ({
       ...byte,
       order: idx,
@@ -262,6 +263,10 @@ export const normalizeGovernanceStorage = (
   const currentGovernance = storage?.governance?.[0]
   const proposalLedger = normalizeProposals(storage?.governance_proposal, dipDupTokens)
 
+  const financialRequestLedger = storage?.governance_financial_request.sort(
+    (a, b) => new Date(b.requested_datetime ?? '').getTime() - new Date(a.requested_datetime ?? '').getTime(),
+  )
+
   return {
     address: currentGovernance?.address || '',
     fee: currentGovernance?.proposal_submission_fee_mutez
@@ -285,7 +290,7 @@ export const normalizeGovernanceStorage = (
     currentRoundEndLevel: currentGovernance?.current_round_end_level ?? 0,
     currentRoundProposals: new MichelsonMap<string, ProposalRecordType>(),
     currentRoundStartLevel: currentGovernance?.current_round_start_level ?? 0,
-    financialRequestLedger: storage?.governance_financial_request,
+    financialRequestLedger,
     nextProposalId: currentGovernance?.next_proposal_id ?? 0,
     proposalLedger,
     timelockProposalId: currentGovernance?.timelock_proposal_id ?? 0,

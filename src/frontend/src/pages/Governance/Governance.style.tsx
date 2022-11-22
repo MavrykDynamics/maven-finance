@@ -89,6 +89,10 @@ export const GovernanceRightContainer = styled(Card)<{ isAuthorized?: boolean; t
   .voting-proposal {
     display: flex;
     flex-direction: column;
+
+    .execute-proposal {
+      margin-top: 16px;
+    }
   }
 
   article {

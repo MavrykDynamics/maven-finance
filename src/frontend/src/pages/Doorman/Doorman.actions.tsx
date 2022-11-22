@@ -358,8 +358,10 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite ? userInfoData?.delegations[0].satellite?.user_id : '',
       isSatellite: Boolean(
         state.delegation.delegationStorage.activeSatellites.find(
-          ({ address: satelliteAddress }) =>
-            satelliteAddress === userInfoData?.address || satelliteAddress === state.wallet?.accountPkh,
+          ({ address: satelliteAddress, status, currentlyRegistered }) =>
+            (satelliteAddress === userInfoData?.address || satelliteAddress === state.wallet?.accountPkh) &&
+            status === 0 &&
+            currentlyRegistered,
         ),
       ),
       myDoormanRewardsData: userDoormanRewardsData,

@@ -8,41 +8,78 @@ import { StageOneForm } from './StageOneForm/StageOneForm.controller'
 import { StageThreeForm } from './StageThreeForm/StageThreeForm.controller'
 import { StageTwoForm } from './StageTwoForm/StageTwoForm.controller'
 import { MultyProposalItem, MultyProposals } from './MultyProposals/MultyProposals.controller'
-import { ProposalSubmissionForm } from './ProposalSubmission.style'
+import { FormButtonContainer, ProposalSubmissionForm } from './ProposalSubmission.style'
 import { Page } from 'styles'
 
 // types
 import { State } from 'reducers'
 import { CurrentRoundProposalsStorageType } from 'utils/TypesAndInterfaces/Governance'
-import { ProposalChangesStateType, SubmittedProposalsMapper } from './ProposalSybmittion.types'
+import { ProposalValidityObj, SubmittedProposalsMapper } from './ProposalSybmittion.types'
 
 // helpers
-import { DEFAULT_PROPOSAL } from './ProposalSubmition.helpers'
-import { dropProposal, lockProposal } from './ProposalSubmission.actions'
+import {
+  DEFAULT_PROPOSAL,
+  DEFAULT_PROPOSAL_VALIDATION,
+  getBytesDiff,
+  getPaymentsDiff,
+} from './ProposalSubmition.helpers'
+import { dropProposal, lockProposal, submitProposal, updateProposalData } from './ProposalSubmission.actions'
+import { INPUT_STATUS_ERROR, INPUT_STATUS_SUCCESS } from 'app/App.components/Input/Input.constants'
+import { isValidLength } from 'utils/validatorFunctions'
+import { Button } from 'app/App.components/Button/Button.controller'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 export const ProposalSubmission = () => {
   const dispatch = useDispatch()
 
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { currentRoundProposals } = useSelector((state: State) => state.governance)
-  const [activeTab, setActiveTab] = useState<number>(1)
-  const [selectedUserProposalId, setSeletedUserProposalId] = useState<number>(-1)
+  const {
+    currentRoundProposals,
+    governancePhase,
+    governanceStorage: {
+      fee,
+      config: { proposalTitleMaxLength, proposalDescriptionMaxLength },
+    },
+  } = useSelector((state: State) => state.governance)
+  const { whitelistTokens, dipDupTokens } = useSelector((state: State) => state.tokens)
+
+  const [activeTab, setActiveTab] = useState(1)
+  const [selectedUserProposalId, setSeletedUserProposalId] = useState(-1)
 
   // proposals that user has submitted, reduced to object mapper and arr of keys for this object
-  const [proposalKeys, mappedProposals] = useMemo(() => {
-    const { keys, mapper } = currentRoundProposals
+  const [proposalKeys, mappedProposals, mappedValidation] = useMemo(() => {
+    const { keys, mapper, validityObj } = currentRoundProposals
       .filter((item) => item.proposerId === accountPkh)
       .reduce<SubmittedProposalsMapper>(
         (acc, proposal) => {
           acc.mapper[proposal.id] = proposal
+          acc.validityObj[proposal.id] = {
+            title: '',
+            description: '',
+            sourceCode: '',
+            ipfs: '',
+            successMVKReward: '',
+            invoiceTable: '',
+            bytesValidation: proposal.proposalData.map((bytesPair) => ({
+              validBytes: '',
+              validTitle: '',
+              byteId: bytesPair.id,
+            })),
+            paymentsValidation: proposal.proposalPayments.map((payment) => ({
+              token_amount: '',
+              title: '',
+              to__id: '',
+              paymentId: payment.id,
+            })),
+          }
           acc.keys.push(proposal.id)
           return acc
         },
-        { keys: [], mapper: {} },
+        { keys: [], mapper: {}, validityObj: {} },
       )
     setSeletedUserProposalId(keys?.[0])
-    return [keys, mapper]
-  }, [accountPkh, currentRoundProposals])
+    return [keys, mapper, validityObj]
+  }, [accountPkh, currentRoundProposals, proposalDescriptionMaxLength, proposalTitleMaxLength])
 
   // mapping user created proposals to buttons data
   const usersProposalsToSwitch = useMemo(
@@ -61,7 +98,21 @@ export const ProposalSubmission = () => {
     [selectedUserProposalId, proposalKeys, mappedProposals],
   )
 
+  const paymentMethods = useMemo(
+    () =>
+      whitelistTokens
+        .map((tokenInfo) => ({
+          symbol: tokenInfo.contract_name,
+          address: tokenInfo.contract_address,
+          shortSymbol: tokenInfo.token_contract_standard,
+          id: 0,
+        }))
+        .filter(({ shortSymbol }) => ['fa2', 'fa12', 'tez'].includes(shortSymbol)),
+    [whitelistTokens],
+  )
+
   const [proposalState, setProposalsState] = useState(mappedProposals)
+  const [proposalsValidation, setProposalsValidation] = useState<Record<number, ProposalValidityObj>>({})
   const [proposalHasChange, setProposalHasChange] = useState(false)
   const currentOriginalProposal = useMemo(
     () => currentRoundProposals.find(({ id }) => selectedUserProposalId === id),
@@ -102,12 +153,51 @@ export const ProposalSubmission = () => {
     [proposalState],
   )
 
-  const handleLockProposal = (proposalId: number) => {
-    dispatch(lockProposal(proposalId))
+  const updateLocalProposalValidation = useCallback(
+    (newProposalValidation: Partial<ProposalValidityObj>, proposalId: number) => {
+      setProposalsValidation({
+        ...proposalsValidation,
+        [proposalId]: {
+          ...proposalsValidation[proposalId],
+          ...newProposalValidation,
+        },
+      })
+    },
+    [proposalsValidation],
+  )
+
+  const handleLockProposal = async (proposalId: number) => {
+    await dispatch(lockProposal(proposalId))
   }
 
   const handleDropProposal = async (proposalId: number) => {
     if (proposalId && proposalId !== -1) await dispatch(dropProposal(proposalId))
+  }
+
+  const handleUpdateData = async (proposalId: number) => {
+    const bytesDiff = getBytesDiff(currentOriginalProposal?.proposalData ?? [], currentProposal.proposalData)
+    const paymentsDiff = getPaymentsDiff(
+      currentOriginalProposal?.proposalPayments ?? [],
+      currentProposal.proposalPayments,
+      paymentMethods,
+      dipDupTokens,
+    )
+    await dispatch(updateProposalData(proposalId, bytesDiff, paymentsDiff))
+  }
+
+  const handleSubmitProposal = async () => {
+    // TODO: add also setting stage 2 and stage 3 stuff when submitting proposal
+    await dispatch(
+      submitProposal(
+        {
+          title: currentProposal.title,
+          description: currentProposal.description,
+          sourceCode: currentProposal.sourceCode,
+          ipfs: '',
+        },
+        fee,
+      ),
+    )
   }
 
   // if user removed all his submitted proposals, show him create proposal tab with empty proposal form to fill up
@@ -119,12 +209,51 @@ export const ProposalSubmission = () => {
             [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL,
           },
     )
+    setProposalsValidation(
+      proposalKeys.length
+        ? mappedValidation
+        : {
+            [DEFAULT_PROPOSAL.id]: DEFAULT_PROPOSAL_VALIDATION,
+          },
+    )
     setSeletedUserProposalId(proposalKeys?.[0] ?? DEFAULT_PROPOSAL.id)
-  }, [mappedProposals, proposalKeys])
+  }, [mappedProposals, mappedValidation, proposalKeys])
 
-  const currentProposal = useMemo(
-    () => proposalState[selectedUserProposalId] ?? {},
-    [proposalState, selectedUserProposalId],
+  const [currentProposal, currentProposalValidation] = useMemo(
+    () => [proposalState[selectedUserProposalId] ?? {}, proposalsValidation[selectedUserProposalId] ?? {}],
+    [proposalState, proposalsValidation, selectedUserProposalId],
+  )
+
+  // action buttons stuff for disabling
+  const isProposalSubmitted = selectedUserProposalId >= 0
+  const isProposalPeriod = governancePhase === 'PROPOSAL'
+
+  const isBytesValid = useMemo(
+    () =>
+      currentProposalValidation.bytesValidation?.every(({ validBytes, validTitle, byteId }) => {
+        const isSavedBytes = currentOriginalProposal?.proposalData?.find(({ id }) => id === byteId)
+        return isSavedBytes
+          ? validBytes !== INPUT_STATUS_ERROR
+          : validBytes === INPUT_STATUS_SUCCESS && validTitle === INPUT_STATUS_SUCCESS
+      }) ?? true,
+    [currentProposalValidation.bytesValidation],
+  )
+
+  const isPaymentsValid = useMemo(
+    () =>
+      currentProposalValidation.paymentsValidation?.every(
+        ({ to__id, title, token_amount }) =>
+          to__id === INPUT_STATUS_SUCCESS || (title === INPUT_STATUS_SUCCESS && token_amount === INPUT_STATUS_SUCCESS),
+      ) ?? true,
+    [currentProposalValidation.paymentsValidation],
+  )
+
+  const isStageOneDataValid = useMemo(
+    () =>
+      currentProposalValidation.description === INPUT_STATUS_SUCCESS &&
+      currentProposalValidation.title === INPUT_STATUS_SUCCESS &&
+      currentProposalValidation.sourceCode === INPUT_STATUS_SUCCESS,
+    [currentProposalValidation.description, currentProposalValidation.title, currentProposalValidation.sourceCode],
   )
 
   return (
@@ -138,33 +267,69 @@ export const ProposalSubmission = () => {
           <StageOneForm
             proposalId={selectedUserProposalId}
             currentProposal={currentProposal}
+            currentProposalValidation={currentProposalValidation}
+            updateLocalProposalValidation={updateLocalProposalValidation}
             updateLocalProposalData={updateLocalProposalData}
-            handleDropProposal={handleDropProposal}
           />
         )}
         {activeTab === 2 && (
           <StageTwoForm
             proposalId={selectedUserProposalId}
             currentProposal={currentProposal}
+            currentProposalValidation={currentProposalValidation}
+            updateLocalProposalValidation={updateLocalProposalValidation}
             updateLocalProposalData={updateLocalProposalData}
-            handleDropProposal={handleDropProposal}
-            proposalHasChange={proposalHasChange}
             setProposalHasChange={setProposalHasChange}
-            currentOriginalProposal={currentOriginalProposal}
           />
         )}
         {activeTab === 3 && (
           <StageThreeForm
             proposalId={selectedUserProposalId}
             currentProposal={currentProposal}
+            paymentMethods={paymentMethods}
+            currentProposalValidation={currentProposalValidation}
+            updateLocalProposalValidation={updateLocalProposalValidation}
             updateLocalProposalData={updateLocalProposalData}
-            handleDropProposal={handleDropProposal}
-            handleLockProposal={handleLockProposal}
-            proposalHasChange={proposalHasChange}
             setProposalHasChange={setProposalHasChange}
-            currentOriginalProposal={currentOriginalProposal}
           />
         )}
+
+        <FormButtonContainer>
+          <Button
+            icon="close-stroke"
+            className="close delete-pair"
+            text="Drop Proposal"
+            kind={ACTION_SECONDARY}
+            disabled={!isProposalSubmitted || !isProposalPeriod}
+            onClick={() => handleDropProposal(selectedUserProposalId)}
+          />
+          <Button
+            icon="lock"
+            className="lock"
+            text={'Lock Proposal'}
+            disabled={!isProposalSubmitted || !isProposalPeriod || currentProposal.locked || proposalHasChange}
+            onClick={() => handleLockProposal(selectedUserProposalId)}
+            kind={ACTION_SECONDARY}
+          />
+          {isProposalSubmitted ? (
+            <Button
+              icon="bytes"
+              className="bytes"
+              text="Save Changes"
+              kind={ACTION_PRIMARY}
+              disabled={!proposalHasChange || currentProposal.locked || !isBytesValid || !isPaymentsValid}
+              onClick={() => handleUpdateData(selectedUserProposalId)}
+            />
+          ) : (
+            <Button
+              icon="auction"
+              kind={ACTION_PRIMARY}
+              text={'Submit Proposal'}
+              disabled={!isStageOneDataValid || !isBytesValid || !isPaymentsValid}
+              onClick={handleSubmitProposal}
+            />
+          )}
+        </FormButtonContainer>
       </ProposalSubmissionForm>
     </Page>
   )

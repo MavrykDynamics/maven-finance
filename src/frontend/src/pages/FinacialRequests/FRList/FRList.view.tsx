@@ -25,12 +25,12 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
       <GovRightContainerTitleArea>
         <h1>{listTitle}</h1>
       </GovRightContainerTitleArea>
-      {paginatedItemsList.map((item) => {
+      {paginatedItemsList.map((item, idx) => {
         const financialRequestTitle = `${item.request_type} ${item.request_purpose}`
         return (
           <FRSListItem
             onClickHandler={() => handleItemSelect(item)}
-            id={item.id}
+            id={idx + 1}
             title={financialRequestTitle}
             status={getRequestStatus(item)}
             selected={selectedItem?.id === item.id}
