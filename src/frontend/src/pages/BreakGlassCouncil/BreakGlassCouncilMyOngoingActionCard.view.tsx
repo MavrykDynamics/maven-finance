@@ -18,7 +18,6 @@ type Props = BreakGlassAction[0] & { numCouncilMembers: number }
 
 export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
   const { executionDatetime, actionType, signersCount, numCouncilMembers } = props
-  console.log("🚀 ~ file: BreakGlassCouncilMyOngoingActionCard.view.tsx ~ line 18 ~ BreakGlassCouncilMyOngoingActionCard ~ props", props)
   const [isOpen, setIsOpen] = useState(false)
 
   const handleClickCard = () => {

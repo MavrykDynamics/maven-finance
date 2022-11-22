@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { BreakGlassCouncilMyOngoingActionCard } from "./BreakGlassCouncilMyOngoingActionCard.view";
 
 // components
-import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPastAction.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
@@ -11,30 +10,21 @@ import { TabSwitcher } from './BreakGlassCouncil.style'
 
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
+import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 
 // helpers
 import { BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
-
-const tabsList: TabItem[] = [
-  {
-    text: 'My Ongoing Actions',
-    id: 1,
-    active: true,
-  },
-  {
-    text: 'My Past Actions',
-    id: 2,
-    active: false,
-  },
-]
 
 type Props = {
   myPastBreakGlassCouncilAction: BreakGlassAction
   breakGlassCouncilMemberLength: number
   myPastBreakGlassCouncilActionLength: number
   breakGlassActionPendingMySignature: BreakGlassAction
-  breakGlassActionPendingMySignatureLength: number,
-  numCouncilMembers: number;
+  breakGlassActionPendingMySignatureLength: number
+  numCouncilMembers: number
+  activeActionTab: string
+  setActiveActionTab: (arg: string) => void
+  tabsList: TabItem[]
 }
 
 export function BreakGlassCouncilMyActions({
@@ -44,10 +34,11 @@ export function BreakGlassCouncilMyActions({
   breakGlassActionPendingMySignature,
   breakGlassActionPendingMySignatureLength,
   numCouncilMembers,
+  activeActionTab,
+  setActiveActionTab,
+  tabsList,
 }: Props) {
-  const [activeActionTab, setActiveActionTab] = useState(tabsList[0].text)
-
-  const handleChangeTabs = (tabId?: number) => {
+    const handleChangeTabs = (tabId?: number) => {
     setActiveActionTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
   }
   return (
