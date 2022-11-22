@@ -13,6 +13,18 @@ export const ORACLE_STORAGE_QUERY = `
       reward_amount_xtz
       reward_amount_smvk
       pct_oracle_threshold
+      oracles {
+        observations {
+          epoch
+          round
+          timestamp
+          oracle {
+            user_id
+            init_epoch
+            init_round
+          }
+        }
+      }
     }
     aggregator_factory {
       address

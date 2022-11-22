@@ -17,7 +17,6 @@ export const BecomeSatellite = () => {
   const { satelliteLedger, config } = useSelector((state: State) => state.delegation.delegationStorage)
   const { mySMvkTokenBalance } = useSelector((state: State) => state.user)
 
-
   const usersSatelliteProfile = satelliteLedger.find((satellite: SatelliteRecord) => satellite.address === accountPkh)
   const isSutelliteRegistered = Boolean(usersSatelliteProfile?.currentlyRegistered)
 

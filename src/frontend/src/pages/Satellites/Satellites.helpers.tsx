@@ -10,6 +10,7 @@ import { EmergergencyGovernanceItem } from 'utils/TypesAndInterfaces/EmergencyGo
 // helpers
 import { calcWithoutPrecision } from '../../utils/calcFunctions'
 import { symbolsAfterDecimalPoint } from '../../utils/symbolsAfterDecimalPoint'
+import { Aggregator, Aggregator_Oracle } from 'utils/generated/graphqlTypes'
 
 export function normalizeSatelliteRecord(
   satelliteRecord: SatelliteRecordGraphQl,
@@ -239,6 +240,7 @@ export const getSatelliteMetrics = (
   proposalLedger: Array<ProposalRecordType>,
   emergencyGovernanceLedger: Array<EmergergencyGovernanceItem>,
   satellite: SatelliteRecord,
+  feeds?: Array<Aggregator>,
   financialRequestLedger?: Array<GovernanceFinancialRequestGraphQL>,
 ) => {
   const submittedProposalsCount = pastProposals
@@ -258,9 +260,24 @@ export const getSatelliteMetrics = (
     (satellite.proposalVotingHistory?.length ?? 0) +
     (satellite.financialRequestsVotes?.length ?? 0)
 
+  const observationsForSatellite = feeds
+    ?.reduce<Aggregator_Oracle['observations']>(
+      (acc, { oracles }) => acc.concat(...oracles.map(({ observations }) => observations)),
+      [],
+    )
+    ?.filter(({ oracle: { user_id } }) => user_id === satellite.address)
+    ?.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+
+  const latestObservation = observationsForSatellite?.[0]
+  const numberOfObservations = observationsForSatellite?.length ?? 0
+  const epochRoundRatio =
+    (latestObservation?.epoch ?? 0) / (latestObservation?.round || 1) -
+    (latestObservation?.oracle?.init_epoch ?? 0) / (latestObservation?.oracle?.init_round || 1)
+  const oracleEfficiency = (numberOfObservations / Math.max(epochRoundRatio, 1)) * 100
+
   return {
     proposalParticipation: (votedProposalSubmitted / submittedProposalsCount) * 100,
     votingPartisipation: (satelliteVotes / totalVotingPeriods) * 100,
-    oracleEfficiency: 0,
+    oracleEfficiency,
   }
 }
