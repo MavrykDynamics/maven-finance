@@ -17,7 +17,6 @@ export const Page = styled(PageBase)`
 export const BreakGlassCouncilStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
-  cursor: grab;
 
   .left-block {
     width: 750px;
@@ -206,6 +205,20 @@ export const BreakGlassCouncilMyOngoingActionCardStyled = styled(CardHover)<{ th
       width: 50px;
       object-fit: cover;
       border-radius: 50%;
+    }
+
+    .column-link {
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 24px;
+
+      color: ${({ theme }) => theme.topBarLinkColor};
+      text-decoration: underline;
+      text-overflow: ellipsis;
+      max-width: inherit;
+      overflow: hidden;
+
+      cursor: pointer;
     }
 
     .drop-btn {
