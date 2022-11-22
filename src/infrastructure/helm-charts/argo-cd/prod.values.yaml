@@ -107,7 +107,7 @@ argo-cd:
       annotations: {}
 
       # -- Argo CD's externally facing base URL (optional). Required when configuring SSO
-      url: 'argocd.mavryk.io'
+      url: 'https://argocd.mavryk.io'
 
       # -- The name of tracking label used by Argo CD for resource pruning
       # @default -- Defaults to app.kubernetes.io/instance
