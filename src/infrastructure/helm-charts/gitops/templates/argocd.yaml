@@ -13,7 +13,7 @@ spec:
     name: {{ .Values.spec.clusterName }}
   project: default
   source:
-    path: src/infrastructure/helm-charts/argocd
+    path: src/infrastructure/helm-charts/argo-cd
     repoURL: git@github.com:mavrykfinance/mavryk-dapp
     targetRevision: private-testnet
     helm:
