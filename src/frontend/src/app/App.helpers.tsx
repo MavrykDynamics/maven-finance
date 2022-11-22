@@ -6,7 +6,7 @@ import type {
   AggregatorGraphQL,
   AggregatorFactoryGraphQL,
   AggregatorOracleGraphQL,
-  DipdupContractMetadataGraphQL
+  DipdupContractMetadataGraphQL,
 } from '../utils/TypesAndInterfaces/Aggregator'
 import { Dipdup_Token_Metadata } from 'utils/generated/graphqlTypes'
 
@@ -18,6 +18,7 @@ export function normalizeAddressesStorage(storage: AddressesGraphQl): ContractAd
     doormanAddress: { address: storage?.doorman?.[0]?.address },
     mvkTokenAddress: { address: storage?.mvk_token?.[0]?.address },
     governanceAddress: { address: storage?.governance?.[0]?.address },
+    governanceFinancialAddress: { address: storage?.governance_financial?.[0]?.address },
     emergencyGovernanceAddress: {
       address: storage?.emergency_governance?.[0]?.address,
     },
@@ -63,8 +64,9 @@ export function normalizeOracle(storage: {
   const dataFeedUniqueCategories = new Set()
 
   const getFeedCategory = (address: string) => {
-    const findedItem= storage?.dipdup_contract_metadata
-      .find((element) => element.contract === address)?.metadata as { category?: string } | undefined
+    const findedItem = storage?.dipdup_contract_metadata.find((element) => element.contract === address)?.metadata as
+      | { category?: string }
+      | undefined
     const category = findedItem?.category
 
     if (!category) return null
@@ -83,7 +85,7 @@ export function normalizeOracle(storage: {
   return {
     feeds,
     feedsFactory: storage?.aggregator_factory,
-    feedCategories: [...dataFeedUniqueCategories]
+    feedCategories: [...dataFeedUniqueCategories],
   }
 }
 

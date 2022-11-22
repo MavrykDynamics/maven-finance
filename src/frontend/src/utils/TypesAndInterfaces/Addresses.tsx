@@ -13,21 +13,23 @@ import type {
   Governance_Satellite,
   Aggregator,
   Aggregator_Factory,
-} from "../generated/graphqlTypes";
+  Governance_Financial,
+} from '../generated/graphqlTypes'
 
 export type AddressesGraphQl = {
-  farm: { address: Farm["address"] }[];
-  farm_factory: { address: Farm_Factory["address"] }[];
-  delegation: { address: Delegation["address"] }[];
-  doorman: { address: Doorman["address"] }[];
-  mvk_token: { address: Mvk_Token["address"] }[];
-  governance: { address: Governance["address"] }[];
-  emergency_governance: { address: Emergency_Governance["address"] }[];
-  break_glass: { address: Break_Glass["address"] }[];
-  council: { address: Council["address"] }[];
-  treasury_factory: { address: Treasury_Factory["address"] }[];
-  vesting: { address: Vesting["address"] }[];
-  governance_satellite: { address: Governance_Satellite["address"] }[];
-  aggregator: { address: Aggregator["address"] }[];
-  aggregator_factory: { address: Aggregator_Factory["address"] }[];
-};
+  farm: { address: Farm['address'] }[]
+  farm_factory: { address: Farm_Factory['address'] }[]
+  delegation: { address: Delegation['address'] }[]
+  doorman: { address: Doorman['address'] }[]
+  mvk_token: { address: Mvk_Token['address'] }[]
+  governance: { address: Governance['address'] }[]
+  governance_financial: { address: Governance_Financial['address'] }[]
+  emergency_governance: { address: Emergency_Governance['address'] }[]
+  break_glass: { address: Break_Glass['address'] }[]
+  council: { address: Council['address'] }[]
+  treasury_factory: { address: Treasury_Factory['address'] }[]
+  vesting: { address: Vesting['address'] }[]
+  governance_satellite: { address: Governance_Satellite['address'] }[]
+  aggregator: { address: Aggregator['address'] }[]
+  aggregator_factory: { address: Aggregator_Factory['address'] }[]
+}
