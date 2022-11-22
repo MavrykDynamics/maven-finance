@@ -96,18 +96,18 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 #include "../partials/contractHelpers/councilHelpers.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// Council Lambdas:
-#include "../partials/contractLambdas/council/councilLambdas.ligo"
-
-// ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
 // Council Views:
 #include "../partials/contractViews/councilViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Council Lambdas:
+#include "../partials/contractLambdas/council/councilLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

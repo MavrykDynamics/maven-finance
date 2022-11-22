@@ -948,7 +948,7 @@ error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION                     
 error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION                                             = 682
 error_SNAPSHOT_STAKED_MVK_TOTAL_SUPPLY_NOT_FOUND                                                        = 683
 
-error_SATELLITE_ORACLE_RECORD_NOT_FOUND                                                                 = 684
+error_SATELLITE_SUBSCRIBED_AGGREGATORS_NOT_FOUND                                                        = 684
 error_ORACLE_NOT_FOUND                                                                                  = 685
 error_ORACLE_INFORMATION_NOT_FOUND                                                                      = 686
 error_AGGREGATOR_NEW_STATUS_NOT_FOUND                                                                   = 687

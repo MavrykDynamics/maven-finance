@@ -948,7 +948,7 @@
 [@inline] const error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION                                             = 682n;
 [@inline] const error_SNAPSHOT_STAKED_MVK_TOTAL_SUPPLY_NOT_FOUND                                                        = 683n;
 
-[@inline] const error_SATELLITE_ORACLE_RECORD_NOT_FOUND                                                                 = 684n;
+[@inline] const error_SATELLITE_SUBSCRIBED_AGGREGATORS_NOT_FOUND                                                        = 684n;
 [@inline] const error_ORACLE_NOT_FOUND                                                                                  = 685n;
 [@inline] const error_ORACLE_INFORMATION_NOT_FOUND                                                                      = 686n;
 [@inline] const error_AGGREGATOR_NEW_STATUS_NOT_FOUND                                                                   = 687n;

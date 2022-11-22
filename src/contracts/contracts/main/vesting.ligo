@@ -72,18 +72,18 @@ const thirty_days    : int  = one_day * 30;
 #include "../partials/contractHelpers/vestingHelpers.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// Vesting Lambdas :
-#include "../partials/contractLambdas/vesting/vestingLambdas.ligo"
-
-// ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
 // Vesting Views:
 #include "../partials/contractViews/vestingViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Vesting Lambdas :
+#include "../partials/contractLambdas/vesting/vestingLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
