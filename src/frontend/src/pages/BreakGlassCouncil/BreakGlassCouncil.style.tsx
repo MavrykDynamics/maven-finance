@@ -184,7 +184,8 @@ export const BreakGlassCouncilMyOngoingActionCardStyled = styled(Card)<{ theme: 
       font-size: 16px;
       line-height: 22px;
 
-      color: ${({ theme }) => theme.dataColor}
+      color: ${({ theme }) => theme.dataColor};
+      text-transform: capitalize;
     }
 
     .drop-btn {

@@ -5,6 +5,8 @@ import { Button } from 'app/App.components/SettingsPopup/SettingsPopup.style'
 
 // helpers
 import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { parseDate } from 'utils/time'
+import { getSeparateCamelCase } from '../../utils/parse'
 
 // styles
 import { BreakGlassCouncilMyOngoingActionCardStyled } from './BreakGlassCouncil.style'
@@ -12,9 +14,11 @@ import { BreakGlassCouncilMyOngoingActionCardStyled } from './BreakGlassCouncil.
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
 
-type Props = BreakGlassAction[0]
+type Props = BreakGlassAction[0] & { numCouncilMembers: number }
 
 export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
+  const { executionDatetime, actionType, signersCount, numCouncilMembers } = props
+  console.log("🚀 ~ file: BreakGlassCouncilMyOngoingActionCard.view.tsx ~ line 18 ~ BreakGlassCouncilMyOngoingActionCard ~ props", props)
   const [isOpen, setIsOpen] = useState(false)
 
   const handleClickCard = () => {
@@ -27,17 +31,17 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
         <div className='row top-row'>
           <div className='column'>
             <div className='column-name'>Date</div>
-            <div className='column-value'>28.03.2023</div>
+            <div className='column-value'>{parseDate({ time: executionDatetime, timeFormat: 'MMM Do, YYYY' })}</div>
           </div>
 
           <div className='column'>
             <div className='column-name'>Purpose</div>
-            <div className='column-value'>Change Council Member</div>
+            <div className='column-value'>{getSeparateCamelCase(actionType)}</div>
           </div>
 
           <div className='column'>
             <div className='column-name'>Signed</div>
-            <div className='column-value'>3/8</div>
+            <div className='column-value'>{signersCount}/{numCouncilMembers}</div>
           </div>
         </div>
       </div>

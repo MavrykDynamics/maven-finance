@@ -272,6 +272,7 @@ export function BreakGlassCouncil() {
                 myPastBreakGlassCouncilActionLength={myPastBreakGlassCouncilAction.length}
                 breakGlassActionPendingMySignature={paginatedBreakGlassActionPendingMySignature}
                 breakGlassActionPendingMySignatureLength={breakGlassActionPendingMySignature.length}
+                numCouncilMembers={breakGlassCouncilMember.length}
               />
             </>
           )}
