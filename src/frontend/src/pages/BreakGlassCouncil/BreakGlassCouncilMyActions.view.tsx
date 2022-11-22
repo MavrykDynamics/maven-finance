@@ -13,7 +13,7 @@ import { TabSwitcher } from './BreakGlassCouncil.style'
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
 
 // helpers
-import { BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 const tabsList: TabItem[] = [
   {
@@ -29,17 +29,19 @@ const tabsList: TabItem[] = [
 ]
 
 type Props = {
-  paginatedMyPastCouncilActions: BreakGlassAction
+  myPastBreakGlassCouncilAction: BreakGlassAction
   breakGlassCouncilMemberLength: number
   myPastBreakGlassCouncilActionLength: number
   breakGlassActionPendingMySignature: BreakGlassAction
+  breakGlassActionPendingMySignatureLength: number,
 }
 
 export function BreakGlassCouncilMyActions({
-  paginatedMyPastCouncilActions,
+  myPastBreakGlassCouncilAction,
   breakGlassCouncilMemberLength,
   myPastBreakGlassCouncilActionLength,
   breakGlassActionPendingMySignature,
+  breakGlassActionPendingMySignatureLength,
 }: Props) {
   const [activeActionTab, setActiveActionTab] = useState(tabsList[0].text)
 
@@ -51,7 +53,7 @@ export function BreakGlassCouncilMyActions({
       <TabSwitcher tabItems={tabsList} onClick={handleChangeTabs} />
       {(activeActionTab === tabsList[1].text) && (
         <>
-          {paginatedMyPastCouncilActions.map((item) => (
+          {myPastBreakGlassCouncilAction.map((item) => (
             <CouncilPastActionView
               execution_datetime={String(item.executionDatetime)}
               key={item.id}
@@ -74,6 +76,11 @@ export function BreakGlassCouncilMyActions({
           {breakGlassActionPendingMySignature.map((item) => (
             <BreakGlassCouncilMyOngoingActionCard {...item} />
           ))}
+
+          <Pagination
+            itemsCount={breakGlassActionPendingMySignatureLength}
+            listName={BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME}
+          />
         </>
       )}
     </>
