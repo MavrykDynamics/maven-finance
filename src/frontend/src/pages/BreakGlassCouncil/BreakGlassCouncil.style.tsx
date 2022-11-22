@@ -156,7 +156,7 @@ export const BreakGlassCouncilMyOngoingActionCardStyled = styled(CardHover)<{ th
     border-top: 1px solid ${({ theme }) => theme.cardBorderColor};
   }
 
-  .row, .top-row {
+  .row {
     display: grid;
     grid-template-columns: 145px 205px 250px;
     grid-column-gap: 45px;
@@ -168,6 +168,16 @@ export const BreakGlassCouncilMyOngoingActionCardStyled = styled(CardHover)<{ th
 
   .top-row {
     grid-template-columns: 145px 245px 250px;
+  }
+
+  .two-columns {
+    grid-template-columns: auto 250px;
+
+    .column {
+      .drop-btn {
+        margin-top: 0;
+      }
+    }
   }
 
   .column {
