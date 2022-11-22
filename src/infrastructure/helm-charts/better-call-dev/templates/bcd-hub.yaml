@@ -25,20 +25,16 @@ metadata:
   name: bcd-hub
   namespace: '{{ .Release.Namespace }}'
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
-    nginx.ingress.kubernetes.io/enable-cors: 'true'
-    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
-    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
-    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+{{- .Values.bcdHub.ingress.annotations | toYaml | nindent 4 }}
 spec:
+{{- if .Values.bcdHub.ingress.tls }}
   tls:
     - hosts:
-        - api-better-call.mavryk.io
-      secretName: api-better-call-tls
+        - {{ .Values.bcdHub.ingress.host }}
+      secretName: {{ .Values.bcdHub.ingress.tls.secretName }}
+{{- end }}
   rules:
-    - host: api-better-call.mavryk.io
+    - host: {{ .Values.bcdHub.ingress.host }}
       http:
         paths:
           - path: /
@@ -67,17 +63,26 @@ spec:
         app: bcd-hub
     spec:
       imagePullSecrets:
-        - name: '{{ .Values.bcdHub.image.pullSecret }}'
+        - name: '{{ .Values.bcdHub.dockerPullSecret }}'
       containers:
         - name: db
-          image: '{{ .Values.bcdHub.image.registry }}/{{ .Values.bcdHub.image.db.repository }}:{{ .Values.bcdHub.image.db.tag }}'
+          image: '{{ .Values.bcdHub.db.image.registry }}/{{ .Values.bcdHub.db.image.repository }}:{{ .Values.bcdHub.db.image.tag }}'
           env:
             - name: POSTGRES_USER
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
-              value: bcd
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_DB
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
           imagePullPolicy: IfNotPresent
@@ -88,24 +93,33 @@ spec:
               mountPath: /var/lib/postgresql/data
               subPath: data
         - name: api
-          image: '{{ .Values.bcdHub.image.registry }}/{{ .Values.bcdHub.image.api.repository }}:{{ .Values.bcdHub.image.api.tag }}'
+          image: '{{ .Values.bcdHub.api.image.registry }}/{{ .Values.bcdHub.api.image.repository }}:{{ .Values.bcdHub.api.image.tag }}'
           env:
             - name: BCD_ENV
-              value: sandbox
+              value: '{{ .Values.bcdHub.bcdEnv }}'
             - name: GIN_MODE
               value: debug
             - name: POSTGRES_USER
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
-              value: bcd
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_DB
             - name: DB_HOSTNAME
               value: localhost
             - name: SANDBOX_NODE_URI
-              value: https://basenet-baking-archive-node.mavryk.network
+              value: '{{ .Values.bcdHub.sandboxNodeUri }}'
             - name: SANDBOX_IPFS_GATEWAY
-              value: https://cloudflare-ipfs.com
+              value: '{{ .Values.bcdHub.sandboxIpfsGateway }}'
           imagePullPolicy: Always
           ports:
             - containerPort: 14000
@@ -114,24 +128,33 @@ spec:
               mountPath: /etc/bcd
               subPath: bcd
         - name: indexer
-          image: '{{ .Values.bcdHub.image.registry }}/{{ .Values.bcdHub.image.indexer.repository }}:{{ .Values.bcdHub.image.indexer.tag }}'
+          image: '{{ .Values.bcdHub.indexer.image.registry }}/{{ .Values.bcdHub.indexer.image.repository }}:{{ .Values.bcdHub.indexer.image.tag }}'
           env:
             - name: BCD_ENV
-              value: sandbox
+              value: '{{ .Values.bcdHub.bcdEnv }}'
             - name: GIN_MODE
               value: debug
             - name: POSTGRES_USER
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
-              value: bcd
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_DB
             - name: DB_HOSTNAME
               value: localhost
             - name: SANDBOX_NODE_URI
-              value: https://basenet-baking-archive-node.mavryk.network
+              value: '{{ .Values.bcdHub.sandboxNodeUri }}'
             - name: SANDBOX_IPFS_GATEWAY
-              value: https://cloudflare-ipfs.com
+              value: '{{ .Values.bcdHub.sandboxIpfsGateway }}'
           imagePullPolicy: Always
           volumeMounts:
             - name: bcd-shared
