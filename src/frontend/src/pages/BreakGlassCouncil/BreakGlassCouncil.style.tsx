@@ -141,6 +141,64 @@ export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
   }
 `
 
+export const BreakGlassCouncilMyOngoingActionCardStyled = styled(Card)<{ theme: MavrykTheme }>`
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 10px;
+
+  .top {
+    padding: 15px 30px;
+    height: 75px;
+  }
+
+  .bottom {
+    padding: 20px 30px;
+    border-top: 1px solid ${({ theme }) => theme.cardBorderColor};
+  }
+
+  .row, .top-row {
+    display: grid;
+    grid-template-columns: 145px 205px 250px;
+    grid-column-gap: 45px;
+
+    &:nth-child(2) {
+      margin-top: 20px;
+    }
+  }
+
+  .top-row {
+    grid-template-columns: 145px 245px 250px;
+  }
+
+  .column {
+    .column-name {
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 21px;
+
+      color: ${({ theme }) => theme.textColor}
+    }
+
+    .column-value {
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 22px;
+
+      color: ${({ theme }) => theme.dataColor}
+    }
+
+    .drop-btn {
+      margin-top: 14px;
+
+      svg {
+        margin-top: 2px;
+        height: 18px;
+        width: 18px;
+      }
+    }
+  }
+`
+
 export const ModalPopup = styled(ModalPopupBase)`
   padding: 0;
 `
