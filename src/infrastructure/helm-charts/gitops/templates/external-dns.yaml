@@ -10,7 +10,7 @@ metadata:
 spec:
   destination:
     namespace: external-dns
-    name: {{ .Values.spec.name }}
+    name: {{ .Values.spec.clusterName }}
   project: default
   source:
     path: src/infrastructure/helm-charts/external-dns
