@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { BreakGlassCouncilMyOngoingActionCard } from "./BreakGlassCouncilMyOngoingActionCard.view";
 
 // components
 import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
@@ -31,14 +32,16 @@ type Props = {
   paginatedMyPastCouncilActions: BreakGlassAction
   breakGlassCouncilMemberLength: number
   myPastBreakGlassCouncilActionLength: number
+  breakGlassActionPendingMySignature: BreakGlassAction
 }
 
 export function BreakGlassCouncilMyActions({
   paginatedMyPastCouncilActions,
   breakGlassCouncilMemberLength,
   myPastBreakGlassCouncilActionLength,
+  breakGlassActionPendingMySignature,
 }: Props) {
-  const [activeActionTab, setActiveActionTab] = useState('')
+  const [activeActionTab, setActiveActionTab] = useState(tabsList[0].text)
 
   const handleChangeTabs = (tabId?: number) => {
     setActiveActionTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
@@ -63,6 +66,14 @@ export function BreakGlassCouncilMyActions({
             itemsCount={myPastBreakGlassCouncilActionLength}
             listName={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME}
           />
+        </>
+      )}
+
+      {(activeActionTab === tabsList[0].text) && (
+        <>
+          {breakGlassActionPendingMySignature.map((item) => (
+            <BreakGlassCouncilMyOngoingActionCard {...item} />
+          ))}
         </>
       )}
     </>
