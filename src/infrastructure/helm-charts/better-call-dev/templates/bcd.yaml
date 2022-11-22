@@ -21,20 +21,16 @@ metadata:
   name: bcd
   namespace: '{{ .Release.Namespace }}'
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
-    nginx.ingress.kubernetes.io/enable-cors: 'true'
-    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
-    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
-    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+{{- .Values.bcd.ingress.annotations | toYaml | nindent 4 }}
 spec:
+{{- if .Values.bcd.ingress.tls }}
   tls:
     - hosts:
-        - better-call.mavryk.io
-      secretName: better-call-tls
+        - {{ .Values.bcd.ingress.host }}
+      secretName: {{ .Values.bcd.ingress.tls.secretName }}
+{{- end }}
   rules:
-    - host: better-call.mavryk.io
+    - host: {{ .Values.bcd.ingress.host }}
       http:
         paths:
           - path: /
@@ -63,33 +59,12 @@ spec:
         app: bcd
     spec:
       imagePullSecrets:
-        - name: '{{ .Values.bcdHub.image.pullSecret }}'
+        - name: '{{ .Values.bcd.image.dockerPullSecret }}'
       containers:
         - name: frontend
           env:
-            - name: NODE_ENV
-              value: sandbox
-            - name: BASE_URL
-              value: https://better-call.mavryk.io/
-            - name: VUE_APP_API_URI
-              value: https://api-better-call.mavryk.io/v1
-            - name: VUE_APP_SEARCH_SERVICE_URI
-              value: https://search.dipdup.net
-            - name: VUE_APP_TOKEN_METADATA_API
-              value: https://metadata.dipdup.net
-            - name: VUE_APP_METADATA_API_URI
-              value: https://metadata.dipdup.net
-            - name: VUE_APP_MAINNET_STATS_API_URI
-              value: https://stats.dipdup.net
-            - name: VUE_APP_GHOSTNET_STATS_API_URI
-              value: https://stats-ghostnet.dipdup.net
-            - name: VUE_APP_TESTNET_STATS_API_URI
-              value: https://stats-jakartanet.dipdup.net
-            - name: VUE_APP_KATHMANDU_STATS_API_URI
-              value: https://stats-kathmandu.dipdup.net
-            - name: VUE_APP_IPFS_NODE
-              value: https://ipfs.io
+          {{- .Values.bcd.env | toYaml | nindent 10 }}
           image: '{{ .Values.bcd.image.registry }}/{{ .Values.bcd.image.repository }}:{{ .Values.bcd.image.tag }}'
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: '{{ .Values.bcd.image.pullPolicy }}'
           ports:
             - containerPort: 8080
