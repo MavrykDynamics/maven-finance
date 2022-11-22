@@ -5,3 +5,15 @@ spec:
 
 argoCD:
   enabled: true
+
+certManager:
+  enabled: true
+
+externalDNS:
+  enabled: true
+
+kubePrometheusStack:
+  enabled: true
+
+sealedSecrets:
+  enabled: true
