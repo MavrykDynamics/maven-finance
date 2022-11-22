@@ -108,6 +108,41 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: AppDis
   }
 }
 
+export const votingRinancialRequestVote =
+  (vote: string, requestId: number) => async (dispatch: AppDispatch, getState: GetState) => {
+    const state: State = getState()
+
+    try {
+      if (!state.wallet.ready) {
+        dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+        return
+      }
+
+      if (state.loading) {
+        dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+        return
+      }
+
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceFinancialAddress.address)
+      const transaction = await contract?.methods.voteForRequest(requestId, vote).send()
+
+      await dispatch(toggleLoader(ROCKET_LOADER))
+      await dispatch(showToaster(INFO, 'Voting...', 'Please wait 30s'))
+
+      await transaction?.confirmation()
+
+      await dispatch(showToaster(SUCCESS, 'Voting done', 'All good :)'))
+      await dispatch(getGovernanceStorage())
+      await dispatch(toggleLoader())
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        await dispatch(showToaster(ERROR, 'Error', error.message))
+      }
+      await dispatch(toggleLoader())
+    }
+  }
+
 export const votingRoundVote = (vote: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 

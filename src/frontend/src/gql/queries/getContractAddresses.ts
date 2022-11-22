@@ -45,6 +45,9 @@ export const CONTRACT_ADDRESSES_QUERY = `
     aggregator {
       address
     }
+    governance_financial {
+      address
+    }
   }
 `
 

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-// helpers, actions
+// helpers, actions, consts
 import { distinctRequestsByExecuting, getRequestStatus } from './FinancialRequests.helpers'
 import {
   ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST,
@@ -9,11 +9,14 @@ import {
 } from './Pagination/pagination.consts'
 import { PRECISION_NUMBER } from 'utils/constants'
 import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
-import { votingRoundVote } from 'pages/Governance/Governance.actions'
+import { votingRinancialRequestVote } from 'pages/Governance/Governance.actions'
+import { VotingTypes } from 'app/App.components/VotingArea/helpers/voting.const'
+import { parseDate } from 'utils/time'
 
 // types
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { GovernanceFinancialRequestGraphQL } from '../../utils/TypesAndInterfaces/Governance'
+import { State } from 'reducers'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -34,8 +37,6 @@ import {
   VotingArea,
 } from './FinancialRequests.style'
 import { EmptyContainer } from 'app/App.style'
-import { parseDate } from 'utils/time'
-import { State } from 'reducers'
 
 type FinancialRequestsViewProps = {
   financialRequestsList: GovernanceFinancialRequestGraphQL[]
@@ -44,9 +45,11 @@ type FinancialRequestsViewProps = {
 export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialRequestsViewProps) => {
   const dispatch = useDispatch()
   const { dipDupTokens } = useSelector((state: State) => state.tokens)
-  const [rightSideContent, setRightSideContent] = useState(financialRequestsList[0])
+  const { accountPkh } = useSelector((state: State) => state.wallet)
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
+
+  const [rightSideContent, setRightSideContent] = useState(ongoing[0] ?? past[0])
 
   const handleItemSelect = (selectedRequest: GovernanceFinancialRequestGraphQL) => {
     if (selectedRequest.id !== rightSideContent?.id) {
@@ -61,7 +64,6 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
   const [votingStats, setVoteStatistics] = useState({
     forVotesMVKTotal: 0,
     againstVotesMVKTotal: 0,
-    abstainVotesMVKTotal: 0,
     unusedVotesMVKTotal: 0,
     quorum: 0,
   })
@@ -70,11 +72,9 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
     setVoteStatistics({
       forVotesMVKTotal: rightSideContent.yay_vote_smvk_total / PRECISION_NUMBER,
       againstVotesMVKTotal: rightSideContent.nay_vote_smvk_total / PRECISION_NUMBER,
-      abstainVotesMVKTotal: rightSideContent.pass_vote_smvk_total / PRECISION_NUMBER,
       unusedVotesMVKTotal: Math.round(
         rightSideContent.snapshot_smvk_total_supply / PRECISION_NUMBER -
           rightSideContent.yay_vote_smvk_total / PRECISION_NUMBER -
-          rightSideContent.pass_vote_smvk_total / PRECISION_NUMBER -
           rightSideContent.nay_vote_smvk_total / PRECISION_NUMBER,
       ),
       quorum: rightSideContent.smvk_percentage_for_approval / 100,
@@ -82,29 +82,18 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
   }, [rightSideContent])
 
   const handleVotingRoundVote = (vote: string) => {
-    let voteType
     switch (vote) {
-      case 'FOR':
-        voteType = 'yay'
+      case VotingTypes.YES:
         setVoteStatistics({
           ...votingStats,
           forVotesMVKTotal: +votingStats.forVotesMVKTotal + 1,
           unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
         })
         break
-      case 'AGAINST':
-        voteType = 'nay'
+      case VotingTypes.NO:
         setVoteStatistics({
           ...votingStats,
-          againstVotesMVKTotal: votingStats.againstVotesMVKTotal + 1,
-          unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
-        })
-        break
-      case 'ABSTAIN':
-        voteType = 'abstain'
-        setVoteStatistics({
-          ...votingStats,
-          abstainVotesMVKTotal: votingStats.abstainVotesMVKTotal + 1,
+          againstVotesMVKTotal: +votingStats.againstVotesMVKTotal + 1,
           unusedVotesMVKTotal: +votingStats.unusedVotesMVKTotal - 1,
         })
         break
@@ -112,7 +101,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
         return
     }
 
-    dispatch(votingRoundVote(voteType))
+    dispatch(votingRinancialRequestVote(vote, rightSideContent.id))
   }
 
   const RightSideBlock = () =>
@@ -136,6 +125,9 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
           voteStatistics={votingStats}
           isVotingActive={rightItemStatus === ProposalStatus.ONGOING}
           handleVote={handleVotingRoundVote}
+          buttonsToShow={{ forBtn: { text: 'Approve' }, againsBtn: { text: 'Disapprove' } }}
+          className={'fr-voting'}
+          disableVotingButtons={Boolean(rightSideContent?.votes?.find(({ voter_id }) => voter_id === accountPkh))}
         />
 
         <hr />
