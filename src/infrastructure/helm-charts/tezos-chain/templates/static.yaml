@@ -52,7 +52,7 @@ metadata:
   name: {{ .Values.tzkt_indexer_statefulset.name }}
   namespace: {{ $.Release.Namespace }}
   annotations:
-{{- .Values.indexers.tzkt.ingress.annotations | toYaml | nindent 4  }}
+{{- .Values.indexers.tzkt.ingress.annotations | toYaml | nindent 4 }}
 spec:
 {{- if .Values.indexers.tzkt.ingress.tls }}
   tls:
