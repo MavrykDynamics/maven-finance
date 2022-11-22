@@ -34,6 +34,7 @@ type Props = {
   myPastBreakGlassCouncilActionLength: number
   breakGlassActionPendingMySignature: BreakGlassAction
   breakGlassActionPendingMySignatureLength: number,
+  numCouncilMembers: number;
 }
 
 export function BreakGlassCouncilMyActions({
@@ -42,6 +43,7 @@ export function BreakGlassCouncilMyActions({
   myPastBreakGlassCouncilActionLength,
   breakGlassActionPendingMySignature,
   breakGlassActionPendingMySignatureLength,
+  numCouncilMembers,
 }: Props) {
   const [activeActionTab, setActiveActionTab] = useState(tabsList[0].text)
 
@@ -74,7 +76,7 @@ export function BreakGlassCouncilMyActions({
       {(activeActionTab === tabsList[0].text) && (
         <>
           {breakGlassActionPendingMySignature.map((item) => (
-            <BreakGlassCouncilMyOngoingActionCard {...item} />
+            <BreakGlassCouncilMyOngoingActionCard {...item} numCouncilMembers={numCouncilMembers} />
           ))}
 
           <Pagination
