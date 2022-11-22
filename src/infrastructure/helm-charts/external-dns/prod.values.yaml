@@ -551,6 +551,8 @@ external-dns:
   ##
   domainFilters:
     - mavryk.finance
+    - mavryk.io
+    - mavryk.network
   ## @param excludeDomains Exclude subdomains (optional)
   ##
   excludeDomains: []

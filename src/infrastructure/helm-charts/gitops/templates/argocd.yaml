@@ -15,7 +15,7 @@ spec:
   source:
     path: src/infrastructure/helm-charts/argocd
     repoURL: git@github.com:mavrykfinance/mavryk-dapp
-    targetRevision: HEAD
+    targetRevision: private-testnet
     helm:
       valueFiles:
         - {{ .Values.spec.valueFiles }}
