@@ -67,7 +67,7 @@ export function BreakGlassCouncilMyActions({
       {(activeActionTab === tabsList[0].text) && (
         <>
           {breakGlassActionPendingMySignature.map((item) => (
-            <BreakGlassCouncilMyOngoingActionCard {...item} numCouncilMembers={numCouncilMembers} />
+            <BreakGlassCouncilMyOngoingActionCard key={String(item.id)} {...item} numCouncilMembers={numCouncilMembers} />
           ))}
 
           <Pagination
