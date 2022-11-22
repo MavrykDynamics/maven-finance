@@ -15,6 +15,17 @@ export type VotingProps = {
   disableVotingButtons?: boolean
   handleVote?: (vote: string) => void
   quorumText?: string
+  buttonsToShow?: {
+    forBtn?: {
+      text: string
+    }
+    againsBtn?: {
+      text: string
+    }
+    passBtn?: {
+      text: string
+    }
+  }
 }
 
 export type VotingProposalsProps = {

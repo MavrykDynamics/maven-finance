@@ -40,6 +40,16 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
     color: ${cyanColor};
   }
 
+  .fr-voting {
+    > div {
+      justify-content: space-between;
+      column-gap: 15px;
+      button {
+        width: 50%;
+      }
+    }
+  }
+
   hr {
     border: none;
     height: 1px;
