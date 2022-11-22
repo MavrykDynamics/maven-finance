@@ -25,6 +25,7 @@ type Props = {
   activeActionTab: string
   setActiveActionTab: (arg: string) => void
   tabsList: TabItem[]
+  handleDropAction: (arg: number) => void
 }
 
 export function BreakGlassCouncilMyActions({
@@ -37,6 +38,7 @@ export function BreakGlassCouncilMyActions({
   activeActionTab,
   setActiveActionTab,
   tabsList,
+  handleDropAction,
 }: Props) {
     const handleChangeTabs = (tabId?: number) => {
     setActiveActionTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
@@ -67,7 +69,12 @@ export function BreakGlassCouncilMyActions({
       {(activeActionTab === tabsList[0].text) && (
         <>
           {breakGlassActionPendingMySignature.map((item) => (
-            <BreakGlassCouncilMyOngoingActionCard key={String(item.id)} {...item} numCouncilMembers={numCouncilMembers} />
+            <BreakGlassCouncilMyOngoingActionCard
+              {...item}
+              key={String(item.id)}
+              numCouncilMembers={numCouncilMembers}
+              handleDropAction={handleDropAction}
+            />
           ))}
 
           <Pagination

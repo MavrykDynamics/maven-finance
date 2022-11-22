@@ -50,6 +50,7 @@ import {
   getMyPastBreakGlassCouncilAction,
   getPastBreakGlassCouncilAction,
   getBreakGlassCouncilMember,
+  dropBreakGlass,
 } from './BreakGlassCouncil.actions'
 
 // types
@@ -169,6 +170,12 @@ export function BreakGlassCouncil() {
 
   const handleClickPropagateBreakGlass = () => {
     dispatch(propagateBreakGlass())
+  }
+
+  const handleDropAction = (id: number) => {
+    console.log(id);
+    
+    dispatch(dropBreakGlass(id))
   }
 
   useEffect(() => {
@@ -297,6 +304,7 @@ export function BreakGlassCouncil() {
                 activeActionTab={activeActionTab}
                 setActiveActionTab={setActiveActionTab}
                 tabsList={tabsList}
+                handleDropAction={handleDropAction}
               />
             </>
           )}
