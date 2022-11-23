@@ -221,6 +221,19 @@ export const BreakGlassCouncilMyOngoingActionCardStyled = styled(CardHover)<{ th
       cursor: pointer;
     }
 
+    .column-address {
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 22px;
+
+      color: ${({ theme }) => theme.dataColor};
+
+      svg {
+        stroke: ${({ theme }) => theme.dataColor};
+        width: 20px;
+      }
+    }
+
     .drop-btn {
       margin-top: 14px;
 
