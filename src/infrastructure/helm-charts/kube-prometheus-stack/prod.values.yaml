@@ -659,7 +659,7 @@ kube-prometheus-stack:
     ##
     defaultDashboardsTimezone: utc
 
-    adminPassword:
+    # adminPassword:
 
     # Use an existing secret for the admin user.
     admin:
