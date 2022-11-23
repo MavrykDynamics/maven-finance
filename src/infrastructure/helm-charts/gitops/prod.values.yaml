@@ -4,16 +4,16 @@ spec:
   clusterName: in-cluster
 
 argoCD:
-  enabled: true
+  valueFiles: network.values.yaml
 
 certManager:
-  enabled: true
+  valueFiles: network.values.yaml
 
 externalDNS:
-  enabled: true
+  valueFiles: network.values.yaml
 
 kubePrometheusStack:
-  enabled: true
+  valueFiles: network.values.yaml
 
 sealedSecrets:
-  enabled: true
+  valueFiles: network.values.yaml
