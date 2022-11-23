@@ -660,8 +660,6 @@ kube-prometheus-stack:
     defaultDashboardsTimezone: utc
 
     adminPassword: prom-operator
-    annotations:
-      sealedsecrets.bitnami.com/managed: 'true'
 
     rbac:
       ## If true, Grafana PSPs will be created
