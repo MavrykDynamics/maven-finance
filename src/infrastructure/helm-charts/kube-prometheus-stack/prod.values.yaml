@@ -659,7 +659,13 @@ kube-prometheus-stack:
     ##
     defaultDashboardsTimezone: utc
 
-    adminPassword: prom-operator
+    adminPassword:
+
+    # Use an existing secret for the admin user.
+    admin:
+      existingSecret: prod-kube-prometheus-stack-grafana
+      userKey: admin-user
+      passwordKey: admin-password
 
     rbac:
       ## If true, Grafana PSPs will be created
@@ -694,7 +700,7 @@ kube-prometheus-stack:
       # hosts:
       #   - grafana.domain.com
       hosts:
-        - grafana.mavryk.finance
+        - grafana.mavryk.io
 
       ## Path for grafana ingress
       path: /
@@ -704,7 +710,7 @@ kube-prometheus-stack:
       ##
       tls:
         - hosts:
-            - grafana.mavryk.finance
+            - grafana.mavryk.io
           secretName: grafana-tls
       # - secretName: grafana-general-tls
       #   hosts:
