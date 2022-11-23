@@ -1790,7 +1790,7 @@ kube-prometheus-stack:
     # Thanos sidecar on prometheus nodes
     # (Please remember to change ${kube-prometheus-stack.fullname} and ${namespace}. Not just copy and paste!)
     thanosService:
-      enabled: true
+      enabled: false
       annotations: {}
       labels: {}
 
@@ -1824,7 +1824,7 @@ kube-prometheus-stack:
     # ServiceMonitor to scrape Sidecar metrics
     # Needs thanosService to be enabled as well
     thanosServiceMonitor:
-      enabled: true
+      enabled: false
       interval: ''
 
       ## scheme: HTTP scheme to use for scraping. Can be used with `tlsConfig` for example if using istio mTLS.
@@ -1962,16 +1962,13 @@ kube-prometheus-stack:
 
     # Ingress exposes thanos sidecar outside the cluster
     thanosIngress:
-      enabled: true
+      enabled: false
 
       # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
       # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
       # ingressClassName: nginx
 
-      # nginx.ingress.kubernetes.io/whitelist-source-range:
-      annotations:
-        kubernetes.io/ingress.class: nginx
-
+      annotations: {}
       labels: {}
       servicePort: 10901
 
@@ -1983,16 +1980,17 @@ kube-prometheus-stack:
       ## Hosts must be provided if Ingress is enabled.
       ##
       hosts:
-        - thanos-gateway-prod.mavryk.io
+        []
+        # - thanos-gateway.domain.com
 
       ## Paths to use for ingress rules
       ##
-      paths:
-        - /
+      paths: []
+      # - /
 
       ## For Kubernetes >= 1.18 you should specify the pathType (determines how Ingress paths should be matched)
       ## See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#better-path-matching-with-path-types
-      pathType: ImplementationSpecific
+      # pathType: ImplementationSpecific
 
       ## TLS configuration for Thanos Ingress
       ## Secret must be manually created in the namespace
@@ -2444,8 +2442,8 @@ kube-prometheus-stack:
 
       ## The remote_write spec configuration for Prometheus.
       ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#remotewritespec
-      remoteWrite: []
-      # - url: https://prod-thanos-receive.thanos.svc.cluster.local:19291/api/v1/receive
+      remoteWrite:
+        - url: https://prod-thanos-receive.thanos.svc.cluster.local:19291/api/v1/receive
       # - url: http://remote1/push
       ## additionalRemoteWrite is appended to remoteWrite
       additionalRemoteWrite: []
