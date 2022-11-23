@@ -178,6 +178,7 @@ thanos:
     ## @param query.stores Statically configure store APIs to connect with Thanos Query
     ##
     stores:
+      - dnssrv+_grpc._tcp.kube-prometheus-stack.prod-kube-prometheus-stack-thanos-discovery.thanos.svc.cluster.local
     # - dnssrv+_grpc._tcp.kube-prometheus-admin-prometheus-thanos.kube-prometheus.svc.cluster.local
     # - 51.159.11.38:10901
     ## @param query.sdConfig Query Service Discovery Configuration
