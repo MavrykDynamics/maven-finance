@@ -768,7 +768,11 @@ kube-prometheus-stack:
 
     ## Configure additional grafana datasources (passed through tpl)
     ## ref: http://docs.grafana.org/administration/provisioning/#datasources
-    additionalDataSources: []
+    additionalDataSources:
+      - name: Thanos
+        type: prometheus
+        url: http://prod-thanos-query.thanos.svc.cluster.local:9090
+        access: proxy
     # - name: prometheus-sample
     #   access: proxy
     #   basicAuth: true
