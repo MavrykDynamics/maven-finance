@@ -177,7 +177,9 @@ thanos:
       sidecarsNamespace: ''
     ## @param query.stores Statically configure store APIs to connect with Thanos Query
     ##
-    stores: []
+    stores:
+      - prod-kube-prometheus-stack-thanos-discovery.kube-prometheus-stack.svc.cluster.local:10901
+    # - dnssrv+_grpc._tcp.prod-kube-prometheus-stack-thanos-discovery.kube-prometheus-stack.svc.cluster.local
     # - dnssrv+_grpc._tcp.kube-prometheus-admin-prometheus-thanos.kube-prometheus.svc.cluster.local
     # - 51.159.11.38:10901
     ## @param query.sdConfig Query Service Discovery Configuration
