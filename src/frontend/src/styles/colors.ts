@@ -47,7 +47,6 @@ export const dark = {
   infoColor,
 
   borderColor: '#4F457C',
-  textColor: '#F7F9FD',
   subTextColor: '#fff',
   backgroundTextColor: '#2B2B60',
   placeholderColor: '#7068AA',
@@ -55,7 +54,7 @@ export const dark = {
   secondaryColor: '#73d7c3',
   dataColor: '#77a4f2',
   blockNameTitleColor: silverColor,
-  dashboardTextColor: '#D0CFD9',
+  textColor: '#D0CFD9',
   upColor,
   downColor,
   warningColor,
@@ -70,8 +69,8 @@ export const dark = {
   chartLinerGradientSecondary: 'rgba(22, 14, 63, 1)',
   topBarLinkColor: cyanColor,
   topBarLinkColorActive: '#8D86EB',
-  lPurple_dPurple_lPuprple:'#8D86EB',
-  dPurple_container_dPurple: darkPurpleColor
+  lPurple_dPurple_lPuprple: '#8D86EB',
+  dPurple_container_dPurple: darkPurpleColor,
 }
 
 export const light = {
@@ -89,10 +88,9 @@ export const light = {
   connectInfoColor: whiteColor,
   actionPrimaryBtnColor: royalPurpleColor,
   stakedColor: darkColor,
-  dashboardTextColor: textColor,
+  textColor: textColor,
 
   borderColor: '#4F457C',
-  textColor: '#29264C',
   dataColor: '#77a4f2',
   subTextColor: '#7E8794',
   backgroundTextColor: '#F7F9FD',
@@ -115,8 +113,8 @@ export const light = {
   chartLinerGradientSecondary: 'rgba(22, 14, 63, 1)',
   topBarLinkColor: '#27007A',
   topBarLinkColorActive: '#77A4F2',
-  lPurple_dPurple_lPuprple:'#27007A',
-  dPurple_container_dPurple: containerColor
+  lPurple_dPurple_lPuprple: '#27007A',
+  dPurple_container_dPurple: containerColor,
 }
 
 export const space = dark
