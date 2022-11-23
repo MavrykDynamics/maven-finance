@@ -11,13 +11,21 @@ import { TzAddressContainer, TzAddressIcon, TzAddressStyled } from './TzAddress.
 type TzAddressProps = {
   tzAddress: string
   type?: TzAddressStyles
-  hasIcon: boolean
+  hasIcon?: boolean
   iconToLeft?: boolean | undefined
   isBold?: boolean
   shouldCopy?: boolean
   className?: string
 }
-export const TzAddress = ({ className, tzAddress, type, hasIcon, iconToLeft, isBold, shouldCopy = true }: TzAddressProps) => {
+export const TzAddress = ({
+  className,
+  tzAddress,
+  type,
+  hasIcon = true,
+  iconToLeft,
+  isBold,
+  shouldCopy = true,
+}: TzAddressProps) => {
   const addrClasses = `${type} ${isBold ? 'bold' : ''}`
   const dispatch = useDispatch()
 
