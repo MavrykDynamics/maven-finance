@@ -353,7 +353,7 @@ export const BytesWarning = styled.div<{ theme: MavrykTheme }>`
   font-size: 14px;
   display: flex;
   align-items: center;
-  color: ${({ theme }) => theme.dashboardTextColor};
+  color: ${({ theme }) => theme.textColor};
   border-radius: 10px;
   font-weight: 500;
 

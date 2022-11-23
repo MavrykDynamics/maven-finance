@@ -84,7 +84,7 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
   font-weight: 600;
   font-size: 18px;
   line-height: 18px;
-  color: ${({ theme }) => theme.dashboardTextColor};
+  color: ${({ theme }) => theme.textColor};
   margin-top: 12px;
   border-radius: 10px;
   cursor: pointer;
@@ -101,7 +101,7 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       font-weight: 600;
       font-size: 18px;
       line-height: 18px;
-      color: ${({ theme }) => theme.dashboardTextColor};
+      color: ${({ theme }) => theme.textColor};
       white-space: nowrap;
       margin-right: 10px;
     }
@@ -111,14 +111,14 @@ export const ChangeNodeNodesListItem = styled.div<{ isSelected?: boolean }>`
       border: none;
       padding: 0;
       padding-left: 7px;
-      color: ${({ theme }) => theme.dashboardTextColor};
+      color: ${({ theme }) => theme.textColor};
       font-size: 16px;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
 
       &::placeholder {
-        color: ${({ theme }) => theme.dashboardTextColor};
+        color: ${({ theme }) => theme.textColor};
       }
     }
 
@@ -184,7 +184,7 @@ export const PopupStyled = styled.div`
     font-weight: 100;
     height: 24px;
     width: 24px;
-    color: ${({ theme }) => theme.dashboardTextColor};
+    color: ${({ theme }) => theme.textColor};
     transform: rotate(45deg);
     cursor: pointer;
     transition: color 300ms;
@@ -238,7 +238,7 @@ export const PopupTitle = styled.div`
   font-weight: 700;
   font-size: 25px;
   line-height: 25px;
-  color: ${({ theme }) => theme.dashboardTextColor};
+  color: ${({ theme }) => theme.textColor};
   position: relative;
 
   &.change_node {
@@ -273,7 +273,7 @@ export const DescrText = styled.div`
   max-width: 620px;
   font-size: 16px;
   line-height: 24px;
-  color: ${({ theme }) => theme.dashboardTextColor};
+  color: ${({ theme }) => theme.textColor};
   margin-top: 30px;
 
   &.change_node {
@@ -287,9 +287,9 @@ export const DescrText = styled.div`
   }
 `
 
-export const Button = styled(ButtonBase)<{ theme: MavrykTheme }>`  
+export const Button = styled(ButtonBase)<{ theme: MavrykTheme }>`
   &.theme-btn {
-    color: ${({ theme }) => theme.dashboardTextColor};
+    color: ${({ theme }) => theme.textColor};
 
     &:hover,
     &.selected {
@@ -299,9 +299,9 @@ export const Button = styled(ButtonBase)<{ theme: MavrykTheme }>`
   }
 
   &.disabled {
-     &:hover {
+    &:hover {
       border: 1px solid ${({ theme }) => theme.cardBorderColor};
-      color: ${({ theme }) => theme.dashboardTextColor};
-     }
+      color: ${({ theme }) => theme.textColor};
+    }
   }
 `

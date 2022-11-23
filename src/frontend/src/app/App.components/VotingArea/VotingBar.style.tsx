@@ -53,7 +53,7 @@ export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
 
   > div {
     height: 100%;
-    min-width: 5%;
+    min-width: 7%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -66,7 +66,7 @@ export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
       left: 0;
       overflow: hidden;
       width: 100%;
-      text-align: left;
+      text-align: center;
       text-overflow: ellipsis;
     }
   }

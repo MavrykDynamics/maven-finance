@@ -18,10 +18,10 @@ export const DashboardStyled = styled.div<{ theme: MavrykTheme }>`
       border-radius: 10px;
 
       h1 {
-        color: ${({ theme }) => theme.dashboardTextColor};
+        color: ${({ theme }) => theme.textColor};
 
         &:after {
-          background-color: ${({ theme }) => theme.dashboardTextColor};
+          background-color: ${({ theme }) => theme.textColor};
         }
       }
     }
@@ -105,7 +105,7 @@ export const StatBlock = styled.div`
   .name {
     font-weight: 600;
     font-size: 14px;
-    color: ${({ theme }) => theme.dashboardTextColor};
+    color: ${({ theme }) => theme.textColor};
   }
 
   .value {
@@ -167,5 +167,5 @@ export const BlockName = styled.div`
   font-weight: 600;
   font-size: 18px;
   line-height: 18px;
-  color: ${({ theme }) => theme.dashboardTextColor};
+  color: ${({ theme }) => theme.textColor};
 `
