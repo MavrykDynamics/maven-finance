@@ -2442,8 +2442,8 @@ kube-prometheus-stack:
 
       ## The remote_write spec configuration for Prometheus.
       ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#remotewritespec
-      remoteWrite:
-        - url: https://prod-thanos-receive.thanos.svc.cluster.local:19291/api/v1/receive
+      remoteWrite: []
+      # - url: https://prod-thanos-receive.thanos.svc.cluster.local:19291/api/v1/receive
       # - url: http://remote1/push
       ## additionalRemoteWrite is appended to remoteWrite
       additionalRemoteWrite: []
