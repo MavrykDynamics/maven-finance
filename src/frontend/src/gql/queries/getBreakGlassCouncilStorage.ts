@@ -45,8 +45,8 @@ export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY = `
   }
 `
 
-export const BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME = 'GetBreakGlassActionsPendingMySignature'
-export function BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE(variables: {
+export const BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_NAME = 'GetBreakGlassActionsPendingMySignature'
+export function BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE(variables: {
   _gte?: string
   userAddress?: string
   userAddress2?: string
@@ -54,7 +54,7 @@ export function BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE(variables
   return variables
 }
 
-export const BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY = `
+export const BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY = `
   query GetBreakGlassActionsPendingMySignature($_gte: timestamptz = "", $userAddress: String = "", $userAddress2: String = "") {
     break_glass_action(where: {expiration_datetime: {_gte: $_gte}, initiator_id: {_neq: $userAddress}, signers: { signer_id: {_neq: $userAddress2}}}) {
       ${BREAK_GLASS_ACTION_PARAMS}
