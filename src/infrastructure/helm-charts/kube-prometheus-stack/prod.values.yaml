@@ -659,13 +659,9 @@ kube-prometheus-stack:
     ##
     defaultDashboardsTimezone: utc
 
-    # adminPassword:
-
-    # Use an existing secret for the admin user.
-    # admin:
-    #   existingSecret: prod-kube-prometheus-stack-grafana
-    #   userKey: admin-user
-    #   passwordKey: admin-password
+    adminPassword: prom-operator
+    annotations:
+      sealedsecrets.bitnami.com/managed: 'true'
 
     rbac:
       ## If true, Grafana PSPs will be created
