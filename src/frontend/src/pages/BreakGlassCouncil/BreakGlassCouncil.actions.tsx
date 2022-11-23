@@ -12,9 +12,9 @@ import {
   PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
   PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
   PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
-  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
-  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
-  BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE,
+  BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY,
+  BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_NAME,
+  BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE,
   MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
   MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
   MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE,
@@ -38,7 +38,7 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
   const { accountPkh } = state?.wallet
 
   try {
-    const myPastBreakGlassCouncilAction = accountPkh
+    const storage = accountPkh
       ? await fetchFromIndexerWithPromise(
           MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY,
           MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_NAME,
@@ -46,52 +46,47 @@ export const getMyPastBreakGlassCouncilAction = () => async (dispatch: AppDispat
         )
       : { break_glass_action: [] }
 
+    const myPastBreakGlassCouncilAction = normalizeBreakGlassAction(storage)
+
     await dispatch({
       type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
-      myPastBreakGlassCouncilAction: normalizeBreakGlassAction(myPastBreakGlassCouncilAction),
+      myPastBreakGlassCouncilAction,
     })
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-
-    dispatch({
-      type: GET_MY_PAST_BREAK_GLASS_COUNCIL_ACTION,
-      error,
-    })
   }
 }
 
-// getBreakGlassActionPendingMySignature
-export const GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE = 'GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE'
-export const getBreakGlassActionPendingMySignature = () => async (dispatch: AppDispatch, getState: GetState) => {
+// getBreakGlassActionPendingSignature
+export const GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE = 'GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE'
+export const getBreakGlassActionPendingSignature = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
   const { accountPkh } = state?.wallet
 
   try {
-    const breakGlassActionPendingMySignature = accountPkh
-      ? await fetchFromIndexerWithPromise(
-          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY,
-          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_NAME,
-          BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz, userAddress: accountPkh }),
-        )
-      : { break_glass_action: [] }
+    const storage = await fetchFromIndexerWithPromise(
+      BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY,
+      BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_NAME,
+      BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz }),
+    )
+
+
+    const breakGlassActionPendingMySignature = normalizeBreakGlassAction(storage, { filterByAddress: accountPkh })
+    const breakGlassActionPendingSignature = normalizeBreakGlassAction(storage, { filterWithoutAddress: accountPkh })
 
     await dispatch({
-      type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
-      breakGlassActionPendingMySignature: normalizeBreakGlassAction(breakGlassActionPendingMySignature),
+      type: GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE,
+      breakGlassActionPendingMySignature,
+      breakGlassActionPendingSignature,
     })
   } catch (error) {
     if (error instanceof Error) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-
-    dispatch({
-      type: GET_BREAK_GLASS_ACTION_PENDING_MY_SIGNATURE,
-      error,
-    })
   }
 }
 
@@ -116,11 +111,6 @@ export const getPastBreakGlassCouncilAction = () => async (dispatch: AppDispatch
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-
-    dispatch({
-      type: GET_PAST_BREAK_GLASS_COUNCIL_ACTION,
-      error,
-    })
   }
 }
 
@@ -145,18 +135,10 @@ export const getBreakGlassCouncilMember = () => async (dispatch: AppDispatch, ge
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-
-    dispatch({
-      type: GET_BREAK_GLASS_COUNCIL_MEMBER,
-      error,
-    })
   }
 }
 
 // Set All Contracts Admin
-export const SET_ALL_CONTRACTS_ADMIN_REQUEST = 'SET_ALL_CONTRACTS_ADMIN_REQUEST'
-export const SET_ALL_CONTRACTS_ADMIN_RESULT = 'SET_ALL_CONTRACTS_ADMIN_RESULT'
-export const SET_ALL_CONTRACTS_ADMIN_ERROR = 'SET_ALL_CONTRACTS_ADMIN_ERROR'
 export const setAllContractsAdmin = (newAdminAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -171,35 +153,24 @@ export const setAllContractsAdmin = (newAdminAddress: string) => async (dispatch
   }
 
   try {
-    dispatch({
-      type: SET_ALL_CONTRACTS_ADMIN_REQUEST,
-    })
+    dispatch(toggleLoader('rocket'))
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.setSingleContractAdmin(newAdminAddress).send()
-    console.log('transaction', transaction)
-
     dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+    dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error('propagateBreakGlass - ERROR ', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: SET_ALL_CONTRACTS_ADMIN_ERROR,
-      error,
-    })
+    dispatch(toggleLoader())
   }
 }
 
 // Set Single Contract Admin
-export const SET_SINGLE_CONTRACT_ADMIN_REQUEST = 'SET_SINGLE_CONTRACT_ADMIN_REQUEST'
-export const SET_SINGLE_CONTRACT_ADMIN_RESULT = 'SET_SINGLE_CONTRACT_ADMIN_RESULT'
-export const SET_SINGLE_CONTRACT_ADMIN_ERROR = 'SET_SINGLE_CONTRACT_ADMIN_ERROR'
 export const setSingleContractAdmin =
   (newAdminAddress: string, targetContract: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
@@ -215,35 +186,24 @@ export const setSingleContractAdmin =
     }
 
     try {
-      dispatch({
-        type: SET_SINGLE_CONTRACT_ADMIN_REQUEST,
-      })
+      dispatch(toggleLoader('rocket'))
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods.setSingleContractAdmin(newAdminAddress, targetContract).send()
-      console.log('transaction', transaction)
-
       dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+      dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error('propagateBreakGlass - ERROR ', error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: SET_SINGLE_CONTRACT_ADMIN_ERROR,
-        error,
-      })
+      dispatch(toggleLoader())
     }
   }
 
 // Sign Action
-export const SIGN_ACTION_REQUEST = 'SIGN_ACTION_REQUEST'
-export const SIGN_ACTION_RESULT = 'SIGN_ACTION_RESULT'
-export const SIGN_ACTION_ERROR = 'SIGN_ACTION_ERROR'
 export const signAction = (breakGlassActionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -258,35 +218,24 @@ export const signAction = (breakGlassActionID: number) => async (dispatch: AppDi
   }
 
   try {
-    dispatch({
-      type: SIGN_ACTION_REQUEST,
-    })
+    dispatch(toggleLoader('rocket'))
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.signAction(breakGlassActionID).send()
-    console.log('transaction', transaction)
-
     dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+    dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error('propagateBreakGlass - ERROR ', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: SIGN_ACTION_ERROR,
-      error,
-    })
+    dispatch(toggleLoader())
   }
 }
 
 // Add Council Member
-export const ADD_COUNCIL_MEMBER_REQUEST = 'ADD_COUNCIL_MEMBER_REQUEST'
-export const ADD_COUNCIL_MEMBER_RESULT = 'ADD_COUNCIL_MEMBER_RESULT'
-export const ADD_COUNCIL_MEMBER_ERROR = 'ADD_COUNCIL_MEMBER_ERROR'
 export const addCouncilMember =
   (memberAddress: string, newMemberName: string, newMemberWebsite: string, newMemberImage: string) =>
   async (dispatch: AppDispatch, getState: GetState) => {
@@ -303,37 +252,26 @@ export const addCouncilMember =
     }
 
     try {
-      dispatch({
-        type: ADD_COUNCIL_MEMBER_REQUEST,
-      })
+      dispatch(toggleLoader('rocket'))
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .addCouncilMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage)
         .send()
-      console.log('transaction', transaction)
-
       dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+      dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error('propagateBreakGlass - ERROR ', error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: ADD_COUNCIL_MEMBER_ERROR,
-        error,
-      })
+      dispatch(toggleLoader())
     }
   }
 
 // Update Council Member
-export const UPDATE_COUNCIL_MEMBER_REQUEST = 'UPDATE_COUNCIL_MEMBER_REQUEST'
-export const UPDATE_COUNCIL_MEMBER_RESULT = 'UPDATE_COUNCIL_MEMBER_RESULT'
-export const UPDATE_COUNCIL_MEMBER_ERROR = 'UPDATE_COUNCIL_MEMBER_ERROR'
 export const updateCouncilMember =
   (newMemberName: string, newMemberWebsite: string, newMemberImage: string) =>
   async (dispatch: AppDispatch, getState: GetState) => {
@@ -350,37 +288,26 @@ export const updateCouncilMember =
     }
 
     try {
-      dispatch({
-        type: UPDATE_COUNCIL_MEMBER_REQUEST,
-      })
+      dispatch(toggleLoader('rocket'))
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage)
         .send()
-      console.log('transaction', transaction)
-
       dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+      dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error('propagateBreakGlass - ERROR ', error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: UPDATE_COUNCIL_MEMBER_ERROR,
-        error,
-      })
+      dispatch(toggleLoader())
     }
   }
 
 // Change Council Member
-export const CHANGE_COUNCIL_MEMBER_REQUEST = 'CHANGE_COUNCIL_MEMBER_REQUEST'
-export const CHANGE_COUNCIL_MEMBER_RESULT = 'CHANGE_COUNCIL_MEMBER_RESULT'
-export const CHANGE_COUNCIL_MEMBER_ERROR = 'CHANGE_COUNCIL_MEMBER_ERROR'
 export const changeCouncilMember =
   (
     oldCouncilMemberAddress: string,
@@ -403,11 +330,8 @@ export const changeCouncilMember =
     }
 
     try {
-      dispatch({
-        type: CHANGE_COUNCIL_MEMBER_REQUEST,
-      })
+      dispatch(toggleLoader('rocket'))
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
-      console.log('contract', contract)
       const transaction = await contract?.methods
         .changeCouncilMember(
           oldCouncilMemberAddress,
@@ -417,29 +341,21 @@ export const changeCouncilMember =
           newMemberImage,
         )
         .send()
-      console.log('transaction', transaction)
-
       dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
-      const done = await transaction?.confirmation()
-      console.log('done', done)
+      await transaction?.confirmation()
       dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+      dispatch(toggleLoader())
     } catch (error) {
       if (error instanceof Error) {
         console.error('propagateBreakGlass - ERROR ', error)
         dispatch(showToaster(ERROR, 'Error', error.message))
       }
-      dispatch({
-        type: CHANGE_COUNCIL_MEMBER_ERROR,
-        error,
-      })
+      dispatch(toggleLoader())
     }
   }
 
 // Remove Council Member
-export const REMOVE_COUNCIL_MEMBER_REQUEST = 'REMOVE_COUNCIL_MEMBER_REQUEST'
-export const REMOVE_COUNCIL_MEMBER_RESULT = 'REMOVE_COUNCIL_MEMBER_RESULT'
-export const REMOVE_COUNCIL_MEMBER_ERROR = 'REMOVE_COUNCIL_MEMBER_ERROR'
 export const removeCouncilMember = (memberAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -454,35 +370,24 @@ export const removeCouncilMember = (memberAddress: string) => async (dispatch: A
   }
 
   try {
-    dispatch({
-      type: REMOVE_COUNCIL_MEMBER_REQUEST,
-    })
+    dispatch(toggleLoader('rocket'))
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.removeCouncilMember(memberAddress).send()
-    console.log('transaction', transaction)
-
     dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+    dispatch(toggleLoader())
   } catch (error) {
     if (error instanceof Error) {
       console.error('propagateBreakGlass - ERROR ', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: REMOVE_COUNCIL_MEMBER_ERROR,
-      error,
-    })
+    dispatch(toggleLoader())
   }
 }
 
 // Propagate Break Glass
-export const PROPOGATE_BREAK_GLASS_REQUEST = 'PROPOGATE_BREAK_GLASS_REQUEST'
-export const PROPOGATE_BREAK_GLASS_RESULT = 'PROPOGATE_BREAK_GLASS_RESULT'
-export const PROPOGATE_BREAK_GLASS_ERROR = 'PROPOGATE_BREAK_GLASS_ERROR'
 export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
@@ -497,18 +402,12 @@ export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState:
   }
 
   try {
-    dispatch({
-      type: PROPOGATE_BREAK_GLASS_REQUEST,
-    })
+    dispatch(toggleLoader('rocket'))
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
-    console.log('contract', contract)
     const transaction = await contract?.methods.propagateBreakGlass().send()
-    console.log('transaction', transaction)
+     dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
 
-    dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
+    await transaction?.confirmation()
     dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
     dispatch(toggleLoader())
   } catch (error) {
@@ -516,9 +415,39 @@ export const propagateBreakGlass = () => async (dispatch: AppDispatch, getState:
       console.error('propagateBreakGlass - ERROR ', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
-    dispatch({
-      type: PROPOGATE_BREAK_GLASS_ERROR,
-      error,
-    })
+    dispatch(toggleLoader())
   }
 }
+
+// Drop Action
+export const dropBreakGlass = (breakGlassActionID: number) => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch(toggleLoader('rocket'))
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.breakGlassAddress.address)
+    const transaction = await contract?.methods.flushAction(breakGlassActionID).send()
+    dispatch(showToaster(INFO, 'Propagate Break Glass...', 'Please wait 30s'))
+
+    await transaction?.confirmation()
+    dispatch(showToaster(SUCCESS, 'Propagate Break Glass done', 'All good :)'))
+    dispatch(toggleLoader())
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('dropBreakGlass - ERROR ', error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+    }
+    dispatch(toggleLoader())
+  }
+}
+
