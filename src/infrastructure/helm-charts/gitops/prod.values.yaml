@@ -17,3 +17,6 @@ kubePrometheusStack:
 
 sealedSecrets:
   valueFiles: prod.values.yaml
+
+thanos:
+  valueFiles: prod.values.yaml
