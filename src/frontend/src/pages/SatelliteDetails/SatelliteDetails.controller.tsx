@@ -8,7 +8,7 @@ import { State } from 'reducers'
 import { SatelliteDetailsView } from './SatelliteDetails.view'
 
 import { getSatelliteByAddress } from './SatelliteDetails.actions'
-import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
+import { delegate, getDelegationStorage, getOracleStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 import { rewardsCompound } from 'pages/Doorman/Doorman.actions'
 import { getSatelliteMetrics } from 'pages/Satellites/Satellites.helpers'
 
@@ -16,6 +16,7 @@ export const SatelliteDetails = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => Boolean(state.loading))
   const { currentSatellite } = useSelector((state: State) => state.delegation)
+  const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const {
     governanceStorage: { financialRequestLedger, proposalLedger },
     pastProposals,
@@ -31,6 +32,7 @@ export const SatelliteDetails = () => {
   useEffect(() => {
     dispatch(getSatelliteByAddress(satelliteId))
     dispatch(getDelegationStorage())
+    dispatch(getOracleStorage())
   }, [dispatch, satelliteId])
 
   const delegateCallback = (address: string) => {
@@ -54,6 +56,7 @@ export const SatelliteDetails = () => {
         proposalLedger,
         emergencyGovernanceLedger,
         currentSatellite,
+        feeds,
         financialRequestLedger,
       ),
     [currentSatellite],
