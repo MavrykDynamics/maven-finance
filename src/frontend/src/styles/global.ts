@@ -30,7 +30,7 @@ h1 {
   font-weight: bold;
   display: inline-block;
   margin: 30px auto;
-  color: ${headerColor};
+  color: ${({ theme }) => theme.textColor};
   font-weight: 700;
   font-size: 25px;
 
@@ -44,7 +44,7 @@ h1 {
     display: block;
     width: 80px;
     height: 4px;
-    background-color: ${royalPurpleColor};
+    background: ${({ theme }) => theme.textColor};
     margin: 7px 0 10px 1px;
   }
 }

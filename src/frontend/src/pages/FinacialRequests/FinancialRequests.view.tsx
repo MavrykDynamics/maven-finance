@@ -30,11 +30,10 @@ import {
   FinancialRequestsContainer,
   FinancialRequestsRightContainer,
   FinancialRequestsStyled,
-  InfoBlockDescr,
-  InfoBlockListName,
-  InfoBlockListValue,
+  InfoBlockValue,
   InfoBlockTitle,
   VotingArea,
+  InfoBlockName,
 } from './FinancialRequests.style'
 import { EmptyContainer } from 'app/App.style'
 
@@ -46,6 +45,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
   const dispatch = useDispatch()
   const { dipDupTokens } = useSelector((state: State) => state.tokens)
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { isSatellite: isUserSatellite } = useSelector((state: State) => state.user)
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
 
@@ -111,7 +111,6 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
           <h1>{rightSideContent.request_type}</h1>
           <StatusFlag text={rightItemStatus} status={rightItemStatus} />
         </GovRightContainerTitleArea>
-        <InfoBlockTitle>{rightSideContent.request_purpose}</InfoBlockTitle>
 
         <div className="voting_ending">
           Voting {rightItemStatus !== ProposalStatus.ONGOING ? 'ended' : 'ending'} on{' '}
@@ -123,7 +122,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
 
         <VotingArea
           voteStatistics={votingStats}
-          isVotingActive={rightItemStatus === ProposalStatus.ONGOING}
+          isVotingActive={rightItemStatus === ProposalStatus.ONGOING && isUserSatellite}
           handleVote={handleVotingRoundVote}
           buttonsToShow={{ forBtn: { text: 'Approve' }, againsBtn: { text: 'Disapprove' } }}
           className={'fr-voting'}
@@ -135,28 +134,28 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
         <div className="info_section_wrapper">
           <div className="info_section">
             <InfoBlockTitle>Type</InfoBlockTitle>
-            <InfoBlockDescr>{rightSideContent.request_type}</InfoBlockDescr>
+            <InfoBlockName>{rightSideContent.request_type}</InfoBlockName>
           </div>
 
           <div className="info_section">
             <InfoBlockTitle>Requester</InfoBlockTitle>
-            <InfoBlockDescr>
-              <TzAddress tzAddress={rightSideContent.requester_id} hasIcon={false} />
-            </InfoBlockDescr>
+            <InfoBlockValue>
+              <TzAddress tzAddress={rightSideContent.requester_id} hasIcon />
+            </InfoBlockValue>
           </div>
         </div>
 
         <div className="info_section">
           <InfoBlockTitle>Purpose</InfoBlockTitle>
-          <InfoBlockDescr>{rightSideContent.request_purpose}</InfoBlockDescr>
+          <InfoBlockName>{rightSideContent.request_purpose}</InfoBlockName>
         </div>
 
         <div className="info_section">
           <InfoBlockTitle>Token Info</InfoBlockTitle>
           <div className="list">
             <div className="list_item">
-              <InfoBlockListName fontColor="#77A4F2">Amount Requested</InfoBlockListName>
-              <InfoBlockListValue fontColor="#86D4C9">
+              <InfoBlockName>Amount Requested</InfoBlockName>
+              <InfoBlockValue>
                 <CommaNumber
                   value={
                     tokenName === 'MVK'
@@ -165,52 +164,45 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
                   }
                   endingText={tokenName}
                 />
-              </InfoBlockListValue>
+              </InfoBlockValue>
             </div>
 
-            {/* TODO token_contract_address not in graphQl <div className="list_item">
-              <InfoBlockListName fontColor="#77A4F2">Contract Address</InfoBlockListName>
-              <InfoBlockListValue fontColor="#86D4C9">
-                <TzAddress tzAddress={rightSideContent.token_contract_address} hasIcon={false} />
-              </InfoBlockListValue>
-            </div> */}
-
             <div className="list_item">
-              <InfoBlockListName fontColor="#77A4F2">Type</InfoBlockListName>
-              <InfoBlockListValue fontColor="#86D4C9">{tokenName}</InfoBlockListValue>
+              <InfoBlockName>Type</InfoBlockName>
+              <InfoBlockValue>{tokenName}</InfoBlockValue>
             </div>
           </div>
         </div>
 
         <div className="info_section">
           <InfoBlockTitle>Date Requested</InfoBlockTitle>
-          <InfoBlockDescr>
+          <InfoBlockName>
             {parseDate({ time: rightSideContent.requested_datetime, timeFormat: 'MMM DD, HH:mm:ss' })}
-          </InfoBlockDescr>
+          </InfoBlockName>
         </div>
 
         <div className="info_section">
           <InfoBlockTitle>Governance Info</InfoBlockTitle>
           <div className="list">
             <div className="list_item">
-              <InfoBlockListName fontColor="#77A4F2">Governance Contract</InfoBlockListName>
-              <InfoBlockListValue fontColor="#86D4C9">
-                <TzAddress tzAddress={rightSideContent.governance_financial.governance.address} hasIcon={false} />
-              </InfoBlockListValue>
+              <InfoBlockName>Governance Contract</InfoBlockName>
+              <InfoBlockValue>
+                <TzAddress tzAddress={rightSideContent.governance_financial.governance.address} />
+              </InfoBlockValue>
             </div>
 
             <div className="list_item">
-              <InfoBlockListName fontColor="#77A4F2">Governance Financial Contract</InfoBlockListName>
-              <InfoBlockListValue fontColor="#86D4C9">
-                <TzAddress tzAddress={rightSideContent.governance_financial_id} hasIcon={false} />
-              </InfoBlockListValue>
+              <InfoBlockName>Governance Financial Contract</InfoBlockName>
+              <InfoBlockValue>
+                <TzAddress tzAddress={rightSideContent.governance_financial_id} />
+              </InfoBlockValue>
             </div>
 
             <div className="list_item">
-              <InfoBlockListName fontColor="#77A4F2">Treasury Contract</InfoBlockListName>
-              <InfoBlockListValue fontColor="#86D4C9">
-                <TzAddress tzAddress={rightSideContent.treasury_id} hasIcon={false} />
-              </InfoBlockListValue>
+              <InfoBlockName>Treasury Contract</InfoBlockName>
+              <InfoBlockValue>
+                <TzAddress tzAddress={rightSideContent.treasury_id} />
+              </InfoBlockValue>
             </div>
           </div>
         </div>
