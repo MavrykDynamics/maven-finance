@@ -181,9 +181,9 @@ cert-manager:
     # defaultIssuerGroup: ""
 
   prometheus:
-    enabled: false
+    enabled: true
     servicemonitor:
-      enabled: false
+      enabled: true
       namespace: kube-prometheus-stack
       prometheusInstance: default
       targetPort: 9402

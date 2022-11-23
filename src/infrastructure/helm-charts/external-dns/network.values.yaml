@@ -909,7 +909,7 @@ external-dns:
   metrics:
     ## @param metrics.enabled Enable prometheus to access external-dns metrics endpoint
     ##
-    enabled: false
+    enabled: true
     ## @param metrics.podAnnotations Annotations for enabling prometheus to access the metrics endpoint
     ##
     podAnnotations: {}
@@ -918,7 +918,7 @@ external-dns:
     serviceMonitor:
       ## @param metrics.serviceMonitor.enabled Create ServiceMonitor object
       ##
-      enabled: false
+      enabled: true
       ## @param metrics.serviceMonitor.namespace Namespace in which Prometheus is running
       ##
       namespace: 'kube-prometheus-stack'

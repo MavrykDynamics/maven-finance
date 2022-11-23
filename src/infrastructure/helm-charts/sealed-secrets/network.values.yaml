@@ -328,7 +328,7 @@ sealed-secrets:
     serviceMonitor:
       ## @param metrics.serviceMonitor.enabled Specify if a ServiceMonitor will be deployed for Prometheus Operator
       ##
-      enabled: false
+      enabled: true
       ## @param metrics.serviceMonitor.namespace Namespace where Prometheus Operator is running in
       ##
       namespace: 'kube-prometheus-stack'
