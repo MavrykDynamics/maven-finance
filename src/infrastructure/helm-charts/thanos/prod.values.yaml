@@ -807,7 +807,7 @@ thanos:
   queryFrontend:
     ## @param queryFrontend.enabled Enable/disable Thanos Query Frontend component
     ##
-    enabled: true
+    enabled: false
     ## @param queryFrontend.logLevel Thanos Query Frontend log level
     ##
     logLevel: info
