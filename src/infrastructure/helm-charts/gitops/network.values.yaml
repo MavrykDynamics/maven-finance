@@ -1,0 +1,16 @@
+spec:
+  environment: network
+  valueFiles: network.values.yaml
+  clusterName: network
+
+certManager:
+  enabled: true
+
+externalDNS:
+  enabled: true
+
+kubePrometheusStack:
+  enabled: false
+
+sealedSecrets:
+  enabled: true
