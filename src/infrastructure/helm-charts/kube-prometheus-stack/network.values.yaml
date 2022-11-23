@@ -1786,7 +1786,7 @@ kube-prometheus-stack:
     # Thanos sidecar on prometheus nodes
     # (Please remember to change ${kube-prometheus-stack.fullname} and ${namespace}. Not just copy and paste!)
     thanosService:
-      enabled: true
+      enabled: false
       annotations: {}
       labels: {}
 
@@ -1820,7 +1820,7 @@ kube-prometheus-stack:
     # ServiceMonitor to scrape Sidecar metrics
     # Needs thanosService to be enabled as well
     thanosServiceMonitor:
-      enabled: true
+      enabled: false
       interval: ''
 
       ## scheme: HTTP scheme to use for scraping. Can be used with `tlsConfig` for example if using istio mTLS.
@@ -2442,7 +2442,8 @@ kube-prometheus-stack:
 
       ## The remote_write spec configuration for Prometheus.
       ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#remotewritespec
-      remoteWrite: []
+      remoteWrite:
+        - url: https://thanos-receive.mavryk.io/api/v1/receive
       # - url: http://remote1/push
       ## additionalRemoteWrite is appended to remoteWrite
       additionalRemoteWrite: []
