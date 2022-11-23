@@ -1,4 +1,4 @@
-{{if .Values.kubePrometheusStack.enabled }}
+{{if .Values.kubePrometheusStack }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -18,5 +18,5 @@ spec:
     targetRevision: private-testnet
     helm:
       valueFiles:
-        - {{ .Values.spec.valueFiles }}
+        - {{ .Values.kubePrometheusStack.valueFiles }}
 {{end}}
