@@ -1814,7 +1814,7 @@ kube-prometheus-stack:
 
       ## ClusterIP to assign
       # Default is to make this a headless service ("None")
-      # clusterIP: 'None'
+      clusterIP: 'None'
 
       ## Port to expose on each node, if service type is NodePort
       ##
@@ -1962,13 +1962,16 @@ kube-prometheus-stack:
 
     # Ingress exposes thanos sidecar outside the cluster
     thanosIngress:
-      enabled: false
+      enabled: true
 
       # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
       # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
       # ingressClassName: nginx
 
-      annotations: {}
+      # nginx.ingress.kubernetes.io/whitelist-source-range:
+      annotations:
+        kubernetes.io/ingress.class: nginx
+
       labels: {}
       servicePort: 10901
 
@@ -1980,13 +1983,12 @@ kube-prometheus-stack:
       ## Hosts must be provided if Ingress is enabled.
       ##
       hosts:
-        []
-        # - thanos-gateway.domain.com
+        - thanos-gateway-prod.mavryk.io
 
       ## Paths to use for ingress rules
       ##
-      paths: []
-      # - /
+      paths:
+        - /
 
       ## For Kubernetes >= 1.18 you should specify the pathType (determines how Ingress paths should be matched)
       ## See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#better-path-matching-with-path-types
