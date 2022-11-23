@@ -204,8 +204,8 @@ block {
 
         startDateTime         = Tezos.get_now();
         startLevel            = Tezos.get_level();             
-        executedDateTime      = Tezos.get_now();
-        executedLevel         = Tezos.get_level();
+        executedDateTime      = zeroTimestamp;
+        executedLevel         = 0n;
         expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
     s.actionsLedger[s.actionCounter] := actionRecord; 
@@ -619,6 +619,14 @@ block {
 
     operations := Set.fold(setAdminFold, uniqueContracts, operations);
 
+    // Reset governance contract admin to the new admin address
+    const resetGovernanceContractAdminOperation : operation = Tezos.transaction(
+        newAdminAddress, 
+        0tez, 
+        setAdminInContract(s.governanceAddress)
+    );
+    operations := resetGovernanceContractAdminOperation # operations;
+
 } with (operations, s)
 
 
@@ -667,6 +675,14 @@ block {
             |   None                -> operationList
         ];
     operations := Set.fold(setAdminFold, uniqueContracts, operations);
+
+    // Reset governance contract admin to governance proxy contract
+    const resetGovernanceContractAdminOperation : operation = Tezos.transaction(
+        governanceProxyAddress, 
+        0tez, 
+        setAdminInContract(s.governanceAddress)
+    );
+    operations := resetGovernanceContractAdminOperation # operations;
 
     // Set glassBroken boolean to False (removes access to protected Break Glass entrypoints)
     s.glassBroken := False;
