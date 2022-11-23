@@ -670,7 +670,7 @@ ingress-nginx:
         # nodePort: ""
 
       serviceMonitor:
-        enabled: false
+        enabled: true
         additionalLabels:
           release: 'prod'
         ## The label to use to retrieve the job name from.
