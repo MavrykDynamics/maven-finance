@@ -57,7 +57,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
     }
   }
 
-  let rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
+  const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
   const tokenName = dipDupTokens.find(({ contract }) => (contract = rightSideContent.token_address))?.metadata.symbol
 
   // Voting data & handlers
@@ -103,8 +103,6 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
 
     dispatch(votingRinancialRequestVote(vote, rightSideContent.id))
   }
-
-  rightItemStatus = ProposalStatus.ONGOING
 
   const RightSideBlock = () =>
     rightSideContent ? (
