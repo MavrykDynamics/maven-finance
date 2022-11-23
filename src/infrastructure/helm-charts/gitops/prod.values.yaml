@@ -4,16 +4,16 @@ spec:
   clusterName: in-cluster
 
 argoCD:
-  valueFiles: network.values.yaml
+  valueFiles: prod.values.yaml
 
 certManager:
-  valueFiles: network.values.yaml
+  valueFiles: prod.values.yaml
 
 externalDNS:
-  valueFiles: network.values.yaml
+  valueFiles: prod.values.yaml
 
 kubePrometheusStack:
-  valueFiles: network.values.yaml
+  valueFiles: prod.values.yaml
 
 sealedSecrets:
-  valueFiles: network.values.yaml
+  valueFiles: prod.values.yaml
