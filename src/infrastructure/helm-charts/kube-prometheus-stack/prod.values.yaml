@@ -662,10 +662,10 @@ kube-prometheus-stack:
     # adminPassword:
 
     # Use an existing secret for the admin user.
-    admin:
-      existingSecret: prod-kube-prometheus-stack-grafana
-      userKey: admin-user
-      passwordKey: admin-password
+    # admin:
+    #   existingSecret: prod-kube-prometheus-stack-grafana
+    #   userKey: admin-user
+    #   passwordKey: admin-password
 
     rbac:
       ## If true, Grafana PSPs will be created
