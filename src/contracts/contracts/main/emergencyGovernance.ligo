@@ -9,6 +9,9 @@
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
+// Constants
+#include "../partials/shared/constants.ligo"
+
 // Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
@@ -50,12 +53,6 @@ type return is list (operation) * emergencyGovernanceStorageType
 // emergencyGovernance contract methods lambdas
 type emergencyGovernanceUnpackLambdaFunctionType is (emergencyGovernanceLambdaActionType * emergencyGovernanceStorageType) -> return
 
-
-// ------------------------------------------------------------------------------
-// Constants
-// ------------------------------------------------------------------------------
-
-const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address);
 
 // ------------------------------------------------------------------------------
 // Helpers

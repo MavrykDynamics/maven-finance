@@ -76,23 +76,6 @@ type return is list (operation) * governanceStorageType
 type governanceUnpackLambdaFunctionType is (governanceLambdaActionType * governanceStorageType) -> return
 
 
-
-// ------------------------------------------------------------------------------
-//
-// Constants Begin
-//
-// ------------------------------------------------------------------------------
-
-const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
-
-// ------------------------------------------------------------------------------
-//
-// Constants End
-//
-// ------------------------------------------------------------------------------
-
-
-
 // ------------------------------------------------------------------------------
 //
 // Helper Functions Begin

@@ -9,6 +9,9 @@
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
+// Constants
+#include "../partials/shared/constants.ligo"
+
 // Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
@@ -56,13 +59,6 @@ type return is list (operation) * vestingStorageType
 // vesting contract methods lambdas
 type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorageType) -> return
 
-
-// ------------------------------------------------------------------------------
-// Constants 
-// ------------------------------------------------------------------------------
-
-const one_day        : int  = 86_400;
-const thirty_days    : int  = one_day * 30;
 
 // ------------------------------------------------------------------------------
 // Helpers

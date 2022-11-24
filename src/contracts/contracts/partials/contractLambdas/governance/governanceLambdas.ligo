@@ -220,6 +220,9 @@ block {
                 const updateConfigAction    : governanceUpdateConfigActionType     = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : governanceUpdateConfigNewValueType   = updateConfigParams.updateConfigNewValue;
 
+                const blocksPerMinute   : nat = 60n / Tezos.min_block_time();
+                const maxRoundDuration  : nat = 10_080n * blocksPerMinute; // one week in block levels
+
                 case updateConfigAction of [
                         ConfigSuccessReward (_v)                          -> s.config.successReward                           := updateConfigNewValue
                     |   ConfigCycleVotersReward (_v)                      -> s.config.cycleVotersReward                       := updateConfigNewValue

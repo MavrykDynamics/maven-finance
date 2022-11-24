@@ -9,6 +9,9 @@
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
+// Constants
+#include "../partials/shared/constants.ligo"
+
 // Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
@@ -66,13 +69,6 @@ type return is list (operation) * doormanStorageType
 // doorman contract methods lambdas
 type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorageType) -> return
 
-
-
-// ------------------------------------------------------------------------------
-// Constants 
-// ------------------------------------------------------------------------------
-
-const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
 
 // ------------------------------------------------------------------------------
 // Helpers

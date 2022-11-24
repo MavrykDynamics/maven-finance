@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var s : farmFactoryStorageType) : address is
+[@view] function getAdmin(const _ : unit; const s : farmFactoryStorageType) : address is
     s.admin
 
 
@@ -47,25 +47,25 @@
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName : string; var s : farmFactoryStorageType) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName : string; const s : farmFactoryStorageType) : option(bytes) is
     Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; var s : farmFactoryStorageType) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _ : unit; const s : farmFactoryStorageType) : lambdaLedgerType is
     s.lambdaLedger
 
 
 
 (* View: get a farm lambda *)
-[@view] function farmLambdaOpt(const lambdaName : string; var s : farmFactoryStorageType) : option(bytes) is
+[@view] function farmLambdaOpt(const lambdaName : string; const s : farmFactoryStorageType) : option(bytes) is
     Map.find_opt(lambdaName, s.farmLambdaLedger)
 
 
 
 (* View: get the farm lambda ledger *)
-[@view] function farmLambdaLedger(const _ : unit; var s : farmFactoryStorageType) : lambdaLedgerType is
+[@view] function farmLambdaLedger(const _ : unit; const s : farmFactoryStorageType) : lambdaLedgerType is
     s.farmLambdaLedger
 
 // ------------------------------------------------------------------------------
