@@ -30,14 +30,14 @@ export const ListItemLeftSide = styled.div<{ theme: MavrykTheme }>`
   margin-right: auto;
 
   > span {
-    font-weight: 400;
-    margin-right: 30px;
-    color: ${({ theme }) => theme.headerColor};
+    font-weight: 500;
+    margin-right: 20px;
+    color: ${({ theme }) => theme.textColor};
   }
 
   > h4 {
-    font-weight: 600;
-    color: ${cyanColor};
+    font-weight: 500;
+    color: ${({ theme }) => theme.textColor};
     padding-right: 8px;
   }
 
@@ -75,9 +75,8 @@ export const FRListItem = styled(CardHover)<{ selected: boolean; theme: MavrykTh
 
   .proposal-voted-mvk {
     font-weight: 600;
-    font-size: 12px;
-    line-height: 12px;
-    color: ${skyColor};
-    margin-right: 30px;
+    font-size: 14px;
+    color: ${({ theme }) => theme.dataColor};
+    margin-right: 10px;
   }
 `

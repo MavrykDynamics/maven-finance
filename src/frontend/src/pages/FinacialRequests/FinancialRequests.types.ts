@@ -8,7 +8,6 @@ export type FinancialRequestBody = GovernanceFinancialRequestGraphQL
 export type FRListProps = {
   listTitle: string
   items: Array<FinancialRequestBody>
-  noItemsText?: string
   name: string
   handleItemSelect: (arg0: FinancialRequestBody) => void
   selectedItem?: FinancialRequestBody
@@ -17,10 +16,9 @@ export type FRListProps = {
 export type FRListItemProps = {
   id: number
   title: string
-  additionalText?: string
   onClickHandler?: () => void
   selected?: boolean
-  dividedPassVoteMvkTotal?: number
+  dividedPassVoteMvkTotal: number
   status: ProposalStatus
 }
 
