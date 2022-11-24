@@ -80,7 +80,7 @@ export const CouncilStyled = styled.section`
   .go-back {
     display: flex;
     border: 1px solid ${royalPurpleColor};
-    margin: 30px 0;
+    margin-top: 30px;
     padding: 26px 30px;
     border-radius: 10px;
     width: 100%;
