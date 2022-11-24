@@ -8,11 +8,12 @@ import { useParams } from 'react-router'
 import type { CouncilPastAction } from '../../reducers/council'
 
 // actions, consts
-import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage, getCouncilStorage } from './Council.actions'
+import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage, getCouncilStorage, dropRequest } from './Council.actions'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { memberIsFirstOfList } from './Council.helpers'
 import { scrollUpPage } from 'utils/scrollUpPage'
+import { councilTabsList } from 'pages/BreakGlassCouncil/BreakGlassCouncil.controller'
 
 // view
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -39,6 +40,7 @@ import { CouncilFormSetBaker } from './CouncilForms/CouncilFormSetBaker.view'
 import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContractBaker.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
+import { BreakGlassCouncilMyActions } from '../BreakGlassCouncil/BreakGlassCouncilMyActions.view'
 
 // styles
 import { Page } from 'styles'
@@ -55,11 +57,12 @@ export const Council = () => {
   const history = useHistory()
   const { search, pathname } = useLocation()
 
-  const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
+  const { councilStorage, councilPastActions, councilPendingActions, councilMyPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
+  const [activeActionTab, setActiveActionTab] = useState(councilTabsList[0].text)
 
   const councilMemberMaxLength = {
     councilMemberNameMaxLength: councilStorage?.councilMemberNameMaxLength,
@@ -119,6 +122,10 @@ export const Council = () => {
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
     handleSelect(chosenItem)
+  }
+
+  const handleDropAction = (id: number) => {    
+    dispatch(dropRequest(id))
   }
 
   useEffect(() => {
@@ -253,6 +260,19 @@ export const Council = () => {
                 <Pagination itemsCount={currentCouncilPastActions.length} listName={COUNCIL_LIST_NAME} />
               </>
             ) : null}
+{/* 
+              <BreakGlassCouncilMyActions
+                myPastBreakGlassCouncilAction={paginatedItemsList}
+                breakGlassCouncilMemberLength={councilMembers.length}
+                myPastBreakGlassCouncilActionLength={councilPastActions?.filter((item: CouncilPastAction) => item.initiator_id === accountPkh).length}
+                breakGlassActionPendingMySignature={councilMyPendingActions}
+                breakGlassActionPendingMySignatureLength={councilMyPendingActions.length}
+                numCouncilMembers={councilMembers.length}
+                activeActionTab={activeActionTab}
+                setActiveActionTab={setActiveActionTab}
+                tabsList={councilTabsList}
+                handleDropAction={handleDropAction}
+              /> */}
           </div>
 
           <aside

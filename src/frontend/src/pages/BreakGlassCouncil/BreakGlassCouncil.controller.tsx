@@ -61,7 +61,7 @@ const queryParameters = {
   review: '/review',
 }
 
-const tabsList: TabItem[] = [
+export const councilTabsList: TabItem[] = [
   {
     text: 'My Ongoing Actions',
     id: 1,
@@ -106,7 +106,7 @@ export function BreakGlassCouncil() {
 
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
-  const [activeActionTab, setActiveActionTab] = useState(tabsList[0].text)
+  const [activeActionTab, setActiveActionTab] = useState(councilTabsList[0].text)
 
   const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
   const { review: isReviewPage } = useParams<{ review: string }>()
@@ -148,7 +148,7 @@ export function BreakGlassCouncil() {
     search,
     isReviewPage 
       ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME 
-      : tabsList[0].text === activeActionTab
+      : councilTabsList[0].text === activeActionTab
         ? BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME
         : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
@@ -172,9 +172,7 @@ export function BreakGlassCouncil() {
     dispatch(propagateBreakGlass())
   }
 
-  const handleDropAction = (id: number) => {
-    console.log(id);
-    
+  const handleDropAction = (id: number) => {    
     dispatch(dropBreakGlass(id))
   }
 
@@ -303,7 +301,7 @@ export function BreakGlassCouncil() {
                 numCouncilMembers={breakGlassCouncilMember.length}
                 activeActionTab={activeActionTab}
                 setActiveActionTab={setActiveActionTab}
-                tabsList={tabsList}
+                tabsList={councilTabsList}
                 handleDropAction={handleDropAction}
               />
             </>
