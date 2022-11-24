@@ -58,7 +58,8 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
   }
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
-  const tokenName = dipDupTokens.find(({ contract }) => (contract = rightSideContent.token_address))?.metadata.symbol
+  const tokenName =
+    dipDupTokens.find(({ contract }) => (contract = rightSideContent.token_address))?.metadata.symbol ?? ''
 
   // Voting data & handlers
   const [votingStats, setVoteStatistics] = useState({
