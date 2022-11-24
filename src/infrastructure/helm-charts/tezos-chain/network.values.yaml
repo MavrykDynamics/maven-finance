@@ -351,7 +351,7 @@ nodes:
       - octez_node
       - baker
       - accuser
-      - vdf
+      # - vdf
     readiness_probe: false
     storage_size: 50Gi
     service:
