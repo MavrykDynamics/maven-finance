@@ -4,23 +4,33 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { MyRewardsStyled } from './DashboardPersonalComponents.style'
 
-const DashboardPersonalMyRewards = () => {
+type DashboardPersonalMyRewardsProps = {
+  earnedRewards: number
+  rewardsToClaim: number
+  claimRewardsHandler: () => void
+}
+
+const DashboardPersonalMyRewards = ({
+  earnedRewards,
+  rewardsToClaim,
+  claimRewardsHandler,
+}: DashboardPersonalMyRewardsProps) => {
   return (
     <MyRewardsStyled>
       <GovRightContainerTitleArea>
         <h1>My MVK Earnings</h1>
       </GovRightContainerTitleArea>
-      <Button kind={ACTION_PRIMARY} text="Claim Rewards" />
+      <Button kind={ACTION_PRIMARY} text="Claim Rewards" onClick={claimRewardsHandler} />
       <div className="stat-block">
         <div className="name">Earned to Date</div>
         <div className="value">
-          <CommaNumber value={12311.21} endingText="sMVK" />
+          <CommaNumber value={earnedRewards} endingText="sMVK" />
         </div>
       </div>
       <div className="stat-block">
         <div className="name">Claimable Rewards</div>
         <div className="value">
-          <CommaNumber value={122211.21} endingText="sMVK" />
+          <CommaNumber value={rewardsToClaim} endingText="sMVK" />
         </div>
       </div>
     </MyRewardsStyled>
