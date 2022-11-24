@@ -5,7 +5,7 @@ metadata:
   labels:
 {{- toYaml .Values.serviceMonitor.labels | nindent 4 }}
   name: tezos-service-monitor
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.serviceMonitor.namespace }}
 spec:
   endpoints:
   - interval: 15s
