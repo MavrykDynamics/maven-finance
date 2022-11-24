@@ -28,6 +28,8 @@ export const MyRewardsStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 50px 55px;
+  column-gap: 45px;
+  row-gap: 25px;
 
   > div {
     align-items: flex-end;
@@ -38,7 +40,6 @@ export const MyRewardsStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
   }
 
   .stat-block {
-    margin-top: 25px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
