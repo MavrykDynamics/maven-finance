@@ -14,5 +14,8 @@ externalDNS:
 kubePrometheusStack:
   valueFiles: network.values.yaml
 
+promtail:
+  valueFiles: network.values.yaml
+
 sealedSecrets:
   valueFiles: network.values.yaml
