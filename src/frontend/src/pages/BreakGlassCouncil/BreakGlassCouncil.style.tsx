@@ -1,9 +1,8 @@
 import styled from 'styled-components/macro'
-import { Page as PageBase, Card, CardHover, textsColor, headerColor, skyColor } from 'styles'
+import { Page as PageBase, Card, textsColor, headerColor, skyColor } from 'styles'
 
 // components
 import ModalPopupBase from '../../app/App.components/Modal/ModalPopup.view'
-import { TabSwitcher as TabSwitcherBase } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 
 // types
 import { MavrykTheme } from '../../styles/interfaces'
@@ -140,117 +139,6 @@ export const AvaliableActions = styled(Card)<{ theme: MavrykTheme }>`
   }
 `
 
-export const BreakGlassCouncilMyOngoingActionCardStyled = styled(CardHover)<{ theme: MavrykTheme }>`
-  padding: 0;
-  margin-top: 0;
-  margin-bottom: 10px;
-
-  .top {
-    padding: 15px 30px;
-    height: 75px;
-  }
-
-  .bottom {
-    padding: 20px 30px;
-    border-top: 1px solid ${({ theme }) => theme.cardBorderColor};
-  }
-
-  .row {
-    display: grid;
-    grid-template-columns: 145px 205px 250px;
-    grid-column-gap: 45px;
-
-    &:nth-child(2) {
-      margin-top: 20px;
-    }
-  }
-
-  .top-row {
-    grid-template-columns: 145px 245px 250px;
-  }
-
-  .two-columns {
-    grid-template-columns: auto 250px;
-
-    .column {
-      .drop-btn {
-        margin-top: 0;
-      }
-    }
-  }
-
-  .column {
-    .column-name {
-      font-weight: 600;
-      font-size: 14px;
-      line-height: 21px;
-
-      color: ${({ theme }) => theme.textColor}
-    }
-
-    .column-value {
-      font-weight: 600;
-      font-size: 16px;
-      line-height: 22px;
-
-      color: ${({ theme }) => theme.dataColor};
-      text-transform: capitalize;
-      text-overflow: ellipsis;
-      max-width: inherit;
-      overflow: hidden;
-    }
-
-    .column-image {
-      height: 50px;
-      width: 50px;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-
-    .column-link {
-      font-weight: 500;
-      font-size: 14px;
-      line-height: 24px;
-
-      color: ${({ theme }) => theme.topBarLinkColor};
-      text-decoration: underline;
-      text-overflow: ellipsis;
-      max-width: inherit;
-      overflow: hidden;
-
-      cursor: pointer;
-    }
-
-    .column-address {
-      font-weight: 600;
-      font-size: 16px;
-      line-height: 22px;
-
-      color: ${({ theme }) => theme.dataColor};
-
-      svg {
-        stroke: ${({ theme }) => theme.dataColor};
-        width: 20px;
-      }
-    }
-
-    .drop-btn {
-      margin-top: 14px;
-
-      svg {
-        margin-top: 2px;
-        height: 18px;
-        width: 18px;
-      }
-    }
-  }
-`
-
 export const ModalPopup = styled(ModalPopupBase)`
   padding: 0;
-`
-
-export const TabSwitcher = styled(TabSwitcherBase)`
-  margin: 30px 0;
-  width: 300px;
 `
