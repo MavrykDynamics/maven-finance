@@ -933,7 +933,7 @@ loki-distributed:
           paths:
             - path: /
               # -- pathType (e.g. ImplementationSpecific, Prefix, .. etc.) might also be required by some Ingress Controllers
-              # pathType: Prefix
+              pathType: Prefix
       # -- TLS configuration for the gateway ingress
       tls: {}
     # Basic auth configuration
