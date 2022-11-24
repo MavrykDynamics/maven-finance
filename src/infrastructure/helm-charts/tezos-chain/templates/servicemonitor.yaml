@@ -11,6 +11,10 @@ spec:
   - interval: 15s
     port: metrics
     path: /metrics
+  jobLabel: basenet
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
   selector:
     matchLabels:
       appType: tezos-node
