@@ -21,6 +21,8 @@ export function normalizeBreakGlassAction(storage: BreakGlassActionProps, option
     list = break_glass_action.filter((item) => item.initiator_id === filterByAddress)
   } else if (filterWithoutAddress) {
     list = break_glass_action.filter((item) => item.initiator_id !== filterWithoutAddress)
+  } else {
+    list = break_glass_action
   }
 
   return list.map((item) => {

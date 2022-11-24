@@ -75,6 +75,8 @@ export const normalizeCouncilActions = (storage: CouncilActionProps, options?: O
     list = council_action.filter((item) => item.initiator_id === filterByAddress)
   } else if (filterWithoutAddress) {
     list = council_action.filter((item) => item.initiator_id !== filterWithoutAddress)
+  } else {
+    list = council_action
   }
 
   const result = list.map(item => (
@@ -95,7 +97,7 @@ export const normalizeCouncilActions = (storage: CouncilActionProps, options?: O
           value: param.value,
         }
       )) || [],
-      signersCount: item.start_datetime,
+      signersCount: item.signers_count,
       signers: item.signers?.map((signer) => (
         {
           council_action: signer.council_action,

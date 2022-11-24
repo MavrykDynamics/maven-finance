@@ -4,9 +4,6 @@ import { State } from 'reducers'
 import { useHistory, useLocation } from 'react-router-dom'
 import { useParams } from 'react-router'
 
-// type
-import type { CouncilPastAction } from '../../reducers/council'
-
 // actions, consts
 import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage, getCouncilStorage, dropRequest } from './Council.actions'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
@@ -40,7 +37,6 @@ import { CouncilFormSetBaker } from './CouncilForms/CouncilFormSetBaker.view'
 import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContractBaker.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
-import { BreakGlassCouncilMyActions } from '../BreakGlassCouncil/BreakGlassCouncilMyActions.view'
 
 // styles
 import { Page } from 'styles'
@@ -76,7 +72,7 @@ export const Council = () => {
   const currentCouncilPastActions = useMemo(
     () =>
       !isReviewPage
-        ? councilPastActions?.filter((item: CouncilPastAction) => item.initiator_id === accountPkh)
+        ? councilPastActions?.filter((item) => item.initiatorId === accountPkh)
         : councilPastActions,
     [councilPastActions, accountPkh, isReviewPage],
   )
@@ -247,32 +243,19 @@ export const Council = () => {
                 <h1 className={`past-actions ${!isReviewPage ? 'is-user-member' : ''}`}>
                   {!isReviewPage ? 'My ' : null}Past Council Actions
                 </h1>
-                {paginatedItemsList.map((item: CouncilPastAction) => (
+                {paginatedItemsList.map((item) => (
                   <CouncilPastActionView
-                    execution_datetime={item.execution_datetime}
+                    executionDatetime={String(item.executionDatetime)}
                     key={item.id}
-                    action_type={item.action_type}
-                    signers_count={item.signers_count}
-                    num_council_members={councilMembers.length}
-                    council_id={item.council_id}
+                    actionType={item.actionType}
+                    signersCount={item.signersCount}
+                    numCouncilMembers={councilMembers.length}
+                    councilId={item.councilId}
                   />
                 ))}
                 <Pagination itemsCount={currentCouncilPastActions.length} listName={COUNCIL_LIST_NAME} />
               </>
             ) : null}
-{/* 
-              <BreakGlassCouncilMyActions
-                myPastBreakGlassCouncilAction={paginatedItemsList}
-                breakGlassCouncilMemberLength={councilMembers.length}
-                myPastBreakGlassCouncilActionLength={councilPastActions?.filter((item: CouncilPastAction) => item.initiator_id === accountPkh).length}
-                breakGlassActionPendingMySignature={councilMyPendingActions}
-                breakGlassActionPendingMySignatureLength={councilMyPendingActions.length}
-                numCouncilMembers={councilMembers.length}
-                activeActionTab={activeActionTab}
-                setActiveActionTab={setActiveActionTab}
-                tabsList={councilTabsList}
-                handleDropAction={handleDropAction}
-              /> */}
           </div>
 
           <aside

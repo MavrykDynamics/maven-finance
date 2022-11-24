@@ -254,12 +254,12 @@ export function BreakGlassCouncil() {
                   <h1>Past Break Glass Council Actions</h1>
                   {paginatedPastBreakGlassCouncilActions.map((item) => (
                     <CouncilPastActionView
-                      execution_datetime={String(item.executionDatetime)}
+                      executionDatetime={String(item.executionDatetime)}
                       key={item.id}
-                      action_type={item.actionType}
-                      signers_count={item.signersCount}
-                      num_council_members={breakGlassCouncilMember.length}
-                      council_id={item.breakGlassId}
+                      actionType={item.actionType}
+                      signersCount={item.signersCount}
+                      numCouncilMembers={breakGlassCouncilMember.length}
+                      councilId={item.breakGlassId}
                     />
                   ))}
 
@@ -294,7 +294,6 @@ export function BreakGlassCouncil() {
 
               <BreakGlassCouncilMyActions
                 myPastBreakGlassCouncilAction={paginatedMyPastCouncilActions}
-                breakGlassCouncilMemberLength={breakGlassCouncilMember.length}
                 myPastBreakGlassCouncilActionLength={myPastBreakGlassCouncilAction.length}
                 breakGlassActionPendingMySignature={paginatedBreakGlassActionPendingMySignature}
                 breakGlassActionPendingMySignatureLength={breakGlassActionPendingMySignature.length}
