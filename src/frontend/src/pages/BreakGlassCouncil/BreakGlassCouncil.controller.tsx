@@ -302,6 +302,8 @@ export function BreakGlassCouncil() {
                 setActiveActionTab={setActiveActionTab}
                 tabsList={councilTabsList}
                 handleDropAction={handleDropAction}
+                listNameMyPastActions={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME}
+                listNameMyOngoingActions={BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME}
               />
             </>
           )}

@@ -49,7 +49,10 @@ export const getCouncilStorage = () => async (dispatch: AppDispatch, getState: G
 }
 
 export const GET_COUNCIL_PAST_ACTIONS_STORAGE = 'GET_COUNCIL_PAST_ACTIONS_STORAGE'
-export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch) => {
+export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
+  const state: State = getState()
+  const { accountPkh } = state.wallet
+
   try {
     const storage = await fetchFromIndexerWithPromise(
       COUNCIL_PAST_ACTIONS_QUERY,
@@ -58,10 +61,12 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch) 
     )
 
     const councilPastActions = normalizeCouncilActions(storage)
+    const councilMyPastActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
 
     dispatch({
       type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
       councilPastActions,
+      councilMyPastActions,
     })
   } catch (error) {
     if (error instanceof Error) {

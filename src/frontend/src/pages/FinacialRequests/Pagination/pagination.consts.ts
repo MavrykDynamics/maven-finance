@@ -1,4 +1,7 @@
 export const COUNCIL_LIST_NAME = 'council'
+export const COUNCIL_MY_PAST_ACTIONS_LIST_NAME = 'counsilMyPastActions'
+export const COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME = 'counsilMyOngoingActions'
+
 export const EMERGENCY_GOVERNANCE_HISTORY_LIST_NAME = 'emergencyGovHistory'
 export const EMERGENCY_GOVERNANCE_ACTIVE_LIST_NAME = 'emergencyGovActive'
 
@@ -36,6 +39,8 @@ export const BREAK_GLASS_LIST_NAME = 'breakGlass'
 
 export const LIST_NAMES_MAPPER: Record<string, number> = {
   [COUNCIL_LIST_NAME]: 10,
+  [COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME]: 8,
+  [COUNCIL_MY_PAST_ACTIONS_LIST_NAME]: 8,
   [EMERGENCY_GOVERNANCE_HISTORY_LIST_NAME]: 5,
   [EMERGENCY_GOVERNANCE_ACTIVE_LIST_NAME]: 5,
   [PAST_REQUESTS_FINANCIAL_REQUESTS_LIST]: 5,
