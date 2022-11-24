@@ -625,6 +625,14 @@ kube-prometheus-stack:
           operator: 'Equal'
           value: '0'
           effect: 'NoSchedule'
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '1'
+          effect: 'NoSchedule'
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '2'
+          effect: 'NoSchedule'
       # - key: "key"
       #   operator: "Equal"
       #   value: "value"
@@ -1666,6 +1674,14 @@ kube-prometheus-stack:
             operator: 'Equal'
             value: '0'
             effect: 'NoSchedule'
+          - key: 'mavryk-node'
+            operator: 'Equal'
+            value: '1'
+            effect: 'NoSchedule'
+          - key: 'mavryk-node'
+            operator: 'Equal'
+            value: '2'
+            effect: 'NoSchedule'
 
         ## SecurityContext holds pod-level security attributes and common container settings.
         ## This defaults to non root user with uid 2000 and gid 2000. *v1.PodSecurityContext  false
@@ -1865,6 +1881,14 @@ kube-prometheus-stack:
       - key: 'mavryk-node'
         operator: 'Equal'
         value: '0'
+        effect: 'NoSchedule'
+      - key: 'mavryk-node'
+        operator: 'Equal'
+        value: '1'
+        effect: 'NoSchedule'
+      - key: 'mavryk-node'
+        operator: 'Equal'
+        value: '2'
         effect: 'NoSchedule'
     # - key: "key"
     #   operator: "Equal"
@@ -2427,6 +2451,14 @@ kube-prometheus-stack:
         - key: 'mavryk-node'
           operator: 'Equal'
           value: '0'
+          effect: 'NoSchedule'
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '1'
+          effect: 'NoSchedule'
+        - key: 'mavryk-node'
+          operator: 'Equal'
+          value: '2'
           effect: 'NoSchedule'
       #  - key: "key"
       #    operator: "Equal"
@@ -3426,7 +3458,19 @@ thanosRuler:
     ## If specified, the pod's tolerations.
     ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
     ##
-    tolerations: []
+    tolerations:
+      - key: 'mavryk-node'
+        operator: 'Equal'
+        value: '0'
+        effect: 'NoSchedule'
+      - key: 'mavryk-node'
+        operator: 'Equal'
+        value: '1'
+        effect: 'NoSchedule'
+      - key: 'mavryk-node'
+        operator: 'Equal'
+        value: '2'
+        effect: 'NoSchedule'
     # - key: "key"
     #   operator: "Equal"
     #   value: "value"
