@@ -1,5 +1,6 @@
 import { LENDING_TAB_ID } from './../../../../pages/Dashboard/Dashboard.utils'
 import { MainNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
+import { PORTFOLIO_TAB_ID } from 'pages/DashboardPersonal/DashboardPersonal.utils'
 
 export const mainNavigationLinks: MainNavigationRoute[] = [
   {
@@ -19,8 +20,8 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
       {
         id: 84425,
         subTitle: 'Personal',
-        subPath: 'dashboard-personal',
-        routeSubPath: '/dashboard-personal',
+        subPath: `dashboard-personal/${PORTFOLIO_TAB_ID}`,
+        routeSubPath: '/dashboard-personal/:tabId',
         requires: {
           isAuth: true,
         },
