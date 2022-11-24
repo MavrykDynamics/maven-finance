@@ -1,5 +1,5 @@
 // types
-import { CouncilGraphQL, CouncilMember } from '../../utils/TypesAndInterfaces/Council'
+import { CouncilGraphQL, CouncilActionRecordhQL, CouncilStorage } from '../../utils/TypesAndInterfaces/Council'
 
 export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
   const councilActionsLedger = storage?.actions?.length
@@ -54,7 +54,53 @@ export const noralizeCouncilStorage = (storage: CouncilGraphQL) => {
   }
 }
 
-export const memberIsFirstOfList = (list: CouncilMember[], address?: string) => {
+type CouncilActionProps = {
+  council_action: CouncilActionRecordhQL[]
+}
+
+export const normalizeCouncilActions = (storage: CouncilActionProps) => {
+  const { council_action } = storage
+  if (!council_action?.length) return []
+
+  const result = council_action.map(item => (
+    {
+      actionType: item.action_type,
+      councilId: item.council_id,
+      executed: item.executed,
+      executionDatetime: item.execution_datetime,
+      expirationDatetime: item.execution_datetime,
+      id: item.id,
+      initiatorId: item.initiator_id,
+      startDatetime: item.start_datetime,
+      status: item.status,
+      parameters: item.parameters?.map((param) => (
+        {
+          councilAction: param.council_action,
+          councilActionId: param.council_action_id,
+          id: param.id,
+          name: param.name,
+          value: param.value,
+        }
+      )) || [],
+      signersCount: item.start_datetime,
+      signers: item.signers?.map((signer) => (
+        {
+          council_action: signer.council_action,
+          council_action_id: signer.council_action_id,
+          id: signer.id,
+          signer: signer.signer,
+          signer_id: signer.signer_id,
+        }
+      )) || [],
+    }
+  ))
+
+  return result
+}
+
+type CouncilMember = CouncilStorage['councilMembers']
+
+export const memberIsFirstOfList = (list: CouncilMember, address?: string) => {
   const indexOfMember = list.findIndex((item) => item.userId === address)
 
   if (indexOfMember === -1) {
