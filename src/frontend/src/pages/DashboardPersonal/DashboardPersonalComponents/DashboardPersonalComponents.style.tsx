@@ -36,5 +36,31 @@ export const MyRewardsStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
   button {
     margin-left: auto;
   }
+
+  .stat-block {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    .name {
+      font-weight: 600;
+      font-size: 14px;
+      color: ${({ theme }) => theme.textColor};
+    }
+
+    .value {
+      font-weight: 700;
+      font-size: 25px;
+      color: ${({ theme }) => theme.dataColor};
+      display: flex;
+      align-items: flex-end;
+      .suffix {
+        font-weight: 600;
+        font-size: 14px;
+        color: ${({ theme }) => theme.textColor};
+      }
+    }
+  }
 `
 export const EarnHistoryStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>``
