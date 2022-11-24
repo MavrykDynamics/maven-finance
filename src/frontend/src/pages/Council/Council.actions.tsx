@@ -3,7 +3,9 @@ import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constan
 import { State } from 'reducers'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import type { AppDispatch, GetState } from '../../app/App.controller'
-import type { CouncilActionRecordhQL } from '../../utils/TypesAndInterfaces/Council'
+
+// helpers
+import { parseDate } from 'utils/time'
 
 import {
   COUNCIL_PAST_ACTIONS_QUERY,
@@ -16,9 +18,13 @@ import {
   COUNCIL_STORAGE_QUERY_NAME,
   COUNCIL_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries/getCouncilStorage'
-import { noralizeCouncilStorage } from './Council.helpers'
+import { noralizeCouncilStorage, normalizeCouncilActions } from './Council.helpers'
 import { toggleLoader } from 'app/App.components/Loader/Loader.action'
 import { ROCKET_LOADER } from 'utils/constants'
+
+const time = String(new Date())
+const timeFormat = 'YYYY-MM-DD'
+const timestamptz = parseDate({ time, timeFormat }) || undefined
 
 export const GET_COUNCIL_STORAGE = 'GET_COUNCIL_STORAGE'
 export const getCouncilStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
@@ -66,23 +72,14 @@ export const GET_COUNCIL_PENDING_ACTIONS_STORAGE = 'GET_COUNCIL_PENDING_ACTIONS_
 export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
 
-  const accountPkh = state.wallet.accountPkh
-
   try {
     const storage = await fetchFromIndexerWithPromise(
       COUNCIL_PENDING_ACTIONS_QUERY,
       COUNCIL_PENDING_ACTIONS_NAME,
-      COUNCIL_PENDING_ACTIONS_VARIABLE,
+      COUNCIL_PENDING_ACTIONS_VARIABLE({ _gte: timestamptz }),
     )
 
-    const councilActionRecord: CouncilActionRecordhQL[] = storage?.council_action?.length ? storage?.council_action : []
-    const councilPendingActions = councilActionRecord.filter((item) => {
-      const timeNow = Date.now()
-      const expirationDatetime = new Date(item.expiration_datetime as string).getTime()
-      const isEndedVotingTime = expirationDatetime > timeNow
-      const isNoSameAccountPkh = accountPkh !== item.initiator_id
-      return isEndedVotingTime && isNoSameAccountPkh
-    })
+    const councilPendingActions = normalizeCouncilActions(storage)
 
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,

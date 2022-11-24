@@ -5,7 +5,6 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { useParams } from 'react-router'
 
 // type
-import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 import type { CouncilPastAction } from '../../reducers/council'
 
 // actions, consts
@@ -67,7 +66,7 @@ export const Council = () => {
     councilMemberWebsiteMaxLength: councilStorage?.councilMemberWebsiteMaxLength,
   }
 
-  const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
+  const isUserInCouncilMembers = Boolean(councilMembers.find((item) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
   const { review: isReviewPage } = useParams<{ review: string }>()
 
@@ -182,15 +181,10 @@ export const Council = () => {
                     <Carousel itemLength={councilPendingActions?.length} key={sliderKey}>
                       {councilPendingActions.map((item) => (
                         <CouncilPendingView
-                          execution_datetime={item.execution_datetime}
-                          key={item.id}
-                          id={item.id}
-                          action_type={item.action_type}
-                          signers_count={item.signers_count}
-                          initiator_id={item.initiator_id}
-                          num_council_members={councilMembers.length}
-                          councilPendingActionsLength={councilPendingActions?.length}
-                          parameters={item.parameters || []}
+                          {...item}
+                          key={item.id} 
+                          numCouncilMembers={councilMembers.length}
+                          councilPendingActionsLength={councilPendingActions.length}
                         />
                       ))}
                     </Carousel>
@@ -271,7 +265,7 @@ export const Council = () => {
             {sortedCouncilMembers.length ? (
               <div>
                 <h1>Council Members</h1>
-                {sortedCouncilMembers.map((item: CouncilMember) => (
+                {sortedCouncilMembers.map((item) => (
                   <CouncilMemberView
                     key={item.id}
                     image={item.image}

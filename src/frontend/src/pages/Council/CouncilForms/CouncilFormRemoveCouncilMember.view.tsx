@@ -2,9 +2,6 @@ import { useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-// type
-import type { CouncilMember } from '../../../utils/TypesAndInterfaces/Council'
-
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
 
@@ -31,7 +28,7 @@ export const CouncilFormRemoveCouncilMember = () => {
   const itemsForDropDown = useMemo(
     () =>
       councilMembers?.length
-        ? councilMembers.map((item: CouncilMember) => {
+        ? councilMembers.map((item) => {
               return {
                 text: getShortTzAddress(item.userId),
                 value: item.userId,

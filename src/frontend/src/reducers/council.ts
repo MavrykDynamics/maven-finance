@@ -1,5 +1,5 @@
 import { GET_COUNCIL_STORAGE } from '../pages/Council/Council.actions'
-import { CouncilStorage } from '../utils/TypesAndInterfaces/Council'
+import { CouncilStorage, CouncilActions } from '../utils/TypesAndInterfaces/Council'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { GET_COUNCIL_PAST_ACTIONS_STORAGE, GET_COUNCIL_PENDING_ACTIONS_STORAGE } from '../pages/Council/Council.actions'
 
@@ -20,7 +20,7 @@ export interface CouncilPastAction {
 
 export interface CouncilState {
   councilStorage: CouncilStorage
-  councilPendingActions: CouncilPastAction[]
+  councilPendingActions: CouncilActions
   councilPastActions: CouncilPastAction[]
 }
 
