@@ -6,7 +6,7 @@ import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPa
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // styles
-import { TabSwitcher } from './BreakGlassCouncil.style'
+import { TabSwitcher } from './Council.style'
 
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";

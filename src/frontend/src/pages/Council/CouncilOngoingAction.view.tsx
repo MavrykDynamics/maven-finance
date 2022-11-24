@@ -10,7 +10,7 @@ import { parseDate } from 'utils/time'
 import { getSeparateCamelCase } from '../../utils/parse'
 
 // styles
-import { BreakGlassCouncilMyOngoingActionCardStyled } from './BreakGlassCouncil.style'
+import { CouncilOngoingActionStyled } from './Council.style' 
 
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
@@ -145,7 +145,7 @@ export function CouncilOngoingAction(props: Props) {
   }
 
   return (
-    <BreakGlassCouncilMyOngoingActionCardStyled>
+    <CouncilOngoingActionStyled>
       <div className='top' onClick={handleClickCard}>
         <div className='row top-row'>
           <div className='column'>
@@ -168,6 +168,6 @@ export function CouncilOngoingAction(props: Props) {
       {isOpen && <div className='bottom'>
         {bottomSection}
       </div>}
-    </BreakGlassCouncilMyOngoingActionCardStyled>
+    </CouncilOngoingActionStyled>
   )
 }

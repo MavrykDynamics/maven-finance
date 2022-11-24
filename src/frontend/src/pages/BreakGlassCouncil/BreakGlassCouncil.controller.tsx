@@ -16,7 +16,7 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
 import { BreakGlassCouncilPanding } from './BreakGlassCouncilPanding/BreakGlassCouncilPanding.controller'
-import { MyCouncilActions } from './BreakGlassCouncilMyActions.view'
+import { MyCouncilActions } from '../Council/MyCouncilActions.view'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'

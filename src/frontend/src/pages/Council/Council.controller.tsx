@@ -37,7 +37,7 @@ import { CouncilFormSetBaker } from './CouncilForms/CouncilFormSetBaker.view'
 import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContractBaker.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
-import { MyCouncilActions } from 'pages/BreakGlassCouncil/BreakGlassCouncilMyActions.view'
+import { MyCouncilActions } from 'pages/Council/MyCouncilActions.view'
 
 // styles
 import { Page } from 'styles'
