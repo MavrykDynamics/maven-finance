@@ -47,7 +47,10 @@ import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/Dr
 const queryParameters = {
   pathname: '/mavryk-council',
   review: '/review',
+  pendingReview: '/pending-review'
 }
+
+export type QueryParameters = typeof queryParameters
 
 export const Council = () => {
   const dispatch = useDispatch()
@@ -68,8 +71,9 @@ export const Council = () => {
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
-  const { review: isReviewPage } = useParams<{ review: string }>()
-
+  const { review } = useParams<{ review: string }>()
+  const isReviewPage = review === 'review'
+  console.log({review, isReviewPage});
   const itemsForDropDown = [
     { text: 'Add Vestee', value: 'addVestee' },
     { text: 'Add Council Member', value: 'addCouncilMember' },
@@ -91,8 +95,8 @@ export const Council = () => {
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const sortedCouncilMembers = memberIsFirstOfList(councilMembers, accountPkh)
 
-  const handleClickReview = () => {
-    history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+  const handleClickReview = (review: string) => {
+    history.replace(`${queryParameters.pathname}${review}`)
     setActiveActionTab((councilTabsList[0].text))
     scrollUpPage()
   }
@@ -134,7 +138,7 @@ export const Council = () => {
 
   const currentPage = getPageNumber(
     search,
-    isReviewPage 
+    review 
       ? COUNCIL_LIST_NAME 
       : councilTabsList[0].text === activeActionTab
         ? COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME
@@ -150,6 +154,11 @@ export const Council = () => {
     const [from, to] = calculateSlicePositions(currentPage, COUNCIL_MY_PAST_ACTIONS_LIST_NAME)
     return councilMyPastActions?.slice(from, to)
   }, [currentPage, councilMyPastActions])
+
+  const paginatedCouncilPendingActions = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, COUNCIL_LIST_NAME)
+    return councilPendingActions?.slice(from, to)
+  }, [currentPage, councilPendingActions])
 
   const paginatedCouncilMyPendingActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME)
@@ -174,7 +183,7 @@ export const Council = () => {
     <Page>
       <PageHeader page={'council'} />
       <CouncilStyled>
-        {isReviewPage && isUserInCouncilMembers ? (
+        {review && isUserInCouncilMembers ? (
           <button onClick={handleClickGoBack} className="go-back">
             <Icon id="arrow-left-stroke" />
             Back to Member Dashboard
@@ -183,11 +192,11 @@ export const Council = () => {
 
         <article
           className={`council-details ${isPendingList ? 'is-user-member' : ''} ${
-            !isReviewPage ? 'is-pending-signature' : ''
+            !review ? 'is-pending-signature' : ''
           }`}
         >
           <div className="council-actions">
-            {!isReviewPage && isPendingList ? (
+            {!review && isPendingList ? (
               <>
                 <h1>Pending Signature</h1>
                 <article className="pending">
@@ -206,7 +215,7 @@ export const Council = () => {
                 </article>
               </>
             ) : null}
-            {!isReviewPage ? (
+            {!review ? (
               <DropdownCard className="pending-dropdown">
                 <DropdownWrap>
                   <h2>Available Actions</h2>
@@ -250,12 +259,12 @@ export const Council = () => {
             ) : null}
 
            
-            {isReviewPage && councilPastActions?.length && (
+            {review && (
               <>
-                <h1 className={`past-actions ${!isReviewPage ? 'is-user-member' : ''}`}>
-                  Past Council Actions
+                <h1 className={`past-actions ${!review ? 'is-user-member' : ''}`}>
+                  {isReviewPage ? 'Past Council Actions' : 'Pending Signature Council Actions'}
                 </h1>
-                {paginatedCouncilPastActions.map((item) => (
+                {(isReviewPage ? paginatedCouncilPastActions : paginatedCouncilPendingActions).map((item) => (
                   <CouncilPastActionView
                     executionDatetime={String(item.executionDatetime)}
                     key={item.id}
@@ -265,11 +274,11 @@ export const Council = () => {
                     councilId={item.councilId}
                   />
                 ))}
-                <Pagination itemsCount={councilPastActions.length} listName={COUNCIL_LIST_NAME} />
+                <Pagination itemsCount={isReviewPage ? councilPastActions.length : councilPendingActions.length} listName={COUNCIL_LIST_NAME} />
               </>
             )}
 
-            {!isReviewPage && 
+            {!review && 
               <MyCouncilActions
                 myPastCouncilAction={paginatedCouncilMyPastActions}
                 myPastCouncilActionLength={councilMyPastActions.length}
@@ -286,11 +295,11 @@ export const Council = () => {
           </div>
 
           <aside
-            className={`council-members ${!isReviewPage ? 'is-user-member' : ''} ${
-              isPendingList && !isReviewPage ? 'is-pending-list' : ''
+            className={`council-members ${!review ? 'is-user-member' : ''} ${
+              isPendingList && !review ? 'is-pending-list' : ''
             }`}
           >
-            {!isReviewPage ? <CouncilPendingReviewView onClick={handleClickReview} /> : null}
+            {!review ? <CouncilPendingReviewView onClick={handleClickReview} queryParameters={queryParameters} /> : null}
 
             {sortedCouncilMembers.length ? (
               <div>

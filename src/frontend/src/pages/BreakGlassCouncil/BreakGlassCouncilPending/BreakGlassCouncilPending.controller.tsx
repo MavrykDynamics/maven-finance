@@ -16,7 +16,7 @@ import { BreakGlassAction } from 'utils/TypesAndInterfaces/BreakGlass'
 import { signAction } from '../BreakGlassCouncil.actions'
 
 // styles
-import { CouncilPendingStyled } from './BreakGlassCouncilPanding.style'
+import { CouncilPendingStyled } from './BreakGlassCouncilPending.style'
 import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 
 type Props = BreakGlassAction[0] & {
@@ -24,7 +24,7 @@ type Props = BreakGlassAction[0] & {
   councilPendingActionsLength: number
 }
 
-export const BreakGlassCouncilPanding = (props: Props) => {
+export const BreakGlassCouncilPending = (props: Props) => {
   const dispatch = useDispatch()
   const { id, actionType, signersCount, numCouncilMembers, councilPendingActionsLength, parameters } = props
 
