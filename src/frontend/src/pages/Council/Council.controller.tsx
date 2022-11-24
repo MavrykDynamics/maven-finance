@@ -57,7 +57,8 @@ export const Council = () => {
   const history = useHistory()
   const { search, pathname } = useLocation()
 
-  const { councilStorage, councilPastActions, councilMyPastActions, councilPendingActions, councilMyPendingActions } = useSelector((state: State) => state.council)
+  const { councilStorage, councilPastActions, councilMyPastActions, 
+    councilAllPendingActions, councilPendingActions, councilMyPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
@@ -155,10 +156,10 @@ export const Council = () => {
     return councilMyPastActions?.slice(from, to)
   }, [currentPage, councilMyPastActions])
 
-  const paginatedCouncilPendingActions = useMemo(() => {
+  const paginatedCouncilAllPendingActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, COUNCIL_LIST_NAME)
-    return councilPendingActions?.slice(from, to)
-  }, [currentPage, councilPendingActions])
+    return councilAllPendingActions?.slice(from, to)
+  }, [currentPage, councilAllPendingActions])
 
   const paginatedCouncilMyPendingActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME)
@@ -264,7 +265,7 @@ export const Council = () => {
                 <h1 className={`past-actions ${!review ? 'is-user-member' : ''}`}>
                   {isReviewPage ? 'Past Council Actions' : 'Pending Signature Council Actions'}
                 </h1>
-                {(isReviewPage ? paginatedCouncilPastActions : paginatedCouncilPendingActions).map((item) => (
+                {(isReviewPage ? paginatedCouncilPastActions : paginatedCouncilAllPendingActions).map((item) => (
                   <CouncilPastActionView
                     executionDatetime={String(item.executionDatetime)}
                     key={item.id}
@@ -274,7 +275,7 @@ export const Council = () => {
                     councilId={item.councilId}
                   />
                 ))}
-                <Pagination itemsCount={isReviewPage ? councilPastActions.length : councilPendingActions.length} listName={COUNCIL_LIST_NAME} />
+                <Pagination itemsCount={isReviewPage ? councilPastActions.length : councilAllPendingActions.length} listName={COUNCIL_LIST_NAME} />
               </>
             )}
 

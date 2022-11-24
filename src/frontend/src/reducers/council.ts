@@ -5,6 +5,7 @@ import { GET_COUNCIL_PAST_ACTIONS_STORAGE, GET_COUNCIL_PENDING_ACTIONS_STORAGE }
 
 export interface CouncilState {
   councilStorage: CouncilStorage
+  councilAllPendingActions: CouncilActions,
   councilPendingActions: CouncilActions
   councilMyPendingActions: CouncilActions
   councilPastActions: CouncilActions
@@ -28,6 +29,7 @@ const defaultCouncilStorage: CouncilStorage = {
 }
 const councilDefaultState: CouncilState = {
   councilStorage: defaultCouncilStorage,
+  councilAllPendingActions: [],
   councilPendingActions: [],
   councilMyPendingActions: [],
   councilPastActions: [],
@@ -50,6 +52,7 @@ export function council(state = councilDefaultState, action: Action) {
     case GET_COUNCIL_PENDING_ACTIONS_STORAGE:
       return {
         ...state,
+        councilAllPendingActions: action.councilAllPendingActions,
         councilPendingActions: action.councilPendingActions,
         councilMyPendingActions: action.councilMyPendingActions,
       }
