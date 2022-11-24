@@ -917,7 +917,7 @@ gateway:
   # Gateway ingress configuration
   ingress:
     # -- Specifies whether an ingress for the gateway should be created
-    enabled: false
+    enabled: true
     # -- Ingress Class Name. MAY be required for Kubernetes versions >= 1.18
     # For example: `ingressClassName: nginx`
     ingressClassName: ''
@@ -934,10 +934,7 @@ gateway:
             # -- pathType (e.g. ImplementationSpecific, Prefix, .. etc.) might also be required by some Ingress Controllers
             # pathType: Prefix
     # -- TLS configuration for the gateway ingress
-    tls:
-      - secretName: loki-gateway-tls
-        hosts:
-          - gateway-loki.mavryk.io
+    tls: {}
   # Basic auth configuration
   basicAuth:
     # -- Enables basic authentication for the gateway
