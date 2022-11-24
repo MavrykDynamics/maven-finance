@@ -58,11 +58,26 @@ type CouncilActionProps = {
   council_action: CouncilActionRecordhQL[]
 }
 
-export const normalizeCouncilActions = (storage: CouncilActionProps) => {
+type Options = {
+  filterByAddress?: string
+  filterWithoutAddress?: string
+}
+
+export const normalizeCouncilActions = (storage: CouncilActionProps, options?: Options) => {
   const { council_action } = storage
   if (!council_action?.length) return []
 
-  const result = council_action.map(item => (
+  const filterByAddress = options?.filterByAddress
+  const filterWithoutAddress = options?.filterWithoutAddress
+  let list: CouncilActionRecordhQL[] = []
+
+  if (filterByAddress) {
+    list = council_action.filter((item) => item.initiator_id === filterByAddress)
+  } else if (filterWithoutAddress) {
+    list = council_action.filter((item) => item.initiator_id !== filterWithoutAddress)
+  }
+
+  const result = list.map(item => (
     {
       actionType: item.action_type,
       councilId: item.council_id,

@@ -21,6 +21,7 @@ export interface CouncilPastAction {
 export interface CouncilState {
   councilStorage: CouncilStorage
   councilPendingActions: CouncilActions
+  councilMyPendingActions: CouncilActions
   councilPastActions: CouncilPastAction[]
 }
 
@@ -42,6 +43,7 @@ const defaultCouncilStorage: CouncilStorage = {
 const councilDefaultState: CouncilState = {
   councilStorage: defaultCouncilStorage,
   councilPendingActions: [],
+  councilMyPendingActions: [],
   councilPastActions: [],
 }
 
@@ -61,6 +63,7 @@ export function council(state = councilDefaultState, action: Action) {
       return {
         ...state,
         councilPendingActions: action.councilPendingActions,
+        councilMyPendingActions: action.councilMyPendingActions,
       }
     default:
       return state
