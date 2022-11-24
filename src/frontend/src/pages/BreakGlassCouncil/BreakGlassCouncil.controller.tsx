@@ -16,7 +16,7 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { BreakGlassCouncilForm, actions } from './BreakGlassCouncilForms/BreakGlassCouncilForm.controller'
 import { FormUpdateCouncilMemberView } from './BreakGlassCouncilForms/FormUpdateCouncilMember.view'
 import { BreakGlassCouncilPanding } from './BreakGlassCouncilPanding/BreakGlassCouncilPanding.controller'
-import { BreakGlassCouncilMyActions } from './BreakGlassCouncilMyActions.view'
+import { MyCouncilActions } from './BreakGlassCouncilMyActions.view'
 
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
@@ -292,11 +292,11 @@ export function BreakGlassCouncil() {
                 <BreakGlassCouncilForm councilMemberMaxLength={councilMemberMaxLength} action={chosenDdItem?.value} />
               </AvaliableActions>
 
-              <BreakGlassCouncilMyActions
-                myPastBreakGlassCouncilAction={paginatedMyPastCouncilActions}
-                myPastBreakGlassCouncilActionLength={myPastBreakGlassCouncilAction.length}
-                breakGlassActionPendingMySignature={paginatedBreakGlassActionPendingMySignature}
-                breakGlassActionPendingMySignatureLength={breakGlassActionPendingMySignature.length}
+              <MyCouncilActions
+                myPastCouncilAction={paginatedMyPastCouncilActions}
+                myPastCouncilActionLength={myPastBreakGlassCouncilAction.length}
+                actionPendingSignature={paginatedBreakGlassActionPendingMySignature}
+                actionPendingSignatureLength={breakGlassActionPendingMySignature.length}
                 numCouncilMembers={breakGlassCouncilMember.length}
                 activeActionTab={activeActionTab}
                 setActiveActionTab={setActiveActionTab}

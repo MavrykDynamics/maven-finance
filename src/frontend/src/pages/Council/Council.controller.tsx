@@ -37,7 +37,7 @@ import { CouncilFormSetBaker } from './CouncilForms/CouncilFormSetBaker.view'
 import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContractBaker.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
-import { BreakGlassCouncilMyActions } from 'pages/BreakGlassCouncil/BreakGlassCouncilMyActions.view'
+import { MyCouncilActions } from 'pages/BreakGlassCouncil/BreakGlassCouncilMyActions.view'
 
 // styles
 import { Page } from 'styles'
@@ -269,11 +269,11 @@ export const Council = () => {
             )}
 
             {!isReviewPage && 
-              <BreakGlassCouncilMyActions
-                myPastBreakGlassCouncilAction={paginatedCouncilMyPastActions}
-                myPastBreakGlassCouncilActionLength={councilMyPastActions.length}
-                breakGlassActionPendingMySignature={paginatedCouncilMyPendingActions}
-                breakGlassActionPendingMySignatureLength={councilMyPendingActions.length}
+              <MyCouncilActions
+                myPastCouncilAction={paginatedCouncilMyPastActions}
+                myPastCouncilActionLength={councilMyPastActions.length}
+                actionPendingSignature={paginatedCouncilMyPendingActions}
+                actionPendingSignatureLength={councilMyPendingActions.length}
                 numCouncilMembers={councilMembers.length}
                 activeActionTab={activeActionTab}
                 setActiveActionTab={setActiveActionTab}
