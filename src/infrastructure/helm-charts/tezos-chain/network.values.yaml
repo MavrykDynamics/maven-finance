@@ -305,7 +305,7 @@ nodes:
         config:
           shell:
             history_mode: full
-          metrics_addr: ['0.0.0.0:9933']
+          metrics_addr: ['0.0.0.0:9932']
           rpc:
             cors-headers: ['content-type']
             cors-origin: ['*']
@@ -379,7 +379,7 @@ nodes:
       - config:
           shell:
             history_mode: rolling
-          metrics_addr: ['0.0.0.0:9934']
+          metrics_addr: ['0.0.0.0:9932']
           rpc:
             cors-headers: ['content-type']
             cors-origin: ['*']
@@ -416,7 +416,7 @@ services:
 #     metrics_addr: [ ":9932" ]
 # to your config.
 serviceMonitor:
-  enabled: false
+  enabled: true
   labels:
   # release: my-monitoring-release
 # # Signers
