@@ -123,6 +123,7 @@ export function BreakGlassCouncil() {
 
   const handleClickReview = () => {
     history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+    setActiveActionTab((councilTabsList[0].text))
     scrollUpPage()
   }
 
