@@ -11,6 +11,7 @@ import { TabSwitcher } from './BreakGlassCouncil.style'
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
 import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
+import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
 // helpers
 import { BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
@@ -19,7 +20,7 @@ type Props = {
   myPastBreakGlassCouncilAction: BreakGlassAction
   breakGlassCouncilMemberLength: number
   myPastBreakGlassCouncilActionLength: number
-  breakGlassActionPendingMySignature: BreakGlassAction
+  breakGlassActionPendingMySignature: BreakGlassAction | CouncilActions
   breakGlassActionPendingMySignatureLength: number
   numCouncilMembers: number
   activeActionTab: string

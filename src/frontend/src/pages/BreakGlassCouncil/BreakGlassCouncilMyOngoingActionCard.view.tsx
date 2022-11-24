@@ -14,8 +14,9 @@ import { BreakGlassCouncilMyOngoingActionCardStyled } from './BreakGlassCouncil.
 
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
+import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
-type Props = BreakGlassAction[0] & {
+type Props = (BreakGlassAction[0] | CouncilActions[0]) & {
   numCouncilMembers: number
   handleDropAction: (arg: number) => void
 }

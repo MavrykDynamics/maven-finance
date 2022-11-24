@@ -90,8 +90,6 @@ export const normalizeCouncilActions = (storage: CouncilActionProps, options?: O
       status: item.status,
       parameters: item.parameters?.map((param) => (
         {
-          councilAction: param.council_action,
-          councilActionId: param.council_action_id,
           id: param.id,
           name: param.name,
           value: param.value,
