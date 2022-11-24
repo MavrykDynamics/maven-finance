@@ -814,11 +814,11 @@ kube-prometheus-stack:
         enabled: true
         defaultDatasourceEnabled: true
 
-        uid: prometheus
+        uid: thanos
 
         ## URL of prometheus datasource
         ##
-        # url: http://prometheus-stack-prometheus:9090/
+        url: http://prod-thanos-query.thanos.svc.cluster.local:9090
 
         # If not defined, will use prometheus.prometheusSpec.scrapeInterval or its default
         # defaultDatasourceScrapeInterval: 15s
@@ -855,10 +855,11 @@ kube-prometheus-stack:
     ## Configure additional grafana datasources (passed through tpl)
     ## ref: http://docs.grafana.org/administration/provisioning/#datasources
     additionalDataSources:
-      - name: Thanos
-        type: prometheus
-        url: http://prod-thanos-query.thanos.svc.cluster.local:9090
-        access: proxy
+      []
+      # - name: Thanos
+      #   type: prometheus
+      #   url: http://prod-thanos-query.thanos.svc.cluster.local:9090
+      #   access: proxy
     # - name: prometheus-sample
     #   access: proxy
     #   basicAuth: true
