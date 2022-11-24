@@ -9,31 +9,31 @@ import { getSeparateCamelCase } from '../../../utils/parse'
 import { CouncilPastActionStyled } from './CouncilPastAction.style'
 
 type Props = {
-  execution_datetime: string
-  action_type: string
-  signers_count: number
-  num_council_members: number
-  council_id: string
+  executionDatetime: string
+  actionType: string
+  signersCount: number
+  numCouncilMembers: number
+  councilId: string
 }
 
 export const CouncilPastActionView = (props: Props) => {
-  const { execution_datetime, action_type, signers_count, num_council_members, council_id } = props
-  const isMoreThanHalf = num_council_members / 2 < signers_count
+  const { executionDatetime, actionType, signersCount, numCouncilMembers, councilId } = props
+  const isMoreThanHalf = numCouncilMembers / 2 < signersCount
 
   return (
     <CouncilPastActionStyled>
       <div>
         <p>Date</p>
-        <h4>{parseDate({ time: execution_datetime, timeFormat: 'MMM Do, YYYY' })}</h4>
+        <h4>{parseDate({ time: executionDatetime, timeFormat: 'MMM Do, YYYY' })}</h4>
       </div>
       <div>
         <p>Purpose</p>
-        <h4>{getSeparateCamelCase(action_type)}</h4>
+        <h4>{getSeparateCamelCase(actionType)}</h4>
       </div>
       <div>
         <p>Multisig Approval</p>
         <h4 className={`${isMoreThanHalf ? 'is-green' : 'is-red'}`}>
-          {signers_count}/{num_council_members}
+          {signersCount}/{numCouncilMembers}
         </h4>
       </div>
       <figure>
@@ -42,7 +42,7 @@ export const CouncilPastActionView = (props: Props) => {
           target="_blank"
           href={`https://${
             process.env.NODE_ENV === 'development' ? process.env.REACT_APP_NETWORK + '.' : ''
-          }tzkt.io/${council_id}/operations/`}
+          }tzkt.io/${councilId}/operations/`}
           rel="noreferrer"
         >
           <Icon id="send" />

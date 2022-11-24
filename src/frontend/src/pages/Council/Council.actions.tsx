@@ -57,9 +57,11 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch) 
       COUNCIL_PAST_ACTIONS_VARIABLE,
     )
 
+    const councilPastActions = normalizeCouncilActions(storage)
+
     dispatch({
       type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
-      councilPastActions: storage.council_action,
+      councilPastActions,
     })
   } catch (error) {
     if (error instanceof Error) {

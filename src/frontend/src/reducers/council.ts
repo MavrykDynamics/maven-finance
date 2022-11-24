@@ -3,26 +3,11 @@ import { CouncilStorage, CouncilActions } from '../utils/TypesAndInterfaces/Coun
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { GET_COUNCIL_PAST_ACTIONS_STORAGE, GET_COUNCIL_PENDING_ACTIONS_STORAGE } from '../pages/Council/Council.actions'
 
-export interface CouncilPastAction {
-  council_id: string
-  executed: boolean
-  execution_datetime: string
-  execution_level: number
-  expiration_datetime: string
-  id: number
-  initiator_id: string
-  signers_count: number
-  start_datetime: string
-  status: number
-  action_type: string
-  parameters: Record<string, string>[]
-}
-
 export interface CouncilState {
   councilStorage: CouncilStorage
   councilPendingActions: CouncilActions
   councilMyPendingActions: CouncilActions
-  councilPastActions: CouncilPastAction[]
+  councilPastActions: CouncilActions
 }
 
 const defaultCouncilStorage: CouncilStorage = {

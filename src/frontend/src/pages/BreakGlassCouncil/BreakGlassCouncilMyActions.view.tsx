@@ -11,16 +11,14 @@ import { TabSwitcher } from './BreakGlassCouncil.style'
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
 import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
-import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
 // helpers
 import { BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 type Props = {
   myPastBreakGlassCouncilAction: BreakGlassAction
-  breakGlassCouncilMemberLength: number
   myPastBreakGlassCouncilActionLength: number
-  breakGlassActionPendingMySignature: BreakGlassAction | CouncilActions
+  breakGlassActionPendingMySignature: BreakGlassAction
   breakGlassActionPendingMySignatureLength: number
   numCouncilMembers: number
   activeActionTab: string
@@ -31,7 +29,6 @@ type Props = {
 
 export function BreakGlassCouncilMyActions({
   myPastBreakGlassCouncilAction,
-  breakGlassCouncilMemberLength,
   myPastBreakGlassCouncilActionLength,
   breakGlassActionPendingMySignature,
   breakGlassActionPendingMySignatureLength,
@@ -51,12 +48,12 @@ export function BreakGlassCouncilMyActions({
         <>
           {myPastBreakGlassCouncilAction.map((item) => (
             <CouncilPastActionView
-              execution_datetime={String(item.executionDatetime)}
+              executionDatetime={String(item.executionDatetime)}
               key={item.id}
-              action_type={item.actionType}
-              signers_count={item.signersCount}
-              num_council_members={breakGlassCouncilMemberLength}
-              council_id={item.breakGlassId}
+              actionType={item.actionType}
+              signersCount={item.signersCount}
+              numCouncilMembers={numCouncilMembers}
+              councilId={item.breakGlassId}
             />
           ))}
 
