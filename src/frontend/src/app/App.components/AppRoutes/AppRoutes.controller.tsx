@@ -11,6 +11,7 @@ import Satellites from 'pages/Satellites/Satellites.controller'
 import UserDetails from 'pages/UsersOracles/details/UsersDetails.controler'
 import Users from 'pages/UsersOracles/Users.controller'
 
+// pages
 import { Admin } from '../../../pages/Admin/Admin.controller'
 import { BecomeSatellite } from '../../../pages/BecomeSatellite/BecomeSatellite.controller'
 import { BreakGlass } from '../../../pages/BreakGlass/BreakGlass.controller'
@@ -27,14 +28,16 @@ import { SatelliteDetails } from '../../../pages/SatelliteDetails/SatelliteDetai
 import { SatelliteGovernance } from '../../../pages/SatelliteGovernance/SatelliteGovernance.controller'
 import { Treasury } from '../../../pages/Treasury/Treasury.controller'
 import { Vaults } from '../../../pages/Vaults/Vaults.controller'
+
 import { scrollUpPage } from 'utils/scrollUpPage'
-// pages
 import ProtectedRoute from './ProtectedRoute'
+import DashboardPersonal from 'pages/DashboardPersonal/DashboardPersonal.controller'
 
 export const AppRoutes = () => {
   const { pathname } = useLocation()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { activeSatellites } = useSelector((state: State) => state.delegation.delegationStorage)
+  const { isSatellite } = useSelector((state: State) => state.user)
+
   // get origin pathname
   const [, path] = pathname.split('/')
 
@@ -51,9 +54,13 @@ export const AppRoutes = () => {
       <Route exact path="/dashboard/:tabId">
         <Dashboard />
       </Route>
-      <Route exact path="/dashboard-personal">
-        <Dashboard />
-      </Route>
+      <ProtectedRoute
+        path="/dashboard-personal"
+        component={DashboardPersonal}
+        hasAccess={Boolean(accountPkh)}
+        isAuthorized={Boolean(accountPkh)}
+        redirectPath={'/dashboard'}
+      />
       <Route exact path="/your-vesting">
         <Dashboard />
       </Route>
@@ -105,10 +112,9 @@ export const AppRoutes = () => {
       <ProtectedRoute
         path="/submit-proposal"
         component={ProposalSubmission}
-        accountPkh={accountPkh}
-        arrayToFilterThrough={activeSatellites}
-        authenticationPath={'/'}
-        redirectPath={'/submit-proposal'}
+        isAuthorized={Boolean(accountPkh)}
+        hasAccess={isSatellite}
+        redirectPath={'/'}
       />
       <Route exact path="/treasury">
         <Treasury />

@@ -8,29 +8,28 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: `dashboard/${LENDING_TAB_ID}`,
     routePath: '/dashboard/:tabId',
     icon: 'menu-compass',
-    protectedRoute: false,
+
     subPages: [
       {
         id: 57483,
         subTitle: 'Overview',
         subPath: `dashboard/${LENDING_TAB_ID}`,
         routeSubPath: '/dashboard/:tabId',
-        protectedRoute: false,
       },
       {
         id: 84425,
         subTitle: 'Personal',
         subPath: 'dashboard-personal',
         routeSubPath: '/dashboard-personal',
-        protectedRoute: false,
-        disabled: true,
+        requires: {
+          isAuth: true,
+        },
       },
       {
         id: 59526,
         subTitle: 'Vestee Info',
         subPath: 'your-vesting',
         routeSubPath: '/your-vesting',
-        protectedRoute: true,
         disabled: true,
         requires: {
           isVestee: true,
@@ -44,7 +43,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: 'loans',
     routePath: '/loans',
     icon: 'coin-loan',
-    protectedRoute: false,
     disabled: true,
     subPages: [
       {
@@ -52,7 +50,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Overview',
         subPath: `loans`,
         routeSubPath: '/loans',
-        protectedRoute: false,
         disabled: true,
       },
       {
@@ -60,7 +57,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Borrow',
         subPath: 'borrow',
         routeSubPath: '/borrow',
-        protectedRoute: false,
         disabled: true,
       },
       {
@@ -68,7 +64,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Lend',
         subPath: 'lend',
         routeSubPath: '/lend',
-        protectedRoute: false,
         disabled: true,
       },
       {
@@ -76,7 +71,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Personal History',
         subPath: 'personal-loans-history',
         routeSubPath: '/personal-loans-history',
-        protectedRoute: true,
         disabled: true,
       },
     ],
@@ -87,7 +81,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: 'vaults',
     routePath: '/vaults',
     icon: 'vaults',
-    protectedRoute: false,
     disabled: true,
   },
   {
@@ -96,7 +89,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: '',
     routePath: '/',
     icon: 'menu-staking',
-    protectedRoute: false,
   },
   {
     title: 'Satellites',
@@ -104,22 +96,19 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: 'satellites',
     routePath: '/satellites',
     icon: 'satellite',
-    protectedRoute: false,
     subPages: [
-      { id: 57281, subTitle: 'Overview', subPath: 'satellites', routeSubPath: '/satellites', protectedRoute: false },
+      { id: 57281, subTitle: 'Overview', subPath: 'satellites', routeSubPath: '/satellites' },
       {
         id: 57477,
         subTitle: 'Satellite Nodes',
         subPath: 'satellite-nodes',
         routeSubPath: ['/satellite-nodes', '/satellites/satellite-details/:tabId'],
-        protectedRoute: false,
       },
       {
         id: 55622,
         subTitle: 'Become a Satellite',
         subPath: 'become-satellite',
         routeSubPath: '/become-satellite',
-        protectedRoute: true,
         requires: {
           isNotSatellite: true,
         },
@@ -129,7 +118,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Edit Profile',
         subPath: 'become-satellite',
         routeSubPath: '/become-satellite',
-        protectedRoute: true,
         requires: {
           isSatellite: true,
         },
@@ -139,7 +127,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Edit My Profile',
         subPath: 'become-satellite',
         routeSubPath: '/become-satellite',
-        protectedRoute: true,
         requires: {
           isUnregisteredSatellite: true,
         },
@@ -149,14 +136,12 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Data Feeds',
         subPath: 'data-feeds',
         routeSubPath: ['/data-feeds', '/satellites/feed-details/:tabId'],
-        protectedRoute: false,
       },
       {
         id: 15757,
         subTitle: 'Users',
         subPath: 'oracle-users',
         routeSubPath: ['/oracle-users', '/satellites/user-details/:tabId'],
-        protectedRoute: false,
       },
     ],
   },
@@ -166,7 +151,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: 'yield-farms?isLive=1',
     routePath: '/yield-farms',
     icon: 'plant',
-    protectedRoute: false,
   },
   {
     title: 'Governance',
@@ -174,50 +158,44 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: 'governance',
     routePath: '/governance',
     icon: 'hammer',
-    protectedRoute: false,
+
     subPages: [
-      { id: 56179, subTitle: 'Proposals', subPath: 'governance', routeSubPath: '/governance', protectedRoute: false },
+      { id: 56179, subTitle: 'Proposals', subPath: 'governance', routeSubPath: '/governance' },
       {
         id: 31471,
         subTitle: 'Proposal History',
         subPath: 'proposal-history',
         routeSubPath: '/proposal-history',
-        protectedRoute: false,
       },
       {
         id: 47294,
         subTitle: 'Satellite Gov.',
         subPath: 'satellite-governance',
         routeSubPath: '/satellite-governance',
-        protectedRoute: true,
       },
       {
         id: 79754,
         subTitle: 'Mavryk Council',
         subPath: 'mavryk-council',
         routeSubPath: ['/mavryk-council', '/mavryk-council/review'],
-        protectedRoute: false,
       },
       {
         id: 38374,
         subTitle: 'Break Glass Council',
         subPath: 'break-glass-council',
         routeSubPath: ['/break-glass-council', '/break-glass-council/review'],
-        protectedRoute: true,
       },
       {
         id: 561812,
         subTitle: 'Financial Requests',
         subPath: 'financial-requests',
         routeSubPath: '/financial-requests',
-        protectedRoute: false,
       },
       {
         id: 59416,
         subTitle: 'Submit Proposal',
         subPath: 'submit-proposal',
         routeSubPath: '/submit-proposal',
-        protectedRoute: true,
         requires: {
           isSatellite: true,
         },
@@ -227,7 +205,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Emergency Gov.',
         subPath: 'emergency-governance',
         routeSubPath: '/emergency-governance',
-        protectedRoute: true,
       },
 
       {
@@ -235,7 +212,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subTitle: 'Contract Status',
         subPath: 'contract-status',
         routeSubPath: '/contract-status',
-        protectedRoute: false,
       },
     ],
   },
@@ -246,7 +222,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: 'treasury',
     routePath: '/treasury',
     icon: 'treasury',
-    protectedRoute: false,
   },
   {
     title: 'Admin',
@@ -254,6 +229,5 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: 'admin',
     routePath: '/admin',
     icon: 'settings',
-    protectedRoute: false,
   },
 ]
