@@ -335,6 +335,10 @@ promtail:
           target_label: pod
         - action: replace
           source_labels:
+            - __meta_kubernetes_pod_ip
+          target_label: ip
+        - action: replace
+          source_labels:
             - __meta_kubernetes_pod_container_name
           target_label: container
         - action: replace
