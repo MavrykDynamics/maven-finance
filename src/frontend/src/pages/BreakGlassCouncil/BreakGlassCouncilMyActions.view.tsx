@@ -11,20 +11,20 @@ import { TabSwitcher } from './BreakGlassCouncil.style'
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
 import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
-
-// helpers
-import { BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
 type Props = {
-  myPastBreakGlassCouncilAction: BreakGlassAction
+  myPastBreakGlassCouncilAction: BreakGlassAction | CouncilActions
   myPastBreakGlassCouncilActionLength: number
-  breakGlassActionPendingMySignature: BreakGlassAction
+  breakGlassActionPendingMySignature: BreakGlassAction | CouncilActions
   breakGlassActionPendingMySignatureLength: number
   numCouncilMembers: number
   activeActionTab: string
   setActiveActionTab: (arg: string) => void
   tabsList: TabItem[]
   handleDropAction: (arg: number) => void
+  listNameMyPastActions: string
+  listNameMyOngoingActions: string
 }
 
 export function BreakGlassCouncilMyActions({
@@ -37,6 +37,8 @@ export function BreakGlassCouncilMyActions({
   setActiveActionTab,
   tabsList,
   handleDropAction,
+  listNameMyPastActions,
+  listNameMyOngoingActions,
 }: Props) {
     const handleChangeTabs = (tabId?: number) => {
     setActiveActionTab(tabId === 1 ? tabsList[0].text : tabsList[1].text)
@@ -53,13 +55,14 @@ export function BreakGlassCouncilMyActions({
               actionType={item.actionType}
               signersCount={item.signersCount}
               numCouncilMembers={numCouncilMembers}
-              councilId={item.breakGlassId}
+              // @ts-ignore TODO: handle string
+              councilId={item?.breakGlassId || item?.councilId}
             />
           ))}
 
           <Pagination
             itemsCount={myPastBreakGlassCouncilActionLength}
-            listName={BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME}
+            listName={listNameMyPastActions}
           />
         </>
       )}
@@ -77,7 +80,7 @@ export function BreakGlassCouncilMyActions({
 
           <Pagination
             itemsCount={breakGlassActionPendingMySignatureLength}
-            listName={BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME}
+            listName={listNameMyOngoingActions}
           />
         </>
       )}

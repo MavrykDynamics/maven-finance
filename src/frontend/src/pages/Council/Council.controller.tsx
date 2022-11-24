@@ -7,7 +7,7 @@ import { useParams } from 'react-router'
 // actions, consts
 import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage, getCouncilStorage, dropRequest } from './Council.actions'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { calculateSlicePositions, COUNCIL_LIST_NAME, COUNCIL_MY_PAST_ACTIONS_LIST_NAME, COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { memberIsFirstOfList } from './Council.helpers'
 import { scrollUpPage } from 'utils/scrollUpPage'
 import { councilTabsList } from 'pages/BreakGlassCouncil/BreakGlassCouncil.controller'
@@ -37,6 +37,7 @@ import { CouncilFormSetBaker } from './CouncilForms/CouncilFormSetBaker.view'
 import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContractBaker.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
+import { BreakGlassCouncilMyActions } from 'pages/BreakGlassCouncil/BreakGlassCouncilMyActions.view'
 
 // styles
 import { Page } from 'styles'
@@ -53,7 +54,7 @@ export const Council = () => {
   const history = useHistory()
   const { search, pathname } = useLocation()
 
-  const { councilStorage, councilPastActions, councilPendingActions, councilMyPendingActions } = useSelector((state: State) => state.council)
+  const { councilStorage, councilPastActions, councilMyPastActions, councilPendingActions, councilMyPendingActions } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
@@ -68,14 +69,6 @@ export const Council = () => {
   const isUserInCouncilMembers = Boolean(councilMembers.find((item) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
   const { review: isReviewPage } = useParams<{ review: string }>()
-
-  const currentCouncilPastActions = useMemo(
-    () =>
-      !isReviewPage
-        ? councilPastActions?.filter((item) => item.initiatorId === accountPkh)
-        : councilPastActions,
-    [councilPastActions, accountPkh, isReviewPage],
-  )
 
   const itemsForDropDown = [
     { text: 'Add Vestee', value: 'addVestee' },
@@ -138,12 +131,29 @@ export const Council = () => {
     setIsUpdateCouncilMemberInfo(true)
   }
 
-  const currentPage = getPageNumber(search, COUNCIL_LIST_NAME)
+  const currentPage = getPageNumber(
+    search,
+    isReviewPage 
+      ? COUNCIL_LIST_NAME 
+      : councilTabsList[0].text === activeActionTab
+        ? COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME
+        : COUNCIL_MY_PAST_ACTIONS_LIST_NAME,
+  )
 
-  const paginatedItemsList = useMemo(() => {
+  const paginatedCouncilPastActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, COUNCIL_LIST_NAME)
-    return currentCouncilPastActions?.slice(from, to)
-  }, [currentPage, currentCouncilPastActions])
+    return councilPastActions?.slice(from, to)
+  }, [currentPage, councilPastActions])
+
+  const paginatedCouncilMyPastActions = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, COUNCIL_MY_PAST_ACTIONS_LIST_NAME)
+    return councilMyPastActions?.slice(from, to)
+  }, [currentPage, councilMyPastActions])
+
+  const paginatedCouncilMyPendingActions = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME)
+    return councilMyPendingActions?.slice(from, to)
+  }, [currentPage, councilMyPendingActions])
 
   useEffect(() => {
     // redirect to review or main page when member changes
@@ -238,12 +248,13 @@ export const Council = () => {
               </DropdownCard>
             ) : null}
 
-            {currentCouncilPastActions?.length ? (
+           
+            {isReviewPage && councilPastActions?.length && (
               <>
                 <h1 className={`past-actions ${!isReviewPage ? 'is-user-member' : ''}`}>
-                  {!isReviewPage ? 'My ' : null}Past Council Actions
+                  Past Council Actions
                 </h1>
-                {paginatedItemsList.map((item) => (
+                {paginatedCouncilPastActions.map((item) => (
                   <CouncilPastActionView
                     executionDatetime={String(item.executionDatetime)}
                     key={item.id}
@@ -253,9 +264,24 @@ export const Council = () => {
                     councilId={item.councilId}
                   />
                 ))}
-                <Pagination itemsCount={currentCouncilPastActions.length} listName={COUNCIL_LIST_NAME} />
+                <Pagination itemsCount={councilPastActions.length} listName={COUNCIL_LIST_NAME} />
               </>
-            ) : null}
+            )}
+
+            {!isReviewPage && 
+              <BreakGlassCouncilMyActions
+                myPastBreakGlassCouncilAction={paginatedCouncilMyPastActions}
+                myPastBreakGlassCouncilActionLength={councilMyPastActions.length}
+                breakGlassActionPendingMySignature={paginatedCouncilMyPendingActions}
+                breakGlassActionPendingMySignatureLength={councilMyPendingActions.length}
+                numCouncilMembers={councilMembers.length}
+                activeActionTab={activeActionTab}
+                setActiveActionTab={setActiveActionTab}
+                tabsList={councilTabsList}
+                handleDropAction={handleDropAction}
+                listNameMyPastActions={COUNCIL_MY_PAST_ACTIONS_LIST_NAME}
+                listNameMyOngoingActions={COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME}
+              />}
           </div>
 
           <aside
