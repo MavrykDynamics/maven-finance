@@ -29,6 +29,8 @@
 #include "../partials/contractTypes/treasuryFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
+// Factory Create Model (Treasury) Type
+// ------------------------------------------------------------------------------
 
 type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorageType) -> (operation * address)
 const createTreasuryFunc: createTreasuryFuncType =
@@ -38,6 +40,8 @@ const createTreasuryFunc: createTreasuryFuncType =
         ;
           PAIR } |}
 : createTreasuryFuncType)];
+
+// ------------------------------------------------------------------------------
 
 type treasuryFactoryAction is
 

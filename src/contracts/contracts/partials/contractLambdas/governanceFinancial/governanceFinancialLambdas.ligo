@@ -207,18 +207,20 @@ block {
 
     case governanceFinancialLambdaAction of [
         |   LambdaRequestTokens(requestTokensParams) -> 
-                s   := createGovernanceFinancialRequest(
-                    "TRANSFER",
-                    requestTokensParams.treasuryAddress,
-                    requestTokensParams.tokenContractAddress,
-                    requestTokensParams.tokenAmount,
-                    requestTokensParams.tokenName,
-                    requestTokensParams.tokenType,
-                    requestTokensParams.tokenId,
-                    (None : option(key_hash)),
-                    requestTokensParams.purpose,
-                    s
+                
+                s := createGovernanceFinancialRequest(
+                    "TRANSFER",                                 // requestType
+                    requestTokensParams.treasuryAddress,        // treasuryAddress
+                    requestTokensParams.tokenContractAddress,   // tokenContractAddress
+                    requestTokensParams.tokenAmount,            // tokenAmount
+                    requestTokensParams.tokenName,              // tokenName
+                    requestTokensParams.tokenType,              // tokenType
+                    requestTokensParams.tokenId,                // tokenId
+                    (None : option(key_hash)),                  // keyHash
+                    requestTokensParams.purpose,                // purpose
+                    s                                           // storage
                 )
+
         |   _ -> skip
     ];
 
@@ -246,18 +248,20 @@ block {
 
     case governanceFinancialLambdaAction of [
         |   LambdaRequestMint(requestMintParams) -> 
-                s   := createGovernanceFinancialRequest(
-                    "MINT",
-                    requestMintParams.treasuryAddress,
-                    s.mvkTokenAddress,
-                    requestMintParams.tokenAmount,
-                    "MVK",
-                    "FA2",
-                    0n,
-                    (None : option(key_hash)),
-                    requestMintParams.purpose,
-                    s
+                
+                s := createGovernanceFinancialRequest(
+                    "MINT",                                 // requestType
+                    requestMintParams.treasuryAddress,      // treasuryAddress
+                    s.mvkTokenAddress,                      // tokenContractAddress
+                    requestMintParams.tokenAmount,          // tokenAmount
+                    "MVK",                                  // tokenName
+                    "FA2",                                  // tokenType
+                    0n,                                     // tokenId
+                    (None : option(key_hash)),              // keyHash
+                    requestMintParams.purpose,              // purpose
+                    s                                       // storage
                 )
+
         |   _ -> skip
     ];
 
@@ -285,18 +289,20 @@ block {
 
     case governanceFinancialLambdaAction of [
         |   LambdaSetContractBaker(setContractBakerParams) -> 
-                s   := createGovernanceFinancialRequest(
-                    "SET_CONTRACT_BAKER",
-                    setContractBakerParams.targetContractAddress,
-                    s.mvkTokenAddress,
-                    0n,
-                    "NIL",
-                    "NIL",
-                    0n,
-                    setContractBakerParams.keyHash,
-                    "Set Contract Baker",
-                    s
+                
+                s := createGovernanceFinancialRequest(
+                    "SET_CONTRACT_BAKER",                           // requestType
+                    setContractBakerParams.targetContractAddress,   // treasury address
+                    s.mvkTokenAddress,                              // tokenContractAddress
+                    0n,                                             // tokenAmount
+                    "NIL",                                          // tokenName
+                    "NIL",                                          // tokenType
+                    0n,                                             // tokenId
+                    setContractBakerParams.keyHash,                 // keyHash
+                    "Set Contract Baker",                           // purpose  
+                    s                                               // storage
                 )
+
         |   _ -> skip
     ];
 
@@ -321,22 +327,19 @@ block {
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
     case governanceFinancialLambdaAction of [
-        |   LambdaDropFinancialRequest(requestId) -> {
+        |   LambdaDropFinancialRequest(financialRequestId) -> {
                 
-                // Check if financial request exists
-                var financialRequest : financialRequestRecordType := case s.financialRequestLedger[requestId] of [
-                        Some(_request) -> _request
-                    |   None           -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
-                ];
+                // Get financial request
+                var financialRequestRecord : financialRequestRecordType := getFinancialRequest(financialRequestId, s);
 
-                // Check if satellite can interact with the request
-                checkRequestInteraction(financialRequest);
+                // Validate Financial Request (not dropped, executed, or expired)
+                validateFinancialRequest(financialRequestRecord);
 
                 // Drop financial request (set status to false)
-                financialRequest.status := False;
+                financialRequestRecord.status := False;
 
                 // Update storage 
-                s.financialRequestLedger[requestId] := financialRequest;
+                s.financialRequestLedger[financialRequestId] := financialRequestRecord;
 
             }
         |   _ -> skip
@@ -380,16 +383,14 @@ block {
                 checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
 
                 // init financial request id
-                const financialRequestId : nat = voteForRequest.requestId;
+                const financialRequestId    : nat       = voteForRequest.requestId;
+                const newVote               : voteType  = voteForRequest.vote;
 
                 // Get financial request record if financial request exists
-                var _financialRequest : financialRequestRecordType := case s.financialRequestLedger[financialRequestId] of [
-                        Some(_request) -> _request
-                    |   None           -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
-                ];
+                var financialRequestRecord : financialRequestRecordType := getFinancialRequest(financialRequestId, s);
 
-                // Check if satellite can interact with the request
-                checkRequestInteraction(_financialRequest);
+                // Validate Financial Request (not dropped, executed, or expired)
+                validateFinancialRequest(financialRequestRecord);
 
                 // ------------------------------------------------------------------
                 // Get snapshot of satellite voting power
@@ -400,86 +401,32 @@ block {
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to
-                operations                                                          := totalVotingPowerAndSatelliteUpdate.1;
+                operations := totalVotingPowerAndSatelliteUpdate.1;
 
                 // ------------------------------------------------------------------
                 // Compute vote
                 // ------------------------------------------------------------------
 
-                // Save and update satellite's vote record
-                const voteType          : voteType   = voteForRequest.vote;
+                // Remove previous vote if satellite has already voted
+                financialRequestRecord := removePreviousVote(financialRequestRecord, financialRequestId, totalVotingPower, s);                
 
-                // Remove previous vote if user already voted
-                case s.financialRequestVoters[(financialRequestId, Tezos.get_sender())] of [
-                    
-                        Some (_voteType) -> case _voteType of [
+                // Compute financial request new vote totals 
+                financialRequestRecord := computeNewVote(financialRequestRecord, newVote, totalVotingPower);
 
-                                Yay(_v)   ->    if totalVotingPower > _financialRequest.yayVoteStakedMvkTotal 
-                                                then failwith(error_CALCULATION_ERROR) 
-                                                else _financialRequest.yayVoteStakedMvkTotal := abs(_financialRequest.yayVoteStakedMvkTotal - totalVotingPower)
+                // Execute financial request if sufficient yay votes gathered (i.e. total yay votes exceed staked MVK required for approval)
+                if sufficientYayVotesGathered(financialRequestRecord) then block {
 
-                            |   Nay(_v)   ->    if totalVotingPower > _financialRequest.nayVoteStakedMvkTotal 
-                                                then failwith(error_CALCULATION_ERROR) 
-                                                else _financialRequest.nayVoteStakedMvkTotal := abs(_financialRequest.nayVoteStakedMvkTotal - totalVotingPower)
+                    // Execute financial request, and set executed boolean to true
+                    operations := executeFinancialRequest(financialRequestRecord, operations, s);
+                    financialRequestRecord.executed := True;
 
-                            |   Pass(_v)  ->    if totalVotingPower > _financialRequest.passVoteStakedMvkTotal 
-                                                then failwith(error_CALCULATION_ERROR) 
-                                                else _financialRequest.passVoteStakedMvkTotal := abs(_financialRequest.passVoteStakedMvkTotal - totalVotingPower)                    
-                        ]
+                } else skip;
 
-                    |   None -> skip
-
-                ];
-
-                // Update financial request map of voters with new vote
-                s.financialRequestVoters[(financialRequestId, Tezos.get_sender())] := voteType;
-
-                // Save voter in the storage
-                _financialRequest.voters := Set.add(Tezos.get_sender(), _financialRequest.voters);
-
-                // Compute financial request vote totals and execute financial request if enough votes have been gathered
-                case voteType of [
-
-                    Yay(_v) -> block {
-
-                        // Compute new YAY vote total
-                        const newYayVoteStakedMvkTotal : nat = _financialRequest.yayVoteStakedMvkTotal + totalVotingPower;
-
-                        // Update financial request with new vote total
-                        _financialRequest.yayVoteStakedMvkTotal         := newYayVoteStakedMvkTotal;
-                        s.financialRequestLedger[financialRequestId]    := _financialRequest;
-
-                        // Execute financial request if total yay votes exceed staked MVK required for approval
-                        if newYayVoteStakedMvkTotal > _financialRequest.stakedMvkRequiredForApproval then block {
-                            const executeGovernanceFinancialActionReturn : return   = executeGovernanceFinancialRequest(_financialRequest, financialRequestId, operations, s);
-                            s           := executeGovernanceFinancialActionReturn.1;
-                            operations  := executeGovernanceFinancialActionReturn.0;
-                        } else skip
-
-                    }
-
-                |   Nay(_v) -> block {
-
-                        // Compute new NAY vote total
-                        const newNayVoteStakedMvkTotal : nat             = _financialRequest.nayVoteStakedMvkTotal + totalVotingPower;
-
-                        // Update financial request with new vote total
-                        _financialRequest.nayVoteStakedMvkTotal         := newNayVoteStakedMvkTotal;
-                        s.financialRequestLedger[financialRequestId]    := _financialRequest;
-
-                    }
-
-                |   Pass(_v) -> block {
-
-                        // Compute new PASS vote total
-                        const newPassVoteStakedMvkTotal : nat            = _financialRequest.passVoteStakedMvkTotal + totalVotingPower;
-
-                        // Update financial request with new vote total
-                        _financialRequest.passVoteStakedMvkTotal        := newPassVoteStakedMvkTotal;
-                        s.financialRequestLedger[financialRequestId]    := _financialRequest;
-
-                    }
-                ];
+                // Update storage
+                s.financialRequestLedger[financialRequestId] := financialRequestRecord;
+                
+                // Save financial request map of voters with new vote
+                s.financialRequestVoters[ (financialRequestId, Tezos.get_sender()) ] := newVote;
 
             }
         |   _ -> skip

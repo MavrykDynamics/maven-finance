@@ -26,6 +26,8 @@
 #include "../partials/contractTypes/farmFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
+// Factory Create Model (Farm) Type
+// ------------------------------------------------------------------------------
 
 type createFarmFuncType is (option(key_hash) * tez * farmStorageType) -> (operation * address)
 const createFarmFunc: createFarmFuncType =
@@ -35,6 +37,8 @@ const createFarmFunc: createFarmFuncType =
         ;
           PAIR } |}
 : createFarmFuncType)];
+
+// ------------------------------------------------------------------------------
 
 type farmFactoryAction is
 
@@ -67,8 +71,6 @@ const noOperations: list (operation) = nil;
 
 // farm factory contract methods lambdas
 type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmFactoryStorageType) -> return
-
-
 
 
 // ------------------------------------------------------------------------------

@@ -5,13 +5,13 @@
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var s : farmStorageType) : address is
+[@view] function getAdmin(const _ : unit; const s : farmStorageType) : address is
     s.admin
 
 
 
 (* View: get name variable *)
-[@view] function getName(const _ : unit; var s : farmStorageType) : string is
+[@view] function getName(const _ : unit; const s : farmStorageType) : string is
     s.name
 
 
@@ -89,13 +89,13 @@
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : farmStorageType) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; const s : farmStorageType) : option(bytes) is
     Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; var s : farmStorageType) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _ : unit; const s : farmStorageType) : lambdaLedgerType is
     s.lambdaLedger
 
 // ------------------------------------------------------------------------------
