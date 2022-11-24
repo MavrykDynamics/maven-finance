@@ -84,8 +84,9 @@ export function BreakGlassCouncil() {
   const {
     breakGlassStorage,
     breakGlassCouncilMember,
-    breakGlassActionPendingMySignature,
+    breakGlassActionPendingAllSignature,
     breakGlassActionPendingSignature,
+    breakGlassActionPendingMySignature,
     pastBreakGlassCouncilAction,
     myPastBreakGlassCouncilAction,
     glassBroken,
@@ -156,10 +157,10 @@ export function BreakGlassCouncil() {
         : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
 
-  const paginatedBreakGlassActionPendingSignature = useMemo(() => {
-    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME)
-    return breakGlassActionPendingSignature?.slice(from, to)
-  }, [currentPage, breakGlassActionPendingSignature])
+  const paginatedBreakGlassActionPendingAllSignature = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME)
+    return breakGlassActionPendingAllSignature?.slice(from, to)
+  }, [currentPage, breakGlassActionPendingAllSignature])
 
   const paginatedBreakGlassActionPendingMySignature = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME)
@@ -260,7 +261,7 @@ export function BreakGlassCouncil() {
               {Boolean(pastBreakGlassCouncilAction.length) && (
                 <>
                   <h1>{isReviewPage ? 'Past Break Glass Council Actions' : 'Pending Signature Council Actions'}</h1>
-                  {(isReviewPage ? paginatedPastBreakGlassCouncilActions : paginatedBreakGlassActionPendingSignature).map((item) => (
+                  {(isReviewPage ? paginatedPastBreakGlassCouncilActions : paginatedBreakGlassActionPendingAllSignature).map((item) => (
                     <CouncilPastActionView
                       executionDatetime={String(item.executionDatetime)}
                       key={item.id}
@@ -272,7 +273,7 @@ export function BreakGlassCouncil() {
                   ))}
 
                   <Pagination
-                    itemsCount={isReviewPage ? pastBreakGlassCouncilAction.length : breakGlassActionPendingSignature.length}
+                    itemsCount={isReviewPage ? pastBreakGlassCouncilAction.length : breakGlassActionPendingAllSignature.length}
                     listName={BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME}
                   />
                 </>

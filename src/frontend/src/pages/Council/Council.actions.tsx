@@ -87,11 +87,13 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
       COUNCIL_PENDING_ACTIONS_VARIABLE({ _gte: timestamptz }),
     )
 
-    const councilMyPendingActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
+    const councilAllPendingActions = normalizeCouncilActions(storage)
     const councilPendingActions = normalizeCouncilActions(storage, { filterWithoutAddress: accountPkh })
+    const councilMyPendingActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
 
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
+      councilAllPendingActions,
       councilPendingActions,
       councilMyPendingActions,
     })
