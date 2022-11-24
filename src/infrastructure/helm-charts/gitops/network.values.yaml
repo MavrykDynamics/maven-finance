@@ -2,6 +2,9 @@ spec:
   environment: network
   clusterName: network
 
+basenet:
+  valueFiles: network.values.yaml
+
 certManager:
   valueFiles: network.values.yaml
 
