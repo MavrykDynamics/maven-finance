@@ -681,7 +681,8 @@ block {
                 var governanceSatelliteActionRecord : governanceSatelliteActionRecordType := getGovernanceSatelliteActionRecord(dropActionId, s);
 
                 // Verify that sender is the initiator of the governance satellite action
-                verifySenderIsInitiator(governanceSatelliteActionRecord.initiator);
+                const initiator : address = governanceSatelliteActionRecord.initiator;
+                verifySenderIsInitiator(initiator);
 
                 // Check if the action can still be interacted with
                 validateAction(governanceSatelliteActionRecord);
@@ -813,7 +814,7 @@ block {
 
                         // Execute governance satellite action if total yay votes exceed staked MVK required for approval
                         if newYayVoteStakedMvkTotal > _governanceSatelliteActionRecord.stakedMvkRequiredForApproval then block {
-                            const executeGovernanceSatelliteActionReturn : return   = executeGovernanceSatelliteAction(_governanceSatelliteActionRecord, actionId, delegationAddress, operations, s);
+                            const executeGovernanceSatelliteActionReturn : return   = executeGovernanceSatelliteAction(_governanceSatelliteActionRecord, actionId, operations, s);
                             s           := executeGovernanceSatelliteActionReturn.1;
                             operations  := executeGovernanceSatelliteActionReturn.0;
                         }

@@ -9,6 +9,9 @@
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
+// Constants
+#include "../partials/shared/constants.ligo"
+
 // Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
@@ -66,12 +69,6 @@ const noOperations : list (operation) = nil;
 // farm contract methods lambdas
 type farmUnpackLambdaFunctionType is (farmLambdaActionType * farmStorageType) -> return
 
-
-// ------------------------------------------------------------------------------
-// Constants 
-// ------------------------------------------------------------------------------
-
-const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 
 // ------------------------------------------------------------------------------
 // Helpers

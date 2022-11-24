@@ -616,10 +616,10 @@ block {
     const currentCycle : nat = getCurrentCycleCounter(s);
 
     // Check if satellite snapshot exists in the current governance cycle
-    const createSatelliteSnapshot : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
+    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
 
     // Create satellite snapshot if it does not exist in the current governance cycle
-    if createSatelliteSnapshot and Big_map.mem(satelliteAddress, s.satelliteLedger) then{
+    if createSatelliteSnapshotCheck and Big_map.mem(satelliteAddress, s.satelliteLedger) then{
 
         const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, ready, s);
         operations := updateSatelliteSnapshotOperation # operations;

@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var s : treasuryFactoryStorageType) : address is
+[@view] function getAdmin(const _ : unit; const s : treasuryFactoryStorageType) : address is
     s.admin
 
 
@@ -53,25 +53,25 @@
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName : string; var s : treasuryFactoryStorageType) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName : string; const s : treasuryFactoryStorageType) : option(bytes) is
     Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; var s : treasuryFactoryStorageType) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _ : unit; const s : treasuryFactoryStorageType) : lambdaLedgerType is
     s.lambdaLedger
 
 
 
 (* View: get a treasury lambda *)
-[@view] function getTreasuryLambdaOpt(const lambdaName : string; var s : treasuryFactoryStorageType) : option(bytes) is
+[@view] function getTreasuryLambdaOpt(const lambdaName : string; const s : treasuryFactoryStorageType) : option(bytes) is
     Map.find_opt(lambdaName, s.treasuryLambdaLedger)
 
 
 
 (* View: get the treasury lambda ledger *)
-[@view] function getTreasuryLambdaLedger(const _ : unit; var s : treasuryFactoryStorageType) : lambdaLedgerType is
+[@view] function getTreasuryLambdaLedger(const _ : unit; const s : treasuryFactoryStorageType) : lambdaLedgerType is
     s.treasuryLambdaLedger
 
 // ------------------------------------------------------------------------------

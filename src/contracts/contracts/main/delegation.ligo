@@ -9,6 +9,9 @@
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
+// Constants
+#include "../partials/shared/constants.ligo"
+
 // Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
@@ -76,13 +79,6 @@ type return is list (operation) * delegationStorageType
 // delegation contract methods lambdas
 type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegationStorageType) -> return
 
-
-
-// ------------------------------------------------------------------------------
-// Constants 
-// ------------------------------------------------------------------------------
-
-const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
 
 // ------------------------------------------------------------------------------
 // Helpers

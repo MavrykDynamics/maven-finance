@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var s : doormanStorageType) : address is
+[@view] function getAdmin(const _ : unit; const s : doormanStorageType) : address is
     s.admin
 
 
@@ -35,7 +35,7 @@
 
 
 (* View: get userStakeBalance *)
-[@view] function getUserStakeBalanceOpt(const userAddress : address; var s : doormanStorageType) : option(userStakeBalanceRecordType) is
+[@view] function getUserStakeBalanceOpt(const userAddress : address; const s : doormanStorageType) : option(userStakeBalanceRecordType) is
     Big_map.find_opt(userAddress, s.userStakeBalanceLedger)
 
 
@@ -53,7 +53,7 @@
 
 
 (* View: stakedBalance *)
-[@view] function getStakedBalance(const userAddress : address; var s : doormanStorageType) : nat is
+[@view] function getStakedBalance(const userAddress : address; const s : doormanStorageType) : nat is
     case s.userStakeBalanceLedger[userAddress] of [
             Some (_val) -> _val.balance
         |   None        -> 0n
@@ -62,13 +62,13 @@
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : doormanStorageType) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; const s : doormanStorageType) : option(bytes) is
     Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; var s : doormanStorageType) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _ : unit; const s : doormanStorageType) : lambdaLedgerType is
     s.lambdaLedger
 
 // ------------------------------------------------------------------------------
