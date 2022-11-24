@@ -1,5 +1,5 @@
 import React from "react";
-import { BreakGlassCouncilMyOngoingActionCard } from "./BreakGlassCouncilMyOngoingActionCard.view";
+import { CouncilOngoingAction } from "./CouncilOngoingAction.view";
 
 // components
 import { CouncilPastActionView } from 'pages/Council/CouncilPastAction/CouncilPastAction.view'
@@ -14,10 +14,10 @@ import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
 type Props = {
-  myPastBreakGlassCouncilAction: BreakGlassAction | CouncilActions
-  myPastBreakGlassCouncilActionLength: number
-  breakGlassActionPendingMySignature: BreakGlassAction | CouncilActions
-  breakGlassActionPendingMySignatureLength: number
+  myPastCouncilAction: BreakGlassAction | CouncilActions
+  myPastCouncilActionLength: number
+  actionPendingSignature: BreakGlassAction | CouncilActions
+  actionPendingSignatureLength: number
   numCouncilMembers: number
   activeActionTab: string
   setActiveActionTab: (arg: string) => void
@@ -27,11 +27,11 @@ type Props = {
   listNameMyOngoingActions: string
 }
 
-export function BreakGlassCouncilMyActions({
-  myPastBreakGlassCouncilAction,
-  myPastBreakGlassCouncilActionLength,
-  breakGlassActionPendingMySignature,
-  breakGlassActionPendingMySignatureLength,
+export function MyCouncilActions({
+  myPastCouncilAction,
+  myPastCouncilActionLength,
+  actionPendingSignature,
+  actionPendingSignatureLength,
   numCouncilMembers,
   activeActionTab,
   setActiveActionTab,
@@ -48,7 +48,7 @@ export function BreakGlassCouncilMyActions({
       <TabSwitcher tabItems={tabsList} onClick={handleChangeTabs} />
       {(activeActionTab === tabsList[1].text) && (
         <>
-          {myPastBreakGlassCouncilAction.map((item) => (
+          {myPastCouncilAction.map((item) => (
             <CouncilPastActionView
               executionDatetime={String(item.executionDatetime)}
               key={item.id}
@@ -61,7 +61,7 @@ export function BreakGlassCouncilMyActions({
           ))}
 
           <Pagination
-            itemsCount={myPastBreakGlassCouncilActionLength}
+            itemsCount={myPastCouncilActionLength}
             listName={listNameMyPastActions}
           />
         </>
@@ -69,8 +69,8 @@ export function BreakGlassCouncilMyActions({
 
       {(activeActionTab === tabsList[0].text) && (
         <>
-          {breakGlassActionPendingMySignature.map((item) => (
-            <BreakGlassCouncilMyOngoingActionCard
+          {actionPendingSignature.map((item) => (
+            <CouncilOngoingAction
               {...item}
               key={String(item.id)}
               numCouncilMembers={numCouncilMembers}
@@ -79,7 +79,7 @@ export function BreakGlassCouncilMyActions({
           ))}
 
           <Pagination
-            itemsCount={breakGlassActionPendingMySignatureLength}
+            itemsCount={actionPendingSignatureLength}
             listName={listNameMyOngoingActions}
           />
         </>

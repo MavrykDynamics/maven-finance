@@ -21,7 +21,7 @@ type Props = (BreakGlassAction[0] | CouncilActions[0]) & {
   handleDropAction: (arg: number) => void
 }
 
-export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
+export function CouncilOngoingAction(props: Props) {
   const { executionDatetime, actionType, signersCount, numCouncilMembers, id, parameters, handleDropAction } = props
   const [isOpen, setIsOpen] = useState(false)
 
