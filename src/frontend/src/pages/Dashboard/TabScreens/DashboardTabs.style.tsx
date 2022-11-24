@@ -32,10 +32,10 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
     }
 
     h1 {
-      color: ${({ theme }) => theme.dashboardTextColor};
+      color: ${({ theme }) => theme.textColor};
 
       &:after {
-        background-color: ${({ theme }) => theme.dashboardTextColor};
+        background-color: ${({ theme }) => theme.textColor};
       }
     }
   }
@@ -51,7 +51,7 @@ export const TabWrapperStyled = styled.div<{ theme: MavrykTheme; backgroundImage
       font-weight: 700;
       font-size: 18px;
       line-height: 18px;
-      color: ${({ theme }) => theme.dashboardTextColor};
+      color: ${({ theme }) => theme.textColor};
     }
 
     .text {
@@ -143,7 +143,7 @@ export const OraclesContentStyled = styled.div<{ theme: MavrykTheme }>`
     font-weight: 600;
     font-size: 18px;
     line-height: 18px;
-    color: ${({ theme }) => theme.dashboardTextColor};
+    color: ${({ theme }) => theme.textColor};
   }
 
   .feeds-grid {
@@ -212,7 +212,7 @@ export const TreasuryVesting = styled.div<{
     margin: 7px 0;
 
     .name {
-      color: ${({ theme }) => theme.dashboardTextColor};
+      color: ${({ theme }) => theme.textColor};
       font-weight: 600;
       font-size: 14px;
       line-height: 21px;
@@ -371,7 +371,7 @@ export const VaultsContentStyled = styled.div<{ theme: MavrykTheme }>`
         font-weight: 600;
         font-size: 14px;
         line-height: 16px;
-        color: ${({ theme }) => theme.dashboardTextColor};
+        color: ${({ theme }) => theme.textColor};
         margin: 0;
         margin-left: 8px;
         line-height: 30px;
@@ -447,7 +447,7 @@ export const FarmsContentStyled = styled.div<{ theme: MavrykTheme }>`
     .top {
       margin-bottom: 20px;
       .name {
-        color: ${({ theme }) => theme.dashboardTextColor};
+        color: ${({ theme }) => theme.textColor};
         font-weight: 500;
         font-size: 12px;
         line-height: 12px;
@@ -476,7 +476,7 @@ export const FarmsContentStyled = styled.div<{ theme: MavrykTheme }>`
       justify-content: space-between;
       margin: 3px 0;
       .name {
-        color: ${({ theme }) => theme.dashboardTextColor};
+        color: ${({ theme }) => theme.textColor};
         font-weight: 600;
         font-size: 14px;
         line-height: 21px;

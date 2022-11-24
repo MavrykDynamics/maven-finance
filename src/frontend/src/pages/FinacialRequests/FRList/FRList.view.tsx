@@ -10,9 +10,10 @@ import { calculateSlicePositions, PAGINATION_SIDE_RIGHT } from '../Pagination/pa
 import { FRListProps } from '../FinancialRequests.types'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { FRListWrapper } from './FRList.styles'
+import { PRECISION_NUMBER } from 'utils/constants'
 
-function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem, name }: FRListProps) {
-  const { pathname, search } = useLocation()
+function FRList({ listTitle, items, handleItemSelect, selectedItem, name }: FRListProps) {
+  const { search } = useLocation()
   const currentPage = getPageNumber(search, name)
 
   const paginatedItemsList = useMemo(() => {
@@ -29,9 +30,13 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
         const financialRequestTitle = `${item.request_type} ${item.request_purpose}`
         return (
           <FRSListItem
+            key={idx + financialRequestTitle}
             onClickHandler={() => handleItemSelect(item)}
             id={idx + 1}
             title={financialRequestTitle}
+            dividedPassVoteMvkTotal={
+              item.nay_vote_smvk_total / PRECISION_NUMBER + item.yay_vote_smvk_total / PRECISION_NUMBER
+            }
             status={getRequestStatus(item)}
             selected={selectedItem?.id === item.id}
           />

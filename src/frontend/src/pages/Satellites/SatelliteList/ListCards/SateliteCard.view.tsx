@@ -97,7 +97,14 @@ export const SatelliteListItem = ({
 
   const satelliteMetrics = React.useMemo(
     () =>
-      getSatelliteMetrics(pastProposals, proposalLedger, emergencyGovernanceLedger, satellite, financialRequestLedger),
+      getSatelliteMetrics(
+        pastProposals,
+        proposalLedger,
+        emergencyGovernanceLedger,
+        satellite,
+        feeds,
+        financialRequestLedger,
+      ),
     [satellite],
   )
 

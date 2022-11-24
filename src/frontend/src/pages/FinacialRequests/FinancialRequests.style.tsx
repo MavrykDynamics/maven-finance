@@ -6,11 +6,12 @@ import { GovRightContainerTitleArea as GovRightContainerTitleAreaBase } from 'pa
 
 export const FinancialRequestsStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
+  margin-top: 30px;
 `
 
 export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  width: calc(50% - 30px);
+  width: calc(50% - 25px);
   padding: 28px 30px;
   border-radius: 10px;
   height: min-content;
@@ -33,17 +34,17 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
   }
 
   .voting_ending {
-    margin-top: 10px;
+    margin-top: 5px;
     font-weight: 600;
-    font-size: 12px;
-    line-height: 12px;
-    color: ${cyanColor};
+    font-size: 14px;
+    color: ${({ theme }) => theme.dataColor};
   }
 
   .fr-voting {
     > div {
       justify-content: space-between;
       column-gap: 15px;
+      padding-top: 0px;
       button {
         width: 50%;
       }
@@ -70,7 +71,6 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
     .list {
       display: flex;
       flex-direction: column;
-      row-gap: 6px;
       margin-top: 6px;
       width: 100%;
 
@@ -90,33 +90,32 @@ export const InfoBlockTitle = styled.div<{ theme: MavrykTheme }>`
   font-weight: 600;
   font-size: 18px;
   line-height: 18px;
-  color: ${headerColor};
+  color: ${({ theme }) => theme.textColor};
 `
 
-export const InfoBlockDescr = styled.div<{ theme: MavrykTheme }>`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 21px;
-  color: ${skyColor};
-  margin-top: 5px;
-`
-
-export const InfoBlockListName = styled.div<{ fontColor: string; theme: MavrykTheme }>`
+export const InfoBlockName = styled.div<{ theme: MavrykTheme }>`
   font-weight: 500;
   font-size: 14px;
   line-height: 24px;
-  color: ${({ fontColor }) => fontColor};
+  margin-top: 5px;
+  color: ${({ theme }) => theme.textColor};
 `
 
-export const InfoBlockListValue = styled(InfoBlockListName)`
+export const InfoBlockValue = styled(InfoBlockName)`
   font-weight: 600;
   font-size: 16px;
-  line-height: 22px;
+  color: ${({ theme }) => theme.dataColor};
+
+  svg {
+    width: 22px;
+    height: 22px;
+    stroke: ${({ theme }) => theme.dataColor};
+  }
 `
 
 export const FinancialRequestsContainer = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
-  padding-top: 28px;
+  max-width: 540px;
 `
 
 export const VotingArea = styled(VotingAreaBase)`

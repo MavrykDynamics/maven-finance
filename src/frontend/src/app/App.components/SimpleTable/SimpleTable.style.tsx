@@ -13,7 +13,7 @@ export const SimpletableStyled = styled.div<{ theme: MavrykTheme }>`
     position: relative;
 
     > div {
-      color: ${({ theme }) => theme.dashboardTextColor};
+      color: ${({ theme }) => theme.textColor};
       font-weight: 600;
       flex: 1 1 0;
       width: 0;

@@ -233,14 +233,6 @@ export const GovRightContainerTitleArea = styled.div<{ theme: MavrykTheme }>`
       margin-bottom: 7px;
     }
   }
-
-  &.financial-request {
-    h1 {
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
-    }
-  }
 `
 
 export const RightSideVotingArea = styled.div<{ theme: MavrykTheme }>`

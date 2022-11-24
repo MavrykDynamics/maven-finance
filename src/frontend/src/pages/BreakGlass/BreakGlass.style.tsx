@@ -47,7 +47,8 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
     justify-content: space-between;
   }
 
-  .color-red, .color-green {
+  .color-red,
+  .color-green {
     font-weight: 600;
     font-size: 16px;
     line-height: 22px;
@@ -95,21 +96,21 @@ export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
   font-size: 14px;
   line-height: 24px;
 
-  color: ${({ theme }) => theme.dashboardTextColor};
+  color: ${({ theme }) => theme.textColor};
 
   p {
     margin: 0;
   }
 
   a {
-    color: ${({ theme }) => theme.navLinkTextActive}
+    color: ${({ theme }) => theme.navLinkTextActive};
   }
-  
+
   .line {
     margin: 0 auto;
     width: 44px;
     height: 3px;
-    background-color: ${({ theme }) => theme.dashboardTextColor};;
+    background-color: ${({ theme }) => theme.textColor};
     border-radius: 10px;
   }
 `
@@ -165,7 +166,7 @@ export const BGSecondaryTitle = styled(BGPrimaryTitle)`
   font-size: 16px;
   line-height: 22px;
 
-  &::after{
+  &::after {
     display: none;
   }
 `
