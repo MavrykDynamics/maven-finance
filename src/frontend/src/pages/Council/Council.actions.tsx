@@ -71,6 +71,7 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch) 
 export const GET_COUNCIL_PENDING_ACTIONS_STORAGE = 'GET_COUNCIL_PENDING_ACTIONS_STORAGE'
 export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatch, getState: GetState) => {
   const state: State = getState()
+  const { accountPkh } = state.wallet
 
   try {
     const storage = await fetchFromIndexerWithPromise(
@@ -79,11 +80,13 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
       COUNCIL_PENDING_ACTIONS_VARIABLE({ _gte: timestamptz }),
     )
 
-    const councilPendingActions = normalizeCouncilActions(storage)
+    const councilMyPendingActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
+    const councilPendingActions = normalizeCouncilActions(storage, { filterWithoutAddress: accountPkh })
 
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
       councilPendingActions,
+      councilMyPendingActions,
     })
   } catch (error) {
     if (error instanceof Error) {
