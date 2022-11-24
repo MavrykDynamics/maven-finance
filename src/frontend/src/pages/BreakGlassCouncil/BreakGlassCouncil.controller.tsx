@@ -21,7 +21,7 @@ import { MyCouncilActions } from '../Council/MyCouncilActions.view'
 // helpers
 import { ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
 import {
-  BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME,
+  BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME,
   BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME,
   calculateSlicePositions,
@@ -59,6 +59,7 @@ import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 const queryParameters = {
   pathname: '/break-glass-council',
   review: '/review',
+  pendingReview: '/pending-review',
 }
 
 export const councilTabsList: TabItem[] = [
@@ -109,11 +110,12 @@ export function BreakGlassCouncil() {
   const [activeActionTab, setActiveActionTab] = useState(councilTabsList[0].text)
 
   const sortedBreakGlassCouncilMembers = memberIsFirstOfList(breakGlassCouncilMember, accountPkh)
-  const { review: isReviewPage } = useParams<{ review: string }>()
+  const { review } = useParams<{ review: string }>()
+  const isReviewPage = review === 'review'
 
   const isUserInBreakCouncilMember = Boolean(breakGlassCouncilMember.find((item) => item.userId === accountPkh)?.id)
   const displayPendingSignature = Boolean(
-    !isReviewPage && isUserInBreakCouncilMember && breakGlassActionPendingSignature?.length,
+    !review && isUserInBreakCouncilMember && breakGlassActionPendingSignature?.length,
   )
 
   const councilMemberMaxLength = {
@@ -121,8 +123,8 @@ export function BreakGlassCouncil() {
     councilMemberWebsiteMaxLength: breakGlassStorage?.config?.councilMemberWebsiteMaxLength,
   }
 
-  const handleClickReview = () => {
-    history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+  const handleClickReview = (review: string) => {
+    history.replace(`${queryParameters.pathname}${review}`)
     setActiveActionTab((councilTabsList[0].text))
     scrollUpPage()
   }
@@ -147,12 +149,17 @@ export function BreakGlassCouncil() {
 
   const currentPage = getPageNumber(
     search,
-    isReviewPage 
-      ? BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME 
+    review 
+      ? BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME 
       : councilTabsList[0].text === activeActionTab
         ? BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME
         : BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME,
   )
+
+  const paginatedBreakGlassActionPendingSignature = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_PAST_COUNCIL_ACTIONS_LIST_NAME)
+    return breakGlassActionPendingSignature?.slice(from, to)
+  }, [currentPage, breakGlassActionPendingSignature])
 
   const paginatedBreakGlassActionPendingMySignature = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_MY_ONGOING_ACTIONS_LIST_NAME)
@@ -165,7 +172,7 @@ export function BreakGlassCouncil() {
   }, [currentPage, myPastBreakGlassCouncilAction])
 
   const paginatedPastBreakGlassCouncilActions = useMemo(() => {
-    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME)
+    const [from, to] = calculateSlicePositions(currentPage, BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME)
     return pastBreakGlassCouncilAction?.slice(from, to)
   }, [currentPage, pastBreakGlassCouncilAction])
 
@@ -205,14 +212,14 @@ export function BreakGlassCouncil() {
   return (
     <Page>
       <PageHeader page={'break glass council'} />
-      {isReviewPage && isUserInBreakCouncilMember && (
+      {review && isUserInBreakCouncilMember && (
         <GoBack onClick={handleClickGoBack}>
           <Icon id="arrow-left-stroke" />
           Back to Member Dashboard
         </GoBack>
       )}
 
-      {isUserInBreakCouncilMember && !isReviewPage && (
+      {isUserInBreakCouncilMember && !review && (
         <PropagateBreakGlassCouncilCard>
           <h1>Propagate Break Glass</h1>
 
@@ -248,12 +255,12 @@ export function BreakGlassCouncil() {
             </article>
           )}
 
-          {isReviewPage ? (
+          {review ? (
             <>
               {Boolean(pastBreakGlassCouncilAction.length) && (
                 <>
-                  <h1>Past Break Glass Council Actions</h1>
-                  {paginatedPastBreakGlassCouncilActions.map((item) => (
+                  <h1>{isReviewPage ? 'Past Break Glass Council Actions' : 'Pending Signature Council Actions'}</h1>
+                  {(isReviewPage ? paginatedPastBreakGlassCouncilActions : paginatedBreakGlassActionPendingSignature).map((item) => (
                     <CouncilPastActionView
                       executionDatetime={String(item.executionDatetime)}
                       key={item.id}
@@ -265,8 +272,8 @@ export function BreakGlassCouncil() {
                   ))}
 
                   <Pagination
-                    itemsCount={pastBreakGlassCouncilAction.length}
-                    listName={BREAK_GLASS_PAST_COUNCIL_ACTIONS_LIST_NAME}
+                    itemsCount={isReviewPage ? pastBreakGlassCouncilAction.length : breakGlassActionPendingSignature.length}
+                    listName={BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME}
                   />
                 </>
               )}
@@ -311,11 +318,10 @@ export function BreakGlassCouncil() {
         </div>
 
         <div className="right-block">
-          {!isReviewPage && (
+          {!review && (
             <ReviewPastCouncilActionsCard displayPendingSignature={displayPendingSignature}>
-              <h2>Review Past Council Actions</h2>
-
-              <Button text="Review" kind={ACTION_SECONDARY} onClick={handleClickReview} />
+              <Button text="Review Past Actions" kind={ACTION_SECONDARY} onClick={() => handleClickReview(queryParameters.review)} />
+              <Button text="Review Pending Actions" kind={ACTION_SECONDARY} onClick={() => handleClickReview(queryParameters.pendingReview)} />
             </ReviewPastCouncilActionsCard>
           )}
 

@@ -73,7 +73,7 @@ export const Council = () => {
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
   const { review } = useParams<{ review: string }>()
   const isReviewPage = review === 'review'
-  console.log({review, isReviewPage});
+
   const itemsForDropDown = [
     { text: 'Add Vestee', value: 'addVestee' },
     { text: 'Add Council Member', value: 'addCouncilMember' },

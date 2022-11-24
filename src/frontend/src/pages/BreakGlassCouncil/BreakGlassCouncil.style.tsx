@@ -76,18 +76,16 @@ export const ReviewPastCouncilActionsCard = styled(Card)<{
   displayPendingSignature: boolean
   theme: MavrykTheme
 }>`
-  padding: 60px 30px 30px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 30px;
   margin-top: ${({ displayPendingSignature }) => (displayPendingSignature ? 0 : 30)}px;
   margin-bottom: 23px;
   height: 201px;
 
-  h2 {
-    text-align: center;
-    margin-bottom: 42px;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 16px;
-    color: ${skyColor};
+  button:first-of-type {
+    margin-bottom: 20px;
   }
 `
 
