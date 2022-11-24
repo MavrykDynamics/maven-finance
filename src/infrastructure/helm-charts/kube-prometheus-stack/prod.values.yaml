@@ -2545,7 +2545,7 @@ kube-prometheus-stack:
       ## prometheus resource to be created with selectors based on values in the helm deployment,
       ## which will also match the servicemonitors created
       ##
-      serviceMonitorSelectorNilUsesHelmValues: true
+      serviceMonitorSelectorNilUsesHelmValues: false
 
       ## ServiceMonitors to be selected for target discovery.
       ## If {}, select all ServiceMonitors
@@ -2558,9 +2558,7 @@ kube-prometheus-stack:
 
       ## Namespaces to be selected for ServiceMonitor discovery.
       ##
-      serviceMonitorNamespaceSelector:
-        matchLabels:
-          monitoring: prometheus
+      serviceMonitorNamespaceSelector: {}
       ## Example which selects ServiceMonitors in namespaces with label "prometheus" set to "somelabel"
       # serviceMonitorNamespaceSelector:
       #   matchLabels:
