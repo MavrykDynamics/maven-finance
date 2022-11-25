@@ -75,6 +75,7 @@ export function BreakGlassCouncil() {
     pastBreakGlassCouncilAction,
     myPastBreakGlassCouncilAction,
     glassBroken,
+    isPendingPropagateBreakGlass,
   } = useSelector((state: State) => state.breakGlass)
   const itemsForDropDown = useMemo(
     () =>
@@ -215,7 +216,7 @@ export function BreakGlassCouncil() {
             kind={ACTION_PRIMARY}
             icon={'plus'}
             onClick={handleClickPropagateBreakGlass}
-            disabled={glassBroken}
+            disabled={glassBroken || isPendingPropagateBreakGlass}
           />
         </PropagateBreakGlassCouncilCard>
       )}
