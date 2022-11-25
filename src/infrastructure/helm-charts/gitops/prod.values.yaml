@@ -9,19 +9,31 @@ argoCD:
 certManager:
   valueFiles: prod.values.yaml
 
+ingressNginx:
+  valueFiles: prod.values.yaml
+
 externalDNS:
   valueFiles: prod.values.yaml
 
 kubePrometheusStack:
   valueFiles: prod.values.yaml
 
+mavrykApi:
+  valueFiles: prod.values.yaml
+
 mavrykIndexer:
+  valueFiles: prod.values.yaml
+
+metricsServer:
   valueFiles: prod.values.yaml
 
 lokiDistributed:
   valueFiles: prod.values.yaml
 
 promtail:
+  valueFiles: prod.values.yaml
+
+promscale:
   valueFiles: prod.values.yaml
 
 sealedSecrets:
