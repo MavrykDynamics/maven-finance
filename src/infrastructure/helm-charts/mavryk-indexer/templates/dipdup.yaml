@@ -1,10 +1,11 @@
+{{- range $key, $value := .Values.instances }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: dipdup-prometheus-{{ .Release.Name }}
+  name: dipdup-prometheus-{{ $key }}
   labels:
-    app: dipdup-{{ .Release.Name }}
+    app: dipdup-{{ $key }}
 spec:
   ports:
     - name: metrics
@@ -12,15 +13,15 @@ spec:
       protocol: TCP
       targetPort: metrics
   selector:
-    app: dipdup-{{ .Release.Name }}
+    app: dipdup-{{ $key }}
   type: ClusterIP
 ---
 # Source: indexer-mavryk/charts/sealed-secrets/templates/servicemonitor.yaml
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: dipdup-{{ .Release.Name }}
-  namespace: kube-prometheus-stack #{ { .Values.dipdup.metrics.serviceMonitor.namespace } }
+  name: dipdup-{{ $key }}
+  namespace: kube-prometheus-stack #{ { $value.dipdup.metrics.serviceMonitor.namespace } }
   labels:
     release: 'prod'
 spec:
@@ -32,33 +33,31 @@ spec:
       - mavryk-indexer
   selector:
     matchLabels:
-      app: dipdup-{{ .Release.Name }}
+      app: dipdup-{{ $key }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dipdup-{{ .Release.Name }}
+  name: dipdup-{{ $key }}
   labels:
-    app: dipdup-{{ .Release.Name }}
+    app: dipdup-{{ $key }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dipdup-{{ .Release.Name }}
+      app: dipdup-{{ $key }}
   template:
     metadata:
       labels:
-        app: dipdup-{{ .Release.Name }}
-      annotations:
-        checksum/config: '{{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}'
+        app: dipdup-{{ $key }}
     spec:
       imagePullSecrets:
-        - name: '{{ .Values.dipdup.image.pullSecret }}'
+        - name: '{{ $value.dipdup.image.pullSecret }}'
       initContainers:
-        - name: schema-approve-{{ .Release.Name }}
+        - name: schema-approve-{{ $key }}
           args: ['-c', 'dipdup.yml', 'schema', 'approve']
           env:
-          {{- range .Values.dipdup.env }}
+          {{- range $value.dipdup.env }}
             - name: {{ .name }}
               {{- if ((.value))}}
               value: "{{.value}}"
@@ -69,8 +68,8 @@ spec:
                   key: {{ .valueFrom.secretKeyRef.key }}
               {{- end }}
           {{- end }}
-          image: '{{ .Values.dipdup.image.registry }}/{{ .Values.dipdup.image.repository }}:{{ .Values.dipdup.image.tag }}'
-          imagePullPolicy: '{{ .Values.dipdup.image.pullPolicy }}'
+          image: '{{ $value.dipdup.image.registry }}/{{ $value.dipdup.image.repository }}:{{ $value.dipdup.image.tag }}'
+          imagePullPolicy: '{{ $value.dipdup.image.pullPolicy }}'
           ports:
             - name: metrics
               containerPort: 9090
@@ -80,10 +79,10 @@ spec:
               mountPath: /mavryk/dipdup.yml
               subPath: dipdup.yml
       containers:
-        - name: dipdup-{{ .Release.Name }}
+        - name: dipdup-{{ $key }}
           args: ['-c', 'dipdup.yml', 'run']
           env:
-          {{- range .Values.dipdup.env }}
+          {{- range $value.dipdup.env }}
             - name: {{ .name }}
               {{- if ((.value))}}
               value: "{{.value}}"
@@ -94,8 +93,8 @@ spec:
                   key: {{ .valueFrom.secretKeyRef.key }}
               {{- end }}
           {{- end }}
-          image: '{{ .Values.dipdup.image.registry }}/{{ .Values.dipdup.image.repository }}:{{ .Values.dipdup.image.tag }}'
-          imagePullPolicy: '{{ .Values.dipdup.image.pullPolicy }}'
+          image: '{{ $value.dipdup.image.registry }}/{{ $value.dipdup.image.repository }}:{{ $value.dipdup.image.tag }}'
+          imagePullPolicy: '{{ $value.dipdup.image.pullPolicy }}'
           ports:
             - name: metrics
               containerPort: 9090
@@ -107,4 +106,5 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: 'dipdup-{{ .Release.Name }}-config'
+            name: 'dipdup-{{ $key }}-config'
+{{- end }}

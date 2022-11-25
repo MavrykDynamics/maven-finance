@@ -1,9 +1,10 @@
-{{- if .Values.dipdup.database.backup.enabled }}
+{{- range $key, $value := .Values.instances }}
+{{- if $value.dipdup.database.backup.enabled }}
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: postgres-backup-{{ .Release.Name }}
+  name: postgres-backup-{{ $key }}
 spec:
   schedule: '0 1 * * *'
   jobTemplate:
@@ -13,10 +14,10 @@ spec:
           volumes:
             - name: backup-pv-storage
               persistentVolumeClaim:
-                claimName: mavryk-indexer-backup-{{ .Release.Name }}
+                claimName: mavryk-indexer-backup-{{ $key }}
             - name: backup-script
               configMap:
-                name: backup-script-{{ .Release.Name }}
+                name: backup-script-{{ $key }}
                 defaultMode: 0755
           containers:
             - name: backup
@@ -33,7 +34,7 @@ spec:
                 - -c
                 - /backup.sh
               env:
-              {{- range .Values.dipdup.database.backup.env }}
+              {{- range $value.dipdup.database.backup.env }}
                 - name: {{ .name }}
                   {{- if ((.value))}}
                   value: "{{.value}}"
@@ -49,7 +50,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mavryk-indexer-backup-{{ .Release.Name }}
+  name: mavryk-indexer-backup-{{ $key }}
 spec:
   storageClassName: do-block-storage
   accessModes:
@@ -61,7 +62,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: backup-script-{{ .Release.Name }}
+  name: backup-script-{{ $key }}
 data:
   backup.sh: |
     #!/bin/bash
@@ -98,5 +99,6 @@ data:
 
     # Creates a new backup
     echo 💾 Creating a new backup: $BACKUP_FOLDER/$FILE_NAME
-    pg_dump -h $PGHOST -p $PGPORT -U $PGUSER -f $BACKUP_FOLDER/$FILE_NAME -d {{ .Values.dipdup.database.name }}
-{{- end}}
+    pg_dump -h $PGHOST -p $PGPORT -U $PGUSER -f $BACKUP_FOLDER/$FILE_NAME -d {{ $value.dipdup.database.name }}
+{{- end }}
+{{- end }}
