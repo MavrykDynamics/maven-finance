@@ -5,7 +5,7 @@
 
 
 error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                                                 = 0
-error_TEZ_FEE_NOT_PAID                                                                                  = 1
+error_INCORRECT_TEZ_FEE                                                                                 = 1
 
 error_LAMBDA_NOT_FOUND                                                                                  = 2
 error_UNABLE_TO_UNPACK_LAMBDA                                                                           = 3

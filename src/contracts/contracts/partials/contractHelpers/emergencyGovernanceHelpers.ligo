@@ -186,7 +186,7 @@ function verifyCorrectFee(const s : emergencyGovernanceStorageType) : unit is
 block {
 
     if Tezos.get_amount() =/= s.config.requiredFeeMutez 
-    then failwith(error_TEZ_FEE_NOT_PAID) 
+    then failwith(error_INCORRECT_TEZ_FEE) 
     else skip;
 
 } with unit

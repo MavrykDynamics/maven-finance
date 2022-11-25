@@ -12,6 +12,7 @@
 function setAdmin(const newAdminAddress : address; var s : councilStorageType) : return is
 block {
     
+    // get lambda bytes
     const lambdaBytes : bytes = getLambdaBytes("lambdaSetAdmin", s);
 
     // init council lambda action

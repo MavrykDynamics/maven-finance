@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                                                 = 0n;
-[@inline] const error_TEZ_FEE_NOT_PAID                                                                                  = 1n;
+[@inline] const error_INCORRECT_TEZ_FEE                                                                                 = 1n;
 
 [@inline] const error_LAMBDA_NOT_FOUND                                                                                  = 2n;
 [@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                                           = 3n;

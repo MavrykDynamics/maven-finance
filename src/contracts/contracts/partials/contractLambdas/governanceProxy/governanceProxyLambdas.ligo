@@ -653,19 +653,11 @@ block {
       
         |   PauseAllContractEntrypoint(targetContractAddress) -> {
 
-                // Find and get pauseAll entrypoint
-                const pauseAllEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "%pauseAll",
-                    targetContractAddress) : option(contract(unit))) of [
-                            Some(contr) -> contr
-                        |   None        -> (failwith(error_PAUSE_ALL_ENTRYPOINT_NOT_FOUND) : contract(unit))
-                    ];
-
                 // Create operation to pause all entrypoints in a specified contract
                 const pauseAllEntrypointOperation : operation = Tezos.transaction(
                     unit,
                     0tez, 
-                    pauseAllEntrypoint
+                    getPauseAllEntrypoint(targetContractAddress)
                 );
 
                 operations := pauseAllEntrypointOperation # operations;
@@ -689,19 +681,11 @@ block {
       
         |   UnpauseAllContractEntrypoint(targetContractAddress) -> {
 
-                // Find and get unpauseAll entrypoint
-                const unpauseAllEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "%unpauseAll",
-                    targetContractAddress) : option(contract(unit))) of [
-                            Some(contr) -> contr
-                        |   None        -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_NOT_FOUND) : contract(unit))
-                    ];
-
                 // Create operation to unpause all entrypoints in a specified contract
                 const unpauseAllEntrypointOperation : operation = Tezos.transaction(
                     unit,
                     0tez, 
-                    unpauseAllEntrypoint
+                    getUnpauseAllEntrypoint(targetContractAddress)
                 );
 
                 operations := unpauseAllEntrypointOperation # operations;
@@ -755,19 +739,11 @@ block {
       
         |   UpdateWhitelistDevelopersSet(developer) -> {
 
-                // Find and get updateConfig entrypoint of delegation contract
-                const updateWhitelistDevelopersSetEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "%updateWhitelistDevelopers",
-                    s.governanceAddress) : option(contract(address))) of [
-                            Some(contr) -> contr
-                        |   None        -> (failwith(error_UPDATE_WHITELIST_DEVELOPERS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(address))
-                    ];
-
                 // Create operation to update whitelist developers set in the Governance contract
                 const updateWhitelistDevelopersSetOperation : operation = Tezos.transaction(
                     (developer),
                     0tez, 
-                    updateWhitelistDevelopersSetEntrypoint
+                    getUpdateWhitelistDevelopersEntrypoint(s.governanceAddress)
                 );
 
                 operations := updateWhitelistDevelopersSetOperation # operations;
