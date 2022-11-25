@@ -60,7 +60,7 @@ const COUNCIL_ACTIONS_PARAMS = `
 
 export const COUNCIL_PAST_ACTIONS_QUERY = `
   query GetPastCouncilActions {
-    council_action(where: {executed: {_eq: true}}) {
+    council_action(where: {executed: {_eq: true}}, order_by: {execution_datetime: desc}) {
       ${COUNCIL_ACTIONS_PARAMS}
     }
   }
@@ -70,7 +70,7 @@ export const COUNCIL_PAST_ACTIONS_VARIABLE = {}
 
 export const COUNCIL_PENDING_ACTIONS_QUERY = `
   query GetPendingCouncilActions($_gte: timestamptz = "", $userAddress: String = "", $userAddress2: String = "") {
-    council_action(where: {status: {_eq: "0"}, expiration_datetime: {_gte: $_gte}, initiator_id: {_neq: $userAddress}, signers: { signer_id: {_neq: $userAddress2}}}) {
+    council_action(where: {status: {_eq: "0"}, expiration_datetime: {_gte: $_gte}, initiator_id: {_neq: $userAddress}, signers: { signer_id: {_neq: $userAddress2}}}, order_by: {execution_datetime: desc}) {
       ${COUNCIL_ACTIONS_PARAMS}
     }
   }
