@@ -4,7 +4,7 @@ import { State } from 'reducers'
 
 // type
 import type { InputStatusType } from '../../../app/App.components/Input/Input.constants'
-import type { CouncilMember, CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
+import type { CouncilMemberMaxLength } from '../../../utils/TypesAndInterfaces/Council'
 
 // helpers
 import { getShortTzAddress } from '../../../utils/tzAdress'
@@ -38,7 +38,7 @@ export const CouncilFormChangeCouncilMember = ({
   const itemsForDropDown = useMemo(
     () =>
       councilMembers?.length
-        ? councilMembers.map((item: CouncilMember) => {
+        ? councilMembers.map((item) => {
               return {
                 text: getShortTzAddress(item.userId),
                 value: item.userId,

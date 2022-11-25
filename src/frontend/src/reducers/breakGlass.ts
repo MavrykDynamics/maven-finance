@@ -25,10 +25,11 @@ export interface BreakGlassState {
   breakGlassStatus: BreakGlassStatusStorage
   whitelistDev: WhitelistDevStorage
   breakGlassCouncilMember: BreakGlassCouncilMember
+  breakGlassActionPendingAllSignature: BreakGlassAction
+  breakGlassActionPendingSignature: BreakGlassAction
+  breakGlassActionPendingMySignature: BreakGlassAction
   pastBreakGlassCouncilAction: BreakGlassAction
   myPastBreakGlassCouncilAction: BreakGlassAction
-  breakGlassActionPendingMySignature: BreakGlassAction
-  breakGlassActionPendingSignature: BreakGlassAction
 }
 
 const defaultBreakGlassStorage: BreakGlassStorage = {
@@ -52,10 +53,11 @@ const breakGlassDefaultState: BreakGlassState = {
   breakGlassStatus: [],
   whitelistDev: '',
   breakGlassCouncilMember: [],
+  breakGlassActionPendingAllSignature: [],
+  breakGlassActionPendingSignature: [],
+  breakGlassActionPendingMySignature: [],
   pastBreakGlassCouncilAction: [],
   myPastBreakGlassCouncilAction: [],
-  breakGlassActionPendingMySignature: [],
-  breakGlassActionPendingSignature: [],
 }
 
 export function breakGlass(state = breakGlassDefaultState, action: Action) {
@@ -88,8 +90,9 @@ export function breakGlass(state = breakGlassDefaultState, action: Action) {
     case GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE:
       return {
         ...state,
-        breakGlassActionPendingMySignature: action.breakGlassActionPendingMySignature,
+        breakGlassActionPendingAllSignature: action.breakGlassActionPendingAllSignature,
         breakGlassActionPendingSignature: action.breakGlassActionPendingSignature,
+        breakGlassActionPendingMySignature: action.breakGlassActionPendingMySignature,
       }
     case GET_PAST_BREAK_GLASS_COUNCIL_ACTION:
       return {
