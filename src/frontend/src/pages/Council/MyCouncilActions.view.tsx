@@ -9,14 +9,14 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { TabSwitcher } from './Council.style'
 
 // types
-import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
+import { BreakGlassActions } from "utils/TypesAndInterfaces/BreakGlass";
 import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
 type Props = {
-  myPastCouncilAction: BreakGlassAction | CouncilActions
+  myPastCouncilAction: BreakGlassActions | CouncilActions
   myPastCouncilActionLength: number
-  actionPendingSignature: BreakGlassAction | CouncilActions
+  actionPendingSignature: BreakGlassActions | CouncilActions
   actionPendingSignatureLength: number
   numCouncilMembers: number
   activeActionTab: string

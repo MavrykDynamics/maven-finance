@@ -13,10 +13,10 @@ import { getSeparateCamelCase } from '../../utils/parse'
 import { CouncilOngoingActionStyled } from './Council.style' 
 
 // types
-import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
+import { BreakGlassActions } from "utils/TypesAndInterfaces/BreakGlass";
 import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
-type Props = (BreakGlassAction[0] | CouncilActions[0]) & {
+type Props = (BreakGlassActions[0] | CouncilActions[0]) & {
   numCouncilMembers: number
   handleDropAction: (arg: number) => void
 }
