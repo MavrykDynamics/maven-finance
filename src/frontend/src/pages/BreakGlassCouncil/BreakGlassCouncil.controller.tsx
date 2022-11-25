@@ -258,26 +258,22 @@ export function BreakGlassCouncil() {
 
           {review ? (
             <>
-              {Boolean(pastBreakGlassCouncilAction.length) && (
-                <>
-                  <h1>{isReviewPage ? 'Past Break Glass Council Actions' : 'Pending Signature Council Actions'}</h1>
-                  {(isReviewPage ? paginatedPastBreakGlassCouncilActions : paginatedBreakGlassActionPendingAllSignature).map((item) => (
-                    <CouncilPastActionView
-                      executionDatetime={String(item.executionDatetime)}
-                      key={item.id}
-                      actionType={item.actionType}
-                      signersCount={item.signersCount}
-                      numCouncilMembers={breakGlassCouncilMember.length}
-                      councilId={item.breakGlassId}
-                    />
-                  ))}
+              <h1>{isReviewPage ? 'Past Break Glass Council Actions' : 'Pending Signature Council Actions'}</h1>
+              {(isReviewPage ? paginatedPastBreakGlassCouncilActions : paginatedBreakGlassActionPendingAllSignature).map((item) => (
+                <CouncilPastActionView
+                  executionDatetime={String(item.executionDatetime)}
+                  key={item.id}
+                  actionType={item.actionType}
+                  signersCount={item.signersCount}
+                  numCouncilMembers={breakGlassCouncilMember.length}
+                  councilId={item.breakGlassId}
+                />
+              ))}
 
-                  <Pagination
-                    itemsCount={isReviewPage ? pastBreakGlassCouncilAction.length : breakGlassActionPendingAllSignature.length}
-                    listName={BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME}
-                  />
-                </>
-              )}
+              <Pagination
+                itemsCount={isReviewPage ? pastBreakGlassCouncilAction.length : breakGlassActionPendingAllSignature.length}
+                listName={BREAK_GLASS_COUNCIL_ACTIONS_LIST_NAME}
+              />
             </>
           ) : (
             <>
