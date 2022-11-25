@@ -10,17 +10,18 @@ import { parseDate } from 'utils/time'
 import { getSeparateCamelCase } from '../../utils/parse'
 
 // styles
-import { BreakGlassCouncilMyOngoingActionCardStyled } from './BreakGlassCouncil.style'
+import { CouncilOngoingActionStyled } from './Council.style' 
 
 // types
 import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
+import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
-type Props = BreakGlassAction[0] & {
+type Props = (BreakGlassAction[0] | CouncilActions[0]) & {
   numCouncilMembers: number
   handleDropAction: (arg: number) => void
 }
 
-export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
+export function CouncilOngoingAction(props: Props) {
   const { executionDatetime, actionType, signersCount, numCouncilMembers, id, parameters, handleDropAction } = props
   const [isOpen, setIsOpen] = useState(false)
 
@@ -70,12 +71,12 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
         <div className='row'>
           {isChangeCouncilMember && <div className='column'>
             <div className='column-name'>Council Member to change</div>
-            <TzAddress className='column-value' tzAddress={oldAddress} hasIcon={true} />
+            <TzAddress className='column-address' tzAddress={oldAddress} hasIcon={true} />
           </div>}
 
           {isAddCouncilMember && <div className='column'>
             <div className='column-name'>Council Member Address</div>
-            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
+            <TzAddress className='column-address' tzAddress={address} hasIcon={true} />
           </div>}
   
           <div className='column'>
@@ -96,7 +97,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
         <div className='row'>
           {isChangeCouncilMember ? <div className='column'>
             <div className='column-name'>New Council Member Address</div>
-            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
+            <TzAddress className='column-address' tzAddress={address} hasIcon={true} />
           </div> : <div className='column-value'></div>}
   
           {image ? <div className='column'>
@@ -126,7 +127,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
         <div className='row two-columns'>
           <div className='column'>
             <div className='column-name'>Council Member to remove</div>
-            <TzAddress className='column-value' tzAddress={address} hasIcon={true} />
+            <TzAddress className='column-address' tzAddress={address} hasIcon={true} />
           </div>
   
           <div className='column'>
@@ -144,7 +145,7 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
   }
 
   return (
-    <BreakGlassCouncilMyOngoingActionCardStyled>
+    <CouncilOngoingActionStyled>
       <div className='top' onClick={handleClickCard}>
         <div className='row top-row'>
           <div className='column'>
@@ -167,6 +168,6 @@ export function BreakGlassCouncilMyOngoingActionCard(props: Props) {
       {isOpen && <div className='bottom'>
         {bottomSection}
       </div>}
-    </BreakGlassCouncilMyOngoingActionCardStyled>
+    </CouncilOngoingActionStyled>
   )
 }

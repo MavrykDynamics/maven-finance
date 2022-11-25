@@ -1,27 +1,15 @@
 import { GET_COUNCIL_STORAGE } from '../pages/Council/Council.actions'
-import { CouncilStorage } from '../utils/TypesAndInterfaces/Council'
+import { CouncilStorage, CouncilActions } from '../utils/TypesAndInterfaces/Council'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 import { GET_COUNCIL_PAST_ACTIONS_STORAGE, GET_COUNCIL_PENDING_ACTIONS_STORAGE } from '../pages/Council/Council.actions'
 
-export interface CouncilPastAction {
-  council_id: string
-  executed: boolean
-  execution_datetime: string
-  execution_level: number
-  expiration_datetime: string
-  id: number
-  initiator_id: string
-  signers_count: number
-  start_datetime: string
-  status: number
-  action_type: string
-  parameters: Record<string, string>[]
-}
-
 export interface CouncilState {
   councilStorage: CouncilStorage
-  councilPendingActions: CouncilPastAction[]
-  councilPastActions: CouncilPastAction[]
+  councilAllPendingActions: CouncilActions,
+  councilPendingActions: CouncilActions
+  councilMyPendingActions: CouncilActions
+  councilPastActions: CouncilActions
+  councilMyPastActions: CouncilActions
 }
 
 const defaultCouncilStorage: CouncilStorage = {
@@ -41,8 +29,11 @@ const defaultCouncilStorage: CouncilStorage = {
 }
 const councilDefaultState: CouncilState = {
   councilStorage: defaultCouncilStorage,
+  councilAllPendingActions: [],
   councilPendingActions: [],
+  councilMyPendingActions: [],
   councilPastActions: [],
+  councilMyPastActions: [],
 }
 
 export function council(state = councilDefaultState, action: Action) {
@@ -56,11 +47,14 @@ export function council(state = councilDefaultState, action: Action) {
       return {
         ...state,
         councilPastActions: action.councilPastActions,
+        councilMyPastActions: action.councilMyPastActions,
       }
     case GET_COUNCIL_PENDING_ACTIONS_STORAGE:
       return {
         ...state,
+        councilAllPendingActions: action.councilAllPendingActions,
         councilPendingActions: action.councilPendingActions,
+        councilMyPendingActions: action.councilMyPendingActions,
       }
     default:
       return state
