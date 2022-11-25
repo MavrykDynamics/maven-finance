@@ -228,12 +228,13 @@ export function BreakGlassCouncil() {
             <article className="pending">
               <div className="pending-items">
                 <Carousel itemLength={breakGlassActionPendingSignature.length} key={sliderKey}>
-                  {breakGlassActionPendingSignature.map((item) => (
+                  {breakGlassActionPendingSignature.map((item, index) => (
                     <BreakGlassCouncilPending
                       {...item}
                       key={item.id}
                       numCouncilMembers={breakGlassCouncilMember.length}
                       councilPendingActionsLength={breakGlassActionPendingSignature.length}
+                      index={index}
                     />
                   ))}
                 </Carousel>
