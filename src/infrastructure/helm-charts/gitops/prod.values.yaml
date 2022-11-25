@@ -15,6 +15,9 @@ externalDNS:
 kubePrometheusStack:
   valueFiles: prod.values.yaml
 
+mavrykIndexer:
+  valueFiles: prod.values.yaml
+
 lokiDistributed:
   valueFiles: prod.values.yaml
 
