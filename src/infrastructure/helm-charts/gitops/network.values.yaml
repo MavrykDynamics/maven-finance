@@ -8,10 +8,16 @@ basenet:
 certManager:
   valueFiles: network.values.yaml
 
+ingressNginx:
+  valueFiles: network.values.yaml
+
 externalDNS:
   valueFiles: network.values.yaml
 
 kubePrometheusStack:
+  valueFiles: network.values.yaml
+
+metricsServer:
   valueFiles: network.values.yaml
 
 promtail:
