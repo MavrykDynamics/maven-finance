@@ -10,7 +10,6 @@ import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { calculateSlicePositions, COUNCIL_LIST_NAME, COUNCIL_MY_PAST_ACTIONS_LIST_NAME, COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { memberIsFirstOfList } from './Council.helpers'
 import { scrollUpPage } from 'utils/scrollUpPage'
-import { councilTabsList } from 'pages/BreakGlassCouncil/BreakGlassCouncil.controller'
 
 // view
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -44,11 +43,27 @@ import { Page } from 'styles'
 import { CouncilStyled } from './Council.style'
 import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
 
+// types
+import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
+
 const queryParameters = {
   pathname: '/mavryk-council',
   review: '/review',
   pendingReview: '/pending-review'
 }
+
+export const councilTabsList: TabItem[] = [
+  {
+    text: 'My Ongoing Actions',
+    id: 1,
+    active: true,
+  },
+  {
+    text: 'My Past Actions',
+    id: 2,
+    active: false,
+  },
+]
 
 export type QueryParameters = typeof queryParameters
 

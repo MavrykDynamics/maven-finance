@@ -31,6 +31,7 @@ import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants
 import { getSeparateSnakeCase } from 'utils/parse'
 import { memberIsFirstOfList } from 'pages/Council/Council.helpers'
 import { scrollUpPage } from 'utils/scrollUpPage'
+import { councilTabsList } from 'pages/Council/Council.controller'
 
 // styles
 import {
@@ -53,27 +54,11 @@ import {
   dropBreakGlass,
 } from './BreakGlassCouncil.actions'
 
-// types
-import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
-
 const queryParameters = {
   pathname: '/break-glass-council',
   review: '/review',
   pendingReview: '/pending-review',
 }
-
-export const councilTabsList: TabItem[] = [
-  {
-    text: 'My Ongoing Actions',
-    id: 1,
-    active: true,
-  },
-  {
-    text: 'My Past Actions',
-    id: 2,
-    active: false,
-  },
-]
 
 export function BreakGlassCouncil() {
   const dispatch = useDispatch()
