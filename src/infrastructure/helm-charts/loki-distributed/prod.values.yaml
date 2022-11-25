@@ -926,7 +926,7 @@ loki-distributed:
       # -- Annotations for the gateway ingress
       annotations:
         kubernetes.io/ingress.class: nginx
-        nginx.ingress.kubernetes.io/whitelist-source-range: 10.10.11.0/24
+        # nginx.ingress.kubernetes.io/whitelist-source-range: 10.10.11.0/24
       # -- Hosts configuration for the gateway ingress
       hosts:
         - host: gateway-loki.mavryk.io
