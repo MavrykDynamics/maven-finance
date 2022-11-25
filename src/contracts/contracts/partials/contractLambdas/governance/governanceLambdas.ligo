@@ -24,13 +24,10 @@ block {
         |   LambdaBreakGlass(_parameters) -> {
                 
                 // Get Break Glass Contract address from the general contracts map
-                const _breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
-                ];
+                const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
                 // Set Governance Contract admin to the Break Glass Contract
-                s.admin := _breakGlassAddress;
+                s.admin := breakGlassAddress;
 
             }
         |    _ -> skip
@@ -61,13 +58,10 @@ block {
         |   LambdaPropagateBreakGlass(_parameters) -> {
                 
                 // Get Break Glass Contract address from the general contracts map
-                const _breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
-                ];
+                const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
                 // Check if glass is broken on the Break Glass Contract
-                const glassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, _breakGlassAddress);
+                const glassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, breakGlassAddress);
                 const glassBroken : bool = case glassBrokenView of [
                         Some (_glassBroken) -> _glassBroken
                     |   None                -> failwith (error_GET_GLASS_BROKEN_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND)
@@ -82,7 +76,7 @@ block {
                     // 2. Second, trigger setAdmin entrypoint in contract to change admin to Break Glass Contract
 
                     case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                            Some(contr) -> operations := Tezos.transaction(_breakGlassAddress, 0tez, contr) # operations
+                            Some(contr) -> operations := Tezos.transaction(breakGlassAddress, 0tez, contr) # operations
                         |   None        -> skip
                     ];
                     
@@ -131,12 +125,9 @@ block {
                 if not Set.mem(newAdminAddress, s.whitelistDevelopers) and newAdminAddress =/= s.governanceProxyAddress then {
 
                     // Check if the new admin address is the Break Glass contract
-                    const _breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
-                            Some(_address) -> _address
-                        |   None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
-                    ];
+                    const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
-                    if newAdminAddress = _breakGlassAddress then skip
+                    if newAdminAddress = breakGlassAddress then skip
                     else failwith(error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED)
                 }
                 else skip;
@@ -455,7 +446,7 @@ block {
                 checkSenderIsWhitelistedOrAdmin(s);
                 
                 // Update the storage with the new snapshot
-                s   := updateSatelliteSnapshotRecord(updateSatelliteSnapshotParams, s);
+                s := updateSatelliteSnapshotRecord(updateSatelliteSnapshotParams, s);
 
             }
         |   _ -> skip
@@ -493,10 +484,8 @@ block {
     //              and execute proposal manually through the %processProposalSingleData entrypoint
 
 
-    // Check that current round has not ended
-    if Tezos.get_level() < s.currentCycleInfo.roundEndLevel
-    then failwith(error_CURRENT_ROUND_NOT_FINISHED) 
-    else skip;
+    // Verify that current round has not ended
+    verifyRoundHasNotEnded(s);
 
     var operations : list(operation) := nil;
 
@@ -655,33 +644,22 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                        Some (_contractAddress) -> _contractAddress
-                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
                 checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[(s.cycleId,Tezos.get_sender())] of [
-                        None           -> failwith(error_SNAPSHOT_NOT_FOUND)
-                    |   Some(snapshot) -> snapshot
-                ];
+                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
                 // Process Proposal Submission Fee
                 // ------------------------------------------------------------------
 
                 // check if tez sent is equal to the required fee
-                if Tezos.get_amount() =/= s.config.proposalSubmissionFeeMutez 
-                then failwith(error_TEZ_FEE_NOT_PAID) 
-                else skip;
+                verifyCorrectSubmissionFee(s);
 
                 // Get Tax Treasury from General Contracts map
-                const treasuryAddress : address = case s.generalContracts["taxTreasury"] of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_PROPOSE_TAX_TREASURY_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryAddress : address = getAddressFromGeneralContracts("taxTreasury", s, error_PROPOSE_TAX_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Create operation to transfer submission fee to treasury
                 const treasuryContract : contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
@@ -693,100 +671,24 @@ block {
                 // Validation Checks
                 // ------------------------------------------------------------------
                 
-                // Validate inputs (max length not exceeded)
-                if String.length(newProposal.title)         > s.config.proposalTitleMaxLength       then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(newProposal.description)   > s.config.proposalDescriptionMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(newProposal.invoice)       > s.config.proposalInvoiceMaxLength     then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(newProposal.sourceCode)    > s.config.proposalSourceCodeMaxLength  then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                // Get minimumStakedMvkBalance from Delegation Contract Config to serve as requirement for satellite to make a proposal
+                const minimumStakedMvkRequirement : nat = getMinimumStakedMvkRequirement(s);
 
-                // Get Delegation Contract from General Contracts Map
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                        Some(_address) -> _address
-                    |   None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                // Verify that satellite has sufficient staked MVK to make a proposal 
+                verifySatelliteHasSufficientStakedMvk(satelliteSnapshot.totalStakedMvkBalance, minimumStakedMvkRequirement);
 
-                // Get Delegation Contract Config
-                const delegationConfigView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
-                const delegationConfig : delegationConfigType                = case delegationConfigView of [
-                        Some (_config) -> _config
-                    |   None           -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                // Get total number of proposals from satellite for current cycle
+                var satelliteProposals : set(nat) := getSatelliteProposals(Tezos.get_sender(), s.cycleId, s);
 
-                // Get minimumStakedMvkBalance from Delegation Contract Config
-                const minimumMvkRequiredForProposalSubmission = delegationConfig.minimumStakedMvkBalance;
-
-                // Check if satellite has sufficient staked MVK to make a proposal 
-                if satelliteSnapshot.totalStakedMvkBalance < minimumMvkRequiredForProposalSubmission then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
-                else skip; 
+                // Verify that satellite's total number of proposals does not exceed the maximum set in config (spam check)
+                verifyMaxProposalsPerSatelliteNotReached(satelliteProposals, s);
 
                 // ------------------------------------------------------------------
                 // Create new proposal
                 // ------------------------------------------------------------------
 
-                // init new proposal params
-                const proposalId                : nat                                     = s.nextProposalId;
-                const emptyVotersSet            : set(address)                            = set [];
-                const proposalData              : map(nat, option(proposalDataType))      = map [];
-                const paymentData               : map(nat, option(paymentDataType))       = map [];
-
-                // Get total number of proposals from satellite for current cycle
-                var satelliteProposals : set(nat) := case s.cycleProposers[(s.cycleId,Tezos.get_sender())] of [
-                        Some (_proposals) -> _proposals
-                    |   None              -> Set.empty
-                ];
-
-                // Check that satellite's total number of proposals does not exceed the maximum set in config (spam check)
-                if s.config.maxProposalsPerSatellite > Set.cardinal(satelliteProposals) then skip
-                else failwith(error_MAX_PROPOSAL_REACHED);
-
                 // Create new proposal record
-                var newProposalRecord : proposalRecordType := record [
-
-                    proposerAddress                     = Tezos.get_sender();
-                    proposalData                        = proposalData;
-                    proposalDataExecutionCounter        = 0n;
-                    paymentData                         = paymentData;
-
-                    status                              = "ACTIVE";                                     // status : "ACTIVE", "DROPPED"
-                    title                               = newProposal.title;                            // title
-                    description                         = newProposal.description;                      // description
-                    invoice                             = newProposal.invoice;                          // ipfs hash of invoice file
-                    sourceCode                          = newProposal.sourceCode;                       // source code repo url
-
-                    successReward                       = s.config.successReward;                       // log of successful proposal reward for voters - may change over time
-                    totalVotersReward                   = s.currentCycleInfo.cycleTotalVotersReward;    // log of the cycle total rewards for voters
-                    executed                            = False;                                        // boolean: executed set to true if proposal is executed
-                    paymentProcessed                    = False;                                        // boolean: set to true if proposal payment has been processed 
-                    locked                              = False;                                        // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
-                    rewardClaimReady                    = False;                                        // boolean: set to true if the voters are able to claim the rewards
-                    executionReady                      = False;                                        // boolean: set to true if the proposal can be executed
-
-                    proposalVoteCount                   = 0n;                                           // proposal round: pass votes count (to proceed to voting round)
-                    proposalVoteStakedMvkTotal          = 0n;                                           // proposal round pass vote total mvk from satellites who voted pass
-
-                    minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;      // min vote percentage of total MVK supply required to pass proposal round
-                    minProposalRoundVotesRequired       = s.config.minProposalRoundVotesRequired;       // min staked MVK votes required for proposal round to pass
-
-                    yayVoteCount                        = 0n;                                           // voting round: yay count
-                    yayVoteStakedMvkTotal               = 0n;                                           // voting round: yay MVK total 
-                    nayVoteCount                        = 0n;                                           // voting round: nay count
-                    nayVoteStakedMvkTotal               = 0n;                                           // voting round: nay MVK total 
-                    passVoteCount                       = 0n;                                           // voting round: pass count
-                    passVoteStakedMvkTotal              = 0n;                                           // voting round: pass MVK total 
-                    voters                              = emptyVotersSet;                               // voting round ledger
-
-                    minQuorumPercentage                 = s.config.minQuorumPercentage;                 // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-                    minQuorumStakedMvkTotal             = s.currentCycleInfo.minQuorumStakedMvkTotal;   // log of min quorum in MVK
-                    minYayVotePercentage                = s.config.minYayVotePercentage;                // log of min yay votes percentage - capture state at this point
-                    quorumCount                         = 0n;                                           // log of turnout for voting round - number of satellites who voted
-                    quorumStakedMvkTotal                = 0n;                                           // log of total positive votes in MVK  
-                    startDateTime                       = Tezos.get_now();                                    // log of when the proposal was proposed
-
-                    cycle                               = s.cycleId;
-                    currentCycleStartLevel              = s.currentCycleInfo.roundStartLevel;           // log current round/cycle start level
-                    currentCycleEndLevel                = s.currentCycleInfo.cycleEndLevel;             // log current cycle end level
-
-                ];
+                var newProposalRecord : proposalRecordType := createNewProposal(newProposal, s);
 
                 // ------------------------------------------------------------------
                 // Update Storage
@@ -805,39 +707,22 @@ block {
                 // N.B. Metadata is bytecode of changes/operations that Satellite is proposing to be executed
 
                 // Check if there are proposal or payment data
-                const proposalHasProposalData : bool    = case newProposal.proposalData of [
-                        Some (_data)    -> True
-                    |   None            -> False
-                ];
-                const proposalHasPaymentData : bool     = case newProposal.paymentData of [
-                        Some (_data)    -> True
-                    |   None            -> False
-                ];
+                const proposalHasProposalData  : bool = checkProposalDataExists(newProposal);
+                const proposalHasPaymentData   : bool = checkPaymentDataExists(newProposal);
 
                 // Create operations to add proposal and payment data
                 if proposalHasProposalData or proposalHasPaymentData then block {
-                    
-                    // Init params
-                    const updateProposalDataParams : updateProposalType = record[
-                        proposalId      = proposalId;
-                        proposalData    = newProposal.proposalData;
-                        paymentData     = newProposal.paymentData;
-                    ];
 
-                    // Create operation
-                    operations  := Tezos.transaction(
-                        updateProposalDataParams,
-                        0tez, 
-                        getUpdateProposalDataEntrypoint(Tezos.get_self_address())
-                    ) # operations;
+                    const updateProposalDataOperation : operation = updateProposalDataOperation(proposalId, newProposal);
+                    operations := updateProposalDataOperation # operations;
 
                 } else skip;
 
                 // Add proposal id to current round proposals and initialise with zero positive votes in MVK 
-                s.cycleProposals    := Map.add(proposalId, 0n, s.cycleProposals);
+                s.cycleProposals := Map.add(proposalId, 0n, s.cycleProposals);
 
                 // Increment next proposal id
-                s.nextProposalId    := proposalId + 1n;
+                s.nextProposalId := proposalId + 1n;
 
             }
         |   _ -> skip
@@ -866,9 +751,8 @@ block {
     // 6. Save changes and update proposal ledger
 
 
-    // Check that the current round is a Proposal round
-    if s.currentCycleInfo.round = (Proposal : roundType) then skip
-    else failwith(error_ONLY_ACCESSIBLE_DURING_PROPOSAL_ROUND);
+    // Verify that the current round is a Proposal round
+    verifyIsProposalRound(s);
 
     case governanceLambdaAction of [
         |   LambdaUpdateProposalData(updateProposalDataParams) -> {
@@ -879,10 +763,7 @@ block {
                 const paymentData   : option(updatePaymentDataType)     = updateProposalDataParams.paymentData;
 
                 // Get proposal record
-                var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_PROPOSAL_NOT_FOUND)
-                ];
+                var proposalRecord : proposalRecordType := getProposalRecord(proposalId, s);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -892,22 +773,17 @@ block {
                 const proposalDataTitleMaxLength : nat  = s.config.proposalDataTitleMaxLength;
 
                 // Check that proposal is not locked
-                if proposalRecord.locked = True then failwith(error_PROPOSAL_LOCKED)
-                else skip;
+                verifyProposalIsNotLocked(proposalRecord);
 
-                // Check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.get_sender() and Tezos.get_self_address() =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
-                else skip;
+                // Check that sender is self (governance contract) or the creator of the proposal 
+                verifySenderIsSelfOrProposalCreator(proposalRecord);
 
                 // ------------------------------------------------------------------
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
                 // Check if satellite exists and is not suspended or banned
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                        Some (_contractAddress) -> _contractAddress
-                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
                 checkSatelliteStatus(proposalRecord.proposerAddress, delegationAddress, True, True);
 
                 // ------------------------------------------------------------------
@@ -924,7 +800,7 @@ block {
                                 _proposalData,
                                 proposalRecord.proposalData
                             )
-                    |   None                    -> proposalRecord.proposalData
+                    |   None -> proposalRecord.proposalData
                 ];
 
                 // ------------------------------------------------------------------
@@ -941,7 +817,7 @@ block {
                                 _paymentData,
                                 proposalRecord.paymentData
                             )
-                    |   None                    -> proposalRecord.paymentData
+                    |   None -> proposalRecord.paymentData
                 ];
 
                 // Save changes and update proposal ledger
@@ -969,33 +845,24 @@ block {
     // 4. Lock proposal and update proposal ledger
 
 
-    // Check that the current round is a Proposal round
-    if s.currentCycleInfo.round = (Proposal : roundType) then skip
-    else failwith(error_ONLY_ACCESSIBLE_DURING_PROPOSAL_ROUND);
+    // Verify that the current round is a Proposal round
+    verifyIsProposalRound(s);
 
     case governanceLambdaAction of [
         |   LambdaLockProposal(proposalId) -> {
                 
                 // Get proposal record
-                var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_PROPOSAL_NOT_FOUND)
-                ];
+                var proposalRecord : proposalRecordType := getProposalRecord(proposalId, s);
 
                 // Check if satellite exists and is not suspended or banned
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                        Some (_contractAddress) -> _contractAddress
-                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
                 checkSatelliteStatus(proposalRecord.proposerAddress, delegationAddress, True, True);
 
                 // Check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
-                else skip;
+                verifySenderIsProposalCreator(proposalRecord);
 
                 // Check that proposal is not locked
-                if proposalRecord.locked = True then failwith(error_PROPOSAL_LOCKED)
-                else skip;
+                verifyProposalIsNotLocked(proposalRecord);
 
                 // Lock proposal and update proposal ledger
                 proposalRecord.locked        := True; 
@@ -1029,9 +896,8 @@ block {
     //          -   Update proposal with satellite's vote
 
 
-    // Check that the current round is a Proposal round
-    if s.currentCycleInfo.round = (Proposal : roundType) then skip
-    else failwith(error_ONLY_ACCESSIBLE_DURING_PROPOSAL_ROUND);
+    // Verify that the current round is a Proposal round
+    verifyIsProposalRound(s);
 
     case governanceLambdaAction of [
         |   LambdaProposalRoundVote(proposalId) -> {
@@ -1041,41 +907,28 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                        Some (_contractAddress) -> _contractAddress
-                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
                 checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[(s.cycleId,Tezos.get_sender())] of [
-                        None           -> failwith(error_SNAPSHOT_NOT_FOUND)
-                    |   Some(snapshot) -> snapshot
-                ];
+                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
                 // ------------------------------------------------------------------
 
-                // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Map.mem(proposalId, s.cycleProposals);
-                if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
-                else skip;
+                // Verify that proposal exists in the current cycle's proposals
+                verifyProposalExistsInCurrentCycle(proposalId, s);
 
                 // Get Proposal Record
-                var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
-                        Some(_proposal) -> _proposal
-                    |   None            -> failwith(error_PROPOSAL_NOT_FOUND)
-                ];
+                var _proposal : proposalRecordType := getProposalRecord(proposalId, s);
 
-                // Check that proposal has not been dropped
-                if _proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
-                else skip;
+                // Verify that proposal has not been dropped
+                verifyProposalNotDropped(_proposal);
 
                 // Check that proposal is locked
-                if _proposal.locked = False then failwith(error_PROPOSAL_NOT_LOCKED)
-                else skip;
+                verifyProposalIsLocked(_proposal);
 
                 // ------------------------------------------------------------------
                 // Compute Votes
@@ -1140,10 +993,7 @@ block {
                     // -------------------------------------------
 
                     // Get previous proposal record
-                    var _previousProposal : proposalRecordType := case s.proposalLedger[previousVotedProposalId] of [
-                            Some(_previousProposal) -> _previousProposal
-                        |   None                    -> failwith(error_PROPOSAL_NOT_FOUND)
-                    ];
+                    var _previousProposal : proposalRecordType := getProposalRecord(previousVotedProposalId, s);
 
                     // Decrement previous proposal vote count by one
                     var previousProposalProposalVoteCount : nat := _previousProposal.proposalVoteCount;
@@ -1211,13 +1061,11 @@ block {
     //          -   Update proposal with new vote changes
     
 
-    // Check that the current round is a Voting round
-    if s.currentCycleInfo.round = (Voting : roundType) then skip
-    else failwith(error_ONLY_ACCESSIBLE_DURING_VOTING_ROUND);
+    // Verify that the current round is a Voting round
+    verifyIsVotingRound(s);
 
-    // Check that there is at least one valid proposal to vote on
-    if s.cycleHighestVotedProposalId = 0n then failwith(error_NO_PROPOSAL_TO_VOTE_FOR)
-    else skip; 
+    // Verify that there is at least one valid proposal to vote on (i.e. cycle's highest voted proposal exists)
+    verifyCycleHighestVotedProposalExists(s);
 
     case governanceLambdaAction of [
         |   LambdaVotingRoundVote(voteRecord) -> {
@@ -1230,37 +1078,25 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                        Some (_contractAddress) -> _contractAddress
-                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
                 checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
                 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[(s.cycleId,Tezos.get_sender())] of [
-                        None           -> failwith(error_SNAPSHOT_NOT_FOUND)
-                    |   Some(snapshot) -> snapshot
-                ];
+                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
                 // ------------------------------------------------------------------
 
-                // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Map.mem(s.cycleHighestVotedProposalId, s.cycleProposals);
-                if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
-                else skip;
+                // Verify that proposal exists in the current cycle's proposals
+                verifyProposalExistsInCurrentCycle(s.cycleHighestVotedProposalId, s);
 
                 // Get Proposal Record
-                var _proposal : proposalRecordType := case s.proposalLedger[s.cycleHighestVotedProposalId] of [
-                        None            -> failwith(error_PROPOSAL_NOT_FOUND)
-                    |   Some(_proposal) -> _proposal        
-                ];
+                var _proposal : proposalRecordType := getProposalRecord(s.cycleHighestVotedProposalId, s);
 
                 // Check that proposal has not been dropped
-                if _proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
-                else skip;
+                verifyProposalNotDropped(_proposal);
 
                 // ------------------------------------------------------------------
                 // Compute Votes
@@ -1274,11 +1110,12 @@ block {
                                 Proposal (_proposalId)  -> (None : option(voteType))
                             |   Voting (_voteType)      -> (Some (_voteType) : option(voteType))
                         ]
-                    |   None                -> (None : option(voteType))
+                    |   None -> (None : option(voteType))
                 ];
 
                 case previousVoteOpt of [
-                        Some (_previousVote)    -> block {
+                        Some (_previousVote) -> block {
+
                             // -------------------------------------------
                             // Satellite has already voted - change of vote
                             // -------------------------------------------
@@ -1300,7 +1137,9 @@ block {
                             // Update proposal with new vote changes
                             s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
                         }
-                    |   None                    -> block {
+                    
+                    |   None -> block {
+
                             // -------------------------------------------
                             // Satellite has not voted - add new vote
                             // -------------------------------------------
@@ -1314,7 +1153,7 @@ block {
                             
                             // Update proposal with satellite's vote
                             s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
-                    }
+                        }
                 ];
 
             }
@@ -1350,18 +1189,14 @@ block {
         |   LambdaExecuteProposal(proposalId) -> {
                 
                 // Get proposal record
-                var proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_PROPOSAL_NOT_FOUND)
-                ];
+                var proposal : proposalRecordType := getProposalRecord(proposalId, s);
 
                 // Check the proposal can be executed
                 if proposal.executionReady then skip
                 else {
 
-                    // Check that there is a valid timelock proposal
-                    if s.timelockProposalId =/= proposalId then failwith(error_NO_PROPOSAL_TO_EXECUTE)
-                    else skip;
+                    // Verify that there is a valid timelock proposal
+                    verifyTimelockProposalExists(proposalId, s);
 
                     // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
                     if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
@@ -1373,28 +1208,24 @@ block {
                 // Validation Checks
                 // ------------------------------------------------------------------
 
-                // Check that proposal has not been executed
-                if proposal.executed then failwith(error_PROPOSAL_EXECUTED)
-                else skip;
+                // Verify that proposal has not been executed
+                verifyProposalNotExecuted(proposal);
 
-                // Check that proposal has not been dropped
-                if proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
-                else skip;
+                // Verify that proposal has not been dropped
+                verifyProposalNotDropped(proposal);
 
-                // Check that there is at least one proposal metadata to execute
-                if Map.size(proposal.proposalData) = 0n then failwith(error_PROPOSAL_HAS_NO_DATA_TO_EXECUTE)
-                else skip;
+                // Verify that there is at least one proposal metadata to execute
+                verifyAtLeastOneProposalData(proposal);
 
-                // Check if any data in the proposal has already been executed
-                if proposal.proposalDataExecutionCounter > 0n then failwith(error_PROPOSAL_EXECUTION_ALREADY_STARTED)
-                else skip;
+                // Verify that no data in the proposal has been executed yet
+                verifyProposalExecutionNotStarted(proposal);
 
                 // ------------------------------------------------------------------
                 // Update Proposal and Storage
                 // ------------------------------------------------------------------
 
                 // Update proposal and set "executed" boolean to True
-                proposal.executed                      := True;
+                proposal.executed            := True;
                 s.proposalLedger[proposalId] := proposal;
 
                 // ------------------------------------------------------------------
@@ -1418,11 +1249,7 @@ block {
 
                     // Execute the data or skip if this entry has no data to execute
                     case metadata of [
-                            Some (_dataBytes)   -> operations := Tezos.transaction(
-                                                    _dataBytes.encodedCode,
-                                                    0tez,
-                                                    getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
-                                                ) # operations
+                            Some (_dataBytes)   -> operations := executeGovernanceActionOperation(_dataBytes.encodedCode, s) # operations
                         |   None                -> skip
                     ];
 
@@ -1467,45 +1294,34 @@ block {
         |   LambdaProcessProposalPayment(proposalId) -> {
 
                 // Get proposal record
-                var proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_PROPOSAL_NOT_FOUND)
-                ];
+                var proposal : proposalRecordType := getProposalRecord(proposalId, s);
 
                 // ------------------------------------------------------------------
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                        Some (_contractAddress) -> _contractAddress
-                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
                 checkSatelliteStatus(proposal.proposerAddress, delegationAddress, True, True);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
                 // ------------------------------------------------------------------
 
-                // Check that sender is the creator of the proposal 
-                if Tezos.get_sender() =/= proposal.proposerAddress then failwith(error_ONLY_PROPOSER_ALLOWED)
-                else skip;
+                // Verify that sender is the creator of the proposal 
+                verifySenderIsProposalCreator(proposal);
 
-                // Check that proposal payments has not been processed
-                if proposal.paymentProcessed = True then failwith(error_PROPOSAL_PAYMENTS_PROCESSED)
-                else skip;
+                // Verify that proposal payments has not been processed
+                verifyPaymentsNotProcessed(proposal);
 
-                // Check that proposal has not been dropped
-                if proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
-                else skip;
+                // Verify that proposal has not been dropped
+                verifyProposalNotDropped(proposal);
 
-                // Check that proposal has been executed
-                if not proposal.executed then failwith(error_PROPOSAL_NOT_EXECUTED)
-                else skip;
+                // Verify that proposal has not been executed
+                verifyProposalNotExecuted(proposal);
 
-                // Check that there is at least one payment metadata to execute
-                if Map.size(proposal.paymentData) = 0n then failwith(error_PROPOSAL_HAS_NO_DATA_TO_EXECUTE)
-                else skip;
+                // Verify that there is at least one payment metadata to execute
+                verifyAtLeastOnePaymentData(proposal);
 
                 // ------------------------------------------------------------------
                 // Update Storage
@@ -1520,7 +1336,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Create paymentsData list of transfers for the Treasury Contract
-                var paymentsData : list(transferDestinationType)   := nil;
+                var paymentsData : list(transferDestinationType) := nil;
 
                 // The order of operation will be the same as the one in the proposal, that's why we start
                 // from the tail of the list
@@ -1545,19 +1361,9 @@ block {
 
                 };
 
-                // Get Payment Treasury Contract address from the General Contracts map
-                const treasuryAddress : address  = case Map.find_opt("paymentTreasury", s.generalContracts) of [
-                        Some (_treasury) -> _treasury
-                    |   None             -> failwith(error_PAYMENT_TREASURY_CONTRACT_NOT_FOUND)
-                ];
-
-                // Create operation of paymentsData transfers
-                const transferOperation : operation = Tezos.transaction(
-                    paymentsData,
-                    0tez,
-                    sendTransferOperationToTreasury(treasuryAddress)
-                );
-                operations := transferOperation # operations;
+                // process proposal payments data through paymentTreasury
+                const processProposalPaymentOperation : operation = processProposalPaymentOperation(paymentsData, s);
+                operations := processProposalPaymentOperation # operations;
 
             }
         |   _ -> skip
@@ -1597,21 +1403,18 @@ block {
         |   LambdaProcessProposalSingleData(proposalId) -> {
                 
                 // Get proposal record
-                var proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_PROPOSAL_NOT_FOUND)
-                ];
+                var proposal : proposalRecordType := getProposalRecord(proposalId, s);
 
                 // Check the proposal can be executed
                 if proposal.executionReady then skip
                 else {
 
-                    // Check that there is a valid timelock proposal
-                    if s.timelockProposalId =/= proposalId then failwith(error_NO_PROPOSAL_TO_EXECUTE)
-                    else skip;
+                    // Verify that there is a valid timelock proposal
+                    verifyTimelockProposalExists(proposalId, s);
 
-                    // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-                    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
+                    // Check that current round is not Timelock Round or Voting Round (in the scenario proposal was executed before timelock round started)
+                    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) 
+                    then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
                     else skip;
 
                 };
@@ -1620,17 +1423,14 @@ block {
                 // Validation Checks
                 // ------------------------------------------------------------------
 
-                // Check that proposal has not been executed
-                if proposal.executed = True then failwith(error_PROPOSAL_EXECUTED)
-                else skip;
+                // Verify that proposal has not been executed
+                verifyProposalNotExecuted(proposal);
 
-                // Check that proposal has not been dropped
-                if proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
-                else skip;
+                // Verify that proposal has not been dropped
+                verifyProposalNotDropped(proposal);
 
-                // Check that there is at least one proposal metadata to execute
-                if Map.size(proposal.proposalData) = 0n then failwith(error_PROPOSAL_HAS_NO_DATA_TO_EXECUTE)
-                else skip;
+                // Verify that there is at least one proposal metadata to execute
+                verifyAtLeastOneProposalData(proposal);
 
                 // ------------------------------------------------------------------
                 // Process Metadata
@@ -1638,7 +1438,7 @@ block {
 
                 // Proposal data should be executed in FIFO mode
                 // Get the data to execute next based on the proposalDataExecutionCounter
-                var optionData: option(proposalDataType)    := case proposal.proposalData[proposal.proposalDataExecutionCounter] of [
+                var optionData : option(proposalDataType) := case proposal.proposalData[proposal.proposalDataExecutionCounter] of [
                         Some (_data)    -> _data
                     |   None            -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
                 ];
@@ -1647,7 +1447,7 @@ block {
                 while proposal.proposalDataExecutionCounter < Map.size(proposal.proposalData) and optionData = (None : option(proposalDataType)) block{
                     
                     proposal.proposalDataExecutionCounter   := proposal.proposalDataExecutionCounter + 1n;
-                    optionData                                  := case proposal.proposalData[proposal.proposalDataExecutionCounter] of [
+                    optionData                              := case proposal.proposalData[proposal.proposalDataExecutionCounter] of [
                             Some (_data)    -> _data
                         |   None            -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
                     ];
@@ -1656,11 +1456,7 @@ block {
 
                 // Check if there is data to execute (even at the last entry where index = 0)
                 case optionData of [
-                        Some (_dataBytes)   -> operations := Tezos.transaction(
-                                                    _dataBytes.encodedCode,
-                                                    0tez,
-                                                    getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
-                                                ) # operations
+                        Some (_dataBytes)   -> operations := executeGovernanceActionOperation(_dataBytes.encodedCode, s) # operations
                     |   None                -> skip
                 ];
 
@@ -1706,42 +1502,33 @@ block {
             const satelliteAddress : address         = claimParams.satelliteAddress;
             const proposalIds : set(actionIdType)    = claimParams.proposalIds;
 
-            // Get Delegation Contract address from the general contracts map
-            const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
-                |   None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-            ];
-
             // Get the distribute reward entrypoint
             const claimSatellite : set(address)  = set [satelliteAddress];
-            const distributeRewardsEntrypoint: contract(set(address) * nat) =
-                case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
-                        Some(contr) -> contr
-                    |   None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED) : contract(set(address) * nat))
-                ];
 
             // Define the fold function for the set of proposal ids
             for proposalId in set proposalIds block{
+
                 case Big_map.find_opt(proposalId, s.proposalLedger) of [
                         Some (_record) -> block{
-                            // Check the satellite voted on the proposal
-                            if Set.mem(satelliteAddress, _record.voters) then skip else failwith(error_VOTE_NOT_FOUND);
 
-                            // Check the satellite did not already claimed its reward for this proposal
-                            const satelliteRewardProposalKey: (actionIdType*address)    = (proposalId, satelliteAddress);
-                            if Big_map.mem(satelliteRewardProposalKey, s.proposalRewards) then failwith(error_PROPOSAL_REWARD_ALREADY_CLAIMED) else skip;
+                            // Verify that satellite voted on the proposal
+                            verifySatelliteHasVotedForProposal(satelliteAddress, _record);
 
-                            // Check if the reward can be claimed
-                            if _record.rewardClaimReady then skip else failwith(error_PROPOSAL_REWARD_CANNOT_BE_CLAIMED);
+                            // Verify that satellite has not claimed its reward for given proposal
+                            verifyRewardNotClaimed(satelliteAddress, proposalId, s);
+
+                            // Verify that the reward is ready to be claimed
+                            verifyRewardReadyToBeClaimed(_record);
 
                             // Add the reward to the storage
-                            s.proposalRewards   := Big_map.add(satelliteRewardProposalKey, unit, s.proposalRewards);
+                            s.proposalRewards := Big_map.add(satelliteRewardProposalKey, unit, s.proposalRewards);
 
                             // Calculate the reward
-                            const satelliteReward: nat  = _record.totalVotersReward / Set.cardinal(_record.voters);
+                            const satelliteReward: nat = _record.totalVotersReward / Set.cardinal(_record.voters);
 
-                            const distributeOperation: operation = Tezos.transaction((claimSatellite, satelliteReward), 0tez, distributeRewardsEntrypoint);
-                            operations  := distributeOperation # operations;
+                            // Create distribute reward operation
+                            const distributeRewardOperation : operation = distributeRewardOperation(claimSatellite, satelliteReward, s);
+                            operations  := distributeRewardOperation # operations;
                         }
                     |   None -> failwith(error_PROPOSAL_NOT_FOUND)
                 ];
@@ -1775,59 +1562,48 @@ block {
         |   LambdaDropProposal(proposalId) -> {
 
                 // Get proposal record
-                var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
-                        None            -> failwith(error_PROPOSAL_NOT_FOUND)
-                    |   Some(_proposal) -> _proposal        
-                ];
+                var proposal : proposalRecordType := getProposalRecord(proposalId, s);
 
                 // ------------------------------------------------------------------
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                        Some (_contractAddress) -> _contractAddress
-                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
                 checkSatelliteStatus(_proposal.proposerAddress, delegationAddress, True, True);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
                 // ------------------------------------------------------------------
 
-                // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Map.mem(proposalId, s.cycleProposals);
-                if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
-                else skip;
+                // Check that proposal exists in the current cycle's proposals
+                verifyProposalExistsInCurrentCycle(proposalId, s);
 
                 // Check that proposal has not been dropped
-                if _proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
-                else skip;
+                verifyProposalNotDropped(proposal);
 
                 // ------------------------------------------------------------------
                 // Drop Proposal
                 // ------------------------------------------------------------------
 
                 // Check if sender is proposer or admin 
-                if _proposal.proposerAddress = Tezos.get_sender() or Tezos.get_sender() = s.admin then block {
+                if proposal.proposerAddress = Tezos.get_sender() or Tezos.get_sender() = s.admin then block {
 
                     // Set proposal status to "DROPPED"
-                    _proposal.status               := "DROPPED";
-                    s.proposalLedger[proposalId]   := _proposal;
+                    proposal.status               := "DROPPED";
+                    s.proposalLedger[proposalId]  := proposal;
 
                     // Remove proposal from currentCycleInfo.cycleProposers
-                    var satelliteProposals   : set(nat)  := case s.cycleProposers[(s.cycleId, _proposal.proposerAddress)] of [
-                            Some (_proposals) -> _proposals
-                        |   None              -> failwith(error_PROPOSAL_NOT_FOUND)
-                    ];
-                    s.cycleProposers[(s.cycleId, _proposal.proposerAddress)] := Set.remove(proposalId, satelliteProposals);
+                    var satelliteProposals : set(nat) := getSatelliteProposals(proposal.proposerAddress, s.cycleId, s);
+                    s.cycleProposers[(s.cycleId, proposal.proposerAddress)] := Set.remove(proposalId, satelliteProposals);
 
                     // Remove proposal from current cycle proposal
-                    s.cycleProposals    := Map.remove(proposalId, s.cycleProposals);
+                    s.cycleProposals := Map.remove(proposalId, s.cycleProposals);
 
                     // If current round is a timelock or voting round (where there is only one proposal), restart the cycle
                     if s.currentCycleInfo.round = (Voting : roundType) or s.currentCycleInfo.round = (Timelock : roundType) 
-                    then s := setupProposalRound(s) else skip;
+                    then s := setupProposalRound(s) 
+                    else skip;
 
                 } else failwith(error_ONLY_PROPOSER_ALLOWED)
                 
