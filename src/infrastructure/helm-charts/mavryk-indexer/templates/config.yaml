@@ -1,7 +1,8 @@
+{{- range $key, $value := .Values.instances }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: 'dipdup-{{ .Release.Name }}-config'
+  name: 'dipdup-{{ $key }}-config'
 data:
   dipdup.yml: |
     spec_version: 1.2
@@ -13,11 +14,11 @@ data:
       port: ${POSTGRES_PORT:-changeme}
       user: ${POSTGRES_USERNAME:-changeme}
       password: ${POSTGRES_PASSWORD:-changeme}
-      database: {{ .Values.dipdup.database.name }}
+      database: {{ $value.dipdup.database.name }}
       schema_name: public
     
     hasura:
-      url: http://hasura-{{ .Release.Name }}.mavryk-indexer.svc.cluster.local:8080
+      url: http://hasura-{{ $key }}.mavryk-indexer.svc.cluster.local:8080
       admin_secret: ${ADMIN_SECRET:-changeme}
       select_limit: 1000
     
@@ -50,6 +51,7 @@ data:
       tzkt_mainnet:
         kind: tzkt
         url: ${TZKT_MAINNET_URL:-changeme}
-  {{- with .Values.dipdup.extraConfig }}
+  {{- with $value.dipdup.extraConfig }}
     {{ tpl . $ | nindent 4 }}
   {{- end }}
+{{- end}}
