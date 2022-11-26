@@ -87,7 +87,7 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
 
     &.active,
     &:hover {
-      &:before {
+      &:not(.no-before)::before {
         position: absolute;
         bottom: -3px;
         left: 50%;

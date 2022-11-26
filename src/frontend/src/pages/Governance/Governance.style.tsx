@@ -226,7 +226,8 @@ export const GovRightContainerTitleArea = styled.div<{ theme: MavrykTheme }>`
   justify-content: space-between;
   align-items: flex-start;
 
-  > h1 {
+  > h1,
+  h2 {
     margin: 0;
 
     &::after {

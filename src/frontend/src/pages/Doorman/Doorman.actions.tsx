@@ -309,6 +309,17 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       await fetch(`https://api.${process.env.REACT_APP_API_NETWORK}.tzkt.io/v1/accounts/${accountPkh}/balance`)
     ).json()
 
+    const [tzBTCTokenInfo] = await (
+      await fetch(
+        `https://api.${process.env.REACT_APP_API_NETWORK}.tzkt.io/v1/tokens/balances?account.eq=${accountPkh}&token.contract.in=KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn`,
+      )
+    ).json()
+
+    console.log('user tzBTC amount', tzBTCTokenInfo)
+
+    const mytzBTCTokenBalance =
+      parseFloat(tzBTCTokenInfo?.balance ?? 0) / 10 ** parseFloat(tzBTCTokenInfo?.token?.metadata?.decimals ?? 0)
+
     const userDoormanRewardsData: UserDoormanRewardsData = {
       generalAccumulatedFeesPerShare: userRewardsData.doorman[0]?.accumulated_fees_per_share ?? 0,
       generalUnclaimedRewards: userRewardsData.doorman[0]?.unclaimed_rewards ?? 0,
@@ -354,6 +365,7 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       myMvkTokenBalance: calcWithoutPrecision(userInfoData?.mvk_balance),
       mySMvkTokenBalance: calcWithoutPrecision(userInfoData?.smvk_balance),
       myXTZTokenBalance: calcWithoutMu(Number(xtzBalance)),
+      mytzBTCTokenBalance,
       participationFeesPerShare: calcWithoutPrecision(userInfoData?.participation_fees_per_share),
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite ? userInfoData?.delegations[0].satellite?.user_id : '',
       isSatellite: Boolean(

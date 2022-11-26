@@ -17,6 +17,7 @@ const DashboardPersonal = () => {
     myMvkTokenBalance,
     mySMvkTokenBalance,
     myXTZTokenBalance,
+    mytzBTCTokenBalance,
     isSatellite,
   } = useSelector((state: State) => state.user)
   const {
@@ -32,6 +33,12 @@ const DashboardPersonal = () => {
     <Page>
       <PageHeader page={'dashboard'} />
       <DashboardPersonalView
+        walletData={{
+          xtzAmount: myXTZTokenBalance,
+          sMVKAmount: mySMvkTokenBalance,
+          notsMVKAmount: myMvkTokenBalance,
+          tzBTCAmount: mytzBTCTokenBalance,
+        }}
         isUserSatellite={isSatellite}
         activeTab={isValidId(tabId) ? tabId : PORTFOLIO_TAB_ID}
         claimRewardsHandler={claimRewards}
