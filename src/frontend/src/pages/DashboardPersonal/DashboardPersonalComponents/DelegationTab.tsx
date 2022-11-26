@@ -1,106 +1,39 @@
+import { Link } from 'react-router-dom'
+
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
+
 import { Button } from 'app/App.components/Button/Button.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import Icon from 'app/App.components/Icon/Icon.view'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
-import { Link } from 'react-router-dom'
-import { DelegationTabStyled, LBHInfoBlock, DelegationStatusBlock, ListItem } from './DashboardPersonalComponents.style'
+import {
+  DashboardPersonalTabStyled,
+  LBHInfoBlock,
+  DelegationStatusBlock,
+  ListItem,
+} from './DashboardPersonalComponents.style'
 
-const lendingData = [
-  {
-    assetImg: '',
-    supplied: 1000,
-    apy: 10,
-    earned: 500,
-    mvkBonus: 4500,
-  },
-  {
-    assetImg: '',
-    supplied: 1000,
-    apy: 10,
-    earned: 500,
-    mvkBonus: 4500,
-  },
-  {
-    assetImg: '',
-    supplied: 1000,
-    apy: 10,
-    earned: 500,
-    mvkBonus: 4500,
-  },
-  {
-    assetImg: '',
-    supplied: 1000,
-    apy: 10,
-    earned: 500,
-    mvkBonus: 4500,
-  },
-  {
-    assetImg: '',
-    supplied: 1000,
-    apy: 10,
-    earned: 500,
-    mvkBonus: 4500,
-  },
-  {
-    assetImg: '',
-    supplied: 1000,
-    apy: 10,
-    earned: 500,
-    mvkBonus: 4500,
-  },
-]
-
-const historyData = [
-  {
-    action: 'stake',
-    amount: 333,
-    exitFee: 0.84,
-    totalAmount: 322232,
-  },
-  {
-    action: 'stake',
-    amount: 333,
-  },
-  {
-    action: 'stake',
-    amount: 333,
-    totalAmount: 322232,
-  },
-  {
-    action: 'stake',
-    amount: 333,
-    exitFee: 0.84,
-  },
-  {
-    action: 'stake',
-    amount: 333,
-    user: {
-      avatar: '',
-      address: 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb',
-      name: 'Jeff Stone',
-    },
-  },
-]
+import { historyData, lendingData } from '../tabs.const'
 
 const DelegationTab = () => {
   return (
-    <DelegationTabStyled>
+    <DashboardPersonalTabStyled>
       <DelegationStatusBlock>
         <GovRightContainerTitleArea>
-          <h1>Delegation Status</h1>
+          <h2>Delegation Status</h2>
         </GovRightContainerTitleArea>
       </DelegationStatusBlock>
       <LBHInfoBlock>
         <GovRightContainerTitleArea>
-          <h1>History</h1>
+          <h2>History</h2>
         </GovRightContainerTitleArea>
         {historyData ? (
           <div className="list scroll-block">
-            {historyData.map(({ action, amount, exitFee, totalAmount, user }) => {
+            {historyData.map(({ action, amount, exitFee, totalAmount, user, id }) => {
               return (
-                <ListItem columsTemplate={`25% 25% ${user ? '50%' : ' 25% 25%'}  `}>
+                <ListItem columsTemplate={`25% 25% ${user ? '50%' : ' 25% 25%'}  `} key={id + action}>
                   <div className="list-part">
                     <div className="name">Action</div>
                     <div className="value">{action}</div>
@@ -152,13 +85,13 @@ const DelegationTab = () => {
       </LBHInfoBlock>
       <LBHInfoBlock>
         <GovRightContainerTitleArea>
-          <h1>Lending</h1>
+          <h2>Lending</h2>
         </GovRightContainerTitleArea>
         {lendingData ? (
           <div className="list scroll-block">
-            {lendingData.map(({ assetImg, apy, supplied, earned, mvkBonus }) => {
+            {lendingData.map(({ assetImg, apy, supplied, earned, mvkBonus, id }) => {
               return (
-                <ListItem columsTemplate="60px 0.9fr 0.7fr 0.8fr 0.7fr">
+                <ListItem columsTemplate="60px 0.9fr 0.7fr 0.8fr 0.7fr" key={id}>
                   <Icon id={assetImg || 'noImage'} />
                   <div className="list-part">
                     <div className="name">Supplied</div>
@@ -199,7 +132,7 @@ const DelegationTab = () => {
       </LBHInfoBlock>
       <LBHInfoBlock>
         <GovRightContainerTitleArea>
-          <h1>Borrowing</h1>
+          <h2>Borrowing</h2>
         </GovRightContainerTitleArea>
         <div className="no-data">
           <span>Nothing borrowed at this time</span>
@@ -208,7 +141,7 @@ const DelegationTab = () => {
           </Link>
         </div>
       </LBHInfoBlock>
-    </DelegationTabStyled>
+    </DashboardPersonalTabStyled>
   )
 }
 

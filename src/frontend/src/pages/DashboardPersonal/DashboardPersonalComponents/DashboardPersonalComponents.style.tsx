@@ -10,13 +10,48 @@ export const SmallBlockBase = styled.div<{ theme: MavrykTheme }>`
   border-radius: 10px;
   padding: 30px;
 
-  h1 {
+  h2 {
     font-size: 22px;
   }
 
   button {
     max-width: 190px;
     font-size: 16px;
+  }
+`
+
+export const MediumBlockBase = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
+  height: 382px;
+  display: flex;
+  flex-direction: column;
+`
+
+export const PortfolioChartStyled = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
+  width: 810px;
+`
+
+export const PortfolioWalletStyled = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
+  width: 260px;
+
+  .wallet-info {
+    display: flex;
+    flex-direction: column;
+    margin-top: 24px;
+
+    .name {
+      font-weight: 600;
+      font-size: 14px;
+      color: ${({ theme }) => theme.textColor};
+    }
+
+    .value {
+      font-weight: 600;
+      font-size: 16px;
+      color: ${({ theme }) => theme.dataColor};
+      display: flex;
+      column-gap: 7px;
+      align-items: center;
+    }
   }
 `
 
@@ -27,7 +62,7 @@ export const MyRewardsStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
   background-repeat: no-repeat;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 50px 55px;
+  grid-template-rows: 40px 55px;
   column-gap: 45px;
   row-gap: 25px;
 
@@ -37,6 +72,7 @@ export const MyRewardsStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
 
   button {
     margin-left: auto;
+    margin-top: -10px;
   }
 
   .stat-block {
@@ -164,12 +200,6 @@ export const EarnHistoryStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
   }
 `
 
-export const MediumBlockBase = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
-  height: 328px;
-  display: flex;
-  flex-direction: column;
-`
-
 export const LBHInfoBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
   .no-data {
     display: flex;
@@ -263,8 +293,9 @@ export const ListItem = styled.div<{ theme: MavrykTheme; columsTemplate: string 
 `
 
 export const DelegationStatusBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>``
+export const SatelliteStatusBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>``
 
-export const DelegationTabStyled = styled.div<{ theme: MavrykTheme }>`
+export const DashboardPersonalTabStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;

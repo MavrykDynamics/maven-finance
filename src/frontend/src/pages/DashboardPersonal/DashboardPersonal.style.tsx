@@ -9,7 +9,7 @@ export const DashboardPersonalStyled = styled.div`
 
   .tabs-switchers {
     display: flex;
-    margin: 30px 0 15px 0;
+    margin: 30px 0;
     column-gap: 15px;
 
     > a {

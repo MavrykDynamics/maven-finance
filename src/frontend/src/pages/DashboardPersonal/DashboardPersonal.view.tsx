@@ -15,6 +15,12 @@ type DashboardPersonalProps = {
   isUserSatellite: boolean
   claimRewardsHandler: () => void
   earnings: DashboardPersonalEarningsHistoryProps
+  walletData: {
+    xtzAmount: number
+    tzBTCAmount: number
+    sMVKAmount: number
+    notsMVKAmount: number
+  }
 }
 
 const DashboardPersonalView = ({
@@ -22,6 +28,7 @@ const DashboardPersonalView = ({
   isUserSatellite,
   claimRewardsHandler,
   earnings,
+  walletData,
 }: DashboardPersonalProps) => {
   return (
     <DashboardPersonalStyled>
@@ -50,7 +57,7 @@ const DashboardPersonalView = ({
       <div className={`bottom-grid ${activeTab}`}>
         <Switch>
           <Route exact path={`/dashboard-personal/${PORTFOLIO_TAB_ID}`}>
-            <PortfolioTab />
+            <PortfolioTab {...walletData} />
           </Route>
           <Route exact path={`/dashboard-personal/${DELEGATION_TAB_ID}`}>
             <DelegationTab />
