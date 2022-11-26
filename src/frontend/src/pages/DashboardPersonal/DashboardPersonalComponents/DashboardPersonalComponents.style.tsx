@@ -3,7 +3,7 @@ import { cyanColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
 export const SmallBlockBase = styled.div<{ theme: MavrykTheme }>`
-  width: 50%;
+  width: calc(50% - 10px);
   height: 235px;
   background-color: ${({ theme }) => theme.containerColor};
   border: 1px solid ${({ theme }) => theme.cardBorderColor};
@@ -162,4 +162,110 @@ export const EarnHistoryStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
       color: ${({ theme }) => theme.dataColor};
     }
   }
+`
+
+export const MediumBlockBase = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
+  height: 328px;
+  display: flex;
+  flex-direction: column;
+`
+
+export const LBHInfoBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
+  .no-data {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    row-gap: 20px;
+
+    span {
+      font-weight: 600;
+      font-size: 14px;
+      color: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
+    }
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    row-gap: 24px;
+    margin-top: 20px;
+    overflow: auto;
+    position: relative;
+    width: calc(100% + 30px);
+    padding-right: 30px;
+  }
+`
+
+export const ListItem = styled.div<{ theme: MavrykTheme; columsTemplate: string }>`
+  display: grid;
+  grid-template-columns: ${({ columsTemplate }) => columsTemplate};
+  position: relative;
+
+  svg {
+    height: 40px;
+    width: 40px;
+    fill: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
+  }
+
+  .list-part {
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
+    p {
+      margin: 0;
+    }
+
+    &.user {
+      display: flex;
+      justify-content: flex-end;
+      flex-direction: row;
+      column-gap: 15px;
+
+      .user-info {
+        display: flex;
+        flex-direction: column;
+        row-gap: 5px;
+
+        .user-address {
+          svg {
+            width: 16px;
+            height: 16px;
+            fill: unset;
+            stroke: ${({ theme }) => theme.dataColor};
+          }
+        }
+      }
+    }
+  }
+
+  .name {
+    font-weight: 600;
+    font-size: 14px;
+    color: ${({ theme }) => theme.textColor};
+  }
+
+  .value {
+    font-size: 16px;
+    font-weight: 600;
+    color: ${({ theme }) => theme.dataColor};
+  }
+
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    width: 100%;
+    height: 1px;
+    background-color: ${({ theme }) => theme.cardBorderColor};
+  }
+`
+
+export const DelegationStatusBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>``
+
+export const DelegationTabStyled = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 `
