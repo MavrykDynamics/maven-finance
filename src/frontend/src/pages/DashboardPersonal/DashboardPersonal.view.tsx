@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, Redirect, Route, Switch } from 'react-router-dom'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { DashboardPersonalStyled } from './DashboardPersonal.style'
 import { DELEGATION_TAB_ID, PORTFOLIO_TAB_ID, SATELLITE_TAB_ID, TabId } from './DashboardPersonal.utils'
 import DashboardPersonalEarningsHistory, {
@@ -21,6 +22,7 @@ type DashboardPersonalProps = {
     sMVKAmount: number
     notsMVKAmount: number
   }
+  satelliteRecord?: SatelliteRecord
 }
 
 const DashboardPersonalView = ({
@@ -29,6 +31,7 @@ const DashboardPersonalView = ({
   claimRewardsHandler,
   earnings,
   walletData,
+  satelliteRecord,
 }: DashboardPersonalProps) => {
   return (
     <DashboardPersonalStyled>
@@ -63,7 +66,7 @@ const DashboardPersonalView = ({
             <DelegationTab />
           </Route>
           <Route exact path={`/dashboard-personal/${SATELLITE_TAB_ID}`}>
-            <SatelliteTab />
+            <SatelliteTab satelliteRecord={satelliteRecord} />
           </Route>
 
           <Redirect to={`/dashboard-personal/${PORTFOLIO_TAB_ID}`} />

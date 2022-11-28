@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { ACTION_PRIMARY, ACTION_SIMPLE } from 'app/App.components/Button/Button.constants'
 
 import { Button } from 'app/App.components/Button/Button.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import Icon from 'app/App.components/Icon/Icon.view'
 
@@ -16,7 +15,8 @@ import {
   PortfolioChartStyled,
 } from './DashboardPersonalComponents.style'
 
-import { lendingData } from '../tabs.const'
+import { CHART_TEST_DATA, lendingData } from '../tabs.const'
+import { TradingViewChart } from 'app/App.components/Chart/Chart.view'
 
 type PortfolioTabProps = {
   xtzAmount: number
@@ -32,6 +32,18 @@ const PortfolioTab = ({ xtzAmount, tzBTCAmount, sMVKAmount, notsMVKAmount }: Por
         <GovRightContainerTitleArea>
           <h2>MVK Earning History</h2>
         </GovRightContainerTitleArea>
+        <TradingViewChart
+          data={CHART_TEST_DATA}
+          colors={{
+            lineColor: '#77A4F2',
+            areaTopColor: '#77A4F2',
+            areaBottomColor: 'rgba(119, 164, 242, 0)',
+            textColor: '#CDCDCD',
+          }}
+          settings={{
+            height: 260,
+          }}
+        />
       </PortfolioChartStyled>
 
       <PortfolioWalletStyled>

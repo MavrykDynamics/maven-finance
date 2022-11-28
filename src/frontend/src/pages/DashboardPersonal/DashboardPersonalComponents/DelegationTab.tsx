@@ -16,7 +16,7 @@ import {
 } from './DashboardPersonalComponents.style'
 
 import { historyData, lendingData } from '../tabs.const'
-
+const userIsDelegated = true
 const DelegationTab = () => {
   return (
     <DashboardPersonalTabStyled>
@@ -24,6 +24,60 @@ const DelegationTab = () => {
         <GovRightContainerTitleArea>
           <h2>Delegation Status</h2>
         </GovRightContainerTitleArea>
+        {userIsDelegated ? (
+          <>
+            <div className="delegated-to">Delegated To</div>
+            <div className="grid">
+              <div className="grid-item info">
+                <Icon id="noImage" />
+                <div className="text">
+                  <div className="name">Free MVK Space</div>
+                  <div className="value">
+                    <TzAddress tzAddress={'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'} />
+                  </div>
+                </div>
+              </div>
+              <div className="grid-item space">
+                <div className="name">Free MVK Space</div>
+                <div className="value">
+                  <CommaNumber value={100.231} />
+                </div>
+              </div>
+              <div className="grid-item participation">
+                <div className="name">Gov. Participation</div>
+                <div className="value">
+                  <CommaNumber value={100.231} endingText="%" />
+                </div>
+              </div>
+              <div className="grid-item delegated">
+                <div className="name">Delegated MVK</div>
+                <div className="value">
+                  <CommaNumber value={100.231} />
+                </div>
+              </div>
+              <div className="grid-item fee">
+                <div className="name">Fee</div>
+                <div className="value">
+                  <CommaNumber value={7} endingText="%" />
+                </div>
+              </div>
+              <div className="grid-item oraclePart">
+                <div className="name">Oracle Participation</div>
+                <div className="value">
+                  <CommaNumber value={13} endingText="%" />
+                </div>
+              </div>
+            </div>
+            <Link to="#">Satellites Overview</Link>
+          </>
+        ) : (
+          <div className="no-data">
+            <span>You are not delegated at this time.</span>
+            <Link to="/yield-farms">
+              <Button text="Satellites" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
+            </Link>
+          </div>
+        )}
       </DelegationStatusBlock>
       <LBHInfoBlock>
         <GovRightContainerTitleArea>

@@ -229,6 +229,7 @@ export const GovRightContainerTitleArea = styled.div<{ theme: MavrykTheme }>`
   > h1,
   h2 {
     margin: 0;
+    font-weight: 700;
 
     &::after {
       margin-bottom: 7px;
