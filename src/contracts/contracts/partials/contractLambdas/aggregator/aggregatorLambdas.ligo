@@ -238,19 +238,16 @@ block {
     case aggregatorLambdaAction of [
         |   LambdaAddOracle(addOracleParams) -> {
                 
-                if isOracleAddress(addOracleParams.oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR)
-                else block{
-                    
-                    const oracleAddress : address = addOracleParams.oracleAddress;
-                    const satelliteRecord : satelliteRecordType = getSatelliteRecord(oracleAddress, s);
+                const oracleAddress : address = addOracleParams.oracleAddress;
 
-                    const oracleInformation : oracleInformationType = record [
-                        oraclePublicKey  = satelliteRecord.oraclePublicKey;
-                        oraclePeerId     = satelliteRecord.oraclePeerId;
-                    ];
-                    
-                    s.oracleAddresses[oracleAddress] := oracleInformation;
-                }   
+                // Verify that satellite is not already a registered oracle on this aggregator
+                verifySatelliteIsNotRegisteredOracle(oracleAddress, s);
+
+                // get oracle infromation from the delegation contract
+                const oracleInformation : oracleInformationType = getOracleInformation(oracleAddress, s);
+                
+                // update storage
+                s.oracleAddresses[oracleAddress] := oracleInformation;
 
             }
         |   _ -> skip
@@ -266,20 +263,15 @@ block {
     
     case aggregatorLambdaAction of [
         |   LambdaUpdateOracle(_parameters) -> {
-                
-                if isOracleAddress(Tezos.get_sender(), s.oracleAddresses) then block{
-                    
-                    const oracleAddress : address = Tezos.get_sender();
-                    const satelliteRecord : satelliteRecordType = getSatelliteRecord(oracleAddress, s);
 
-                    const oracleInformation : oracleInformationType = record [
-                        oraclePublicKey  = satelliteRecord.oraclePublicKey;
-                        oraclePeerId     = satelliteRecord.oraclePeerId;
-                    ];
-                    
-                    s.oracleAddresses[oracleAddress] := oracleInformation;
+                // Verify that sender is a registered oracle on this aggregator
+                verifySenderIsRegisteredOracle(s);
                 
-                }  else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR) 
+                // Get oracle infromation from the delegation contract
+                const oracleInformation : oracleInformationType = getOracleInformation(Tezos.get_sender(), s);
+                
+                // Update storage
+                s.oracleAddresses[Tezos.get_sender()] := oracleInformation;
 
             }
         |   _ -> skip
@@ -297,11 +289,12 @@ block {
 
     case aggregatorLambdaAction of [
         |   LambdaRemoveOracle(oracleAddress) -> {
-                
-                if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_NOT_PRESENT_IN_AGGREGATOR)
-                else block{
-                    s.oracleAddresses := Map.remove(oracleAddress, s.oracleAddresses);
-                }
+
+                // Verify that address is a registered oracle
+                verifySatelliteIsRegisteredOracle(oracleAddress, s);
+
+                // Remove oracle from oracle addresses
+                s.oracleAddresses := Map.remove(oracleAddress, s.oracleAddresses);
 
             }
         |   _ -> skip
@@ -396,8 +389,6 @@ block {
 
 } with (noOperations, s)
 
-
-
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End
 // ------------------------------------------------------------------------------
@@ -407,9 +398,6 @@ block {
 // ------------------------------------------------------------------------------
 // Oracle Lambdas Begin
 // ------------------------------------------------------------------------------
-
-
-
 
 (*  updateData entrypoint  *)
 function lambdaUpdateData(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
@@ -433,14 +421,14 @@ block{
     case aggregatorLambdaAction of [
         |   LambdaUpdateData(params) -> {
 
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                // Verify that sender is an oracle registered on the aggregator
+                verifySenderIsRegisteredOracle(s);
 
-                checkSenderIsOracle(s);
-                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
+                // Verify that satellite is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // verify obervations and signatures have the same size
-                verifyMapsSizes(params, s);
+                verifyEqualMapSizes(params, s);
 
                 // verify for each observations -> epoch and round are the same + different from previous
                 var epochAndRound: nat*nat := verifyInfosFromObservations(params.oracleObservations, s);
@@ -469,13 +457,15 @@ block{
                 s := updateRewardsStakedMvk(params.oracleObservations, s);
 
                 // Set XTZ reward for oracle
-                const rewardAmountXtz        : nat  = s.config.rewardAmountXtz;
+                const rewardAmountXtz : nat  = s.config.rewardAmountXtz;
                 if rewardAmountXtz > 0n then {
-                    var currentOracleXtzRewards  : nat := case s.oracleRewardXtz[Tezos.get_sender()] of [
-                            Some (_amount) -> (_amount) 
-                        |   None           -> 0n 
-                    ];
-                    s.oracleRewardXtz[Tezos.get_sender()]   := currentOracleXtzRewards + rewardAmountXtz;
+
+                    // get current oracle xtz rewards
+                    const currentOracleXtzRewards : nat = getOracleXtzRewards(Tezos.get_sender(), s);
+
+                    // increment oracle rewards in storage
+                    s.oracleRewardXtz[Tezos.get_sender()] := currentOracleXtzRewards + rewardAmountXtz;
+
                 } else skip;
 
                 // Update storage with lastCompletedData
@@ -519,40 +509,24 @@ block{
     case aggregatorLambdaAction of [
         |   LambdaWithdrawRewardXtz(oracleAddress) -> {
 
-                // Check that sender is an oracle registered on the aggregator
-                if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
+                // Verify that sender is an oracle registered on the aggregator
+                verifySenderIsRegisteredOracle(s);
 
-                // Check that satellite is not suspended or banned
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(oracleAddress, delegationAddress, True, True);
+                // Verify that satellite is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(oracleAddress, s);
                 
                 // Get oracle's XTZ reward amount 
-                const reward : nat = getRewardAmountXtz(oracleAddress, s);
+                const reward : nat = getOracleXtzRewards(oracleAddress, s);
 
                 // If reward amount is greater than 0, create an operation to the Aggregator Factory Contract to distribute the rewards
                 if (reward > 0n) then {
 
-                    const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                            Some(_address) -> _address
-                        |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-                    ];
-                    
-                    const distributeRewardXtzParams : distributeRewardXtzType = record [
-                        recipient = oracleAddress;
-                        reward    = reward;
-                    ];
-
-                    const distributeRewardXtzOperation : operation = Tezos.transaction(
-                        distributeRewardXtzParams,
-                        0tez,
-                        getDistributeRewardXtzInFactoryEntrypoint(factoryAddress)
-                    );
-
+                    // distribute reward xtz operation to oracle
+                    const distributeRewardXtzOperation : operation = distributeRewardXtzOperation(oracleAddress, reward, s);
                     operations := distributeRewardXtzOperation # operations;
                     
                     // Reset oracle XTZ rewards to zero and update storage
-                    const newOracleRewardXtz = Map.update(oracleAddress, Some (0n), s.oracleRewardXtz);
-                    s.oracleRewardXtz := newOracleRewardXtz;
+                    s.oracleRewardXtz[oracleAddress] := 0n;
 
                 } else skip;
             }
@@ -586,40 +560,24 @@ block{
     case aggregatorLambdaAction of [
         |   LambdaWithdrawRewardStakedMvk(oracleAddress) -> {
                 
-                // Check that sender is an oracle registered on the aggregator
-                if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
+                // Verify that sender is an oracle registered on the aggregator
+                verifySenderIsRegisteredOracle(s);
 
-                // Check that satellite is not suspended or banned
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(oracleAddress, delegationAddress, True, True);
+                // Verify that satellite is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(oracleAddress, s);
 
                 // Get oracle's staked MVK reward amount 
-                const reward = getRewardAmountStakedMvk(oracleAddress, s);
+                const reward = getOracleStakedMvkRewards(oracleAddress, s);
 
                 // If reward amount is greater than 0, create an operation to the Aggregator Factory Contract to distribute the rewards
                 if (reward > 0n) then {
 
-                    const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                            Some(_address) -> _address
-                        |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-                    ];
-                    
-                    const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
-                        eligibleSatellites     = set[oracleAddress];
-                        totalStakedMvkReward   = reward;
-                    ];
-
-                    const distributeRewardMvkOperation : operation = Tezos.transaction(
-                        distributeRewardMvkParams,
-                        0tez,
-                        getDistributeRewardStakedMvkInFactoryEntrypoint(factoryAddress)
-                    );
-
-                    operations := distributeRewardMvkOperation # operations;
+                    // distribute reward staked mvk operation to oracle
+                    const distributeRewardStakedMvkOperation : operation = distributeRewardStakedMvkOperation(oracleAddress, reward, s);
+                    operations := distributeRewardStakedMvkOperation # operations;
 
                     // Reset oracle staked MVK rewards to zero and update storage
-                    const newOracleRewardStakedMvk = Map.update(oracleAddress, Some (0n), s.oracleRewardStakedMvk);
-                    s.oracleRewardStakedMvk := newOracleRewardStakedMvk;
+                    s.oracleRewardStakedMvk[oracleAddress] := 0n;
 
                 } else skip;
                 

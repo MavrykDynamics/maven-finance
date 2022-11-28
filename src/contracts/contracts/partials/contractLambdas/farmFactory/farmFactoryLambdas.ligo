@@ -311,14 +311,8 @@ block{
     case farmFactoryLambdaAction of [
         |   LambdaCreateFarm(createFarmParams) -> {
 
-                // Check farm name length
-                validateStringLength(createFarmParams.name, s.config.farmNameMaxLength, error_WRONG_INPUT_PROVIDED);
-
                 // Prepare new Farm storage
-                const originatedFarmStorage : farmStorageType = prepareFarmStorage(
-                    createFarmParams, 
-                    s
-                );
+                const originatedFarmStorage : farmStorageType = prepareFarmStorage(createFarmParams, s);
 
                 // Create operation to originate Farm
                 const farmOrigination : (operation * address) = createFarmFunc(
