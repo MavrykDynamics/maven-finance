@@ -39,7 +39,7 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
   min-width: ${(props) => (props.width ? `${props.width}vw` : 'initial')};
   max-width: 90vw;
   border: 1px solid ${cyanColor};
-  padding: 0 30px 50px 50px;
+  padding: 30px;
   overflow: auto;
 
   p {
@@ -51,7 +51,8 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
     font-size: 25px;
     line-height: 25px;
     color: ${({ theme }) => theme.textColor};
-    margin: 0 0 20px 0;
+    margin: 0;
+    margin-bottom: 20px;
   }
 
   &.farm-modal {
