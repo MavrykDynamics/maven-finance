@@ -193,6 +193,9 @@ block {
     // Check whether the farm is infinite or its total blocks has been set
     validateFarmRewardBlocks(createFarmParams);
 
+    // Check farm name length
+    validateStringLength(createFarmParams.name, s.config.farmNameMaxLength, error_WRONG_INPUT_PROVIDED);
+
     // Originate a farm 
     const originatedfarmStorageType : farmStorageType = record [
 
