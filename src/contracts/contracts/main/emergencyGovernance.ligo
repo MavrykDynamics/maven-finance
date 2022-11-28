@@ -62,18 +62,18 @@ type emergencyGovernanceUnpackLambdaFunctionType is (emergencyGovernanceLambdaAc
 #include "../partials/contractHelpers/emergencyGovernanceHelpers.ligo"
 
 // ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// Emergency Governance Lambdas:
-#include "../partials/contractLambdas/emergencyGovernance/emergencyGovernanceLambdas.ligo"
-
-// ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
 // EmergencyGovernance Views:
 #include "../partials/contractViews/emergencyGovernanceViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// EmergencyGovernance Lambdas:
+#include "../partials/contractLambdas/emergencyGovernanceLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

@@ -99,7 +99,7 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 // ------------------------------------------------------------------------------
 
 // Delegation Lambdas:
-#include "../partials/contractLambdas/delegation/delegationLambdas.ligo"
+#include "../partials/contractLambdas/delegationLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

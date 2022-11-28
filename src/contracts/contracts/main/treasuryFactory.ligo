@@ -81,28 +81,28 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 // Helpers
 // ------------------------------------------------------------------------------
 
-// Treasury Factory Helpers:
+// TreasuryFactory Helpers:
 #include "../partials/contractHelpers/treasuryFactoryHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
-// Treasury Factory Views:
+// TreasuryFactory Views:
 #include "../partials/contractViews/treasuryFactoryViews.ligo"
 
 // ------------------------------------------------------------------------------
 // Lambdas
 // ------------------------------------------------------------------------------
 
-// Treasury Factory Lambdas :
-#include "../partials/contractLambdas/treasuryFactory/treasuryFactoryLambdas.ligo"
+// TreasuryFactory Lambdas :
+#include "../partials/contractLambdas/treasuryFactoryLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
 // ------------------------------------------------------------------------------
 
-// Treasury Factory Entrypoints:
+// TreasuryFactory Entrypoints:
 #include "../partials/contractEntrypoints/treasuryFactoryEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------

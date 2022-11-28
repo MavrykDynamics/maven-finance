@@ -79,28 +79,28 @@ type governanceUnpackLambdaFunctionType is (governanceFinancialLambdaActionType 
 // Helpers
 // ------------------------------------------------------------------------------
 
-// Governance Financial Helpers:
+// GovernanceFinancial Helpers:
 #include "../partials/contractHelpers/governanceFinancialHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
-// Governance Financial Views:
+// GovernanceFinancial Views:
 #include "../partials/contractViews/governanceFinancialViews.ligo"
 
 // ------------------------------------------------------------------------------
 // Lambdas
 // ------------------------------------------------------------------------------
 
-// Governance Financial Contract Lambdas :
-#include "../partials/contractLambdas/governanceFinancial/governanceFinancialLambdas.ligo"
+// GovernanceFinancial Contract Lambdas :
+#include "../partials/contractLambdas/governanceFinancialLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
 // ------------------------------------------------------------------------------
 
-// Governance Financial Entrypoints:
+// GovernanceFinancial Entrypoints:
 #include "../partials/contractEntrypoints/governanceFinancialEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
