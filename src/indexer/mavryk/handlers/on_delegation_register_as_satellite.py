@@ -10,6 +10,9 @@ async def on_delegation_register_as_satellite(
     register_as_satellite: Transaction[RegisterAsSatelliteParameter, DelegationStorage],
 ) -> None:
 
+    # TODO: implement PeerId/PublicKey when deployed
+    # breakpoint()
+
     # Get operation values
     delegation_address      = register_as_satellite.data.target_address
     satellite_address       = register_as_satellite.data.sender_address
