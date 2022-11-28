@@ -89,7 +89,7 @@ type farmUnpackLambdaFunctionType is (farmLambdaActionType * farmStorageType) ->
 // ------------------------------------------------------------------------------
 
 // Farm Lambdas:
-#include "../partials/contractLambdas/farm/farmLambdas.ligo"
+#include "../partials/contractLambdas/farmLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
