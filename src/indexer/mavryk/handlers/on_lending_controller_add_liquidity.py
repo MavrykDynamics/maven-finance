@@ -12,7 +12,12 @@ async def on_lending_controller_add_liquidity(
 
     # Get operation info
     lending_controller_address              = add_liquidity.data.target_address
+    timestamp                               = add_liquidity.data.timestamp
+    level                                   = add_liquidity.data.level
+    operation_hash                          = add_liquidity.data.hash
+    sender_address                          = add_liquidity.data.sender_address
     loan_token_name                         = add_liquidity.parameter.loanTokenName
+    loan_token_amount                       = float(add_liquidity.parameter.amount)
     loan_token_storage                      = add_liquidity.storage.loanTokenLedger[loan_token_name]
     loan_token_type_storage                 = loan_token_storage.tokenType
     loan_token_token_pool_total             = float(loan_token_storage.tokenPoolTotal)
@@ -49,3 +54,19 @@ async def on_lending_controller_add_liquidity(
     lending_controller_loan_token.utilisation_rate          = loan_token_utilisation_rate
     lending_controller_loan_token.current_interest_rate     = loan_token_current_interest_rate
     await lending_controller_loan_token.save()
+
+    # Save history data
+    sender, _                               = await models.MavrykUser.get_or_create(
+        address             = sender_address
+    )
+    await sender.save()
+    history_data                            = models.LendingControllerHistoryData(
+        lending_controller  = lending_controller,
+        sender              = sender,
+        operation_hash      = operation_hash,
+        timestamp           = timestamp,
+        level               = level,
+        type                = models.LendingControllerOperationType.ADD_LIQUIDITY,
+        amount              = loan_token_amount
+    )
+    await history_data.save()

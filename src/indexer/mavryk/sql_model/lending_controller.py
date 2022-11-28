@@ -1,5 +1,5 @@
-from .enums import OracleType
 from dipdup.models import Model, fields
+from .enums import LendingControllerOperationType
 from mavryk.sql_model.parents import LinkedContract, TokenContractStandard, ContractLambda, MavrykContract
 
 ###
@@ -132,3 +132,17 @@ class LendingControllerLoanToken(Model):
 
     class Meta:
         table = 'lending_controller_loan_token'
+
+class LendingControllerHistoryData(Model):
+    id                                      = fields.BigIntField(pk=True)
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='history_data')
+    vault                                   = fields.ForeignKeyField('models.LendingControllerVault', related_name='history_data', null=True)
+    sender                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_history_data_sender', index=True)
+    operation_hash                          = fields.CharField(max_length=51)
+    timestamp                               = fields.DatetimeField(index=True)
+    level                                   = fields.BigIntField(default=0)
+    type                                    = fields.IntEnumField(enum_type=LendingControllerOperationType, index=True)
+    amount                                  = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'lending_controller_history_data'

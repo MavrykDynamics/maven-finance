@@ -51,10 +51,6 @@ class TokenType(IntEnum):
     FA2                     = 2
     OTHER                   = 3
 
-class OracleType(IntEnum):
-    CFMM                    = 0
-    ORACLE                  = 1
-
 class RewardType(IntEnum):
     XTZ                     = 0
     SMVK                    = 1
@@ -62,3 +58,17 @@ class RewardType(IntEnum):
 class VaultAllowance(IntEnum):
     ANY                     = 0
     WHITELIST               = 1
+
+class LendingControllerOperationType(IntEnum):
+    ADD_LIQUIDITY           = 0
+    REMOVE_LIQUIDITY        = 1
+    BORROW                  = 2
+    REPAY                   = 3
+    DEPOSIT                 = 4
+    WITHDRAW                = 5
+    DEPOSIT_SMVK            = 6
+    WITHDRAW_SMVK           = 7
+    VAULT_CREATION          = 8
+    MARK_FOR_LIQUIDATION    = 9
+    LIQUIDATE_VAULT         = 10
+    CLOSE_VAULT             = 11
