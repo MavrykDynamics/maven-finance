@@ -104,7 +104,7 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 // ------------------------------------------------------------------------------
 
 // Aggregator Lambdas :
-#include "../partials/contractLambdas/aggregator/aggregatorLambdas.ligo"
+#include "../partials/contractLambdas/aggregatorLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
@@ -118,40 +118,41 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 
 (* main entrypoint *)
 function main (const action : aggregatorAction; const s : aggregatorStorageType) : return is
-    block {
-        // Check that entrypoint should not receive any tez amount   
-        checkNoAmount(Unit);
-    } with(
-        case action of [
-            
-                // Housekeeping Entrypoints
-            |   SetAdmin (parameters)                           -> setAdmin(parameters, s)
-            |   SetGovernance (parameters)                      -> setGovernance(parameters, s) 
-            |   SetName (parameters)                            -> setName(parameters, s) 
-            |   UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
-            |   UpdateConfig (parameters)                       -> updateConfig(parameters, s)
-            |   UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)
-            |   UpdateGeneralContracts (parameters)             -> updateGeneralContracts(parameters, s)
-            |   MistakenTransfer (parameters)                   -> mistakenTransfer(parameters, s)
+block {
 
-                // Admin Oracle Entrypoints
-            |   AddOracle (parameters)                          -> addOracle(parameters, s)
-            |   UpdateOracle (_parameters)                      -> updateOracle(s)
-            |   RemoveOracle (parameters)                       -> removeOracle(parameters, s)
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
-                // Pause / Break Glass Entrypoints
-            |   PauseAll (_parameters)                          -> pauseAll(s)
-            |   UnpauseAll (_parameters)                        -> unpauseAll(s)
-            |   TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
+} with(
+    case action of [
+        
+            // Housekeeping Entrypoints
+        |   SetAdmin (parameters)                           -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)                      -> setGovernance(parameters, s) 
+        |   SetName (parameters)                            -> setName(parameters, s) 
+        |   UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)                       -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts (parameters)             -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)                   -> mistakenTransfer(parameters, s)
 
-                // Oracle Entrypoints
-            |   UpdateData (parameters)                         -> updateData(parameters, s)
+            // Admin Oracle Entrypoints
+        |   AddOracle (parameters)                          -> addOracle(parameters, s)
+        |   UpdateOracle (_parameters)                      -> updateOracle(s)
+        |   RemoveOracle (parameters)                       -> removeOracle(parameters, s)
 
-                // Reward Entrypoints
-            |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
-            |   WithdrawRewardStakedMvk (parameters)            -> withdrawRewardStakedMvk(parameters, s)
+            // Pause / Break Glass Entrypoints
+        |   PauseAll (_parameters)                          -> pauseAll(s)
+        |   UnpauseAll (_parameters)                        -> unpauseAll(s)
+        |   TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
 
-                // Lambda Entrypoints
-            |   SetLambda (parameters)                          -> setLambda(parameters, s)
-        ]
-    );
+            // Oracle Entrypoints
+        |   UpdateData (parameters)                         -> updateData(parameters, s)
+
+            // Reward Entrypoints
+        |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
+        |   WithdrawRewardStakedMvk (parameters)            -> withdrawRewardStakedMvk(parameters, s)
+
+            // Lambda Entrypoints
+        |   SetLambda (parameters)                          -> setLambda(parameters, s)
+    ]
+);

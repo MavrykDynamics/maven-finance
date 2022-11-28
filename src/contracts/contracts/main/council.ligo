@@ -107,7 +107,7 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 // ------------------------------------------------------------------------------
 
 // Council Lambdas:
-#include "../partials/contractLambdas/council/councilLambdas.ligo"
+#include "../partials/contractLambdas/councilLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

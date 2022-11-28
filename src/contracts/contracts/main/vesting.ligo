@@ -79,7 +79,7 @@ type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorag
 // ------------------------------------------------------------------------------
 
 // Vesting Lambdas :
-#include "../partials/contractLambdas/vesting/vestingLambdas.ligo"
+#include "../partials/contractLambdas/vestingLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

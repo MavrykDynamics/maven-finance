@@ -123,8 +123,8 @@ type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType
 // Lambdas
 // ------------------------------------------------------------------------------
 
-// Governance Proxy Lambdas :
-#include "../partials/contractLambdas/governanceProxy/governanceProxyLambdas.ligo"
+// GovernanceProxy Lambdas :
+#include "../partials/contractLambdas/governanceProxyLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
