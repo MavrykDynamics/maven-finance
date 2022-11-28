@@ -10,6 +10,16 @@ import { parseDate } from 'utils/time'
 
 import { SatelliteItemStyle } from './SatelliteCard.style'
 
+export const handleCoinName = (name: string) => {
+  const updatedName = name.split('/')?.[1]
+
+  if (!updatedName && name.includes('USD')) {
+    return name.slice(3)
+  }
+
+  return updatedName
+}
+
 export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
   const { dipDupTokens } = useSelector((state: State) => state.tokens)
   const imageLink = dipDupTokens.find(({ contract }) => contract === feed.address)?.metadata?.icon
@@ -18,7 +28,7 @@ export const DataFeedCard = ({ feed }: { feed: FeedGQL }) => {
     <Link to={`/satellites/feed-details/${feed.address}`}>
       <SatelliteItemStyle className="feed">
         <div className="item with-img">
-          <CoinsLogo imageLink={imageLink} assetName={feed.name.split('/')?.[1]} />
+          <CoinsLogo imageLink={imageLink} assetName={handleCoinName(feed.name)} />
           <h5>Feed</h5>
           <var>
             <Trim title={feed.name} />
