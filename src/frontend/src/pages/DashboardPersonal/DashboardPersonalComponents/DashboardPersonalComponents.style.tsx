@@ -18,12 +18,39 @@ export const SmallBlockBase = styled.div<{ theme: MavrykTheme }>`
     max-width: 190px;
     font-size: 16px;
   }
+
+  .name {
+    font-weight: 600;
+    font-size: 14px;
+    color: ${({ theme }) => theme.textColor};
+  }
+
+  .value {
+    font-size: 16px;
+    font-weight: 600;
+    color: ${({ theme }) => theme.dataColor};
+  }
 `
 
 export const MediumBlockBase = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
   height: 382px;
   display: flex;
   flex-direction: column;
+
+  .no-data {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    row-gap: 20px;
+
+    span {
+      font-weight: 600;
+      font-size: 14px;
+      color: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
+    }
+  }
 `
 
 export const PortfolioChartStyled = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
@@ -187,35 +214,10 @@ export const EarnHistoryStyled = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
     > div {
       font-weight: 600;
     }
-
-    .name {
-      font-size: 14px;
-      color: ${({ theme }) => theme.textColor};
-    }
-
-    .value {
-      font-size: 16px;
-      color: ${({ theme }) => theme.dataColor};
-    }
   }
 `
 
 export const LBHInfoBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
-  .no-data {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    row-gap: 20px;
-
-    span {
-      font-weight: 600;
-      font-size: 14px;
-      color: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
-    }
-  }
-
   .list {
     display: flex;
     flex-direction: column;
@@ -270,18 +272,6 @@ export const ListItem = styled.div<{ theme: MavrykTheme; columsTemplate: string 
     }
   }
 
-  .name {
-    font-weight: 600;
-    font-size: 14px;
-    color: ${({ theme }) => theme.textColor};
-  }
-
-  .value {
-    font-size: 16px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.dataColor};
-  }
-
   &:not(:last-child)::before {
     content: '';
     position: absolute;
@@ -292,8 +282,126 @@ export const ListItem = styled.div<{ theme: MavrykTheme; columsTemplate: string 
   }
 `
 
-export const DelegationStatusBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>``
-export const SatelliteStatusBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>``
+export const SatelliteStatusBlock = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
+  padding-bottom: 20px;
+
+  .grid {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 50px);
+    column-gap: 20px;
+    row-gap: 25px;
+    grid-template:
+      'info space participation'
+      'delegated fee oraclePart'
+      'oracleStatus website website';
+
+    .grid-item {
+      display: flex;
+      flex-direction: column;
+      row-gap: 5px;
+
+      p {
+        margin: 0;
+      }
+
+      &.info {
+        grid-area: info;
+        flex-direction: row;
+
+        .text {
+          display: flex;
+          flex-direction: column;
+          row-gap: 5px;
+
+          svg {
+            width: 16px;
+            height: 16px;
+            fill: unset;
+            stroke: ${({ theme }) => theme.dataColor};
+          }
+        }
+
+        > svg {
+          height: 40px;
+          width: 40px;
+          fill: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
+          margin-right: 10px;
+        }
+      }
+
+      &.space {
+        grid-area: space;
+      }
+
+      &.participation {
+        grid-area: participation;
+      }
+
+      &.delegated {
+        grid-area: delegated;
+      }
+
+      &.fee {
+        grid-area: fee;
+      }
+
+      &.oraclePart {
+        grid-area: oraclePart;
+      }
+
+      &.oracleStatus {
+        grid-area: oracleStatus;
+      }
+
+      &.website {
+        grid-area: website;
+
+        a {
+          font-weight: 500;
+          font-size: 14px;
+          color: ${({ theme }) => theme.valueColor};
+        }
+      }
+    }
+  }
+
+  > a {
+    margin: 0 auto;
+    margin-top: auto;
+    font-weight: 500;
+    font-size: 14px;
+    color: ${({ theme }) => theme.valueColor};
+    position: relative;
+
+    &::before {
+      position: absolute;
+      content: '';
+      width: 475px;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 1px;
+      background: ${({ theme }) => theme.cardBorderColor};
+      cursor: default;
+    }
+  }
+`
+
+export const DelegationStatusBlock = styled(SatelliteStatusBlock)<{ theme: MavrykTheme }>`
+  .grid {
+    grid-template-rows: repeat(2, 50px);
+  }
+
+  .delegated-to {
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 27px;
+    color: ${({ theme }) => theme.textColor};
+    margin-top: 25px;
+  }
+`
 
 export const DashboardPersonalTabStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;

@@ -315,8 +315,6 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
       )
     ).json()
 
-    console.log('user tzBTC amount', tzBTCTokenInfo)
-
     const mytzBTCTokenBalance =
       parseFloat(tzBTCTokenInfo?.balance ?? 0) / 10 ** parseFloat(tzBTCTokenInfo?.token?.metadata?.decimals ?? 0)
 
