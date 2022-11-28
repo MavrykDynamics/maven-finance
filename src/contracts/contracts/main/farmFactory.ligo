@@ -92,7 +92,7 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 // ------------------------------------------------------------------------------
 
 // FarmFactory Lambdas:
-#include "../partials/contractLambdas/farmFactory/farmFactoryLambdas.ligo"
+#include "../partials/contractLambdas/farmFactoryLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
