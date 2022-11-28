@@ -9,7 +9,7 @@
 // Constants
 // ------------------------------------------------------------------------------
 
-const zeroTimestamp : timestamp = ("2000-01-01t00:00:00Z" : timestamp);
+const zeroTimestamp : timestamp = ("1970-01-01t00:00:00Z" : timestamp);
 
 // ------------------------------------------------------------------------------
 // General Contract Helpers
