@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 
 // components
 import { Button } from 'app/App.components/SettingsPopup/SettingsPopup.style'
@@ -8,15 +8,16 @@ import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
 import { ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 import { parseDate } from 'utils/time'
 import { getSeparateCamelCase } from '../../utils/parse'
+import { scrollToFullView } from 'utils/scrollToFullView'
 
 // styles
 import { CouncilOngoingActionStyled } from './Council.style' 
 
 // types
-import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
+import { BreakGlassActions } from "utils/TypesAndInterfaces/BreakGlass";
 import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
-type Props = (BreakGlassAction[0] | CouncilActions[0]) & {
+type Props = (BreakGlassActions[0] | CouncilActions[0]) & {
   numCouncilMembers: number
   handleDropAction: (arg: number) => void
 }
@@ -24,6 +25,7 @@ type Props = (BreakGlassAction[0] | CouncilActions[0]) & {
 export function CouncilOngoingAction(props: Props) {
   const { executionDatetime, actionType, signersCount, numCouncilMembers, id, parameters, handleDropAction } = props
   const [isOpen, setIsOpen] = useState(false)
+  const ref = useRef<HTMLDivElement | null>(null)
 
   const handleClickCard = () => {
     setIsOpen(!isOpen)
@@ -144,6 +146,14 @@ export function CouncilOngoingAction(props: Props) {
     )
   }
 
+  // if the dropdown is not fully visible in the window,
+  // move the scroll to fix it
+  useEffect(() => {
+    if (isOpen) {
+      scrollToFullView(ref.current)
+    }
+  }, [isOpen])
+
   return (
     <CouncilOngoingActionStyled>
       <div className='top' onClick={handleClickCard}>
@@ -165,7 +175,7 @@ export function CouncilOngoingAction(props: Props) {
         </div>
       </div>
 
-      {isOpen && <div className='bottom'>
+      {isOpen && <div ref={ref} className='bottom'>
         {bottomSection}
       </div>}
     </CouncilOngoingActionStyled>

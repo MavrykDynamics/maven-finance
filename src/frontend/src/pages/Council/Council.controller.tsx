@@ -218,12 +218,13 @@ export const Council = () => {
                 <article className="pending">
                   <div className="pending-items">
                     <Carousel itemLength={councilPendingActions?.length} key={sliderKey}>
-                      {councilPendingActions.map((item) => (
+                      {councilPendingActions.map((item, index) => (
                         <CouncilPendingView
                           {...item}
                           key={item.id} 
                           numCouncilMembers={councilMembers.length}
                           councilPendingActionsLength={councilPendingActions.length}
+                          index={index}
                         />
                       ))}
                     </Carousel>

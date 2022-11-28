@@ -9,14 +9,19 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { TabSwitcher } from './Council.style'
 
 // types
-import { BreakGlassAction } from "utils/TypesAndInterfaces/BreakGlass";
+import { BreakGlassActions } from "utils/TypesAndInterfaces/BreakGlass";
 import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
+type MyPastCouncilActionType = (BreakGlassActions[0] | CouncilActions[0]) & {
+  councilId?: string,
+  breakGlassId?: string,
+}
+
 type Props = {
-  myPastCouncilAction: BreakGlassAction | CouncilActions
+  myPastCouncilAction: MyPastCouncilActionType[]
   myPastCouncilActionLength: number
-  actionPendingSignature: BreakGlassAction | CouncilActions
+  actionPendingSignature: BreakGlassActions | CouncilActions
   actionPendingSignatureLength: number
   numCouncilMembers: number
   activeActionTab: string
@@ -55,8 +60,7 @@ export function MyCouncilActions({
               actionType={item.actionType}
               signersCount={item.signersCount}
               numCouncilMembers={numCouncilMembers}
-              // @ts-ignore TODO: handle string
-              councilId={item?.breakGlassId || item?.councilId}
+              councilId={item?.breakGlassId || item?.councilId || ''}
             />
           ))}
 
