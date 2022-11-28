@@ -88,7 +88,7 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // ------------------------------------------------------------------------------
 
 // Treasury Lambdas :
-#include "../partials/contractLambdas/treasury/treasuryLambdas.ligo"
+#include "../partials/contractLambdas/treasuryLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

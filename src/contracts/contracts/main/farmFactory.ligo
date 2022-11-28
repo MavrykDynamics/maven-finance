@@ -77,28 +77,28 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 // Helpers
 // ------------------------------------------------------------------------------
 
-// Farm Factory Helpers:
+// FarmFactory Helpers:
 #include "../partials/contractHelpers/farmFactoryHelpers.ligo"
-
-// ------------------------------------------------------------------------------
-// Lambdas
-// ------------------------------------------------------------------------------
-
-// Farm Factory Lambdas:
-#include "../partials/contractLambdas/farmFactory/farmFactoryLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Views
 // ------------------------------------------------------------------------------
 
-// Farm Factory Views:
+// FarmFactory Views:
 #include "../partials/contractViews/farmFactoryViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// FarmFactory Lambdas:
+#include "../partials/contractLambdas/farmFactory/farmFactoryLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
 // ------------------------------------------------------------------------------
 
-// Farm Factory Entrypoints:
+// FarmFactory Entrypoints:
 #include "../partials/contractEntrypoints/farmFactoryEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------

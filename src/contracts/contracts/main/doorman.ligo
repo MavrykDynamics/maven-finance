@@ -89,7 +89,7 @@ type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorag
 // ------------------------------------------------------------------------------
 
 // Doorman Lambdas:
-#include "../partials/contractLambdas/doorman/doormanLambdas.ligo"
+#include "../partials/contractLambdas/doormanLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints

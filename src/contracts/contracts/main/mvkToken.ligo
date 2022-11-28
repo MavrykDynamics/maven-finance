@@ -593,7 +593,7 @@ block {
 function main (const action : action; const store : mvkTokenStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // Check that sender didn't send any tezos while calling an entrypoint
+    checkNoAmount(Unit); // // entrypoints should not receive any tez amount  
 
 } with(
     

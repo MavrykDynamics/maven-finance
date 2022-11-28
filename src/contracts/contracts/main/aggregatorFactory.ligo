@@ -98,8 +98,8 @@ type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaAction
 // Lambdas
 // ------------------------------------------------------------------------------
 
-// Aggregator Factory Lambdas:
-#include "../partials/contractLambdas/aggregatorFactory/aggregatorFactoryLambdas.ligo"
+// AggregatorFactory Lambdas:
+#include "../partials/contractLambdas/aggregatorFactoryLambdas.ligo"
 
 // ------------------------------------------------------------------------------
 // Entrypoints
