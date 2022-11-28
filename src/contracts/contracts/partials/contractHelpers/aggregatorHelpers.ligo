@@ -685,24 +685,23 @@ function updateRewardsStakedMvk (const oracleObservations : map (address, oracle
 block {
 
     // init params
-    var tempSatellitesMap   : map(address, nat) := map [];
-    var totalVotingPower    : nat               := 0n;
+    var tempOracleVotingPowerMap   : map(address, nat) := map [];
+    var totalVotingPower           : nat               := 0n;
 
     // get reward amount staked mvk
     const rewardAmountStakedMvk : nat = s.config.rewardAmountStakedMvk;
 
-    // loop over satellite oracles who have committed their data feed data, and calculate total voting power 
-    // and store each satellite respective share in tempSatellitesMap
+    // Loop over satellite oracles who have committed their data feed data, and calculate their voting power 
+    // to store as their respective share in tempOracleVotingPowerMap
+    // totalVotingPower to be used as denominator to determine each oracle's share of staked MVK rewards
     for oracleAddress -> _value in map oracleObservations block {
-
-        // Get total sum of all satellite oracles total voting power (to be used as denominator to determine each oracle's share of staked MVK rewards)
         
         // oracleVotingPower calculation
         const oracleVotingPower : nat = calculateSatelliteVotingPower(oracleAddress, s);
 
         // totalVotingPower storage + total updated
-        tempSatellitesMap[oracleAddress] := oracleVotingPower;
-        totalVotingPower                 := totalVotingPower + oracleVotingPower;
+        tempOracleVotingPowerMap[oracleAddress] := oracleVotingPower;
+        totalVotingPower                        := totalVotingPower + oracleVotingPower;
 
     };
 
@@ -710,7 +709,7 @@ block {
     for oracleAddress -> _value in map oracleObservations block {
 
         // increment satellites' staked mvk reward amounts based on their share of total voting power (among other satellites for this observation reveal)
-        const oracleShare : nat = case tempSatellitesMap[oracleAddress] of [
+        const oracleShare : nat = case tempOracleVotingPowerMap[oracleAddress] of [
                 Some(_value) -> _value
             |   None         -> failwith(error_SATELLITE_NOT_FOUND)
         ];
