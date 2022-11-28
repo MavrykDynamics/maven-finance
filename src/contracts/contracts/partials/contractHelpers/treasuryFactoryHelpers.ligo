@@ -118,8 +118,12 @@ block {
 
 
 // helper funtion to prepare new treasury storage
-function prepareTreasuryStorage(const treasuryName : string; const metadata : bytes; const s : treasuryFactoryStorageType) : treasuryStorageType is 
+function prepareTreasuryStorage(const createTreasuryParams : createTreasuryType; const s : treasuryFactoryStorageType) : treasuryStorageType is 
 block {
+
+    // init variables
+    const treasuryName  : string = createTreasuryParams.name;
+    const metadata      : bytes  = createTreasuryParams.metadata;
 
     // Get Governance Proxy Contract address directly from the Governance Contract
     const governanceProxyAddress : address = getGovernanceProxyAddress(s);

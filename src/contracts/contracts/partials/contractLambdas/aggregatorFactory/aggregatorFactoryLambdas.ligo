@@ -305,131 +305,50 @@ block {
     // 7. Execute operations
     
     
-    // Check that %createAggregator entrypoint is not paused (e.g. glass broken)
-    checkCreateAggregatorIsNotPaused(s);
+    checkSenderIsAdmin(s);               // check that sender is admin
+    checkCreateAggregatorIsNotPaused(s); // Check that %createAggregator entrypoint is not paused (e.g. glass broken)
 
     var operations : list(operation) := nil;
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaCreateAggregator(createAggregatorParams) -> {
                 
-                checkSenderIsAdmin(s); // check that sender is admin
-
-                // createAggregator parameters declaration
-                
-                const lastCompletedData = record[
-                      round                     = 0n;
-                      epoch                     = 0n;
-                      data                      = 0n;
-                      percentOracleResponse     = 0n;
-                      lastUpdatedAt             = Tezos.get_now();
-                  ];
-                const oracleRewardXtz        : oracleRewardXtzType        = map[];
-                const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
-
-                // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
-                const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
-
-                // Add Aggregator Factory Contract and Governance Satellite Contract to Whitelisted Contracts Map on the new Aggregator Contract
-                const aggregatorWhitelistContracts : whitelistContractsType = map[
-                    ("aggregatorFactory")   -> (Tezos.get_self_address() : address);
-                    ("governanceSatellite") -> (governanceSatelliteAddress : address);
-                ];
-                
-                const aggregatorGeneralContracts : generalContractsType = map[];
-
-                const aggregatorLambdaLedger : lambdaLedgerType = s.aggregatorLambdaLedger;
-
-                const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
-                    updateDataIsPaused                 = False;
-                    withdrawRewardXtzIsPaused           = False;
-                    withdrawRewardStakedMvkIsPaused     = False;
-                ];
-
-                // Prepare Aggregator Metadata
-                const aggregatorMetadata: metadataType = Big_map.literal (list [
-                    ("", ("74657a6f732d73746f726167653a64617461" : bytes));
-                    ("data", createAggregatorParams.metadata);
-                ]); 
-
-                // Validate name input does not exceed max length
-                const aggregatorName : string = createAggregatorParams.name;
-                if String.length(aggregatorName) > s.config.aggregatorNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // Declare new Aggregator Storage 
-                const originatedaggregatorStorageType : aggregatorStorageType = record [
-
-                    admin                     = s.admin;                                      // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
-                    metadata                  = aggregatorMetadata;
-                    name                      = aggregatorName;
-                    config                    = createAggregatorParams.aggregatorConfig;
-                    breakGlassConfig          = aggregatorBreakGlassConfig;
-
-                    mvkTokenAddress           = s.mvkTokenAddress;
-                    governanceAddress         = s.governanceAddress;
-
-                    whitelistContracts        = aggregatorWhitelistContracts;      
-                    generalContracts          = aggregatorGeneralContracts;
-
-                    oracleAddresses           = createAggregatorParams.oracleAddresses;
-                    
-                    lastCompletedData        = lastCompletedData;
-                                        
-                    oracleRewardXtz           = oracleRewardXtz;
-                    oracleRewardStakedMvk     = oracleRewardStakedMvk;      
-
-                    lambdaLedger              = aggregatorLambdaLedger;
-                ];
+                // Prepare new Aggregator storage
+                const originatedAggregatorStorage : aggregatorStorageType = prepareAggregatorStorage(createAggregatorParams, s);
 
                 // Contract origination
                 const aggregatorOrigination : (operation * address) = createAggregatorFunc(
                     (None: option(key_hash)),
                     0tez,
-                    originatedaggregatorStorageType
+                    originatedAggregatorStorage
                 );
                 
                 // Add new Aggregator to Tracked Aggregators map on Aggregator Factory
-                s.trackedAggregators := Set.add(aggregatorOrigination.1, s.trackedAggregators);
-
-                operations := aggregatorOrigination.0 # operations;
-                
-                // Set Aggregator Reference operation to Governance Satellite Contract
-                const setAggregatorReferenceParams : setAggregatorReferenceType = record [
-                    aggregatorAddress   = aggregatorOrigination.1;
-                    oldName             = aggregatorName;
-                    newName             = aggregatorName;
-                ];
-
-                const setAggregatorReferenceOperation : operation = Tezos.transaction(
-                    setAggregatorReferenceParams,
-                    0tez,
-                    getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
-                );
+                s.trackedAggregators := trackAggregator(aggregatorOrigination.1, s);
 
                 // If addToGeneralContracts boolean is True - add new Aggregator to the Governance Contract - General Contracts Map
                 if createAggregatorParams.addToGeneralContracts = True then {
                     
-                    const updateGeneralMapRecord : updateGeneralContractsType = record [
-                        generalContractName    = aggregatorName;
-                        generalContractAddress = aggregatorOrigination.1;
-                    ];
-
-                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsType) = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress) : option(contract(updateGeneralContractsType))) of [
-                            Some (contr) -> contr
-                        |   None         -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
-                    ];
-
-                    // Operation to update General Contracts Map on the Governance Contract
-                    const updateContractGeneralMapOperation : operation = Tezos.transaction(
-                        updateGeneralMapRecord,
-                        0tez, 
-                        updateContractGeneralMapEntrypoint
+                    // Create and send updateGeneralContractsMap operation to the Governance Contract
+                    const updateGeneralContractsOperation : operation = updateGeneralContractsOperation(
+                        createAggregatorParams.name,  // aggregator name
+                        aggregatorOrigination.1,      // aggregator contract address
+                        s                             // storage
                     );
-
-                    operations := updateContractGeneralMapOperation # operations;
+                    operations := updateGeneralContractsOperation # operations;
 
                 }
                 else skip;
+
+                // originate aggregator operation
+                operations := aggregatorOrigination.0 # operations;
+
+                // Set Aggregator Reference operation to Governance Satellite Contract
+                const setAggregatorReferenceOperation : operation = setAggregatorReferenceOperation(
+                    createAggregatorParams.name,  // aggregator name
+                    aggregatorOrigination.1,      // aggregator contract address
+                    s                             // storage
+                );
 
                 operations := setAggregatorReferenceOperation # operations;
 
@@ -452,44 +371,28 @@ block{
     // 2. Check if Aggregator Name exists (e.g. BTC/USD) 
     //      -   Add Aggregator Contract to Tracked Aggregators Map if Aggregator Name does not exist
 
-    // Check that %trackAggregator entrypoint is not paused (e.g. glass broken)
-    checkTrackAggregatorIsNotPaused(s);
-
-    // Check if sender is admin
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s);              // Check if sender is admin
+    checkTrackAggregatorIsNotPaused(s); // Check that %trackAggregator entrypoint is not paused (e.g. glass broken)
 
     var operations : list(operation) := nil;
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaTrackAggregator(trackAggregatorParams) -> {
                 
-                s.trackedAggregators := case Set.mem(trackAggregatorParams, s.trackedAggregators) of [
-                        True  -> failwith(error_AGGREGATOR_ALREADY_TRACKED)
-                    |   False -> Set.add(trackAggregatorParams, s.trackedAggregators)
-                ];
+                // add aggregator to tracked aggregators set
+                s.trackedAggregators := trackAggregator(trackAggregatorParams, s);
 
                 // Get the aggregator's name
-                const nameView : option(string) = Tezos.call_view ("getName", unit, trackAggregatorParams);
-                const name : string             = case nameView of [
-                            Some (_name)    -> _name
-                        |   None            -> failwith (error_GET_NAME_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
-                ];
+                const aggregatorName : string = getAggregatorName(trackAggregatorParams);
 
-                // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
-                const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
-                
                 // Set Aggregator Reference operation to Governance Satellite Contract
-                const setAggregatorReferenceParams : setAggregatorReferenceType = record [
-                    aggregatorAddress   = trackAggregatorParams;
-                    oldName             = name;
-                    newName             = name;
-                ];
+                const setAggregatorReferenceOperation : operation = setAggregatorReferenceOperation(
+                    aggregatorName,               // aggregator name
+                    trackAggregatorParams,        // aggregator contract address
+                    s                             // storage
+                );
 
-                operations  := Tezos.transaction(
-                    setAggregatorReferenceParams,
-                    0tez,
-                    getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
-                ) # operations;
+                operations := setAggregatorReferenceOperation # operations;
 
             }
         |   _ -> skip
@@ -509,21 +412,16 @@ block{
     //      -   Check that sender is admin
     // 2. Remove Aggregator Contract from Tracked Aggregators Map 
 
-    // Check that %untrackAggregator entrypoint is not paused (e.g. glass broken)
-    checkUntrackAggregatorIsNotPaused(s);
-
-    // Check if sender is admin
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s);                // Check if sender is admin
+    checkUntrackAggregatorIsNotPaused(s); // Check that %untrackAggregator entrypoint is not paused (e.g. glass broken)
 
     var operations : list(operation) := nil;
 
     case aggregatorFactoryLambdaAction of [
         |   LambdaUntrackAggregator(untrackAggregatorParams) -> {
 
-                s.trackedAggregators := case Set.mem(untrackAggregatorParams, s.trackedAggregators) of [
-                        True  -> Set.remove(untrackAggregatorParams, s.trackedAggregators)
-                    |   False -> (failwith(error_AGGREGATOR_NOT_TRACKED) : set(address))
-                ];
+                // remove aggregator from tracked aggregators set
+                s.trackedAggregators := untrackAggregator(untrackAggregatorParams, s);
 
             }
         |   _ -> skip
@@ -560,33 +458,16 @@ block{
     case aggregatorFactoryLambdaAction of [
         |   LambdaDistributeRewardXtz(distributeRewardXtzParams) -> {
                 
-                // Check that sender is from a tracked Aggregator Contract
-                if checkInTrackedAggregators(Tezos.get_sender(), s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
+                // Verify that sender is from a tracked Aggregator Contract
+                verifySenderIsTrackedAggregators(s);
 
                 // init params
                 const recipient          : address    = distributeRewardXtzParams.recipient;
                 const reward             : nat        = distributeRewardXtzParams.reward;
-                const tokenTransferType  : tokenType  = Tez;
 
-                // Get Aggregator Treasury Contract Address from the General Contracts Map on the Governance Contract
-                const treasuryAddress : address = getContractAddressFromGovernanceContract("aggregatorTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
-
-                // Create operation to transfer XTZ reward from Aggregator Treasury to oracle recipient
-                const transferTokenParams : transferActionType = list[
-                    record [
-                        to_        = recipient;
-                        token      = tokenTransferType;
-                        amount     = reward;
-                    ]
-                ];
-
-                const treasuryTransferOperation : operation = Tezos.transaction(
-                    transferTokenParams, 
-                    0tez, 
-                    sendTransferOperationToTreasury(treasuryAddress)
-                );
-
-                operations := treasuryTransferOperation # operations;
+                // Create operation to distribute XTZ reward from Aggregator Treasury to oracle recipient (satellite)
+                const distributeRewardXtzOperation : operation = distributeRewardXtzOperation(recipient, reward, s);
+                operations := distributeRewardXtzOperation # operations;
 
             }
         |   _ -> skip
@@ -615,22 +496,14 @@ block{
     case aggregatorFactoryLambdaAction of [
         |   LambdaDistributeRewardStakedMvk(distributeRewardStakedMvkParams) -> {
                 
-                // Check that sender is from a tracked Aggregator Contract
-                if checkInTrackedAggregators(Tezos.get_sender(), s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
+                // Verify that sender is from a tracked Aggregator Contract
+                verifySenderIsTrackedAggregators(s);
 
-                // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-                // Create operation to distribute staked MVK reward to oracle recipient through the %distributeReward entrypoint on the Delegation Contract
-                const rewardParams : distributeRewardStakedMvkType = record [
-                    eligibleSatellites   = distributeRewardStakedMvkParams.eligibleSatellites;
-                    totalStakedMvkReward = distributeRewardStakedMvkParams.totalStakedMvkReward;
-                ];
-
-                const distributeRewardStakedMvkOperation : operation = Tezos.transaction(
-                    rewardParams,
-                    0tez,
-                    getDistributeRewardInDelegationEntrypoint(delegationAddress)
+                // Create operation to distribute staked MVK reward to eligible oracle recipient (satellite) through the %distributeReward entrypoint on the Delegation Contract
+                const distributeRewardStakedMvkOperation : operation = distributeRewardStakedMvkOperation(
+                    distributeRewardStakedMvkParams.eligibleSatellites,
+                    distributeRewardStakedMvkParams.totalStakedMvkReward,
+                    s 
                 );
 
                 operations := distributeRewardStakedMvkOperation # operations;

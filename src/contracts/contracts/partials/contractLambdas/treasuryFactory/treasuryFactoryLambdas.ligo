@@ -335,11 +335,7 @@ block{
                 validateStringLength(createTreasuryParams.name, s.config.treasuryNameMaxLength, error_WRONG_INPUT_PROVIDED);
 
                 // Prepare new Treasury storage
-                const originatedTreasuryStorage : treasuryStorageType = prepareTreasuryStorage(
-                    createTreasuryParams.name, 
-                    createTreasuryParams.metadata,
-                    s
-                );
+                const originatedTreasuryStorage : treasuryStorageType = prepareTreasuryStorage(createTreasuryParams, s);
 
                 // Create operation to originate Treasury
                 const treasuryOrigination: (operation * address) = createTreasuryFunc(
