@@ -43,7 +43,7 @@ async def on_delegation_delegate_to_satellite(
         user        = user,
         delegation  = delegation
     )
-    delegationRecord.satellite_record = satelliteRecord
+    delegationRecord.satellite  = satelliteRecord
     await user.save()
     await satellite.save()
     await delegationRecord.save()

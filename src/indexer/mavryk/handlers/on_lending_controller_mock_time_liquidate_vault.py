@@ -13,6 +13,11 @@ async def on_lending_controller_mock_time_liquidate_vault(
 
     # Get operation info
     lending_controller_address  = liquidate_vault.data.target_address
+    timestamp                   = liquidate_vault.data.timestamp
+    level                       = liquidate_vault.data.level
+    operation_hash              = liquidate_vault.data.hash
+    sender_address              = liquidate_vault.data.sender_address
+    liquidation_amount          = float(liquidate_vault.parameter.amount)
     vault_owner_address         = liquidate_vault.parameter.vaultOwner
     vault_internal_id           = int(liquidate_vault.parameter.vaultId)
     vaults_storage              = liquidate_vault.storage.vaults
@@ -84,3 +89,20 @@ async def on_lending_controller_mock_time_liquidate_vault(
                 )
                 lending_controller_collateral_balance.balance   = collateral_token_amount
                 await lending_controller_collateral_balance.save()
+
+            # Save history data
+            sender, _                               = await models.MavrykUser.get_or_create(
+                address             = sender_address
+            )
+            await sender.save()
+            history_data                            = models.LendingControllerHistoryData(
+                lending_controller  = lending_controller,
+                vault               = lending_controller_vault,
+                sender              = sender,
+                operation_hash      = operation_hash,
+                timestamp           = timestamp,
+                level               = level,
+                type                = models.LendingControllerOperationType.LIQUIDATE_VAULT,
+                amount              = liquidation_amount
+            )
+            await history_data.save()

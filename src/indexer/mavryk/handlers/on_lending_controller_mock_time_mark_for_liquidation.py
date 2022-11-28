@@ -13,6 +13,10 @@ async def on_lending_controller_mock_time_mark_for_liquidation(
 
     # Get operation info
     lending_controller_address              = mark_for_liquidation.data.target_address
+    timestamp                               = mark_for_liquidation.data.timestamp
+    level                                   = mark_for_liquidation.data.level
+    operation_hash                          = mark_for_liquidation.data.hash
+    sender_address                          = mark_for_liquidation.data.sender_address
     vault_internal_id                       = int(mark_for_liquidation.parameter.vaultId)
     vault_owner_address                     = mark_for_liquidation.parameter.vaultOwner
     vaults_storage                          = mark_for_liquidation.storage.vaults
@@ -66,3 +70,20 @@ async def on_lending_controller_mock_time_mark_for_liquidation(
             loan_token.utilisation_rate             = float(loan_token_storage.utilisationRate)
             loan_token.current_interest_rate        = float(loan_token_storage.currentInterestRate)
             await loan_token.save()
+
+            # Save history data
+            sender, _                               = await models.MavrykUser.get_or_create(
+                address             = sender_address
+            )
+            await sender.save()
+            history_data                            = models.LendingControllerHistoryData(
+                lending_controller  = lending_controller,
+                vault               = lending_controller_vault,
+                sender              = sender,
+                operation_hash      = operation_hash,
+                timestamp           = timestamp,
+                level               = level,
+                type                = models.LendingControllerOperationType.MARK_FOR_LIQUIDATION,
+                amount              = 0
+            )
+            await history_data.save()

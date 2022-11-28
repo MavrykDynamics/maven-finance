@@ -4,13 +4,24 @@
 
 ### Deployment
 
-- DEV: 0.23
-- PROD: 0.22
-- PROD2: 0.22
+- DEV: 0.24
+- PROD: 0.23
+- PROD2: 0.23
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Version 0.24
+
+### What's new
+
+- LendingControllerHistoryData:
+  - Table added: tracks all operations made to vault contracts and to the lending controller contract
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.23</summary>
 
 ## Version 0.23
 
@@ -27,7 +38,7 @@
 - LiquidityBakingPosition:
   - Column AvgPriceUSD removed (USD price should be the most updated one so it should be calculated in frontend with the formula: `AvgPriceUSD = AvgPriceq * XTZUSDPrice`)
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.22</summary>
 
