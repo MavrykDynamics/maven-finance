@@ -512,13 +512,12 @@ block {
                 const blocksPerFullCycle    : nat = s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
 
                 // calculate number of cycles that have passed if any
-                // const cyclesPassed : nat = if currentBlockLevel > currentCycleEndLevel then (abs(currentBlockLevel - currentCycleEndLevel) / blocksPerFullCycle) else 0n;
                 var cyclesPassed : nat := 0n;
                 if currentBlockLevel > currentCycleEndLevel then {
                     if blocksPerFullCycle = 0n then cyclesPassed := 0n else {
                         cyclesPassed := (abs(currentBlockLevel - currentCycleEndLevel) / blocksPerFullCycle) 
                     };
-                } else cyclesPassed := 0n;
+                } else skip;
 
                 if cyclesPassed > 0n then block {
 
