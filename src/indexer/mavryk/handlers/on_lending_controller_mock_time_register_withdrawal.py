@@ -13,7 +13,12 @@ async def on_lending_controller_mock_time_register_withdrawal(
 
     # Get operation info
     lending_controller_address  = register_withdrawal.data.target_address
+    timestamp                   = register_withdrawal.data.timestamp
+    level                       = register_withdrawal.data.level
+    operation_hash              = register_withdrawal.data.hash
+    sender_address              = register_withdrawal.data.initiator_address
     vault_owner_address         = register_withdrawal.parameter.handle.owner
+    vault_withdraw_amount       = float(register_withdrawal.parameter.amount)
     vault_internal_id           = int(register_withdrawal.parameter.handle.id)
     vaults_storage              = register_withdrawal.storage.vaults
 
@@ -84,3 +89,20 @@ async def on_lending_controller_mock_time_register_withdrawal(
                 )
                 lending_controller_collateral_balance.balance   = collateral_token_amount
                 await lending_controller_collateral_balance.save()
+
+            # Save history data
+            sender, _                               = await models.MavrykUser.get_or_create(
+                address             = sender_address
+            )
+            await sender.save()
+            history_data                            = models.LendingControllerHistoryData(
+                lending_controller  = lending_controller,
+                vault               = lending_controller_vault,
+                sender              = sender,
+                operation_hash      = operation_hash,
+                timestamp           = timestamp,
+                level               = level,
+                type                = models.LendingControllerOperationType.WITHDRAW,
+                amount              = vault_withdraw_amount
+            )
+            await history_data.save()

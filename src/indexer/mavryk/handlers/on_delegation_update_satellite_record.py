@@ -9,6 +9,10 @@ async def on_delegation_update_satellite_record(
     ctx: HandlerContext,
     update_satellite_record: Transaction[UpdateSatelliteRecordParameter, DelegationStorage],
 ) -> None:
+
+    # TODO: implement PeerId/PublicKey when deployed
+    # breakpoint()
+
     # Get operation values
     delegation_address      = update_satellite_record.data.target_address
     satellite_address       = update_satellite_record.data.sender_address

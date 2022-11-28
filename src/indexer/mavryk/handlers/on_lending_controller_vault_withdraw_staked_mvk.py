@@ -13,6 +13,11 @@ async def on_lending_controller_vault_withdraw_staked_mvk(
 
     # Get operation info
     lending_controller_address  = vault_withdraw_staked_mvk.data.target_address
+    timestamp                   = vault_withdraw_staked_mvk.data.timestamp
+    level                       = vault_withdraw_staked_mvk.data.level
+    operation_hash              = vault_withdraw_staked_mvk.data.hash
+    sender_address              = vault_withdraw_staked_mvk.data.sender_address
+    vault_withdraw_amount       = float(vault_withdraw_staked_mvk.parameter.withdrawAmount)
     vault_internal_id           = int(vault_withdraw_staked_mvk.parameter.vaultId)
     vault_owner_address         = vault_withdraw_staked_mvk.data.sender_address
     vaults_storage              = vault_withdraw_staked_mvk.storage.vaults
@@ -84,3 +89,20 @@ async def on_lending_controller_vault_withdraw_staked_mvk(
                 )
                 lending_controller_collateral_balance.balance   = collateral_token_amount
                 await lending_controller_collateral_balance.save()
+
+            # Save history data
+            sender, _                               = await models.MavrykUser.get_or_create(
+                address             = sender_address
+            )
+            await sender.save()
+            history_data                            = models.LendingControllerHistoryData(
+                lending_controller  = lending_controller,
+                vault               = lending_controller_vault,
+                sender              = sender,
+                operation_hash      = operation_hash,
+                timestamp           = timestamp,
+                level               = level,
+                type                = models.LendingControllerOperationType.WITHDRAW_SMVK,
+                amount              = vault_withdraw_amount
+            )
+            await history_data.save()
