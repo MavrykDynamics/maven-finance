@@ -75,6 +75,7 @@ export function BreakGlassCouncil() {
     pastBreakGlassCouncilAction,
     myPastBreakGlassCouncilAction,
     glassBroken,
+    isPendingPropagateBreakGlass,
   } = useSelector((state: State) => state.breakGlass)
   const itemsForDropDown = useMemo(
     () =>
@@ -215,7 +216,7 @@ export function BreakGlassCouncil() {
             kind={ACTION_PRIMARY}
             icon={'plus'}
             onClick={handleClickPropagateBreakGlass}
-            disabled={glassBroken}
+            disabled={glassBroken || isPendingPropagateBreakGlass}
           />
         </PropagateBreakGlassCouncilCard>
       )}
@@ -228,12 +229,13 @@ export function BreakGlassCouncil() {
             <article className="pending">
               <div className="pending-items">
                 <Carousel itemLength={breakGlassActionPendingSignature.length} key={sliderKey}>
-                  {breakGlassActionPendingSignature.map((item) => (
+                  {breakGlassActionPendingSignature.map((item, index) => (
                     <BreakGlassCouncilPending
                       {...item}
                       key={item.id}
                       numCouncilMembers={breakGlassCouncilMember.length}
                       councilPendingActionsLength={breakGlassActionPendingSignature.length}
+                      index={index}
                     />
                   ))}
                 </Carousel>

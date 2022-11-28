@@ -39,7 +39,7 @@ const BREAK_GLASS_ACTION_PARAMS = `
 
 export const PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY = `
   query GetPastBreakGlassCouncilActions($_lt: timestamptz = "") {
-    break_glass_action(where: {expiration_datetime: {_lt: $_lt}, _or: {executed: {_eq: true}}}) {
+    break_glass_action(where: {expiration_datetime: {_lt: $_lt}, _or: {executed: {_eq: true}}}, order_by: {execution_datetime: desc}) {
      ${BREAK_GLASS_ACTION_PARAMS}
     }
   }
@@ -56,7 +56,7 @@ export function BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE(variables: {
 
 export const BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY = `
   query GetBreakGlassActionsPendingMySignature($_gte: timestamptz = "", $userAddress: String = "", $userAddress2: String = "") {
-    break_glass_action(where: {expiration_datetime: {_gte: $_gte}, initiator_id: {_neq: $userAddress}, signers: { signer_id: {_neq: $userAddress2}}}) {
+    break_glass_action(where: {expiration_datetime: {_gte: $_gte}, initiator_id: {_neq: $userAddress}, signers: { signer_id: {_neq: $userAddress2}}}, order_by: {execution_datetime: desc}) {
       ${BREAK_GLASS_ACTION_PARAMS}
       parameters {
         id
@@ -74,7 +74,7 @@ export function MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY_VARIABLE(variables: { _
 
 export const MY_PAST_BREAK_GLASS_COUNCIL_ACTION_QUERY = `
   query GetMyPastBreakGlassCouncilActions($_lt: timestamptz = "", $userAddress: String = "") {
-    break_glass_action(where: {expiration_datetime: {_lte: $_lt}, _or: {executed: {_eq: true}, _and: {initiator_id: {_eq: $userAddress}}}}) {
+    break_glass_action(where: {expiration_datetime: {_lte: $_lt}, _or: {executed: {_eq: true}, _and: {initiator_id: {_eq: $userAddress}}}}, order_by: {execution_datetime: desc}) {
       ${BREAK_GLASS_ACTION_PARAMS}
     }
   }

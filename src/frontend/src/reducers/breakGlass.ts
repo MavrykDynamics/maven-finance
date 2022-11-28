@@ -15,21 +15,22 @@ import {
   BreakGlassStatusStorage,
   WhitelistDevStorage,
   BreakGlassCouncilMember,
-  BreakGlassAction,
+  BreakGlassActions,
 } from '../utils/TypesAndInterfaces/BreakGlass'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface BreakGlassState {
   breakGlassStorage: BreakGlassStorage
   glassBroken: boolean
+  isPendingPropagateBreakGlass: boolean
   breakGlassStatus: BreakGlassStatusStorage
   whitelistDev: WhitelistDevStorage
   breakGlassCouncilMember: BreakGlassCouncilMember
-  breakGlassActionPendingAllSignature: BreakGlassAction
-  breakGlassActionPendingSignature: BreakGlassAction
-  breakGlassActionPendingMySignature: BreakGlassAction
-  pastBreakGlassCouncilAction: BreakGlassAction
-  myPastBreakGlassCouncilAction: BreakGlassAction
+  breakGlassActionPendingAllSignature: BreakGlassActions
+  breakGlassActionPendingSignature: BreakGlassActions
+  breakGlassActionPendingMySignature: BreakGlassActions
+  pastBreakGlassCouncilAction: BreakGlassActions
+  myPastBreakGlassCouncilAction: BreakGlassActions
 }
 
 const defaultBreakGlassStorage: BreakGlassStorage = {
@@ -47,9 +48,11 @@ const defaultBreakGlassStorage: BreakGlassStorage = {
   actionCounter: 0,
   glassBroken: false,
 }
+
 const breakGlassDefaultState: BreakGlassState = {
   breakGlassStorage: defaultBreakGlassStorage,
   glassBroken: false,
+  isPendingPropagateBreakGlass: false,
   breakGlassStatus: [],
   whitelistDev: '',
   breakGlassCouncilMember: [],
@@ -93,6 +96,7 @@ export function breakGlass(state = breakGlassDefaultState, action: Action) {
         breakGlassActionPendingAllSignature: action.breakGlassActionPendingAllSignature,
         breakGlassActionPendingSignature: action.breakGlassActionPendingSignature,
         breakGlassActionPendingMySignature: action.breakGlassActionPendingMySignature,
+        isPendingPropagateBreakGlass: action.isPendingPropagateBreakGlass,
       }
     case GET_PAST_BREAK_GLASS_COUNCIL_ACTION:
       return {

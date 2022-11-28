@@ -1,11 +1,24 @@
 import styled from 'styled-components/macro'
 import { Card, skyColor, headerColor, containerColor, cyanColor } from 'styles'
 
-export const CouncilPendingStyled = styled(Card)`
+export const BreakGlassCouncilPendingStyled = styled(Card)`
+  position: relative;
   margin: 0;
   height: 200px;
   padding: 25px;
   min-width: 237px;
+
+  .number {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+
+    color: ${({ theme }) => theme.cardBorderColor};
+  }
 
   &.setSingleContractAdmin,
   &.updateCouncilMember,

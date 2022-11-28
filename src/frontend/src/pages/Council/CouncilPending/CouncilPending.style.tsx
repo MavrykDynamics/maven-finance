@@ -1,12 +1,29 @@
 import styled from 'styled-components/macro'
-import { Card, downColor, upColor, skyColor, headerColor, royalPurpleColor, containerColor, cyanColor } from 'styles'
+import { Card, skyColor, headerColor, containerColor, cyanColor } from 'styles'
 
-export const CouncilPendingStyled = styled(Card)`
+// types
+import { MavrykTheme } from 'styles/interfaces'
+
+export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
+  position: relative;
   margin: 0;
   width: 100%;
+  height: 200px;
   padding: 25px;
   padding-bottom: 28px;
   min-width: 237px;
+
+  .number {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+
+    color: ${({ theme }) => theme.cardBorderColor};
+  }
 
   // 2/3
   &.addVestee,
