@@ -743,7 +743,9 @@ describe("Testnet interactions helper", async () => {
                     "This is the description", 
                     "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
                     "https://mavryk.finance/", 
-                    1000
+                    1000,
+                    bob.pk,
+                    bob.peerId
                 ).send();
                 await operation.confirmation();
 
@@ -799,7 +801,9 @@ describe("Testnet interactions helper", async () => {
                     "This is the description", 
                     "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
                     "https://mavryk.finance/", 
-                    1000
+                    1000,
+                    bob.pk,
+                    bob.peerId
                 ).send();
                 await operation.confirmation();
 
@@ -3015,7 +3019,9 @@ describe("Testnet interactions helper", async () => {
                 "This is the description", 
                 "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
                 "https://mavryk.finance/", 
-                1000
+                1000,
+                alice.pk,
+                alice.peerId
             ).send();
             await operation.confirmation();
             await signerFactory(bob.sk)
