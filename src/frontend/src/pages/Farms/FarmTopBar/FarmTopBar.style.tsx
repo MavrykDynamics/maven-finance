@@ -2,7 +2,7 @@ import { MavrykTheme } from '../../../styles/interfaces'
 import styled from 'styled-components/macro'
 import { Card, headerColor, cyanColor } from 'styles'
 
-export const FarmTopBarStyled = styled(Card)`
+export const FarmTopBarStyled = styled(Card)<{ theme: MavrykTheme }>`
   margin-bottom: 20px;
   display: flex;
   padding: 17px 23px;
