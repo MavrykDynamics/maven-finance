@@ -32,11 +32,12 @@ import { Vaults } from '../../../pages/Vaults/Vaults.controller'
 import { scrollUpPage } from 'utils/scrollUpPage'
 import ProtectedRoute from './ProtectedRoute'
 import DashboardPersonal from 'pages/DashboardPersonal/DashboardPersonal.controller'
+import { LENDING_TAB_ID } from 'pages/Dashboard/Dashboard.utils'
 
 export const AppRoutes = () => {
   const { pathname } = useLocation()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { isSatellite } = useSelector((state: State) => state.user)
+  const { isSatellite } = useSelector((state: State) => state.user) ?? {}
 
   // get origin pathname
   const [, path] = pathname.split('/')
@@ -59,7 +60,8 @@ export const AppRoutes = () => {
         component={DashboardPersonal}
         hasAccess={Boolean(accountPkh)}
         isAuthorized={Boolean(accountPkh)}
-        redirectPath={'/dashboard'}
+        canCheck={accountPkh !== undefined}
+        redirectPath={`/dashboard/${LENDING_TAB_ID}`}
       />
       <Route exact path="/your-vesting">
         <Dashboard />
@@ -113,7 +115,8 @@ export const AppRoutes = () => {
         path="/submit-proposal"
         component={ProposalSubmission}
         isAuthorized={Boolean(accountPkh)}
-        hasAccess={isSatellite}
+        hasAccess={Boolean(isSatellite)}
+        canCheck={accountPkh !== undefined && isSatellite !== undefined}
         redirectPath={'/'}
       />
       <Route exact path="/treasury">

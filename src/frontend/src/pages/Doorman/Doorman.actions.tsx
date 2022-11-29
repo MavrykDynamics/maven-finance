@@ -359,7 +359,6 @@ export const getUserData = (accountPkh: string) => async (dispatch: AppDispatch,
 
     const userIsDelegatedToSatellite = userInfoData?.delegations.length > 0
     const userInfo: UserState = {
-      myAddress: userInfoData?.address,
       myMvkTokenBalance: calcWithoutPrecision(userInfoData?.mvk_balance),
       mySMvkTokenBalance: calcWithoutPrecision(userInfoData?.smvk_balance),
       myXTZTokenBalance: calcWithoutMu(Number(xtzBalance)),

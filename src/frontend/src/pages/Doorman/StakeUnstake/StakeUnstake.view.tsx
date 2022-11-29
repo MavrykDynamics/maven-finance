@@ -39,21 +39,22 @@ export const StakeUnstakeView = ({ stakeCallback, unstakeCallback }: StakeUnstak
   const dispatch = useDispatch()
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { myDoormanRewardsData, mySatelliteRewardsData, myMvkTokenBalance, mySMvkTokenBalance } = useSelector(
-    (state: State) => state.user,
-  )
+  const {
+    myDoormanRewardsData: { myAvailableDoormanRewards = 0 } = {},
+    mySatelliteRewardsData: { myAvailableSatelliteRewards = 0 } = {},
+    myMvkTokenBalance = 0,
+    mySMvkTokenBalance = 0,
+  } = useSelector((state: State) => state.user)
   const { amount, showing } = useSelector((state: State) => state.exitFeeModal)
   const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
 
   const exchangeValue = exchangeRate && inputAmount.amount ? inputAmount.amount * exchangeRate : 0
-  const earnedValue =
-    mySatelliteRewardsData.myAvailableSatelliteRewards + myDoormanRewardsData.myAvailableDoormanRewards
+  const earnedValue = myAvailableSatelliteRewards + myAvailableDoormanRewards
 
   const inputAmountValue = +inputAmount.amount
-  const userHasRewards =
-    myDoormanRewardsData.myAvailableDoormanRewards + mySatelliteRewardsData.myAvailableSatelliteRewards > 2
+  const userHasRewards = myAvailableDoormanRewards + myAvailableSatelliteRewards > 2
   const isSuccess = stakeUnstakeInputStatus.amount === 'success'
 
   const onUseMaxClick = (actionType: string) => {

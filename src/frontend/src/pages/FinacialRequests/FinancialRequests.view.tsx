@@ -123,7 +123,7 @@ export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialR
 
         <VotingArea
           voteStatistics={votingStats}
-          isVotingActive={rightItemStatus === ProposalStatus.ONGOING && isUserSatellite}
+          isVotingActive={rightItemStatus === ProposalStatus.ONGOING && Boolean(isUserSatellite)}
           handleVote={handleVotingRoundVote}
           buttonsToShow={{ forBtn: { text: 'Approve' }, againsBtn: { text: 'Disapprove' } }}
           className={'fr-voting'}

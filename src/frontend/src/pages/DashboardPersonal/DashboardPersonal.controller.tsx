@@ -18,20 +18,20 @@ const DashboardPersonal = () => {
   const { tabId } = useParams<{ tabId: string }>()
 
   const {
-    myAddress,
     myDoormanRewardsData,
     myFarmRewardsData,
     mySatelliteRewardsData,
-    myMvkTokenBalance,
-    mySMvkTokenBalance,
-    myXTZTokenBalance,
-    mytzBTCTokenBalance,
-    isSatellite,
+    myMvkTokenBalance = 0,
+    mySMvkTokenBalance = 0,
+    myXTZTokenBalance = 0,
+    mytzBTCTokenBalance = 0,
+    isSatellite = false,
   } = useSelector((state: State) => state.user)
   const {
     tokensPrices: { tezos },
   } = useSelector((state: State) => state.tokens)
   const { exchangeRate: mvkRate } = useSelector((state: State) => state.mvkToken)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
 
   const claimRewards = useCallback(() => {
@@ -68,7 +68,7 @@ const DashboardPersonal = () => {
           maxSupply: 31.13123,
           lendingIncome: 3131.31,
         }}
-        satelliteRecord={satelliteLedger.find(({ address }) => address === myAddress)}
+        satelliteRecord={satelliteLedger.find(({ address }) => address === accountPkh)}
       />
     </Page>
   )

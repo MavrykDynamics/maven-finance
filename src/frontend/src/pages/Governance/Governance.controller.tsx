@@ -65,7 +65,7 @@ export const Governance = () => {
       <GovernanceView
         handleExecuteProposal={handleExecuteProposal}
         accountPkh={accountPkh}
-        userIsSatellite={isSatellite}
+        userIsSatellite={Boolean(isSatellite)}
         ongoingProposals={ongoingProposals}
         nextProposals={currentRoundProposals}
         watingProposals={watingProposals}

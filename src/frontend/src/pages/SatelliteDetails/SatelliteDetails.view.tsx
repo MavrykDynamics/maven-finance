@@ -35,7 +35,7 @@ type SatelliteDetailsViewProps = {
   undelegateCallback: (address: string) => void
   claimRewardsCallback: () => void
   userStakedBalanceInSatellite: number
-  userSatelliteReward: UserSatelliteRewardsData
+  userSatelliteReward?: UserSatelliteRewardsData
   satelliteMetrics: {
     proposalParticipation: number
     votingPartisipation: number
@@ -99,7 +99,7 @@ export const SatelliteDetailsView = ({
           userStakedBalance={myDelegatedMVK}
           satelliteUserIsDelegatedTo={satelliteMvkIsDelegatedTo}
           isDetailsPage={true}
-          userHasSatelliteRewards={userSatelliteReward.myAvailableSatelliteRewards > 0}
+          userHasSatelliteRewards={(userSatelliteReward?.myAvailableSatelliteRewards ?? 0) > 0}
         >
           <SatelliteCardBottomRow>
             <SatelliteDescrBlock>
