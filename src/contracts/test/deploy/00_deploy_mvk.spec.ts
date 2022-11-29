@@ -14,7 +14,7 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { MvkToken } from '../helpers/mvkHelper'
+import { MvkToken } from '../contractHelpers/mvkTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

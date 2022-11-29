@@ -22,7 +22,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 
 import { TreasuryFactory, 
   setTreasuryFactoryLambdas, setTreasuryFactoryProductLambdas 
-} from '../helpers/treasuryFactoryHelper'
+} from '../contractHelpers/treasuryFactoryTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
