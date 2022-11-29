@@ -236,7 +236,7 @@ describe('Linked contracts updates for Tests', async () => {
       .withContractCall(governanceInstance.methods.updateGeneralContracts('aggregatorFactory', aggregatorFactoryAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite', governanceSatelliteAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial', governanceFinancialAddress.address))
-      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerAddress.address))
+      .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController', lendingControllerMockTimeAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('tokenPoolReward', tokenPoolRewardAddress.address))
       .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory', vaultFactoryAddress.address))
   
