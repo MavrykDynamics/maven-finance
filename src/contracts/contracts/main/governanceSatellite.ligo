@@ -455,7 +455,7 @@ block {
 
 
 // helper function to add a remove an oracle from an aggregator
-function updateOracleInAggregator(const oracleAddress : address; const oracleInformationOpt : option(oracleInformationType); const addOracle : bool; var operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+function updateOracleInAggregator(const oracleAddress : address; const addOracle : bool; var operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
 block {
 
     operations := case s.satelliteOracleLedger[oracleAddress] of [
@@ -464,24 +464,26 @@ block {
                 for aggregatorAddress -> _startDateTime in map _record {
 
                     const updateOperation : operation = case addOracle of [
-                            True    -> case oracleInformationOpt of [
-                                    Some (_info)    -> block {
+                            True    ->  block {
                                             const addOracleParams : addOracleType   = record[
                                                 oracleAddress       = oracleAddress;
-                                                oracleInformation   = _info;
                                             ];
-                                        } with (Tezos.transaction(
-                                            addOracleParams,
-                                            0tez, 
-                                            getAddOracleInAggregatorEntrypoint(aggregatorAddress)
-                                        ))
-                                |   None            -> failwith(error_ORACLE_INFORMATION_NOT_FOUND)
-                            ]
-                        |   False   -> Tezos.transaction(
-                                oracleAddress, 
-                                0tez, 
-                                getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
-                            )
+                                            
+                                            const addOracleOperation : operation = Tezos.transaction(
+                                                addOracleParams,
+                                                0tez, 
+                                                getAddOracleInAggregatorEntrypoint(aggregatorAddress)
+                                            );
+
+                                        } with addOracleOperation
+                        |   False   ->  block {
+                                            const removeOracleOperation : operation = Tezos.transaction(
+                                                oracleAddress, 
+                                                0tez, 
+                                                getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
+                                            )
+                                        } with removeOracleOperation
+
                     ];
 
                     operations := updateOperation # operations;
@@ -512,7 +514,7 @@ block {
     operations   := updateSatelliteStatus(satelliteToBeSuspended, "SUSPENDED", delegationAddress, operations);
 
     // if satellite has oracles, create operations to remove satellite oracles from aggregators
-    operations   := updateOracleInAggregator(satelliteToBeSuspended, (None : option(oracleInformationType)), False, operations, s);
+    operations   := updateOracleInAggregator(satelliteToBeSuspended, False, operations, s);
 
 } with (operations)
 
@@ -535,7 +537,7 @@ block {
     operations   := updateSatelliteStatus(satelliteToBeBanned, "BANNED", delegationAddress, operations);
 
     // if satellite has oracles, create operations to remove satellite oracles from aggregators
-    operations   := updateOracleInAggregator(satelliteToBeBanned, (None : option(oracleInformationType)), False, operations, s);
+    operations   := updateOracleInAggregator(satelliteToBeBanned, False, operations, s);
 
 } with (operations)
 
@@ -554,33 +556,12 @@ block {
         |   None           -> failwith(error_SATELLITE_NOT_FOUND)
     ];
 
-    // Get oracle public key from governance satellite action record string map
-    const oraclePublicKey : key = case actionRecord.dataMap["oraclePublicKey"] of [
-            Some(_key)      -> case (Bytes.unpack(_key) : option(key)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None            -> failwith(error_ORACLE_NOT_FOUND)
-    ];
-
-    // Get oracle peer id from governance satellite action record string map
-    const oraclePeerId : string  = case actionRecord.dataMap["oraclePeerId"] of [
-            Some(_string)   -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None            -> failwith(error_ORACLE_NOT_FOUND)
-    ];
 
     // Update the satellite status
     operations   := updateSatelliteStatus(satelliteToBeRestored, "ACTIVE", delegationAddress, operations);
 
     // if satellite has oracles, create operations to add satellite oracles to aggregators
-    const oracleInformation : oracleInformationType     = record [
-        oraclePublicKey = oraclePublicKey;
-        oraclePeerId    = oraclePeerId;
-    ];
-    operations   := updateOracleInAggregator(satelliteToBeRestored, (Some(oracleInformation) : option(oracleInformationType)), True, operations, s);
+    operations   := updateOracleInAggregator(satelliteToBeRestored, True, operations, s);
 
 } with (operations)
 
@@ -608,24 +589,6 @@ block {
         |   None           -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
     ];
 
-    // Get oracle public key from governance satellite action record string map
-    const oraclePublicKey : key = case actionRecord.dataMap["oraclePublicKey"] of [
-            Some(_key)      -> case (Bytes.unpack(_key) : option(key)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None            -> failwith(error_ORACLE_NOT_FOUND)
-    ];
-
-    // Get oracle peer id from governance satellite action record string map
-    const oraclePeerId  : string = case actionRecord.dataMap["oraclePeerId"] of [
-            Some(_string)   -> case (Bytes.unpack(_string) : option(string)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None            -> failwith(error_ORACLE_NOT_FOUND)
-    ];
-
     // Get or create satellite oracle record
     var satelliteOracleRecord : aggregatorsMapType := case s.satelliteOracleLedger[oracleAddress] of [
             Some(_record) -> _record
@@ -639,13 +602,8 @@ block {
     s.satelliteOracleLedger[oracleAddress]      := satelliteOracleRecord;
 
     // Create operation to add oracle to aggregator
-    const oracleInformation : oracleInformationType     = record [
-        oraclePublicKey = oraclePublicKey;
-        oraclePeerId    = oraclePeerId;
-    ];
     const addOracleInAggregatorParams : addOracleType   = record[
-        oracleAddress       = oracleAddress;
-        oracleInformation   = oracleInformation;
+        oracleAddress = oracleAddress;
     ];
     const addOracleInAggregatorOperation : operation    = Tezos.transaction(
         addOracleInAggregatorParams, 
