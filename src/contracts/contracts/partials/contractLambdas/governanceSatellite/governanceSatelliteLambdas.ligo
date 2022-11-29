@@ -288,19 +288,15 @@ block {
 
                 // init params
                 const satelliteToBeRestored    : address    = restoreSatelliteParams.satelliteToBeRestored;
-                const oraclePublicKey          : key        = restoreSatelliteParams.oraclePublicKey;
-                const oraclePeerId             : string     = restoreSatelliteParams.oraclePeerId;
                 const purpose                  : string     = restoreSatelliteParams.purpose;
 
                 // init maps
                 const dataMap        : dataMapType          = map [
                     ("satelliteToBeRestored" : string) -> Bytes.pack(satelliteToBeRestored);
-                    ("oraclePublicKey"       : string) -> Bytes.pack(oraclePublicKey);
-                    ("oraclePeerId"          : string) -> Bytes.pack(oraclePeerId);
                 ];
 
                 // create action
-                s   := createGovernanceSatelliteAction(
+                s := createGovernanceSatelliteAction(
                     "RESTORE",
                     dataMap,
                     purpose,
@@ -396,21 +392,17 @@ block {
 
                 // init params
                 const oracleAddress      : address  = addOracleToAggregatorParams.oracleAddress;
-                const oraclePublicKey    : key      = addOracleToAggregatorParams.oraclePublicKey;
-                const oraclePeerId       : string   = addOracleToAggregatorParams.oraclePeerId;
                 const aggregatorAddress  : address  = addOracleToAggregatorParams.aggregatorAddress;
                 const purpose            : string   = addOracleToAggregatorParams.purpose;
 
                 // init maps
                 const dataMap        : dataMapType  = map [
                     ("oracleAddress"     : string)   -> Bytes.pack(oracleAddress);
-                    ("oraclePublicKey"   : string)   -> Bytes.pack(oraclePublicKey);
-                    ("oraclePeerId"      : string)   -> Bytes.pack(oraclePeerId);
                     ("aggregatorAddress" : string)   -> Bytes.pack(aggregatorAddress);
                 ];
 
                 // create action
-                s   := createGovernanceSatelliteAction(
+                s := createGovernanceSatelliteAction(
                     "ADD_ORACLE_TO_AGGREGATOR",
                     dataMap,
                     purpose,

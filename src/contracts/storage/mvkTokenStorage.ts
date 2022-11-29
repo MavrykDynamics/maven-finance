@@ -3,7 +3,7 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
 
-const { bob, alice, eve, mallory, oscar, trudy } = require('../scripts/sandbox/accounts')
+const { bob, alice, eve, mallory, oscar, trudy, susie } = require('../scripts/sandbox/accounts')
 
 import { MVK } from '../test/helpers/Utils'
 
@@ -51,7 +51,8 @@ const ledger = MichelsonMap.fromLiteral({
     [eve.pkh]       : singleUserSupply,
     [mallory.pkh]   : singleUserSupply,
     [oscar.pkh]     : singleUserSupply,
-    [trudy.pkh]     : singleUserSupply
+    [trudy.pkh]     : singleUserSupply,
+    [susie.pkh]     : singleUserSupply
 })
 
 const token_metadata = MichelsonMap.fromLiteral({

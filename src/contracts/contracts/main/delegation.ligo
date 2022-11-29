@@ -387,6 +387,9 @@ block {
         website               = "";
 
         registeredDateTime    = Tezos.get_now();
+
+        oraclePublicKey       = ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key); // random default public key
+        oraclePeerId          = "peerId";
     ];
 
     case s.satelliteLedger[satelliteAddress] of [
