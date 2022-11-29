@@ -17,6 +17,10 @@ import {
 
 import { CHART_TEST_DATA, lendingData } from '../tabs.const'
 import { TradingViewChart } from 'app/App.components/Chart/Chart.view'
+import { useState } from 'react'
+import { SlidingTabButtons, TabItem } from 'app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 type PortfolioTabProps = {
   xtzAmount: number
@@ -25,13 +29,53 @@ type PortfolioTabProps = {
   notsMVKAmount: number
 }
 
+const TOGGLE_VALUES: TabItem[] = [
+  { id: 1, text: '24H', active: true },
+  { id: 3, text: '1W', active: false },
+  { id: 4, text: '1M', active: false },
+  { id: 5, text: '1Y', active: false },
+  { id: 6, text: 'All', active: false },
+]
+
 const PortfolioTab = ({ xtzAmount, tzBTCAmount, sMVKAmount, notsMVKAmount }: PortfolioTabProps) => {
+  const { exchangeRate } = useSelector((state: State) => state.mvkToken)
+  const [toggleItems, setToggleItems] = useState<TabItem[]>(TOGGLE_VALUES)
+  const lastSeria = CHART_TEST_DATA.at(-1)?.value ?? 0
+
   return (
     <DashboardPersonalTabStyled>
       <PortfolioChartStyled>
         <GovRightContainerTitleArea>
           <h2>MVK Earning History</h2>
         </GovRightContainerTitleArea>
+        <div className="chart-periods">
+          <SlidingTabButtons
+            tabItems={toggleItems}
+            onClick={(tabId) =>
+              setToggleItems(
+                toggleItems.map((item) =>
+                  item.id === tabId
+                    ? {
+                        ...item,
+                        active: true,
+                      }
+                    : {
+                        ...item,
+                        active: false,
+                      },
+                ),
+              )
+            }
+          />
+        </div>
+        <div className="last-seria">
+          <div className="mvk">
+            <CommaNumber endingText="MVK" value={lastSeria} />
+          </div>
+          <div className="usd">
+            <CommaNumber beginningText="$" value={lastSeria * exchangeRate} />
+          </div>
+        </div>
         <TradingViewChart
           data={CHART_TEST_DATA}
           colors={{
@@ -43,6 +87,7 @@ const PortfolioTab = ({ xtzAmount, tzBTCAmount, sMVKAmount, notsMVKAmount }: Por
           settings={{
             height: 260,
           }}
+          className="portfolio"
         />
       </PortfolioChartStyled>
 
