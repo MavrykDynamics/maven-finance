@@ -65,6 +65,20 @@ function checkSenderIsWhitelistedOrAdmin(var s : governanceStorageType) : unit i
 
 
 
+// helper function to verify given admin address is valid
+function verifyValidAdminAddress(const newAdminAddress : address; const s : governanceStorageType) : unit is 
+block {
+
+    // Check if the new admin address is the Break Glass contract
+    const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
+
+    if Set.mem(newAdminAddress, s.whitelistDevelopers) or newAdminAddress = s.governanceProxyAddress or newAdminAddress = breakGlassAddress then skip 
+    else failwith(error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED)
+
+} with unit
+
+
+
 // Allowed Senders : Self
 function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.get_sender() = Tezos.get_self_address()) 
@@ -419,6 +433,50 @@ block {
 
 } with unit
 
+
+
+// helper function to verify glass is broken
+function verifyGlassBroken(const s : governanceStorageType) : unit is
+block {
+
+    // Get Break Glass Contract address from the general contracts map
+    const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
+
+    // Check if glass is broken on the Break Glass Contract
+    const glassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, breakGlassAddress);
+    const glassBroken : bool = case glassBrokenView of [
+            Some (_glassBroken) -> _glassBroken
+        |   None                -> failwith (error_GET_GLASS_BROKEN_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND)
+    ];
+
+    if glassBroken then skip else failwith(error_GLASS_NOT_BROKEN);
+
+} with unit
+
+
+
+// verify that satellite is not suspended or banned
+function verifySatelliteIsNotSuspendedOrBanned(const satelliteAddress : address; const s : governanceStorageType) : unit is 
+block {
+
+    const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
+    checkSatelliteStatus(satelliteAddress, delegationAddress, True, True);
+
+} with unit
+
+
+
+// helper function to verify proposal can be executed
+function verifyProposalCanBeExecuted(const s : governanceStorageType) : unit is
+block {
+
+    // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) 
+    then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
+    else skip;
+
+} with unit
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -514,6 +572,34 @@ function getDistributeRewardEntrypoint(const contractAddress : address) : contra
 // Operations Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to set contract admin operation
+function setContractAdminOperation(const setContractAdminParams : setContractAdminType) : operation is 
+block {
+
+    const setContractAdminOperation : operation = Tezos.transaction(
+        (setContractAdminParams.newContractAdmin), 
+        0tez, 
+        getSetAdminEntrypoint(setContractAdminParams.targetContractAddress)
+    )
+
+} with setContractAdminOperation
+
+
+
+// helper function to set contract governance operation
+function setContractGovernanceOperation(const setContractGovernanceParams : setContractGovernanceType) : operation is 
+block {
+
+    const setContractGovernanceOperation : operation = Tezos.transaction(
+        (setContractGovernanceParams.newContractGovernance), 
+        0tez, 
+        getSetGovernanceEntrypoint(setContractGovernanceParams.targetContractAddress)
+    )
+
+} with setContractGovernanceOperation
+
+
+
 // helper function to update proposal's data
 function updateProposalDataOperation(const proposalId : nat; const newProposal : newProposalType) : operation is 
 block {
@@ -581,6 +667,36 @@ block {
 
 } with executeGovernanceActionOperation
 
+
+
+// helper function to set admin on specified contract if the %setAdmin entrypoint exists
+function setAdminIfExistOperation(const contractAddress : address; var operations : list(operation); const s : governanceStorageType) : list(operation) is 
+block {
+
+    // Get Break Glass Contract address from the general contracts map
+    const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
+
+    case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
+            Some(contr) -> operations := Tezos.transaction(breakGlassAddress, 0tez, contr) # operations
+        |   None        -> skip
+    ];
+
+} with operations
+
+
+
+
+// helper function to pause all entrypoints on specified contract if the %pauseAll entrypoint exists
+function pauseAllIfExistOperation(const contractAddress : address; var operations : list(operation)) : list(operation) is 
+block {
+
+    case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
+            Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+        |   None        -> skip
+    ];
+
+} with operations
+
 // ------------------------------------------------------------------------------
 // Operations Helper Functions End
 // ------------------------------------------------------------------------------
@@ -590,6 +706,39 @@ block {
 // ------------------------------------------------------------------------------
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// helper function to check if whitelisted developer exists
+function checkWhitelistDeveloperExists(const developer : address; var s : governanceStorageType) : bool is 
+block {
+
+    const whitelistDeveloperExists : bool = Set.mem(developer, s.whitelistDevelopers);
+
+} with whitelistDeveloperExists
+
+
+// helper function to remove whitelisted developer
+function removeWhitelistDeveloper(const developer : address; var s : governanceStorageType) : governanceStorageType is 
+block {
+
+    // Check that there will be at least one whitelisted developer
+    if Set.cardinal(s.whitelistDevelopers) > 1n 
+    then s.whitelistDevelopers := Set.remove(developer, s.whitelistDevelopers)
+    else failwith(error_AT_LEAST_ONE_WHITELISTED_DEVELOPER_REQUIRED)
+
+} with s
+
+
+
+// helper function to add whitelisted developer
+function addWhitelistDeveloper(const developer : address; var s : governanceStorageType) : governanceStorageType is 
+block {
+
+    s.whitelistDevelopers := Set.add(developer, s.whitelistDevelopers)
+
+} with s
+
+
+
 
 // helper function to get staked mvk total supply (equivalent to balance of the Doorman contract on the MVK Token contract)
 function getStakedMvkTotalSupply(const s : governanceStorageType) : nat is 
@@ -705,7 +854,6 @@ block {
     validateStringLength(newProposal.sourceCode     , s.config.proposalSourceCodeMaxLength      , error_WRONG_INPUT_PROVIDED);
 
     // init new proposal params
-    const proposalId      : nat                                  = s.nextProposalId;
     const emptyVotersSet  : set(address)                         = set [];
     const proposalData    : map(nat, option(proposalDataType))   = map [];
     const paymentData     : map(nat, option(paymentDataType))    = map [];
@@ -761,6 +909,22 @@ block {
 
 } with newProposalRecord
 
+
+
+// helper function to check if a satellite has voted
+function checkIfSatelliteHasVoted(const satelliteAddress : address; const s : governanceStorageType) : bool is
+block {
+
+    const checkIfSatelliteHasVotedFlag : bool = case s.roundVotes[(s.cycleId, satelliteAddress)] of [
+            Some (_voteRound)   -> case _voteRound of [
+                    Proposal (_proposalId)      -> True
+                |   Voting (_voteType)          -> False
+            ] 
+        |    None                -> False
+    ];
+
+} with checkIfSatelliteHasVotedFlag
+
 // ------------------------------------------------------------------------------
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
@@ -768,8 +932,46 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Governance Helper Functions Begin
+// Governance Snapshot Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// helper function to get satellite record view from the delegation contract
+function getSatelliteRecord(const satelliteAddress : address; const s : governanceStorageType) : satelliteRecordType is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    const satelliteRecord : satelliteRecordType = case satelliteOptView of [
+            Some (optionView) -> case optionView of [
+                    Some(_satelliteRecord)      -> _satelliteRecord
+                |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
+            ]
+        |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with satelliteRecord
+
+
+
+// helper function to get delegation ratio from the delegation contract
+function getDelegationRatio(const s : governanceStorageType) : nat is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    // Get the delegation ratio
+    const configView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const delegationRatio : nat = case configView of [
+            Some (_config) -> _config.delegationRatio
+        |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with delegationRatio
+
+
 
 // helper function to update a satellite snapshot 
 function updateSatelliteSnapshotRecord (const updateSatelliteSnapshotParams : updateSatelliteSnapshotType; var s : governanceStorageType) : governanceStorageType is
@@ -797,41 +999,37 @@ block {
 
 
 
+// helper function to check if satellite snapshot exists
+function createSatelliteSnapshotCheck(const satelliteAddress : address; const s : governanceStorageType) : bool is
+block {
+
+    const satelliteSnapshotCheck : bool = case s.snapshotLedger[(s.cycleId, satelliteAddress)] of [
+            Some (_snapshot)    -> if _snapshot.ready then False else (failwith(error_SNAPSHOT_NOT_READY) : bool)
+        |   None                -> True
+    ];
+
+} with satelliteSnapshotCheck
+
+
+
 // helper function to check a satellite snapshot 
 function checkSatelliteSnapshot (const satelliteAddress : address; var s : governanceStorageType) : governanceStorageType is
 block {
 
-    // Initialize a variable to create a snapshot or not
-    var createSatelliteSnapshot: bool   := case Big_map.find_opt((s.cycleId,satelliteAddress), s.snapshotLedger) of [
-            Some (_snapshot)    -> if _snapshot.ready then False else (failwith(error_SNAPSHOT_NOT_READY): bool)
-        |   None                -> True
-    ];
+    // Check if a satellite snapshot exists and is ready
+    const createSatelliteSnapshot : bool = createSatelliteSnapshotCheck(satelliteAddress, s);
 
-    // Create or not a snapshot
+    // Create a snapshot if it does not exist
     if createSatelliteSnapshot then {
         
-        // Get the delegation address
-        const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-        // Get the satellite record
-        const satelliteOptView : option (option(satelliteRecordType))   = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
-        const _satelliteRecord : satelliteRecordType                    = case satelliteOptView of [
-                Some (value) -> case value of [
-                        Some (_satellite) -> _satellite
-                    |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-        ];
+        // Get the satellite record from delegation contract
+        const _satelliteRecord : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
 
         // Get the delegation ratio
-        const configView : option (delegationConfigType)    = Tezos.call_view ("getConfig", unit, delegationAddress);
-        const delegationRatio : nat                         = case configView of [
-                Some (_config) -> _config.delegationRatio
-            |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-        ];
+        const delegationRatio : nat = getDelegationRatio(s);
 
         // Prepare the record to create the snapshot
-        const satelliteSnapshotParams: updateSatelliteSnapshotType  = record[
+        const satelliteSnapshotParams : updateSatelliteSnapshotType = record[
             satelliteAddress    = satelliteAddress;
             satelliteRecord     = _satelliteRecord;
             ready               = True;
@@ -839,13 +1037,21 @@ block {
         ];
 
         // Save the snapshot
-        s   := updateSatelliteSnapshotRecord(satelliteSnapshotParams, s);
+        s := updateSatelliteSnapshotRecord(satelliteSnapshotParams, s);
 
     } else skip;
 
 } with s
 
+// ------------------------------------------------------------------------------
+// Governance Snapshot Helper Functions End
+// ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Governance Helper Functions Begin
+// ------------------------------------------------------------------------------
 
 function setProposalRecordVote(const voteType : voteType; const totalVotingPower : nat; var _proposal : proposalRecordType) : proposalRecordType is
 block {
@@ -963,32 +1169,22 @@ block {
 
 
 
-function sendRewardToProposer(var s : governanceStorageType) : operation is
+function sendRewardToProposer(const s : governanceStorageType) : operation is
 block {
 
     // Get timelock proposal and proposer address
-    const timelockProposalId: nat   = s.timelockProposalId;
-    const proposal: proposalRecordType  = case Big_map.find_opt(timelockProposalId, s.proposalLedger) of [
-            Some (_record) -> _record
-        |   None -> failwith(error_TIMELOCK_PROPOSAL_NOT_FOUND)
-    ];
-    const proposerAddress : address         = proposal.proposerAddress;
+    const timelockProposalId  : nat   = s.timelockProposalId;
     
-    // Get proposer reward
-    const proposerReward: nat  = proposal.successReward;
-
-    // Get Delegation Contract address from the general contracts map
-    const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
+    // Get timelock proposal record
+    const proposal            : proposalRecordType = getProposalRecord(timelockProposalId, s);
+    
+    const proposerAddress     : address            = proposal.proposerAddress;
+    const proposerReward      : nat                = proposal.successReward;
 
     // Create operation to send rewards to the proposer
-    const distributeRewardsEntrypoint: contract(set(address) * nat) =
-        case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED) : contract(set(address) * nat))
-        ];
-    const distributeOperation: operation = Tezos.transaction((set[proposerAddress], proposerReward), 0tez, distributeRewardsEntrypoint);
+    const distributeRewardOperation : operation = distributeRewardOperation(set[proposerAddress], proposerReward, s);
     
-} with (distributeOperation)
+} with distributeRewardOperation
 
 
 
@@ -996,7 +1192,7 @@ function setupProposalRound(var s : governanceStorageType) : governanceStorageTy
 block {
 
     // reset state variables
-    const emptyProposalMap  : map(actionIdType, nat)    = map [];
+    const emptyProposalMap : map(actionIdType, nat) = map [];
 
     // ------------------------------------------------------------------
     // Get staked MVK Total Supply and calculate quorum
@@ -1005,7 +1201,7 @@ block {
     const stakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
 
     // Calculate minimum required staked MVK for quorum
-    const minQuorumStakedMvkTotal: nat  = (stakedMvkTotalSupply * s.config.minQuorumPercentage) / 10000n ;
+    const minQuorumStakedMvkTotal : nat  = (stakedMvkTotalSupply * s.config.minQuorumPercentage) / 10000n ;
 
     // ------------------------------------------------------------------
     // Set up new round info
@@ -1074,10 +1270,6 @@ block {
             Some (_index)   -> if _index < Map.size(paymentDataMap) then _index else failwith(error_INDEX_OUT_OF_BOUNDS)
         |   None            -> Map.size(paymentDataMap)
     ];
-    
-    // ------------------------------------------------------------------
-    // Create new payment data
-    // ------------------------------------------------------------------
 
     // Create the new paymentData
     const newPaymentData : paymentDataType = record[
@@ -1086,7 +1278,7 @@ block {
     ];
 
     // Add data to the proposal
-    paymentDataMap[index]                := Some(newPaymentData);
+    paymentDataMap[index] := Some(newPaymentData);
 
 } with (paymentDataMap)
 
@@ -1096,12 +1288,8 @@ block {
 function removePaymentData(const removeAtIndex : nat ; var paymentDataMap : proposalPaymentDataMapType) : proposalPaymentDataMapType is
 block {
 
-    // ------------------------------------------------------------------
-    // Remove payment data
-    // ------------------------------------------------------------------
-
     // Remove data from the proposal
-    paymentDataMap[removeAtIndex]   := (None : option(paymentDataType));
+    paymentDataMap[removeAtIndex] := (None : option(paymentDataType));
 
 } with (paymentDataMap)
 
@@ -1123,19 +1311,15 @@ block {
         |   None            -> Map.size(proposalDataMap)
     ];
     
-    // ------------------------------------------------------------------
-    // Create new proposal data
-    // ------------------------------------------------------------------
-
     // Create the new proposalData
-    const newProposalData : proposalDataType    = record[
+    const newProposalData : proposalDataType = record[
         title           = title;
         encodedCode     = proposalBytes;
         codeDescription = codeDescription;
     ];
 
     // Add data to the proposal
-    proposalDataMap[index]                      := Some(newProposalData);
+    proposalDataMap[index] := Some(newProposalData);
 
 } with (proposalDataMap)
 
@@ -1145,12 +1329,8 @@ block {
 function removeProposalData(const removeAtIndex : nat; var proposalDataMap : proposalDataMapType) : proposalDataMapType is
 block {
     
-    // ------------------------------------------------------------------
-    // Remove proposal data
-    // ------------------------------------------------------------------
-    
     // Remove the proposal data
-    proposalDataMap[removeAtIndex]   := (None : option(proposalDataType));
+    proposalDataMap[removeAtIndex] := (None : option(proposalDataType));
 
 } with (proposalDataMap)
 
