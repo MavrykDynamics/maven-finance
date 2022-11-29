@@ -29,7 +29,11 @@ export const ConnectWallet = ({ className, closeMobileMenu }: ConnectWalletProps
   const { ready, accountPkh } = useSelector((state: State) => state.wallet)
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { tokensPrices } = useSelector((state: State) => state.tokens)
-  const { myMvkTokenBalance = 0, mySMvkTokenBalance = 0, myXTZTokenBalance } = useSelector((state: State) => state.user)
+  const {
+    myMvkTokenBalance = 0,
+    mySMvkTokenBalance = 0,
+    myXTZTokenBalance = 0,
+  } = useSelector((state: State) => state.user)
   const isMobileView = useMedia('(max-width: 870px)')
 
   const handleConnect = async () => {

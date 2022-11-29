@@ -2,43 +2,30 @@ import { UserDoormanRewardsData, UserFarmRewardsData, UserSatelliteRewardsData }
 import { CLEAN_USER_DATA, GET_USER_DATA } from '../pages/Doorman/Doorman.actions'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
-export interface UserState {
-  myAddress: string
-  myMvkTokenBalance: number
-  mySMvkTokenBalance: number
-  myXTZTokenBalance: number
-  mytzBTCTokenBalance: number
-  participationFeesPerShare: number
-  satelliteMvkIsDelegatedTo: string
-  isSatellite: boolean
-  myDoormanRewardsData: UserDoormanRewardsData
-  myFarmRewardsData: Record<string, UserFarmRewardsData>
-  mySatelliteRewardsData: UserSatelliteRewardsData
+export type UserState = {
+  myMvkTokenBalance?: number
+  mySMvkTokenBalance?: number
+  myXTZTokenBalance?: number
+  mytzBTCTokenBalance?: number
+  participationFeesPerShare?: number
+  satelliteMvkIsDelegatedTo?: string
+  isSatellite?: boolean
+  myDoormanRewardsData?: UserDoormanRewardsData
+  myFarmRewardsData?: Record<string, UserFarmRewardsData>
+  mySatelliteRewardsData?: UserSatelliteRewardsData
 }
 
 const defaultUser: UserState = {
-  myAddress: '',
-  myMvkTokenBalance: 0,
-  mySMvkTokenBalance: 0,
-  myXTZTokenBalance: 0,
-  mytzBTCTokenBalance: 0,
-  participationFeesPerShare: 0,
-  satelliteMvkIsDelegatedTo: '',
-  isSatellite: false,
-  myDoormanRewardsData: {
-    generalAccumulatedFeesPerShare: 0,
-    generalUnclaimedRewards: 0,
-    myAvailableDoormanRewards: 0,
-    myParticipationFeesPerShare: 0,
-  },
-  myFarmRewardsData: {},
-  mySatelliteRewardsData: {
-    myAvailableSatelliteRewards: 0,
-    paid: 0,
-    participationRewardsPerShare: 0,
-    satelliteAccumulatedRewardPerShare: 0,
-    unpaid: 0,
-  },
+  myMvkTokenBalance: undefined,
+  mySMvkTokenBalance: undefined,
+  myXTZTokenBalance: undefined,
+  mytzBTCTokenBalance: undefined,
+  participationFeesPerShare: undefined,
+  satelliteMvkIsDelegatedTo: undefined,
+  isSatellite: undefined,
+  myDoormanRewardsData: undefined,
+  myFarmRewardsData: undefined,
+  mySatelliteRewardsData: undefined,
 }
 
 export function user(state = defaultUser, action: Action) {

@@ -4,12 +4,27 @@ export type ProtectedRouteProps = {
   redirectPath: string
   isAuthorized: boolean
   hasAccess: boolean
+  canCheck: boolean
 } & RouteProps
 
-export default function ProtectedRoute({ redirectPath, hasAccess, isAuthorized, ...routeProps }: ProtectedRouteProps) {
+export default function ProtectedRoute({
+  canCheck,
+  redirectPath,
+  hasAccess,
+  isAuthorized,
+  ...routeProps
+}: ProtectedRouteProps) {
+  console.log('can', canCheck, hasAccess)
+
+  if (!canCheck) {
+    return null
+  }
+
+  console.log('hasAccess', hasAccess)
+
   if (hasAccess) {
     return <Route {...routeProps} />
-  } else {
-    return <Redirect to={{ pathname: redirectPath }} />
   }
+
+  return <Redirect to={{ pathname: redirectPath }} />
 }

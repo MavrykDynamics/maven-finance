@@ -42,7 +42,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   return (
     <SatellitesSideBarView
       accountPkh={accountPkh}
-      userIsSatellite={isSatellite}
+      userIsSatellite={Boolean(isSatellite)}
       numberOfSatellites={numSatellites}
       totalDelegatedMVK={totalDelegatedMVK}
       isButton={isButton}
