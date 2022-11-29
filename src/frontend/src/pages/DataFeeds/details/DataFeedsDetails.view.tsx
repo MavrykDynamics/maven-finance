@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { usersData } from 'pages/UsersOracles/users.const'
 import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { handleCoinName } from 'pages/Satellites/SatelliteList/ListCards/DataFeedCard.view'
+
 // view
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { Button } from 'app/App.components/Button/Button.controller'
@@ -99,7 +101,7 @@ const DataFeedDetailsView = ({
             <div className="top">
               <div className="name-part">
                 <div className="img-wrapper">
-                  <CoinsLogo imageLink={imageLink} assetName={feed.name.split('/')?.[1]} />
+                  <CoinsLogo imageLink={imageLink} assetName={handleCoinName(feed.name)} />
                 </div>
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
                   {feed.name}
