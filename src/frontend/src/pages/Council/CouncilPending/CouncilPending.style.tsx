@@ -7,7 +7,6 @@ import { MavrykTheme } from 'styles/interfaces'
 export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
   position: relative;
   margin: 0;
-  width: 100%;
   height: 200px;
   padding: 25px;
   padding-bottom: 28px;
