@@ -44,7 +44,6 @@ import tokenSaleAddress from '../../deployments/tokenSaleAddress.json';
 import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
 import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
 import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json';
-import tokenPoolRewardAddress from '../../deployments/tokenPoolRewardAddress.json';
 
 // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 import { config } from "yargs";
@@ -87,7 +86,6 @@ describe("Testnet interactions helper", async () => {
     let lendingControllerMockTimeInstance;
     let vaultInstance;
     let vaultFactoryInstance;
-    let tokenPoolRewardInstance;
     let mavrykFa12TokenInstance;
 
     let doormanStorage;
@@ -113,7 +111,6 @@ describe("Testnet interactions helper", async () => {
     let lendingControllerMockTimeStorage;
     let vaultStorage;
     let vaultFactoryStorage;
-    let tokenPoolRewardStorage;
     let mavrykFa12TokenStorage;
 
     let createdTreasuryAddress;
@@ -190,7 +187,6 @@ describe("Testnet interactions helper", async () => {
             lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
-            tokenPoolRewardInstance                 = await utils.tezos.contract.at(tokenPoolRewardAddress.address);
             mavrykFa12TokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
     
             doormanStorage                          = await doormanInstance.storage();
@@ -215,7 +211,6 @@ describe("Testnet interactions helper", async () => {
             lendingControllerStorage                = await lendingControllerInstance.storage();
             lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
-            tokenPoolRewardStorage                  = await tokenPoolRewardInstance.storage();
             mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
     
             console.log('-- -- -- -- -- Testnet Interactions Helper -- -- -- --')
@@ -237,7 +232,6 @@ describe("Testnet interactions helper", async () => {
             console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
             console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
             console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
-            console.log('Token Pool Reward Contract deployed at:', tokenPoolRewardInstance.address);
             console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
 
         } catch(e){
@@ -2377,6 +2371,16 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
+        it('Admin updates an oracle', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.updateOracle().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
         it('Admin removes an oracle', async () => {
             try{
                 // Operation
@@ -4347,6 +4351,7 @@ describe("Testnet interactions helper", async () => {
 
                     oracleAddress,
                     false,
+                    false,
 
                     // fa12 token type - token contract address
                     tokenType,
@@ -4427,6 +4432,7 @@ describe("Testnet interactions helper", async () => {
 
                     oracleAddress,
                     false,
+                    false,
                     
                     // fa2 token type - token contract address + token id
                     tokenType,
@@ -4500,67 +4506,58 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        // it('Admin deposits smvk into the vault', async () => {
-        //     try{
-        //         // Initial values
-        //         vaultFactoryStorage                     = await vaultFactoryInstance.storage();
-        //         const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-        //         const depositAmount                     = 1000;
-        //         const tokenName                         = "sMVK";
-        //         const tokenContractAddress              = mvkTokenAddress.address;
-        //         const tokenType                         = "fa2";
-        //         const tokenId                           = 0;
-
-        //         const tokenDecimals                     = 9;
-        //         const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
-        //         const tokenProtected                    = true; // sMVK is protected
-
-        //         // Add SMVK as collateral
-        //         const setCollateralTokenOperation       = await lendingControllerInstance.methods.setCollateralToken(
-        //             "createCollateralToken",
-
-        //             tokenName,
-        //             tokenContractAddress,
-        //             tokenDecimals,
-
-        //             oracleAddress,
-        //             tokenProtected,
-
-        //             // fa2 token type - token contract address
-        //             tokenType,
-        //             tokenContractAddress,
-        //             tokenId
-
-        //         ).send();
-        //         await setCollateralTokenOperation.confirmation();
-
-        //         // Operation
-        //         const operation                         = await lendingControllerInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
-        //         await operation.confirmation();
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     }
-        // });
-
-        // it('Admin withdraws smvk from the vault', async () => {
-        //     try{
-        //         // Initial values
-        //         vaultFactoryStorage         = await vaultFactoryInstance.storage();
-        //         const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
-        //         const withdrawAmount        = 1000;
-
-        //         // Operation
-        //         const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
-        //         await operation.confirmation();
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     }
-        // });
-
-        it('Admin claims rewards', async () => {
+        it('Admin deposits smvk into the vault', async () => {
             try{
+                // Initial values
+                vaultFactoryStorage                     = await vaultFactoryInstance.storage();
+                const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+                const depositAmount                     = 1000;
+                const tokenName                         = "smvk";
+                const tokenContractAddress              = mvkTokenAddress.address;
+                const tokenType                         = "fa2";
+                const tokenId                           = 0;
+
+                const tokenDecimals                     = 9;
+                const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
+                const tokenProtected                    = true; // sMVK is protected
+
+                // Add SMVK as collateral
+                const setCollateralTokenOperation       = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    tokenName,
+                    tokenContractAddress,
+                    tokenDecimals,
+
+                    oracleAddress,
+                    tokenProtected,
+                    true,
+
+                    // fa2 token type - token contract address
+                    tokenType,
+                    tokenContractAddress,
+                    tokenId
+
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+
                 // Operation
-                const operation = await tokenPoolRewardInstance.methods.claimRewards(bob.pkh).send();
+                const operation                         = await lendingControllerInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin withdraws smvk from the vault', async () => {
+            try{
+                // Initial values
+                vaultFactoryStorage         = await vaultFactoryInstance.storage();
+                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+                const withdrawAmount        = 1000;
+
+                // Operation
+                const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4949,7 +4946,6 @@ describe("Testnet interactions helper", async () => {
                 const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
 
-                const oracleType                            = "oracle";
                 const oracleAddress                         = mockUsdMockFa12TokenAggregatorAddress.address;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
@@ -5044,7 +5040,6 @@ describe("Testnet interactions helper", async () => {
                 const tokenType                  = "fa12";
 
                 const tokenDecimals              = 6;
-                const oracleType                 = "oracle";
                 const oracleAddress              = mockUsdMockFa12TokenAggregatorAddress.address;
 
                 // Operation
@@ -5056,6 +5051,7 @@ describe("Testnet interactions helper", async () => {
                     tokenDecimals,
 
                     oracleAddress,
+                    false,
                     false,
 
                     // fa12 token type - token contract address
@@ -5099,7 +5095,7 @@ describe("Testnet interactions helper", async () => {
                 const operation = await lendingControllerMockTimeInstance.methods.closeVault(vaultId).send();
                 await operation.confirmation();
 
-                // Recreation of a new vault for further tests
+                // Recreation of a new vault for following tests
                 const createVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,
                     loanTokenName,          // loan token type
@@ -5136,6 +5132,7 @@ describe("Testnet interactions helper", async () => {
                     tokenDecimals,
 
                     oracleAddress,
+                    false,
                     false,
                     
                     // fa2 token type - token contract address + token id
@@ -5210,10 +5207,58 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin claims rewards', async () => {
+        it('Admin deposits smvk into the vault', async () => {
             try{
+                // Initial values
+                vaultFactoryStorage                     = await vaultFactoryInstance.storage();
+                const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+                const depositAmount                     = 1000;
+                const tokenName                         = "smvk";
+                const tokenContractAddress              = mvkTokenAddress.address;
+                const tokenType                         = "fa2";
+                const tokenId                           = 0;
+
+                const tokenDecimals                     = 9;
+                const oracleAddress                     = mockUsdMvkAggregatorAddress.address;
+                const tokenProtected                    = true; // sMVK is protected
+
+                // Add SMVK as collateral
+                const setCollateralTokenOperation       = await lendingControllerMockTimeInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    tokenName,
+                    tokenContractAddress,
+                    tokenDecimals,
+
+                    oracleAddress,
+                    tokenProtected,
+                    true,
+
+                    // fa2 token type - token contract address
+                    tokenType,
+                    tokenContractAddress,
+                    tokenId
+
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+
                 // Operation
-                const operation = await tokenPoolRewardInstance.methods.claimRewards(bob.pkh).send();
+                const operation                         = await lendingControllerMockTimeInstance.methods.vaultDepositStakedMvk(vaultId, depositAmount).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin withdraws smvk from the vault', async () => {
+            try{
+                // Initial values
+                vaultFactoryStorage         = await vaultFactoryInstance.storage();
+                const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+                const withdrawAmount        = 1000;
+
+                // Operation
+                const operation             = await lendingControllerMockTimeInstance.methods.vaultWithdrawStakedMvk(vaultId, withdrawAmount).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5238,7 +5283,7 @@ describe("Testnet interactions helper", async () => {
                 const mockLevel                     = oneMonthLevelBlocks + lastUpdatedBlockLevel;
 
                 // Operation
-                const borrowOperation               = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
+                const borrowOperation               = await lendingControllerMockTimeInstance.methods.borrow(vaultId, borrowAmount).send();
                 await borrowOperation.confirmation();
 
                 // Withdraw all from vault
@@ -5399,16 +5444,16 @@ describe("Testnet interactions helper", async () => {
             await signerFactory(bob.sk)
 
             // Save the vault address
-            lendingControllerStorage    = await lendingControllerInstance.storage();
-            vaultFactoryStorage         = await vaultFactoryInstance.storage();
-            const vaultId               = vaultFactoryStorage.vaultCounter.toNumber() - 1;
+            lendingControllerMockTimeStorage    = await lendingControllerMockTimeInstance.storage();
+            vaultFactoryStorage                 = await vaultFactoryInstance.storage();
+            const vaultId                       = vaultFactoryStorage.vaultCounter.toNumber() - 1;
             const vaultHandle = {
                 "id"    : vaultId,
                 "owner" : bob.pkh
             };
-            const vault                 = await lendingControllerStorage.vaults.get(vaultHandle)
-            vaultInstance               = await utils.tezos.contract.at(vault.address);
-            vaultStorage                = await vaultInstance.storage();
+            const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
+            vaultInstance                       = await utils.tezos.contract.at(vault.address);
+            vaultStorage                        = await vaultInstance.storage();
         });
 
         beforeEach("Set signer to admin", async () => {
@@ -5439,113 +5484,6 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await vaultInstance.methods.updateDepositor("allowAny", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-    });
-
-    describe("TOKEN POOL REWARD", async () => {
-
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
-        
-        it('Admin sets admin', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.setAdmin(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin sets governance', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.setGovernance(governanceAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin updates whitelist contracts', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates general contracts', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.updateGeneralContracts("test", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin updates whitelist token contracts', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.updateWhitelistTokenContracts("test", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin pauses updateRewards', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.togglePauseEntrypoint("updateRewards", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin pauses claimRewards', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.togglePauseEntrypoint("claimRewards", true).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin pauses all entrypoints', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.pauseAll().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin unpauses all entrypoints', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.unpauseAll().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin claims its rewards', async () => {
-            try{
-                // Operation
-                const operation = await tokenPoolRewardInstance.methods.claimRewards(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
