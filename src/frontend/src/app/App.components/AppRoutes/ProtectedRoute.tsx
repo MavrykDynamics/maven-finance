@@ -14,13 +14,9 @@ export default function ProtectedRoute({
   isAuthorized,
   ...routeProps
 }: ProtectedRouteProps) {
-  console.log('can', canCheck, hasAccess)
-
   if (!canCheck) {
     return null
   }
-
-  console.log('hasAccess', hasAccess)
 
   if (hasAccess) {
     return <Route {...routeProps} />

@@ -15,7 +15,7 @@ import {
   ListItem,
 } from './DashboardPersonalComponents.style'
 
-import { historyData, lendingData } from '../tabs.const'
+import { borrowingData, historyData, lendingData } from '../tabs.const'
 const userIsDelegated = true
 const DelegationTab = () => {
   return (
@@ -74,7 +74,12 @@ const DelegationTab = () => {
           <div className="no-data">
             <span>You are not delegated at this time.</span>
             <Link to="/yield-farms">
-              <Button text="Satellites" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
+              <Button
+                text="Satellites"
+                icon="satellite"
+                kind={ACTION_PRIMARY}
+                className="noStroke dashboard-sectionLink"
+              />
             </Link>
           </div>
         )}
@@ -179,7 +184,7 @@ const DelegationTab = () => {
           <div className="no-data">
             <span>Nothing supplied at this time</span>
             <Link to="/yield-farms">
-              <Button text="Lend Asset" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
+              <Button text="Lend Asset" icon="lend" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
             </Link>
           </div>
         )}
@@ -188,12 +193,53 @@ const DelegationTab = () => {
         <GovRightContainerTitleArea>
           <h2>Borrowing</h2>
         </GovRightContainerTitleArea>
-        <div className="no-data">
-          <span>Nothing borrowed at this time</span>
-          <Link to="/yield-farms">
-            <Button text="Borrow Asset" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
-          </Link>
-        </div>
+        {borrowingData ? (
+          <div className="list scroll-block">
+            {borrowingData.map(({ assetImg, apy, supplied, earned, mvkBonus, id }) => {
+              return (
+                <ListItem columsTemplate="60px 0.9fr 0.7fr 0.8fr 0.7fr" key={id}>
+                  <Icon id={assetImg || 'noImage'} />
+                  <div className="list-part">
+                    <div className="name">Borrowed</div>
+                    <div className="value">
+                      <CommaNumber value={supplied} beginningText="$" />
+                    </div>
+                  </div>
+                  <div className="list-part">
+                    <div className="name">APY</div>
+                    <div className="value">
+                      <CommaNumber value={apy} endingText="%" />
+                    </div>
+                  </div>
+                  <div className="list-part">
+                    <div className="name">Earned</div>
+                    <div className="value">
+                      <CommaNumber value={earned} />
+                    </div>
+                  </div>
+                  <div className="list-part">
+                    <div className="name">MVK Bonus</div>
+                    <div className="value">
+                      <CommaNumber value={mvkBonus} />
+                    </div>
+                  </div>
+                </ListItem>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="no-data">
+            <span>Nothing borrowed at this time</span>
+            <Link to="/yield-farms">
+              <Button
+                text="Borrow Asset"
+                icon="borrow"
+                kind={ACTION_PRIMARY}
+                className="noStroke dashboard-sectionLink"
+              />
+            </Link>
+          </div>
+        )}
       </LBHInfoBlock>
     </DashboardPersonalTabStyled>
   )
