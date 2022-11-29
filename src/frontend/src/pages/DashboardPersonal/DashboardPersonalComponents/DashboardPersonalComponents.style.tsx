@@ -55,6 +55,52 @@ export const MediumBlockBase = styled(SmallBlockBase)<{ theme: MavrykTheme }>`
 
 export const PortfolioChartStyled = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
   width: 810px;
+  padding-bottom: 10px;
+  position: relative;
+
+  .chart-periods {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 250px;
+
+    button {
+      width: 20%;
+      font-size: 14px;
+      padding-left: 10px;
+      padding-right: 10px;
+
+      &.selected {
+        background: linear-gradient(90deg, #86d4c9 0.31%, #8d86eb 99.97%);
+      }
+    }
+  }
+
+  .last-seria {
+    position: absolute;
+    left: 30px;
+    top: 85px;
+    display: flex;
+    flex-direction: column;
+    color: ${({ theme }) => theme.dataColor};
+    .mvk {
+      font-weight: 600;
+      font-size: 32px;
+
+      .suffix {
+        color: ${({ theme }) => theme.textColor};
+      }
+    }
+
+    .usd {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
 `
 
 export const PortfolioWalletStyled = styled(MediumBlockBase)<{ theme: MavrykTheme }>`
