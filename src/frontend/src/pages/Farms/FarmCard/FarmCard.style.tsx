@@ -379,7 +379,7 @@ export const FarmTitleSection = styled.div<{ theme: MavrykTheme }>`
   }
 `
 export const FarmInputSection = styled.form`
-  width: 300px;
+  width: 350px;
   flex: 1;
   display: flex;
   flex-direction: column;
