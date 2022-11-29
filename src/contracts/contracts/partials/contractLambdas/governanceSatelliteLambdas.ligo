@@ -552,7 +552,7 @@ block {
                 // init maps
                 const dataMap : dataMapType = map [
                     ("aggregatorAddress" : string)  -> Bytes.pack(aggregatorAddress);
-                    ("status" : string)             -> Bytes.pack(status)
+                    ("status"            : string)  -> Bytes.pack(status)
                 ];
 
                 // create action
@@ -609,7 +609,7 @@ block {
 
                 const dataMap : dataMapType = map [
                     ("targetContractAddress" : string) -> Bytes.pack(targetContractAddress);
-                    ("transfer" : string)              -> Bytes.pack(transferList);
+                    ("transfer"              : string) -> Bytes.pack(transferList);
                 ];
 
                 // create action
@@ -664,18 +664,8 @@ block {
                 // init params
                 const dropActionId : nat = dropActionParams.dropActionId;
 
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                // Verify sender is a satellite which is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // Get governance satellite action record 
                 var governanceSatelliteActionRecord : governanceSatelliteActionRecordType := getGovernanceSatelliteActionRecord(dropActionId, s);

@@ -378,9 +378,8 @@ block {
                 // Validation Checks
                 // ------------------------------------------------------------------
 
-                // Check if satellite exists and is not suspended or banned
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
+                // Verify that satellite exists and is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // init financial request id
                 const financialRequestId    : nat       = voteForRequest.requestId;

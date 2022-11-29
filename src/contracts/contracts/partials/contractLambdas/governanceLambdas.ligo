@@ -17,7 +17,6 @@ block {
     // 2. Get Break Glass Contract address from the general contracts map
     // 3. Set Governance Contract admin to the Break Glass Contract
 
-
     checkSenderIsEmergencyGovernanceContract(s); // Check that sender is from the Emergency Governance Gontract 
 
     case governanceLambdaAction of [
@@ -49,7 +48,6 @@ block {
     //      -   First, trigger pauseAll entrypoint in contract 
     //      -   Second, trigger setAdmin entrypoint in contract to change admin to Break Glass Contract
 
-
     checkSenderIsAdmin(s); // Check that sender is admin (if glass has been broken, admin should be the Break Glass Contract)
 
     var operations : list(operation) := nil;
@@ -57,33 +55,18 @@ block {
     case governanceLambdaAction of [
         |   LambdaPropagateBreakGlass(_parameters) -> {
                 
-                // Get Break Glass Contract address from the general contracts map
-                const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
-
-                // Check if glass is broken on the Break Glass Contract
-                const glassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, breakGlassAddress);
-                const glassBroken : bool = case glassBrokenView of [
-                        Some (_glassBroken) -> _glassBroken
-                    |   None                -> failwith (error_GET_GLASS_BROKEN_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND)
-                ];
-
-                if glassBroken then skip else failwith(error_GLASS_NOT_BROKEN);
+                // Verify that glass is broken on the Break Glass contract
+                verifyGlassBroken(s);
 
                 // Loop to propagate break glass in all general contracts
                 for _contractName -> contractAddress in map s.generalContracts block {
                     
+                    // Order of operations: first in last out
                     // 1. First, trigger pauseAll entrypoint in contract 
                     // 2. Second, trigger setAdmin entrypoint in contract to change admin to Break Glass Contract
 
-                    case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                            Some(contr) -> operations := Tezos.transaction(breakGlassAddress, 0tez, contr) # operations
-                        |   None        -> skip
-                    ];
-                    
-                    case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
-                        |   None        -> skip
-                    ];
+                    operations := setAdminIfExistOperation(contractAddress, operations, s);
+                    operations := pauseAllIfExistOperation(contractAddress, operations);
                 } 
 
             }
@@ -113,7 +96,6 @@ block {
     //      -   Check if the new admin address is a whitelisted developer or the current Governance Proxy Contract address
     //      -   Check if the new admin address is the Break Glass Contract
     // 4. Set new admin address
-    
 
     checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
     checkSenderIsAdmin(s);  // check that sender is admin (i.e. Governance Proxy Contract address)
@@ -121,18 +103,12 @@ block {
     case governanceLambdaAction of [
         |   LambdaSetAdmin(newAdminAddress) -> {
 
-                // Check if the new admin address is a whitelisted developer or the current Governance Proxy Contract address
-                if not Set.mem(newAdminAddress, s.whitelistDevelopers) and newAdminAddress =/= s.governanceProxyAddress then {
-
-                    // Check if the new admin address is the Break Glass contract
-                    const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
-
-                    if newAdminAddress = breakGlassAddress then skip
-                    else failwith(error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED)
-                }
-                else skip;
+                // Verify that the new admin address is either a whitelisted developer, or the governance proxy contract, or the break glass contract
+                verifyValidAdminAddress(newAdminAddress, s);
                 
+                // Update storage
                 s.admin := newAdminAddress;
+
             }
         |   _ -> skip
     ];
@@ -150,7 +126,6 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Set new Governance Proxy Contract address
     
-
     checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
     checkSenderIsAdmin(s);  // check that sender is admin
     
@@ -172,7 +147,6 @@ block {
     // 1. Check that sender is admin 
     // 2. Check that no tez is sent to the entrypoint
     // 3. Set new contract metadata
-    
 
     checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
     checkSenderIsAdmin(s);  // check that sender is admin 
@@ -201,7 +175,6 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update config with new input (validate if necessary)
 
-
     checkNoAmount(Unit);   // check that no tez is sent to the entrypoint
     checkSenderIsAdmin(s); // check that sender is admin
 
@@ -211,7 +184,7 @@ block {
                 const updateConfigAction    : governanceUpdateConfigActionType     = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : governanceUpdateConfigNewValueType   = updateConfigParams.updateConfigNewValue;
 
-                const blocksPerMinute   : nat = 60n / Tezos.min_block_time();
+                const blocksPerMinute   : nat = 60n / Tezos.get_min_block_time();
                 const maxRoundDuration  : nat = 10_080n * blocksPerMinute; // one week in block levels
 
                 case updateConfigAction of [
@@ -250,7 +223,6 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update general contracts map
 
-    
     checkSenderIsWhitelistedOrAdmin(s); // check that sender is admin or whitelisted (e.g. Factory contracts)
     checkNoAmount(Unit);                // check that no tez is sent to the entrypoint
     
@@ -274,7 +246,6 @@ block {
     // 2. Check that no tez is sent to the entrypoint
     // 3. Update whitelist contracts map
 
-    
     checkSenderIsAdmin(s);  // check that sender is admin
     checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
     
@@ -299,22 +270,15 @@ block {
     // 3. Remove developer address if it is already present in the whitelist developers set, otherwise add developer address
     //      -   Check that there will always be at least one whitelisted developer address present
 
-
     checkSenderIsAdmin(s);  // check that sender is admin
     checkNoAmount(Unit);    // check that no tez is sent to the entrypoint
 
     case governanceLambdaAction of [
-        |   LambdaUpdateWhitelistDevelopers(developer) -> 
+            LambdaUpdateWhitelistDevelopers(developer) -> 
 
-            if Set.mem(developer, s.whitelistDevelopers) then 
-                
-                if Set.cardinal(s.whitelistDevelopers) > 1n then 
-                    s.whitelistDevelopers := Set.remove(developer, s.whitelistDevelopers)
-                else failwith(error_NOT_ENOUGH_WHITELISTED_DEVELOPERS)
-
-            else
-
-                s.whitelistDevelopers := Set.add(developer, s.whitelistDevelopers)
+                if checkWhitelistDeveloperExists(developer, s) 
+                then s := removeWhitelistDeveloper(developer, s)
+                else s := addWhitelistDeveloper(developer, s)
 
         |   _ -> skip
     ];
@@ -330,7 +294,6 @@ block {
     // Steps Overview:    
     // 1. Check that sender is admin or from the Governance Satellite Contract
     // 2. Create and execute transfer operations based on the params sent
-
 
     var operations : list(operation) := nil;
 
@@ -352,7 +315,7 @@ block {
 
                     } with (transferTokenOperation # operationList);
                 
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations);
                 
             }
         |   _ -> skip
@@ -377,15 +340,12 @@ block {
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaSetContractAdmin(setContractAdminParams) ->
+        |   LambdaSetContractAdmin(setContractAdminParams) -> {
                 
-                // Create operation to set new admin of contract
-                operations := Tezos.transaction(
-                    (setContractAdminParams.newContractAdmin), 
-                    0tez, 
-                    getSetAdminEntrypoint(setContractAdminParams.targetContractAddress)
-                ) # operations
-
+                // Create operation to set new admin address of contract
+                const setContractAdminOperation : operation = setContractAdminOperation(setContractAdminParams);
+                operations := setContractAdminOperation # operations;
+            }
         |   _ -> skip
     ];
 
@@ -409,15 +369,12 @@ block {
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaSetContractGovernance(setContractGovernanceParams) ->
+        |   LambdaSetContractGovernance(setContractGovernanceParams) -> {
                 
-                // Set new Governance address in contract
-                operations := Tezos.transaction(
-                    (setContractGovernanceParams.newContractGovernance), 
-                    0tez, 
-                    getSetGovernanceEntrypoint(setContractGovernanceParams.targetContractAddress)
-                ) # operations
-
+                // Create operation to set new governanceaddress of contract
+                const setContractGovernanceOperation : operation = setContractGovernanceOperation(setContractGovernanceParams);
+                operations := setContractGovernanceOperation # operations;
+            }
         |   _ -> skip
     ];
 
@@ -483,7 +440,6 @@ block {
     //          -   If proposal is too large for execution (e.g. gas cost exceed limits), set boolean to False 
     //              and execute proposal manually through the %processProposalSingleData entrypoint
 
-
     // Verify that current round has not ended
     verifyRoundHasNotEnded(s);
 
@@ -494,9 +450,6 @@ block {
                 
                 // Get current round variables
                 const currentRoundHighestVotedProposal: option(proposalRecordType) = Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger);
-
-                // calculate difference in block levels that have passed - how many cycles have passed
-
 
                 // Evaluate conditions to start next round given the current round
                 case s.currentCycleInfo.round of [
@@ -582,6 +535,7 @@ block {
                                 // Execute the timelock proposal if the boolean was set to true
                                 if executePastProposal then operations := Tezos.transaction((s.timelockProposalId), 0tez, getExecuteProposalEntrypoint(Tezos.get_self_address())) # operations 
                                 else skip;
+
                             } else skip;
 
                             // Start proposal round 
@@ -629,23 +583,23 @@ block {
     // 8. Add proposal id to current round proposals and initialise with zero positive votes in MVK 
     // 9. Increment next proposal id
 
-
-    // Check that the current round is a Proposal round
-    if s.currentCycleInfo.round = (Proposal : roundType) then skip
-    else failwith(error_ONLY_ACCESSIBLE_DURING_PROPOSAL_ROUND);
+    // Verify that the current round is a Proposal round
+    verifyIsProposalRound(s);
 
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
         |   LambdaPropose(newProposal) -> {
 
+                // init variables
+                const proposalId : nat = s.nextProposalId;
+
                 // ------------------------------------------------------------------
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
-                // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
+                // Verify that satellite exists and is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s := checkSatelliteSnapshot(Tezos.get_sender(), s);
@@ -665,7 +619,7 @@ block {
                 const treasuryContract : contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
                 const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
                 
-                operations  := transferFeeToTreasuryOperation # operations;
+                operations := transferFeeToTreasuryOperation # operations;
                 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -750,7 +704,6 @@ block {
     // 5. If the data is unique, it will be added to the proposal metadata map
     // 6. Save changes and update proposal ledger
 
-
     // Verify that the current round is a Proposal round
     verifyIsProposalRound(s);
 
@@ -782,9 +735,8 @@ block {
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
-                // Check if satellite exists and is not suspended or banned
-                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(proposalRecord.proposerAddress, delegationAddress, True, True);
+                // Verify that satellite exists and is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(proposalRecord.proposerAddress, s);
 
                 // ------------------------------------------------------------------
                 // Update proposal data
@@ -854,9 +806,8 @@ block {
                 // Get proposal record
                 var proposalRecord : proposalRecordType := getProposalRecord(proposalId, s);
 
-                // Check if satellite exists and is not suspended or banned
-                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(proposalRecord.proposerAddress, delegationAddress, True, True);
+                // Verify that satellite exists and is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(proposalRecord.proposerAddress, s);
 
                 // Check that sender is the creator of the proposal 
                 verifySenderIsProposalCreator(proposalRecord);
@@ -895,7 +846,6 @@ block {
     //          -   Recalculate votes for previous proposal voted on 
     //          -   Update proposal with satellite's vote
 
-
     // Verify that the current round is a Proposal round
     verifyIsProposalRound(s);
 
@@ -906,9 +856,8 @@ block {
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
-                // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
+                // Verify that satellite exists and is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s := checkSatelliteSnapshot(Tezos.get_sender(), s);
@@ -935,13 +884,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite has voted
-                const checkIfSatelliteHasVotedFlag : bool = case Big_map.find_opt((s.cycleId, Tezos.get_sender()), s.roundVotes) of [
-                        Some (_voteRound)   -> case _voteRound of [
-                                Proposal (_proposalId)      -> True
-                            |   Voting (_voteType)          -> False
-                        ] 
-                   |    None                -> False
-                ];
+                const checkIfSatelliteHasVotedFlag : bool = checkIfSatelliteHasVoted(Tezos.get_sender(), s);
 
                 // Compute satellite's votes 
                 if checkIfSatelliteHasVotedFlag = False then block {
@@ -1059,7 +1002,6 @@ block {
     //          -   Set proposal record based on vote type 
     //          -   Unset previous vote in proposal record
     //          -   Update proposal with new vote changes
-    
 
     // Verify that the current round is a Voting round
     verifyIsVotingRound(s);
@@ -1077,9 +1019,8 @@ block {
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
-                // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
+                // Verify that satellite exists and is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
                 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s := checkSatelliteSnapshot(Tezos.get_sender(), s);
@@ -1198,9 +1139,8 @@ block {
                     // Verify that there is a valid timelock proposal
                     verifyTimelockProposalExists(proposalId, s);
 
-                    // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-                    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
-                    else skip;
+                    // Verify that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+                    verifyProposalCanBeExecuted(s);
 
                 };
 
@@ -1258,7 +1198,7 @@ block {
                 };
 
                 // Send reward to proposer
-                operations  := sendRewardToProposer(s) # operations;
+                operations := sendRewardToProposer(s) # operations;
 
             }
         |   _ -> skip
@@ -1286,7 +1226,6 @@ block {
     //      -   Create paymentsData list of transfers for the Treasury Contract
     //      -   Get Payment Treasury Contract address from the General Contracts map
     //      -   Create operation of paymentsData transfers
-    
 
     var operations : list(operation) := nil;
 
@@ -1300,9 +1239,8 @@ block {
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
-                // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(proposal.proposerAddress, delegationAddress, True, True);
+                // Verify that satellite exists and is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(proposal.proposerAddress, s);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -1412,10 +1350,8 @@ block {
                     // Verify that there is a valid timelock proposal
                     verifyTimelockProposalExists(proposalId, s);
 
-                    // Check that current round is not Timelock Round or Voting Round (in the scenario proposal was executed before timelock round started)
-                    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) 
-                    then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
-                    else skip;
+                    // Verify that current round is not Timelock Round or Voting Round (in the scenario proposal was executed before timelock round started)
+                    verifyProposalCanBeExecuted(s);
 
                 };
 
@@ -1444,7 +1380,7 @@ block {
                 ];
 
                 // If there is no data to execute, loop through all the proposalData, starting from tail to head to get data
-                while proposal.proposalDataExecutionCounter < Map.size(proposal.proposalData) and optionData = (None : option(proposalDataType)) block{
+                while proposal.proposalDataExecutionCounter < Map.size(proposal.proposalData) and optionData = (None : option(proposalDataType)) block {
                     
                     proposal.proposalDataExecutionCounter   := proposal.proposalDataExecutionCounter + 1n;
                     optionData                              := case proposal.proposalData[proposal.proposalDataExecutionCounter] of [
@@ -1456,8 +1392,8 @@ block {
 
                 // Check if there is data to execute (even at the last entry where index = 0)
                 case optionData of [
-                        Some (_dataBytes)   -> operations := executeGovernanceActionOperation(_dataBytes.encodedCode, s) # operations
-                    |   None                -> skip
+                        Some (_dataBytes) -> operations := executeGovernanceActionOperation(_dataBytes.encodedCode, s) # operations
+                    |   None              -> skip
                 ];
 
                 // ------------------------------------------------------------------
@@ -1465,7 +1401,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update proposalDataExecutionCounter after the execution of a metadata
-                proposal.proposalDataExecutionCounter  := proposal.proposalDataExecutionCounter + 1n;
+                proposal.proposalDataExecutionCounter := proposal.proposalDataExecutionCounter + 1n;
 
                 // Check if all operations were executed
                 if proposal.proposalDataExecutionCounter >= Map.size(proposal.proposalData) then {
@@ -1474,7 +1410,7 @@ block {
                     proposal.executed := True;
 
                     // Send reward to proposer
-                    operations  := sendRewardToProposer(s) # operations;
+                    operations := sendRewardToProposer(s) # operations;
 
                 } else skip;
 
@@ -1521,7 +1457,8 @@ block {
                             verifyRewardReadyToBeClaimed(_record);
 
                             // Add the reward to the storage
-                            s.proposalRewards := Big_map.add(satelliteRewardProposalKey, unit, s.proposalRewards);
+                            const satelliteRewardProposalKey : (actionIdType*address) = (proposalId, satelliteAddress);
+                            s.proposalRewards[satelliteRewardProposalKey] := unit;
 
                             // Calculate the reward
                             const satelliteReward: nat = _record.totalVotersReward / Set.cardinal(_record.voters);
@@ -1557,7 +1494,6 @@ block {
     //      -   Remove proposal from currentCycleInfo.cycleProposers
     //      -   If current round is a timelock or voting round (where there is only one proposal), restart the cycle
 
-
     case governanceLambdaAction of [
         |   LambdaDropProposal(proposalId) -> {
 
@@ -1568,9 +1504,8 @@ block {
                 // Satellite Permissions Check
                 // ------------------------------------------------------------------
 
-                // Check that satellite exists and is not suspended or banned
-                const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
-                checkSatelliteStatus(_proposal.proposerAddress, delegationAddress, True, True);
+                // Verify that satellite exists and is not suspended or banned
+                verifySatelliteIsNotSuspendedOrBanned(proposal.proposerAddress, s);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
