@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Doorman, setDoormanLambdas } from '../helpers/doormanHelper'
+import { Doorman, setDoormanLambdas } from '../contractHelpers/doormanTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

@@ -1,10 +1,10 @@
-import {AggregatorFactoryContractAbstraction} from "../helpers/aggregatorFactoryHelper.js";
+import {AggregatorFactoryContractAbstraction} from "../contractHelpers/aggregatorFactoryTestHelper.js";
 
 import {MVK, Utils} from "../helpers/Utils";
 
-import {DelegationContractAbstraction} from "../helpers/delegationHelper.js";
-import {GovernanceSatelliteContractAbstraction} from "../helpers/governanceSatelliteHelper.js";
-import {DoormanContractAbstraction} from "../helpers/doormanHelper.js";
+import {DelegationContractAbstraction} from "../contractHelpers/delegationTestHelper.js";
+import {GovernanceSatelliteContractAbstraction} from "../contractHelpers/governanceSatelliteTestHelper.js";
+import {DoormanContractAbstraction} from "../contractHelpers/doormanTestHelper.js";
 import {BigNumber} from "bignumber.js";
 
 const chai = require('chai')

@@ -503,7 +503,6 @@ error_ONLY_ACCESSIBLE_DURING_TIMELOCK_ROUND                                     
 error_SNAPSHOT_NOT_READY                                                                                = 356
 error_SNAPSHOT_NOT_FOUND                                                                                = 357
 error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND                                                                  = 358
-error_TIMELOCK_PROPOSAL_NOT_FOUND                                                                       = 359
 error_PROPOSAL_NOT_FOUND                                                                                = 360
 error_PROPOSAL_LOCKED                                                                                   = 361
 error_PROPOSAL_CANNOT_BE_EXECUTED_NOW                                                                   = 362
@@ -524,7 +523,7 @@ error_VOTE_ALREADY_RECORDED                                                     
 error_CURRENT_ROUND_NOT_FINISHED                                                                        = 377
 error_MAX_PROPOSAL_REACHED                                                                              = 378
 error_DEVELOPER_NOT_WHITELISTED                                                                         = 379
-error_NOT_ENOUGH_WHITELISTED_DEVELOPERS                                                                 = 380
+error_AT_LEAST_ONE_WHITELISTED_DEVELOPER_REQUIRED                                                       = 380
 
 
 error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                             = 381

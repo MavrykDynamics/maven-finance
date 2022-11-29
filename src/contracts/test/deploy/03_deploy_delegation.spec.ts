@@ -22,7 +22,7 @@ import doormanAddress from '../../deployments/doormanAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Delegation, setDelegationLambdas } from '../helpers/delegationHelper'
+import { Delegation, setDelegationLambdas } from '../contractHelpers/delegationTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

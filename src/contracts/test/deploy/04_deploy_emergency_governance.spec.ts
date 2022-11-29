@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { EmergencyGovernance, setEmergencyGovernanceLambdas } from '../helpers/emergencyGovernanceHelper'
+import { EmergencyGovernance, setEmergencyGovernanceLambdas } from '../contractHelpers/emergencyGovernanceTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage

@@ -2,7 +2,7 @@
 // import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan } from "../scripts/sandbox/accounts";
 // import { Utils } from './helpers/Utils';
 // import { InMemorySigner } from '@taquito/signer';
-// import { ClientAggregator } from './helpers/clientAggregatorHelper';
+// import { ClientAggregator } from './helpers/clientAggregatorTestHelper';
 // import BigNumber from 'bignumber.js';
 // import { clientAggregatorStorage } from '../storage/clientAggregatorStorage'
 // import aggregatorAddress from '../deployments/aggregatorAddress.json';
