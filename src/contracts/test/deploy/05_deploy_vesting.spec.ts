@@ -20,7 +20,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Vesting, setVestingLambdas } from '../helpers/vestingHelper'
+import { Vesting, setVestingLambdas } from '../contractHelpers/vestingTestHelper'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
