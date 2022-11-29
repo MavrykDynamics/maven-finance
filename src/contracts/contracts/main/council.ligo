@@ -89,6 +89,7 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 
 
 
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions Begin
@@ -267,8 +268,8 @@ block {
 
         startDateTime         = Tezos.get_now();
         startLevel            = Tezos.get_level();             
-        executedDateTime      = Tezos.get_now();
-        executedLevel         = Tezos.get_level();
+        executedDateTime      = zeroTimestamp;
+        executedLevel         = 0n;
         expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
