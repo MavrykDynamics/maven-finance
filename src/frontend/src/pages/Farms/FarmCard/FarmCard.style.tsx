@@ -196,9 +196,15 @@ export const FarmCardStyled = styled(Card)<{ theme: MavrykTheme }>`
         h3 {
           margin-bottom: 13px;
           margin-top: 3px;
+
+          font-weight: 600;
+          font-size: 22px;
+          line-height: 22px;
+
+          color: ${({ theme }) => theme.textColor};
         }
 
-        div {
+        div:not(.isConnected) {
           margin: 0;
           width: 100%;
           max-width: 100%;
