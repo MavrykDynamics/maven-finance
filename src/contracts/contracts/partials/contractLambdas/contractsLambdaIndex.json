@@ -129,6 +129,7 @@
         "lambdaMistakenTransfer",
 
         "lambdaAddOracle",
+        "lambdaUpdateOracle",
         "lambdaRemoveOracle",
 
         "lambdaPauseAll",

@@ -56,6 +56,7 @@ type aggregatorAction is
 
         // Admin Oracle Entrypoints
     |   AddOracle                            of addOracleType
+    |   UpdateOracle                         of (unit)
     |   RemoveOracle                         of address
 
         // Pause / Break Glass Entrypoints
@@ -279,6 +280,26 @@ function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contract
 // ------------------------------------------------------------------------------
 // Oracle Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// helper function to get satellite record view from the delegation contract
+function getSatelliteRecord(const satelliteAddress : address; const s : aggregatorStorageType) : satelliteRecordType is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    const satelliteRecord : satelliteRecordType = case satelliteOptView of [
+            Some (optionView) -> case optionView of [
+                    Some(_satelliteRecord)      -> _satelliteRecord
+                |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
+            ]
+        |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with satelliteRecord
+
+
 
 // helper function to check that address belongs to an oracle
 function isOracleAddress(const address : address; const oracleAddresses : oracleAddressesType) : bool is
@@ -898,6 +919,25 @@ block{
 
 
 
+(*  updateOracle entrypoint  *)
+function updateOracle(const s : aggregatorStorageType) : return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateOracle"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateOracle(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
+
+
+
 (*  removeOracle entrypoint  *)
 function removeOracle(const oracleAddress : address; const s : aggregatorStorageType) : return is
 block{
@@ -1110,6 +1150,7 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
 
                 // Admin Oracle Entrypoints
             |   AddOracle (parameters)                          -> addOracle(parameters, s)
+            |   UpdateOracle (_parameters)                      -> updateOracle(s)
             |   RemoveOracle (parameters)                       -> removeOracle(parameters, s)
 
                 // Pause / Break Glass Entrypoints
@@ -1118,7 +1159,7 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
             |   TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
 
                 // Oracle Entrypoints
-            |   UpdateData (parameters)                       -> updateData(parameters, s)
+            |   UpdateData (parameters)                         -> updateData(parameters, s)
 
                 // Reward Entrypoints
             |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
