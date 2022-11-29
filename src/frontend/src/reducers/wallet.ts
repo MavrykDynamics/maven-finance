@@ -30,6 +30,7 @@ export interface WalletState {
   error?: any
   connect?: any
   toTezos?: () => number | any
+  isDefaultWallet: boolean
 }
 
 export const walletDefaultState: WalletState = {
@@ -37,6 +38,7 @@ export const walletDefaultState: WalletState = {
   tezos: new TezosToolkit(RpcNetwork),
   accountPkh: undefined,
   ready: false,
+  isDefaultWallet: true,
 }
 
 export function wallet(state = walletDefaultState, action: Action) {
@@ -45,6 +47,7 @@ export function wallet(state = walletDefaultState, action: Action) {
       return {
         ...state,
         wallet: action.wallet,
+        isDefaultWallet: true,
       }
     case CONNECT:
       return {
@@ -52,6 +55,7 @@ export function wallet(state = walletDefaultState, action: Action) {
         tezos: action.tezos,
         ready: action.ready,
         accountPkh: action.accountPkh,
+        isDefaultWallet: false,
       }
     case DISCONNECT:
       return {

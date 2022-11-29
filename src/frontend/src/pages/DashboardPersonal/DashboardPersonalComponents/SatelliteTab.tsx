@@ -222,7 +222,7 @@ const SatelliteTab = ({ satelliteRecord = DEFAULT_SATELLITE }: SatelliteTabProps
           <div className="no-data">
             <span>Nothing supplied at this time</span>
             <Link to="/yield-farms">
-              <Button text="Lend Asset" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
+              <Button text="Lend Asset" icon="lend" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
             </Link>
           </div>
         )}
@@ -271,7 +271,7 @@ const SatelliteTab = ({ satelliteRecord = DEFAULT_SATELLITE }: SatelliteTabProps
             <Link to="/yield-farms">
               <Button
                 text="Borrow Asset"
-                icon="plant"
+                icon="borrow"
                 kind={ACTION_PRIMARY}
                 className="noStroke dashboard-sectionLink"
               />

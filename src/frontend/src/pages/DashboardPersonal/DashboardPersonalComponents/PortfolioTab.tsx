@@ -1,9 +1,16 @@
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
+import { State } from 'reducers'
+
+import { borrowingData, CHART_TEST_DATA, lendingData } from '../tabs.const'
 import { ACTION_PRIMARY, ACTION_SIMPLE } from 'app/App.components/Button/Button.constants'
 
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { TradingViewChart } from 'app/App.components/Chart/Chart.view'
+import { SlidingTabButtons, TabItem } from 'app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import Icon from 'app/App.components/Icon/Icon.view'
 
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
@@ -14,13 +21,6 @@ import {
   PortfolioWalletStyled,
   PortfolioChartStyled,
 } from './DashboardPersonalComponents.style'
-
-import { CHART_TEST_DATA, lendingData } from '../tabs.const'
-import { TradingViewChart } from 'app/App.components/Chart/Chart.view'
-import { useState } from 'react'
-import { SlidingTabButtons, TabItem } from 'app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
-import { useSelector } from 'react-redux'
-import { State } from 'reducers'
 
 type PortfolioTabProps = {
   xtzAmount: number
@@ -166,8 +166,8 @@ const PortfolioTab = ({ xtzAmount, tzBTCAmount, sMVKAmount, notsMVKAmount }: Por
         ) : (
           <div className="no-data">
             <span>Nothing supplied at this time</span>
-            <Link to="/yield-farms">
-              <Button text="Lend Asset" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
+            <Link to="/loans">
+              <Button text="Lend Asset" icon="lend" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
             </Link>
           </div>
         )}
@@ -176,12 +176,53 @@ const PortfolioTab = ({ xtzAmount, tzBTCAmount, sMVKAmount, notsMVKAmount }: Por
         <GovRightContainerTitleArea>
           <h2>Borrowing</h2>
         </GovRightContainerTitleArea>
-        <div className="no-data">
-          <span>Nothing borrowed at this time</span>
-          <Link to="/yield-farms">
-            <Button text="Borrow Asset" icon="plant" kind={ACTION_PRIMARY} className="noStroke dashboard-sectionLink" />
-          </Link>
-        </div>
+        {borrowingData ? (
+          <div className="list scroll-block">
+            {borrowingData.map(({ assetImg, apy, supplied, earned, mvkBonus, id }) => {
+              return (
+                <ListItem columsTemplate="60px 0.9fr 0.7fr 0.8fr 0.7fr" key={id}>
+                  <Icon id={assetImg || 'noImage'} />
+                  <div className="list-part">
+                    <div className="name">Borrowed</div>
+                    <div className="value">
+                      <CommaNumber value={supplied} beginningText="$" />
+                    </div>
+                  </div>
+                  <div className="list-part">
+                    <div className="name">APY</div>
+                    <div className="value">
+                      <CommaNumber value={apy} endingText="%" />
+                    </div>
+                  </div>
+                  <div className="list-part">
+                    <div className="name">Earned</div>
+                    <div className="value">
+                      <CommaNumber value={earned} />
+                    </div>
+                  </div>
+                  <div className="list-part">
+                    <div className="name">MVK Bonus</div>
+                    <div className="value">
+                      <CommaNumber value={mvkBonus} />
+                    </div>
+                  </div>
+                </ListItem>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="no-data">
+            <span>Nothing borrowed at this time</span>
+            <Link to="/yield-farms">
+              <Button
+                text="Borrow Asset"
+                icon="borrow"
+                kind={ACTION_PRIMARY}
+                className="noStroke dashboard-sectionLink"
+              />
+            </Link>
+          </div>
+        )}
       </LBHInfoBlock>
     </DashboardPersonalTabStyled>
   )

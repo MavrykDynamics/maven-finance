@@ -36,7 +36,7 @@ import { LENDING_TAB_ID } from 'pages/Dashboard/Dashboard.utils'
 
 export const AppRoutes = () => {
   const { pathname } = useLocation()
-  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { accountPkh, isDefaultWallet } = useSelector((state: State) => state.wallet)
   const { isSatellite } = useSelector((state: State) => state.user) ?? {}
 
   // get origin pathname
@@ -60,7 +60,7 @@ export const AppRoutes = () => {
         component={DashboardPersonal}
         hasAccess={Boolean(accountPkh)}
         isAuthorized={Boolean(accountPkh)}
-        canCheck={accountPkh !== undefined}
+        canCheck={!isDefaultWallet}
         redirectPath={`/dashboard/${LENDING_TAB_ID}`}
       />
       <Route exact path="/your-vesting">
@@ -116,7 +116,7 @@ export const AppRoutes = () => {
         component={ProposalSubmission}
         isAuthorized={Boolean(accountPkh)}
         hasAccess={Boolean(isSatellite)}
-        canCheck={accountPkh !== undefined && isSatellite !== undefined}
+        canCheck={isSatellite !== undefined && !isDefaultWallet}
         redirectPath={'/'}
       />
       <Route exact path="/treasury">
