@@ -3,8 +3,8 @@
 // ------------------------------------------------------------------------------
 
 type oracleInformationType is [@layout:comb] record [
-       oraclePublicKey: key;
-       oraclePeerId: string;
+    oraclePublicKey  : key;
+    oraclePeerId     : string;
 ];
 type oracleAddressesType         is map (address, oracleInformationType);
 type oracleRewardStakedMvkType   is map (address, nat);
@@ -69,8 +69,7 @@ type withdrawRewardXtzType            is address;
 type withdrawRewardStakedMvkType      is address;
 
 type addOracleType is   [@layout:comb] record [
-        oracleAddress       : address;
-        oracleInformation   : oracleInformationType;
+    oracleAddress       : address;
 ];
 
 type removeOracleType                 is address;
@@ -122,6 +121,7 @@ type aggregatorLambdaActionType is
 
         // Oracle Admin Entrypoints
     |   LambdaAddOracle                     of addOracleType
+    |   LambdaUpdateOracle                  of (unit)
     |   LambdaRemoveOracle                  of removeOracleType
 
         // Pause / Break Glass Entrypoints

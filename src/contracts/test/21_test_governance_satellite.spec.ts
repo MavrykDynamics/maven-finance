@@ -114,7 +114,15 @@
 //                 const bobStakeAmount                  = MVK(100);
 //                 const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
 //                 await bobStakeAmountOperation.confirmation();                        
-//                 const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "700").send();
+//                 const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
+//                     "New Satellite by Bob", 
+//                     "New Satellite Description - Bob", 
+//                     "https://image.url", 
+//                     "https://image.url", 
+//                     "700",
+//                     bob.pk,
+//                     bob.peerId
+//                 ).send();
 //                 await bobRegisterAsSatelliteOperation.confirmation();
 //             }
 
@@ -138,7 +146,15 @@
 //                 const aliceStakeAmount                  = MVK(100);
 //                 const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
 //                 await aliceStakeAmountOperation.confirmation();                        
-//                 const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "700").send();
+//                 const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
+//                     "New Satellite by Alice", 
+//                     "New Satellite Description - Alice", 
+//                     "https://image.url", 
+//                     "https://image.url", 
+//                     "700",
+//                     alice.pk,
+//                     alice.peerId
+//                 ).send();
 //                 await aliceRegisterAsSatelliteOperation.confirmation();
 //             }
 
@@ -162,7 +178,15 @@
 //                 const eveStakeAmount                  = MVK(100);
 //                 const eveStakeAmountOperation         = await doormanInstance.methods.stake(eveStakeAmount).send();
 //                 await eveStakeAmountOperation.confirmation();                        
-//                 const eveRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Eve", "New Satellite Description - Eve", "https://image.url", "https://image.url", "700").send();
+//                 const eveRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
+//                     "New Satellite by Eve", 
+//                     "New Satellite Description - Eve", 
+//                     "https://image.url", 
+//                     "https://image.url", 
+//                     "700",
+//                     eve.pk,
+//                     eve.peerId
+//                 ).send();
 //                 await eveRegisterAsSatelliteOperation.confirmation();
 //             }
 
@@ -186,9 +210,19 @@
 //                 const malloryStakeAmount                  = MVK(100);
 //                 const malloryStakeAmountOperation         = await doormanInstance.methods.stake(malloryStakeAmount).send();
 //                 await malloryStakeAmountOperation.confirmation();                        
-//                 const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Mallory", "New Satellite Description - Mallory", "https://image.url", "https://image.url", "700").send();
+//                 const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite(
+//                     "New Satellite by Mallory", 
+//                     "New Satellite Description - Mallory", 
+//                     "https://image.url", 
+//                     "https://image.url", 
+//                     "700",
+//                     mallory.pk,
+//                     mallory.peerId
+//                 ).send();
 //                 await malloryRegisterAsSatelliteOperation.confirmation();
 //             }
+
+//             console.log(`\nSatellites deployed \n`);
 
 //             // Setup Oracles
 //             await signerFactory(bob.sk);
@@ -668,16 +702,12 @@
 
 //               // governance satellite action params
 //               const satelliteToBeSuspended   = alice.pkh;
-//               const oraclePublicKey          = alice.pk;
-//               const oraclePeerId             = alice.peerId;
 //               const purpose                  = "Test restore Satellite";            
   
 //               // Satellite Bob creates a governance action - restore Alice
 //               await signerFactory(bob.sk);
 //               const governanceSatelliteOperation = await governanceSatelliteInstance.methods.restoreSatellite(
 //                       satelliteToBeSuspended,
-//                       oraclePublicKey,
-//                       oraclePeerId,
 //                       purpose
 //                   ).send();
 //               await governanceSatelliteOperation.confirmation();
@@ -984,16 +1014,12 @@
 
 //             // governance satellite action params
 //             const satelliteToBeSuspended   = alice.pkh;
-//             const oraclePublicKey          = alice.pk;
-//             const oraclePeerId             = alice.peerId;
 //             const purpose                  = "Test Restore Satellite";            
 
 //             // Satellite Bob creates a governance action - restore Alice
 //             await signerFactory(bob.sk);
 //             const governanceSatelliteOperation = await governanceSatelliteInstance.methods.restoreSatellite(
 //                     satelliteToBeSuspended,
-//                     oraclePublicKey,
-//                     oraclePeerId,
 //                     purpose
 //                 ).send();
 //             await governanceSatelliteOperation.confirmation();
@@ -1128,8 +1154,6 @@
 
 //             // governance satellite action params
 //             const oracleAddress            = bob.pkh;
-//             const oraclePublicKey          = bob.pk;
-//             const oraclePeerId             = bob.peerId;
 //             const aggregatorAddress        = usdBtcAggregatorAddress;
 //             const purpose                  = "Test Add Oracle To Aggregator";            
 
@@ -1137,8 +1161,6 @@
 //             await signerFactory(bob.sk);
 //             const governanceSatelliteOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                     oracleAddress,
-//                     oraclePublicKey,
-//                     oraclePeerId,
 //                     aggregatorAddress,
 //                     purpose
 //                 ).send();
@@ -1243,7 +1265,6 @@
 //             // check that bob is now added to aggregator oracleAddresses Set
 //             assert.equal(updatedAggregatorOracles.oraclePeerId, bob.peerId);
 //             assert.equal(updatedAggregatorOracles.oraclePublicKey, bob.pk);
-
         
 //         } catch(e){
 //             console.dir(e, {depth: 5})
@@ -1441,8 +1462,6 @@
 //             // --------------------------------------------------------
 
 //             const oracleAddress            = bob.pkh;
-//             const oraclePublicKey          = bob.pk;
-//             const oraclePeerId             = bob.peerId;
 //             const aggregatorAddress        = usdBtcAggregatorAddress;
 //             const purpose                  = "Test Add Oracle To Aggregator";            
 
@@ -1450,8 +1469,6 @@
 //             await signerFactory(bob.sk);
 //             const governanceSatelliteAddOracleFirstOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                     oracleAddress,
-//                     oraclePublicKey,
-//                     oraclePeerId,
 //                     aggregatorAddress,
 //                     purpose
 //                 ).send();
@@ -1514,8 +1531,6 @@
 
 //             const governanceSatelliteAddOracleSecondOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                     oracleAddress,
-//                     oraclePublicKey,
-//                     oraclePeerId,
 //                     usdXtzAggregatorAddress,
 //                     purpose
 //                 ).send();
@@ -1563,8 +1578,6 @@
 
 //             const governanceSatelliteAddOracleThirdOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                     oracleAddress,
-//                     oraclePublicKey,
-//                     oraclePeerId,
 //                     usdDogeAggregatorAddress,
 //                     purpose
 //                 ).send();
@@ -2270,8 +2283,6 @@
 //                 // dummy governance satellite action params
 //                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
 //                 var oracleAddress              = trudy.pkh;
-//                 var oraclePublicKey            = trudy.pk;
-//                 var oraclePeerId               = trudy.peerId;
 //                 const aggregatorAddress        = usdBtcAggregatorAddress;
 //                 const newStatus                = "pauseAll"
 //                 const purpose                  = "Test Purpose";            
@@ -2290,8 +2301,6 @@
 //                 // fail to create governance action to restore Satellite
 //                 const failRestoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
 //                     bob.pkh,
-//                     bob.pk,
-//                     bob.peerId,
 //                     purpose
 //                 ).send();
 //                 await chai.expect(failRestoreSatelliteOperation).to.be.eventually.rejected;
@@ -2308,8 +2317,6 @@
 //                 // fail to create governance action to add oracle to aggregator
 //                 const failAddOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
 //                         oracleAddress,
-//                         oraclePublicKey,
-//                         oraclePeerId,
 //                         aggregatorAddress,
 //                         purpose
 //                     ).send();
@@ -2345,12 +2352,8 @@
 //                 // Satellite Bob creates a governance action to add oracle to aggregator (with a real satellite)
 //                 await signerFactory(bob.sk);
 //                 oracleAddress   = alice.pkh;
-//                 oraclePublicKey = alice.pk;
-//                 oraclePeerId    = alice.peerId;
 //                 const governanceSatelliteOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
 //                         oracleAddress,
-//                         oraclePublicKey,
-//                         oraclePeerId,
 //                         aggregatorAddress,
 //                         purpose
 //                     ).send();
