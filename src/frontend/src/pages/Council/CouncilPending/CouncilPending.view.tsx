@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { createPortal } from 'react-dom'
 import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
@@ -44,6 +44,12 @@ export const CouncilPendingView = (props: Props) => {
     index,
   } = props
 
+  const ref = useRef<HTMLDivElement | null>(null)
+  const showScrollInModal = useMemo(() => ref.current?.offsetHeight !== ref.current?.scrollHeight, [
+    ref.current?.offsetHeight,
+    ref.current?.scrollWidth
+  ])
+
   const handleSign = () => {
     if (id) {
       dispatch(sign(id))
@@ -83,7 +89,8 @@ export const CouncilPendingView = (props: Props) => {
         </ModalClose>
         <ModalCardContent style={{ width: 586 }}>
           <h1>Purpose for Request</h1>
-          <div>{purpose}</div>
+          <div ref={ref} className='text-box'>{purpose}</div>
+          <div style={{ display: showScrollInModal ? 'block' : 'none' }} className='shadow-box'></div>
         </ModalCardContent>
       </ModalCard>
     </ModalStyled>
