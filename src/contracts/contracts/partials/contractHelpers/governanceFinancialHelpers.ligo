@@ -155,6 +155,17 @@ block {
 
 
 
+// verify that satellite is not suspended or banned
+function verifySatelliteIsNotSuspendedOrBanned(const satelliteAddress : address; const s : governanceFinancialStorageType) : unit is 
+block {
+
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+    checkSatelliteStatus(satelliteAddress, delegationAddress, True, True);
+
+} with unit
+
+
+
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.get_amount() = 0tez) then unit
@@ -731,28 +742,18 @@ block {
     const satelliteRecord       : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
     const delegationRatio       : nat                 = getDelegationRatio(s);
 
-    // init staked mvk balance and total delegated amount (from satellite)
-    const stakedMvkBalance      : nat    = satelliteRecord.stakedMvkBalance;
-    const totalDelegatedAmount  : nat    = satelliteRecord.totalDelegatedAmount;
-    
-    // init total voting power and max total voting power for calculations
-    var totalVotingPower        : nat   := 0n;
-    var maxTotalVotingPower     : nat   := 0n;
+    var totalVotingPower : nat := 0n;
+    if (satelliteRecord.status = "ACTIVE") then {
+        
+        totalVotingPower := voteHelperCalculateVotingPower(
+            delegationRatio,                        // delegation ratio
+            satelliteRecord.stakedMvkBalance,       // staked MVK balance
+            satelliteRecord.totalDelegatedAmount    // total delegated amount
+        );
 
-    // calculate max total voting power
-    if delegationRatio = 0n
-    then maxTotalVotingPower := stakedMvkBalance * 10000n 
-    else maxTotalVotingPower := stakedMvkBalance * 10000n / delegationRatio;
-    
-    // calculate sum of staked mvk balance and total delegated amount
-    const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
-    
-    // calculate final total voting power
-    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower 
-    then totalVotingPower := maxTotalVotingPower
-    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+    } else skip;
 
-} with (totalVotingPower)
+} with totalVotingPower
 
 
 

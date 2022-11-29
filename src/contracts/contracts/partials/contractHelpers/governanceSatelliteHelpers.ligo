@@ -44,6 +44,17 @@ block {
 
 
 
+// verify that satellite is not suspended or banned
+function verifySatelliteIsNotSuspendedOrBanned(const satelliteAddress : address; const s : governanceSatelliteStorageType) : unit is 
+block {
+
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+    checkSatelliteStatus(satelliteAddress, delegationAddress, True, True);
+
+} with unit
+
+
+
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
@@ -176,6 +187,34 @@ block {
 
 
 
+// helper function to pause all entrypoints in aggregator
+function pauseAllEntrypointsInAggregatorOperation(const aggregatorAddress : address) : operation is 
+block {
+
+    const pauseAllEntrypointsInAggregatorOperation : operation = Tezos.transaction(
+        unit,
+        0tez,
+        getPauseAllInAggregatorEntrypoint(aggregatorAddress)
+    );
+
+} with pauseAllEntrypointsInAggregatorOperation
+
+
+
+// helper function to unpause all entrypoints in aggregator
+function unpauseAllEntrypointsInAggregatorOperation(const aggregatorAddress : address) : operation is 
+block {
+
+    const unpauseAllEntrypointsInAggregatorOperation : operation = Tezos.transaction(
+        unit,
+        0tez,
+        getUnpauseAllInAggregatorEntrypoint(aggregatorAddress)
+    );
+
+} with unpauseAllEntrypointsInAggregatorOperation
+
+
+
 // helper function to update satellite status
 function updateSatelliteStatusOperation(const satelliteAddress : address; const status : string; const s : governanceSatelliteStorageType) : operation is
 block {
@@ -272,6 +311,22 @@ block {
 
 
 
+// helper function to unpack status bytes from dataMap
+function unpackAggregatorStatusBytes(const governanceSatelliteActionRecord : governanceSatelliteActionRecordType) : togglePauseAggregatorVariantType is 
+block {
+
+    const unpackedAggregatorStatus : togglePauseAggregatorVariantType = case governanceSatelliteActionRecord.dataMap["status"] of [
+            Some(_status) -> case (Bytes.unpack(_status) : option(togglePauseAggregatorVariantType)) of [
+                    Some (_v)   -> _v
+                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
+            ]
+        |   None -> failwith(error_AGGREGATOR_NEW_STATUS_NOT_FOUND)
+    ];
+
+} with unpackedAggregatorStatus
+
+
+
 // helper function to get governance satellite action record
 function getGovernanceSatelliteActionRecord(const actionId : nat; const s : governanceSatelliteStorageType) : governanceSatelliteActionRecordType is 
 block {
@@ -297,6 +352,7 @@ block {
 } with subscribedAggregators
 
 
+
 // helper function to get or create subscribed aggregators of satellite (oracle)
 function getOrCreateSubscribedAggregators(const satelliteAddress : address; const s : governanceSatelliteStorageType) : subscribedAggregatorsType is 
 block {
@@ -307,6 +363,7 @@ block {
     ];
 
 } with subscribedAggregators
+
 
 
 // helper function to check if a satellite can interact with an action
@@ -326,127 +383,33 @@ block {
 
 
 
-// helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
-block{
-
-    // Get the governance cycle counter
-    const cycleIdView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
-    const currentCycle: nat = case cycleIdView of [
-            Some (_cycle)   -> _cycle
-        |   None            -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
-    // Get the snapshot from the governance contract
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle,satelliteAddress), s.governanceAddress);
-    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
-            Some (_snapshotOpt) -> _snapshotOpt
-        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
-    // Check if a snapshot needs to be created
-    const createSatelliteSnapshot: bool = case satelliteSnapshotOpt of [
-        Some (_snapshot)    -> False
-    |   None                -> True
-    ];
-
-    // Get the total voting power from the snapshot
-    var totalVotingPower: nat   := case satelliteSnapshotOpt of [
-        Some (_snapshot)    -> _snapshot.totalVotingPower
-    |   None                -> 0n
-    ];
-
-    // Create or not a snapshot
-    if createSatelliteSnapshot then{
-
-        // Get the delegation address
-        const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
-
-        // Get the satellite record
-        const satelliteOptView : option (option(satelliteRecordType))   = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
-        const _satelliteRecord: satelliteRecordType                     = case satelliteOptView of [
-                Some (value) -> case value of [
-                        Some (_satellite) -> _satellite
-                    |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-        ];
-
-        // Get the delegation ratio
-        const configView : option (delegationConfigType)    = Tezos.call_view ("getConfig", unit, delegationAddress);
-        const delegationRatio: nat                          = case configView of [
-                Some (_config) -> _config.delegationRatio
-            |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-        ];
-
-        // Create a snapshot
-        const satelliteSnapshotParams: updateSatelliteSnapshotType  = record[
-            satelliteAddress    = satelliteAddress;
-            satelliteRecord     = _satelliteRecord;
-            ready               = True;
-            delegationRatio     = delegationRatio;
-        ];
-
-        // Send the snapshot to the governance contract
-        const updateSnapshotOperation : operation   = Tezos.transaction(
-            (satelliteSnapshotParams),
-            0tez, 
-            sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
-        );
-        operations   := updateSnapshotOperation # operations;
-
-        // Calculate the total voting power of the satellite
-        totalVotingPower := voteHelperCalculateVotingPower(delegationRatio, _satelliteRecord.stakedMvkBalance, _satelliteRecord.totalDelegatedAmount);
-
-    } 
-    // Check if satellite is ready to vote
-    else case satelliteSnapshotOpt of [
-        Some (_snapshot)    -> if _snapshot.ready then skip else failwith(error_SNAPSHOT_NOT_READY)
-    |   None                -> skip
-    ];
-
-} with(totalVotingPower, operations)
 
 
+// ------------------------------------------------------------------------------
+// Governance Helper Functions Begin
+// ------------------------------------------------------------------------------
 
 // helper function to create a governance satellite action
 function createGovernanceSatelliteAction(const actionType : string; const dataMap : dataMapType; const purpose : string; var s : governanceSatelliteStorageType) : governanceSatelliteStorageType is
 block {
 
     // Validate inputs
-    if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-    // ------------------------------------------------------------------
-    // Get necessary contracts and info
-    // ------------------------------------------------------------------
-
-    // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    // const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
-
-    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+    validateStringLength(purpose, s.config.governancePurposeMaxLength, error_WRONG_INPUT_PROVIDED);
 
     // ------------------------------------------------------------------
     // Get / Check Satellite Records
     // ------------------------------------------------------------------
 
     // Check if the satellite created too much actions this cycle
-    var initiatorActions : set(actionIdType)    := case Big_map.find_opt(Tezos.get_sender(), s.actionsInitiators) of [
+    var initiatorActions : set(actionIdType) := case Big_map.find_opt(Tezos.get_sender(), s.actionsInitiators) of [
             Some (_actionsIds)  -> _actionsIds
         |   None                -> set []
     ];
     const createdActionsAmount: nat =   Set.cardinal(initiatorActions);
     if createdActionsAmount >= s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
 
-    // Get satellite record for initiator
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-    case satelliteOptView of [
-            Some (value) -> case value of [
-                    Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-            ]
-        |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
+    // Verify sender is a satellite which is not suspended or banned
+    verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
     // ------------------------------------------------------------------
     // Snapshot Staked MVK Total Supply
@@ -512,22 +475,212 @@ block {
 // ------------------------------------------------------------------------------
 
 
+// ------------------------------------------------------------------------------
+// Governance Snapshot Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get satellite record view from the delegation contract
+function getSatelliteRecord(const satelliteAddress : address; const s : governanceSatelliteStorageType) : satelliteRecordType is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    const satelliteRecord : satelliteRecordType = case satelliteOptView of [
+            Some (optionView) -> case optionView of [
+                    Some(_satelliteRecord)      -> _satelliteRecord
+                |   None                        -> failwith(error_SATELLITE_NOT_FOUND)
+            ]
+        |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with satelliteRecord
+
+
+
+// helper function to get delegation ratio from the delegation contract
+function getDelegationRatio(const s : governanceSatelliteStorageType) : nat is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    // Get the delegation ratio
+    const configView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const delegationRatio : nat = case configView of [
+            Some (_config) -> _config.delegationRatio
+        |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with delegationRatio
+
+
+
+// helper function to get the current governance cycle counter
+function getCurrentCycleCounter(const s : governanceSatelliteStorageType) : nat is 
+block {
+
+    // Get the current governance cycle counter from the governance contract
+    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const currentCycle : nat = case cycleCounterView of [
+            Some (_cycleCounter)   -> _cycleCounter
+        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+} with currentCycle
+
+
+
+// helper function to check if satellite snapshot exists
+function createSatelliteSnapshotCheck(const currentCycle : nat; const satelliteAddress : address; const s : governanceSatelliteStorageType) : bool is
+block {
+
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
+            Some (_snapshotOpt) -> _snapshotOpt
+        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    const satelliteSnapshotExists : bool = case satelliteSnapshotOpt of [
+            Some (_snapshot)    -> False
+        |   None                -> True
+    ];
+
+} with satelliteSnapshotExists
+
+
+
+// helper function to get satellite total voting power (default: 0)
+function getSatelliteTotalVotingPower(const currentCycle : nat; const satelliteAddress : address; const s : governanceSatelliteStorageType) : nat is
+block {
+
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
+            Some (_snapshotOpt) -> _snapshotOpt
+        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    const totalVotingPower : nat = case satelliteSnapshotOpt of [
+            Some (_snapshot)    -> _snapshot.totalVotingPower
+        |   None                -> 0n
+    ];
+
+} with totalVotingPower
+
+
+
+// helper function to update satellite snapshot
+function updateSatelliteSnapshotOperation(const satelliteAddress : address; const ready : bool; const s : governanceSatelliteStorageType) : operation is 
+block {
+
+    // Get the satellite record and delgation ratio
+    const satelliteRecord : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
+    const delegationRatio : nat                 = getDelegationRatio(s);
+
+    // Create a snapshot
+    const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
+        satelliteAddress    = satelliteAddress;
+        satelliteRecord     = satelliteRecord;
+        ready               = ready;
+        delegationRatio     = delegationRatio;
+    ];
+
+    // Send the snapshot to the governance contract
+    const updateSatelliteSnapshotOperation : operation   = Tezos.transaction(
+        (satelliteSnapshotParams),
+        0tez, 
+        sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
+    );
+
+} with updateSatelliteSnapshotOperation
+
+
+
+// helper function to verify that satellite snapshot is ready
+function verifySatelliteSnapshotIsReady(const currentCycle : nat; const satelliteAddress : address; const s : governanceSatelliteStorageType) : unit is
+block {
+
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
+            Some (_snapshotOpt) -> _snapshotOpt
+        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    case satelliteSnapshotOpt of [
+            Some (_snapshot)    -> if _snapshot.ready then skip else failwith(error_SNAPSHOT_NOT_READY)
+        |   None                -> skip
+    ];
+
+} with unit
+
+
+
+// helper function to calculate voting power
+function calculateVotingPower(const satelliteAddress : address; const s : governanceSatelliteStorageType) : nat is
+block {
+
+    // Get satellite record and delgation ratio
+    const satelliteRecord       : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
+    const delegationRatio       : nat                 = getDelegationRatio(s);
+
+    var totalVotingPower : nat := 0n;
+    if (satelliteRecord.status = "ACTIVE") then {
+        
+        totalVotingPower := voteHelperCalculateVotingPower(
+            delegationRatio,                        // delegation ratio
+            satelliteRecord.stakedMvkBalance,       // staked MVK balance
+            satelliteRecord.totalDelegatedAmount    // total delegated amount
+        );
+
+    } else skip;
+
+} with totalVotingPower
+
+
+
+// helper function to get a satellite total voting power from its snapshot on the governance contract
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
+block{
+
+    // Get the current cycle from the governance contract to check if the snapshot is up to date
+    const currentCycle : nat = getCurrentCycleCounter(s);
+
+    // Check if a snapshot needs to be created
+    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
+
+    // Get the total voting power from the snapshot (default 0 if snapshot has not been created)
+    var totalVotingPower : nat := getSatelliteTotalVotingPower(currentCycle, satelliteAddress, s);
+
+    // Create snapshot if it does not exist, verify snapshot is ready if it exists
+    if createSatelliteSnapshotCheck then{
+
+        // update satellite snapshot operation
+        const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, True, s);
+        operations := updateSatelliteSnapshotOperation # operations;
+
+        // Calculate the total voting power of the satellite
+        totalVotingPower := calculateVotingPower(satelliteAddress, s);
+
+    } 
+    // Check if satellite is ready to vote
+    else {
+
+        // Verify that satellite snapshot is ready
+        verifySatelliteSnapshotIsReady(currentCycle, satelliteAddress, s);
+    }
+
+} with (totalVotingPower, operations)
+
+// ------------------------------------------------------------------------------
+// Governance Snapshot Helper Functions End
+// ------------------------------------------------------------------------------
+
+
 
 // ------------------------------------------------------------------------------
 // Vote Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to create an operation to a satellite status
-// function updateSatelliteStatus(const targetSatellite : address; const newStatus : string; const delegationAddress : address; var operations : list(operation)) : list(operation) is
-// block {
-
-//     // Create operation to update satellite status in Delegation Contract
-//     const updateSatelliteStatusOperation : operation = updateSatelliteStatusOperation(targetSatellite, newStatus, s);
-//     operations := updateSatelliteStatusOperation # operations;
-
-// } with (operations)
-
-
 
 // helper function to add a remove an oracle from an aggregator
 function updateOracleInAggregator(const oracleAddress : address; const addOracle : bool; var operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
@@ -565,7 +718,6 @@ block {
     // Update the satellite status
     const updateSatelliteStatusOperation : operation = updateSatelliteStatusOperation(satelliteToBeSuspended, "SUSPENDED", s);
     operations := updateSatelliteStatusOperation # operations;
-    // operations := updateSatelliteStatus(satelliteToBeSuspended, "SUSPENDED", delegationAddress, operations);
 
     // if satellite has oracles, create operations to remove satellite oracles from aggregators
     operations := updateOracleInAggregator(satelliteToBeSuspended, False, operations, s);
@@ -582,7 +734,6 @@ block {
     const satelliteToBeBanned : address = unpackAddress(actionRecord, "satelliteToBeBanned", error_SATELLITE_NOT_FOUND);
 
     // Update the satellite status
-    // operations := updateSatelliteStatus(satelliteToBeBanned, "BANNED", delegationAddress, operations);
     const updateSatelliteStatusOperation : operation = updateSatelliteStatusOperation(satelliteToBeBanned, "BANNED", s);
     operations := updateSatelliteStatusOperation # operations;
 
@@ -601,7 +752,6 @@ block {
     const satelliteToBeRestored : address = unpackAddress(actionRecord, "satelliteToBeRestored", error_SATELLITE_NOT_FOUND);
 
     // Update the satellite status
-    // operations := updateSatelliteStatus(satelliteToBeRestored, "ACTIVE", delegationAddress, operations);
     const updateSatelliteStatusOperation : operation = updateSatelliteStatusOperation(satelliteToBeRestored, "ACTIVE", s);
     operations := updateSatelliteStatusOperation # operations;
 
@@ -624,10 +774,10 @@ block {
     var subscribedAggregators : subscribedAggregatorsType := getOrCreateSubscribedAggregators(oracleAddress, s);
 
     // Update subscribed aggregators map with new aggregator
-    subscribedAggregators[aggregatorAddress]    := Tezos.get_now();
+    subscribedAggregators[aggregatorAddress] := Tezos.get_now();
 
     // Update storage
-    s.satelliteAggregatorLedger[oracleAddress]  := subscribedAggregators;
+    s.satelliteAggregatorLedger[oracleAddress] := subscribedAggregators;
 
     // Create operation to add oracle to aggregator
     const addOracleToAggregatorOperation : operation = addOracleToAggregatorOperation(oracleAddress, aggregatorAddress);
@@ -696,26 +846,12 @@ block {
     const aggregatorAddress : address = unpackAddress(actionRecord, "aggregatorAddress", error_AGGREGATOR_CONTRACT_NOT_FOUND);
 
     // Get aggregator new status from governance satellite action record string map
-    const toggleStatus : togglePauseAggregatorVariantType = case actionRecord.dataMap["status"] of [
-            Some(_status) -> case (Bytes.unpack(_status) : option(togglePauseAggregatorVariantType)) of [
-                    Some (_v)   -> _v
-                |   None        -> failwith(error_UNABLE_TO_UNPACK_ACTION_PARAMETER)
-            ]
-        |   None          -> failwith(error_AGGREGATOR_NEW_STATUS_NOT_FOUND)
-    ];
+    const toggleStatus : togglePauseAggregatorVariantType = unpackAggregatorStatusBytes(actionRecord);
 
     // Create operation to pause or unpause aggregator based on status input
-    operations  := case toggleStatus of [
-            PauseAll    -> Tezos.transaction(
-                unit,
-                0tez,
-                getPauseAllInAggregatorEntrypoint(aggregatorAddress)
-            ) # operations
-        |   UnpauseAll  -> Tezos.transaction(
-                unit,
-                0tez,
-                getUnpauseAllInAggregatorEntrypoint(aggregatorAddress)
-            ) # operations
+    operations := case toggleStatus of [
+            PauseAll    -> pauseAllEntrypointsInAggregatorOperation(aggregatorAddress) # operations
+        |   UnpauseAll  -> unpauseAllEntrypointsInAggregatorOperation(aggregatorAddress) # operations
     ];
 
 } with (operations, s)
@@ -792,7 +928,7 @@ block {
 
     // Remove the executed action from the satellite's set
     const initiator : address                   = actionRecord.initiator;
-    var initiatorActions : set(actionIdType)    := case Big_map.find_opt(initiator, s.actionsInitiators) of [
+    var initiatorActions : set(actionIdType)    := case s.actionsInitiators[initiator] of [
             Some (_actionsIds)  -> _actionsIds
         |   None                -> failwith(error_INITIATOR_ACTIONS_NOT_FOUND)
     ];

@@ -503,7 +503,6 @@
 [@inline] const error_SNAPSHOT_NOT_READY                                                                                = 356n;
 [@inline] const error_SNAPSHOT_NOT_FOUND                                                                                = 357n;
 [@inline] const error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND                                                                  = 358n;
-[@inline] const error_TIMELOCK_PROPOSAL_NOT_FOUND                                                                       = 359n;
 [@inline] const error_PROPOSAL_NOT_FOUND                                                                                = 360n;
 [@inline] const error_PROPOSAL_LOCKED                                                                                   = 361n;
 [@inline] const error_PROPOSAL_CANNOT_BE_EXECUTED_NOW                                                                   = 362n;
@@ -524,7 +523,7 @@
 [@inline] const error_CURRENT_ROUND_NOT_FINISHED                                                                        = 377n;
 [@inline] const error_MAX_PROPOSAL_REACHED                                                                              = 378n;
 [@inline] const error_DEVELOPER_NOT_WHITELISTED                                                                         = 379n;
-[@inline] const error_NOT_ENOUGH_WHITELISTED_DEVELOPERS                                                                 = 380n;
+[@inline] const error_AT_LEAST_ONE_WHITELISTED_DEVELOPER_REQUIRED                                                       = 380n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                             = 381n;
