@@ -29158,6 +29158,7 @@ export type Lending_Controller_Collateral_Token = {
   /** An aggregate relationship */
   balances_aggregate: Lending_Controller_Vault_Collateral_Balance_Aggregate;
   id: Scalars['bigint'];
+  is_scaled_token: Scalars['Boolean'];
   /** An object relationship */
   lending_controller?: Maybe<Lending_Controller>;
   lending_controller_id?: Maybe<Scalars['String']>;
@@ -29251,6 +29252,7 @@ export type Lending_Controller_Collateral_Token_Bool_Exp = {
   _or?: InputMaybe<Array<Lending_Controller_Collateral_Token_Bool_Exp>>;
   balances?: InputMaybe<Lending_Controller_Vault_Collateral_Balance_Bool_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
+  is_scaled_token?: InputMaybe<Boolean_Comparison_Exp>;
   lending_controller?: InputMaybe<Lending_Controller_Bool_Exp>;
   lending_controller_id?: InputMaybe<String_Comparison_Exp>;
   oracle?: InputMaybe<Mavryk_User_Bool_Exp>;
@@ -29297,6 +29299,7 @@ export type Lending_Controller_Collateral_Token_Min_Order_By = {
 export type Lending_Controller_Collateral_Token_Order_By = {
   balances_aggregate?: InputMaybe<Lending_Controller_Vault_Collateral_Balance_Aggregate_Order_By>;
   id?: InputMaybe<Order_By>;
+  is_scaled_token?: InputMaybe<Order_By>;
   lending_controller?: InputMaybe<Lending_Controller_Order_By>;
   lending_controller_id?: InputMaybe<Order_By>;
   oracle?: InputMaybe<Mavryk_User_Order_By>;
@@ -29309,6 +29312,8 @@ export type Lending_Controller_Collateral_Token_Order_By = {
 export enum Lending_Controller_Collateral_Token_Select_Column {
   /** column name */
   Id = 'id',
+  /** column name */
+  IsScaledToken = 'is_scaled_token',
   /** column name */
   LendingControllerId = 'lending_controller_id',
   /** column name */
@@ -29363,6 +29368,7 @@ export type Lending_Controller_Collateral_Token_Stream_Cursor_Input = {
 /** Initial value of the column from where the streaming should start */
 export type Lending_Controller_Collateral_Token_Stream_Cursor_Value_Input = {
   id?: InputMaybe<Scalars['bigint']>;
+  is_scaled_token?: InputMaybe<Scalars['Boolean']>;
   lending_controller_id?: InputMaybe<Scalars['String']>;
   oracle_id?: InputMaybe<Scalars['String']>;
   protected?: InputMaybe<Scalars['Boolean']>;
@@ -41067,6 +41073,8 @@ export type Satellite = {
   id: Scalars['bigint'];
   image: Scalars['String'];
   name: Scalars['String'];
+  peer_id?: Maybe<Scalars['String']>;
+  public_key?: Maybe<Scalars['String']>;
   /** ACTIVE: 0\nSUSPENDED: 1\nBANNED: 2 */
   status: Scalars['smallint'];
   /** An object relationship */
@@ -41171,6 +41179,8 @@ export type Satellite_Bool_Exp = {
   id?: InputMaybe<Bigint_Comparison_Exp>;
   image?: InputMaybe<String_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
+  peer_id?: InputMaybe<String_Comparison_Exp>;
+  public_key?: InputMaybe<String_Comparison_Exp>;
   status?: InputMaybe<Smallint_Comparison_Exp>;
   user?: InputMaybe<Mavryk_User_Bool_Exp>;
   user_id?: InputMaybe<String_Comparison_Exp>;
@@ -41186,6 +41196,8 @@ export type Satellite_Max_Fields = {
   id?: Maybe<Scalars['bigint']>;
   image?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  peer_id?: Maybe<Scalars['String']>;
+  public_key?: Maybe<Scalars['String']>;
   /** ACTIVE: 0\nSUSPENDED: 1\nBANNED: 2 */
   status?: Maybe<Scalars['smallint']>;
   user_id?: Maybe<Scalars['String']>;
@@ -41200,6 +41212,8 @@ export type Satellite_Max_Order_By = {
   id?: InputMaybe<Order_By>;
   image?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
+  peer_id?: InputMaybe<Order_By>;
+  public_key?: InputMaybe<Order_By>;
   /** ACTIVE: 0\nSUSPENDED: 1\nBANNED: 2 */
   status?: InputMaybe<Order_By>;
   user_id?: InputMaybe<Order_By>;
@@ -41215,6 +41229,8 @@ export type Satellite_Min_Fields = {
   id?: Maybe<Scalars['bigint']>;
   image?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  peer_id?: Maybe<Scalars['String']>;
+  public_key?: Maybe<Scalars['String']>;
   /** ACTIVE: 0\nSUSPENDED: 1\nBANNED: 2 */
   status?: Maybe<Scalars['smallint']>;
   user_id?: Maybe<Scalars['String']>;
@@ -41229,6 +41245,8 @@ export type Satellite_Min_Order_By = {
   id?: InputMaybe<Order_By>;
   image?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
+  peer_id?: InputMaybe<Order_By>;
+  public_key?: InputMaybe<Order_By>;
   /** ACTIVE: 0\nSUSPENDED: 1\nBANNED: 2 */
   status?: InputMaybe<Order_By>;
   user_id?: InputMaybe<Order_By>;
@@ -41246,6 +41264,8 @@ export type Satellite_Order_By = {
   id?: InputMaybe<Order_By>;
   image?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
+  peer_id?: InputMaybe<Order_By>;
+  public_key?: InputMaybe<Order_By>;
   status?: InputMaybe<Order_By>;
   user?: InputMaybe<Mavryk_User_Order_By>;
   user_id?: InputMaybe<Order_By>;
@@ -41650,6 +41670,10 @@ export enum Satellite_Select_Column {
   /** column name */
   Name = 'name',
   /** column name */
+  PeerId = 'peer_id',
+  /** column name */
+  PublicKey = 'public_key',
+  /** column name */
   Status = 'status',
   /** column name */
   UserId = 'user_id',
@@ -41725,6 +41749,8 @@ export type Satellite_Stream_Cursor_Value_Input = {
   id?: InputMaybe<Scalars['bigint']>;
   image?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  peer_id?: InputMaybe<Scalars['String']>;
+  public_key?: InputMaybe<Scalars['String']>;
   /** ACTIVE: 0\nSUSPENDED: 1\nBANNED: 2 */
   status?: InputMaybe<Scalars['smallint']>;
   user_id?: InputMaybe<Scalars['String']>;
