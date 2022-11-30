@@ -63,7 +63,7 @@ export const ButtonStyled = styled.button<{ disabled: boolean; theme: MavrykThem
 
   &.selected {
     color: ${({ theme }) => theme.containerColor};
-    background-color: ${({ theme }) => theme.headerColor};
+    background-color: linear-gradient(90deg, #86d4c9 0.31%, #8d86eb 99.97%);
   }
 
   &.loading {
