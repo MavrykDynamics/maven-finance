@@ -24,5 +24,11 @@ jobs:
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
+          command: app list
+          options: --auth-token ${{ secrets.ARGOCD_TOKEN }}
+      - name: dry-run-sync
+        uses: clowdhaus/argo-cd-action/@v1.9.0
+        with:
+          version: 2.5.2
           command: app sync prod-mavryk-indexer
           options: --dry-run --server-side --prune --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.revision }}
