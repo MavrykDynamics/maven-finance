@@ -1,16 +1,21 @@
-import { useCallback } from 'react'
+import { useState, useCallback, useRef, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
+import { createPortal } from 'react-dom'
+import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
 
 // components
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
+import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // helpers
 import { getSeparateCamelCase } from '../../../utils/parse'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 // types
 import { BreakGlassActions } from 'utils/TypesAndInterfaces/BreakGlass'
+import { CouncilActions } from "utils/TypesAndInterfaces/Council";
 
 // actions
 import { signAction } from '../BreakGlassCouncil.actions'
@@ -19,17 +24,25 @@ import { signAction } from '../BreakGlassCouncil.actions'
 import { BreakGlassCouncilPendingStyled } from './BreakGlassCouncilPending.style'
 import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 
-type Props = BreakGlassActions[0] & {
+type Props = (BreakGlassActions[0] | CouncilActions[0]) & {
   numCouncilMembers: number
   councilPendingActionsLength: number
   index: number
 }
 
 export const BreakGlassCouncilPending = (props: Props) => {
-  const dispatch = useDispatch()
   const { id, actionType, signersCount, numCouncilMembers, councilPendingActionsLength, parameters, index } = props
-  const cardNumber = index + 1
+  const dispatch = useDispatch()
+
+  const [showing, setShowing] = useState(false)
   const { name, value } = parameters?.[0]
+  const cardNumber = index + 1
+
+  const ref = useRef<HTMLDivElement | null>(null)
+  const showScrollInModal = useMemo(() => ref.current?.offsetHeight !== ref.current?.scrollHeight, [
+    ref.current?.offsetHeight,
+    ref.current?.scrollWidth
+  ])
 
   const handleSign = () => {
     if (id) {
@@ -49,7 +62,42 @@ export const BreakGlassCouncilPending = (props: Props) => {
   const isSetAllContractsAdmin = actionType === 'setAllContractsAdmin'
   const isSetSingleContractAdmin = actionType === 'setSingleContractAdmin'
   const isSignAction = actionType === 'signAction'
+  const isAddVestee = actionType === 'addVestee'
+  const isRequestTokens = actionType === 'requestTokens'
+  const isUpdateVestee = actionType === 'updateVestee'
+  const isTransfer = actionType === 'transfer'
+  const isRequestMint = actionType === 'requestMint'
+  const isDropFinancialRequest = actionType === 'dropFinancialRequest'
+  const isToggleVesteeLock = actionType === 'toggleVesteeLock'
+  const isRemoveVestee = actionType === 'removeVestee'
+  const purpose = findActionByName('purpose')
 
+  const modal = (
+    <ModalStyled showing={true}>
+      <ModalMask
+        showing={true}
+        onClick={() => {
+          setShowing(false)
+        }}
+      />
+      <ModalCard>
+        <ModalClose
+          onClick={() => {
+            setShowing(false)
+          }}
+        >
+          <Icon id="error" />
+        </ModalClose>
+        <ModalCardContent style={{ width: 586 }}>
+          <h1>Purpose for Request</h1>
+          <div ref={ref} className='text-box'>{purpose}</div>
+          <div style={{ display: showScrollInModal ? 'block' : 'none' }} className='shadow-box'></div>
+        </ModalCardContent>
+      </ModalCard>
+    </ModalStyled>
+  )
+
+  // 2/3
   if (isAddCouncilMember) {
     const councilMemberName = findActionByName('councilMemberName')
     return (
@@ -89,6 +137,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     )
   }
 
+  // 2/3
   if (isUpdateChangeCouncilMember) {
     const newCouncilMemberAddress = findActionByName('newCouncilMemberAddress')
     const newCouncilMemberName = findActionByName('newCouncilMemberName')
@@ -156,6 +205,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     )
   }
 
+  // 3/3
   if (isChangeCouncilMember) {
     const oldCouncilMemberAddress = findActionByName('oldCouncilMemberAddress')
     const newCouncilMemberAddress = findActionByName('newCouncilMemberAddress')
@@ -232,6 +282,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     )
   }
 
+  // 1/3
   if (isSetAllContractsAdmin) {
     const newAdminAddress = findActionByName('newAdminAddress')
     return (
@@ -257,31 +308,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     )
   }
 
-  if (isRemoveCouncilMember) {
-    const councilMemberAddress = findActionByName('councilMemberAddress')
-    return (
-      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{cardNumber}</span>
-        <h3>{getSeparateCamelCase(actionType)}</h3>
-        <div className="parameters">
-          <div>
-            <p>Council Addres</p>
-            <span className="parameters-value">
-              <TzAddress tzAddress={councilMemberAddress} hasIcon={false} />
-            </span>
-          </div>
-          <div>
-            <p>Signed</p>
-            <span className="parameters-value">
-              {signersCount}/{numCouncilMembers}
-            </span>
-          </div>
-        </div>
-        <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-      </BreakGlassCouncilPendingStyled>
-    )
-  }
-
+  // 2/3
   if (isSetSingleContractAdmin) {
     const newAdminAddress = findActionByName('newAdminAddress')
     const targetContractAddress = findActionByName('targetContractAddress')
@@ -323,6 +350,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     )
   }
 
+  // 1/3
   if (isSignAction) {
     const breakGlassActionId = findActionByName('breakGlassActionId')
     return (
@@ -343,6 +371,354 @@ export const BreakGlassCouncilPending = (props: Props) => {
             </span>
           </div>
         </div>
+        <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+      </BreakGlassCouncilPendingStyled>
+    )
+  }
+
+   // 2/3
+   if (isAddVestee) {
+    const cliffInMonths = findActionByName('cliffInMonths')
+    const vestingInMonths = findActionByName('vestingInMonths')
+    const totalAllocatedAmount = findActionByName('totalAllocatedAmount')
+
+    return (
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{cardNumber}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
+        <div className="parameters">
+          <article>
+            <p>Vestee Address</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={findActionByName('vesteeAddress')} hasIcon={false} />
+            </span>
+          </article>
+
+          <article>
+            <p>Total Allocated Amount</p>
+            <span className="parameters-value">
+              <CommaNumber value={+totalAllocatedAmount} loading={false} endingText={'MVK'} />
+            </span>
+          </article>
+
+          <article className="signed-article">
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signersCount}/{numCouncilMembers}
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <div className="parameters">
+          <article>
+            <p>Cliff In Months</p>
+            <span className="parameters-value">{cliffInMonths} months</span>
+          </article>
+
+          <article>
+            <p>Vesting In Months</p>
+            <span className="parameters-value">{vestingInMonths} months</span>
+          </article>
+
+          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+        </div>
+      </BreakGlassCouncilPendingStyled>
+    )
+  }
+
+  // 2/3
+  if (isUpdateVestee) {
+    const newCliffInMonths = findActionByName('newCliffInMonths')
+    const newVestingInMonths = findActionByName('newVestingInMonths')
+    const newTotalAllocatedAmount = findActionByName('newTotalAllocatedAmount')
+
+    return (
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{cardNumber}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
+        <div className="parameters">
+          <article>
+            <p>Vestee Address</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={findActionByName('vesteeAddress')} hasIcon={false} />
+            </span>
+          </article>
+
+          <article>
+            <p>New Total Allocated Amount</p>
+            <span className="parameters-value">
+              <CommaNumber value={+newTotalAllocatedAmount} loading={false} endingText={'MVK'} />
+            </span>
+          </article>
+
+          <article className="signed-article">
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signersCount}/{numCouncilMembers}
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <div className="parameters">
+          <article>
+            <p>New Cliff In Months</p>
+            <span className="parameters-value">{newCliffInMonths} months</span>
+          </article>
+
+          <article>
+            <p>New Vesting In Months</p>
+            <span className="parameters-value">{newVestingInMonths} months</span>
+          </article>
+
+          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+        </div>
+      </BreakGlassCouncilPendingStyled>
+    )
+  }
+
+  // 3/3
+  if (isRequestTokens) {
+    const treasuryAddress = findActionByName('treasuryAddress')
+    const tokenAmount = findActionByName('tokenAmount')
+    const tokenContractAddress = findActionByName('tokenContractAddress')
+    const tokenType = findActionByName('tokenType')
+    const tokenId = findActionByName('tokenId')
+
+    return (
+      <>
+        <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{cardNumber}</span>
+          <h3>{getSeparateCamelCase(actionType)}</h3>
+          <div className="parameters grid">
+            <article>
+              <p>Treasury Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={treasuryAddress} hasIcon={false} />
+              </span>
+            </article>
+            <article>
+              <p>Token Contract Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={tokenContractAddress} hasIcon={false} />
+              </span>
+            </article>
+
+            <article>
+              <p>Token Amount</p>
+              <span className="parameters-value">
+                <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
+              </span>
+            </article>
+
+            <article className="signed-article">
+              <div>
+                <p>Signed</p>
+                <span className="parameters-value">
+                  {signersCount}/{numCouncilMembers}
+                </span>
+              </div>
+            </article>
+          </div>
+
+          <div className="parameters grid">
+            <article>
+              <p>Token Type</p>
+              <span className="parameters-value">{tokenType}</span>
+            </article>
+
+            <article>
+              <p>Token ID</p>
+              <span className="parameters-value">{tokenId}</span>
+            </article>
+
+            {purpose && (
+              <article>
+                <p>Purpose for Request</p>
+                <button className="parameters-link-underline" onClick={() => setShowing(true)}>
+                  Read Request
+                </button>
+              </article>
+            )}
+
+            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+          </div>
+        </BreakGlassCouncilPendingStyled>
+        {showing ? createPortal(modal, document?.body) : null}
+      </>
+    )
+  }
+
+  // 3/3
+  if (isTransfer) {
+    const receiverAddress = findActionByName('receiverAddress')
+    const tokenContractAddress = findActionByName('tokenContractAddress')
+    const tokenAmount = findActionByName('tokenAmount')
+    const tokenType = findActionByName('tokenType')
+    const tokenId = findActionByName('tokenId')
+
+    return (
+      <>
+        <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{cardNumber}</span>
+          <h3>{getSeparateCamelCase(actionType)}</h3>
+          <div className="parameters grid">
+            <article>
+              <p>Receiver Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={receiverAddress} hasIcon={false} />
+              </span>
+            </article>
+            <article>
+              <p>Token Contract Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={tokenContractAddress} hasIcon={false} />
+              </span>
+            </article>
+
+            <article>
+              <p>Total Amount</p>
+              <span className="parameters-value">
+                <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
+              </span>
+            </article>
+
+            <article className="signed-article">
+              <div>
+                <p>Signed</p>
+                <span className="parameters-value">
+                  {signersCount}/{numCouncilMembers}
+                </span>
+              </div>
+            </article>
+          </div>
+
+          <div className="parameters grid">
+            <article>
+              <p>Token Type</p>
+              <span className="parameters-value">{tokenType}</span>
+            </article>
+
+            <article>
+              <p>Token ID</p>
+              <span className="parameters-value">{tokenId}</span>
+            </article>
+
+            {purpose && (
+              <article>
+                <p>Purpose for Request</p>
+                <button className="parameters-link-underline" onClick={() => setShowing(true)}>
+                  Read Request
+                </button>
+              </article>
+            )}
+
+            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+          </div>
+        </BreakGlassCouncilPendingStyled>
+        {showing ? createPortal(modal, document?.body) : null}
+      </>
+    )
+  }
+
+  // 2/3
+  if (isRequestMint) {
+    const tokenAmount = findActionByName('tokenAmount')
+
+    return (
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{cardNumber}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
+        <div className="parameters">
+          <article>
+            <p>Treasury Address</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={findActionByName('treasuryAddress')} hasIcon={false} />
+            </span>
+          </article>
+
+          <article>
+            <p>Token Amount</p>
+            <span className="parameters-value">
+              <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
+            </span>
+          </article>
+
+          <article className="signed-article">
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signersCount}/{numCouncilMembers}
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <div className="parameters">
+          {purpose && (
+            <article>
+              <p>Purpose for Request</p>
+              <button className="parameters-link-underline" onClick={() => setShowing(true)}>
+                Read Request
+              </button>
+            </article>
+          )}
+
+          <article />
+
+          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+        </div>
+        {showing ? createPortal(modal, document?.body) : null}
+      </BreakGlassCouncilPendingStyled>
+    )
+  }
+
+  // 1/3
+  if (isDropFinancialRequest) {
+    return (
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{cardNumber}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
+        <div className="parameters">
+          <div>
+            <p>Request ID</p>
+            <span className="parameters-value">{findActionByName('requestId')}</span>
+          </div>
+          <div>
+            <p>Signed</p>
+            <span className="parameters-value">
+              {signersCount}/{numCouncilMembers}
+            </span>
+          </div>
+        </div>
+        <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+      </BreakGlassCouncilPendingStyled>
+    )
+  }
+
+  // 1/3
+  if (isRemoveVestee || isToggleVesteeLock || isRemoveCouncilMember) {
+    return (
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{cardNumber}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
+          <div className="parameters">
+            <div>
+              <p className='parameters-name'>Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={value} hasIcon={false} />
+              </span>
+            </div>
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signersCount}/{numCouncilMembers}
+              </span>
+            </div>
+          </div>
         <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
       </BreakGlassCouncilPendingStyled>
     )

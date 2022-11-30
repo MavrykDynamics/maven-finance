@@ -47,6 +47,7 @@ import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContra
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
 import { MyCouncilActions } from 'pages/Council/MyCouncilActions.view'
+import { BreakGlassCouncilPending } from 'pages/BreakGlassCouncil/BreakGlassCouncilPending/BreakGlassCouncilPending.controller'
 
 // styles
 import { Page } from 'styles'
@@ -235,7 +236,7 @@ export const Council = () => {
                   <div className="pending-items">
                     <Carousel itemLength={councilPendingActions?.length} key={sliderKey}>
                       {councilPendingActions.map((item, index) => (
-                        <CouncilPendingView
+                        <BreakGlassCouncilPending
                           {...item}
                           key={item.id}
                           numCouncilMembers={councilMembers.length}
