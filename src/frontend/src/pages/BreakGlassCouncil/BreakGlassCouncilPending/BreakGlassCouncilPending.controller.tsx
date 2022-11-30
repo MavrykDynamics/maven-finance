@@ -28,6 +28,7 @@ type Props = BreakGlassActions[0] & {
 export const BreakGlassCouncilPending = (props: Props) => {
   const dispatch = useDispatch()
   const { id, actionType, signersCount, numCouncilMembers, councilPendingActionsLength, parameters, index } = props
+  const cardNumber = index + 1
 
   const handleSign = () => {
     if (id) {
@@ -53,7 +54,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     return (
       <>
         <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <span className='number'>{index}</span>
+          <span className='number'>{cardNumber}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters">
             <article>
@@ -95,7 +96,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     return (
       <>
         <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <span className='number'>{index}</span>
+          <span className='number'>{cardNumber}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
@@ -163,7 +164,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     return (
       <>
         <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <span className='number'>{index}</span>
+          <span className='number'>{cardNumber}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
@@ -234,7 +235,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     const newAdminAddress = findActionByName('newAdminAddress')
     return (
       <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
@@ -259,7 +260,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     const councilMemberAddress = findActionByName('councilMemberAddress')
     return (
       <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
@@ -285,7 +286,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     const targetContractAddress = findActionByName('targetContractAddress')
     return (
       <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <article>
@@ -325,7 +326,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
     const breakGlassActionId = findActionByName('breakGlassActionId')
     return (
       <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
@@ -348,7 +349,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
 
   return (
     <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-      <span className='number'>{index}</span>
+      <span className='number'>{cardNumber}</span>
       <h3>{getSeparateCamelCase(actionType)}</h3>
       <div className="parameters">
         <div>

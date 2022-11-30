@@ -42,6 +42,7 @@ export const CouncilPendingView = (props: Props) => {
     index,
   } = props
 
+  const cardNumber = index + 1
   const { name, value } = parameters?.[0]
 
   const ref = useRef<HTMLDivElement | null>(null)
@@ -107,7 +108,7 @@ export const CouncilPendingView = (props: Props) => {
     const calculateTokenAmount = calcWithoutPrecision(totalAllocatedAmount)
     return (
       <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <article>
@@ -159,7 +160,7 @@ export const CouncilPendingView = (props: Props) => {
     return (
       <>
         <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <span className='number'>{index}</span>
+          <span className='number'>{cardNumber}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters">
             <article>
@@ -227,7 +228,7 @@ export const CouncilPendingView = (props: Props) => {
     const calculateTokenAmount = calcWithoutPrecision(newTotalAllocatedAmount)
     return (
       <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <article>
@@ -283,7 +284,7 @@ export const CouncilPendingView = (props: Props) => {
     return (
       <>
         <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <span className='number'>{index}</span>
+          <span className='number'>{cardNumber}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
@@ -355,7 +356,7 @@ export const CouncilPendingView = (props: Props) => {
     return (
       <>
         <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <span className='number'>{index}</span>
+          <span className='number'>{cardNumber}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
@@ -426,7 +427,7 @@ export const CouncilPendingView = (props: Props) => {
     return (
       <>
         <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <span className='number'>{index}</span>
+          <span className='number'>{cardNumber}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
@@ -493,7 +494,7 @@ export const CouncilPendingView = (props: Props) => {
 
     return (
       <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <article>
@@ -543,7 +544,7 @@ export const CouncilPendingView = (props: Props) => {
   if (isDropFinancialRequest) {
     return (
       <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
@@ -566,7 +567,7 @@ export const CouncilPendingView = (props: Props) => {
   if (isRemoveVestee || isToggleVesteeLock || isRemoveCouncilMember) {
     return (
       <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{index}</span>
+        <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters">
             <div>
@@ -589,7 +590,7 @@ export const CouncilPendingView = (props: Props) => {
 
   return (
     <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-      <span className='number'>{index}</span>
+      <span className='number'>{cardNumber}</span>
       <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
