@@ -58,6 +58,7 @@ export const ChartStyled = styled.div<{ theme: MavrykTheme }>`
   width: fit-content;
   height: fit-content;
   position: relative;
+  overflow: hidden;
   width: 100%;
 
   &.portfolio {
@@ -65,7 +66,7 @@ export const ChartStyled = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const TradingViewTooltipStyled = styled.div<{ theme: MavrykTheme; x?: number; y?: number }>`
+export const TradingViewTooltipStyled = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
   z-index: 100;
   padding: 7px 10px 7px 10px;
@@ -76,6 +77,11 @@ export const TradingViewTooltipStyled = styled.div<{ theme: MavrykTheme; x?: num
   flex-direction: column;
   align-items: center;
   row-gap: 5px;
+  top: 0;
+  left: 0;
+  transition: transform 50ms ease-in-out;
+  transform: translate(var(--translateX, 0), var(--translateY, -100px));
+  pointer-events: none;
 
   .value {
     font-weight: 600;
@@ -93,14 +99,4 @@ export const TradingViewTooltipStyled = styled.div<{ theme: MavrykTheme; x?: num
     color: ${({ theme }) => theme.textColor};
     white-space: pre;
   }
-
-  ${({ x, y }) =>
-    x === undefined || y === undefined
-      ? css`
-          display: none;
-        `
-      : css`
-          top: ${y}px;
-          left: ${x}px;
-        `}
 `

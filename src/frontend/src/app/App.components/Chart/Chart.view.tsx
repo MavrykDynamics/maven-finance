@@ -80,11 +80,11 @@ type ChartItem = {
 //   )
 // }
 
-const timeFormat = 'HH:mm'
-const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
+// const timeFormat = 'HH:mm'
+// const getTime = (time: string) => parseDate({ time, timeFormat }) || ''
 
-const dateFormat = 'MMM DD, HH:mm Z'
-const getParsedDate = (time: string) => parseDate({ time, timeFormat: dateFormat }) || ''
+// const dateFormat = 'MMM DD, HH:mm Z'
+// const getParsedDate = (time: string) => parseDate({ time, timeFormat: dateFormat }) || ''
 
 // export default function Chart({
 //   list,
@@ -195,17 +195,15 @@ type TradingViewChartProps = {
 type TooltipPropsType = {
   mvkAmount?: number
   date?: string | number
-  x?: number
-  y?: number
 }
 
-const TradingViewTooltip = ({ mvkAmount, date, y, x }: TooltipPropsType) => {
+const TradingViewTooltip = ({ mvkAmount, date }: TooltipPropsType) => {
   if (!mvkAmount || !date) {
     return null
   }
 
   return (
-    <TradingViewTooltipStyled x={x} y={y}>
+    <TradingViewTooltipStyled>
       <div className="value">
         <CommaNumber endingText="MVK" value={mvkAmount} />
       </div>
@@ -222,19 +220,11 @@ export const TradingViewChart = ({
   className,
 }: TradingViewChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
+  const mainChartWrapperRef = useRef<HTMLDivElement | null>(null)
   const [tooltipValue, setTooltipValue] = useState<TooltipPropsType>({
     mvkAmount: data.at(-1)?.value,
     date: data.at(-1)?.time,
   })
-  // const [debouncedTooltipValue, setDebounsedTooltipValue] = useState<TooltipPropsType | null>(null)
-
-  // useDebounce(
-  //   () => {
-  //     setDebounsedTooltipValue(tooltipValue)
-  //   },
-  //   100,
-  //   [tooltipValue],
-  // )
 
   useEffect(() => {
     if (data.length >= numberOfItemsToDisplay) {
@@ -274,7 +264,6 @@ export const TradingViewChart = ({
 
       // Setting the border color for the horizontal axis
       chart.timeScale().applyOptions({
-        // TODO: add time formatter
         borderColor: '#8D86EB',
         visible: true,
         tickMarkFormatter: (time: UTCTimestamp | BusinessDay) => {
@@ -302,11 +291,10 @@ export const TradingViewChart = ({
           param.point.y > chartContainerRef?.current?.clientHeight
         ) {
           // hide tooltip
-          setTooltipValue({
-            ...tooltipValue,
-            y: undefined,
-            x: undefined,
-          })
+          if (mainChartWrapperRef.current) {
+            mainChartWrapperRef.current.style.setProperty('--translateX', '0px')
+            mainChartWrapperRef.current.style.setProperty('--translateY', '-100px')
+          }
         } else {
           // set tooltip values
           setTooltipValue({
@@ -316,9 +304,11 @@ export const TradingViewChart = ({
               parseDate({ time: Number(param.time), timeFormat: 'MMM DD, HH:mm Z' }) ??
               '',
             mvkAmount: Number(param.seriesPrices.get(series)),
-            y: param.point.y - 20,
-            x: param.point.x + 15,
           })
+          if (mainChartWrapperRef.current) {
+            mainChartWrapperRef.current.style.setProperty('--translateX', `${param.point.x + 15}px`)
+            mainChartWrapperRef.current.style.setProperty('--translateY', `${param.point.y - 20}px`)
+          }
         }
       })
 
@@ -332,7 +322,7 @@ export const TradingViewChart = ({
     }
 
     return () => null
-  }, [data, lineColor, textColor, areaTopColor, areaBottomColor, height])
+  }, [])
 
   if (data.length < numberOfItemsToDisplay) {
     return (
@@ -348,17 +338,9 @@ export const TradingViewChart = ({
   }
 
   return (
-    <ChartStyled ref={chartContainerRef} className={className}>
-      <TradingViewTooltip
-        // mvkAmount={debouncedTooltipValue?.mvkAmount}
-        mvkAmount={tooltipValue?.mvkAmount}
-        // date={debouncedTooltipValue?.date}
-        date={tooltipValue?.date}
-        // x={debouncedTooltipValue?.x}
-        x={tooltipValue?.x}
-        // y={debouncedTooltipValue?.y}
-        y={tooltipValue?.y}
-      />
+    <ChartStyled className={className} ref={mainChartWrapperRef}>
+      <div ref={chartContainerRef} />
+      <TradingViewTooltip mvkAmount={tooltipValue?.mvkAmount} date={tooltipValue?.date} />
     </ChartStyled>
   )
 }
