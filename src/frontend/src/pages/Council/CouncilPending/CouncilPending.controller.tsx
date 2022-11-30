@@ -67,7 +67,6 @@ export const CouncilPending = (props: Props) => {
   const isUpdateVestee = actionType === 'updateVestee'
   const isTransfer = actionType === 'transfer'
   const isRequestMint = actionType === 'requestMint'
-  const isDropFinancialRequest = actionType === 'dropFinancialRequest'
   const isToggleVesteeLock = actionType === 'toggleVesteeLock'
   const isRemoveVestee = actionType === 'removeVestee'
   const purpose = findActionByName('purpose')
