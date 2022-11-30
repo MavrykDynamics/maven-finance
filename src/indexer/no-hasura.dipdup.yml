@@ -11,7 +11,6 @@ database:
   schema_name: public
 
 advanced:
-  metadata_interface: True
   reindex:
     manual: wipe
     migration: exception
@@ -20,14 +19,6 @@ advanced:
     schema_modified: wipe
 
 datasources:
-  metadata_mainnet:
-    kind: metadata
-    url: https://metadata.dipdup.net
-    network: mainnet
-  metadata_ghostnet:
-    kind: metadata
-    url: https://metadata.dipdup.net
-    network: ghostnet
   tzkt_ghostnet:
     kind: tzkt
     url: ${TZKT_GHOSTNET_URL:-changeme}
