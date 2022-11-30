@@ -33,16 +33,16 @@ export const CouncilPendingView = (props: Props) => {
   const dispatch = useDispatch()
   const [showing, setShowing] = useState(false)
   const {
-    executionDatetime,
     actionType,
     signersCount,
     numCouncilMembers,
-    initiatorId,
     id,
     councilPendingActionsLength,
     parameters,
     index,
   } = props
+
+  const { name, value } = parameters?.[0]
 
   const ref = useRef<HTMLDivElement | null>(null)
   const showScrollInModal = useMemo(() => ref.current?.offsetHeight !== ref.current?.scrollHeight, [
@@ -66,9 +66,12 @@ export const CouncilPendingView = (props: Props) => {
   const isAddCouncilMember = actionType === 'addCouncilMember'
   const isUpdateVestee = actionType === 'updateVestee'
   const isChangeCouncilMember = actionType === 'changeCouncilMember'
+  const isRemoveCouncilMember = actionType === 'removeCouncilMember'
   const isTransfer = actionType === 'transfer'
   const isRequestMint = actionType === 'requestMint'
   const isDropFinancialRequest = actionType === 'dropFinancialRequest'
+  const isToggleVesteeLock = actionType === 'toggleVesteeLock'
+  const isRemoveVestee = actionType === 'removeVestee'
   const purpose = findActionByName('purpose')
 
   const modal = (
@@ -559,18 +562,49 @@ export const CouncilPendingView = (props: Props) => {
     )
   }
 
+  // 1/3
+  if (isRemoveVestee || isToggleVesteeLock || isRemoveCouncilMember) {
+    return (
+      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
+          <div className="parameters">
+            <div>
+              <p className='parameters-name'>Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={value} hasIcon={false} />
+              </span>
+            </div>
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signersCount}/{numCouncilMembers}
+              </span>
+            </div>
+          </div>
+        <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+      </CouncilPendingStyled>
+    )
+  }
+
   return (
     <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
       <span className='number'>{index}</span>
       <h3>{getSeparateCamelCase(actionType)}</h3>
-      <div className="parameters">
-        <div>
-          <p>Signed</p>
-          <span className="parameters-value">
-            {signersCount}/{numCouncilMembers}
-          </span>
+        <div className="parameters">
+          <div>
+            <p className='parameters-name'>{getSeparateCamelCase(name)}</p>
+            <span className="parameters-value">
+              {value}
+            </span>
+          </div>
+          <div>
+            <p>Signed</p>
+            <span className="parameters-value">
+              {signersCount}/{numCouncilMembers}
+            </span>
+          </div>
         </div>
-      </div>
       <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
     </CouncilPendingStyled>
   )
