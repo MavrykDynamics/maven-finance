@@ -292,8 +292,8 @@ export const TradingViewChart = ({
         ) {
           // hide tooltip
           if (mainChartWrapperRef.current) {
-            mainChartWrapperRef.current.style.setProperty('--translateX', '0px')
-            mainChartWrapperRef.current.style.setProperty('--translateY', '-100px')
+            mainChartWrapperRef.current.style.setProperty('--translateX', '0')
+            mainChartWrapperRef.current.style.setProperty('--translateY', '0')
           }
         } else {
           // set tooltip values
@@ -306,8 +306,8 @@ export const TradingViewChart = ({
             mvkAmount: Number(param.seriesPrices.get(series)),
           })
           if (mainChartWrapperRef.current) {
-            mainChartWrapperRef.current.style.setProperty('--translateX', `${param.point.x + 15}px`)
-            mainChartWrapperRef.current.style.setProperty('--translateY', `${param.point.y - 20}px`)
+            mainChartWrapperRef.current.style.setProperty('--translateX', `${param.point.x + 15}`)
+            mainChartWrapperRef.current.style.setProperty('--translateY', `${param.point.y - 20}`)
           }
         }
       })
