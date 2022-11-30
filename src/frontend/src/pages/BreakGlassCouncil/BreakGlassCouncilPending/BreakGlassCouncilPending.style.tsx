@@ -22,16 +22,17 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
 
   &.addVestee,
   &.updateVestee,
-  &.requestMint {
-    min-width: 532px;
+  &.requestMint,
+  &.addCouncilMember {
+    min-width: 590px;
     .parameters {
       display: grid;
-      grid-template-columns: 130px 144px 150px;
+      grid-template-columns: 130px 180px 150px;
       align-items: center;
     }
 
     .sign-btn {
-      margin-left: -32px;
+      margin-left: -37px;
     }
   }
 
@@ -51,21 +52,6 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
   &.addCouncilMember {
     h3 {
       max-width: 100%;
-    }
-  }
-
-  &.addCouncilMember {
-    min-width: 490px;
-
-    .parameters {
-      display: grid;
-      grid-template-columns: 150px 185px;
-
-      article {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
     }
   }
 
@@ -128,8 +114,7 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
     }
   }
 
-  .parameters-link,
-  .parameters-link-underline {
+  .parameters-link{
     display: block;
 
     color: ${cyanColor};
@@ -140,9 +125,6 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-  }
-
-  .parameters-link-underline {
     text-decoration: underline;
   }
 
