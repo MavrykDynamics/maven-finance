@@ -4,14 +4,20 @@ import { State } from 'reducers'
 import { useHistory, useLocation } from 'react-router-dom'
 import { useParams } from 'react-router'
 
-// type
-import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
-import type { CouncilPastAction } from '../../reducers/council'
-
 // actions, consts
-import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage, getCouncilStorage } from './Council.actions'
+import {
+  getCouncilPastActionsStorage,
+  getCouncilPendingActionsStorage,
+  getCouncilStorage,
+  dropRequest,
+} from './Council.actions'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import {
+  calculateSlicePositions,
+  COUNCIL_LIST_NAME,
+  COUNCIL_MY_PAST_ACTIONS_LIST_NAME,
+  COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { memberIsFirstOfList } from './Council.helpers'
 import { scrollUpPage } from 'utils/scrollUpPage'
 
@@ -40,44 +46,75 @@ import { CouncilFormSetBaker } from './CouncilForms/CouncilFormSetBaker.view'
 import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContractBaker.view'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
+import { MyCouncilActions } from 'pages/Council/MyCouncilActions.view'
 
 // styles
 import { Page } from 'styles'
 import { CouncilStyled } from './Council.style'
 import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
 
+// types
+import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
+
 const queryParameters = {
   pathname: '/mavryk-council',
   review: '/review',
+  pendingReview: '/pending-review',
 }
+
+export const councilTabsList: TabItem[] = [
+  {
+    text: 'My Ongoing Actions',
+    id: 1,
+    active: true,
+  },
+  {
+    text: 'My Past Actions',
+    id: 2,
+    active: false,
+  },
+]
+
+export type QueryParameters = typeof queryParameters
 
 export const Council = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const { search, pathname } = useLocation()
 
-  const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
+  const {
+    councilStorage,
+    councilPastActions,
+    councilMyPastActions,
+    councilAllPendingActions,
+    councilPendingActions,
+    councilMyPendingActions,
+  } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
   const { councilMembers } = councilStorage
+  const [activeActionTab, setActiveActionTab] = useState(councilTabsList[0].text)
 
   const councilMemberMaxLength = {
     councilMemberNameMaxLength: councilStorage?.councilMemberNameMaxLength,
     councilMemberWebsiteMaxLength: councilStorage?.councilMemberWebsiteMaxLength,
   }
 
-  const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.userId === accountPkh)?.id)
-  const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
-  const { review: isReviewPage } = useParams<{ review: string }>()
+  useEffect(() => {
+    async function initFetch() {
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch(getCouncilStorage())
+    }
 
-  const currentCouncilPastActions = useMemo(
-    () =>
-      !isReviewPage
-        ? councilPastActions?.filter((item: CouncilPastAction) => item.initiator_id === accountPkh)
-        : councilPastActions,
-    [councilPastActions, accountPkh, isReviewPage],
-  )
+    initFetch()
+  }, [dispatch])
+
+  const isUserInCouncilMembers = Boolean(councilMembers.find((item) => item.userId === accountPkh)?.id)
+  const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
+  const { review } = useParams<{ review: string }>()
+  const isReviewPage = review === 'review'
 
   const itemsForDropDown = [
     { text: 'Add Vestee', value: 'addVestee' },
@@ -100,8 +137,9 @@ export const Council = () => {
   const [chosenDdItem, setChosenDdItem] = useState<DropdownItemType | undefined>()
   const sortedCouncilMembers = memberIsFirstOfList(councilMembers, accountPkh)
 
-  const handleClickReview = () => {
-    history.replace(`${queryParameters.pathname}${queryParameters.review}`)
+  const handleClickReview = (review: string) => {
+    history.replace(`${queryParameters.pathname}${review}`)
+    setActiveActionTab(councilTabsList[0].text)
     scrollUpPage()
   }
 
@@ -122,6 +160,10 @@ export const Council = () => {
     handleSelect(chosenItem)
   }
 
+  const handleDropAction = (id: number) => {
+    dispatch(dropRequest(id))
+  }
+
   useEffect(() => {
     dispatch(getCouncilPastActionsStorage())
     dispatch(getCouncilStorage())
@@ -136,12 +178,34 @@ export const Council = () => {
     setIsUpdateCouncilMemberInfo(true)
   }
 
-  const currentPage = getPageNumber(search, COUNCIL_LIST_NAME)
+  const currentPage = getPageNumber(
+    search,
+    review
+      ? COUNCIL_LIST_NAME
+      : councilTabsList[0].text === activeActionTab
+      ? COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME
+      : COUNCIL_MY_PAST_ACTIONS_LIST_NAME,
+  )
 
-  const paginatedItemsList = useMemo(() => {
+  const paginatedCouncilPastActions = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, COUNCIL_LIST_NAME)
-    return currentCouncilPastActions?.slice(from, to)
-  }, [currentPage, currentCouncilPastActions])
+    return councilPastActions?.slice(from, to)
+  }, [currentPage, councilPastActions])
+
+  const paginatedCouncilMyPastActions = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, COUNCIL_MY_PAST_ACTIONS_LIST_NAME)
+    return councilMyPastActions?.slice(from, to)
+  }, [currentPage, councilMyPastActions])
+
+  const paginatedCouncilAllPendingActions = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, COUNCIL_LIST_NAME)
+    return councilAllPendingActions?.slice(from, to)
+  }, [currentPage, councilAllPendingActions])
+
+  const paginatedCouncilMyPendingActions = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME)
+    return councilMyPendingActions?.slice(from, to)
+  }, [currentPage, councilMyPendingActions])
 
   useEffect(() => {
     // redirect to review or main page when member changes
@@ -161,7 +225,7 @@ export const Council = () => {
     <Page>
       <PageHeader page={'council'} />
       <CouncilStyled>
-        {isReviewPage && isUserInCouncilMembers ? (
+        {review && isUserInCouncilMembers ? (
           <button onClick={handleClickGoBack} className="go-back">
             <Icon id="arrow-left-stroke" />
             Back to Member Dashboard
@@ -170,27 +234,23 @@ export const Council = () => {
 
         <article
           className={`council-details ${isPendingList ? 'is-user-member' : ''} ${
-            !isReviewPage ? 'is-pending-signature' : ''
+            !review ? 'is-pending-signature' : ''
           }`}
         >
           <div className="council-actions">
-            {!isReviewPage && isPendingList ? (
+            {!review && isPendingList ? (
               <>
                 <h1>Pending Signature</h1>
                 <article className="pending">
                   <div className="pending-items">
                     <Carousel itemLength={councilPendingActions?.length} key={sliderKey}>
-                      {councilPendingActions.map((item) => (
+                      {councilPendingActions.map((item, index) => (
                         <CouncilPendingView
-                          execution_datetime={item.execution_datetime}
+                          {...item}
                           key={item.id}
-                          id={item.id}
-                          action_type={item.action_type}
-                          signers_count={item.signers_count}
-                          initiator_id={item.initiator_id}
-                          num_council_members={councilMembers.length}
-                          councilPendingActionsLength={councilPendingActions?.length}
-                          parameters={item.parameters || []}
+                          numCouncilMembers={councilMembers.length}
+                          councilPendingActionsLength={councilPendingActions.length}
+                          index={index}
                         />
                       ))}
                     </Carousel>
@@ -198,7 +258,7 @@ export const Council = () => {
                 </article>
               </>
             ) : null}
-            {!isReviewPage ? (
+            {!review ? (
               <DropdownCard className="pending-dropdown">
                 <DropdownWrap>
                   <h2>Available Actions</h2>
@@ -241,37 +301,58 @@ export const Council = () => {
               </DropdownCard>
             ) : null}
 
-            {currentCouncilPastActions?.length ? (
+            {review && (
               <>
-                <h1 className={`past-actions ${!isReviewPage ? 'is-user-member' : ''}`}>
-                  {!isReviewPage ? 'My ' : null}Past Council Actions
+                <h1 className={`past-actions ${!review ? 'is-user-member' : ''}`}>
+                  {isReviewPage ? 'Past Council Actions' : 'Pending Signature Council Actions'}
                 </h1>
-                {paginatedItemsList.map((item: CouncilPastAction) => (
+                {(isReviewPage ? paginatedCouncilPastActions : paginatedCouncilAllPendingActions).map((item) => (
                   <CouncilPastActionView
-                    execution_datetime={item.execution_datetime}
+                    executionDatetime={String(item.executionDatetime)}
                     key={item.id}
-                    action_type={item.action_type}
-                    signers_count={item.signers_count}
-                    num_council_members={councilMembers.length}
-                    council_id={item.council_id}
+                    actionType={item.actionType}
+                    signersCount={item.signersCount}
+                    numCouncilMembers={councilMembers.length}
+                    councilId={item.councilId}
                   />
                 ))}
-                <Pagination itemsCount={currentCouncilPastActions.length} listName={COUNCIL_LIST_NAME} />
+                <Pagination
+                  itemsCount={isReviewPage ? councilPastActions.length : councilAllPendingActions.length}
+                  listName={COUNCIL_LIST_NAME}
+                />
               </>
-            ) : null}
+            )}
+
+            {!review && (
+              <MyCouncilActions
+                myPastCouncilAction={paginatedCouncilMyPastActions}
+                myPastCouncilActionLength={councilMyPastActions?.length ?? 0}
+                actionPendingSignature={paginatedCouncilMyPendingActions}
+                actionPendingSignatureLength={councilMyPendingActions?.length ?? 0}
+                numCouncilMembers={councilMembers?.length ?? 0}
+                activeActionTab={activeActionTab}
+                setActiveActionTab={setActiveActionTab}
+                tabsList={councilTabsList}
+                handleDropAction={handleDropAction}
+                listNameMyPastActions={COUNCIL_MY_PAST_ACTIONS_LIST_NAME}
+                listNameMyOngoingActions={COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME}
+              />
+            )}
           </div>
 
           <aside
-            className={`council-members ${!isReviewPage ? 'is-user-member' : ''} ${
-              isPendingList && !isReviewPage ? 'is-pending-list' : ''
+            className={`council-members ${!review ? 'is-user-member' : ''} ${
+              isPendingList && !review ? 'is-pending-list' : ''
             }`}
           >
-            {!isReviewPage ? <CouncilPendingReviewView onClick={handleClickReview} /> : null}
+            {!review ? (
+              <CouncilPendingReviewView onClick={handleClickReview} queryParameters={queryParameters} />
+            ) : null}
 
             {sortedCouncilMembers.length ? (
               <div>
                 <h1>Council Members</h1>
-                {sortedCouncilMembers.map((item: CouncilMember) => (
+                {sortedCouncilMembers.map((item) => (
                   <CouncilMemberView
                     key={item.id}
                     image={item.image}

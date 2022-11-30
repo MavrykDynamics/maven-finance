@@ -15,20 +15,22 @@ import {
   BreakGlassStatusStorage,
   WhitelistDevStorage,
   BreakGlassCouncilMember,
-  BreakGlassAction,
+  BreakGlassActions,
 } from '../utils/TypesAndInterfaces/BreakGlass'
 import type { Action } from '../utils/TypesAndInterfaces/ReduxTypes'
 
 export interface BreakGlassState {
   breakGlassStorage: BreakGlassStorage
   glassBroken: boolean
+  isPendingPropagateBreakGlass: boolean
   breakGlassStatus: BreakGlassStatusStorage
   whitelistDev: WhitelistDevStorage
   breakGlassCouncilMember: BreakGlassCouncilMember
-  pastBreakGlassCouncilAction: BreakGlassAction
-  myPastBreakGlassCouncilAction: BreakGlassAction
-  breakGlassActionPendingMySignature: BreakGlassAction
-  breakGlassActionPendingSignature: BreakGlassAction
+  breakGlassActionPendingAllSignature: BreakGlassActions
+  breakGlassActionPendingSignature: BreakGlassActions
+  breakGlassActionPendingMySignature: BreakGlassActions
+  pastBreakGlassCouncilAction: BreakGlassActions
+  myPastBreakGlassCouncilAction: BreakGlassActions
 }
 
 const defaultBreakGlassStorage: BreakGlassStorage = {
@@ -46,16 +48,19 @@ const defaultBreakGlassStorage: BreakGlassStorage = {
   actionCounter: 0,
   glassBroken: false,
 }
+
 const breakGlassDefaultState: BreakGlassState = {
   breakGlassStorage: defaultBreakGlassStorage,
   glassBroken: false,
+  isPendingPropagateBreakGlass: false,
   breakGlassStatus: [],
   whitelistDev: '',
   breakGlassCouncilMember: [],
+  breakGlassActionPendingAllSignature: [],
+  breakGlassActionPendingSignature: [],
+  breakGlassActionPendingMySignature: [],
   pastBreakGlassCouncilAction: [],
   myPastBreakGlassCouncilAction: [],
-  breakGlassActionPendingMySignature: [],
-  breakGlassActionPendingSignature: [],
 }
 
 export function breakGlass(state = breakGlassDefaultState, action: Action) {
@@ -88,8 +93,10 @@ export function breakGlass(state = breakGlassDefaultState, action: Action) {
     case GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE:
       return {
         ...state,
-        breakGlassActionPendingMySignature: action.breakGlassActionPendingMySignature,
+        breakGlassActionPendingAllSignature: action.breakGlassActionPendingAllSignature,
         breakGlassActionPendingSignature: action.breakGlassActionPendingSignature,
+        breakGlassActionPendingMySignature: action.breakGlassActionPendingMySignature,
+        isPendingPropagateBreakGlass: action.isPendingPropagateBreakGlass,
       }
     case GET_PAST_BREAK_GLASS_COUNCIL_ACTION:
       return {

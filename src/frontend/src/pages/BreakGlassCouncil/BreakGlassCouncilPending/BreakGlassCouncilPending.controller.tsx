@@ -10,23 +10,24 @@ import { Button } from '../../../app/App.components/Button/Button.controller'
 import { getSeparateCamelCase } from '../../../utils/parse'
 
 // types
-import { BreakGlassAction } from 'utils/TypesAndInterfaces/BreakGlass'
+import { BreakGlassActions } from 'utils/TypesAndInterfaces/BreakGlass'
 
 // actions
 import { signAction } from '../BreakGlassCouncil.actions'
 
 // styles
-import { CouncilPendingStyled } from './BreakGlassCouncilPanding.style'
+import { BreakGlassCouncilPendingStyled } from './BreakGlassCouncilPending.style'
 import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 
-type Props = BreakGlassAction[0] & {
+type Props = BreakGlassActions[0] & {
   numCouncilMembers: number
   councilPendingActionsLength: number
+  index: number
 }
 
-export const BreakGlassCouncilPanding = (props: Props) => {
+export const BreakGlassCouncilPending = (props: Props) => {
   const dispatch = useDispatch()
-  const { id, actionType, signersCount, numCouncilMembers, councilPendingActionsLength, parameters } = props
+  const { id, actionType, signersCount, numCouncilMembers, councilPendingActionsLength, parameters, index } = props
 
   const handleSign = () => {
     if (id) {
@@ -51,7 +52,8 @@ export const BreakGlassCouncilPanding = (props: Props) => {
     const councilMemberName = findActionByName('councilMemberName')
     return (
       <>
-        <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{index}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters">
             <article>
@@ -80,7 +82,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
             <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
           </div>
-        </CouncilPendingStyled>
+        </BreakGlassCouncilPendingStyled>
       </>
     )
   }
@@ -92,7 +94,8 @@ export const BreakGlassCouncilPanding = (props: Props) => {
     const newCouncilMemberImage = findActionByName('newCouncilMemberImage')
     return (
       <>
-        <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{index}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
@@ -146,7 +149,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
             <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
           </div>
-        </CouncilPendingStyled>
+        </BreakGlassCouncilPendingStyled>
       </>
     )
   }
@@ -159,7 +162,8 @@ export const BreakGlassCouncilPanding = (props: Props) => {
     const newCouncilMemberImage = findActionByName('newCouncilMemberImage')
     return (
       <>
-        <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{index}</span>
           <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
@@ -221,7 +225,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
             <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
           </div>
-        </CouncilPendingStyled>
+        </BreakGlassCouncilPendingStyled>
       </>
     )
   }
@@ -229,7 +233,8 @@ export const BreakGlassCouncilPanding = (props: Props) => {
   if (isSetAllContractsAdmin) {
     const newAdminAddress = findActionByName('newAdminAddress')
     return (
-      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
@@ -246,14 +251,15 @@ export const BreakGlassCouncilPanding = (props: Props) => {
           </div>
         </div>
         <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-      </CouncilPendingStyled>
+      </BreakGlassCouncilPendingStyled>
     )
   }
 
   if (isRemoveCouncilMember) {
     const councilMemberAddress = findActionByName('councilMemberAddress')
     return (
-      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
@@ -270,7 +276,7 @@ export const BreakGlassCouncilPanding = (props: Props) => {
           </div>
         </div>
         <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-      </CouncilPendingStyled>
+      </BreakGlassCouncilPendingStyled>
     )
   }
 
@@ -278,7 +284,8 @@ export const BreakGlassCouncilPanding = (props: Props) => {
     const newAdminAddress = findActionByName('newAdminAddress')
     const targetContractAddress = findActionByName('targetContractAddress')
     return (
-      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <article>
@@ -310,14 +317,15 @@ export const BreakGlassCouncilPanding = (props: Props) => {
 
           <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
         </div>
-      </CouncilPendingStyled>
+      </BreakGlassCouncilPendingStyled>
     )
   }
 
   if (isSignAction) {
     const breakGlassActionId = findActionByName('breakGlassActionId')
     return (
-      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+      <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
@@ -334,12 +342,13 @@ export const BreakGlassCouncilPanding = (props: Props) => {
           </div>
         </div>
         <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-      </CouncilPendingStyled>
+      </BreakGlassCouncilPendingStyled>
     )
   }
 
   return (
-    <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+    <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+      <span className='number'>{index}</span>
       <h3>{getSeparateCamelCase(actionType)}</h3>
       <div className="parameters">
         <div>
@@ -350,6 +359,6 @@ export const BreakGlassCouncilPanding = (props: Props) => {
         </div>
       </div>
       <Button text="Sign" className="sign-btn" kind={ACTION_PRIMARY} icon="sign" onClick={handleSign} />
-    </CouncilPendingStyled>
+    </BreakGlassCouncilPendingStyled>
   )
 }

@@ -9,7 +9,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: `dashboard/${LENDING_TAB_ID}`,
     routePath: '/dashboard/:tabId',
     icon: 'menu-compass',
-
     subPages: [
       {
         id: 57483,
@@ -159,7 +158,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     path: 'governance',
     routePath: '/governance',
     icon: 'hammer',
-
     subPages: [
       { id: 56179, subTitle: 'Proposals', subPath: 'governance', routeSubPath: '/governance' },
       {
@@ -178,13 +176,13 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         id: 79754,
         subTitle: 'Mavryk Council',
         subPath: 'mavryk-council',
-        routeSubPath: ['/mavryk-council', '/mavryk-council/review'],
+        routeSubPath: ['/mavryk-council', '/mavryk-council/review', '/mavryk-council/pending-review'],
       },
       {
         id: 38374,
         subTitle: 'Break Glass Council',
         subPath: 'break-glass-council',
-        routeSubPath: ['/break-glass-council', '/break-glass-council/review'],
+        routeSubPath: ['/break-glass-council', '/break-glass-council/review', '/break-glass-council/pending-review'],
       },
       {
         id: 561812,

@@ -73,14 +73,17 @@ export const getBreakGlassActionPendingSignature = () => async (dispatch: AppDis
       BREAK_GLASS_ACTION_PENDING_SIGNATURE_QUERY_VARIABLE({ _gte: timestamptz }),
     )
 
-
-    const breakGlassActionPendingMySignature = normalizeBreakGlassAction(storage, { filterByAddress: accountPkh })
+    const breakGlassActionPendingAllSignature = normalizeBreakGlassAction(storage)
     const breakGlassActionPendingSignature = normalizeBreakGlassAction(storage, { filterWithoutAddress: accountPkh })
+    const breakGlassActionPendingMySignature = normalizeBreakGlassAction(storage, { filterByAddress: accountPkh })
+    const isPendingPropagateBreakGlass = Boolean(breakGlassActionPendingAllSignature.find((item) => item.actionType === 'propagateBreakGlass'))
 
     await dispatch({
       type: GET_BREAK_GLASS_ACTION_PENDING_SIGNATURE,
-      breakGlassActionPendingMySignature,
+      breakGlassActionPendingAllSignature,
       breakGlassActionPendingSignature,
+      breakGlassActionPendingMySignature,
+      isPendingPropagateBreakGlass,
     })
   } catch (error) {
     if (error instanceof Error) {

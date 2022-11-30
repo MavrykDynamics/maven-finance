@@ -1,12 +1,28 @@
 import styled from 'styled-components/macro'
-import { Card, downColor, upColor, skyColor, headerColor, royalPurpleColor, containerColor, cyanColor } from 'styles'
+import { Card, skyColor, headerColor, containerColor, cyanColor } from 'styles'
 
-export const CouncilPendingStyled = styled(Card)`
+// types
+import { MavrykTheme } from 'styles/interfaces'
+
+export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
+  position: relative;
   margin: 0;
-  width: 100%;
+  height: 200px;
   padding: 25px;
   padding-bottom: 28px;
   min-width: 237px;
+
+  .number {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+
+    color: ${({ theme }) => theme.cardBorderColor};
+  }
 
   // 2/3
   &.addVestee,
@@ -142,21 +158,9 @@ export const CouncilPendingReviewStyled = styled(Card)`
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 
-  .review-text {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    p {
-      text-align: center;
-      font-weight: 600;
-      font-size: 16px;
-      line-height: 16px;
-      color: ${skyColor};
-      margin-top: 0;
-      margin-bottom: 14px;
-    }
+  .review-btn:first-of-type {
+    margin-bottom: 20px;
   }
 `

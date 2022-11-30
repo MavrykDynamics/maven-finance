@@ -11,16 +11,18 @@ type Options = {
 
 export function normalizeBreakGlassAction(storage: BreakGlassActionProps, options?: Options) {
   const { break_glass_action } = storage
+  if (!break_glass_action?.length) return []
+
   const filterByAddress = options?.filterByAddress
   const filterWithoutAddress = options?.filterWithoutAddress
   let list: BreakGlassActionGraphQL[] = []
 
   if (filterByAddress) {
-    list = break_glass_action?.filter((item) => item.initiator_id === filterByAddress)
+    list = break_glass_action.filter((item) => item.initiator_id === filterByAddress)
   } else if (filterWithoutAddress) {
-    list = break_glass_action?.filter((item) => item.initiator_id !== filterWithoutAddress)
+    list = break_glass_action.filter((item) => item.initiator_id !== filterWithoutAddress)
   } else {
-    list = break_glass_action || []
+    list = break_glass_action
   }
 
   return list.map((item) => {

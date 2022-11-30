@@ -6,12 +6,6 @@ import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 export const ProposalListContainer = styled.div`
   margin-bottom: 38px;
-
-  > h1 {
-    color: ${({ theme }) => theme.headerColor};
-    font-size: 25px;
-    margin: 0;
-  }
 `
 
 export const ProposalListItem = styled(CardHover)<{ selected: boolean; theme: MavrykTheme }>`

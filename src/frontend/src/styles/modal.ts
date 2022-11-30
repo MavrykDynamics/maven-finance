@@ -31,6 +31,7 @@ export const ModalCard = styled.div`
 `
 
 export const ModalCardContent = styled.div<{ width?: number; height?: number; theme: MavrykTheme }>`
+  position: relative;
   background: ${containerColor};
   border-radius: 10px;
   min-height: ${(props) => (props.height ? `${props.height}vh` : 'initial')};
@@ -51,7 +52,7 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
     line-height: 22px;
     color: ${({ theme }) => theme.headerColor};
     margin: 0;
-    margin-bottom: 21px;
+    margin-bottom: 20px;
   }
 
   &.farm-modal {
@@ -76,6 +77,34 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
       border-bottom: 3px solid transparent;
       background-clip: padding-box;
     }
+  }
+
+  .text-box {
+    padding-right: 15px;
+    max-height: 460px;
+    overflow: auto;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track { 
+      background: #271C60;
+      border-radius: 20px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.cardBorderColor};
+      border-radius: 20px;
+    }
+  }
+
+  .shadow-box {
+    position: absolute;
+    bottom: 25px;
+    height: 50px;
+    width: 85%;
+    background: linear-gradient(to bottom, transparent 0%, #160E3F 60%);
   }
 `
 
