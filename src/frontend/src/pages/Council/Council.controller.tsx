@@ -5,9 +5,19 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { useParams } from 'react-router'
 
 // actions, consts
-import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage, getCouncilStorage, dropRequest } from './Council.actions'
+import {
+  getCouncilPastActionsStorage,
+  getCouncilPendingActionsStorage,
+  getCouncilStorage,
+  dropRequest,
+} from './Council.actions'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { calculateSlicePositions, COUNCIL_LIST_NAME, COUNCIL_MY_PAST_ACTIONS_LIST_NAME, COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import {
+  calculateSlicePositions,
+  COUNCIL_LIST_NAME,
+  COUNCIL_MY_PAST_ACTIONS_LIST_NAME,
+  COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { memberIsFirstOfList } from './Council.helpers'
 import { scrollUpPage } from 'utils/scrollUpPage'
 
@@ -49,7 +59,7 @@ import { TabItem } from 'app/App.components/TabSwitcher/TabSwitcher.controller'
 const queryParameters = {
   pathname: '/mavryk-council',
   review: '/review',
-  pendingReview: '/pending-review'
+  pendingReview: '/pending-review',
 }
 
 export const councilTabsList: TabItem[] = [
@@ -72,8 +82,14 @@ export const Council = () => {
   const history = useHistory()
   const { search, pathname } = useLocation()
 
-  const { councilStorage, councilPastActions, councilMyPastActions, 
-    councilAllPendingActions, councilPendingActions, councilMyPendingActions } = useSelector((state: State) => state.council)
+  const {
+    councilStorage,
+    councilPastActions,
+    councilMyPastActions,
+    councilAllPendingActions,
+    councilPendingActions,
+    councilMyPendingActions,
+  } = useSelector((state: State) => state.council)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [sliderKey, setSliderKey] = useState(1)
   const [isUpdateCouncilMemberInfo, setIsUpdateCouncilMemberInfo] = useState(false)
@@ -84,6 +100,16 @@ export const Council = () => {
     councilMemberNameMaxLength: councilStorage?.councilMemberNameMaxLength,
     councilMemberWebsiteMaxLength: councilStorage?.councilMemberWebsiteMaxLength,
   }
+
+  useEffect(() => {
+    async function initFetch() {
+      await dispatch(getCouncilPastActionsStorage())
+      await dispatch(getCouncilPendingActionsStorage())
+      await dispatch(getCouncilStorage())
+    }
+
+    initFetch()
+  }, [dispatch])
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
@@ -113,7 +139,7 @@ export const Council = () => {
 
   const handleClickReview = (review: string) => {
     history.replace(`${queryParameters.pathname}${review}`)
-    setActiveActionTab((councilTabsList[0].text))
+    setActiveActionTab(councilTabsList[0].text)
     scrollUpPage()
   }
 
@@ -134,7 +160,7 @@ export const Council = () => {
     handleSelect(chosenItem)
   }
 
-  const handleDropAction = (id: number) => {    
+  const handleDropAction = (id: number) => {
     dispatch(dropRequest(id))
   }
 
@@ -154,11 +180,11 @@ export const Council = () => {
 
   const currentPage = getPageNumber(
     search,
-    review 
-      ? COUNCIL_LIST_NAME 
+    review
+      ? COUNCIL_LIST_NAME
       : councilTabsList[0].text === activeActionTab
-        ? COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME
-        : COUNCIL_MY_PAST_ACTIONS_LIST_NAME,
+      ? COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME
+      : COUNCIL_MY_PAST_ACTIONS_LIST_NAME,
   )
 
   const paginatedCouncilPastActions = useMemo(() => {
@@ -221,7 +247,7 @@ export const Council = () => {
                       {councilPendingActions.map((item, index) => (
                         <CouncilPendingView
                           {...item}
-                          key={item.id} 
+                          key={item.id}
                           numCouncilMembers={councilMembers.length}
                           councilPendingActionsLength={councilPendingActions.length}
                           index={index}
@@ -275,7 +301,6 @@ export const Council = () => {
               </DropdownCard>
             ) : null}
 
-           
             {review && (
               <>
                 <h1 className={`past-actions ${!review ? 'is-user-member' : ''}`}>
@@ -291,24 +316,28 @@ export const Council = () => {
                     councilId={item.councilId}
                   />
                 ))}
-                <Pagination itemsCount={isReviewPage ? councilPastActions.length : councilAllPendingActions.length} listName={COUNCIL_LIST_NAME} />
+                <Pagination
+                  itemsCount={isReviewPage ? councilPastActions.length : councilAllPendingActions.length}
+                  listName={COUNCIL_LIST_NAME}
+                />
               </>
             )}
 
-            {!review && 
+            {!review && (
               <MyCouncilActions
                 myPastCouncilAction={paginatedCouncilMyPastActions}
-                myPastCouncilActionLength={councilMyPastActions.length}
+                myPastCouncilActionLength={councilMyPastActions?.length ?? 0}
                 actionPendingSignature={paginatedCouncilMyPendingActions}
-                actionPendingSignatureLength={councilMyPendingActions.length}
-                numCouncilMembers={councilMembers.length}
+                actionPendingSignatureLength={councilMyPendingActions?.length ?? 0}
+                numCouncilMembers={councilMembers?.length ?? 0}
                 activeActionTab={activeActionTab}
                 setActiveActionTab={setActiveActionTab}
                 tabsList={councilTabsList}
                 handleDropAction={handleDropAction}
                 listNameMyPastActions={COUNCIL_MY_PAST_ACTIONS_LIST_NAME}
                 listNameMyOngoingActions={COUNCIL_MY_ONGOING_ACTIONS_LIST_NAME}
-              />}
+              />
+            )}
           </div>
 
           <aside
@@ -316,7 +345,9 @@ export const Council = () => {
               isPendingList && !review ? 'is-pending-list' : ''
             }`}
           >
-            {!review ? <CouncilPendingReviewView onClick={handleClickReview} queryParameters={queryParameters} /> : null}
+            {!review ? (
+              <CouncilPendingReviewView onClick={handleClickReview} queryParameters={queryParameters} />
+            ) : null}
 
             {sortedCouncilMembers.length ? (
               <div>
