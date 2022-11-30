@@ -131,15 +131,6 @@ export const BreakGlassCouncilPending = (props: Props) => {
             </div>
   
             <div className="parameters">
-              {councilMemberWebsite ? (
-                <article>
-                  <p className="without-margin">Council Member Website</p>
-                  <a className="parameters-link" href={councilMemberWebsite} target="_blank" rel="noreferrer">
-                    Visit Website
-                  </a>
-                </article>
-              ) : null}
-  
               <article>
                 {councilMemberImage ? (
                   <article className="parameters-img">
@@ -154,15 +145,17 @@ export const BreakGlassCouncilPending = (props: Props) => {
                   </>
                 )}
               </article>
-  
-              {purpose && (
-                <article>
-                  <p>Purpose for Request</p>
-                  <button className="parameters-link" onClick={() => setShowing(true)}>
-                    Read Request
-                  </button>
-                </article>
-              )}
+
+              <article>
+                <p>Council Member Website</p>
+                {councilMemberWebsite ? (
+                  <a className="parameters-link" href={councilMemberWebsite} target="_blank" rel="noreferrer">
+                    {councilMemberWebsite}
+                  </a>
+                ) : (
+                  <span className="parameters-value">-</span>
+                )}
+              </article>
   
               <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
             </div>
