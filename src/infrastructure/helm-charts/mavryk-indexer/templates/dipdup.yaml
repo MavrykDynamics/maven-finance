@@ -53,25 +53,6 @@ spec:
     spec:
       imagePullSecrets:
         - name: '{{ $value.dipdup.image.pullSecret }}'
-      {{- if $value.dipdup.initialWipe }}
-      initContainers:
-        - name: schema-wipe-{{ $key }}
-          args: ['-c', 'dipdup.yml', 'schema', 'approve']
-          env:
-          {{- range $value.dipdup.env }}
-            - name: {{ .name }}
-              {{- if ((.value))}}
-              value: "{{.value}}"
-              {{- else }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .valueFrom.secretKeyRef.name }}
-                  key: {{ .valueFrom.secretKeyRef.key }}
-              {{- end }}
-          {{- end }}
-          image: '{{ $value.dipdup.image.registry }}/{{ $value.dipdup.image.repository }}:{{ $value.dipdup.image.tag }}'
-          imagePullPolicy: '{{ $value.dipdup.image.pullPolicy }}'
-      {{- end }}
       containers:
         - name: dipdup-{{ $key }}
           args: ['-c', 'dipdup.yml', 'run']
