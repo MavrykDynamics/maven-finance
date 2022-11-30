@@ -1,23 +1,25 @@
 import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../../styles/interfaces'
 import { Card, skyColor, cyanColor, headerColor, royalPurpleColor, boxShadowColor } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
-export const FarmCardStyled = styled(Card)`
+export const FarmCardStyled = styled(Card)<{ theme: MavrykTheme }>`
   margin: 0;
   padding: 0;
+  color: ${({ theme }) => theme.textColor};
 
   .farm-info {
     h3 {
-      font-weight: 400;
+      font-weight: 600;
       font-size: 14px;
       line-height: 21px;
-      color: ${skyColor};
+      color: ${({ theme }) => theme.textColor};
     }
 
     var {
-      font-weight: 700;
-      font-size: 14px;
-      color: ${cyanColor};
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 22px;
+      color: ${({ theme }) => theme.dataColor};
       font-style: normal;
 
       p {
@@ -34,18 +36,15 @@ export const FarmCardStyled = styled(Card)`
     h3 {
       font-weight: 600;
       font-size: 22px;
-      color: ${cyanColor};
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
-      max-width: 210px;
+      line-height: 22px;
+      max-width: 200px;
     }
 
     p {
       font-weight: 400;
       font-size: 11px;
       line-height: 11px;
-      color: ${headerColor};
+      color: ${({ theme }) => theme.textColor};
       margin: 3px 0;
     }
 
@@ -54,7 +53,7 @@ export const FarmCardStyled = styled(Card)`
       font-weight: 400;
       font-size: 11px;
       text-align: right;
-      color: ${({ theme }) => theme.headerColor};
+      color: ${({ theme }) => theme.dataColor};
     }
   }
 
@@ -68,16 +67,16 @@ export const FarmCardStyled = styled(Card)`
     a {
       display: flex;
       align-items: center;
-      color: ${headerColor};
-      font-weight: 400;
+      color: ${({ theme }) => theme.topBarLinkColor};
+      font-weight: 500;
       font-size: 14px;
-      line-height: 14px;
+      line-height: 24px;
       margin-top: 8px;
       margin-bottom: 10px;
 
       svg {
         fill: none;
-        stroke: ${headerColor};
+        stroke: ${({ theme }) => theme.topBarLinkColor};
         width: 16px;
         height: 16px;
         margin-left: 8px;
@@ -197,9 +196,15 @@ export const FarmCardStyled = styled(Card)`
         h3 {
           margin-bottom: 13px;
           margin-top: 3px;
+
+          font-weight: 600;
+          font-size: 22px;
+          line-height: 22px;
+
+          color: ${({ theme }) => theme.textColor};
         }
 
-        div {
+        div:not(.isConnected) {
           margin: 0;
           width: 100%;
           max-width: 100%;
@@ -273,11 +278,11 @@ export const FarmCardStyled = styled(Card)`
     svg {
       width: 19px;
       height: 19px;
-      fill: ${headerColor};
+      fill: ${({ theme }) => theme.topBarLinkColor};
       transition: 0.3s fill;
 
       &:hover {
-        fill: ${cyanColor};
+        opacity: 0.8;
       }
     }
   }
@@ -374,7 +379,7 @@ export const FarmTitleSection = styled.div<{ theme: MavrykTheme }>`
   }
 `
 export const FarmInputSection = styled.form`
-  width: 300px;
+  width: 350px;
   flex: 1;
   display: flex;
   flex-direction: column;

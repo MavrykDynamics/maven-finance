@@ -16,9 +16,11 @@ export const InputComponentContainer = styled.div<{ theme: MavrykTheme }>`
     height: 40px;
     background-color: ${({ theme }) => theme.backgroundColor};
     font-weight: 500;
+    font-size: 14px;
+    line-height: 24px;
     border: 1px solid ${({ theme }) => theme.cardBorderColor};
     margin: 0;
-    color: ${({ theme }) => theme.headerColor};
+    color: ${({ theme }) => theme.textColor};
     -webkit-appearance: none;
     appearance: none;
     display: block;
@@ -27,13 +29,17 @@ export const InputComponentContainer = styled.div<{ theme: MavrykTheme }>`
     border-radius: 10px;
     transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     will-change: border-color, box-shadow;
-    font-size: 14px;
 
     &.search {
       color: ${({ theme }) => theme.headerColor};
     }
+
     &::placeholder:not(.search) {
       color: ${({ theme }) => theme.inputPlaceholder};
+    }
+
+    &::placeholder {
+      color: ${({ theme }) => theme.textColor};
     }
 
     &:disabled {
