@@ -103,6 +103,10 @@ export const CouncilPendingStyled = styled(Card)<{ theme: MavrykTheme }>`
     padding-bottom: 20px;
     gap: 16px;
 
+    .parameters-name {
+      text-transform: capitalize;
+    }
+
     .parameters-value,
     .parameters-value p {
       margin: 0;
