@@ -46,6 +46,7 @@ class CreateCollateralToken(BaseModel):
     tokenDecimals: str
     oracleAddress: str
     protected: bool
+    isScaledToken: bool
     tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
 
 

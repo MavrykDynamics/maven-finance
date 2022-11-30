@@ -4,7 +4,7 @@ instances:
       image:
         registry: docker.io
         repository: tezosdynamics/mavryk-indexer
-        tag: v0.24.1
+        tag: v0.25.0
         pullPolicy: Always
         pullSecret: docker-pull-credentials
       metrics:
@@ -56,70 +56,70 @@ instances:
             address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
             typename: tzbtc
           mvk:
-            address: KT1UQKrwpU82ngJkNDGssFJVn54BuFs6cQon
+            address: KT1Mdobo9rktyTDeFvkMEsTzYrcyGF67XJey
             typename: mvk
           governance_proxy:
-            address: KT1Wu7Ww63jXYADFwhXyxvxeSVKKSZKVGY7m
+            address: KT1GhH8qCuYAXV2mzizRUTZtab6hcUSe6zrR
             typename: governance_proxy
           governance:
-            address: KT1NvzQGiDCQRSMw8p7gaqvwB6Be8cX2bokN
+            address: KT18q4H1atSjPATm5g8ZCmMbb9NinuPaB6vY
             typename: governance
           doorman:
-            address: KT1Jsb7wSRNuF9rqR74K23fP8ta1wUH28c7U
+            address: KT1AVXwMr5YMqkfDJPHoaQjNqEAgVwbKhoWb
             typename: doorman
           farm:
-            address: KT1FGpHmPmGPQre6CdJWirW54yarAE69AC6v #KT1FGpHmPmGPQre6CdJWirW54yarAE69AC6v
+            address: KT1ACwocQbqvP24DffVjwDhsMDXQ3AD5PZBc #KT1VH7HwYLYxTMSHipESkiExG9S4CrCc5whM
             typename: farm
           farm_factory:
-            address: KT1JZwikNu2wzU94snXjLcTKcpf3tymGnWoY
+            address: KT1BPqCJFPa52BPbHen9Z56AV1ADzbHWX8SR
             typename: farm_factory
           delegation:
-            address: KT1W3a9rVBQu8f1Jr5RvzRxCXauy3MJQtKhH
+            address: KT1Xhxc1Yf2bRQinNAUckX2TVnDpLYgosBRK
             typename: delegation
           vesting:
-            address: KT1RuqJfxdresBfKQkNEDt7no76gcWEe88hZ
+            address: KT1Prz8EUA6mqkd1D4tHEyS6mfHfU5fiVPVA
             typename: vesting
           emergency_governance:
-            address: KT1CgyjH7BPhk4nma5SmE7xgYjreWr1y1vq8
+            address: KT1SuTMsjn9SBhx2jXDLkY1omMdH7eMnGDWD
             typename: emergency_governance
           council:
-            address: KT1RQH5Nwwxs7hUqXX57LVc312LC4muvTC58
+            address: KT1K1UcenjqQak6U927mPYw817AW7WGeimSG
             typename: council
           break_glass:
-            address: KT1GdqT3Kw278HkFuwTHeaJGC3FxCu5YRVTT
+            address: KT1Tydj2SeaxJ3P6vmcts7cesbwDduR6vdUw
             typename: break_glass
           governance_financial:
-            address: KT1DHj4hewsGaa2vpLYKDMmXrXENmnfQKapY
+            address: KT1P3JvYmmJ4myeLMpPzKq9exDLcjCff8js4
             typename: governance_financial
           governance_satellite:
-            address: KT1DkGCHHMDrVC9V4YeKf8sDSoRVtDXGKhEE
+            address: KT1E68NQ9YVr6eWATw1LCjpzXtQRCJfEMPVi
             typename: governance_satellite
           aggregator:
-            address: KT1SCkhFC1pFbu89XvzLf13xvAeBGi4WQNLG
+            address: KT1H7T32v9Cy4WXhuXWQoZcnazkS1MdDeKpo
             typename: aggregator
           aggregator_factory:
-            address: KT1FwvvhZfEgWWihbEpcbVHDZ4grvS3UdxSg
+            address: KT1K7p7UuGJcDNoDUQyDJnUR89v3F1ijdMAp
             typename: aggregator_factory
           treasury:
-            address: KT1QWk4f39jGHBEx6uUwwPgcd8TYNrznsGyg
+            address: KT1Eqpve93jcjrT1pLSCRFWBhfxFQoqPaKAt
             typename: treasury
           treasury_factory:
-            address: KT1FgJLzorzNPQtVhwH5UPzUJA3BJJNAVUGD
+            address: KT1CndbNpNVn1xdNhwvFCMb3exBbg1AwMZGM
             typename: treasury_factory
           token_sale:
-            address: KT1EWAvHpNcAgXN5cCBdNatzPNBzR2sX6146
+            address: KT1XA7NA6rGoaJror2PCmikwLDtyCpcEkTbr
             typename: token_sale
           lending_controller:
-            address: KT1VhdtgrgA3SHJyhLbzr1TGJL9rPaPbHaZd
+            address: KT1NTD1B4Nti63L3ACCyYvugU8WrCjLHutVP
             typename: lending_controller
           lending_controller_mock_time:
-            address: KT1X32FdE4udzReNM55cG5ShTM6McaLdM6z8
+            address: KT1MUhTxeG8Fsxe9dWMX6uKkeunrKBmSaMvA
             typename: lending_controller_mock_time
           vault:
-            address: KT1FDXbVGHMXynKRjGWcPpyMxecZwdx9S814
+            address: KT1KHJLAdd5W2GACy1j562D8xHm4EpcaPYUg
             typename: vault
           vault_factory:
-            address: KT1Xsguyd57ToGudw9YiPVozYsGUSTaJBkXU
+            address: KT1M12wFagQQo2RdBhLCWkh6rpXJPWRnkh5x
             typename: vault_factory
 
         hooks:
@@ -286,6 +286,10 @@ instances:
                 pattern:
                   - destination: <aggregator_contract>
                     entrypoint: addOracle
+              - callback: on_aggregator_update_oracle
+                pattern:
+                  - destination: <aggregator_contract>
+                    entrypoint: updateOracle
               - callback: on_aggregator_remove_oracle
                 pattern:
                   - destination: <aggregator_contract>
@@ -1383,6 +1387,10 @@ instances:
                 pattern:
                   - destination: aggregator
                     entrypoint: addOracle
+              - callback: on_aggregator_update_oracle
+                pattern:
+                  - destination: aggregator
+                    entrypoint: updateOracle
               - callback: on_aggregator_remove_oracle
                 pattern:
                   - destination: aggregator

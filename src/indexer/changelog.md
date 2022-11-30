@@ -12,6 +12,19 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## Version 0.25
+
+### What's new
+
+- Satellite:
+  - Colmuns PublicKey and PeerId added
+- LendingControllerCollateralToken:
+  - Column IsScaledToken added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.24</summary>
+
 ## Version 0.24
 
 ### What's new
@@ -19,7 +32,7 @@
 - LendingControllerHistoryData:
   - Table added: tracks all operations made to vault contracts and to the lending controller contract
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.23</summary>
 
