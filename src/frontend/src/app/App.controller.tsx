@@ -22,7 +22,8 @@ import { useLockBodyScroll, useMedia } from 'react-use'
 import CoinGecko from 'coingecko-api'
 import Loader from './App.components/Loader/Loader.view'
 
-export const { store, persistor } = configureStore({})
+// export const { store, persistor } = configureStore({})
+export const { store } = configureStore({})
 export type AppDispatch = ThunkDispatch<State, unknown, AnyAction>
 export type GetState = typeof store.getState
 export const coinGeckoClient = new CoinGecko()

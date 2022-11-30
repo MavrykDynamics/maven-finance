@@ -26,13 +26,13 @@ export const Proposals = ({
   let proposalListTitle = ''
   switch (governancePhase) {
     case 'VOTING':
-      proposalListTitle = 'Ongoing Proposal'
+      proposalListTitle = 'Ongoing Proposals'
       break
     case 'TIME_LOCK':
-      proposalListTitle = 'Proposal on Timelock'
+      proposalListTitle = 'Proposals on Timelock'
       break
     case 'PROPOSAL':
-      proposalListTitle = 'Poll for next proposal'
+      proposalListTitle = 'Poll for next proposals'
       break
     default:
       proposalListTitle = 'Past Proposals'
