@@ -2,11 +2,6 @@ name: Mavryk Indexer Updater
 on:
   workflow_dispatch:
     inputs:
-      revision:
-        type: string
-        description: 'Revision (branch, commit, etc.)'
-        required: true
-        default: 'staging'
       environment:
         type: choice
         description: 'Environment to update'
@@ -66,16 +61,16 @@ jobs:
         with:
           version: 2.5.2
           command: app set prod-mavryk-indexer
-          options: -p instances.${{ github.event.inputs.environment }}.dipdup.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.revision }}
+          options: -p instances.${{ github.event.inputs.environment }}.dipdup.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
       - name: update-ingress
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
           command: app set prod-mavryk-indexer
-          options: -p instances.prod.hasura.ingress.service.name=${{ github.event.inputs.prodService }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.revision }}
+          options: -p instances.prod.hasura.ingress.service.name=${{ github.event.inputs.prodService }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
       - name: create-wipe-database-pod
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
           command: app set prod-mavryk-indexer
-          options: -p instances.${{ github.event.inputs.environment }}.dipdup.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.revision }}
+          options: -p instances.${{ github.event.inputs.environment }}.dipdup.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
