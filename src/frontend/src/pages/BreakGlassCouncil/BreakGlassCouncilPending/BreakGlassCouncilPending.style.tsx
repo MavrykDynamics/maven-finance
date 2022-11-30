@@ -20,6 +20,31 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
     color: ${({ theme }) => theme.cardBorderColor};
   }
 
+  &.addVestee,
+  &.updateVestee,
+  &.requestMint {
+    min-width: 532px;
+    .parameters {
+      display: grid;
+      grid-template-columns: 130px 144px 150px;
+      align-items: center;
+    }
+
+    .sign-btn {
+      margin-left: -32px;
+    }
+  }
+
+  &.requestTokens,
+  &.transfer {
+    min-width: 750px;
+    .parameters {
+      display: grid;
+      grid-template-columns: 130px 144px 150px 186px;
+      align-items: center;
+    }
+  }
+
   &.setSingleContractAdmin,
   &.updateCouncilMember,
   &.changeCouncilMember,
@@ -103,17 +128,22 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
     }
   }
 
-  .parameters-link {
+  .parameters-link,
+  .parameters-link-underline {
     display: block;
 
     color: ${cyanColor};
-    font-weight: 700;
+    font-weight: 500;
     font-size: 14px;
-    line-height: 14px;
+    line-height: 24px;
 
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+  }
+
+  .parameters-link-underline {
+    text-decoration: underline;
   }
 
   .parameters {
