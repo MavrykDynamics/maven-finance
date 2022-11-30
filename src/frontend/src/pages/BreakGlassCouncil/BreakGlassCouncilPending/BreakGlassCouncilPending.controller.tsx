@@ -97,45 +97,80 @@ export const BreakGlassCouncilPending = (props: Props) => {
     </ModalStyled>
   )
 
-  // 2/3
-  if (isAddCouncilMember) {
-    const councilMemberName = findActionByName('councilMemberName')
-    return (
-      <>
-        <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <span className='number'>{cardNumber}</span>
-          <h3>{getSeparateCamelCase(actionType)}</h3>
-          <div className="parameters">
-            <article>
-              <p>Council Member Address</p>
-              <span className="parameters-value">
-                <TzAddress tzAddress={findActionByName('councilMemberAddress')} hasIcon={false} />
-              </span>
-            </article>
-            {councilMemberName ? (
+    // 2/3
+    if (isAddCouncilMember) {
+      const councilMemberName = findActionByName('councilMemberName')
+      const councilMemberWebsite = findActionByName('councilMemberWebsite')
+      const councilMemberImage = findActionByName('councilMemberImage')
+      return (
+        <>
+          <BreakGlassCouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+            <span className='number'>{cardNumber}</span>
+            <h3>{getSeparateCamelCase(actionType)}</h3>
+            <div className="parameters">
               <article>
-                <p>Council Member Name</p>
-                <span className="parameters-value">{councilMemberName}</span>
-              </article>
-            ) : null}
-          </div>
-
-          <div className="parameters">
-            <article className="signed-article">
-              <div>
-                <p>Signed</p>
+                <p className="without-margin">Council Member Address</p>
                 <span className="parameters-value">
-                  {signersCount}/{numCouncilMembers}
+                  <TzAddress tzAddress={findActionByName('councilMemberAddress')} hasIcon={false} />
                 </span>
-              </div>
-            </article>
-
-            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-          </div>
-        </BreakGlassCouncilPendingStyled>
-      </>
-    )
-  }
+              </article>
+              {councilMemberName ? (
+                <article>
+                  <p>Council Member Name</p>
+                  <span className="parameters-value">{councilMemberName}</span>
+                </article>
+              ) : null}
+              <article className="signed-article">
+                <div>
+                  <p>Signed</p>
+                  <span className="parameters-value">
+                    {signersCount}/{numCouncilMembers}
+                  </span>
+                </div>
+              </article>
+            </div>
+  
+            <div className="parameters">
+              {councilMemberWebsite ? (
+                <article>
+                  <p className="without-margin">Council Member Website</p>
+                  <a className="parameters-link" href={councilMemberWebsite} target="_blank" rel="noreferrer">
+                    Visit Website
+                  </a>
+                </article>
+              ) : null}
+  
+              <article>
+                {councilMemberImage ? (
+                  <article className="parameters-img">
+                    <AvatarStyle>
+                      <img src={councilMemberImage} />
+                    </AvatarStyle>
+                  </article>
+                ) : (
+                  <>
+                    <p>Profile Pic</p>
+                    <span className="parameters-value">-</span>
+                  </>
+                )}
+              </article>
+  
+              {purpose && (
+                <article>
+                  <p>Purpose for Request</p>
+                  <button className="parameters-link" onClick={() => setShowing(true)}>
+                    Read Request
+                  </button>
+                </article>
+              )}
+  
+              <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+            </div>
+          </BreakGlassCouncilPendingStyled>
+          {showing ? createPortal(modal, document?.body) : null}
+        </>
+      )
+    }
 
   // 2/3
   if (isUpdateChangeCouncilMember) {
@@ -538,7 +573,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
             {purpose && (
               <article>
                 <p>Purpose for Request</p>
-                <button className="parameters-link-underline" onClick={() => setShowing(true)}>
+                <button className="parameters-link" onClick={() => setShowing(true)}>
                   Read Request
                 </button>
               </article>
@@ -610,7 +645,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
             {purpose && (
               <article>
                 <p>Purpose for Request</p>
-                <button className="parameters-link-underline" onClick={() => setShowing(true)}>
+                <button className="parameters-link" onClick={() => setShowing(true)}>
                   Read Request
                 </button>
               </article>
@@ -661,7 +696,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
           {purpose && (
             <article>
               <p>Purpose for Request</p>
-              <button className="parameters-link-underline" onClick={() => setShowing(true)}>
+              <button className="parameters-link" onClick={() => setShowing(true)}>
                 Read Request
               </button>
             </article>
