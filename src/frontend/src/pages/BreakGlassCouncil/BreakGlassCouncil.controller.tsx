@@ -172,13 +172,16 @@ export function BreakGlassCouncil() {
   }
 
   useEffect(() => {
-    dispatch(getMyPastBreakGlassCouncilAction())
     dispatch(getPastBreakGlassCouncilAction())
     dispatch(getBreakGlassCouncilMember())
   }, [dispatch])
 
   useEffect(() => {
-    if (accountPkh) dispatch(getBreakGlassActionPendingSignature())
+    if (accountPkh) {
+      dispatch(getMyPastBreakGlassCouncilAction())
+      dispatch(getBreakGlassActionPendingSignature())
+    }
+    
     setSliderKey(sliderKey + 1)
   }, [dispatch, accountPkh])
 
