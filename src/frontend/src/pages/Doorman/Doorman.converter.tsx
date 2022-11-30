@@ -1,5 +1,9 @@
 // type
-import { DoormanGraphQl, MvkMintHistoryDataGraphQl, SmvkHistoryDataGraphQl } from '../../utils/TypesAndInterfaces/Doorman'
+import {
+  DoormanGraphQl,
+  MvkMintHistoryDataGraphQl,
+  SmvkHistoryDataGraphQl,
+} from '../../utils/TypesAndInterfaces/Doorman'
 import { MvkTokenGraphQL } from '../../utils/TypesAndInterfaces/MvkToken'
 
 // helpers
@@ -40,8 +44,8 @@ export function normalizeSmvkHistoryData(storage: SmvkHistoryDataProps) {
   return smvk_history_data?.length
     ? smvk_history_data?.map((item) => {
         return {
-          yAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.smvk_total_supply)),
-          xAxis: item.timestamp,
+          value: symbolsAfterDecimalPoint(calcWithoutPrecision(item.smvk_total_supply)),
+          time: item.timestamp,
         }
       })
     : []
@@ -57,8 +61,8 @@ export function normalizeMvkMintHistoryData(storage: MvkMintHistoryDataProps) {
   return mvk_mint_history_data?.length
     ? mvk_mint_history_data?.map((item) => {
         return {
-          yAxis: symbolsAfterDecimalPoint(calcWithoutPrecision(item.mvk_total_supply)),
-          xAxis: item.timestamp,
+          value: symbolsAfterDecimalPoint(calcWithoutPrecision(item.mvk_total_supply)),
+          time: item.timestamp,
         }
       })
     : []

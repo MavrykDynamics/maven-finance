@@ -81,6 +81,7 @@ export const TradingViewTooltipStyled = styled.div<{ theme: MavrykTheme; x?: num
     font-weight: 600;
     font-size: 18px;
     color: ${({ theme }) => theme.headerColor};
+    white-space: pre;
     p {
       margin: 0;
     }
@@ -90,6 +91,7 @@ export const TradingViewTooltipStyled = styled.div<{ theme: MavrykTheme; x?: num
     font-weight: 600;
     font-size: 12px;
     color: ${({ theme }) => theme.textColor};
+    white-space: pre;
   }
 
   ${({ x, y }) =>

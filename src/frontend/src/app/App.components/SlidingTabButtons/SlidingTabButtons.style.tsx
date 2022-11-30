@@ -59,11 +59,11 @@ export const ButtonStyled = styled.button<{ disabled: boolean; theme: MavrykThem
   border-radius: ${BUTTON_RADIUS};
   user-select: none;
   color: ${({ theme }) => theme.headerColor};
-  background-color: transparent;
+  background: transparent;
 
   &.selected {
     color: ${({ theme }) => theme.containerColor};
-    background-color: linear-gradient(90deg, #86d4c9 0.31%, #8d86eb 99.97%);
+    background: linear-gradient(90deg, #86d4c9 0.31%, #8d86eb 99.97%);
   }
 
   &.loading {

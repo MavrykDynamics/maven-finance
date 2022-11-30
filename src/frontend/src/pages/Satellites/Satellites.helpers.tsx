@@ -205,9 +205,9 @@ export function normalizeDataFeedsHistory(storage: DataFeedsHistoryProps) {
   return aggregator_history_data?.length
     ? aggregator_history_data.map((item) => {
         return {
-          xAxis: item.timestamp,
+          time: item.timestamp,
           // TODO: ask Sam if the decimal is right we use?
-          yAxis: symbolsAfterDecimalPoint(item.data / 10 ** item.aggregator.decimals),
+          value: symbolsAfterDecimalPoint(item.data / 10 ** item.aggregator.decimals),
         }
       })
     : []
@@ -219,8 +219,8 @@ export function normalizeDataFeedsVolatility(storage: DataFeedsHistoryProps): Da
   return aggregator_history_data?.length >= 2
     ? aggregator_history_data.map(({ data, aggregator: { decimals }, timestamp }, idx, arr) => {
         return {
-          xAxis: timestamp,
-          yAxis: percentageDifference(
+          time: timestamp,
+          value: percentageDifference(
             symbolsAfterDecimalPoint(data / 10 ** decimals),
             symbolsAfterDecimalPoint(arr[idx - 1]?.data / 10 ** decimals),
           ),
