@@ -11,19 +11,18 @@ on:
         required: true
         default: 'dev'
 jobs:
-  get-version:
+  dry-run:
     runs-on: ubuntu-latest
     steps:
-      - uses: clowdhaus/argo-cd-action/@v1.9.0
+      - name: get-version
+        uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
           command: version
           options: --client --auth-token ${{ secrets.ARGOCD_TOKEN }}
-  dry-run:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: clowdhaus/argo-cd-action/@v1.9.0
+      - name: dry-run-sync
+        uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
           command: app sync prod-mavryk-indexer
-          options: --dry-run --server-side --prune --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          options: --dry-run --server-side --prune --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.logLevel }}
