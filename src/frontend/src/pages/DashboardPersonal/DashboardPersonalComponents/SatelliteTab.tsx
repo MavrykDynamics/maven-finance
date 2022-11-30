@@ -22,14 +22,11 @@ import {
 } from './DashboardPersonalComponents.style'
 import { SatelliteOracleStatusComponent } from 'pages/Satellites/SatelliteList/ListCards/SatelliteCard.style'
 
-import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { State } from 'reducers'
 
-type SatelliteTabProps = {
-  satelliteRecord?: SatelliteRecord
-}
+type SatelliteTabProps = {}
 
-const SatelliteTab = ({ satelliteRecord = DEFAULT_SATELLITE }: SatelliteTabProps) => {
+const SatelliteTab = ({}: SatelliteTabProps) => {
   const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const {
     governanceStorage: { financialRequestLedger, proposalLedger },
@@ -38,6 +35,9 @@ const SatelliteTab = ({ satelliteRecord = DEFAULT_SATELLITE }: SatelliteTabProps
   const {
     emergencyGovernanceStorage: { emergencyGovernanceLedger },
   } = useSelector((state: State) => state.emergencyGovernance)
+  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const satelliteRecord = satelliteLedger.find(({ address }) => address === accountPkh) ?? DEFAULT_SATELLITE
 
   const satelliteMetrics = useMemo(
     () =>

@@ -32,7 +32,6 @@ const DashboardPersonal = () => {
   } = useSelector((state: State) => state.tokens)
   const { exchangeRate: mvkRate } = useSelector((state: State) => state.mvkToken)
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { satelliteLedger } = useSelector((state: State) => state.delegation.delegationStorage)
 
   const claimRewards = useCallback(() => {
     console.log('claim rewards in DashboardPersonal')
@@ -68,7 +67,10 @@ const DashboardPersonal = () => {
           maxSupply: 31.13123,
           lendingIncome: 3131.31,
         }}
-        satelliteRecord={satelliteLedger.find(({ address }) => address === accountPkh)}
+        rewards={{
+          rewardsToClaim: 234234,
+          earnedRewards: 23324,
+        }}
       />
     </Page>
   )
