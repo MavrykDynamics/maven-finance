@@ -63,7 +63,6 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, 
 
     const councilPastActions = normalizeCouncilActions(storage)
     const councilMyPastActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
-    console.log('fffffff', councilPastActions, councilMyPastActions)
 
     dispatch({
       type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
@@ -93,8 +92,6 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
     const councilAllPendingActions = normalizeCouncilActions(storage)
     const councilPendingActions = normalizeCouncilActions(storage, { filterWithoutAddress: accountPkh })
     const councilMyPendingActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
-
-    console.log('fffffff', councilAllPendingActions, councilPendingActions, councilMyPendingActions)
 
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
