@@ -22,7 +22,10 @@ type DashboardPersonalProps = {
     sMVKAmount: number
     notsMVKAmount: number
   }
-  satelliteRecord?: SatelliteRecord
+  rewards: {
+    rewardsToClaim: number
+    earnedRewards: number
+  }
 }
 
 const DashboardPersonalView = ({
@@ -31,16 +34,12 @@ const DashboardPersonalView = ({
   claimRewardsHandler,
   earnings,
   walletData,
-  satelliteRecord,
+  rewards,
 }: DashboardPersonalProps) => {
   return (
     <DashboardPersonalStyled>
       <div className="top">
-        <DashboardPersonalMyRewards
-          earnedRewards={121212.12}
-          rewardsToClaim={121212.1212}
-          claimRewardsHandler={claimRewardsHandler}
-        />
+        <DashboardPersonalMyRewards {...rewards} claimRewardsHandler={claimRewardsHandler} />
         <DashboardPersonalEarningsHistory {...earnings} />
       </div>
       <div className="tabs-switchers">
@@ -66,7 +65,7 @@ const DashboardPersonalView = ({
             <DelegationTab />
           </Route>
           <Route exact path={`/dashboard-personal/${SATELLITE_TAB_ID}`}>
-            <SatelliteTab satelliteRecord={satelliteRecord} />
+            <SatelliteTab />
           </Route>
 
           <Redirect to={`/dashboard-personal/${PORTFOLIO_TAB_ID}`} />

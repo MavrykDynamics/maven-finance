@@ -295,8 +295,8 @@ export const TradingViewChart = ({
           // TODO: add time handing
           date: Date.now(),
           mvkAmount: Number(param.seriesPrices.get(series)),
-          y: param.point.y,
-          x: param.point.x,
+          y: param.point.y - 20,
+          x: param.point.x + 15,
         })
       }
     })
