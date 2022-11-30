@@ -132,7 +132,7 @@ argo-cd:
       timeout.hard.reconciliation: 0
 
       # -- Add a basic user
-      accounts.githubAction: apiKey, login
+      accounts.gitbot: apiKey,login
 
       # Dex configuration
       # dex.config: |
@@ -218,11 +218,16 @@ argo-cd:
 
       # -- The name of the default role which Argo CD will falls back to, when authorizing API requests (optional).
       # If omitted or empty, users may be still be able to login, but will see no apps, projects, etc...
-      policy.default: ''
+      policy.default: 'role:readonly'
 
       # -- File containing user-defined policies and role definitions.
       # @default -- `''` (See [values.yaml])
-      policy.csv: ''
+      policy.csv: |
+        p, role:github-action, applications, *, */*, allow
+        p, role:github-action, clusters, get, *, allow
+        p, role:github-action, logs, get, *, allow
+        p, role:github-action, exec, create, */*, allow
+        g, gitbot, role:github-action
       # Policy rules are in the form:
       #  p, subject, resource, action, object, effect
       # Role definitions and bindings are in the form:
