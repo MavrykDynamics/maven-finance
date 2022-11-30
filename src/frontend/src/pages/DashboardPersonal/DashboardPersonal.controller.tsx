@@ -31,7 +31,6 @@ const DashboardPersonal = () => {
     tokensPrices: { tezos },
   } = useSelector((state: State) => state.tokens)
   const { exchangeRate: mvkRate } = useSelector((state: State) => state.mvkToken)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
 
   const claimRewards = useCallback(() => {
     console.log('claim rewards in DashboardPersonal')
@@ -46,7 +45,7 @@ const DashboardPersonal = () => {
 
   return (
     <Page>
-      <PageHeader page={'dashboard'} />
+      <PageHeader page={'dashboard'} avatar={'/images/default-avatar.png'} />
       <DashboardPersonalView
         walletData={{
           xtzAmount: myXTZTokenBalance,
