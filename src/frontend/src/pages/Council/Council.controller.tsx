@@ -25,7 +25,7 @@ import { scrollUpPage } from 'utils/scrollUpPage'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { CouncilPendingView } from './CouncilPending/CouncilPending.view'
+import { CouncilPending } from 'pages/Council/CouncilPending/CouncilPending.controller'
 import { CouncilPendingReviewView } from './CouncilPending/CouncilPendingReview.view'
 import { CouncilMemberView } from './CouncilMember/CouncilMember.view'
 import { CouncilPastActionView } from './CouncilPastAction/CouncilPastAction.view'
@@ -47,7 +47,6 @@ import { CouncilFormSetContractBaker } from './CouncilForms/CouncilFormSetContra
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import ModalPopup from '../../app/App.components/Modal/ModalPopup.view'
 import { MyCouncilActions } from 'pages/Council/MyCouncilActions.view'
-import { BreakGlassCouncilPending } from 'pages/BreakGlassCouncil/BreakGlassCouncilPending/BreakGlassCouncilPending.controller'
 
 // styles
 import { Page } from 'styles'
@@ -236,7 +235,7 @@ export const Council = () => {
                   <div className="pending-items">
                     <Carousel itemLength={councilPendingActions?.length} key={sliderKey}>
                       {councilPendingActions.map((item, index) => (
-                        <BreakGlassCouncilPending
+                        <CouncilPending
                           {...item}
                           key={item.id}
                           numCouncilMembers={councilMembers.length}
