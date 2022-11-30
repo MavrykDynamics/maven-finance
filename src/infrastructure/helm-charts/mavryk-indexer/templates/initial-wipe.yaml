@@ -6,11 +6,11 @@ kind: Pod
 metadata:
   name: wipe-{{ $key }}-database
 spec:
+  restartPolicy: Never
   imagePullSecrets:
     - name: '{{ $value.dipdup.image.pullSecret }}'
   containers:
     - name: wipe-dipdup-database
-      restartPolicy: Never
       args: ['-c', 'no-hasura.dipdup.yml', 'schema', 'wipe', '--force']
       env:
       {{- range $value.dipdup.env }}
