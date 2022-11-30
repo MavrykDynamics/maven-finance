@@ -28811,6 +28811,10 @@ export type Lending_Controller = {
   /** An object relationship */
   governance?: Maybe<Governance>;
   governance_id?: Maybe<Scalars['String']>;
+  /** An array relationship */
+  history_data: Array<Lending_Controller_History_Data>;
+  /** An aggregate relationship */
+  history_data_aggregate: Lending_Controller_History_Data_Aggregate;
   interest_rate_decimals: Scalars['smallint'];
   interest_treasury_share: Scalars['smallint'];
   /** An array relationship */
@@ -28896,6 +28900,26 @@ export type Lending_ControllerGeneral_Contracts_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']>;
   order_by?: InputMaybe<Array<Lending_Controller_General_Contract_Order_By>>;
   where?: InputMaybe<Lending_Controller_General_Contract_Bool_Exp>;
+};
+
+
+/** columns and relationships of "lending_controller" */
+export type Lending_ControllerHistory_DataArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "lending_controller" */
+export type Lending_ControllerHistory_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
 };
 
 
@@ -29093,6 +29117,7 @@ export type Lending_Controller_Bool_Exp = {
   general_contracts?: InputMaybe<Lending_Controller_General_Contract_Bool_Exp>;
   governance?: InputMaybe<Governance_Bool_Exp>;
   governance_id?: InputMaybe<String_Comparison_Exp>;
+  history_data?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
   interest_rate_decimals?: InputMaybe<Smallint_Comparison_Exp>;
   interest_treasury_share?: InputMaybe<Smallint_Comparison_Exp>;
   lambdas?: InputMaybe<Lending_Controller_Lambda_Bool_Exp>;
@@ -29613,6 +29638,377 @@ export type Lending_Controller_General_Contract_Variance_Fields = {
 /** order by variance() on columns of table "lending_controller_general_contract" */
 export type Lending_Controller_General_Contract_Variance_Order_By = {
   id?: InputMaybe<Order_By>;
+};
+
+/** columns and relationships of "lending_controller_history_data" */
+export type Lending_Controller_History_Data = {
+  __typename?: 'lending_controller_history_data';
+  amount: Scalars['float8'];
+  id: Scalars['bigint'];
+  /** An object relationship */
+  lending_controller: Lending_Controller;
+  lending_controller_id: Scalars['String'];
+  level: Scalars['bigint'];
+  operation_hash: Scalars['String'];
+  /** An object relationship */
+  sender: Mavryk_User;
+  sender_id: Scalars['String'];
+  timestamp: Scalars['timestamptz'];
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type: Scalars['smallint'];
+  /** An object relationship */
+  vault?: Maybe<Lending_Controller_Vault>;
+  vault_id?: Maybe<Scalars['bigint']>;
+};
+
+/** aggregated selection of "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Aggregate = {
+  __typename?: 'lending_controller_history_data_aggregate';
+  aggregate?: Maybe<Lending_Controller_History_Data_Aggregate_Fields>;
+  nodes: Array<Lending_Controller_History_Data>;
+};
+
+/** aggregate fields of "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Aggregate_Fields = {
+  __typename?: 'lending_controller_history_data_aggregate_fields';
+  avg?: Maybe<Lending_Controller_History_Data_Avg_Fields>;
+  count: Scalars['Int'];
+  max?: Maybe<Lending_Controller_History_Data_Max_Fields>;
+  min?: Maybe<Lending_Controller_History_Data_Min_Fields>;
+  stddev?: Maybe<Lending_Controller_History_Data_Stddev_Fields>;
+  stddev_pop?: Maybe<Lending_Controller_History_Data_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Lending_Controller_History_Data_Stddev_Samp_Fields>;
+  sum?: Maybe<Lending_Controller_History_Data_Sum_Fields>;
+  var_pop?: Maybe<Lending_Controller_History_Data_Var_Pop_Fields>;
+  var_samp?: Maybe<Lending_Controller_History_Data_Var_Samp_Fields>;
+  variance?: Maybe<Lending_Controller_History_Data_Variance_Fields>;
+};
+
+
+/** aggregate fields of "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** order by aggregate values of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Aggregate_Order_By = {
+  avg?: InputMaybe<Lending_Controller_History_Data_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Lending_Controller_History_Data_Max_Order_By>;
+  min?: InputMaybe<Lending_Controller_History_Data_Min_Order_By>;
+  stddev?: InputMaybe<Lending_Controller_History_Data_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Lending_Controller_History_Data_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Lending_Controller_History_Data_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Lending_Controller_History_Data_Sum_Order_By>;
+  var_pop?: InputMaybe<Lending_Controller_History_Data_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Lending_Controller_History_Data_Var_Samp_Order_By>;
+  variance?: InputMaybe<Lending_Controller_History_Data_Variance_Order_By>;
+};
+
+/** aggregate avg on columns */
+export type Lending_Controller_History_Data_Avg_Fields = {
+  __typename?: 'lending_controller_history_data_avg_fields';
+  amount?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['Float']>;
+  vault_id?: Maybe<Scalars['Float']>;
+};
+
+/** order by avg() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Avg_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "lending_controller_history_data". All fields are combined with a logical 'AND'. */
+export type Lending_Controller_History_Data_Bool_Exp = {
+  _and?: InputMaybe<Array<Lending_Controller_History_Data_Bool_Exp>>;
+  _not?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+  _or?: InputMaybe<Array<Lending_Controller_History_Data_Bool_Exp>>;
+  amount?: InputMaybe<Float8_Comparison_Exp>;
+  id?: InputMaybe<Bigint_Comparison_Exp>;
+  lending_controller?: InputMaybe<Lending_Controller_Bool_Exp>;
+  lending_controller_id?: InputMaybe<String_Comparison_Exp>;
+  level?: InputMaybe<Bigint_Comparison_Exp>;
+  operation_hash?: InputMaybe<String_Comparison_Exp>;
+  sender?: InputMaybe<Mavryk_User_Bool_Exp>;
+  sender_id?: InputMaybe<String_Comparison_Exp>;
+  timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
+  type?: InputMaybe<Smallint_Comparison_Exp>;
+  vault?: InputMaybe<Lending_Controller_Vault_Bool_Exp>;
+  vault_id?: InputMaybe<Bigint_Comparison_Exp>;
+};
+
+/** aggregate max on columns */
+export type Lending_Controller_History_Data_Max_Fields = {
+  __typename?: 'lending_controller_history_data_max_fields';
+  amount?: Maybe<Scalars['float8']>;
+  id?: Maybe<Scalars['bigint']>;
+  lending_controller_id?: Maybe<Scalars['String']>;
+  level?: Maybe<Scalars['bigint']>;
+  operation_hash?: Maybe<Scalars['String']>;
+  sender_id?: Maybe<Scalars['String']>;
+  timestamp?: Maybe<Scalars['timestamptz']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['smallint']>;
+  vault_id?: Maybe<Scalars['bigint']>;
+};
+
+/** order by max() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Max_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  lending_controller_id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  operation_hash?: InputMaybe<Order_By>;
+  sender_id?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Lending_Controller_History_Data_Min_Fields = {
+  __typename?: 'lending_controller_history_data_min_fields';
+  amount?: Maybe<Scalars['float8']>;
+  id?: Maybe<Scalars['bigint']>;
+  lending_controller_id?: Maybe<Scalars['String']>;
+  level?: Maybe<Scalars['bigint']>;
+  operation_hash?: Maybe<Scalars['String']>;
+  sender_id?: Maybe<Scalars['String']>;
+  timestamp?: Maybe<Scalars['timestamptz']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['smallint']>;
+  vault_id?: Maybe<Scalars['bigint']>;
+};
+
+/** order by min() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Min_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  lending_controller_id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  operation_hash?: InputMaybe<Order_By>;
+  sender_id?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** Ordering options when selecting data from "lending_controller_history_data". */
+export type Lending_Controller_History_Data_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  lending_controller?: InputMaybe<Lending_Controller_Order_By>;
+  lending_controller_id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  operation_hash?: InputMaybe<Order_By>;
+  sender?: InputMaybe<Mavryk_User_Order_By>;
+  sender_id?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+  type?: InputMaybe<Order_By>;
+  vault?: InputMaybe<Lending_Controller_Vault_Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** select columns of table "lending_controller_history_data" */
+export enum Lending_Controller_History_Data_Select_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  LendingControllerId = 'lending_controller_id',
+  /** column name */
+  Level = 'level',
+  /** column name */
+  OperationHash = 'operation_hash',
+  /** column name */
+  SenderId = 'sender_id',
+  /** column name */
+  Timestamp = 'timestamp',
+  /** column name */
+  Type = 'type',
+  /** column name */
+  VaultId = 'vault_id'
+}
+
+/** aggregate stddev on columns */
+export type Lending_Controller_History_Data_Stddev_Fields = {
+  __typename?: 'lending_controller_history_data_stddev_fields';
+  amount?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['Float']>;
+  vault_id?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Stddev_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Lending_Controller_History_Data_Stddev_Pop_Fields = {
+  __typename?: 'lending_controller_history_data_stddev_pop_fields';
+  amount?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['Float']>;
+  vault_id?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_pop() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Stddev_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Lending_Controller_History_Data_Stddev_Samp_Fields = {
+  __typename?: 'lending_controller_history_data_stddev_samp_fields';
+  amount?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['Float']>;
+  vault_id?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_samp() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Stddev_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Lending_Controller_History_Data_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Lending_Controller_History_Data_Stream_Cursor_Value_Input = {
+  amount?: InputMaybe<Scalars['float8']>;
+  id?: InputMaybe<Scalars['bigint']>;
+  lending_controller_id?: InputMaybe<Scalars['String']>;
+  level?: InputMaybe<Scalars['bigint']>;
+  operation_hash?: InputMaybe<Scalars['String']>;
+  sender_id?: InputMaybe<Scalars['String']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Scalars['smallint']>;
+  vault_id?: InputMaybe<Scalars['bigint']>;
+};
+
+/** aggregate sum on columns */
+export type Lending_Controller_History_Data_Sum_Fields = {
+  __typename?: 'lending_controller_history_data_sum_fields';
+  amount?: Maybe<Scalars['float8']>;
+  id?: Maybe<Scalars['bigint']>;
+  level?: Maybe<Scalars['bigint']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['smallint']>;
+  vault_id?: Maybe<Scalars['bigint']>;
+};
+
+/** order by sum() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Sum_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_pop on columns */
+export type Lending_Controller_History_Data_Var_Pop_Fields = {
+  __typename?: 'lending_controller_history_data_var_pop_fields';
+  amount?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['Float']>;
+  vault_id?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_pop() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Var_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Lending_Controller_History_Data_Var_Samp_Fields = {
+  __typename?: 'lending_controller_history_data_var_samp_fields';
+  amount?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['Float']>;
+  vault_id?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_samp() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Var_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Lending_Controller_History_Data_Variance_Fields = {
+  __typename?: 'lending_controller_history_data_variance_fields';
+  amount?: Maybe<Scalars['Float']>;
+  id?: Maybe<Scalars['Float']>;
+  level?: Maybe<Scalars['Float']>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: Maybe<Scalars['Float']>;
+  vault_id?: Maybe<Scalars['Float']>;
+};
+
+/** order by variance() on columns of table "lending_controller_history_data" */
+export type Lending_Controller_History_Data_Variance_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  /** ADD_LIQUIDITY: 0\nREMOVE_LIQUIDITY: 1\nBORROW: 2\nREPAY: 3\nDEPOSIT: 4\nWITHDRAW: 5\nDEPOSIT_SMVK: 6\nWITHDRAW_SMVK: 7\nVAULT_CREATION: 8\nMARK_FOR_LIQUIDATION: 9\nLIQUIDATE_VAULT: 10\nCLOSE_VAULT: 11 */
+  type?: InputMaybe<Order_By>;
+  vault_id?: InputMaybe<Order_By>;
 };
 
 /** columns and relationships of "lending_controller_lambda" */
@@ -30641,6 +31037,7 @@ export type Lending_Controller_Order_By = {
   general_contracts_aggregate?: InputMaybe<Lending_Controller_General_Contract_Aggregate_Order_By>;
   governance?: InputMaybe<Governance_Order_By>;
   governance_id?: InputMaybe<Order_By>;
+  history_data_aggregate?: InputMaybe<Lending_Controller_History_Data_Aggregate_Order_By>;
   interest_rate_decimals?: InputMaybe<Order_By>;
   interest_treasury_share?: InputMaybe<Order_By>;
   lambdas_aggregate?: InputMaybe<Lending_Controller_Lambda_Aggregate_Order_By>;
@@ -31030,6 +31427,10 @@ export type Lending_Controller_Vault = {
   collateral_balances: Array<Lending_Controller_Vault_Collateral_Balance>;
   /** An aggregate relationship */
   collateral_balances_aggregate: Lending_Controller_Vault_Collateral_Balance_Aggregate;
+  /** An array relationship */
+  history_data: Array<Lending_Controller_History_Data>;
+  /** An aggregate relationship */
+  history_data_aggregate: Lending_Controller_History_Data_Aggregate;
   id: Scalars['bigint'];
   internal_id: Scalars['bigint'];
   last_updated_block_level: Scalars['bigint'];
@@ -31073,6 +31474,26 @@ export type Lending_Controller_VaultCollateral_Balances_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']>;
   order_by?: InputMaybe<Array<Lending_Controller_Vault_Collateral_Balance_Order_By>>;
   where?: InputMaybe<Lending_Controller_Vault_Collateral_Balance_Bool_Exp>;
+};
+
+
+/** columns and relationships of "lending_controller_vault" */
+export type Lending_Controller_VaultHistory_DataArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "lending_controller_vault" */
+export type Lending_Controller_VaultHistory_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
 };
 
 /** aggregated selection of "lending_controller_vault" */
@@ -31158,6 +31579,7 @@ export type Lending_Controller_Vault_Bool_Exp = {
   _or?: InputMaybe<Array<Lending_Controller_Vault_Bool_Exp>>;
   borrow_index?: InputMaybe<Float8_Comparison_Exp>;
   collateral_balances?: InputMaybe<Lending_Controller_Vault_Collateral_Balance_Bool_Exp>;
+  history_data?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
   internal_id?: InputMaybe<Bigint_Comparison_Exp>;
   last_updated_block_level?: InputMaybe<Bigint_Comparison_Exp>;
@@ -31540,6 +31962,7 @@ export type Lending_Controller_Vault_Min_Order_By = {
 export type Lending_Controller_Vault_Order_By = {
   borrow_index?: InputMaybe<Order_By>;
   collateral_balances_aggregate?: InputMaybe<Lending_Controller_Vault_Collateral_Balance_Aggregate_Order_By>;
+  history_data_aggregate?: InputMaybe<Lending_Controller_History_Data_Aggregate_Order_By>;
   id?: InputMaybe<Order_By>;
   internal_id?: InputMaybe<Order_By>;
   last_updated_block_level?: InputMaybe<Order_By>;
@@ -33537,6 +33960,10 @@ export type Mavryk_User = {
   /** An aggregate relationship */
   lending_controller_collateral_token_oracles_aggregate: Lending_Controller_Collateral_Token_Aggregate;
   /** An array relationship */
+  lending_controller_history_data_sender: Array<Lending_Controller_History_Data>;
+  /** An aggregate relationship */
+  lending_controller_history_data_sender_aggregate: Lending_Controller_History_Data_Aggregate;
+  /** An array relationship */
   lending_controller_loan_token_oracles: Array<Lending_Controller_Loan_Token>;
   /** An aggregate relationship */
   lending_controller_loan_token_oracles_aggregate: Lending_Controller_Loan_Token_Aggregate;
@@ -34054,6 +34481,26 @@ export type Mavryk_UserLending_Controller_Collateral_Token_Oracles_AggregateArgs
 
 
 /** columns and relationships of "mavryk_user" */
+export type Mavryk_UserLending_Controller_History_Data_SenderArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "mavryk_user" */
+export type Mavryk_UserLending_Controller_History_Data_Sender_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+};
+
+
+/** columns and relationships of "mavryk_user" */
 export type Mavryk_UserLending_Controller_Loan_Token_OraclesArgs = {
   distinct_on?: InputMaybe<Array<Lending_Controller_Loan_Token_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -34477,6 +34924,7 @@ export type Mavryk_User_Bool_Exp = {
   governance_satellite_oracles?: InputMaybe<Governance_Satellite_Oracle_Bool_Exp>;
   governance_satellite_snapshots?: InputMaybe<Governance_Satellite_Snapshot_Bool_Exp>;
   lending_controller_collateral_token_oracles?: InputMaybe<Lending_Controller_Collateral_Token_Bool_Exp>;
+  lending_controller_history_data_sender?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
   lending_controller_loan_token_oracles?: InputMaybe<Lending_Controller_Loan_Token_Bool_Exp>;
   lending_controller_vaults?: InputMaybe<Lending_Controller_Vault_Bool_Exp>;
   liquidity_baking_positions?: InputMaybe<Liquidity_Baking_Position_Bool_Exp>;
@@ -34761,6 +35209,7 @@ export type Mavryk_User_Order_By = {
   governance_satellite_oracles_aggregate?: InputMaybe<Governance_Satellite_Oracle_Aggregate_Order_By>;
   governance_satellite_snapshots_aggregate?: InputMaybe<Governance_Satellite_Snapshot_Aggregate_Order_By>;
   lending_controller_collateral_token_oracles_aggregate?: InputMaybe<Lending_Controller_Collateral_Token_Aggregate_Order_By>;
+  lending_controller_history_data_sender_aggregate?: InputMaybe<Lending_Controller_History_Data_Aggregate_Order_By>;
   lending_controller_loan_token_oracles_aggregate?: InputMaybe<Lending_Controller_Loan_Token_Aggregate_Order_By>;
   lending_controller_vaults_aggregate?: InputMaybe<Lending_Controller_Vault_Aggregate_Order_By>;
   liquidity_baking_positions_aggregate?: InputMaybe<Liquidity_Baking_Position_Aggregate_Order_By>;
@@ -36866,6 +37315,12 @@ export type Query_Root = {
   lending_controller_general_contract_aggregate: Lending_Controller_General_Contract_Aggregate;
   /** fetch data from the table: "lending_controller_general_contract" using primary key columns */
   lending_controller_general_contract_by_pk?: Maybe<Lending_Controller_General_Contract>;
+  /** fetch data from the table: "lending_controller_history_data" */
+  lending_controller_history_data: Array<Lending_Controller_History_Data>;
+  /** fetch aggregated fields from the table: "lending_controller_history_data" */
+  lending_controller_history_data_aggregate: Lending_Controller_History_Data_Aggregate;
+  /** fetch data from the table: "lending_controller_history_data" using primary key columns */
+  lending_controller_history_data_by_pk?: Maybe<Lending_Controller_History_Data>;
   /** fetch data from the table: "lending_controller_lambda" */
   lending_controller_lambda: Array<Lending_Controller_Lambda>;
   /** fetch aggregated fields from the table: "lending_controller_lambda" */
@@ -39397,6 +39852,29 @@ export type Query_RootLending_Controller_General_Contract_AggregateArgs = {
 
 
 export type Query_RootLending_Controller_General_Contract_By_PkArgs = {
+  id: Scalars['bigint'];
+};
+
+
+export type Query_RootLending_Controller_History_DataArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+};
+
+
+export type Query_RootLending_Controller_History_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+};
+
+
+export type Query_RootLending_Controller_History_Data_By_PkArgs = {
   id: Scalars['bigint'];
 };
 
@@ -42708,6 +43186,14 @@ export type Subscription_Root = {
   lending_controller_general_contract_by_pk?: Maybe<Lending_Controller_General_Contract>;
   /** fetch data from the table in a streaming manner : "lending_controller_general_contract" */
   lending_controller_general_contract_stream: Array<Lending_Controller_General_Contract>;
+  /** fetch data from the table: "lending_controller_history_data" */
+  lending_controller_history_data: Array<Lending_Controller_History_Data>;
+  /** fetch aggregated fields from the table: "lending_controller_history_data" */
+  lending_controller_history_data_aggregate: Lending_Controller_History_Data_Aggregate;
+  /** fetch data from the table: "lending_controller_history_data" using primary key columns */
+  lending_controller_history_data_by_pk?: Maybe<Lending_Controller_History_Data>;
+  /** fetch data from the table in a streaming manner : "lending_controller_history_data" */
+  lending_controller_history_data_stream: Array<Lending_Controller_History_Data>;
   /** fetch data from the table: "lending_controller_lambda" */
   lending_controller_lambda: Array<Lending_Controller_Lambda>;
   /** fetch aggregated fields from the table: "lending_controller_lambda" */
@@ -46016,6 +46502,36 @@ export type Subscription_RootLending_Controller_General_Contract_StreamArgs = {
   batch_size: Scalars['Int'];
   cursor: Array<InputMaybe<Lending_Controller_General_Contract_Stream_Cursor_Input>>;
   where?: InputMaybe<Lending_Controller_General_Contract_Bool_Exp>;
+};
+
+
+export type Subscription_RootLending_Controller_History_DataArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+};
+
+
+export type Subscription_RootLending_Controller_History_Data_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Lending_Controller_History_Data_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Lending_Controller_History_Data_Order_By>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
+};
+
+
+export type Subscription_RootLending_Controller_History_Data_By_PkArgs = {
+  id: Scalars['bigint'];
+};
+
+
+export type Subscription_RootLending_Controller_History_Data_StreamArgs = {
+  batch_size: Scalars['Int'];
+  cursor: Array<InputMaybe<Lending_Controller_History_Data_Stream_Cursor_Input>>;
+  where?: InputMaybe<Lending_Controller_History_Data_Bool_Exp>;
 };
 
 

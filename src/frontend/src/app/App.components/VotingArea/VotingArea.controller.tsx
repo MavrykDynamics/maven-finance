@@ -28,7 +28,7 @@ export const VotingArea = ({
   className,
   buttonsToShow,
 }: VotingType) => {
-  const { forBtn, againsBtn, passBtn } = buttonsToShow ?? {}
+  const { forBtn, againsBtn, passBtn } = buttonsToShow ?? { forBtn: {}, againsBtn: {}, passBtn: {} }
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { isSatellite } = useSelector((state: State) => state.user) ?? {}
 

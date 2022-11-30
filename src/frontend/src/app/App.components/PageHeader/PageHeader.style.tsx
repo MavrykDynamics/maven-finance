@@ -85,6 +85,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'emergency governance':
       case 'proposal submission':
         return '10px'
+      case 'break glass council':
       default:
         return '0'
     }
@@ -98,6 +99,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'staking':
         return 'fit-content'
       case 'vaults':
+      case 'break glass council':
       default:
         return 'fit-content'
     }
@@ -120,6 +122,8 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '192px'
       case 'data-feeds':
         return '190px'
+      case 'break glass council':
+        return '150px'
       default:
         return '172px'
     }
@@ -135,6 +139,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '7px'
       case 'emergency governance':
         return '-2px'
+      case 'break glass council':
       default:
         return '0'
     }

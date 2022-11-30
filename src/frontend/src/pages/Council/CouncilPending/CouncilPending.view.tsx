@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState, useCallback, useMemo, useRef } from 'react'
+import { useDispatch } from 'react-redux'
 import { createPortal } from 'react-dom'
 import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
 
@@ -11,7 +11,7 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // helpers
 import { getSeparateCamelCase } from '../../../utils/parse'
-import { calcWithoutPrecision, calcWithoutMu } from '../../../utils/calcFunctions'
+import { calcWithoutPrecision } from '../../../utils/calcFunctions'
 
 // actions
 import { sign } from '../Council.actions'
@@ -20,30 +20,35 @@ import { sign } from '../Council.actions'
 import { CouncilPendingStyled } from './CouncilPending.style'
 import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 
-type Props = {
-  execution_datetime: string
-  action_type: string
-  initiator_id: string
-  signers_count: number
-  num_council_members: number
-  id: number
-  councilPendingActionsLength: number
-  parameters: Record<string, string>[]
+// types
+import { CouncilActions } from '../../../utils/TypesAndInterfaces/Council'
+
+type Props = CouncilActions[0] & {
+  numCouncilMembers: number,
+  councilPendingActionsLength: number,
+  index: number,
 }
 
 export const CouncilPendingView = (props: Props) => {
   const dispatch = useDispatch()
   const [showing, setShowing] = useState(false)
   const {
-    execution_datetime,
-    action_type,
-    signers_count,
-    num_council_members,
-    initiator_id,
+    executionDatetime,
+    actionType,
+    signersCount,
+    numCouncilMembers,
+    initiatorId,
     id,
     councilPendingActionsLength,
     parameters,
+    index,
   } = props
+
+  const ref = useRef<HTMLDivElement | null>(null)
+  const showScrollInModal = useMemo(() => ref.current?.offsetHeight !== ref.current?.scrollHeight, [
+    ref.current?.offsetHeight,
+    ref.current?.scrollWidth
+  ])
 
   const handleSign = () => {
     if (id) {
@@ -56,14 +61,14 @@ export const CouncilPendingView = (props: Props) => {
     [parameters],
   )
 
-  const isAddVestee = action_type === 'addVestee'
-  const isRequestTokens = action_type === 'requestTokens'
-  const isAddCouncilMember = action_type === 'addCouncilMember'
-  const isUpdateVestee = action_type === 'updateVestee'
-  const isChangeCouncilMember = action_type === 'changeCouncilMember'
-  const isTransfer = action_type === 'transfer'
-  const isRequestMint = action_type === 'requestMint'
-  const isDropFinancialRequest = action_type === 'dropFinancialRequest'
+  const isAddVestee = actionType === 'addVestee'
+  const isRequestTokens = actionType === 'requestTokens'
+  const isAddCouncilMember = actionType === 'addCouncilMember'
+  const isUpdateVestee = actionType === 'updateVestee'
+  const isChangeCouncilMember = actionType === 'changeCouncilMember'
+  const isTransfer = actionType === 'transfer'
+  const isRequestMint = actionType === 'requestMint'
+  const isDropFinancialRequest = actionType === 'dropFinancialRequest'
   const purpose = findActionByName('purpose')
 
   const modal = (
@@ -84,7 +89,8 @@ export const CouncilPendingView = (props: Props) => {
         </ModalClose>
         <ModalCardContent style={{ width: 586 }}>
           <h1>Purpose for Request</h1>
-          <div>{purpose}</div>
+          <div ref={ref} className='text-box'>{purpose}</div>
+          <div style={{ display: showScrollInModal ? 'block' : 'none' }} className='shadow-box'></div>
         </ModalCardContent>
       </ModalCard>
     </ModalStyled>
@@ -97,8 +103,9 @@ export const CouncilPendingView = (props: Props) => {
     const totalAllocatedAmount = findActionByName('totalAllocatedAmount')
     const calculateTokenAmount = calcWithoutPrecision(totalAllocatedAmount)
     return (
-      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <h3>{getSeparateCamelCase(action_type)}</h3>
+      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <article>
             <p>Vestee Address</p>
@@ -118,7 +125,7 @@ export const CouncilPendingView = (props: Props) => {
             <div>
               <p>Signed</p>
               <span className="parameters-value">
-                {signers_count}/{num_council_members}
+                {signersCount}/{numCouncilMembers}
               </span>
             </div>
           </article>
@@ -148,8 +155,9 @@ export const CouncilPendingView = (props: Props) => {
     const councilMemberImage = findActionByName('councilMemberImage')
     return (
       <>
-        <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <h3>{getSeparateCamelCase(action_type)}</h3>
+        <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{index}</span>
+          <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters">
             <article>
               <p>Council Member Address</p>
@@ -167,7 +175,7 @@ export const CouncilPendingView = (props: Props) => {
               <div>
                 <p>Signed</p>
                 <span className="parameters-value">
-                  {signers_count}/{num_council_members}
+                  {signersCount}/{numCouncilMembers}
                 </span>
               </div>
             </article>
@@ -215,8 +223,9 @@ export const CouncilPendingView = (props: Props) => {
     const newTotalAllocatedAmount = findActionByName('newTotalAllocatedAmount')
     const calculateTokenAmount = calcWithoutPrecision(newTotalAllocatedAmount)
     return (
-      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <h3>{getSeparateCamelCase(action_type)}</h3>
+      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <article>
             <p>Vestee Address</p>
@@ -236,7 +245,7 @@ export const CouncilPendingView = (props: Props) => {
             <div>
               <p>Signed</p>
               <span className="parameters-value">
-                {signers_count}/{num_council_members}
+                {signersCount}/{numCouncilMembers}
               </span>
             </div>
           </article>
@@ -270,8 +279,9 @@ export const CouncilPendingView = (props: Props) => {
     const calculateTokenAmount = calcWithoutPrecision(tokenAmount)
     return (
       <>
-        <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <h3>{getSeparateCamelCase(action_type)}</h3>
+        <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{index}</span>
+          <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
               <p>Treasury Address</p>
@@ -297,7 +307,7 @@ export const CouncilPendingView = (props: Props) => {
               <div>
                 <p>Signed</p>
                 <span className="parameters-value">
-                  {signers_count}/{num_council_members}
+                  {signersCount}/{numCouncilMembers}
                 </span>
               </div>
             </article>
@@ -341,8 +351,9 @@ export const CouncilPendingView = (props: Props) => {
 
     return (
       <>
-        <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <h3>{getSeparateCamelCase(action_type)}</h3>
+        <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{index}</span>
+          <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
               <p>New Counci lMember Address</p>
@@ -366,7 +377,7 @@ export const CouncilPendingView = (props: Props) => {
               <div>
                 <p>Signed</p>
                 <span className="parameters-value">
-                  {signers_count}/{num_council_members}
+                  {signersCount}/{numCouncilMembers}
                 </span>
               </div>
             </article>
@@ -411,8 +422,9 @@ export const CouncilPendingView = (props: Props) => {
     const calculateTokenAmount = calcWithoutPrecision(tokenAmount)
     return (
       <>
-        <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-          <h3>{getSeparateCamelCase(action_type)}</h3>
+        <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <span className='number'>{index}</span>
+          <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters grid">
             <article>
               <p>Receiver Address</p>
@@ -438,7 +450,7 @@ export const CouncilPendingView = (props: Props) => {
               <div>
                 <p>Signed</p>
                 <span className="parameters-value">
-                  {signers_count}/{num_council_members}
+                  {signersCount}/{numCouncilMembers}
                 </span>
               </div>
             </article>
@@ -477,8 +489,9 @@ export const CouncilPendingView = (props: Props) => {
     const tokenAmount = findActionByName('tokenAmount')
 
     return (
-      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <h3>{getSeparateCamelCase(action_type)}</h3>
+      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <article>
             <p>Treasury Address</p>
@@ -498,7 +511,7 @@ export const CouncilPendingView = (props: Props) => {
             <div>
               <p>Signed</p>
               <span className="parameters-value">
-                {signers_count}/{num_council_members}
+                {signersCount}/{numCouncilMembers}
               </span>
             </div>
           </article>
@@ -526,8 +539,9 @@ export const CouncilPendingView = (props: Props) => {
   // 1/3
   if (isDropFinancialRequest) {
     return (
-      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <h3>{getSeparateCamelCase(action_type)}</h3>
+      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <span className='number'>{index}</span>
+        <h3>{getSeparateCamelCase(actionType)}</h3>
         <div className="parameters">
           <div>
             <p>Request ID</p>
@@ -536,7 +550,7 @@ export const CouncilPendingView = (props: Props) => {
           <div>
             <p>Signed</p>
             <span className="parameters-value">
-              {signers_count}/{num_council_members}
+              {signersCount}/{numCouncilMembers}
             </span>
           </div>
         </div>
@@ -546,13 +560,14 @@ export const CouncilPendingView = (props: Props) => {
   }
 
   return (
-    <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-      <h3>{getSeparateCamelCase(action_type)}</h3>
+    <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+      <span className='number'>{index}</span>
+      <h3>{getSeparateCamelCase(actionType)}</h3>
       <div className="parameters">
         <div>
           <p>Signed</p>
           <span className="parameters-value">
-            {signers_count}/{num_council_members}
+            {signersCount}/{numCouncilMembers}
           </span>
         </div>
       </div>
