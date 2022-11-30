@@ -4,6 +4,7 @@ RUN pip install poetry
 
 WORKDIR /mavryk
 COPY poetry.lock pyproject.toml /mavryk/
+COPY dipdup.yml /mavryk/
 
 RUN poetry config virtualenvs.create false && poetry install --no-dev
 
