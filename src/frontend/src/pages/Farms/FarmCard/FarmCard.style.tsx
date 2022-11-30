@@ -282,7 +282,7 @@ export const FarmCardStyled = styled(Card)<{ theme: MavrykTheme }>`
       transition: 0.3s fill;
 
       &:hover {
-        fill: ${({ theme }) => theme.lPurple_dPurple_lPuprple};
+        opacity: 0.8;
       }
     }
   }

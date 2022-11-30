@@ -16,7 +16,7 @@ export const FarmTopBarStyled = styled(Card)<{ theme: MavrykTheme }>`
     svg {
       width: 20px;
       height: 20px;
-      fill: ${headerColor};
+      fill: ${cyanColor};
     }
 
     .btn-vertical {
@@ -26,7 +26,7 @@ export const FarmTopBarStyled = styled(Card)<{ theme: MavrykTheme }>`
 
   &.vertical .change-view .btn-vertical svg,
   &.horizontal .change-view .btn-horizontal svg {
-    fill: ${cyanColor};
+    fill: ${headerColor};
   }
 
   .order-by {
