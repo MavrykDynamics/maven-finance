@@ -1,33 +1,29 @@
 {{- range $key, $value := .Values.instances }}
 {{- if $value.dipdup.initialWipe }}
 ---
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Pod
 metadata:
-  name: wipe-database-job
+  name: wipe-{{ $key }}-database
 spec:
-  template:
-    spec:
-      imagePullSecrets:
-      - name: '{{ $value.dipdup.image.pullSecret }}'
-      containers:
-      - name: wipe-dipdup-database
-        args: ['-c', 'no-hasura.dipdup.yml', 'schema', 'wipe', '--force']
-        env:
-        {{- range $value.dipdup.env }}
-          - name: {{ .name }}
-            {{- if ((.value))}}
-            value: "{{.value}}"
-            {{- else }}
-            valueFrom:
-              secretKeyRef:
-                name: {{ .valueFrom.secretKeyRef.name }}
-                key: {{ .valueFrom.secretKeyRef.key }}
-            {{- end }}
-        {{- end }}
-        image: '{{ $value.dipdup.image.registry }}/{{ $value.dipdup.image.repository }}:{{ $value.dipdup.image.tag }}'
-        imagePullPolicy: '{{ $value.dipdup.image.pullPolicy }}'
-      restartPolicy: Never
-  backoffLimit: 1
+  imagePullSecrets:
+    - name: '{{ $value.dipdup.image.pullSecret }}'
+  containers:
+    - name: wipe-dipdup-database
+      args: ['-c', 'no-hasura.dipdup.yml', 'schema', 'wipe', '--force']
+      env:
+      {{- range $value.dipdup.env }}
+        - name: {{ .name }}
+          {{- if ((.value))}}
+          value: "{{.value}}"
+          {{- else }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .valueFrom.secretKeyRef.name }}
+              key: {{ .valueFrom.secretKeyRef.key }}
+          {{- end }}
+      {{- end }}
+      image: '{{ $value.dipdup.image.registry }}/{{ $value.dipdup.image.repository }}:{{ $value.dipdup.image.tag }}'
+      imagePullPolicy: '{{ $value.dipdup.image.pullPolicy }}'
 {{- end }}
 {{- end }}
