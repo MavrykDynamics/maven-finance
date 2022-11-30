@@ -131,6 +131,9 @@ argo-cd:
       # -- Timeout to refresh application data as well as target manifests cache
       timeout.hard.reconciliation: 0
 
+      # -- Add a basic user
+      accounts.githubAction: apiKey, login
+
       # Dex configuration
       # dex.config: |
       #   connectors:
