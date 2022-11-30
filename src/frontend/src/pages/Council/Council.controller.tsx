@@ -101,16 +101,6 @@ export const Council = () => {
     councilMemberWebsiteMaxLength: councilStorage?.councilMemberWebsiteMaxLength,
   }
 
-  useEffect(() => {
-    async function initFetch() {
-      await dispatch(getCouncilPastActionsStorage())
-      await dispatch(getCouncilPendingActionsStorage())
-      await dispatch(getCouncilStorage())
-    }
-
-    initFetch()
-  }, [dispatch])
-
   const isUserInCouncilMembers = Boolean(councilMembers.find((item) => item.userId === accountPkh)?.id)
   const isPendingList = councilPendingActions?.length && isUserInCouncilMembers
   const { review } = useParams<{ review: string }>()
