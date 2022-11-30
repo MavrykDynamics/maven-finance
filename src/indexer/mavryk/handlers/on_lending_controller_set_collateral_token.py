@@ -23,6 +23,8 @@ async def on_lending_controller_set_collateral_token(
         collateral_token_storage        = set_collateral_token.storage.collateralTokenLedger[collateral_token_name]
         collateral_token_oracle_address = collateral_token_storage.oracleAddress
         collateral_token_address        = collateral_token_storage.tokenContractAddress
+        collateral_token_protected      = collateral_token_storage.protected
+        collateral_token_scaled         = collateral_token_storage.isScaledToken
         collateral_token_id             = 0
 
         # Persist collateral Token Metadata
@@ -43,4 +45,6 @@ async def on_lending_controller_set_collateral_token(
             token_address       = collateral_token_address,
             oracle              = oracle
         )
+        lending_controller_collateral_token.protected           = collateral_token_protected
+        lending_controller_collateral_token.is_scaled_token     = collateral_token_scaled
         await lending_controller_collateral_token.save()
