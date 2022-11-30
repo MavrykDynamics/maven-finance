@@ -28,6 +28,7 @@ export const ModalCard = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 1;
 `
 
 export const ModalCardContent = styled.div<{ width?: number; height?: number; theme: MavrykTheme }>`

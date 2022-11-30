@@ -79,6 +79,7 @@ const SatellitesView = ({
               title={'Total Delegated MVK'}
               value={tabsInfo.totalDelegetedMVK}
               tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
+              textInfo={'All staked MVK that is delegated to satellites by users'}
             />
             <InfoTab
               title={'Total Satellites & Oracles'}
