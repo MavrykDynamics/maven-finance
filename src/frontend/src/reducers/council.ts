@@ -5,7 +5,7 @@ import { GET_COUNCIL_PAST_ACTIONS_STORAGE, GET_COUNCIL_PENDING_ACTIONS_STORAGE }
 
 export interface CouncilState {
   councilStorage: CouncilStorage
-  councilAllPendingActions: CouncilActions,
+  councilAllPendingActions: CouncilActions
   councilPendingActions: CouncilActions
   councilMyPendingActions: CouncilActions
   councilPastActions: CouncilActions

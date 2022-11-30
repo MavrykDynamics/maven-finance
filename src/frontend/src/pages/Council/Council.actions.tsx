@@ -43,6 +43,7 @@ export const getCouncilStorage = () => async (dispatch: AppDispatch, getState: G
     })
   } catch (error) {
     if (error instanceof Error) {
+      console.log('error', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
   }
@@ -62,6 +63,7 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, 
 
     const councilPastActions = normalizeCouncilActions(storage)
     const councilMyPastActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
+    console.log('fffffff', councilPastActions, councilMyPastActions)
 
     dispatch({
       type: GET_COUNCIL_PAST_ACTIONS_STORAGE,
@@ -70,6 +72,7 @@ export const getCouncilPastActionsStorage = () => async (dispatch: AppDispatch, 
     })
   } catch (error) {
     if (error instanceof Error) {
+      console.log('error', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
   }
@@ -91,6 +94,8 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
     const councilPendingActions = normalizeCouncilActions(storage, { filterWithoutAddress: accountPkh })
     const councilMyPendingActions = normalizeCouncilActions(storage, { filterByAddress: accountPkh })
 
+    console.log('fffffff', councilAllPendingActions, councilPendingActions, councilMyPendingActions)
+
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
       councilAllPendingActions,
@@ -99,6 +104,7 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: AppDispatc
     })
   } catch (error) {
     if (error instanceof Error) {
+      console.log('error', error)
       dispatch(showToaster(ERROR, 'Error', error.message))
     }
   }
