@@ -79,7 +79,7 @@ jobs:
           version: 2.5.2
           command: app set prod-mavryk-indexer
           options: -p instances.prod.hasura.ingress.service.name=${{ github.event.inputs.prodService }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
-      - name: create-wipe-database-pod
+      - name: create-wipe-database-job
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
