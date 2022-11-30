@@ -58,7 +58,6 @@ export const ChartStyled = styled.div<{ theme: MavrykTheme }>`
   width: fit-content;
   height: fit-content;
   position: relative;
-  overflow: hidden;
   width: 100%;
 
   &.portfolio {
@@ -80,7 +79,8 @@ export const TradingViewTooltipStyled = styled.div<{ theme: MavrykTheme }>`
   top: 0;
   left: 0;
   transition: transform 50ms ease-in-out;
-  transform: translate(var(--translateX, 0), var(--translateY, -100px));
+  transform: translate(calc(var(--translateX, 0) * 1px), calc(var(--translateY, 0px) * 1px));
+  opacity: var(--translateX);
   pointer-events: none;
 
   .value {
