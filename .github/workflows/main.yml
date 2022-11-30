@@ -25,4 +25,4 @@ jobs:
         with:
           version: 2.5.2
           command: app sync prod-mavryk-indexer
-          options: --dry-run --server-side --prune --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.logLevel }}
+          options: --dry-run --server-side --prune --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.revision }}
