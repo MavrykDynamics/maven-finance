@@ -12,7 +12,7 @@ spec:
       - name: '{{ $value.dipdup.image.pullSecret }}'
       containers:
       - name: wipe-dipdup-database
-        args: ['-c', 'dipdup.yml', 'schema', 'wipe', '--force']
+        args: ['-c', 'no-hasura.dipdup.yml', 'schema', 'wipe', '--force']
         env:
         {{- range $value.dipdup.env }}
           - name: {{ .name }}
