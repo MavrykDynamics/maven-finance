@@ -25,7 +25,7 @@ export const clickSlide = keyframes`
 `
 export const SlidingTabButtonsStyled = styled.div<{ theme: MavrykTheme }>`
   background-color: ${darkColor};
-  border: 1px solid ${royalPurpleColor};
+  border: 1px solid ${({ theme }) => theme.lPurple_dPurple_lPuprple};
   display: flex;
   justify-content: space-evenly;
   align-items: center;
@@ -52,8 +52,6 @@ export const SlidingTabButtonsStyled = styled.div<{ theme: MavrykTheme }>`
 
 export const ButtonStyled = styled.button<{ disabled: boolean; theme: MavrykTheme }>`
   border: none;
-  font-weight: bold;
-  font-size: 14px;
   cursor: pointer;
   height: 36px;
   width: max-content;
@@ -87,10 +85,11 @@ export const ButtonText = styled.div<{ theme: MavrykTheme }>`
     text-align: center;
     margin: auto;
     display: inline-block;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 16px;
     vertical-align: top;
+
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 21px;
   }
   &.${PRIMARY} {
     color: ${({ theme }) => theme.textColor};

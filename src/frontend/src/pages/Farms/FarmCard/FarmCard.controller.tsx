@@ -164,7 +164,7 @@ const FarmingBlock = ({
       {!accountPhk ? (
         <div className="start-farming">
           <h3>Start Farming</h3>
-          <ConnectWallet />
+          <ConnectWallet className={accountPhk ? 'isConnected' : ''}/>
         </div>
       ) : (
         <FarmStakeStyled className="farm-stake">

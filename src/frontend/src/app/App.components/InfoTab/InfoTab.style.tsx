@@ -34,4 +34,14 @@ export const InfoTabStyled = styled.div<{ theme: MavrykTheme }>`
       margin-left: 8px;
     }
   }
+
+  .info-icon {
+    width: 13px;
+    height: 13px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
 `

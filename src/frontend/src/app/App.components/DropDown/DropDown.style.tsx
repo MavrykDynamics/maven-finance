@@ -1,13 +1,17 @@
 import styled from 'styled-components/macro'
+import { Card } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
-import { Card, headerColor } from 'styles'
-
-export const DropDownStyled = styled.div`
+export const DropDownStyled = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
   min-width: 226px;
   margin: 0 auto;
   position: relative;
+
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 24px;
+  color: ${({ theme }) => theme.colorText}
 `
 
 export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
@@ -22,7 +26,7 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme }) => theme.cardBorderColor};
-  color: ${({ theme }) => theme.headerColor};
+  color: ${({ theme }) => theme.textColor};
   border-radius: 10px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
@@ -71,7 +75,6 @@ export const DropDownList = styled.ul<{ theme: MavrykTheme }>`
   will-change: border-color, box-shadow;
   border: 1px solid ${({ theme }) => theme.cardBorderColor};
   background-color: ${({ theme }) => theme.containerColor};
-  font-weight: 500;
   margin-top: 8px;
   z-index: 2;
 `
@@ -82,9 +85,7 @@ export const DropDownListItem = styled.li`
   display: flex;
   align-items: center;
   width: 100%;
-  color: ${({ theme }) => theme.headerColor};
-  font-weight: 400;
-  font-size: 14px;
+  color: ${({ theme }) => theme.textColor};
   padding-left: 20px;
   padding-right: 10px;
   cursor: pointer;
@@ -109,16 +110,16 @@ export const DropdownContainer = styled.div<{ theme: MavrykTheme }>`
   flex-shrink: 0;
 
   > h4 {
-    font-weight: 700;
+    font-weight: 600;
     font-size: 14px;
-    line-height: 14px;
-    color: ${({ theme }) => theme.headerColor};
+    line-height: 21px;
+    color: ${({ theme }) => theme.textColor};
     flex-shrink: 0;
     margin-right: 16px;
   }
 `
 
-export const DropdownWrap = styled.div`
+export const DropdownWrap = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   padding: 16px 30px;
   align-items: center;
@@ -127,7 +128,7 @@ export const DropdownWrap = styled.div`
     font-weight: 600;
     font-size: 22px;
     line-height: 22px;
-    color: ${headerColor};
+    color: ${({ theme }) => theme.textColor};
 
     & + div {
       width: 450px;

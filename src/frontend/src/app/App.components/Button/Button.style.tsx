@@ -17,8 +17,9 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   padding: 0;
   height: 50px;
   border: none;
-  font-weight: bold;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
   cursor: pointer;
   border-radius: ${BUTTON_RADIUS};
   will-change: box-shadow;
