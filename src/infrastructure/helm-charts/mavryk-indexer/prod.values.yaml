@@ -1,7 +1,7 @@
 instances:
   dev:
     dipdup:
-      initialWipe: False
+      initialWipe: false
       image:
         registry: docker.io
         repository: tezosdynamics/mavryk-indexer
@@ -73,7 +73,7 @@ instances:
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
   prod:
     dipdup:
-      initialWipe: False
+      initialWipe: false
       image:
         registry: docker.io
         repository: tezosdynamics/mavryk-indexer
@@ -172,7 +172,7 @@ instances:
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD
   prod2:
     dipdup:
-      initialWipe: False
+      initialWipe: false
       image:
         registry: docker.io
         repository: tezosdynamics/mavryk-indexer
