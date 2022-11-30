@@ -10,12 +10,11 @@ async def on_delegation_register_as_satellite(
     register_as_satellite: Transaction[RegisterAsSatelliteParameter, DelegationStorage],
 ) -> None:
 
-    # TODO: implement PeerId/PublicKey when deployed
-    # breakpoint()
-
     # Get operation values
     delegation_address      = register_as_satellite.data.target_address
     satellite_address       = register_as_satellite.data.sender_address
+    peer_id                 = register_as_satellite.parameter.oraclePeerId
+    public_key              = register_as_satellite.parameter.oraclePublicKey
     name                    = register_as_satellite.parameter.name
     description             = register_as_satellite.parameter.description
     image                   = register_as_satellite.parameter.image
@@ -28,29 +27,31 @@ async def on_delegation_register_as_satellite(
     delegation = await models.Delegation.get(
         address = delegation_address
     )
-    satelliteRecord, _ = await models.Satellite.get_or_create(
+    satellite_record, _ = await models.Satellite.get_or_create(
         user        = user,
         delegation  = delegation
     )
-    satelliteRecord.fee                             = fee
-    satelliteRecord.name                            = name
-    satelliteRecord.description                     = description
-    satelliteRecord.image                           = image
-    satelliteRecord.website                         = website
-    satelliteRecord.currently_registered            = True
+    satellite_record.public_key                      = public_key
+    satellite_record.peer_id                         = peer_id
+    satellite_record.fee                             = fee
+    satellite_record.name                            = name
+    satellite_record.description                     = description
+    satellite_record.image                           = image
+    satellite_record.website                         = website
+    satellite_record.currently_registered            = True
 
-    satelliteRewardRecord, _ = await models.SatelliteRewards.get_or_create(
+    satellite_reward_record, _ = await models.SatelliteRewards.get_or_create(
         user        = user,
         delegation  = delegation
     )
-    satelliteRewardRecord.unpaid                                        = float(rewards_record.unpaid)
-    satelliteRewardRecord.paid                                          = float(rewards_record.paid)
-    satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
-    satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+    satellite_reward_record.unpaid                                        = float(rewards_record.unpaid)
+    satellite_reward_record.paid                                          = float(rewards_record.paid)
+    satellite_reward_record.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
+    satellite_reward_record.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
 
     await user.save()
-    await satelliteRecord.save()
-    await satelliteRewardRecord.save()
+    await satellite_record.save()
+    await satellite_reward_record.save()
 
-    satelliteRewardRecord.reference                                     = satelliteRewardRecord
-    await satelliteRewardRecord.save()
+    satellite_reward_record.reference                                     = satellite_reward_record
+    await satellite_reward_record.save()

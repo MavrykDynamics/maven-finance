@@ -102,6 +102,7 @@ class LendingControllerCollateralToken(Model):
     token_address                           = fields.CharField(max_length=36, default="", index=True)
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='lending_controller_collateral_token_oracles', null=True, index=True)
     protected                               = fields.BooleanField(default=False, index=True)
+    is_scaled_token                         = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'lending_controller_collateral_token'

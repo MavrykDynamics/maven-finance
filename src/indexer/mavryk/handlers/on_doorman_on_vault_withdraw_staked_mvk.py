@@ -61,7 +61,7 @@ async def on_doorman_on_vault_withdraw_staked_mvk(
     doorman_user        = await models.mavryk_user_cache.get(address=doorman_address)
     smvk_total_supply   = doorman_user.mvk_balance
     smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
-    avg_smvk_per_user   = smvk_total_supply / smvk_users
+    avg_smvk_per_user   = float(smvk_total_supply) / float(smvk_users)
     await doorman_user.save()
 
     # Create two stake records
