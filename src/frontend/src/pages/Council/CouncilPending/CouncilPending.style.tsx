@@ -189,6 +189,13 @@ export const CouncilPendingStyled = styled(Card)`
       border-radius: 50%;
     }
   }
+
+  .no-wrap {
+    max-width: 125px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 `
 
 export const CouncilPendingReviewStyled = styled(Card)`

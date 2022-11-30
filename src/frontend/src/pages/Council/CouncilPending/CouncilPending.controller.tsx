@@ -310,32 +310,6 @@ export const CouncilPending = (props: Props) => {
     )
   }
 
-  // 1/3
-  if (isSetAllContractsAdmin) {
-    const newAdminAddress = findActionByName('newAdminAddress')
-    return (
-      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{cardNumber}</span>
-        <h3>{getSeparateCamelCase(actionType)}</h3>
-        <div className="parameters">
-          <div>
-            <p>New Admin Addres</p>
-            <span className="parameters-value">
-              <TzAddress tzAddress={newAdminAddress} hasIcon={false} />
-            </span>
-          </div>
-          <div>
-            <p>Signed</p>
-            <span className="parameters-value">
-              {signersCount}/{numCouncilMembers}
-            </span>
-          </div>
-        </div>
-        <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-      </CouncilPendingStyled>
-    )
-  }
-
   // 2/3
   if (isSetSingleContractAdmin) {
     const newAdminAddress = findActionByName('newAdminAddress')
@@ -374,32 +348,6 @@ export const CouncilPending = (props: Props) => {
 
           <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
         </div>
-      </CouncilPendingStyled>
-    )
-  }
-
-  // 1/3
-  if (isSignAction) {
-    const breakGlassActionId = findActionByName('breakGlassActionId')
-    return (
-      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{cardNumber}</span>
-        <h3>{getSeparateCamelCase(actionType)}</h3>
-        <div className="parameters">
-          <div>
-            <p>Break Glass Action ID</p>
-            <span className="parameters-value">
-              <TzAddress tzAddress={breakGlassActionId} hasIcon={false} />
-            </span>
-          </div>
-          <div>
-            <p>Signed</p>
-            <span className="parameters-value">
-              {signersCount}/{numCouncilMembers}
-            </span>
-          </div>
-        </div>
-        <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
       </CouncilPendingStyled>
     )
   }
@@ -704,38 +652,16 @@ export const CouncilPending = (props: Props) => {
     )
   }
 
-  // 1/3
-  if (isDropFinancialRequest) {
-    return (
-      <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <span className='number'>{cardNumber}</span>
-        <h3>{getSeparateCamelCase(actionType)}</h3>
-        <div className="parameters">
-          <div>
-            <p>Request ID</p>
-            <span className="parameters-value">{findActionByName('requestId')}</span>
-          </div>
-          <div>
-            <p>Signed</p>
-            <span className="parameters-value">
-              {signersCount}/{numCouncilMembers}
-            </span>
-          </div>
-        </div>
-        <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-      </CouncilPendingStyled>
-    )
-  }
-
-  // 1/3
-  if (isRemoveVestee || isToggleVesteeLock || isRemoveCouncilMember) {
+  // 1/3 
+  // for general card with only address field
+  if (isRemoveVestee || isToggleVesteeLock || isRemoveCouncilMember || isSignAction || isSetAllContractsAdmin) {
     return (
       <CouncilPendingStyled className={`${actionType} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
         <span className='number'>{cardNumber}</span>
         <h3>{getSeparateCamelCase(actionType)}</h3>
           <div className="parameters">
             <div>
-              <p className='parameters-name'>Address</p>
+              <p className='parameters-name'>{getSeparateCamelCase(name)}</p>
               <span className="parameters-value">
                 <TzAddress tzAddress={value} hasIcon={false} />
               </span>
@@ -758,7 +684,7 @@ export const CouncilPending = (props: Props) => {
       <h3>{getSeparateCamelCase(actionType)}</h3>
       <div className="parameters">
         <div>
-          <p className='parameters-name'>{getSeparateCamelCase(name)}</p>
+          <p className='parameters-name no-wrap'>{getSeparateCamelCase(name)}</p>
           <span className="parameters-value">
             {value}
           </span>
