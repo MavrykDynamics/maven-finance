@@ -56,30 +56,38 @@ jobs:
   setup-app:
     runs-on: ubuntu-latest
     steps:
+      - name: extract-branch-name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: update-docker-image
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
           command: app set prod-mavryk-indexer
-          options: -p instances.${{ github.event.inputs.environment }}.dipdup.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
+          options: -p instances.${{ github.event.inputs.environment }}.dipdup.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
       - name: update-ingress
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
           command: app set prod-mavryk-indexer
-          options: -p instances.prod.hasura.ingress.service.name=${{ github.event.inputs.prodService }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
+          options: -p instances.prod.hasura.ingress.service.name=${{ github.event.inputs.prodService }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
       - name: create-wipe-database-pod
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
           command: app set prod-mavryk-indexer
-          options: -p instances.${{ github.event.inputs.environment }}.dipdup.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
+          options: -p instances.${{ github.event.inputs.environment }}.dipdup.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
   dry-run:
     runs-on: ubuntu-latest
     steps:
+      - name: extract-branch-name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: dry-run-sync
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
           command: app sync prod-mavryk-indexer
-          options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --dry-run --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
+          options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --dry-run --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
