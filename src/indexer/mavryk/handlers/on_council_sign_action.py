@@ -46,12 +46,11 @@ async def on_council_sign_action(
     # Update the status if there are multiple records (flush)
     if len(sign_action.storage.councilActionsLedger) > 1:
         for single_action_id in sign_action.storage.councilActionsLedger:
-            action_status           = sign_action.storage.councilActionsLedger[single_action_id].status
             single_action_record    = await models.CouncilAction.get(
                 council     = council,
                 id          = single_action_id
             )
-            status                  = action_status.status
+            status                  = sign_action.storage.councilActionsLedger[single_action_id]
             # Select correct status
             status_type = models.ActionStatus.PENDING
             if status == "FLUSHED":
