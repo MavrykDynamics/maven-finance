@@ -28,20 +28,10 @@ on:
         default: false
         required: false
         description: '(optional) Wipe database (needed when schema changed)'
-      dipdupExtraConfig:
-        description: '(optional) Dipdup Extra Config (leave blank to disable config update)'
-        required: false
 jobs:
   dry-run:
     runs-on: ubuntu-latest
     steps:
-      - name: config-update
-        if: "${{ github.event.inputs.dipdupExtraConfig != '' }}"
-        uses: clowdhaus/argo-cd-action/@v1.9.0
-        with:
-          version: 2.5.2
-          command: app set prod-mavryk-indexer instances.${{ github.event.inputs.environment }}.dipdup.extraConfig=${{ github.event.inputs.dipdupExtraConfig }}
-          options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.revision }}
       - name: ingress-update
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
