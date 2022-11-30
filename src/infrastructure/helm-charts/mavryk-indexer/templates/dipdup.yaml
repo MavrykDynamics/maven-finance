@@ -71,10 +71,6 @@ spec:
           {{- end }}
           image: '{{ $value.dipdup.image.registry }}/{{ $value.dipdup.image.repository }}:{{ $value.dipdup.image.tag }}'
           imagePullPolicy: '{{ $value.dipdup.image.pullPolicy }}'
-          volumeMounts:
-            - name: config-volume
-              mountPath: /mavryk/dipdup.yml
-              subPath: dipdup.yml
       {{- end }}
       containers:
         - name: dipdup-{{ $key }}
@@ -97,12 +93,4 @@ spec:
             - name: metrics
               containerPort: 9090
               protocol: TCP
-          volumeMounts:
-            - name: config-volume
-              mountPath: /mavryk/dipdup.yml
-              subPath: dipdup.yml
-      volumes:
-        - name: config-volume
-          configMap:
-            name: 'dipdup-{{ $key }}-config'
 {{- end }}
