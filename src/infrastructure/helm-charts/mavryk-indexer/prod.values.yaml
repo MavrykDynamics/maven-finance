@@ -6,7 +6,7 @@ instances:
         registry: docker.io
         repository: tezosdynamics/mavryk-indexer
         tag: v0.25.1
-        pullPolicy: Always
+        pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
         serviceMonitor:
@@ -78,7 +78,7 @@ instances:
         registry: docker.io
         repository: tezosdynamics/mavryk-indexer
         tag: v0.25.1
-        pullPolicy: Always
+        pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
         serviceMonitor:
@@ -177,7 +177,7 @@ instances:
         registry: docker.io
         repository: tezosdynamics/mavryk-indexer
         tag: v0.25.1
-        pullPolicy: Always
+        pullPolicy: IfNotPresent
         pullSecret: docker-pull-credentials
       metrics:
         serviceMonitor:
