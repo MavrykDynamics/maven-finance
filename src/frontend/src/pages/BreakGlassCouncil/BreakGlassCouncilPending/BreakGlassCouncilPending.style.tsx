@@ -125,6 +125,10 @@ export const BreakGlassCouncilPendingStyled = styled(Card)`
       padding-bottom: 20px;
     }
 
+    .parameters-name {
+      text-transform: capitalize;
+    }
+
     .parameters-value,
     .parameters-value p {
       margin: 0;

@@ -29,6 +29,7 @@ export const BreakGlassCouncilPending = (props: Props) => {
   const dispatch = useDispatch()
   const { id, actionType, signersCount, numCouncilMembers, councilPendingActionsLength, parameters, index } = props
   const cardNumber = index + 1
+  const { name, value } = parameters?.[0]
 
   const handleSign = () => {
     if (id) {
@@ -352,6 +353,12 @@ export const BreakGlassCouncilPending = (props: Props) => {
       <span className='number'>{cardNumber}</span>
       <h3>{getSeparateCamelCase(actionType)}</h3>
       <div className="parameters">
+        <div>
+          <p className='parameters-name'>{getSeparateCamelCase(name)}</p>
+          <span className="parameters-value">
+            {value}
+          </span>
+        </div>
         <div>
           <p>Signed</p>
           <span className="parameters-value">
