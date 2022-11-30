@@ -99,6 +99,6 @@ data:
 
     # Creates a new backup
     echo 💾 Creating a new backup: $BACKUP_FOLDER/$FILE_NAME
-    pg_dump -h $PGHOST -p $PGPORT -U $PGUSER -f $BACKUP_FOLDER/$FILE_NAME -d {{ $value.dipdup.database.name }}
+    pg_dump -h $PGHOST -p $PGPORT -U $PGUSER -f $BACKUP_FOLDER/$FILE_NAME -d $POSTGRES_DB
 {{- end }}
 {{- end }}
