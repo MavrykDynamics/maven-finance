@@ -80,7 +80,9 @@ export const SatelliteDetailsView = ({
   satelliteMetrics,
 }: SatelliteDetailsViewProps) => {
   const { satelliteId } = useParams<{ satelliteId: string }>()
-  const { satelliteMvkIsDelegatedTo } = useSelector((state: State) => state.user)
+  const {
+    user: { satelliteMvkIsDelegatedTo },
+  } = useSelector((state: State) => state.wallet)
   const isSameId = satellite?.address === satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
 

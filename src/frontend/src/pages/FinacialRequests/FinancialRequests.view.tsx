@@ -44,8 +44,10 @@ type FinancialRequestsViewProps = {
 export const FinancialRequestsView = ({ financialRequestsList = [] }: FinancialRequestsViewProps) => {
   const dispatch = useDispatch()
   const { dipDupTokens } = useSelector((state: State) => state.tokens)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { isSatellite: isUserSatellite } = useSelector((state: State) => state.user)
+  const {
+    accountPkh,
+    user: { isSatellite: isUserSatellite },
+  } = useSelector((state: State) => state.wallet)
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
 

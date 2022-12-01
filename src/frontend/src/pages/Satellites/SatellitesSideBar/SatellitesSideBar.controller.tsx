@@ -9,8 +9,10 @@ import SatellitesSideBarView from './SatellitesSideBar.view'
 
 const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const dispatch = useDispatch()
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { isSatellite } = useSelector((state: State) => state.user)
+  const {
+    accountPkh,
+    user: { isSatellite },
+  } = useSelector((state: State) => state.wallet)
   const {
     delegationStorage: { oraclesAmount, satelliteLedger, activeSatellites },
   } = useSelector((state: State) => state.delegation)

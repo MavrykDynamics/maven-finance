@@ -36,7 +36,7 @@ export const DataFeeds = () => {
   const dispatch = useDispatch()
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const { feedCategories } = oraclesStorage
-  const loading = useSelector((state: State) => Boolean(state.loading))
+  const loading = useSelector((state: State) => state.loading.isLoading)
 
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [searchInputValue, setSearchInput] = useState('')
@@ -90,7 +90,7 @@ export const DataFeeds = () => {
             <h4>Category:</h4>
             <DropDown
               clickOnDropDown={() => setDdIsOpen(!ddIsOpen)}
-              placeholder='Choose category'
+              placeholder="Choose category"
               isOpen={ddIsOpen}
               setIsOpen={setDdIsOpen}
               itemSelected={chosenDdItem}

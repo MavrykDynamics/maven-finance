@@ -51,12 +51,12 @@ export const suspendSatellite =
   (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -101,12 +101,12 @@ export const unsuspendSatellite =
   (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -151,12 +151,12 @@ export const banSatellite =
   (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -201,12 +201,12 @@ export const unbanSatellite =
   (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -251,12 +251,12 @@ export const removeOracles =
   (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -302,12 +302,12 @@ export const removeOracleInAggregator =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -355,12 +355,12 @@ export const addOracleToAggregator =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -406,12 +406,12 @@ export const setAggregatorMaintainer =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -458,12 +458,12 @@ export const dropAction =
   (actionId: number, callback: () => void) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -509,12 +509,12 @@ export const voteForAction =
   (actionId: number, voteType: string, callback: () => void) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -560,12 +560,12 @@ export const restoreSatellite =
   (satelliteAddress: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -610,12 +610,12 @@ export const updateAggregatorStatus =
   (aggregatorAddress: string, status: string, purpose: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -660,12 +660,12 @@ export const registerAggregator =
   (aggregatorPair: string, aggregatorAddress: string) => async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
@@ -712,12 +712,12 @@ export const fixMistakenTransfer =
   async (dispatch: AppDispatch, getState: GetState) => {
     const state: State = getState()
 
-    if (!state.wallet.ready) {
+    if (!state.wallet.accountPkh) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
-    if (state.loading) {
+    if (state.loading.isLoading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
